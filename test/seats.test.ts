@@ -144,3 +144,21 @@ test("buildChildArgv produces json print-mode invocation", () => {
 		"do the thing",
 	]);
 });
+
+test("mcp frontmatter field parses as list", () => {
+	const seat = parseSeatFile(
+		`---\nname: x\ndescription: d\nmodel: m\nmcp: [a, b]\n---\nbody`,
+		"x.md",
+	);
+	expect(seat.mcp).toEqual(["a", "b"]);
+});
+
+test("seats without mcp field default to no MCP access", () => {
+	expect(loadSeat(tmpRepo(), "owner").mcp).toEqual([]);
+});
+
+test("buildChildArgv appends granted mcp tool names to --tools", () => {
+	const owner = loadSeat(tmpRepo(), "owner");
+	const argv = buildChildArgv(owner, "go", "/tmp/p.md", ["mcp__context7__search", "mcp__context7__docs"]);
+	expect(argv).toContain("read,bash,edit,write,grep,find,ls,mcp__context7__search,mcp__context7__docs");
+});

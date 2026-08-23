@@ -5,6 +5,7 @@ import { CONFIG_DIR_NAME, type ExtensionAPI } from "@earendil-works/pi-coding-ag
 import { Type } from "typebox";
 import { Hub, type JobReport } from "./hub.ts";
 import { buildChildArgv, buildSystemPrompt, loadSeat, proceduresDir } from "./seats.ts";
+import { getMcpManager } from "./mcp/index.ts";
 
 export interface HubToolOptions {
 	allowedSeats?: string[];
@@ -98,6 +99,19 @@ export function registerHubTools(pi: ExtensionAPI, repoRoot: string, opts: HubTo
 					isError: true,
 				};
 			}
+			// --tools is an exact-name allowlist: enumerate granted MCP tools here.
+			// Servers the parent could not connect contribute nothing → warn.
+			const mcpToolNames: string[] = [];
+			const mcpWarnings: string[] = [];
+			for (const server of seat.mcp ?? []) {
+				const names = getMcpManager(repoRoot).listToolNames(server);
+				if (names.length === 0) {
+					mcpWarnings.push(
+						`seat grants MCP server "${server}" but it is not connected — its tools are unavailable for this dispatch`,
+					);
+				}
+				mcpToolNames.push(...names);
+			}
 			const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "council-"));
 			const promptFile = path.join(tmpDir, "system.md");
 			fs.writeFileSync(promptFile, buildSystemPrompt(repoRoot, seat, proceduresDir(repoRoot)), { mode: 0o600 });
@@ -105,7 +119,7 @@ export function registerHubTools(pi: ExtensionAPI, repoRoot: string, opts: HubTo
 			const job = hub.spawnJob({
 				seat: seat.name,
 				command: "pi",
-				args: buildChildArgv(seat, params.input, promptFile),
+				args: buildChildArgv(seat, params.input, promptFile, mcpToolNames),
 				cwd: repoRoot,
 				env: { ...process.env, COUNCIL_SEAT: seat.name } as Record<string, string>,
 				timeoutMs: (params.timeout_minutes ?? 15) * 60_000,
@@ -122,7 +136,9 @@ export function registerHubTools(pi: ExtensionAPI, repoRoot: string, opts: HubTo
 				content: [
 					{
 						type: "text",
-						text: `Dispatched ${seat.name} as ${job.id} (pid ${job.pid}). Use council_wait to collect.`,
+						text:
+							`Dispatched ${seat.name} as ${job.id} (pid ${job.pid}). Use council_wait to collect.` +
+							(mcpWarnings.length > 0 ? `\n⚠ ${mcpWarnings.join("\n⚠ ")}` : ""),
 					},
 				],
 				details: { jobId: job.id, seat: seat.name },

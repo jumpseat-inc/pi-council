@@ -40,3 +40,23 @@ test("consolidator: only read", () => {
 		expect(isCallAllowed(c, t)).toBe(false);
 	}
 });
+
+test("mcp grants: granted server's tools allowed, others blocked", () => {
+	const dir = path.join(root, ".pi", "agents");
+	fs.mkdirSync(dir, { recursive: true });
+	fs.writeFileSync(
+		path.join(dir, "mcpseat.md"),
+		"---\nname: mcpseat\ndescription: d\nmodel: openrouter/test/m\ntools: Read\nmcp: [context7]\n---\nbody",
+	);
+	const s = loadSeat(root, "mcpseat");
+	expect(s.mcp).toEqual(["context7"]);
+	expect(isCallAllowed(s, "mcp__context7__resolve-library-id")).toBe(true);
+	expect(isCallAllowed(s, "mcp__other__tool")).toBe(false);
+	expect(isCallAllowed(s, "read")).toBe(true);
+});
+
+test("seat without mcp field gets zero MCP access", () => {
+	const j = loadSeat(root, "judge");
+	expect(j.mcp).toEqual([]);
+	expect(isCallAllowed(j, "mcp__context7__search")).toBe(false);
+});

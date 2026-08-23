@@ -10,6 +10,7 @@ export interface Seat {
 	thinkingLevel?: string;
 	tools: string[];
 	spawns: string[];
+	mcp: string[];
 	body: string;
 }
 
@@ -55,6 +56,7 @@ export function parseSeatFile(content: string, fileName: string): Seat {
 		thinkingLevel,
 		tools: fields.tools ? parseList(fields.tools) : [],
 		spawns: fields.spawns ? parseList(fields.spawns) : [],
+		mcp: fields.mcp ? parseList(fields.mcp) : [],
 		body: body.trim(),
 	};
 }
@@ -127,12 +129,14 @@ export function buildSystemPrompt(repoRoot: string, seat: Seat, procDir: string)
 	].join("\n\n");
 }
 
-export function buildChildArgv(seat: Seat, input: string, promptFile: string): string[] {
+export function buildChildArgv(seat: Seat, input: string, promptFile: string, mcpTools: string[] = []): string[] {
 	// -a: trust project-local files — the child runs headless in the same repo
 	// the (already-trusted) parent dispatched from, so project extensions load.
+	// --tools is an exact-name allowlist: granted MCP tool names are enumerated
+	// here so the model can see and call them after the child registers them.
 	const argv = ["--mode", "json", "-p", "-a", "--no-session", "--model", seat.model];
 	if (seat.thinkingLevel) argv.push("--thinking", seat.thinkingLevel);
-	argv.push("--tools", builtinToolsFor(seat).join(","));
+	argv.push("--tools", [...builtinToolsFor(seat), ...mcpTools].join(","));
 	argv.push("--append-system-prompt", promptFile);
 	argv.push(input);
 	return argv;
