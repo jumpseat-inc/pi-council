@@ -83,6 +83,17 @@ docs/superpowers/    design spec + implementation plan (read before big changes)
     dispatch time; seats register them eagerly at startup. Never reintroduce
     lazy MCP connect in seats.
 
+## Commits
+
+- Commit messages **MUST** follow the [Conventional Commits](https://www.conventionalcommits.org)
+  format: `type(scope): short imperative summary` (e.g. `feat(mcp): ...`,
+  `docs: ...`, `fix(hub): ...`). Scope is optional.
+- Rewriting history is forbidden on `main`; the git history is the release
+  record — wip/nonsense commits on `main` are a contract violation.
+- Breaking changes must use `!` (e.g. `feat!: ...`) and be mirrored in the
+  `version` bump (semver). Bump `version` in `package.json` in the same PR as
+  the behavior change.
+
 ## Testing conventions
 
 - Tests use `bun:test`, live in `test/`, and import engine modules via
