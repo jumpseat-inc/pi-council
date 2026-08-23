@@ -1,0 +1,24 @@
+{
+	"name": "pi-council",
+	"version": "0.1.0",
+	"description": "Multi-agent Council deliberation/delivery system with an integrated LLM wiki, for pi",
+	"keywords": ["pi-package"],
+	"license": "MIT",
+	"type": "module",
+	"pi": { "extensions": ["./extensions"] },
+	"peerDependencies": {
+		"@earendil-works/pi-coding-agent": "*",
+		"typebox": "*"
+	},
+	"devDependencies": {
+		"@earendil-works/pi-coding-agent": "*",
+		"@types/bun": "^1",
+		"@types/node": "^22",
+		"typebox": "*",
+		"typescript": "^5"
+	},
+	"scripts": {
+		"test": "bun test",
+		"typecheck": "tsc --noEmit"
+	}
+}
