@@ -4,6 +4,7 @@ import * as os from "node:os";
 import * as path from "node:path";
 import { scaffoldInto } from "../extensions/scaffold.ts";
 import { PKG_ROOT } from "../extensions/seats.ts";
+import { loadMcpConfig } from "../extensions/mcp/config.ts";
 
 const SCAFFOLD = path.join(PKG_ROOT, "council", "scaffold");
 
@@ -28,4 +29,28 @@ test("first run creates everything, second run skips everything", () => {
 	expect(createdFiles).toEqual([]);
 	expect(second.skipped).toContain("council/board.md");
 	expect(fs.readFileSync(path.join(root, "council", "board.md"), "utf-8")).toContain("<!-- mine -->");
+});
+
+test("scaffold writes context7 mcp.json and renders @CONFIG_DIR@ in preflight", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-init-c7-"));
+	const first = scaffoldInto(root, SCAFFOLD);
+	expect(first.created).toContain(".pi/council/mcp.json");
+	expect(first.skipped).toEqual([]);
+
+	const cfg = loadMcpConfig(root);
+	expect(cfg.servers["context7"]).toBeDefined();
+	expect(cfg.servers["context7"]?.url).toBe("https://mcp.context7.com/mcp/oauth");
+	expect(cfg.servers["context7"]?.auth).toBe("oauth");
+	expect(cfg.servers["context7"]?.enabled).toBe(true);
+
+	const preflight = fs.readFileSync(path.join(root, "council", "preflight.sh"), "utf-8");
+	expect(preflight).toContain(".pi/council/mcp.json");
+	expect(preflight).not.toContain("@CONFIG_DIR@");
+
+	// rerun: user edits survive, nothing new created
+	fs.appendFileSync(path.join(root, ".pi", "council", "mcp.json"), "\n");
+	const second = scaffoldInto(root, SCAFFOLD);
+	const createdFiles = second.created.filter((c) => c !== "vault/raw" && c !== "vault/wiki/sources");
+	expect(createdFiles).toEqual([]);
+	expect(second.skipped).toContain(".pi/council/mcp.json");
 });

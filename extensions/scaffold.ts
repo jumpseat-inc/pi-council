@@ -1,5 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { CONFIG_DIR_NAME } from "@earendil-works/pi-coding-agent";
 
 export interface ScaffoldResult {
 	created: string[];
@@ -8,6 +9,21 @@ export interface ScaffoldResult {
 
 /** Directories that carry no tracked files but the workflow expects to exist. */
 const EMPTY_DIRS = ["vault/raw", "vault/wiki/sources"];
+
+/** Default MCP registration written by council-init so Context7 is available
+ * out of the box. Consumers override by editing .pi/council/mcp.json. */
+const DEFAULT_MCP_CONFIG = {
+	servers: {
+		context7: { url: "https://mcp.context7.com/mcp/oauth", auth: "oauth", enabled: true },
+	},
+};
+
+/** Static placeholders replaced into copied text files. Token → value. */
+const RENDER: Record<string, string> = { "@CONFIG_DIR@": CONFIG_DIR_NAME };
+
+function renderScaffoldText(content: string): string {
+	return content.replace(/\@CONFIG_DIR@/g, RENDER["@CONFIG_DIR@"] ?? "");
+}
 
 /**
  * Copy scaffoldRoot into repoRoot, recursively, never overwriting.
@@ -34,7 +50,12 @@ export function scaffoldInto(repoRoot: string, scaffoldRoot: string): ScaffoldRe
 					result.skipped.push(childRel);
 				} else {
 					fs.mkdirSync(path.dirname(dst), { recursive: true });
-					fs.copyFileSync(path.join(src, entry.name), dst);
+					const srcPath = path.join(src, entry.name);
+					if (entry.name === "preflight.sh") {
+						fs.writeFileSync(dst, renderScaffoldText(fs.readFileSync(srcPath, "utf-8")));
+					} else {
+						fs.copyFileSync(srcPath, dst);
+					}
 					result.created.push(childRel);
 				}
 			}
@@ -48,6 +69,18 @@ export function scaffoldInto(repoRoot: string, scaffoldRoot: string): ScaffoldRe
 			fs.mkdirSync(dst, { recursive: true });
 			result.created.push(dir);
 		}
+	}
+
+	// Non-clobbering default MCP registration: Context7 by default unless the
+	// consumer already has (or wrote) their own mcp.json.
+	const mcpRel = path.join(CONFIG_DIR_NAME, "council", "mcp.json");
+	const mcpDst = path.join(repoRoot, mcpRel);
+	if (fs.existsSync(mcpDst)) {
+		result.skipped.push(mcpRel);
+	} else {
+		fs.mkdirSync(path.dirname(mcpDst), { recursive: true });
+		fs.writeFileSync(mcpDst, JSON.stringify(DEFAULT_MCP_CONFIG, null, 2) + "\n");
+		result.created.push(mcpRel);
 	}
 	return result;
 }
