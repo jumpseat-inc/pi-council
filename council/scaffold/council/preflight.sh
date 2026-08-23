@@ -34,23 +34,25 @@ if [ "$branch" != "main" ]; then
   ok "history is up to date with origin/main"
 fi
 
-# ---- Context7 (MCP) gate ----
-# The scaffold writes @CONFIG_DIR@/council/mcp.json registering context7.
-# Structural check only: registration present + stored credentials present. A
-# real OAuth re-auth/live-token probe is out of scope for preflight. Any
-# FAIL: line must halt the run. (@CONFIG_DIR@ is replaced with the real
-# config-dir name by council-init at copy time; the agent-auth path honors
-# $PI_CODING_AGENT_DIR.)
-c7_mcp="@CONFIG_DIR@/council/mcp.json"
-if [ ! -f "$c7_mcp" ] || ! grep -q '"context7"' "$c7_mcp" 2>/dev/null; then
-  fail "context7 not registered (missing or no entry in $c7_mcp) — run /council-init"
-fi
-ok "context7 registered"
+# ---- MCP gate (context7, tavily) ----
+# The scaffold writes @CONFIG_DIR@/council/mcp.json registering context7 and
+# tavily. Structural check only: registration present + stored credentials
+# present for each. A real OAuth re-auth/live-token probe is out of scope for
+# preflight. Any FAIL: line must halt the run. (@CONFIG_DIR@ is replaced with
+# the real config-dir name by council-init at copy time; the agent-auth path
+# honors $PI_CODING_AGENT_DIR.)
+for c7 in context7 tavily; do
+  c7_mcp="@CONFIG_DIR@/council/mcp.json"
+  if [ ! -f "$c7_mcp" ] || ! grep -q "\"$c7\"" "$c7_mcp" 2>/dev/null; then
+    fail "$c7 not registered (missing or no entry in $c7_mcp) — run /council-init"
+  fi
+  ok "$c7 registered"
 
-c7_auth="${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}/council/mcp-auth.json"
-if [ ! -f "$c7_auth" ] || ! grep -q '"context7"' "$c7_auth" 2>/dev/null; then
-  fail "context7 not authenticated — no stored credentials in $c7_auth — run /mcp login context7"
-fi
-ok "context7 authenticated (stored credentials present)"
+  c7_auth="${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}/council/mcp-auth.json"
+  if [ ! -f "$c7_auth" ] || ! grep -q "\"$c7\"" "$c7_auth" 2>/dev/null; then
+    fail "$c7 not authenticated — no stored credentials in $c7_auth — run /mcp login $c7"
+  fi
+  ok "$c7 authenticated (stored credentials present)"
+done
 
 echo "PASS: preflight clean"

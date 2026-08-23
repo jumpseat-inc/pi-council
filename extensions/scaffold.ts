@@ -10,11 +10,12 @@ export interface ScaffoldResult {
 /** Directories that carry no tracked files but the workflow expects to exist. */
 const EMPTY_DIRS = ["vault/raw", "vault/wiki/sources"];
 
-/** Default MCP registration written by council-init so Context7 is available
- * out of the box. Consumers override by editing .pi/council/mcp.json. */
+/** Default MCP registrations written by council-init so Context7 and Tavily are
+ * available out of the box. Consumers override by editing .pi/council/mcp.json. */
 const DEFAULT_MCP_CONFIG = {
 	servers: {
 		context7: { url: "https://mcp.context7.com/mcp/oauth", auth: "oauth", enabled: true },
+		tavily: { url: "https://mcp.tavily.com/mcp", auth: "oauth", enabled: true },
 	},
 };
 
