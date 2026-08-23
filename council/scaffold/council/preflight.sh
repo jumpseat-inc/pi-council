@@ -55,4 +55,19 @@ for c7 in context7 tavily; do
   ok "$c7 authenticated (stored credentials present)"
 done
 
+# ---- OpenRouter (model provider) gate ----
+# Seats pin OpenRouter models by default, so the provider must be authorized
+# for pi. pi resolves an API key from ambient OPENROUTER_API_KEY or a stored
+# api_key credential for provider "openrouter" in the agent auth.json (env
+# honored via $PI_CODING_AGENT_DIR). Seats inherit the same environment, so
+# this one check covers parent + seat children. Structural only: verifies a
+# key source exists, not that a live request succeeds.
+if [ -n "${OPENROUTER_API_KEY:-}" ]; then
+  ok "openrouter authorized (OPENROUTER_API_KEY set)"
+elif [ -f "${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}/auth.json" ] && grep -q '"openrouter"' "${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}/auth.json" && grep -q '"api_key"' "${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}/auth.json"; then
+  ok "openrouter authorized (stored api_key in auth.json)"
+else
+  fail "openrouter not authorized — set OPENROUTER_API_KEY or run /login openrouter in pi, then re-run preflight"
+fi
+
 echo "PASS: preflight clean"
