@@ -154,7 +154,7 @@ test("mcp frontmatter field parses as list", () => {
 });
 
 test("seats without mcp field default to no MCP access", () => {
-	expect(loadSeat(tmpRepo(), "owner").mcp).toEqual([]);
+	expect(loadSeat(tmpRepo(), "product-owner").mcp).toEqual([]);
 });
 
 test("buildChildArgv appends granted mcp tool names to --tools", () => {

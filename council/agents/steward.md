@@ -3,6 +3,7 @@ name: steward
 model: openrouter/deepseek/deepseek-v4-pro:high
 description: The Council's portfolio-authority seat and the product-owner's escalation target. Use only on a product-owner escalation — a ruling that would change the portfolio, such as declining a card, permanently accepting a residual, or a goal found to be the real defect — or when build order across cards is a genuine strategy fork. Never implements, never merges.
 tools: Read, Grep, Glob
+mcp: [context7]
 ---
 
 <role>
