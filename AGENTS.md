@@ -68,6 +68,12 @@ docs/superpowers/    design spec + implementation plan (read before big changes)
    (`Read`, `Grep`, `Glob`, `Edit`, `Write`, `Bash`, `task`, `hub`) mapped to
    pi built-ins by `BUILTIN_MAP` in `seats.ts`. Don't rename it casually —
    shipped seats and overrides both speak it.
+9. **Model output floors are data**: `council/model-floors.json` maps model id
+   → minimum output tokens, compensating for wrong catalogue metadata (today
+   exactly one entry: `deepseek/deepseek-v4-pro-0813` → 131072). Add entries
+   only when a model demonstrably dies with `stopReason=length` mid-thinking;
+   repos may extend/override via `$CONFIG_DIR_NAME/council/model-floors.json`
+   (merge semantics, repo keys win).
 
 ## Testing conventions
 

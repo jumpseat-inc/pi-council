@@ -1,6 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
+import { CONFIG_DIR_NAME, type ExtensionAPI, type ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { runChildMode } from "./child.ts";
 import { Hub } from "./hub.ts";
 import { getHub, pidFilePath, registerHubTools, shutdownHub } from "./hub-tools.ts";
@@ -8,21 +8,38 @@ import { PKG_ROOT, proceduresDir } from "./seats.ts";
 import { scaffoldInto } from "./scaffold.ts";
 
 /**
- * OpenRouter's catalogue metadata caps deepseek-v4-pro-0813 at ~4.1K output
- * tokens. With high thinking, deliberations burn the whole budget on
- * reasoning and die stopReason=length with no text. Patch max_tokens on the
- * outgoing payload so the fix travels with the package (pi's models.json is
- * user-global only). Applied in parent and every seat child.
+ * Some catalogue entries carry wrong max-output metadata — e.g. OpenRouter's
+ * deepseek-v4-pro-0813 is listed at ~4.1K output tokens, so with high thinking
+ * deliberations burn the whole budget on reasoning and die stopReason=length
+ * with no text. Floors are data, not code: council/model-floors.json (shipped,
+ * currently exactly one entry) maps model id → minimum output tokens; a repo
+ * may extend or override entries at $CONFIG_DIR_NAME/council/model-floors.json.
+ * The patch re-inflates max_tokens on the outgoing payload after pi's clamp,
+ * in the parent and every seat child.
  */
-const MAX_TOKENS_FLOOR: Record<string, number> = {
-	"deepseek/deepseek-v4-pro-0813": 131072,
-};
+export function loadModelFloors(repoRoot: string): Record<string, number> {
+	const load = (file: string): Record<string, number> => {
+		try {
+			const parsed = JSON.parse(fs.readFileSync(file, "utf-8"));
+			return parsed && typeof parsed === "object" && !Array.isArray(parsed)
+				? (parsed as Record<string, number>)
+				: {};
+		} catch {
+			return {}; // missing or malformed → no floors from this layer
+		}
+	};
+	return {
+		...load(path.join(PKG_ROOT, "council", "model-floors.json")),
+		...load(path.join(repoRoot, CONFIG_DIR_NAME, "council", "model-floors.json")),
+	};
+}
 
-function registerMaxTokensFix(pi: ExtensionAPI): void {
+function registerMaxTokensFix(pi: ExtensionAPI, repoRoot: string): void {
+	const floors = loadModelFloors(repoRoot);
 	pi.on("before_provider_request", (event: any) => {
 		const payload = event?.payload;
 		if (!payload || typeof payload.model !== "string") return;
-		const floor = MAX_TOKENS_FLOOR[payload.model];
+		const floor = floors[payload.model];
 		if (!floor) return;
 		const patched = { ...payload };
 		let changed = false;
@@ -51,7 +68,7 @@ export function renderProcedure(strippedBody: string, procDir: string, args?: st
 
 export default function (pi: ExtensionAPI) {
 	const repoRoot = process.cwd();
-	registerMaxTokensFix(pi);
+	registerMaxTokensFix(pi, repoRoot);
 	const seatName = process.env.COUNCIL_SEAT;
 	if (seatName) {
 		runChildMode(pi, repoRoot, seatName);
