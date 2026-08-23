@@ -71,6 +71,20 @@ The council refuses to run without superpowers: `preflight.sh` (run by
 project-local pin and halt with remediation if it's missing (run
 `/council-init`, then `/reload`).
 
+Every seat sees the full superpowers skill set in its system prompt. Each
+seat body points its model at the skills most relevant to its role:
+
+- `owner` — writing-plans, test-driven-development, using-git-worktrees,
+  systematic-debugging, verification-before-completion
+- `skeptic` — systematic-debugging, writing-plans, verification-before-completion
+- `council-runner` — writing/executing-plans, subagent-driven-development,
+  verification-before-completion, finishing-a-development-branch
+- `designer` — brainstorming
+- `principal` — writing-plans
+- `judge` — verification-before-completion
+`consolidator`, `product-owner`, and `steward` rule on judgment rather than
+produce artifacts, so they get no skill pointers.
+
 ## What you get
 
 **The Council** — a card-based engineering workflow. Work enters a board
