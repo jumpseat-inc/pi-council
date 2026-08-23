@@ -74,6 +74,14 @@ docs/superpowers/    design spec + implementation plan (read before big changes)
    only when a model demonstrably dies with `stopReason=length` mid-thinking;
    repos may extend/override via `$CONFIG_DIR_NAME/council/model-floors.json`
    (merge semantics, repo keys win).
+10. **MCP secrets never go in `mcp.json`** — header values entered via
+    `/mcp login` and all OAuth tokens live in `getAgentDir()/council/mcp-auth.json`
+    (0600, atomic writes). `$ENV_VAR` indirection in `mcp.json` resolves at
+    connect time and is never persisted resolved.
+11. **`--tools` is an exact-name allowlist** — seat children receive granted
+    MCP tool names (`mcp__<server>__<tool>`) enumerated by the parent at
+    dispatch time; seats register them eagerly at startup. Never reintroduce
+    lazy MCP connect in seats.
 
 ## Testing conventions
 

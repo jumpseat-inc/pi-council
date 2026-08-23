@@ -12,14 +12,15 @@
 
 ## Global Constraints
 
-- SDK import subpaths — the barrels do NOT re-export these, use subpaths exactly:
+- SDK import subpaths — the barrels do NOT re-export these; bun requires the `.js` suffix on every subpath (typecheck resolves types via the exports map):
   - `@modelcontextprotocol/sdk/client` → `Client`
-  - `@modelcontextprotocol/sdk/client/streamableHttp` → `StreamableHTTPClientTransport`
-  - `@modelcontextprotocol/sdk/client/stdio` → `StdioClientTransport`
-  - `@modelcontextprotocol/sdk/client/auth` → `auth`, `UnauthorizedError`, `OAuthClientProvider`
-  - `@modelcontextprotocol/sdk/shared/auth` → types `OAuthTokens`, `OAuthClientMetadata`, `OAuthClientInformationMixed`, `OAuthDiscoveryState`
-  - Fixtures: `@modelcontextprotocol/sdk/server/mcp` → `McpServer`; `@modelcontextprotocol/sdk/server/stdio` → `StdioServerTransport`; `@modelcontextprotocol/sdk/server/streamableHttp` → `StreamableHTTPServerTransport`
+  - `@modelcontextprotocol/sdk/client/streamableHttp.js` → `StreamableHTTPClientTransport`
+  - `@modelcontextprotocol/sdk/client/stdio.js` → `StdioClientTransport`
+  - `@modelcontextprotocol/sdk/client/auth.js` → `auth`, `UnauthorizedError`, `OAuthClientProvider`
+  - `@modelcontextprotocol/sdk/shared/auth.js` → types `OAuthTokens`, `OAuthClientMetadata`, `OAuthClientInformationMixed`, `OAuthDiscoveryState`
+  - Fixtures: `@modelcontextprotocol/sdk/server/mcp.js` → `McpServer`; `@modelcontextprotocol/sdk/server/stdio.js` → `StdioServerTransport`; `@modelcontextprotocol/sdk/server/streamableHttp.js` → `StreamableHTTPServerTransport`
   - `zod` ships as an SDK dependency and is resolvable for fixture schemas (fixtures are test-only).
+- The `typebox` peer dep is v1.x: schemas are plain JSON Schema objects (`Type.Any()` → `{}`), no Kind symbols. Assert on JSON structure in tests.
 - `getAgentDir` and `CONFIG_DIR_NAME` come from `@earendil-works/pi-coding-agent`.
 - Auth file is mode `0600`, written atomically (temp file + rename). Never write secrets into `mcp.json`. Never log token values.
 - MCP tool names are `mcp__<server>__<toolName>` (exact). pi's `--tools` flag is an exact-name allowlist; the seat child's argv must enumerate every granted MCP tool name, discovered by the parent at dispatch time.

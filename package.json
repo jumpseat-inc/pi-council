@@ -1,6 +1,6 @@
 {
 	"name": "pi-council",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "Multi-agent Council deliberation/delivery system with an integrated LLM wiki, for pi",
 	"keywords": ["pi-package"],
 	"license": "MIT",
@@ -9,6 +9,9 @@
 	"peerDependencies": {
 		"@earendil-works/pi-coding-agent": "*",
 		"typebox": "*"
+	},
+	"dependencies": {
+		"@modelcontextprotocol/sdk": "^1.30.0"
 	},
 	"devDependencies": {
 		"@earendil-works/pi-coding-agent": "*",

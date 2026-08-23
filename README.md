@@ -53,6 +53,13 @@ across cards instead of evaporating between sessions.
 | `/wiki-lint` | Health-check the wiki (contradictions, orphans, gaps) |
 | `/wiki-query <question>` | Answer from the wiki with citations |
 | `/council-jobs` | Show the background seat job table |
+| `/mcp list` | Show registered MCP servers with transport, auth mode, status, tool count |
+| `/mcp add <name> <url> [auth]` | Register a remote MCP server (`none`/`header`/`oauth`) |
+| `/mcp add <name> -- <cmd> [args…]` | Register a local stdio MCP server |
+| `/mcp remove <name>` | Unregister a server and clear its stored credentials |
+| `/mcp status <name>` | Live-connect a server and report status + tools |
+| `/mcp login <name>` | Authenticate (store header secrets, or full OAuth browser flow) |
+| `/mcp logout <name>` | Clear stored credentials |
 
 Seats run as isolated headless `pi` processes supervised by a hub
 (`council_dispatch` / `council_wait` / `council_cancel` tools), with stall
@@ -82,6 +89,16 @@ detection, timeout ceilings, and orphan-process sweeping.
   `<repository_grounding>` block: with a wiki, they consult
   `vault/wiki/index.md` before taking positions; without one, they're told to
   ground claims in the actual code.
+
+## MCP servers
+
+Seats can use tools from registered MCP servers. Servers are registered
+per-repo in `.pi/council/mcp.json` (committable); secrets and OAuth tokens
+live user-global at `~/.pi/agent/council/mcp-auth.json` (mode 600). Grant a
+seat access in its frontmatter: `mcp: [context7]`. The parent session exposes
+connected servers' tools too (`mcp__<server>__<tool>`). OAuth servers refresh
+tokens silently; when refresh fails, calls report `reauth-required` and
+`/mcp login <server>` runs the browser flow again.
 
 ## Development
 
