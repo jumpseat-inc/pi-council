@@ -1,0 +1,30 @@
+# Repo-doc manifest: path, commit, captured-date, wiki-page, type
+AGENTS.md	df1949e	2026-08-23	[[2026-08-23-agents]]	agents
+README.md	6cf6cfd	2026-08-23	[[2026-08-23-readme]]	readme
+docs/superpowers/specs/2026-08-23-pi-council-design.md	46b9784	2026-08-23	[[2026-08-23-pi-council-design-spec]]	docs
+docs/superpowers/specs/2026-08-23-mcp-support-design.md	9457278	2026-08-23	[[2026-08-23-mcp-support-design-spec]]	docs
+docs/superpowers/plans/2026-08-23-pi-council-implementation.md	d411a12	2026-08-23	[[2026-08-23-pi-council-implementation-plan]]	docs
+docs/superpowers/plans/2026-08-23-mcp-support-implementation.md	addc2f9	2026-08-23	[[2026-08-23-mcp-implementation-plan]]	docs
+docs/superpowers/plans/2026-08-23-context7-default-preflight.md	a3141df	2026-08-23	[[2026-08-23-context7-preflight-plan]]	docs
+council/agents/consolidator.md	5decfc7	2026-08-23	[[consolidator]]	seat
+council/agents/council-runner.md	6cf6cfd	2026-08-23	[[council-runner]]	seat
+council/agents/designer.md	6cf6cfd	2026-08-23	[[designer]]	seat
+council/agents/judge.md	6cf6cfd	2026-08-23	[[judge]]	seat
+council/agents/owner.md	6cf6cfd	2026-08-23	[[owner]]	seat
+council/agents/principal.md	6cf6cfd	2026-08-23	[[principal]]	seat
+council/agents/product-owner.md	5decfc7	2026-08-23	[[product-owner]]	seat
+council/agents/skeptic.md	6cf6cfd	2026-08-23	[[skeptic]]	seat
+council/agents/steward.md	69f29e2	2026-08-23	[[steward]]	seat
+council/procedures/board-create-card.md	8913c6b	2026-08-23	[[engineering-board]]	procedure
+council/procedures/features-deliver.md	8913c6b	2026-08-23	[[council-loop]]	procedure
+council/procedures/features-new.md	ac7e6c8	2026-08-23	[[engineering-board]]	procedure
+council/procedures/council.md	8913c6b	2026-08-23	[[council-loop]]	procedure
+council/procedures/wiki-ingest.md	8913c6b	2026-08-23	[[llm-wiki]]	procedure
+council/procedures/wiki-lint.md	8913c6b	2026-08-23	[[llm-wiki]]	procedure
+council/procedures/wiki-query.md	8913c6b	2026-08-23	[[llm-wiki]]	procedure
+
+council/scaffold/council/board.md	8f1882b	2026-08-23	[[engineering-board]]	template
+council/scaffold/council/cards/_template.md	8f1882b	2026-08-23	[[engineering-board]]	template
+council/scaffold/vault/CLAUDE.md	8f1882b	2026-08-23	[[llm-wiki]]	template
+council/scaffold/vault/wiki/index.md	8f1882b	2026-08-23	[[llm-wiki]]	template
+council/scaffold/vault/wiki/log.md	8f1882b	2026-08-23	[[llm-wiki]]	template
