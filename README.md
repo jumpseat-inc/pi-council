@@ -13,8 +13,9 @@ pi install git:github.com/tistaharahap/pi-council
 By default this installs to your **user settings** (`~/.pi/agent/settings.json`,
 cloned under `~/.pi/agent/git/...`) — once globally, available in every repo.
 To install **project-local** instead (entry in `.pi/settings.json`, clone under
-`.pi/git/...`, committable, so teammates get it auto-installed once the project
-is trusted), add `-l`:
+`.pi/git/...`), add `-l`. Commit the `.pi/settings.json` entry if you want the
+package pin to travel with the repo (see [Git: what to commit](#git-what-to-commit));
+never commit `.pi/git/` — pi manages that clone itself.
 
 ```bash
 pi install -l git:github.com/tistaharahap/pi-council
@@ -102,6 +103,36 @@ detection, timeout ceilings, and orphan-process sweeping.
   `<repository_grounding>` block: with a wiki, they consult
   `vault/wiki/index.md` before taking positions; without one, they're told to
   ground claims in the actual code.
+
+## Git: what to commit
+
+`.pi/` mixes install mechanics with user content — **don't ignore the whole
+directory**, or you lose your overrides and MCP registrations. Only the bits pi
+manages are throwaway:
+
+| Path | What it is | Track? |
+|---|---|---|
+| `.pi/settings.json` | project-local install pin | commit |
+| `.pi/agents/` | repo-local seat overrides (shadow packaged seats) | commit |
+| `.pi/council/procedures/` | repo-local procedure overrides | commit |
+| `.pi/council/model-floors.json` | output-floor overrides | commit |
+| `.pi/council/mcp.json` | MCP server registrations | commit |
+| `.pi/git/` | pi's clone of this package — the extension itself, with its own `node_modules` | **ignore** |
+| `.pi/council/.pids.json` | transient hub runtime state | **ignore** |
+
+Ignore exactly the harness and transient state:
+
+```gitignore
+# pi harness (package clone pi manages) + transient hub state
+.pi/git/
+.pi/council/.pids.json
+```
+
+Committing `.pi/settings.json` is what makes the council auto-install for
+teammates once the project is trusted. Repo-local overrides under `.pi/` are
+plain text your repo owns — the packaged seat/procedure of the same name yields
+to them. Secrets never land in `.pi/`: MCP credentials live user-global at
+`~/.pi/agent/council/mcp-auth.json` (mode 600).
 
 ## MCP servers
 
