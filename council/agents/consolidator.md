@@ -1,6 +1,6 @@
 ---
 name: consolidator
-model: openrouter/deepseek/deepseek-v4-pro-0813:high
+model: openrouter/z-ai/glm-5.2:high
 description: The Council's synthesis voice. Use it once per deliberation, after the seats have recorded positions and the Skeptic has run its tests, to produce a synthesis that names unresolved disagreement rather than resolving it. It never picks a winner.
 tools: Read
 ---

@@ -48,9 +48,9 @@ test("repo-local seat shadows packaged seat of the same name", () => {
 	expect(loadSeat(root, "judge").name).toBe("judge");
 });
 
-test("designer: read/search/write, no bash, no hub", () => {
+test("designer: minimax m3, high thinking, read/search/write, no bash, no hub", () => {
 	const d = loadSeat(tmpRepo(), "designer");
-	expect(d.model).toBe("openrouter/deepseek/deepseek-v4-pro-0813");
+	expect(d.model).toBe("openrouter/minimax/minimax-m3");
 	expect(d.thinkingLevel).toBe("high");
 	expect(builtinToolsFor(d)).toEqual(["read", "write", "grep", "find", "ls"]);
 	expect(grantsFor(d)).toEqual({ hub: false });

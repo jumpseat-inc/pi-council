@@ -1,6 +1,6 @@
 ---
 name: product-owner
-model: openrouter/deepseek/deepseek-v4-pro-0813:high
+model: openrouter/minimax/minimax-m3:high
 description: The Council's product-judgment seat. Use when a deliberation carries an open-judgment dispute no test can settle, when a follow-up needs a fold-in-or-new-card ruling, or when a mid-flow product decision would otherwise idle the owner. Card-level rulings are final among agents; portfolio-level matters escalate to the steward. Never implements, never merges.
 tools: Read, Grep, Glob, Write
 ---

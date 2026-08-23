@@ -1,6 +1,6 @@
 ---
 name: council-runner
-model: openrouter/deepseek/deepseek-v4-pro-0813:medium
+model: openrouter/deepseek/deepseek-v4-flash-0731:medium
 description: The per-card execution container for autonomous epic delivery. Dispatched by /features-deliver — one runner per card — to execute the full /council loop in its own isolated context. Never used during attended /council runs. It dispatches the working seats itself but never the ruling seats; every ruling is escalated back to the orchestrator.
 tools: Read, Grep, Glob, Edit, Write, Bash, task, hub
 spawns: [owner, principal, designer, skeptic, consolidator, judge]
