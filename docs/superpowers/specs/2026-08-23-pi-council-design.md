@@ -60,7 +60,7 @@ pi-council/
 │                              #   recursive dispatch grants
 ├── test/                      # ported suite + new coverage (see Testing)
 └── council/                   # the opinionated payload, loaded from the package dir
-    ├── agents/*.md            # 8 seats (consolidator, council-runner, designer,
+    ├── agents/*.md            # 9 seats (consolidator, council-runner, designer,
     │                          #   judge, owner, principal, product-owner,
     │                          #   skeptic, steward) minus autoloadSkills lines
     ├── procedures/*.md        # 7 procedures: council, board-create-card,
