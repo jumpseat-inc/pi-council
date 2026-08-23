@@ -153,18 +153,33 @@ On `session_start` (and after management-command changes), for each enabled
 server: connect (lazy failure tolerance — a dead server logs a warning and is
 marked `error`, never blocks startup), `tools/list`, register each tool as a
 pi tool named **`mcp__<server>__<toolName>`** with the server-provided
-description and JSON-schema parameters. Tool results are returned as text.
+description and JSON-schema parameters (converted to TypeBox, since
+`registerTool` requires TypeBox schemas; see implementation plan). Tool
+results are returned as text. The cached per-server tool-name list is what
+`council_dispatch` reads to build a seat's `--tools` argv (see Seats).
 
 ### Seats
 
 - New optional seat frontmatter field: **`mcp: [name, …]`** (parsed with the
   existing list parser). A seat with no `mcp:` field gets zero MCP access.
-- Child mode connects lazily: a server's client is instantiated on the first
-  call to one of its tools, then cached for the seat's lifetime. Only granted,
-  enabled servers can be instantiated.
+- **`--tools` is an exact-name allowlist** over all tools (pi filters the
+  model's advertised tools by exact registry names; no globs). Consequences
+  that drive the mechanics:
+  - The seat child's argv must enumerate every granted MCP tool's exact name
+    (`mcp__<server>__<tool>`). Therefore the **parent discovers tool names at
+    dispatch time** from its own live/cached MCP tool lists and passes them
+    into `buildChildArgv`.
+  - The child **connects eagerly at startup** to granted, enabled servers,
+    lists tools, and registers them. (Lazy connect is a deadlock: an
+    unregistered tool is never advertised, so the model never calls it to
+    trigger the lazy connect.) pi's tool refresh re-activates any registered
+    tool whose name is in the allowlist, so async registration is fine as
+    long as the names were in argv.
 - Registered MCP tools pass through the existing `tool_call` sandbox
   (`isCallAllowed`): granted server ⇒ its `mcp__<server>__*` tools allowed;
   anything else blocked with the standard refusal message.
+- If a granted server could not be authenticated/connected by the parent,
+  its tools are omitted from argv and the dispatch result warns.
 - Seat frontmatter docs: `mcp` joins `tools`/`spawns` as a grants field.
 
 ## Statuses
