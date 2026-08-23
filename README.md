@@ -4,6 +4,36 @@ A multi-agent **Council** for [pi](https://pi.dev) — a facilitator-driven
 deliberation → implementation → verification → judgment loop, backed by an
 LLM-maintained **wiki** that makes every run's knowledge compound.
 
+## Why?
+
+This section is me [@tista](https://x.com/tista).
+
+I wanted to answer this question:
+
+```text
+How do I get prompted instead of prompting?
+```
+
+The question brought me to the fundamentals in the next subsections.
+
+### Prompt Then Get Prompted
+
+Describe what feature or product if from scratch you want then as the council deliberates it'll prompt you for more details. You have a council that'll support you, be skeptical and implement your ideas.
+
+### LLM Wiki
+
+As features are built, every time a council loop is finished, new knowledge and or learnings are ingested to the vault/wiki. A long term memory system optimized for product building. Every single decision, trade offs, bug, etc are remembered.
+
+### Board & Cards
+
+A local board is with you with a backlog where you can dump ideas through epics and cards. Optimized as a kanban workflow, every card holds the source of truth for the features built with the product.
+
+### The Council
+
+A council consisting of different functions and a diverse LLM model selection to keep the deliberation diverse. Arguments are cheap, the council proves their arguments with tests and codes.
+
+## Installing
+
 Install it once and any repository gets the full workflow:
 
 ```bash
@@ -36,17 +66,17 @@ Then, inside a repository, scaffold its data layer:
 (`council/board.md`) as cards with a single testable goal. For each card, a
 facilitator routes work between seats and never decides itself:
 
-| Seat | Role |
-|---|---|
-| `owner` | Engineering voice + the single implementing owner |
-| `principal` | Cross-cutting framing when the owner is stuck or converging too fast |
-| `designer` | Human-centered design seat (Don Norman tradition) |
-| `skeptic` | Formal adversary; assumes every claim is broken until a test proves it |
-| `judge` | Fresh-context PASS/REJECT evaluator against the card's goal |
-| `consolidator` | Synthesis voice; names disagreement, never resolves it |
-| `product-owner` | Card-level judgment when no test can decide |
-| `steward` | Portfolio-level authority; product-owner's escalation target |
-| `council-runner` | Autonomous per-card execution container for epic delivery |
+| Seat             | Role                                                                   |
+| ---------------- | ---------------------------------------------------------------------- |
+| `owner`          | Engineering voice + the single implementing owner                      |
+| `principal`      | Cross-cutting framing when the owner is stuck or converging too fast   |
+| `designer`       | Human-centered design seat (Don Norman tradition)                      |
+| `skeptic`        | Formal adversary; assumes every claim is broken until a test proves it |
+| `judge`          | Fresh-context PASS/REJECT evaluator against the card's goal            |
+| `consolidator`   | Synthesis voice; names disagreement, never resolves it                 |
+| `product-owner`  | Card-level judgment when no test can decide                            |
+| `steward`        | Portfolio-level authority; product-owner's escalation target           |
+| `council-runner` | Autonomous per-card execution container for epic delivery              |
 
 **The wiki** — a three-layer knowledge base under `vault/`:
 `vault/raw/` (immutable sources) → `vault/wiki/` (generated pages) →
@@ -56,24 +86,24 @@ across cards instead of evaporating between sessions.
 
 ## Commands
 
-| Command | What it does |
-|---|---|
-| `/council-init` | Scaffold `council/` and `vault/` into the current repo (never overwrites) |
-| `/council [card-id]` | Run the full deliberation → owner → verify → judge loop on a card |
-| `/board-create-card <desc>` | Draft a new board card, confirm with you, file it |
-| `/features-new <feature>` | Decompose a feature into an epic + child cards |
-| `/features-deliver <EPIC-KEY>` | Deliver an epic autonomously via `council-runner` |
-| `/wiki-ingest <source>` | Ingest a source into the wiki |
-| `/wiki-lint` | Health-check the wiki (contradictions, orphans, gaps) |
-| `/wiki-query <question>` | Answer from the wiki with citations |
-| `/council-jobs` | Show the background seat job table |
-| `/mcp list` | Show registered MCP servers with transport, auth mode, status, tool count |
-| `/mcp add <name> <url> [auth]` | Register a remote MCP server (`none`/`header`/`oauth`) |
-| `/mcp add <name> -- <cmd> [args…]` | Register a local stdio MCP server |
-| `/mcp remove <name>` | Unregister a server and clear its stored credentials |
-| `/mcp status <name>` | Live-connect a server and report status + tools |
-| `/mcp login <name>` | Authenticate (store header secrets, or full OAuth browser flow) |
-| `/mcp logout <name>` | Clear stored credentials |
+| Command                            | What it does                                                              |
+| ---------------------------------- | ------------------------------------------------------------------------- |
+| `/council-init`                    | Scaffold `council/` and `vault/` into the current repo (never overwrites) |
+| `/council [card-id]`               | Run the full deliberation → owner → verify → judge loop on a card         |
+| `/board-create-card <desc>`        | Draft a new board card, confirm with you, file it                         |
+| `/features-new <feature>`          | Decompose a feature into an epic + child cards                            |
+| `/features-deliver <EPIC-KEY>`     | Deliver an epic autonomously via `council-runner`                         |
+| `/wiki-ingest <source>`            | Ingest a source into the wiki                                             |
+| `/wiki-lint`                       | Health-check the wiki (contradictions, orphans, gaps)                     |
+| `/wiki-query <question>`           | Answer from the wiki with citations                                       |
+| `/council-jobs`                    | Show the background seat job table                                        |
+| `/mcp list`                        | Show registered MCP servers with transport, auth mode, status, tool count |
+| `/mcp add <name> <url> [auth]`     | Register a remote MCP server (`none`/`header`/`oauth`)                    |
+| `/mcp add <name> -- <cmd> [args…]` | Register a local stdio MCP server                                         |
+| `/mcp remove <name>`               | Unregister a server and clear its stored credentials                      |
+| `/mcp status <name>`               | Live-connect a server and report status + tools                           |
+| `/mcp login <name>`                | Authenticate (store header secrets, or full OAuth browser flow)           |
+| `/mcp logout <name>`               | Clear stored credentials                                                  |
 
 Seats run as isolated headless `pi` processes supervised by a hub
 (`council_dispatch` / `council_wait` / `council_cancel` tools), with stall
@@ -93,7 +123,7 @@ detection, timeout ceilings, and orphan-process sweeping.
 - **Engine + workflow travel together.** Seats and procedures live inside the
   package; the engine resolves them from its own install directory.
 - **Repo-local data stays in the repo.** `/council-init` copies templates into
-  `council/` and `vault/` — and *never overwrites*: re-running is a no-op, and
+  `council/` and `vault/` — and _never overwrites_: re-running is a no-op, and
   your edited files always win.
 - **Repo-local overrides.** A seat at `<repo>/.pi/agents/<name>.md` shadows the
   packaged seat of the same name; a procedure at
@@ -110,15 +140,15 @@ detection, timeout ceilings, and orphan-process sweeping.
 directory**, or you lose your overrides and MCP registrations. Only the bits pi
 manages are throwaway:
 
-| Path | What it is | Track? |
-|---|---|---|
-| `.pi/settings.json` | project-local install pin | commit |
-| `.pi/agents/` | repo-local seat overrides (shadow packaged seats) | commit |
-| `.pi/council/procedures/` | repo-local procedure overrides | commit |
-| `.pi/council/model-floors.json` | output-floor overrides | commit |
-| `.pi/council/mcp.json` | MCP server registrations | commit |
-| `.pi/git/` | pi's clone of this package — the extension itself, with its own `node_modules` | **ignore** |
-| `.pi/council/.pids.json` | transient hub runtime state | **ignore** |
+| Path                            | What it is                                                                     | Track?     |
+| ------------------------------- | ------------------------------------------------------------------------------ | ---------- |
+| `.pi/settings.json`             | project-local install pin                                                      | commit     |
+| `.pi/agents/`                   | repo-local seat overrides (shadow packaged seats)                              | commit     |
+| `.pi/council/procedures/`       | repo-local procedure overrides                                                 | commit     |
+| `.pi/council/model-floors.json` | output-floor overrides                                                         | commit     |
+| `.pi/council/mcp.json`          | MCP server registrations                                                       | commit     |
+| `.pi/git/`                      | pi's clone of this package — the extension itself, with its own `node_modules` | **ignore** |
+| `.pi/council/.pids.json`        | transient hub runtime state                                                    | **ignore** |
 
 Ignore exactly the harness and transient state:
 
