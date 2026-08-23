@@ -3,7 +3,7 @@ name: owner
 model: openrouter/deepseek/deepseek-v4-flash-0731:high
 description: The ev-guide (PETA SPKLU) engineering voice on the Council. Use during deliberation to surface correctness, data, and build concerns for any card, and as the single implementing owner once a design is agreed. Owns the whole TypeScript/Bun codebase — import pipeline, API, tiles, frontend, and schema.
 tools: Read, Grep, Glob, Edit, Write, Bash
-mcp: [context7]
+mcp: [context7, tavily]
 ---
 
 <role>
