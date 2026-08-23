@@ -144,6 +144,13 @@ connected servers' tools too (`mcp__<server>__<tool>`). OAuth servers refresh
 tokens silently; when refresh fails, calls report `reauth-required` and
 `/mcp login <server>` runs the browser flow again.
 
+**Context7 ships by default.** `/council-init` scaffolds `.pi/council/mcp.json`
+registering context7 (OAuth endpoint), so it's available after one
+`/mcp login context7`. Packaged seats `council-runner`, `designer`, `owner`,
+`principal`, `skeptic`, and `steward` grant it; override or remove the entry
+in `.pi/council/mcp.json` or edit seat frontmatter to tune. `preflight.sh`
+fails setup until context7 is registered and authenticated.
+
 ## Development
 
 ```bash
