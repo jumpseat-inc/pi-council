@@ -6,6 +6,7 @@ import { Hub } from "./hub.ts";
 import { getHub, pidFilePath, registerHubTools, shutdownHub } from "./hub-tools.ts";
 import { PKG_ROOT, proceduresDir } from "./seats.ts";
 import { scaffoldInto } from "./scaffold.ts";
+import { connectParentServers, getMcpManager, registerMcpCommand } from "./mcp/index.ts";
 
 /**
  * Some catalogue entries carry wrong max-output metadata — e.g. OpenRouter's
@@ -106,6 +107,9 @@ export default function (pi: ExtensionAPI) {
 		const swept = Hub.sweepStalePids(pidFilePath(repoRoot));
 		if (swept > 0 && ctx.hasUI) ctx.ui.notify(`council: swept ${swept} orphaned seat process(es)`, "warning");
 		getHub(repoRoot, renderWidget); // create hub with onChange → widget refresh
+		void connectParentServers(pi, repoRoot).then((notes) => {
+			if (notes.length > 0 && ctx.hasUI) ctx.ui.notify(`mcp:\n${notes.join("\n")}`, "warning");
+		});
 		if (!widgetTimer) {
 			widgetTimer = setInterval(renderWidget, 5_000);
 			widgetTimer.unref?.();
@@ -117,6 +121,7 @@ export default function (pi: ExtensionAPI) {
 			clearInterval(widgetTimer);
 			widgetTimer = null;
 		}
+		void getMcpManager(repoRoot).closeAll();
 		shutdownHub();
 	});
 
@@ -161,6 +166,8 @@ export default function (pi: ExtensionAPI) {
 			else console.log(msg);
 		},
 	});
+
+	registerMcpCommand(pi, repoRoot);
 
 	pi.registerCommand("council-jobs", {
 		description: "Show the Council job table",
