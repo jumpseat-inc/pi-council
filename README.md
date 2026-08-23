@@ -10,6 +10,19 @@ Install it once and any repository gets the full workflow:
 pi install git:github.com/tistaharahap/pi-council
 ```
 
+By default this installs to your **user settings** (`~/.pi/agent/settings.json`,
+cloned under `~/.pi/agent/git/...`) — once globally, available in every repo.
+To install **project-local** instead (entry in `.pi/settings.json`, clone under
+`.pi/git/...`, committable, so teammates get it auto-installed once the project
+is trusted), add `-l`:
+
+```bash
+pi install -l git:github.com/tistaharahap/pi-council
+```
+
+(If the same package exists in both scopes, the project entry wins. To move an
+existing global install into a repo, `pi remove` the global one first.)
+
 Then, inside a repository, scaffold its data layer:
 
 ```
