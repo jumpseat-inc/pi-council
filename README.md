@@ -151,7 +151,10 @@ search, OAuth) — each available after one `/mcp login <name>`. Packaged seats
 grant context7; `council-runner`, `owner`, `principal`, and `skeptic` also grant
 tavily. Override or remove entries in `.pi/council/mcp.json` or edit seat
 frontmatter to tune. `preflight.sh` fails setup until each registered server
-is authenticated (structural: config + stored credentials present).
+is authenticated (structural: config + stored credentials present) and the
+seat model provider OpenRouter has an API key source — an ambient
+`OPENROUTER_API_KEY` or a stored `openrouter` `api_key` in pi's agent
+`auth.json` (otherwise set it or run `/login openrouter`).
 
 ## Development
 
