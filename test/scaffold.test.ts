@@ -53,6 +53,9 @@ test("scaffold writes context7 + tavily mcp.json and renders @CONFIG_DIR@ in pre
 	expect(preflight).toContain("OPENROUTER_API_KEY");
 	expect(preflight).toContain("auth.json");
 	expect(preflight).toContain("/login openrouter");
+	expect(preflight).toContain("superpowers");
+	expect(preflight).toContain(".pi/git/github.com/obra/superpowers");
+	expect(preflight).toContain("/reload");
 
 	// rerun: user edits survive, nothing new created
 	fs.appendFileSync(path.join(root, ".pi", "council", "mcp.json"), "\n");

@@ -1,13 +1,30 @@
 #!/usr/bin/env bash
 # Council preflight (generic starting point — adapt to your project).
 # Card-aware: with a card id it checks the card file exists. Extend with your
-# project's own gates (database up, services running, datasets present) before
-# your first run. Prints no install steps — that's the facilitator's job.
+# project's own gates too (database up, services running, datasets mounted) before
+# your first run. Prints the remediation line for the superpowers gate; all other
+# gates print no install steps — that's the facilitator's job.
 # Any FAIL: line must halt the run.
 set -u
 
 fail() { echo "FAIL: $*"; exit 1; }
 ok() { echo "OK: $*"; }
+
+# ---- Superpowers gate ----
+# The council depends on the superpowers skills package (TDD, planning,
+# debugging, ...). /council-init pins it project-locally (@CONFIG_DIR@/settings.json
+# plus a clone under @CONFIG_DIR@/git/...) — that is what makes it portable to
+# teammates. A global-only install leaves the repo, so the instructor refuses
+# to start a council run without a project-local presence.
+SUPER_PKG="@CONFIG_DIR@/git/github.com/obra/superpowers"
+SUPER_PIN="@CONFIG_DIR@/settings.json"
+if [ -d "$SUPER_PKG" ] && [ -f "$SUPER_PKG/package.json" ]; then
+  ok "superpowers present (skills package under $SUPER_PKG)"
+elif [ -f "$SUPER_PIN" ] && grep -q 'superpowers' "$SUPER_PIN" 2>/dev/null; then
+  ok "superpowers present (pin in $SUPER_PIN)"
+else
+  fail "superpowers is not installed project-locally — run /council-init to scaffold the council and install superpowers project-locally (or run pi install -l git:github.com/obra/superpowers yourself), then run /reload so pi loads its skills. The council refuses to run without it."
+fi
 
 command -v bun >/dev/null 2>&1 || fail "bun is not on PATH (install via https://bun.sh)"
 ok "bun found: $(bun --version)"

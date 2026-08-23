@@ -9,6 +9,17 @@ card `deliver.md` later runs unattended traces back to a card this command
 wrote, so the gate that matters most here is the one that also matters most
 there — nothing reaches the board without the human seeing it first.
 
+## 0. Superpowers gate
+
+Before touching any card, confirm the [superpowers](https://github.com/obra/superpowers)
+skills package is installed project-locally — the `.pi/settings.json` install
+pin carries it, or the clone exists under `.pi/git/github.com/obra/superpowers/`.
+The council workflow depends on those skills (TDD, planning, debugging);
+without them the later `/features-deliver` stages would run degraded. If the
+pin is missing, refuse to proceed and tell the human exactly what to do: run
+`/council-init` to scaffold the council AND install superpowers project-locally,
+then `/reload`, then re-run this command.
+
 ## 1. Create the epic card
 
 Read `council/cards/_template.md` for the frontmatter shape and

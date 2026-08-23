@@ -60,6 +60,17 @@ Then, inside a repository, scaffold its data layer:
 /council-init
 ```
 
+`/council-init` also ensures the [superpowers](https://github.com/obra/superpowers)
+skills package (test-driven development, planning, debugging, …) is pinned
+project-locally — `.pi/settings.json` with a clone under `.pi/git/` — so the
+dependency travels with the repo and auto-installs for teammates once
+trusted. Run `/reload` after it installs.
+
+The council refuses to run without superpowers: `preflight.sh` (run by
+`/council`, `/features-deliver`) and `/features-new` check for the
+project-local pin and halt with remediation if it's missing (run
+`/council-init`, then `/reload`).
+
 ## What you get
 
 **The Council** — a card-based engineering workflow. Work enters a board
@@ -88,7 +99,7 @@ across cards instead of evaporating between sessions.
 
 | Command                            | What it does                                                              |
 | ---------------------------------- | ------------------------------------------------------------------------- |
-| `/council-init`                    | Scaffold `council/` and `vault/` into the current repo (never overwrites) |
+| `/council-init`                    | Scaffold the council/ + vault/ trees (never overwrites); installs superpowers project-locally |
 | `/council [card-id]`               | Run the full deliberation → owner → verify → judge loop on a card         |
 | `/board-create-card <desc>`        | Draft a new board card, confirm with you, file it                         |
 | `/features-new <feature>`          | Decompose a feature into an epic + child cards                            |

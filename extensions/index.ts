@@ -1,11 +1,12 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { CONFIG_DIR_NAME, type ExtensionAPI, type ExtensionContext } from "@earendil-works/pi-coding-agent";
+import { CONFIG_DIR_NAME, getAgentDir, type ExtensionAPI, type ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { runChildMode } from "./child.ts";
 import { Hub } from "./hub.ts";
 import { getHub, pidFilePath, registerHubTools, shutdownHub } from "./hub-tools.ts";
 import { PKG_ROOT, proceduresDir } from "./seats.ts";
 import { scaffoldInto } from "./scaffold.ts";
+import { resolveSuperpowers, SUPERPOWERS_SOURCE } from "./superpowers.ts";
 import { connectParentServers, getMcpManager, registerMcpCommand } from "./mcp/index.ts";
 
 /**
@@ -150,18 +151,49 @@ export default function (pi: ExtensionAPI) {
 	}
 
 	pi.registerCommand("council-init", {
-		description: "Scaffold the council/ and vault/ data trees into this repository (never overwrites)",
+		description: "Scaffold the council/ and vault/ data trees into this repository (never overwrites); ensures the superpowers package is installed project-locally",
 		handler: async (_args, ctx) => {
+			// Superpowers: pi package with the skills (TDD, plans, debugging, ...) this
+			// workflow leans on. We want it pinned project-locally so the dependency
+			// travels with the repo. If it's not already pinned there, install it.
+			const superpowers = resolveSuperpowers({
+				projectSettingsFile: path.join(repoRoot, CONFIG_DIR_NAME, "settings.json"),
+				globalSettingsFile: path.join(getAgentDir(), "settings.json"),
+			});
+			const messages: string[] = [];
+			const installedHere = superpowers.portable;
+			if (installedHere) {
+				messages.push(`✓ superpowers already project-local — no action`);
+			} else if (superpowers.global.in) {
+				messages.push(`• superpowers is global here; pinning project-local for portability.`);
+			} else {
+				messages.push(`• superpowers not installed. Installing project-local so it travels with this repo:`);
+			}
+
+			if (!installedHere) {
+				const install = await pi.exec("pi", ["install", "-l", SUPERPOWERS_SOURCE], {
+					signal: ctx.signal,
+					timeout: 60_000,
+				});
+				if (install.code !== 0) {
+					messages.push(`  ✗ install failed (${install.code}): ${(install.stderr || install.stdout || "").trim()}`);
+				} else {
+					messages.push(`  ✓ installed. Run /reload to load the superpowers skills this session.`);
+				}
+			}
+
 			const r = scaffoldInto(repoRoot, path.join(PKG_ROOT, "council", "scaffold"));
 			try {
 				fs.chmodSync(path.join(repoRoot, "council", "preflight.sh"), 0o755);
 			} catch {
 				/* best effort */
 			}
-			const msg =
-				`council-init complete.\n` +
-				`Created:\n${r.created.map((c) => `  + ${c}`).join("\n") || "  (nothing)"}\n` +
-				`Skipped (already present):\n${r.skipped.map((s) => `  = ${s}`).join("\n") || "  (none)"}`;
+			messages.push(
+				`\nScaffold created:\n${r.created.map((c) => `  + ${c}`).join("\n") || "  (nothing)"}`,
+				`Scaffold skipped (already present):\n${r.skipped.map((s) => `  = ${s}`).join("\n") || "  (none)"}`,
+			);
+
+			const msg = messages.join("\n");
 			if (ctx.hasUI) ctx.ui.notify(msg, "info");
 			else console.log(msg);
 		},
