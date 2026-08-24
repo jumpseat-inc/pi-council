@@ -30,7 +30,8 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[override-resolution]] — Repo-local resources shadow packaged ones by filename.
 - [[non-clobbering-scaffold]] — /council-init; creates files without ever overwriting.
 - [[model-output-floors]] — Data-driven min-token floors for models with wrong catalogue ceilings.
-- [[superpowers-dependency]] — The skills package pin /council run/refuses the council without it.
+- [[council-dependencies]] — The packages /council-init pins project-locally and preflight enforces (superpowers + ask-user-question).
+- [[ask-user-question]] — The rpiv-ask-user-question extension: a human-in-the-loop question tool for the parent session.
 - [[hub-job-supervision]] — The job table + spawn/monitor/stall-kill engine and 3 council tools.
 - [[mcp-support]] — Model Context Protocol servers, auth, and seat grants (tools only).
 - [[preflight]] — The card-aware, fail-fast shell+script gate before every run.
@@ -52,4 +53,5 @@ _(none yet)_
 - [[2026-08-23-context7-preflight-plan]] — V0.3.0 Context7-by-default + preflight plan.
 - [[2026-08-23-council-json-override]] — V0.7.0: the committed .council.json field-level seat override layer.
 - [[2026-08-24-bugfix-seat-prose]] — Bugfix: purges stale deliver.md / GATE-EVIDENCE.md / hardcoded .pi / "registry" framing from seat + procedure prose.
+- [[2026-08-24-ask-user-question]] — Ask-user-question second dependency: generalized COUNCIL_DEPENDENCIES list, preflight gate.
 

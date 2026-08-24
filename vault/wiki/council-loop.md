@@ -51,7 +51,7 @@ repo-specific gate file (see [[2026-08-24-bugfix-seat-prose]]).
 
 ## Related
 
-- [[engineering-board]], [[seats]], [[preflight]], [[superpowers-dependency]]
+- [[engineering-board]], [[seats]], [[preflight]], [[council-dependencies]]
 - [[2026-08-23-pi-council-design-spec]]
 
 ## Sources

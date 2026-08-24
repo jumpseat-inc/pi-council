@@ -1,5 +1,18 @@
 <!-- Append-only. Newest entries at top. Format: ## [YYYY-MM-DD] <op> | <title> -->
 
+## [2026-08-24] ingest | Ask-user-question dependency (second scaffold dependency)
+Ingested the addition of the rpiv-ask-user-question extension as a second
+project-local dependency: superpowers.ts generalized into a
+COUNCIL_DEPENDENCIES list, /council-init installs both, preflight asserts both.
+- **Created:** sources/2026-08-24-ask-user-question, concept council-dependencies
+  (renamed from superpowers-dependency), concept ask-user-question.
+- **Updated:** preflight (new gate), non-clobbering-scaffold (plural deps),
+  council-loop + pi-council-overview + index (link re-points).
+- **Contradictions flagged:** superpowers-dependency's resolveSuperpowers /
+  superpowers.ts references superseded by resolveCouncilDependencies /
+  dependencies.ts; preflight + non-clobbering-scaffold only described the
+  single superpowers dependency. Reconciled, not silently overwritten.
+
 ## [2026-08-24] ingest | Seat/procedure mechanism-reference hygiene (bugfix)
 Ingested the uncommitted bugfix pass: `deliver.md` → `features-deliver.md`,
 removed the repo-specific `GATE-EVIDENCE.md` gate path, hardcoded `.pi` →

@@ -4,18 +4,18 @@ type: concept
 summary: `/council-init` copies the council/ and vault/ data trees and default mcp.json into a consumer repo, never overwriting — re-runs are no-ops and user edits always win.
 aliases: [scaffold, council-init]
 tags: [pi-council/concept]
-sources: ["[[2026-08-23-council-json-override]]"]
+sources: ["[[2026-08-23-council-json-override]]", "[[2026-08-24-ask-user-question]]"]
 created: 2026-08-23
-updated: 2026-08-23
+updated: 2026-08-24
 ---
 
 > ⚠️ Derived from `extensions/index.ts` (`council-init`), `extensions/scaffold.ts`, and the scaffold assets (captured 2026-08-23). Verify against `scaffold.ts`.
 
 `/council-init` is how a fresh repository adopts the workflow. It does two things:
 
-1. **Ensures the superpowers skills package is pinned project-locally** (see
-   [[superpowers-dependency]]) — installs `pi install -l git:...superpowers` if
-   not present, then tells you to `/reload`.
+1. **Ensures the council dependencies are pinned project-locally** (see
+   [[council-dependencies]]) — installs `pi install -l <source>` for each
+   missing one, then tells you to `/reload`.
 2. **Scaffolds the council/ + vault/ data trees** via `scaffoldInto` (see below).
 
 ## scaffoldInto — the non-clobbering rule
@@ -42,7 +42,7 @@ the consumer's data (e.g. ev-guide's board and wiki) across reinstalls.
 
 ## Related
 
-- [[superpowers-dependency]], [[engineering-board]], [[pi-council-overview]]
+- [[council-dependencies]], [[engineering-board]], [[pi-council-overview]]
 - [[council-config]] — the scaffolded .council.json (v0.7.0)
 - [[2026-08-23-council-json-override]], [[2026-08-23-pi-council-design-spec]] (council-init section)
 

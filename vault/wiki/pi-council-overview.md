@@ -9,7 +9,7 @@ created: 2026-08-23
 updated: 2026-08-24
 ---
 
-`pi-council` (v0.7.1) is an installable [pi](https://pi.dev) package, distributed
+`pi-council` (v0.8.0) is an installable [pi](https://pi.dev) package, distributed
 as `pi install git:github.com/tistaharahap/pi-council`. Installing it once and
 running `/council-init` gives **any** repository the same opinionated workflow:
 a facilitator-driven Council of specialized seats that deliberates, implements,
@@ -54,10 +54,11 @@ matured — roughly 41 commits, following **[Conventional Commits]** with the
 | v0.3.0 | **Context7 default** + structural preflight | [[preflight]] |
 | v0.4.0 | **Tavily default**, preflight covers both servers | [[preflight]] |
 | v0.5.0 | Preflight asserts OpenRouter provider auth | [[preflight]] |
-| v0.6.0 | **Superpowers required** (project-local pin) | [[superpowers-dependency]] |
+| v0.6.0 | **Superpowers required** (project-local pin) | [[council-dependencies]] |
 | v0.6.1 | Seats point at relevant skills | [[seats]] |
 | v0.7.0 | **Per-repo seat model/thinking overrides** — committed `.council.json`, scaffold-seeded and non-clobbering | [[council-config]] |
 | v0.7.1 | Bugfix: stale `deliver.md`/`GATE-EVIDENCE.md` references, hardcoded `.pi`, and "agent registry" framing | [[2026-08-24-bugfix-seat-prose]] |
+| v0.8.0 | **ask-user-question dependency** — second project-local pin, generalized `COUNCIL_DEPENDENCIES` list + preflight gate | [[council-dependencies]] |
 
 The wiki scaffold shipped in the same commit as the council scaffold — the
 wiki is not an add-on. The full arc and commit-message discipline live in the
