@@ -1,7 +1,8 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { builtinToolsFor, grantsFor, loadSeat, type Seat } from "./seats.ts";
-import { registerHubTools } from "./hub-tools.ts";
+import { initHubIdentity, registerHubTools } from "./hub-tools.ts";
 import { startSeatMcp } from "./mcp/index.ts";
+import { mintRunId } from "./runs.ts";
 
 export function isCallAllowed(seat: Seat, toolName: string): boolean {
 	const g = grantsFor(seat);
@@ -20,6 +21,7 @@ export function isCallAllowed(seat: Seat, toolName: string): boolean {
 }
 
 export function runChildMode(pi: ExtensionAPI, repoRoot: string, seatName: string): void {
+	initHubIdentity(process.env.COUNCIL_RUN_ID ?? mintRunId(), process.env.COUNCIL_JOB_ID);
 	const seat = loadSeat(repoRoot, seatName); // throws → child exits nonzero → parent sees "failed"
 	if (grantsFor(seat).hub) {
 		registerHubTools(pi, repoRoot, { allowedSeats: seat.spawns });

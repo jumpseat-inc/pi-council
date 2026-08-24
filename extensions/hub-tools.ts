@@ -5,6 +5,7 @@ import { CONFIG_DIR_NAME, type ExtensionAPI } from "@earendil-works/pi-coding-ag
 import { Type } from "typebox";
 import { Hub, type JobReport } from "./hub.ts";
 import { buildChildArgv, buildSystemPrompt, loadSeat, proceduresDir } from "./seats.ts";
+import { childEnv, ensureRunDir, mintRunId } from "./runs.ts";
 import { getMcpManager } from "./mcp/index.ts";
 
 export interface HubToolOptions {
@@ -17,6 +18,11 @@ export function pidFilePath(repoRoot: string): string {
 
 let hubSingleton: Hub | null = null;
 let hubOnChange: (() => void) | undefined;
+let hubIdentity: { runId: string; parentJobPath?: string } | undefined;
+
+export function initHubIdentity(runId: string, parentJobPath?: string): void {
+	hubIdentity = { runId, parentJobPath };
+}
 
 export function getHub(repoRoot: string, onChange?: () => void): Hub {
 	if (onChange) hubOnChange = onChange;
@@ -24,6 +30,7 @@ export function getHub(repoRoot: string, onChange?: () => void): Hub {
 		hubSingleton = new Hub({
 			pidFile: pidFilePath(repoRoot),
 			onChange: () => hubOnChange?.(),
+			run: hubIdentity ? { repoRoot, runId: hubIdentity.runId, parentJobPath: hubIdentity.parentJobPath } : undefined,
 		});
 	}
 	return hubSingleton;
@@ -116,12 +123,20 @@ export function registerHubTools(pi: ExtensionAPI, repoRoot: string, opts: HubTo
 			const promptFile = path.join(tmpDir, "system.md");
 			fs.writeFileSync(promptFile, buildSystemPrompt(repoRoot, seat, proceduresDir(repoRoot)), { mode: 0o600 });
 			const hub = getHub(repoRoot);
+			const jobId = hub.allocateId();
+			const runId = hub.runId ?? mintRunId();
+			const dir = ensureRunDir(repoRoot, runId);
 			const job = hub.spawnJob({
+				id: jobId,
 				seat: seat.name,
+				model: seat.model,
 				command: "pi",
-				args: buildChildArgv(seat, params.input, promptFile, mcpToolNames),
+				args: buildChildArgv(seat, params.input, promptFile, mcpToolNames, {
+					sessionDir: dir,
+					sessionId: jobId,
+				}),
 				cwd: repoRoot,
-				env: { ...process.env, COUNCIL_SEAT: seat.name } as Record<string, string>,
+				env: childEnv({ ...process.env, COUNCIL_SEAT: seat.name }, runId, jobId),
 				timeoutMs: (params.timeout_minutes ?? 15) * 60_000,
 				stallMs: (params.stall_minutes ?? 4) * 60_000,
 				cleanup: () => {

@@ -3,8 +3,9 @@ import * as path from "node:path";
 import { CONFIG_DIR_NAME, getAgentDir, type ExtensionAPI, type ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { runChildMode } from "./child.ts";
 import { Hub } from "./hub.ts";
-import { getHub, pidFilePath, registerHubTools, shutdownHub } from "./hub-tools.ts";
+import { getHub, initHubIdentity, pidFilePath, registerHubTools, shutdownHub } from "./hub-tools.ts";
 import { PKG_ROOT, proceduresDir } from "./seats.ts";
+import { mintRunId, pruneRuns } from "./runs.ts";
 import { scaffoldInto } from "./scaffold.ts";
 import { resolveCouncilDependencies } from "./dependencies.ts";
 import { connectParentServers, getMcpManager, registerMcpCommand } from "./mcp/index.ts";
@@ -107,6 +108,8 @@ export default function (pi: ExtensionAPI) {
 		uiCtx = ctx;
 		const swept = Hub.sweepStalePids(pidFilePath(repoRoot));
 		if (swept > 0 && ctx.hasUI) ctx.ui.notify(`council: swept ${swept} orphaned seat process(es)`, "warning");
+		initHubIdentity(mintRunId());
+		pruneRuns(repoRoot);
 		getHub(repoRoot, renderWidget); // create hub with onChange → widget refresh
 		void connectParentServers(pi, repoRoot).then((notes) => {
 			if (notes.length > 0 && ctx.hasUI) ctx.ui.notify(`mcp:\n${notes.join("\n")}`, "warning");
