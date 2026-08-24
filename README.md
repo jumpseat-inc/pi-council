@@ -137,8 +137,9 @@ detection, timeout ceilings, and orphan-process sweeping.
 ## Requirements
 
 - [pi](https://pi.dev) with at least one configured provider (seats pin
-  OpenRouter models by default — edit `council/agents/*.md` frontmatter to
-  change them)
+  OpenRouter models by default — change them per-seat with the committed
+  `.council.json` override, or edit `council/agents/*.md` frontmatter to change
+  the defaults)
 - `bun` on PATH (the generic preflight and scaffolded projects assume it)
 - Models must exist in pi's catalogue; a seat pinning an unknown model fails
   loudly at dispatch rather than falling back
@@ -154,6 +155,13 @@ detection, timeout ceilings, and orphan-process sweeping.
   packaged seat of the same name; a procedure at
   `<repo>/.pi/council/procedures/<name>.md` shadows the packaged one. Use this
   to tune a seat for one repository without forking the package.
+- **Per-seat model/thinking overrides.** A committed `.council.json` at the repo
+  root overrides individual seat fields without replacing the whole seat:
+  `{ "council": { "<seat>": { "model"?, "thinking"? } } }`, where a bare string
+  is shorthand for `{"model"}` and accepts the same `:thinking` suffix as
+  frontmatter. Frontmatter stays the default; the file wins. `/council-init`
+  seeds it non-clobberingly with each seat's current defaults, and invalid JSON
+  or an unknown `thinking` level fails loudly rather than degrading.
 - **Grounding degrades gracefully.** Seats receive a
   `<repository_grounding>` block: with a wiki, they consult
   `vault/wiki/index.md` before taking positions; without one, they're told to
@@ -167,6 +175,7 @@ manages are throwaway:
 
 | Path                            | What it is                                                                     | Track?     |
 | ------------------------------- | ------------------------------------------------------------------------------ | ---------- |
+| `.council.json`                 | per-seat model/thinking overrides (seeded by `/council-init`)                  | commit     |
 | `.pi/settings.json`             | project-local install pin                                                      | commit     |
 | `.pi/agents/`                   | repo-local seat overrides (shadow packaged seats)                              | commit     |
 | `.pi/council/procedures/`       | repo-local procedure overrides                                                 | commit     |
