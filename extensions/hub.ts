@@ -1,5 +1,6 @@
 import { spawn } from "node:child_process";
 import * as fs from "node:fs";
+import { writeManifest } from "./runs.ts";
 
 export type JobState = "running" | "done" | "failed" | "cancelled" | "stalled" | "timeout";
 
@@ -20,6 +21,8 @@ export interface Job {
 	errorMessage?: string;
 	exitCode: number | null;
 	cleanup?: () => void;
+	model?: string;
+	settledAt?: number;
 }
 
 export interface JobReport {
@@ -32,6 +35,12 @@ export interface JobReport {
 	stderrTail: string;
 	stopReason?: string;
 	errorMessage?: string;
+}
+
+export interface HubRunOpts {
+	repoRoot: string;
+	runId: string;
+	parentJobPath?: string;
 }
 
 const EVENT_RING = 50;
@@ -55,18 +64,47 @@ export class Hub {
 	private monitor: ReturnType<typeof setInterval>;
 	private pidFile?: string;
 	private onChange?: () => void;
-	private nextId = 1;
+	private run?: HubRunOpts;
+	private counter = 1;
 
-	constructor(opts?: { monitorIntervalMs?: number; pidFile?: string; onChange?: () => void }) {
+	constructor(opts?: { monitorIntervalMs?: number; pidFile?: string; onChange?: () => void; run?: HubRunOpts }) {
 		this.pidFile = opts?.pidFile;
 		this.onChange = opts?.onChange;
+		this.run = opts?.run;
 		this.monitor = setInterval(() => this.tick(), opts?.monitorIntervalMs ?? 30_000);
 		// Don't keep the process alive just for the monitor.
 		if (typeof this.monitor.unref === "function") this.monitor.unref();
 	}
 
+	get runId(): string | undefined {
+		return this.run?.runId;
+	}
+
+	allocateId(): string {
+		const n = this.counter++;
+		return this.run?.parentJobPath ? `${this.run.parentJobPath}.${n}` : `job-${n}`;
+	}
+
+	private writeJobManifest(job: Job): void {
+		if (!this.run) return;
+		writeManifest(this.run.repoRoot, this.run.runId, {
+			id: job.id,
+			seat: job.seat,
+			model: job.model ?? "",
+			parentJobId: this.run.parentJobPath ?? null,
+			pid: job.pid ?? null,
+			sessionId: job.id,
+			state: job.state,
+			startedAt: job.startedAt,
+			settledAt: job.exitCode !== null ? Date.now() : null,
+			exitCode: job.exitCode,
+		});
+	}
+
 	spawnJob(opts: {
+		id: string;
 		seat: string;
+		model?: string;
 		command: string;
 		args: string[];
 		cwd: string;
@@ -75,11 +113,12 @@ export class Hub {
 		stallMs: number;
 		cleanup?: () => void;
 	}): Job {
-		const id = `job-${this.nextId++}`;
+		const id = opts.id;
 		const now = Date.now();
 		const job: Job = {
 			id,
 			seat: opts.seat,
+			model: opts.model,
 			pid: undefined,
 			state: "running",
 			startedAt: now,
@@ -101,6 +140,7 @@ export class Hub {
 			stdio: ["ignore", "pipe", "pipe"],
 		});
 		job.pid = proc.pid;
+		this.writeJobManifest(job);
 		this.jobs.set(id, job);
 		this.procs.set(id, proc);
 		this.writePids();
@@ -175,6 +215,7 @@ export class Hub {
 			if (job.state !== "running") continue;
 			if (now - job.lastActivityAt > job.stallMs) {
 				job.state = "stalled";
+				this.writeJobManifest(job);
 				if (job.pid) {
 					killGroup(job.pid, "SIGTERM");
 					const pid = job.pid;
@@ -182,15 +223,18 @@ export class Hub {
 				}
 			} else if (now - job.startedAt > job.timeoutMs) {
 				job.state = "timeout"; // informational — NOT killed
+				this.writeJobManifest(job);
 				this.onChange?.();
 			}
 		}
 	}
 
 	private settle(job: Job) {
+		job.settledAt = Date.now();
 		this.procs.delete(job.id);
 		job.cleanup?.();
 		job.cleanup = undefined;
+		this.writeJobManifest(job);
 		this.writePids();
 		this.onChange?.();
 	}
@@ -200,6 +244,7 @@ export class Hub {
 		if (!job) return false;
 		if (job.exitCode !== null) return false;
 		job.state = "cancelled";
+		this.writeJobManifest(job);
 		if (job.pid) {
 			killGroup(job.pid, "SIGTERM");
 			const pid = job.pid;

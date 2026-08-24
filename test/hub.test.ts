@@ -1,7 +1,10 @@
 import { test, expect, afterEach } from "bun:test";
 import * as os from "node:os";
+import * as fs from "node:fs";
 import * as path from "node:path";
+import { CONFIG_DIR_NAME } from "@earendil-works/pi-coding-agent";
 import { Hub } from "../extensions/hub.ts";
+import { ensureRunDir } from "../extensions/runs.ts";
 
 const STUB = path.join(import.meta.dir, "stub-child.ts");
 const pidFile = path.join(os.tmpdir(), `council-hub-test-${process.pid}.json`);
@@ -10,6 +13,7 @@ afterEach(() => hub?.shutdown());
 
 function spawnStub(h: Hub, mode: string, over: Partial<{ timeoutMs: number; stallMs: number }> = {}) {
 	return h.spawnJob({
+		id: h.allocateId(),
 		seat: "stub",
 		command: "bun",
 		args: [STUB],
@@ -19,6 +23,22 @@ function spawnStub(h: Hub, mode: string, over: Partial<{ timeoutMs: number; stal
 		stallMs: over.stallMs ?? 60_000,
 	});
 }
+
+test("top-level hub ids are job-N", () => {
+	hub = new Hub({ monitorIntervalMs: 50, pidFile });
+	expect(hub.allocateId()).toBe("job-1");
+	expect(hub.allocateId()).toBe("job-2");
+});
+
+test("nested hub path-encodes ids from parentJobPath", () => {
+	hub = new Hub({
+		monitorIntervalMs: 50,
+		pidFile,
+		run: { repoRoot: fs.mkdtempSync(path.join(os.tmpdir(), "council-nest-")), runId: "runN", parentJobPath: "job-1" },
+	});
+	expect(hub.allocateId()).toBe("job-1.1");
+	expect(hub.allocateId()).toBe("job-1.2");
+});
 
 test("done: captures output and usage", async () => {
 	hub = new Hub({ monitorIntervalMs: 50, pidFile });
@@ -112,6 +132,37 @@ test("wait on multiple jobs returns all reports", async () => {
 test("wait on unknown job id throws", async () => {
 	hub = new Hub({ monitorIntervalMs: 50, pidFile });
 	await expect(hub.wait(["job-999"], 1000)).rejects.toThrow(/job-999/);
+});
+
+test("run-aware hub writes manifests at spawn and settle", async () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-man-"));
+	ensureRunDir(root, "runM");
+	hub = new Hub({ monitorIntervalMs: 50, pidFile, run: { repoRoot: root, runId: "runM", parentJobPath: "job-2" } });
+	const job = spawnStub(hub, "emit");
+	expect(job.id).toBe("job-2.1");
+	const mFile = path.join(root, CONFIG_DIR_NAME, "council", "runs", "runM", "job-2.1.json");
+	const during = JSON.parse(fs.readFileSync(mFile, "utf-8"));
+	expect(during.state).toBe("running");
+	expect(during.parentJobId).toBe("job-2");
+	expect(during.sessionId).toBe("job-2.1");
+	const [r] = await hub.wait([job.id], 10_000);
+	expect(r.state).toBe("done");
+	const after = JSON.parse(fs.readFileSync(mFile, "utf-8"));
+	expect(after.state).toBe("done");
+	expect(after.exitCode).toBe(0);
+	expect(typeof after.settledAt).toBe("number");
+});
+
+test("cancel is reflected in the manifest", async () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-manc-"));
+	ensureRunDir(root, "runC");
+	hub = new Hub({ monitorIntervalMs: 50, pidFile, run: { repoRoot: root, runId: "runC" } });
+	const job = spawnStub(hub, "hang");
+	await Bun.sleep(300);
+	hub.cancel(job.id);
+	await hub.wait([job.id], 10_000);
+	const m = JSON.parse(fs.readFileSync(path.join(root, CONFIG_DIR_NAME, "council", "runs", "runC", `${job.id}.json`), "utf-8"));
+	expect(m.state).toBe("cancelled");
 });
 
 test("shutdown kills running jobs", async () => {
