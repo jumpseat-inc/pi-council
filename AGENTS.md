@@ -32,6 +32,10 @@ extensions/          engine, auto-discovered via package.json "pi" manifest
   seats.ts           seat schema, override-aware resolution, prompt builder
   child.ts           child-mode tool sandboxing
   scaffold.ts        non-clobbering scaffold copy routine
+  runs.ts            on-disk run substrate: manifests, transcripts, retention
+  tree.ts            job forest from manifests (pure)
+  transcript.ts      session JSONL → blocks + incremental tail (pure)
+  navigator.ts       /council-tree overlay: job tree + live transcript viewer
 council/
   agents/*.md        the 9 seats
   procedures/*.md    the 7 slash-command procedures
@@ -89,6 +93,12 @@ docs/superpowers/    design spec + implementation plan (read before big changes)
     MCP tool names (`mcp__<server>__<tool>`) enumerated by the parent at
     dispatch time; seats register them eagerly at startup. Never reintroduce
     lazy MCP connect in seats.
+12. **`runs/` is ephemeral telemetry.** `$CONFIG_DIR_NAME/council/runs/` holds
+    per-job manifests and seat session transcripts for the transcript
+    navigator (`/council-tree`, `ctrl+shift+t`). It is self-gitignored (`*`),
+    pruned to the last 15 runs at parent `session_start`, and must not be read
+    by engine logic outside `extensions/runs.ts`, `extensions/tree.ts`,
+    `extensions/transcript.ts`, and `extensions/navigator.ts`.
 
 ## Commits
 
