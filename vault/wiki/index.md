@@ -17,7 +17,7 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[designer]] — Human-centered design seat (Don Norman tradition).
 - [[consolidator]] — Synthesis voice; names disagreement, never resolves it.
 - [[product-owner]] — Card-level product judgment; escalates to steward.
-- [[steward]] — Portfolio-levamped authority; the product-owner's escalation target.
+- [[steward]] — Portfolio-level authority; the product-owner's escalation target.
 - [[council-runner]] — Autonomous per-card execution container for features-deliver.
 
 ## Concepts
@@ -44,11 +44,12 @@ _(none yet)_
 ## Sources
 
 - [[2026-08-23-readme]] — README: makes the author's "prompted instead of prompting" project.
-- [[2026-08-23-agents]] — AGENTS.md: the 11 hard conventions + repo operating rules.
+- [[2026-08-23-agents]] — AGENTS.md: the 12 hard conventions + repo operating rules.
 - [[2026-08-23-pi-council-design-spec]] — Design of the pi-council package.
 - [[2026-08-23-mcp-support-design-spec]] — Design of the MCP subsystem (v0.2.0).
 - [[2026-08-23-pi-council-implementation-plan]] — V0.1.0 build-out runbook.
 - [[2026-08-23-mcp-implementation-plan]] — V0.2.0 MCP build-out runbook.
 - [[2026-08-23-context7-preflight-plan]] — V0.3.0 Context7-by-default + preflight plan.
 - [[2026-08-23-council-json-override]] — V0.7.0: the committed .council.json field-level seat override layer.
+- [[2026-08-24-bugfix-seat-prose]] — Bugfix: purges stale deliver.md / GATE-EVIDENCE.md / hardcoded .pi / "registry" framing from seat + procedure prose.
 

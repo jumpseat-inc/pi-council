@@ -9,7 +9,7 @@ created: 2026-08-23
 updated: 2026-08-23
 ---
 
-> ⚠️ Derived from `council/agents/judge.md` @ (captured 2026-08-23). Verify against the seat file.
+> ⚠️ Derived from `council/agents/judge.md` (captured 2026-08-23). Verify against the seat file.
 
 **Model:** `openrouter/qwen/qwen3.6-35b-a3b:medium`.
 **Tools:** Read, Bash (Write is deliberately absent — the judge never edits).

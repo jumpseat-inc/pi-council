@@ -4,9 +4,9 @@ type: concept
 summary: How repo-local resources shadow packaged defaults — seats at `<repo>/$CONFIG_DIR_NAME/agents/` and procedures at `…/council/procedures/` by filename, plus mergeable model-floors, committable mcp.json, and the field-level `.council.json` seat override. The tuning mechanisms that make forking unnecessary.
 aliases: [overrides, repo-override]
 tags: [pi-council/concept]
-sources: ["[[2026-08-23-council-json-override]]"]
+sources: ["[[2026-08-23-council-json-override]]", "[[2026-08-24-bugfix-seat-prose]]"]
 created: 2026-08-23
-updated: 2026-08-23
+updated: 2026-08-24
 ---
 
 # Override Resolution
@@ -33,7 +33,8 @@ The rules:
   `loadSeat` returns the override when present.
 - **Procedures** are scanned as `[repoOverride, packaged]` with filename
   dedupe, so an override file shadows the packaged one of the same name as a
-  slash command (see [[procedure-commands]]).
+  slash command (see [[procedure-commands]]). The override path is built with
+  `CONFIG_DIR_NAME`, never a literal `.pi` (AGENTS.md convention #3).
 - **Model floors** are **merge semantics** — repo keys win, shipped entries
   remain unless replaced.
 - **Field-level tier (v0.7.0)** — a committed `.council.json` at the repo root
@@ -61,3 +62,4 @@ pi's own clone).
 
 - `extensions/seats.ts`, `extensions/index.ts`
 - `docs/superpowers/specs/2026-08-23-pi-council-design.md`
+- [[2026-08-24-bugfix-seat-prose]]

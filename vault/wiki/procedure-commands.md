@@ -4,15 +4,15 @@ type: concept
 summary: The scanned, override-aware slash-command set — preamble customization, seven packaged procedures (council, board, features, wiki), and the hub/mcp engine commands.
 aliases: [procedures, slash commands, commands]
 tags: [pi-council/concept]
-sources: []
+sources: ["[[2026-08-24-bugfix-seat-prose]]"]
 created: 2026-08-23
-updated: 2026-08-23
+updated: 2026-08-24
 ---
 
 # Procedure Commands
 
 > ⚠️ Derived from `extensions/index.ts` (the directory-scan registration loop) and
-> the seven `council/procedures/*.md` files @ (captured 2026-08-23). Verify against
+> the seven `council/procedures/*.md` files (captured 2026-08-23). Verify against
 > `extensions/index.ts`.
 
 Procedures are **markdown files**, registered as slash commands by **directory
@@ -24,6 +24,8 @@ description.
 
 - Walks `[repoOverride, packaged]`, dedupe by filename → an override shadows the
   packaged file of the same name (see [[override-resolution]]).
+- The override path is built with `CONFIG_DIR_NAME` (not a literal `.pi`), per
+  AGENTS.md convention #3.
 - Strips the frontmatter; substitutes `$ARGUMENTS` and `$COUNCIL_PROCEDURES`
   before `pi.sendUserMessage`.
 - The engine commands (`/council-init`, `/council-jobs`, `/mcp …`) are registered
@@ -34,10 +36,10 @@ description.
 | Command | Purpose |
 |---|---|
 | `/council [card]` | The full deliberation → implement → verify → judge loop ([[council-loop]]) |
-| `/board-setcreate-card <desc>` | Draft + confirm + file a board card ([[engineering-board]]) |
+| `/board-create-card <desc>` | Draft + confirm + file a board card ([[engineering-board]]) |
 | `/features-new <feature>` | Decompose a feature into an epic + child cards |
 | `/features-deliver <EPIC-KEY>` | Deliver an epic autonomously via council-runners |
-| `/wiki-ingest <path>` | Ingest a source into the wiki (driers the Ingest op) |
+| `/wiki-ingest <path>` | Ingest a source into the wiki (drives the Ingest op) |
 | `/wiki-query <question>` | Query the wiki with citations |
 | `/wiki-lint` | Health-check the wiki (orphans, contradictions, stale claims) |
 
@@ -50,10 +52,11 @@ as `$ARGUMENTS`.
 
 ## Related
 
-- [[override-resolution]], [[seats]], [[council-loop]], [[procedure-commands]]
+- [[override-resolution]], [[seats]], [[council-loop]]
 - [[2026-08-23-pi-council-design-spec]]
 
-## ## Sources
+## Sources
 
 - `extensions/index.ts`
 - `council/procedures/*.md`
+- [[2026-08-24-bugfix-seat-prose]]

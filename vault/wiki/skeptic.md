@@ -9,7 +9,7 @@ created: 2026-08-23
 updated: 2026-08-23
 ---
 
-> ⚠️ Derived from `council/agents/skeptic.md` @ (captured 2026-08-23). Verify against the seat file.
+> ⚠️ Derived from `council/agents/skeptic.md` (captured 2026-08-23). Verify against the seat file.
 
 **Model:** `openrouter/deepseek/deepseek-v4-flash:high`.
 **Tools:** Read, Grep, Glob, Bash (no Write — must not build, only attack).

@@ -1,5 +1,17 @@
 <!-- Append-only. Newest entries at top. Format: ## [YYYY-MM-DD] <op> | <title> -->
 
+## [2026-08-24] ingest | Seat/procedure mechanism-reference hygiene (bugfix)
+Ingested the uncommitted bugfix pass: `deliver.md` → `features-deliver.md`,
+removed the repo-specific `GATE-EVIDENCE.md` gate path, hardcoded `.pi` →
+`CONFIG_DIR_NAME`, corrected the `council_dispatch` seat description, and
+replaced the stale "agent registry / restart" framing with disk-at-dispatch-time
+seat resolution. Also fixed seed typos found along the way.
+- **Created:** sources/2026-08-24-bugfix-seat-prose.
+- **Updated:** council-runner, council-loop, procedure-commands,
+  hub-job-supervision, override-resolution, seats, llm-wiki (typo), index.
+- **Contradictions flagged:** none — the wiki never repeated the stale
+  references; these fixes refine, not reverse.
+
 ## [2026-08-23] ingest | Committed .council.json override layer (v0.7.0)
 Ingested the v0.7.0 engine change: per-seat model/thinking field overrides in a
 committed `.council.json`, applied inside `loadSeat`, scaffold-seeded

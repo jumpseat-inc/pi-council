@@ -9,7 +9,7 @@ created: 2026-08-23
 updated: 2026-08-23
 ---
 
-> ⚠️ Derived from `council/agents/principal.md` @ (captured 2026-08-23). Verify against the seat file.
+> ⚠️ Derived from `council/agents/principal.md` (captured 2026-08-23). Verify against the seat file.
 
 **Model:** `openrouter/deepseek/deepseek-v4-pro-0813:high` — the same model the
 output floor exists for.

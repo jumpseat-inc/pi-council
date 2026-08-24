@@ -9,7 +9,7 @@ created: 2026-08-23
 updated: 2026-08-23
 ---
 
-> ⚠️ Derived from `council/agents/designer.md` @ (captured 2026-08-23). Verify against the seat file.
+> ⚠️ Derived from `council/agents/designer.md` (captured 2026-08-23). Verify against the seat file.
 
 **Model:** `openrouter/minimax/minimax-m3:high`.
 **Tools:** Read, Grep, Glob, Write (Write scoped to `vault/raw/` only).

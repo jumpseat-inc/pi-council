@@ -4,12 +4,12 @@ type: concept
 summary: The facilitator-run deliberation → implement → verify → judge loop over a board card, bounded by round caps, token ceilings, gate discipline, and a human merge gate.
 aliases: [council run, deliberation loop]
 tags: [pi-council/concept]
-sources: []
+sources: ["[[2026-08-24-bugfix-seat-prose]]"]
 created: 2026-08-23
-updated: 2026-08-23
+updated: 2026-08-24
 ---
 
-> ⚠️ Derived from `council/procedures/council.md`, `council/procedures/council.md @ 8913c6b` + `council-runner.md` (captured 2026-08-23). Verify against the procedure files.
+> ⚠️ Derived from `council/procedures/council.md` + `council-runner.md` (captured 2026-08-23). Verify against the procedure files.
 
 `/council` is the core procedure. The **facilitator decides nothing** — it routes
 work, fans seats out, counts rounds, and writes the board. Tests decide testable
@@ -45,7 +45,9 @@ disputes; ruling seats decide judgment; the human decides the rest.
 `product-owner` rules card-level open-judgment; escalates to `steward` for
 **portfolio-level** changes. `council-runner` (the autonomous epic container)
 never dispatches ruling seats; it escalates and resumes. See
-[[council-runner]] + `council/procedures/features-deliver.md`.
+[[council-runner]] + `council/procedures/features-deliver.md`. Its deterministic
+merge check requires every owner gate green in full, without naming a
+repo-specific gate file (see [[2026-08-24-bugfix-seat-prose]]).
 
 ## Related
 
@@ -55,4 +57,5 @@ never dispatches ruling seats; it escalates and resumes. See
 ## Sources
 
 - `council/procedures/council.md` @ `8913c6b`
-- `attributes/procedures/features-deliver.md`
+- `council/procedures/features-deliver.md`
+- [[2026-08-24-bugfix-seat-prose]]

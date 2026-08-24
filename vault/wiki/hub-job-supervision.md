@@ -4,12 +4,12 @@ type: concept
 summary: The battle-tested engine that spawns, monitors, stalls, times out, and sweeps seat subprocesses — the hub table, pid file, anti-stall kill, and the dispatch/wait/cancel tools.
 aliases: [hub, job table, council_dispatch]
 tags: [pi-council/concept]
-sources: []
+sources: ["[[2026-08-24-bugfix-seat-prose]]"]
 created: 2026-08-23
-updated: 2026-08-23
+updated: 2026-08-24
 ---
 
-# Hub Job Supervision / #
+# Hub Job Supervision
 
 > ⚠️ Derived from `extensions/hub.ts`, `extensions/hub-tools.ts` (captured 2026-08-23). Verify against the code; this is the battle-tested core (AGENTS.md convention 7 — change only via a failing test).
 
@@ -39,9 +39,11 @@ accumulating output tokens/cost and stopReason — and `tool_execution_start`
 
 `hub-tools.ts` registers (only for seats granted `hub`):
 
-- **`council_dispatch`** — spawn a seat as a job; validates the model is in the
-  catalog (else refuses loudly), builds the prompt file, writes the system prompt,
-  adds granted MCP `--tools`, returns job id + pid.
+- **`council_dispatch`** — spawn a seat as a job; resolves the seat by name from
+  disk (packaged + repo-local override) and fails loudly with `Unknown seat` when
+  it doesn't resolve; validates the model is in the catalog (else refuses
+  loudly), builds the prompt file, writes the system prompt, adds granted MCP
+  `--tools`, returns job id + pid.
 - **`council_wait`** — wait for jobs to settle or a window; returns each job's
   report. Never cancels on timeout.
 - **`council_cancel`** — SIGTERM+SIGKILL a running job.
@@ -53,7 +55,7 @@ The report carries `state`, `turns`, `cost`, `output`, `stopReason`,
 as a model-config problem (see [[model-output-floors]]), not a silent success —
 this is the whitespace observer of the guard.
 
-## /# CLI
+## `/council-jobs` CLI
 
 `/council-jobs` prints the live job table.
 
@@ -65,3 +67,4 @@ this is the whitespace observer of the guard.
 
 - `extensions/hub.ts`, `extensions/hub-tools.ts`
 - [[2026-08-23-pi-council-design-spec]]
+- [[2026-08-24-bugfix-seat-prose]]

@@ -9,7 +9,7 @@ created: 2026-08-23
 updated: 2026-08-23
 ---
 
-> ⚠️ Derived from `extensions/index.ts` (`council-init`), `extensions/scaffold.ts`, and the scaffold assets @ (captured 2026-08-23). Verify against `scaffold.ts`.
+> ⚠️ Derived from `extensions/index.ts` (`council-init`), `extensions/scaffold.ts`, and the scaffold assets (captured 2026-08-23). Verify against `scaffold.ts`.
 
 `/council-init` is how a fresh repository adopts the workflow. It does two things:
 

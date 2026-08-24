@@ -1,15 +1,15 @@
 ---
 title: Council Runner
 type: entity
-summary: The per-card autonomous execution container — dispatched by /features-deliver to run the full /council loop for one card in a stream-isolated context; routes, counts, and writes the board but never decides.
+summary: The per-card autonomous execution container — dispatched by /features-deliver to run the full /council loop for one card in an isolated context; routes, counts, and writes the board but never decides.
 aliases: [council-runner, runner]
 tags: [pi-council/seat]
-sources: []
+sources: ["[[2026-08-24-bugfix-seat-prose]]"]
 created: 2026-08-23
-updated: 2026-08-23
+updated: 2026-08-24
 ---
 
-> ⚠️ Derived from `council/agents/council-runner.md` @ (captured 2026-08-23). Verify against the seat file.
+> ⚠️ Derived from `council/agents/council-runner.md` (captured 2026-08-23). Verify against the seat file.
 
 **Model:** `openrouter/deepseek/deepseek-v4-flash-0731:medium`.
 **Tools:** Read, Grep, Glob, Edit, Write, Bash, task, hub.
@@ -30,7 +30,7 @@ reserved powers are re-homed per the authority map in `features-deliver.md`.
 
 - **Escalation contract** — rulings aren't dispatched; it checks Phase 1
   standing rulings first, else ends with an `ESCALATION` report carrying **facts,
-  not a recommendation**, and resumes with the bunch.
+  not a recommendation**, and resumes with the ruling.
 - **Board discipline** — while a card is in flight it is the **single writer** of
   the board + card file; every state transition is committed immediately
   (durable-state), `validate.py` after every board write.
@@ -39,6 +39,9 @@ reserved powers are re-homed per the authority map in `features-deliver.md`.
   seats is a shared hypothesis, not a test result.
 - **Dispatch discipline** — every dispatch bounded and note/waited; a `stalled`
   re-dispatch is treated like a timeout; never dispatch a third time.
+- **Seat resolution check** — verifies each needed seat resolves by name; seats
+  resolve from disk at dispatch time, so a gap is a missing seat file → `HALT`,
+  never a registry restart.
 - **Return contract** — report tags `ESCALATION`, `DONE`, `RETIRED`, `HALT`;
   the orchestrator sees only the report.
 
@@ -52,3 +55,4 @@ reserved powers are re-homed per the authority map in `features-deliver.md`.
 
 - `council/agents/council-runner.md`
 - `council/procedures/features-deliver.md`
+- [[2026-08-24-bugfix-seat-prose]]

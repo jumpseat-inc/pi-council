@@ -4,16 +4,19 @@ type: concept
 summary: The seat abstraction — a named Council role defined in markdown frontmatter (model, tools, spawns, mcp), sandboxed as an isolated headless pi child under the hub.
 aliases: [seat, seat schema, council seat]
 tags: [pi-council/concept]
-sources: ["[[2026-08-23-council-json-override]]"]
+sources: ["[[2026-08-23-council-json-override]]", "[[2026-08-24-bugfix-seat-prose]]"]
 created: 2026-08-23
-updated: 2026-08-23
+updated: 2026-08-24
 ---
 
-> ⚠️ Derived from `extensions/seats.ts`, `extensions/child.ts`, and the nine `council/agents/*.md` files @ `dfb...` (captured 2026-08-23). Verify against `seats.ts` for schema details.
+> ⚠️ Derived from `extensions/seats.ts`, `extensions/child.ts`, and the nine `council/agents/*.md` files (captured 2026-08-23). Verify against `seats.ts` for schema details.
 
 A **seat** is pi-council's unit of agency: one named, opinionated LLM role that
 participates in a Council run. It is defined entirely by a markdown file in
 `council/agents/<name>.md` (or a repo override under `<repo>/$CONFIG_DIR_NAME/agents/`).
+Seats resolve from disk at dispatch time; there is no startup agent registry —
+`council_dispatch` fails loudly with `Unknown seat` for a name that doesn't
+resolve.
 
 ## Schema (fixed)
 
@@ -69,3 +72,4 @@ product-owner, skeptic (the sole adversary), steward.
 - `extensions/seats.ts`, `extensions/child.ts`
 - `council/agents/*.md`
 - [[2026-08-23-pi-council-design-spec]]
+- [[2026-08-24-bugfix-seat-prose]]
