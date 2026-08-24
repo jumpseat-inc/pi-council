@@ -56,6 +56,7 @@ matured — roughly 41 commits, following **[Conventional Commits]** with the
 | v0.5.0 | Preflight asserts OpenRouter provider auth | [[preflight]] |
 | v0.6.0 | **Superpowers required** (project-local pin) | [[superpowers-dependency]] |
 | v0.6.1 | Seats point at relevant skills | [[seats]] |
+| v0.7.0 | **Per-repo seat model/thinking overrides** — committed `.council.json`, scaffold-seeded and non-clobbering | [[council-config]] |
 
 The wiki scaffold shipped in the same commit as the council scaffold — the
 wiki is not an add-on. The full arc and commit-message discipline live in the
@@ -63,6 +64,7 @@ git log; this table is a secondary summary that can drift.
 
 ## Related
 
+- [[council-config]] — the v0.7.0 per-seat model/thinking override file
 - [[seats]] — the 9 Council entities
 - [[council-loop]] — the deliberation → implement → verify → judge procedure
 - [[llm-wiki]] — the schema pattern the vault follows

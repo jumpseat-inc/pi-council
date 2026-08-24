@@ -42,7 +42,7 @@ flip." Escalates to [[steward]] whenever the ruling would change the **portfolio
 to be the real defect).
 
 Related: [[seats]], [[council-loop]], [[designer]]/[[consolidator]] — consumers;
-[[steward]] — its escalation target.
+[[steward]] — its escalation target. Model/thinking override: [[council-config]].
 
 ## Sources
 

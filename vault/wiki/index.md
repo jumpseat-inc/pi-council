@@ -35,6 +35,7 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[mcp-support]] — Model Context Protocol servers, auth, and seat grants (tools only).
 - [[preflight]] — The card-aware, fail-fast shell+script gate before every run.
 - [[llm-wiki]] — The persistent, compounding knowledge base (sources → wiki → schema).
+- [[council-config]] — The committed `.council.json`; field-level per-seat model/thinking override, scaffold-seeded.
 
 ## Comparisons
 
@@ -49,4 +50,5 @@ _(none yet)_
 - [[2026-08-23-pi-council-implementation-plan]] — V0.1.0 build-out runbook.
 - [[2026-08-23-mcp-implementation-plan]] — V0.2.0 MCP build-out runbook.
 - [[2026-08-23-context7-preflight-plan]] — V0.3.0 Context7-by-default + preflight plan.
+- [[2026-08-23-council-json-override]] — V0.7.0: the committed .council.json field-level seat override layer.
 

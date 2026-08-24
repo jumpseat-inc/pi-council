@@ -1,5 +1,20 @@
 <!-- Append-only. Newest entries at top. Format: ## [YYYY-MM-DD] <op> | <title> -->
 
+## [2026-08-23] ingest | Committed .council.json override layer (v0.7.0)
+Ingested the v0.7.0 engine change: per-seat model/thinking field overrides in a
+committed `.council.json`, applied inside `loadSeat`, scaffold-seeded
+non-clobbering, plus the 12th AGENTS.md convention.
+- **Created:** sources/2026-08-23-council-json-override,
+  concept council-config.
+- **Updated:** override-resolution (two-tier + field-merge flag),
+  seats (schema override note), non-clobbering-scaffold (.council.json listing),
+  pi-council-overview (v0.7.0 row), sources/2026-08-23-agents
+  (twelve conventions), + 9 seat entity pages (cross-links).
+- **Contradictions flagged:** AGENTS.md convention count 11 → 12; and
+  override-resolution's "no merging at file level" claim is now only
+  filename-tier truth — `.council.json` merges per-field (noted, not
+  silently overwritten).
+
 ## [2026-08-23] ingest | Repo-doc seed (pi-council)
 Seeded the wiki from this repo's own docs + git history + codebase via the
 ingesting-repo-docs skill. Discussed plan with the human first; wrote 26 pages.

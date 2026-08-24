@@ -48,6 +48,7 @@ once all four gates are green.
 
 - [[seats]], [[council-loop]], [[hub-job-supervision]]
 - [[skeptic]] — the adversary who attacks the owner's branch
+- [[council-config]] — default model/thinking override
 
 ## Sources
 

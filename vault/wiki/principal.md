@@ -41,6 +41,7 @@ a contract the other side never gets to look at. It is:
 - [[seats]], [[council-loop]]
 - [[model-output-floors]] — its model is the floor example
 - [[owner]], [[designer]]
+- [[council-config]] — its model is a config-overridable default
 
 ## Sources
 

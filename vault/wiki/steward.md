@@ -42,4 +42,5 @@ Test: "does this move what the product is for, or just how one part of it works?
 - Stand-in only from `product-owner` escalation or a genuine strategy fork.
 
 Related: [[seats]], [[council-loop]], [[product-owner]], [[engineering-board]].
+Model/thinking override: [[council-config]].
 Sources: `council/agents/steward.md`, `council/procedures/council.md`.

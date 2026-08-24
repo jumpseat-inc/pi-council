@@ -1,10 +1,10 @@
 ---
 title: Override Resolution
 type: concept
-summary: How repo-local resources shadow packaged defaults by filename — seats at `<repo>/$CONFIG_DIR_NAME/agents/`, procedures at `…/council/procedures/`, plus mergeable model-floors and committable mcp.json. The tuning mechanism that makes forking unnecessary.
+summary: How repo-local resources shadow packaged defaults — seats at `<repo>/$CONFIG_DIR_NAME/agents/` and procedures at `…/council/procedures/` by filename, plus mergeable model-floors, committable mcp.json, and the field-level `.council.json` seat override. The tuning mechanisms that make forking unnecessary.
 aliases: [overrides, repo-override]
 tags: [pi-council/concept]
-sources: []
+sources: ["[[2026-08-23-council-json-override]]"]
 created: 2026-08-23
 updated: 2026-08-23
 ---
@@ -23,6 +23,7 @@ pi-package's per-repo tuning mechanism. Every resource of a name resolves to the
 | Procedure | `<repo>/$CONFIG_DIR_NAME/council/procedures/<file>.md` | `<pkgRoot>/council/procedures/<file>.md` |
 | Model floors | `<repo>/$CONFIG_DIR_NAME/council/model-floors.json` (merge) | `<pkgRoot>/council/model-floors.json` |
 | MCP config | `<repo>/$CONFIG_DIR_NAME/council/mcp.json` | scaffold default |
+| Seat model/thinking | `<repo>/.council.json` → `council.<seat>.model`/`.thinking` (field-merge) | seat frontmatter |
 
 The rules:
 
@@ -35,6 +36,12 @@ The rules:
   slash command (see [[procedure-commands]]).
 - **Model floors** are **merge semantics** — repo keys win, shipped entries
   remain unless replaced.
+- **Field-level tier (v0.7.0)** — a committed `.council.json` at the repo root
+  overrides just a seat's `model` + `thinking`, field-merge style: each field
+  independently falls back to frontmatter (see [[council-config]]). This is the
+  one resource type that does **not** shadow a whole file; it composes with
+  filename shadowing (pick the seat body, then tune its model/thinking).
+  Malformed config or invalid values throw rather than silently degrading.
 - This is the sanctioned tuning mechanism — **do not fork the package** to
   specialize seats for one repo.
 
@@ -45,9 +52,10 @@ pi's own clone).
 
 ## Related
 
+- [[council-config]] — the field-level seat model/thinking override (v0.7.0)
 - [[non-clobbering-scaffold]], [[seats]]
 - [[model-output-floors]], [[mcp-support]]
-- [[2026-08-23-pi-council-design-spec]] (Resource resolution)
+- [[2026-08-23-council-json-override]], [[2026-08-23-pi-council-design-spec]] (Resource resolution)
 
 ## Sources
 

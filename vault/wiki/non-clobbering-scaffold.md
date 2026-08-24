@@ -4,7 +4,7 @@ type: concept
 summary: `/council-init` copies the council/ and vault/ data trees and default mcp.json into a consumer repo, never overwriting — re-runs are no-ops and user edits always win.
 aliases: [scaffold, council-init]
 tags: [pi-council/concept]
-sources: []
+sources: ["[[2026-08-23-council-json-override]]"]
 created: 2026-08-23
 updated: 2026-08-23
 ---
@@ -30,6 +30,9 @@ reported in `skipped` and left byte-for-byte untouched.
 
 - **`preflight.sh`** is special-cased: its `@CONFIG_DIR@` placeholders are
   rendered in at copy time.
+- **`.council.json`** — seeded at the repo root with every seat's default
+  model + thinking (split out of frontmatter), so a fresh repo gets a
+  discoverable tuning file (see [[council-config]]). Also non-clobbering.
 - **Empty dirs** created: `vault/raw`, `vault/wiki/sources`.
 - **Default MCP config** — writes `.pi/council/mcp.json` registering context7 +
   tavily (OAuth), also non-clobbering (a consumer's file wins).
@@ -40,7 +43,8 @@ the consumer's data (e.g. ev-guide's board and wiki) across reinstalls.
 ## Related
 
 - [[superpowers-dependency]], [[engineering-board]], [[pi-council-overview]]
-- [[2026-08-23-pi-council-design-spec]] (council-init section)
+- [[council-config]] — the scaffolded .council.json (v0.7.0)
+- [[2026-08-23-council-json-override]], [[2026-08-23-pi-council-design-spec]] (council-init section)
 
 ## Sources
 

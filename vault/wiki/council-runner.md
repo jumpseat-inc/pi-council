@@ -46,6 +46,7 @@ reserved powers are re-homed per the authority map in `features-deliver.md`.
 
 - [[seats]], [[council-loop]]
 - [[engineering-board]], [[hub-job-supervision]], [[preflight]]
+- [[council-config]] — default model/thinking override
 
 ## Sources
 

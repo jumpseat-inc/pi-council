@@ -44,6 +44,7 @@ data can't support — the standing design hazard this seat owns.
 - [[seats]], [[council-loop]], [[engineering-board]]
 - [[product-owner]], [[steward]] — escalation targets
 - [[principal]] — sees the seams beyond the screen
+- [[council-config]] — default model/thinking override
 
 ## Sources
 - `council/agents/designer.md`

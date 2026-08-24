@@ -40,6 +40,7 @@ else** — its value is that it owes no deference to the design.
 
 - [[seats]], [[council-loop]], [[skeptic]]
 - [[owner]] — the implementer it evaluates
+- [[council-config]] — default model/thinking override
 
 ## Sources
 

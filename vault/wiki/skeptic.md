@@ -44,6 +44,7 @@ judge consume these.
 - [[seats]], [[council-loop]], [[consolidator]]
 - [[owner]] — the opposite pole the Skeptic acts on
 - [[engineering-board]] — the verification gate it powers
+- [[council-config]] — default model/thinking override
 
 ## Sources
 

@@ -4,7 +4,7 @@ type: concept
 summary: The seat abstraction — a named Council role defined in markdown frontmatter (model, tools, spawns, mcp), sandboxed as an isolated headless pi child under the hub.
 aliases: [seat, seat schema, council seat]
 tags: [pi-council/concept]
-sources: []
+sources: ["[[2026-08-23-council-json-override]]"]
 created: 2026-08-23
 updated: 2026-08-23
 ---
@@ -25,6 +25,11 @@ participates in a Council run. It is defined entirely by a markdown file in
 | `tools` | omp-style names: `Read, Grep, Glob, Edit, Write, Bash, task, hub` |
 | `spawns` | seat names this seat may itself dispatch (recursive grants) |
 | `mcp` | server names whose tools the seat may use (`mcp: [context7]`) |
+
+`model` and its `:thinking` suffix are the seat's **default**; a committed
+`.council.json` at the repo root can field-override either per-seat (see
+[[council-config]]). `loadSeat` applies the override before returning, so both
+parent and child see the same resolved model/thinking.
 
 `buildSystemPrompt` (in `seats.ts`) appends two engine-owned blocks to the seat
 body: `<council_runtime>` (resolved procedures dir) and `<repository_grounding>`
@@ -55,6 +60,7 @@ product-owner, skeptic (the sole adversary), steward.
 ## Related
 
 - [[council-loop]], [[engineering-board]], [[mcp-support]], [[repository-grounding]]
+- [[council-config]] — per-seat model/thinking override (v0.7.0)
 - Each seat has its own page: [[owner]], [[skeptic]], [[judge]], [[principal]],
   [[designer]], [[consolidator]], [[product-owner]], [[steward]], [[council-runner]]
 

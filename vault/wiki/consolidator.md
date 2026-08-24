@@ -43,6 +43,7 @@ specific blocker.
 
 - [[seats]], [[council-loop]], [[skeptic]]
 - [[product-owner]], [[steward]]
+- [[council-config]] — default model/thinking override
 
 ## Sources
 
