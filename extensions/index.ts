@@ -9,6 +9,7 @@ import { mintRunId, pruneRuns } from "./runs.ts";
 import { scaffoldInto } from "./scaffold.ts";
 import { resolveCouncilDependencies } from "./dependencies.ts";
 import { connectParentServers, getMcpManager, registerMcpCommand } from "./mcp/index.ts";
+import { registerNavigator, TREE_SHORTCUT } from "./navigator.ts";
 
 /**
  * Some catalogue entries carry wrong max-output metadata — e.g. OpenRouter's
@@ -82,6 +83,7 @@ export default function (pi: ExtensionAPI) {
 	let uiCtx: ExtensionContext | null = null;
 	let widgetTimer: ReturnType<typeof setInterval> | null = null;
 	registerHubTools(pi, repoRoot);
+	registerNavigator(pi, repoRoot, () => getHub(repoRoot).runId);
 
 	const renderWidget = () => {
 		if (!uiCtx?.hasUI) return;
