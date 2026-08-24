@@ -1,0 +1,13 @@
+{
+	"council": {
+		"consolidator": "openrouter/deepseek/deepseek-v4-flash-0731",
+		"council-runner": "openrouter/deepseek/deepseek-v4-flash-0731",
+		"designer": "openrouter/deepseek/deepseek-v4-flash-0731",
+		"judge": "openrouter/deepseek/deepseek-v4-flash-0731",
+		"owner": "openrouter/deepseek/deepseek-v4-flash-0731",
+		"principal": "openrouter/deepseek/deepseek-v4-flash-0731",
+		"product-owner": "openrouter/deepseek/deepseek-v4-flash-0731",
+		"skeptic": "openrouter/deepseek/deepseek-v4-flash-0731",
+		"steward": "openrouter/deepseek/deepseek-v4-flash-0731"
+	}
+}
