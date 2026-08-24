@@ -10,6 +10,8 @@ import {
 	writeManifest,
 	childEnv,
 	findSessionFile,
+	listRunIds,
+	pruneRuns,
 	type RunManifest,
 } from "../extensions/runs.ts";
 
@@ -94,5 +96,60 @@ test("findSessionFile matches by header id, not filename", () => {
 		`{"type":"session","version":3,"id":"job-2","timestamp":"x","cwd":"/x"}\n`,
 	);
 	expect(findSessionFile(root, "runD", "job-2")).toBe(path.join(dir, "2026-01-01T00-00-01Z_job-2.jsonl"));
+	expect(findSessionFile(root, "runD", "job-1")).toBe(path.join(dir, "2026-01-01T00-00-00Z_job-1.jsonl"));
 	expect(findSessionFile(root, "runD", "job-9")).toBeUndefined();
+});
+
+test("listRunIds orders newest first", () => {
+	const root = tmpRepo();
+	ensureRunDir(root, "old");
+	const dir = path.join(root, CONFIG_DIR_NAME, "council", "runs", "old", "run.json");
+	fs.writeFileSync(dir, JSON.stringify({ runId: "old", startedAt: 1, repoRoot: root, hostPid: 1 }));
+	ensureRunDir(root, "new");
+	expect(listRunIds(root)).toEqual(["new", "old"]);
+});
+
+test("pruneRuns deletes oldest beyond keep", () => {
+	const root = tmpRepo();
+	for (let i = 0; i < 4; i++) {
+		ensureRunDir(root, `r${i}`);
+		const dir = path.join(root, CONFIG_DIR_NAME, "council", "runs", `r${i}`, "run.json");
+		fs.writeFileSync(dir, JSON.stringify({ runId: `r${i}`, startedAt: i + 1, repoRoot: root, hostPid: 1 }));
+	}
+	const pruned = pruneRuns(root, 2, () => false);
+	expect(pruned).toBe(2);
+	expect(listRunIds(root)).toEqual(["r3", "r2"]);
+});
+
+test("pruneRuns never deletes a run with a live pid", () => {
+	const root = tmpRepo();
+	ensureRunDir(root, "live");
+	const dir = path.join(root, CONFIG_DIR_NAME, "council", "runs", "live", "run.json");
+	fs.writeFileSync(dir, JSON.stringify({ runId: "live", startedAt: 1, repoRoot: root, hostPid: 1 }));
+	writeManifest(root, "live", manifest("job-1", { pid: process.pid }));
+	ensureRunDir(root, "keep1");
+	ensureRunDir(root, "keep2");
+	const pruned = pruneRuns(root, 2, (pid) => {
+		try {
+			process.kill(pid, 0);
+			return true;
+		} catch {
+			return false;
+		}
+	});
+	expect(pruned).toBe(0);
+	expect(listRunIds(root)).toContain("live");
+});
+
+test("pruneRuns deletes a run whose pid is dead", () => {
+	const root = tmpRepo();
+	ensureRunDir(root, "dead");
+	const dir = path.join(root, CONFIG_DIR_NAME, "council", "runs", "dead", "run.json");
+	fs.writeFileSync(dir, JSON.stringify({ runId: "dead", startedAt: 1, repoRoot: root, hostPid: 1 }));
+	writeManifest(root, "dead", manifest("job-1", { pid: 999999 }));
+	ensureRunDir(root, "keep1");
+	ensureRunDir(root, "keep2");
+	const pruned = pruneRuns(root, 2, () => false);
+	expect(pruned).toBe(1);
+	expect(listRunIds(root)).not.toContain("dead");
 });
