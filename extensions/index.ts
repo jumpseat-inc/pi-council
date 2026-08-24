@@ -131,7 +131,7 @@ export default function (pi: ExtensionAPI) {
 	// shadows the packaged one of the same name.
 	const procDir = proceduresDir(repoRoot);
 	const seen = new Set<string>();
-	for (const dir of [path.join(repoRoot, ".pi", "council", "procedures"), path.join(PKG_ROOT, "council", "procedures")]) {
+	for (const dir of [path.join(repoRoot, CONFIG_DIR_NAME, "council", "procedures"), path.join(PKG_ROOT, "council", "procedures")]) {
 		if (!fs.existsSync(dir)) continue;
 		for (const file of fs.readdirSync(dir)) {
 			if (!file.endsWith(".md") || seen.has(file)) continue;

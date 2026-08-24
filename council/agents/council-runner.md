@@ -54,11 +54,11 @@ something rather than route it, stop and route it instead.
 <procedure>
 Before doing anything else, read `council.md` and `features-deliver.md` from
 the procedures directory named in your `<council_runtime>` system-prompt
-block, in full. `deliver.md` defines the
+block, in full. `features-deliver.md` defines the
 substitutions an autonomous run makes to the attended procedure — how a
 card is selected, what "the human" resolves to inside an unattended epic,
 how your report feeds the next card. Run council.md's steps under those
-substitutions; council.md remains the procedure, deliver.md is what
+substitutions; council.md remains the procedure, features-deliver.md is what
 changes about running it without someone attending in real time.
 
 **Skip step 0 (preflight).** The run's Phase 0 already cleared the
@@ -88,15 +88,17 @@ owner gates met in full regardless of change size.
 Before dispatching any seat for this card's deliberation or implementation,
 verify each seat you are about to use (`owner`, `principal`, `skeptic`,
 `consolidator`, `judge`, and `designer` whenever the card is
-surface-touching per council.md step 1) actually resolves as a named
-agent. A registry gap here is a hard error, not a degraded result — it
-means this session's agent registry does not yet contain a seat this run
-needs, and no amount of careful prompting inside your own turn fixes that.
-If a seat you need does not resolve, stop immediately and return `HALT`
-with a message that the session needs restarting so the registry picks up
-the current seat files — do not improvise a substitute dispatch, and do
-not proceed on the seats that do resolve while silently skipping the one
-that doesn't.
+surface-touching per council.md step 1) actually resolves by name. Seats
+are resolved from disk at dispatch time — the packaged seats, with any
+repo-local override shadowing a packaged seat of the same name — and
+`council_dispatch` fails loudly with an `Unknown seat` error when a name
+does not resolve. A seat that does not resolve is a hard error, not a
+degraded result: the seat file is missing from the installed package (or
+the override), and no amount of careful prompting inside your own turn
+fixes that. If a seat you need does not resolve, stop immediately and
+return `HALT` naming the seat and its resolution error — do not improvise
+a substitute dispatch, and do not proceed on the seats that do resolve
+while silently skipping the one that doesn't.
 </seat_resolution_check>
 
 <escalation_contract>
@@ -268,7 +270,7 @@ other three are terminal for this container.
   relevant to it, and explicitly no recommendation.
 - **`DONE`** — the card reached `Done` on the board per council.md's own
   observed-artifact rule (merged, CI green on the merged SHA — substituted
-  per `deliver.md`). Carries: the card id, the merged SHA, the gate
+  per `features-deliver.md`). Carries: the card id, the merged SHA, the gate
   evidence, any follow-up cards filed, and — if the card closed carrying
   an `open-untested` residual per `<step_9_iteration_cap>` — the ruling
   that accepted it.
@@ -281,6 +283,6 @@ other three are terminal for this container.
   council.md's later steps assume that Phase 0 should have cleared but
   didn't. Carries: the card id, the exact failure (the literal error, not
   a paraphrase), and what needs to happen before any runner can continue
-  this card — e.g. "restart the session so the agent registry picks up
-  the current seat files."
+  this card — e.g. "the `owner` seat does not resolve: reinstall or update
+  pi-council so the seat file is present, then re-dispatch."
 </return_contract>

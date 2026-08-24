@@ -5,7 +5,7 @@ argument-hint: [feature description]
 
 You are decomposing `$ARGUMENTS` into an epic and its child cards. This
 command is the entry point into `/features-deliver`'s autonomous mode: every
-card `deliver.md` later runs unattended traces back to a card this command
+card `features-deliver.md` later runs unattended traces back to a card this command
 wrote, so the gate that matters most here is the one that also matters most
 there — nothing reaches the board without the human seeing it first.
 

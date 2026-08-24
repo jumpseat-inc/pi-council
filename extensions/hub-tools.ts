@@ -57,7 +57,7 @@ export function registerHubTools(pi: ExtensionAPI, repoRoot: string, opts: HubTo
 			"Dispatch a Council seat as an isolated background job. Returns a job ID immediately. " +
 			"Follow with council_wait to collect the result. Timeout default 15 min; raise it for long implementation or verification tasks.",
 		parameters: Type.Object({
-			seat: Type.String({ description: "Seat name from .pi/agents/ (e.g. owner, skeptic)" }),
+			seat: Type.String({ description: "Seat name (e.g. owner, skeptic) — packaged seats load automatically; a repo-local override in .pi/agents/ shadows the packaged seat" }),
 			input: Type.String({ description: "The full task/deliberation input for the seat" }),
 			timeout_minutes: Type.Optional(Type.Number({ description: "Ceiling in minutes (default 15)" })),
 			stall_minutes: Type.Optional(

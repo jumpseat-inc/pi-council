@@ -45,12 +45,16 @@ to start and report it rather than working around it.
 **Seats must be dispatchable by name before the run commits to anything.**
 Verify every seat this epic's cards will need — `owner`, `principal`,
 `designer`, `skeptic`, `consolidator`, `judge`, `product-owner`, `steward`
-— actually resolves as a named agent. A registry gap is a hard error, not
-a degraded result: stop Phase 0 and report that the session needs
-restarting so the registry picks up the current seat files. This is the
-same check `council-runner.md`'s `<seat_resolution_check>` repeats per
-card; catching it here, before a single card is in flight, is cheaper than
-catching it mid-deliberation.
+— actually resolves by name. Seats are resolved from disk at dispatch time
+— the packaged seats, with any repo-local override shadowing a packaged
+seat of the same name — and `council_dispatch` fails loudly with an
+`Unknown seat` error when a name does not resolve. A seat that does not
+resolve is a hard error, not a degraded result: the seat file is missing
+from the installed package (or the override), so stop Phase 0 and report
+it rather than starting the run. This is the same check
+`council-runner.md`'s `<seat_resolution_check>` repeats per card; catching
+it here, before a single card is in flight, is cheaper than catching it
+mid-deliberation.
 
 ## Phase 1 — the rulings preflight
 
@@ -127,8 +131,7 @@ mechanically, with no discretion — no seat, including `product-owner` and
 none may be skipped because the change is small or the run is confident.
 All five must hold:
 
-1. Every owner gate green, in full — the four gates in
-   `docs/gates/GATE-EVIDENCE.md`.
+1. Every owner gate green, in full.
 2. **GitHub Actions green on the PR head SHA.**
 3. No blocking Skeptic objection.
 4. Judge verdict `PASS`.
