@@ -85,6 +85,8 @@ test("scaffold writes context7 + tavily mcp.json and renders @CONFIG_DIR@ in pre
 	expect(preflight).toContain("/login openrouter");
 	expect(preflight).toContain("superpowers");
 	expect(preflight).toContain(".pi/git/github.com/obra/superpowers");
+	expect(preflight).toContain("ask-user-question");
+	expect(preflight).toContain("npm:@juicesharp/rpiv-ask-user-question");
 	expect(preflight).toContain("/reload");
 
 	// rerun: user edits survive, nothing new created

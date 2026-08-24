@@ -26,6 +26,24 @@ else
   fail "superpowers is not installed project-locally — run /council-init to scaffold the council and install superpowers project-locally (or run pi install -l git:github.com/obra/superpowers yourself), then run /reload so pi loads its skills. The council refuses to run without it."
 fi
 
+# ---- Ask-user-question extension gate ----
+# The council needs the rpiv-ask-user-question extension (a tool a seat can use
+# to interrupt for a human answer). /council-init pins it project-locally
+# (@CONFIG_DIR@/settings.json plus an install under
+# @CONFIG_DIR@/npm/node_modules/@juicesharp/rpiv-ask-user-question) — that is
+# what makes it portable to teammates. A global-only install leaves the repo,
+# so the instructor refuses to start a council run without a project-local
+# presence.
+ASK_PKG="@CONFIG_DIR@/npm/node_modules/@juicesharp/rpiv-ask-user-question"
+ASK_PIN="@CONFIG_DIR@/settings.json"
+if [ -d "$ASK_PKG" ] && [ -f "$ASK_PKG/package.json" ]; then
+  ok "ask-user-question present (extension under $ASK_PKG)"
+elif [ -f "$ASK_PIN" ] && grep -q 'rpiv-ask-user-question' "$ASK_PIN" 2>/dev/null; then
+  ok "ask-user-question present (pin in $ASK_PIN)"
+else
+  fail "ask-user-question is not installed project-locally — run /council-init (or run pi install -l npm:@juicesharp/rpiv-ask-user-question yourself), then run /reload. The council refuses to run without it."
+fi
+
 command -v bun >/dev/null 2>&1 || fail "bun is not on PATH (install via https://bun.sh)"
 ok "bun found: $(bun --version)"
 

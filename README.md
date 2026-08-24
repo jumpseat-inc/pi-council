@@ -60,16 +60,19 @@ Then, inside a repository, scaffold its data layer:
 /council-init
 ```
 
-`/council-init` also ensures the [superpowers](https://github.com/obra/superpowers)
-skills package (test-driven development, planning, debugging, …) is pinned
-project-locally — `.pi/settings.json` with a clone under `.pi/git/` — so the
-dependency travels with the repo and auto-installs for teammates once
-trusted. Run `/reload` after it installs.
+`/council-init` also pins two project-local dependencies so they travel with
+the repo and auto-install for teammates once trusted:
+- the [superpowers](https://github.com/obra/superpowers) skills package
+  (test-driven development, planning, debugging, …),
+- the `rpiv-ask-user-question` extension (a tool a seat uses to interrupt for
+  a human answer).
 
-The council refuses to run without superpowers: `preflight.sh` (run by
-`/council`, `/features-deliver`) and `/features-new` check for the
-project-local pin and halt with remediation if it's missing (run
-`/council-init`, then `/reload`).
+Run `/reload` after they install.
+
+The council refuses to run without them: `preflight.sh` (run by `/council`,
+`/features-deliver`) and `/features-new` check for the project-local pins and
+halt with remediation if either is missing (run `/council-init`, then
+`/reload`).
 
 Every seat sees the full superpowers skill set in its system prompt. Each
 seat body points its model at the skills most relevant to its role:
@@ -113,7 +116,7 @@ across cards instead of evaporating between sessions.
 
 | Command                            | What it does                                                              |
 | ---------------------------------- | ------------------------------------------------------------------------- |
-| `/council-init`                    | Scaffold the council/ + vault/ trees (never overwrites); installs superpowers project-locally |
+| `/council-init`                    | Scaffold the council/ + vault/ trees (never overwrites); installs superpowers + ask-user-question project-locally |
 | `/council [card-id]`               | Run the full deliberation → owner → verify → judge loop on a card         |
 | `/board-create-card <desc>`        | Draft a new board card, confirm with you, file it                         |
 | `/features-new <feature>`          | Decompose a feature into an epic + child cards                            |
@@ -182,13 +185,15 @@ manages are throwaway:
 | `.pi/council/model-floors.json` | output-floor overrides                                                         | commit     |
 | `.pi/council/mcp.json`          | MCP server registrations                                                       | commit     |
 | `.pi/git/`                      | pi's clone of this package — the extension itself, with its own `node_modules` | **ignore** |
+| `.pi/npm/`                      | pi's project-local npm installs (the ask-user-question extension)              | **ignore** |
 | `.pi/council/.pids.json`        | transient hub runtime state                                                    | **ignore** |
 
 Ignore exactly the harness and transient state:
 
 ```gitignore
-# pi harness (package clone pi manages) + transient hub state
+# pi harness (package clones pi manages) + transient hub state
 .pi/git/
+.pi/npm/
 .pi/council/.pids.json
 ```
 
