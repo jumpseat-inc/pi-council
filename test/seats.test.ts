@@ -126,15 +126,24 @@ test("proceduresDir: packaged default, then repo override", () => {
 	expect(proceduresDir(root)).toBe(ov);
 });
 
-test("buildChildArgv produces json print-mode invocation", () => {
+test("buildChildArgv produces json print-mode invocation with session persistence", () => {
 	const owner = loadSeat(tmpRepo(), "owner");
-	const argv = buildChildArgv(owner, "do the thing", "/tmp/p.md");
+	const argv = buildChildArgv(
+		owner,
+		"do the thing",
+		"/tmp/p.md",
+		[],
+		{ sessionDir: "/r/runs/x", sessionId: "job-1" },
+	);
 	expect(argv).toEqual([
 		"--mode",
 		"json",
 		"-p",
 		"-a",
-		"--no-session",
+		"--session-dir",
+		"/r/runs/x",
+		"--session-id",
+		"job-1",
 		"--model",
 		"openrouter/deepseek/deepseek-v4-flash-0731",
 		"--thinking",
@@ -161,7 +170,13 @@ test("seats without mcp field default to no MCP access", () => {
 
 test("buildChildArgv appends granted mcp tool names to --tools", () => {
 	const owner = loadSeat(tmpRepo(), "owner");
-	const argv = buildChildArgv(owner, "go", "/tmp/p.md", ["mcp__context7__search", "mcp__context7__docs"]);
+	const argv = buildChildArgv(
+		owner,
+		"go",
+		"/tmp/p.md",
+		["mcp__context7__search", "mcp__context7__docs"],
+		{ sessionDir: "/r", sessionId: "job-1" },
+	);
 	expect(argv).toContain("read,bash,edit,write,grep,find,ls,mcp__context7__search,mcp__context7__docs");
 });
 
@@ -226,7 +241,10 @@ test("explicit thinking key beats inline :suffix in the override model", () => {
 test("override ooze flows into buildChildArgv --model/--thinking", () => {
 	const root = tmpRepo();
 	writeConfig(root, { council: { owner: { model: "openrouter/api/override", thinking: "medium" } } });
-	const argv = buildChildArgv(loadSeat(root, "owner"), "do", "/tmp/p.md");
+	const argv = buildChildArgv(loadSeat(root, "owner"), "do", "/tmp/p.md", [], {
+		sessionDir: "/r",
+		sessionId: "job-1",
+	});
 	expect(argv).toContain("openrouter/api/override");
 	expect(argv).toContain("--thinking");
 	expect(argv[argv.indexOf("--thinking") + 1]).toBe("medium");

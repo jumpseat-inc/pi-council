@@ -16,7 +16,10 @@ test("dispatch path: connected granted server contributes tool names to argv", a
 		"---\nname: x\ndescription: d\nmodel: m\ntools: Read\nmcp: [fix]\n---\nbody",
 		"x.md",
 	);
-	const argv = buildChildArgv(seat, "go", "/tmp/p.md", mgr.listToolNames("fix"));
+	const argv = buildChildArgv(seat, "go", "/tmp/p.md", mgr.listToolNames("fix"), {
+		sessionDir: "/r",
+		sessionId: "job-1",
+	});
 	expect(argv).toContain("read,mcp__fix__echo");
 	await mgr.close("fix");
 	await fx.close();
