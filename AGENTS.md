@@ -129,3 +129,6 @@ docs/superpowers/    design spec + implementation plan (read before big changes)
   `.pi/git/...`). Same package in both scopes → project entry wins. Bump
   `version` in `package.json` when the payload or engine behavior changes.
 - `keywords: ["pi-package"]` must stay for gallery discoverability.
+- `latest` is a **moving tag** pointing at the newest release. After every
+  `git tag vX.Y.Z`, move it and force-push it with the release:
+  `git tag -f latest vX.Y.Z && git push origin main vX.Y.Z latest`.
