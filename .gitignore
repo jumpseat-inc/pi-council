@@ -6,3 +6,6 @@ node_modules/
 # pi harness + transient hub state
 .pi/git/
 .pi/council/.pids.json
+# Smoke test run artifacts
+smoke/artifacts/*
+!smoke/artifacts/.gitkeep
