@@ -16,6 +16,15 @@ export interface Seat {
 
 const THINKING_LEVELS = new Set(["off", "minimal", "low", "medium", "high", "xhigh", "max"]);
 
+/**
+ * Optional per-agent model/thinking overrides from a committed `.council.json`
+ * at the repository root. Frontmatter remains the default; these shadow it.
+ * Shape of the file: `{ "council": { "<seatName>": { "model"?, "thinking"? } } }`.
+ * A bare-string value is shorthand for `{ "model": "<value>" }` and may carry
+ * the same `:thinking` suffix parsing used in seat frontmatter.
+ */
+export const COUNCIL_CONFIG_FILE = ".council.json";
+
 /** Absolute package root — one level above extensions/. */
 export const PKG_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -61,6 +70,91 @@ export function parseSeatFile(content: string, fileName: string): Seat {
 	};
 }
 
+export interface AgentOverride {
+	model?: string;
+	thinking?: string;
+}
+
+function qualifiedOrThrow(raw: string, fileName: string, where: string): string {
+	if (!raw.includes("/")) {
+		throw new Error(`${fileName}: ${where} model "${raw}" must be qualified as provider/id`);
+	}
+	return raw;
+}
+
+function parseAgentOverride(name: string, raw: unknown, fileName: string): AgentOverride {
+	if (typeof raw === "string") {
+		return { model: qualifiedOrThrow(raw, fileName, `council["${name}"]`) };
+	}
+	if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
+		throw new Error(`${fileName}: council["${name}"] must be a string or an object with "model"/"thinking"`);
+	}
+	const rec = raw as Record<string, unknown>;
+	const out: AgentOverride = {};
+	if (rec.model !== undefined) {
+		if (typeof rec.model !== "string") {
+			throw new Error(`${fileName}: council["${name}"].model must be a string`);
+		}
+		out.model = qualifiedOrThrow(rec.model, fileName, `council["${name}"]`);
+	}
+	if (rec.thinking !== undefined) {
+		if (typeof rec.thinking !== "string" || !THINKING_LEVELS.has(rec.thinking)) {
+			throw new Error(
+				`${fileName}: council["${name}"].thinking must be one of ${[...THINKING_LEVELS].join(", ")}`,
+			);
+		}
+		out.thinking = rec.thinking;
+	}
+	return out;
+}
+
+/**
+ * Read and validate `.council.json` at the repository root. Returns a per-seat
+ * override map keyed by seat name; empty object when the file is absent or has
+ * no `council` section. Malformed JSON or invalid overrides throw.
+ */
+export function loadCouncilConfig(repoRoot: string): Record<string, AgentOverride> {
+	const file = path.join(repoRoot, COUNCIL_CONFIG_FILE);
+	if (!fs.existsSync(file)) return {};
+	let parsed: unknown;
+	try {
+		parsed = JSON.parse(fs.readFileSync(file, "utf-8"));
+	} catch (e) {
+		throw new Error(`${file}: malformed JSON — ${e instanceof Error ? e.message : String(e)}`);
+	}
+	if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+		throw new Error(`${file}: root must be a JSON object`);
+	}
+	const council = (parsed as Record<string, unknown>).council;
+	if (council === undefined) return {};
+	if (typeof council !== "object" || council === null || Array.isArray(council)) {
+		throw new Error(`${file}: "council" must be an object keyed by seat name`);
+	}
+	const out: Record<string, AgentOverride> = {};
+	for (const [name, value] of Object.entries(council as Record<string, unknown>)) {
+		out[name] = parseAgentOverride(name, value, file);
+	}
+	return out;
+}
+
+/** Apply a seat override, honoring: thinking key > inline :suffix > frontmatter. */
+export function applySeatOverride(seat: Seat, config: Record<string, AgentOverride>): Seat {
+	const ov = config[seat.name];
+	if (!ov) return seat;
+	let model = seat.model;
+	let thinkingLevel = seat.thinkingLevel;
+	if (ov.model) {
+		model = ov.model;
+		const colon = model.lastIndexOf(":");
+		if (colon > 0 && THINKING_LEVELS.has(model.slice(colon + 1))) {
+			thinkingLevel = model.slice(colon + 1);
+			model = model.slice(0, colon);
+		}
+	}
+	if (ov.thinking) thinkingLevel = ov.thinking;
+	return model === seat.model && thinkingLevel === seat.thinkingLevel ? seat : { ...seat, model, thinkingLevel };
+}
+
 /** Repo-local override first, packaged default second. */
 function seatDirs(repoRoot: string): string[] {
 	return [path.join(repoRoot, CONFIG_DIR_NAME, "agents"), path.join(PKG_ROOT, "council", "agents")];
@@ -80,7 +174,10 @@ export function listSeatNames(repoRoot: string): string[] {
 export function loadSeat(repoRoot: string, name: string): Seat {
 	for (const dir of seatDirs(repoRoot)) {
 		const file = path.join(dir, `${name}.md`);
-		if (fs.existsSync(file)) return parseSeatFile(fs.readFileSync(file, "utf-8"), file);
+		if (fs.existsSync(file)) {
+			const seat = parseSeatFile(fs.readFileSync(file, "utf-8"), file);
+			return applySeatOverride(seat, loadCouncilConfig(repoRoot));
+		}
 	}
 	throw new Error(`Unknown seat "${name}". Available: ${listSeatNames(repoRoot).join(", ")}`);
 }

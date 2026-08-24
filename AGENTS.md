@@ -74,6 +74,13 @@ docs/superpowers/    design spec + implementation plan (read before big changes)
    only when a model demonstrably dies with `stopReason=length` mid-thinking;
    repos may extend/override via `$CONFIG_DIR_NAME/council/model-floors.json`
    (merge semantics, repo keys win).
+9.5. **Agent model/thinking can be overridden per-repo via committed
+   `.council.json`** at the repository root — `{ "council": { "<seat>": {
+   "model"?, "thinking"? } } }` (a bare string is shorthand for `{"model"}` and
+   accepts the same `:thinking` suffix). Frontmatter stays the default; the
+   file shadows it. Resolution lives in `loadCouncilConfig`/`applySeatOverride`
+   in `seats.ts`; malformed JSON or an invalid `thinking` value throws. Keep
+   new override fields there, not in seat frontmatter.
 10. **MCP secrets never go in `mcp.json`** — header values entered via
     `/mcp login` and all OAuth tokens live in `getAgentDir()/council/mcp-auth.json`
     (0600, atomic writes). `$ENV_VAR` indirection in `mcp.json` resolves at

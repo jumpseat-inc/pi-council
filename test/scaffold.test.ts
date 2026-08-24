@@ -5,6 +5,7 @@ import * as path from "node:path";
 import { scaffoldInto } from "../extensions/scaffold.ts";
 import { PKG_ROOT } from "../extensions/seats.ts";
 import { loadMcpConfig } from "../extensions/mcp/config.ts";
+import { COUNCIL_CONFIG_FILE, loadCouncilConfig, loadSeat } from "../extensions/seats.ts";
 
 const SCAFFOLD = path.join(PKG_ROOT, "council", "scaffold");
 
@@ -29,6 +30,35 @@ test("first run creates everything, second run skips everything", () => {
 	expect(createdFiles).toEqual([]);
 	expect(second.skipped).toContain("council/board.md");
 	expect(fs.readFileSync(path.join(root, "council", "board.md"), "utf-8")).toContain("<!-- mine -->");
+});
+
+	test("scaffold seeds .council.json with agent defaults and never overwrites user edits", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-init-conf-"));
+	const first = scaffoldInto(root, SCAFFOLD);
+	expect(first.created).toContain(COUNCIL_CONFIG_FILE);
+	expect(first.skipped).toEqual([]);
+
+	// seeded values match each shipped agent's frontmatter (model + thinking split)
+	const seeded = loadCouncilConfig(root);
+	expect(seeded["owner"]).toEqual({ model: "openrouter/deepseek/deepseek-v4-flash-0731", thinking: "high" });
+	expect(seeded["council-runner"]).toEqual({
+		model: "openrouter/deepseek/deepseek-v4-flash-0731",
+		thinking: "medium",
+	});
+	expect(seeded["designer"]).toEqual({ model: "openrouter/minimax/minimax-m3", thinking: "high" });
+	expect(seeded["consolidator"]).toEqual({ model: "openrouter/z-ai/glm-5.2", thinking: "high" });
+
+	// a seat override in the seeded file actually takes effect
+	expect(loadSeat(root, "owner").model).toBe("openrouter/deepseek/deepseek-v4-flash-0731");
+	expect(loadSeat(root, "owner").thinkingLevel).toBe("high");
+
+	// rerun: user edit survives, nothing new created
+	fs.writeFileSync(path.join(root, COUNCIL_CONFIG_FILE), JSON.stringify({ council: { owner: { model: "x/y" } } }));
+	const second = scaffoldInto(root, SCAFFOLD);
+	const createdFiles = second.created.filter((c) => c !== "vault/raw" && c !== "vault/wiki/sources");
+	expect(createdFiles).toEqual([]);
+	expect(second.skipped).toContain(COUNCIL_CONFIG_FILE);
+	expect(loadSeat(root, "owner").model).toBe("x/y");
 });
 
 test("scaffold writes context7 + tavily mcp.json and renders @CONFIG_DIR@ in preflight", () => {

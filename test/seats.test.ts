@@ -11,6 +11,8 @@ import {
 	buildSystemPrompt,
 	buildChildArgv,
 	proceduresDir,
+	loadCouncilConfig,
+	COUNCIL_CONFIG_FILE,
 	PKG_ROOT,
 } from "../extensions/seats.ts";
 
@@ -161,4 +163,92 @@ test("buildChildArgv appends granted mcp tool names to --tools", () => {
 	const owner = loadSeat(tmpRepo(), "owner");
 	const argv = buildChildArgv(owner, "go", "/tmp/p.md", ["mcp__context7__search", "mcp__context7__docs"]);
 	expect(argv).toContain("read,bash,edit,write,grep,find,ls,mcp__context7__search,mcp__context7__docs");
+});
+
+// ---- .council.json override layer ----
+
+function writeConfig(root: string, data: unknown): void {
+	fs.writeFileSync(path.join(root, COUNCIL_CONFIG_FILE), JSON.stringify(data));
+}
+
+test("absent .council.json yields no overrides and leaves seat untouched", () => {
+	const owner = loadSeat(tmpRepo(), "owner");
+	expect(owner.model).toBe("openrouter/deepseek/deepseek-v4-flash-0731");
+	expect(owner.thinkingLevel).toBe("high");
+});
+
+test("object override replaces model and thinking together", () => {
+	const root = tmpRepo();
+	writeConfig(root, {
+		council: {
+			owner: { model: "openrouter/api/override", thinking: "low" },
+		},
+	});
+	const owner = loadSeat(root, "owner");
+	expect(owner.model).toBe("openrouter/api/override");
+	expect(owner.thinkingLevel).toBe("low");
+	// untouched seats keep their frontmatter defaults
+	expect(loadSeat(root, "judge").model).toBe("openrouter/qwen/qwen3.6-35b-a3b");
+});
+
+test("model-only override preserves frontmatter thinking", () => {
+	const root = tmpRepo();
+	writeConfig(root, { council: { owner: { model: "openrouter/api/override" } } });
+	const owner = loadSeat(root, "owner");
+	expect(owner.model).toBe("openrouter/api/override");
+	expect(owner.thinkingLevel).toBe("high");
+});
+
+test("thinking-only override preserves frontmatter model", () => {
+	const root = tmpRepo();
+	writeConfig(root, { council: { owner: { thinking: "off" } } });
+	const owner = loadSeat(root, "owner");
+	expect(owner.model).toBe("openrouter/deepseek/deepseek-v4-flash-0731");
+	expect(owner.thinkingLevel).toBe("off");
+});
+
+test("string shorthand override parses model and optional :thinking suffix", () => {
+	const root = tmpRepo();
+	writeConfig(root, { council: { designer: "openrouter/api/override:minimal" } });
+	const d = loadSeat(root, "designer");
+	expect(d.model).toBe("openrouter/api/override");
+	expect(d.thinkingLevel).toBe("minimal");
+});
+
+test("explicit thinking key beats inline :suffix in the override model", () => {
+	const root = tmpRepo();
+	writeConfig(root, { council: { owner: { model: "openrouter/api/override:max", thinking: "low" } } });
+	const owner = loadSeat(root, "owner");
+	expect(owner.model).toBe("openrouter/api/override");
+	expect(owner.thinkingLevel).toBe("low");
+});
+
+test("override ooze flows into buildChildArgv --model/--thinking", () => {
+	const root = tmpRepo();
+	writeConfig(root, { council: { owner: { model: "openrouter/api/override", thinking: "medium" } } });
+	const argv = buildChildArgv(loadSeat(root, "owner"), "do", "/tmp/p.md");
+	expect(argv).toContain("openrouter/api/override");
+	expect(argv).toContain("--thinking");
+	expect(argv[argv.indexOf("--thinking") + 1]).toBe("medium");
+});
+
+test("config referencing an unknown seat does not affect known seats", () => {
+	const root = tmpRepo();
+	writeConfig(root, { council: { nope: { model: "x/y" } } });
+	expect(loadSeat(root, "owner").model).toBe("openrouter/deepseek/deepseek-v4-flash-0731");
+});
+
+test("malformed .council.json throws a useful error", () => {
+	const root = tmpRepo();
+	expect(() => {
+		fs.writeFileSync(path.join(root, COUNCIL_CONFIG_FILE), "{ not json");
+		loadCouncilConfig(root);
+	}).toThrow(/council\.json/);
+});
+
+test("council section missing means no overrides", () => {
+	const root = tmpRepo();
+	writeConfig(root, { somethingElse: true });
+	expect(loadCouncilConfig(root)).toEqual({});
+	expect(loadSeat(root, "owner").model).toBe("openrouter/deepseek/deepseek-v4-flash-0731");
 });
