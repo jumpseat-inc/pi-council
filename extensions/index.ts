@@ -5,6 +5,7 @@ import { runChildMode } from "./child.ts";
 import { Hub } from "./hub.ts";
 import { getHub, initHubIdentity, pidFilePath, registerHubTools, shutdownHub } from "./hub-tools.ts";
 import { PKG_ROOT, proceduresDir } from "./seats.ts";
+import { activateTheme } from "./theme-activation.ts";
 import { mintRunId, pruneRuns } from "./runs.ts";
 import { scaffoldInto } from "./scaffold.ts";
 import { installArgsFor, resolveCouncilDependencies } from "./dependencies.ts";
@@ -110,6 +111,7 @@ export default function (pi: ExtensionAPI) {
 		uiCtx = ctx;
 		const swept = Hub.sweepStalePids(pidFilePath(repoRoot));
 		if (swept > 0 && ctx.hasUI) ctx.ui.notify(`council: swept ${swept} orphaned seat process(es)`, "warning");
+		void activateTheme(ctx, repoRoot); // EV-3: in-memory council theme; try/caught inside, never crashes session_start
 		initHubIdentity(mintRunId());
 		pruneRuns(repoRoot);
 		getHub(repoRoot, renderWidget); // create hub with onChange → widget refresh
