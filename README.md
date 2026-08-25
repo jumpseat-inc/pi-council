@@ -115,9 +115,11 @@ across cards instead of evaporating between sessions.
 ### Theme customization
 
 The council ships an oh-my-pi-themed dark/light pair — `pi-council-dark` and
-`pi-council-light`. Recolor it per-repo from the committed `.council.json`,
-under a top-level `theme` key, a sibling of `council` (final shape owned by
-EV-2; this is the working proposal from the epic's design spec):
+`pi-council-light`. The shipped files under `themes/` are the base palette —
+do not edit them; customize via `.council.json`. Recolor it per-repo from the
+committed `.council.json`, under a top-level `theme` key, a sibling of
+`council` (final shape owned by EV-2; this is the working proposal from the
+epic's design spec):
 
 ```json
 {

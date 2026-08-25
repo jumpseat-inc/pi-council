@@ -10,7 +10,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Ready
 
-- EV-1 — Port the oh-my-pi palette to a shipped pi theme
 - EV-2 — Theme configuration in the scaffold .council.json
 - EV-3 — Activate the council theme on session start
 - EV-4 — Theme compliance and live repaint of council surfaces
@@ -18,6 +17,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Deliberating
 
 ## In Progress
+
+- EV-1 — Port the oh-my-pi palette to a shipped pi theme
 
 ## In Review
 
