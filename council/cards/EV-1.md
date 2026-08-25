@@ -95,4 +95,23 @@ HARD REDS for implementation: (1) not name:"dark"/"light"; (2) not without "them
 
 ### Step 6 — routing (facilitator)
 - Item (2) substance is squarely covered by Phase-1 ruling NAME-1 + spec §2 (family is a prose-only selector; the theme name is never `pi-council`; `/settings` lists exactly the two variants) — the card's own intent already carries the disambiguating parenthetical "as the pi-council-dark / pi-council-light pair". Applied NAME-1 to the card text (intent wording conformed: "makes the pi-council-dark / pi-council-light pair selectable in /settings"). Citation: NAME-1.
-- Items (1) and (3) are not answered by any Phase-1 ruling. Per the escalation contract, these route to the orchestrator for a ruling-seat call.
+- Items (1) and (3) are not answered by any Phase-1 ruling. Per the escalation contract, these route to the orchestrator for a ruling-seat call. Escalation packet filed at `vault/raw/2026-08-25-po-ev1-escalation.md`.
+
+### Step 6 resumption — ESCALATION ruling (binding, appended verbatim)
+
+=== BINDING RULING (product-owner, via ESCALATION resumption) ===
+
+Q1 (spec §3/§4 corrections): The spec is corrected in EV-1's PR (the spec file is the source of truth — §3's `amber` → real omp names `accent`/`teal` for accent, `blue` for border; §4's `getPackageDir` → `path.join(PKG_ROOT, "themes", ...)` with a one-sentence explanation of why `getPackageDir()` is pi's install dir and would silently load pi's built-in `#8abeb7` accent instead of the shipped omp palette). AND EV-2's Intent section gets a one-line pointer carrying the §4 warning at the moment the EV-2 owner is most likely to get it wrong. Both edits; spec is load-bearing, EV-2 pointer is belt-and-suspenders against the exact silent-wrong-palette bug §4 was meant to prevent.
+
+Q2 (designer predictions routing): Prediction (i) `/settings` lists the pair under the `pi-council-` prefix → routes to the smoke test as an addition, not to any card. Prediction (ii) hot-reload asymmetry (shipped-file edit = silent no-op; `.council.json` edit = live repaint) → routes to EV-4 (its goal already covers "repaints when the active theme changes mid-session"; the asymmetry is precisely that mechanism). No new card warranted.
+
+Flag (runner applied NAME-1 as card-text edit): The edit stands; no revert. NAME-1 directly answered what `/settings` lists (the two variants; `pi-council` is a prose-only family selector). The original wording contradicted NAME-1 outright. This is application-of-ruling, not new product judgment.
+
+=== END BINDING RULING ===
+
+Phase 1 rulings still binding on this card (from the original dispatch, unchanged):
+- NAME-1: theme family name is `pi-council` and nothing else; variants `pi-council-dark` / `pi-council-light`.
+- The EV-5 design spec is authoritative for this card (with the §3/§4 corrections now mandated by the ruling above — make them in this card's PR).
+- CI-1 / MERGE-1: gates workflow (EV-6) exists and is green; all merges run on the deterministic five-criteria check with no human pause.
+
+**Step 7 resumption note:** open-judgment items (1) and (3) settled by the ruling above: spec §3/§4 corrections + EV-2 Intent pointer land in EV-1's PR (Q1); prediction (i) → smoke test addition, prediction (ii) → EV-4, no new card (Q2); the NAME-1 card-text edit stands (flag). Spec-writing proceeds per the settled design.
