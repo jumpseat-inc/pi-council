@@ -487,10 +487,14 @@ git commit -m "feat(theme): reserved-key guard for mis-nested council.theme"
 - [ ] **Step 1: Write the failing tests** — append to `test/theme-config.test.ts`:
 
 ```ts
-test("mergeThemeSection with no overrides deep-equals the full shipped base including export", () => {
+test("mergeThemeSection with no overrides deep-equals the shipped palette including export", () => {
 	const dark = loadShippedTheme("dark");
-	expect(mergeThemeSection(dark, {})).toEqual(dark);
-	expect(mergeThemeSection(dark, {}).export).toEqual(dark.export);
+	const merged = mergeThemeSection(dark, {});
+	expect(merged.vars).toEqual(dark.vars);
+	expect(merged.colors).toEqual(dark.colors);
+	expect(merged.export).toEqual(dark.export);
+	// the merge contract is { vars, colors, export } — no asset metadata
+	expect(Object.keys(merged)).toEqual(["vars", "colors", "export"]);
 });
 
 test("export is preserved untouched through the merge", () => {
@@ -555,14 +559,13 @@ test("per-variant independence: dark overrides never touch merged light", () => 
 	const section = loadThemeConfig(root);
 	expect(section?.dark?.vars?.cyan).toBe("#123456");
 	expect(section?.light).toBeUndefined();
-	expect(mergeThemeSection(loadShippedTheme("light"), section?.light)).toEqual(loadShippedTheme("light"));
-	// and a light override block is inert against the dark base
-	expect(mergeThemeSection(loadShippedTheme("dark"), { vars: { teal: "#123456" } }).vars.teal).toBe("#123456");
-	expect(mergeThemeSection(loadShippedTheme("dark"), { vars: { teal: "#123456" } })).not.toEqual(
-		loadShippedTheme("light"),
-	);
+	expect(mergedLight.vars).toEqual(light.vars);
+	expect(mergedLight.colors).toEqual(light.colors);
+	expect(mergedLight.export).toEqual(light.export);
 });
 ```
+
+NOTE on the merge contract: spec §4 pins the return shape to exactly `{ vars, colors, export }`. The shipped files also carry `$schema`/`name` asset metadata; those are NOT part of the merge contract (spec §2 — no `name` key; EV-3 constructs an in-memory nameless Theme from the merged maps). Deep-equality tests compare against the palette maps, and the exact-key-set assertion pins the contract.
 
 - [ ] **Step 2: Run tests to verify they fail**
 
@@ -647,8 +650,16 @@ test("delta acceptance: seeded theme section merges to byte-identical shipped pa
 	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-init-delta-"));
 	scaffoldInto(root, SCAFFOLD);
 	const seeded = loadThemeConfig(root)!;
-	expect(mergeThemeSection(loadShippedTheme("dark"), seeded.dark)).toEqual(loadShippedTheme("dark"));
-	expect(mergeThemeSection(loadShippedTheme("light"), seeded.light)).toEqual(loadShippedTheme("light"));
+	const dark = loadShippedTheme("dark");
+	const light = loadShippedTheme("light");
+	const mergedDark = mergeThemeSection(dark, seeded.dark);
+	expect(mergedDark.vars).toEqual(dark.vars);
+	expect(mergedDark.colors).toEqual(dark.colors);
+	expect(mergedDark.export).toEqual(dark.export);
+	const mergedLight = mergeThemeSection(light, seeded.light);
+	expect(mergedLight.vars).toEqual(light.vars);
+	expect(mergedLight.colors).toEqual(light.colors);
+	expect(mergedLight.export).toEqual(light.export);
 });
 ```
 

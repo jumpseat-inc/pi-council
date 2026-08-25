@@ -193,6 +193,24 @@ export function loadThemeConfig(repoRoot: string): ThemeSection | undefined {
 	return section.enabled === false ? undefined : section;
 }
 
+/**
+ * Merge a repo override block over a shipped base at the JSON level.
+ * The vars map merges first, then the colors map; repo wins per key. The
+ * base's var-refs are never resolved to hex here — un-overridden tokens keep
+ * their var-refs so a repo vars edit transitively recolors referencing tokens
+ * at Theme construction (EV-3). `export` is preserved untouched. Pure, no I/O.
+ */
+export function mergeThemeSection(
+	base: ShippedTheme,
+	overrideBlock?: ThemeVariantBlock,
+): { vars: Record<string, string | number>; colors: Record<string, string | number>; export: Record<string, string> } {
+	return {
+		vars: { ...base.vars, ...(overrideBlock?.vars ?? {}) },
+		colors: { ...base.colors, ...(overrideBlock?.colors ?? {}) },
+		export: { ...base.export },
+	};
+}
+
 function parseList(raw: string): string[] {
 	const inner = raw.trim().replace(/^\[/, "").replace(/\]$/, "");
 	return inner

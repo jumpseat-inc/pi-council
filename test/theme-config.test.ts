@@ -2,7 +2,7 @@ import { test, expect } from "bun:test";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import { loadThemeConfig, loadShippedTheme, loadCouncilConfig, COUNCIL_CONFIG_FILE } from "../extensions/seats.ts";
+import { loadThemeConfig, loadShippedTheme, loadCouncilConfig, mergeThemeSection, COUNCIL_CONFIG_FILE } from "../extensions/seats.ts";
 
 function tmpRepo(): string {
 	return fs.mkdtempSync(path.join(os.tmpdir(), "council-theme-"));
@@ -168,4 +168,83 @@ test("reserved-key isolation: sibling theme parses; mis-nested council.theme is 
 	writeConfig(root, { council: { theme: { enabled: true } }, theme: { enabled: true, variant: "dark" } });
 	expect(loadCouncilConfig(root)).toEqual({});
 	expect(loadThemeConfig(root)).toEqual({ enabled: true, variant: "dark" });
+});
+
+test("mergeThemeSection with no overrides deep-equals the shipped palette including export", () => {
+	const dark = loadShippedTheme("dark");
+	const merged = mergeThemeSection(dark, {});
+	expect(merged.vars).toEqual(dark.vars);
+	expect(merged.colors).toEqual(dark.colors);
+	expect(merged.export).toEqual(dark.export);
+	// the merge contract is { vars, colors, export } — no asset metadata
+	expect(Object.keys(merged)).toEqual(["vars", "colors", "export"]);
+});
+
+test("export is preserved untouched through the merge", () => {
+	const dark = loadShippedTheme("dark");
+	expect(mergeThemeSection(dark, { vars: { cyan: "#123456" } }).export).toEqual(dark.export);
+});
+
+test("repo wins per key; untouched tokens byte-equal the shipped file", () => {
+	const dark = loadShippedTheme("dark");
+	const merged = mergeThemeSection(dark, { colors: { mdHeading: "#123456" } });
+	expect(merged.colors.mdHeading).toBe("#123456");
+	expect(merged.colors.accent).toBe(dark.colors.accent);
+	expect(merged.vars).toEqual(dark.vars);
+});
+
+test("dark.vars.cyan recolor propagates to borderAccent and bashMode var-refs (verified graph)", () => {
+	const merged = mergeThemeSection(loadShippedTheme("dark"), { vars: { cyan: "#123456" } });
+	expect(merged.vars.cyan).toBe("#123456");
+	expect(merged.colors.borderAccent).toBe("cyan");
+	expect(merged.colors.bashMode).toBe("cyan");
+	// border follows blue, NOT cyan
+	expect(merged.colors.border).toBe("blue");
+	// thinkingLow / mdLink / mdHeading are literal hexes, unaffected by var overrides
+	expect(merged.colors.thinkingLow).toBe("#178fb9");
+	expect(merged.colors.mdLink).toBe("#0088fa");
+	expect(merged.colors.mdHeading).toBe("#febc38");
+});
+
+test("dark.vars.blue recolor propagates to border only", () => {
+	const merged = mergeThemeSection(loadShippedTheme("dark"), { vars: { blue: "#336699" } });
+	expect(merged.vars.blue).toBe("#336699");
+	expect(merged.colors.border).toBe("blue");
+});
+
+test("dark.colors.accent pin leaves mdListBullet following the var", () => {
+	const merged = mergeThemeSection(loadShippedTheme("dark"), { colors: { accent: "#ff8800" } });
+	expect(merged.colors.accent).toBe("#ff8800");
+	expect(merged.colors.mdListBullet).toBe("accent");
+});
+
+test("two-layer probe: vars.accent vs colors.accent, same key name, different layer", () => {
+	const viaVar = mergeThemeSection(loadShippedTheme("dark"), { vars: { accent: "#123456" } });
+	expect(viaVar.colors.accent).toBe("accent"); // var-ref follows the overridden var
+	expect(viaVar.colors.mdListBullet).toBe("accent");
+	const viaColor = mergeThemeSection(loadShippedTheme("dark"), { colors: { accent: "#654321" } });
+	expect(viaColor.colors.accent).toBe("#654321"); // colors pin wins for that token
+	expect(viaColor.colors.mdListBullet).toBe("accent"); // var consumer untouched
+});
+
+test("layering: colors wins for a pinned token, vars wins elsewhere", () => {
+	const merged = mergeThemeSection(loadShippedTheme("dark"), {
+		vars: { cyan: "#123456" },
+		colors: { border: "#888888" },
+	});
+	expect(merged.colors.border).toBe("#888888");
+	expect(merged.colors.bashMode).toBe("cyan");
+});
+
+test("per-variant independence: dark overrides never touch merged light", () => {
+	const root = tmpRepo();
+	writeConfig(root, { theme: { dark: { vars: { cyan: "#123456" } } } });
+	const section = loadThemeConfig(root);
+	expect(section?.dark?.vars?.cyan).toBe("#123456");
+	expect(section?.light).toBeUndefined();
+	const light = loadShippedTheme("light");
+	const mergedLight = mergeThemeSection(light, section?.light);
+	expect(mergedLight.vars).toEqual(light.vars);
+	expect(mergedLight.colors).toEqual(light.colors);
+	expect(mergedLight.export).toEqual(light.export);
 });
