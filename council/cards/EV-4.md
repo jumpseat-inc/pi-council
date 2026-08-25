@@ -1,7 +1,7 @@
 ---
 id: EV-4
 title: Theme compliance and live repaint of council surfaces
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-1
 goal: Every council-drawn element from the /council-tree modal and transcript viewer to the widget and command outputs draws from pi theme tokens and repaints when the active theme changes mid-session
@@ -508,3 +508,7 @@ Skeptic verified PR #6 (job settled in 3.8m, 25 turns). Ran the full gate set on
 **ONE block (objection #8, `open-untested`):** the spec §3.5/§10 require a **pinning test** asserting the HTML-export crash — `getResolvedThemeColors(undefined)` / `loadThemeJson("<in-memory>")` throws "Theme not found". The owner documented the limitation (README) but never wrote the test; no test asserted the throw. Per step 9, card returned to In Progress and the specific item handed back to the owner.
 
 **Cycle-1 fix:** added `test/theme-export-pinning.test.ts` — after `setThemeInstance(materializeTheme(dark))`, the no-arg `getResolvedThemeColors()` throws `/Theme not found: <in-memory>/`, pinning the documented pi-side regression (fix is pi's, filed as follow-up; never implemented here). Re-ran gates: `bunx tsc --noEmit` clean, `bun test` 225 pass / 2 skip / 0 fail, `python3 council/validate.py` all artifacts valid. Pushed to the branch (new head `66aab25`). State → In Progress during the fix. Next: Skeptic re-verify at head `66aab25` (cycle 2).
+
+## Step 9 — cycle 2 (re-verify): ALL GREEN
+
+Skeptic re-dispatched at head `66aab25` (settled in 1.4m). Re-ran the full gate set: `bun install` clean; `bunx tsc --noEmit` clean; `bun test` 225 pass / 2 skip / 0 fail; `python3 council/validate.py` all artifacts valid. Objection #8 now closed-green — the export crash is PINNED by `test/theme-export-pinning.test.ts` (asserts `toThrow(/Theme not found: <in-memory>/)` after `setThemeInstance`), and the Skeptic verified the gate is real by inverting it to `not.toThrow` → RED naming the exact error. All 8 objections closed-green, **no open objections**. Verify loop used 2 of ≤3 cycles. State → In Review (PR open). Next: judge (step 10).

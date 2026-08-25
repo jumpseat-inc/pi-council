@@ -17,9 +17,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-4 — Theme compliance and live repaint of council surfaces
+
 
 ## In Review
+
+- EV-4 — Theme compliance and live repaint of council surfaces
 
 ## Needs Human
 
