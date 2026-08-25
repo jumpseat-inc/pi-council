@@ -9,3 +9,6 @@ node_modules/
 # Smoke test run artifacts (dot-dir so bun test never discovers them)
 smoke/.artifacts/*
 !smoke/.artifacts/.gitkeep
+
+# git worktrees (superpowers isolation)
+.worktrees/
