@@ -9,7 +9,7 @@ created: 2026-08-23
 updated: 2026-08-25
 ---
 
-`pi-council` (v0.11.3) is an installable [pi](https://pi.dev) package, distributed
+`pi-council` (v0.11.4) is an installable [pi](https://pi.dev) package, distributed
 as `pi install git:github.com/tistaharahap/pi-council`. Installing it once and
 running `/council-init` gives **any** repository the same opinionated workflow:
 a facilitator-driven Council of specialized seats that deliberates, implements,
@@ -44,7 +44,7 @@ See [[council-loop]], [[engineering-board]], and the nine [[seats]]+s.
 ## Versions
 
 The release arc (from the git log on `main`) shows how quickly the engine
-matured — roughly 85 commits, following **[Conventional Commits]** with the
+matured — roughly 87 commits, following **[Conventional Commits]** with the
 `version` bumped in the same commit as each behavior change:
 
 | Version | What landed | See |
@@ -65,6 +65,7 @@ matured — roughly 85 commits, following **[Conventional Commits]** with the
 | v0.11.1 | **Fix reused-client redirect-URI mismatch** — advertised URI derives from the client's registered `redirect_uris`, stale loopback clients re-register instead of failing with `invalid_request` | [[remote-oauth-login]], [[2026-08-25-remote-mcp-oauth-fix]] |
 | v0.11.2 | **Live runtime refresh after login/auth** — `/mcp list` reflects credentials instead of stale `unauthenticated tools=0` until /reload | [[mcp-support]], [[2026-08-25-mcp-login-refresh]] |
 | v0.11.3 | **Fix `/council-init` dep install on headless** — passes `--approve` to `pi install -l` when the project isn't trusted, so ask-user-question (etc.) pinning no longer fails with "Project is not trusted" | [[council-dependencies]], [[2026-08-25-council-init-approve]] |
+| v0.11.4 | **Fix `/council-tree` readability** — full-screen modal (opaque backdrop + bordered panel) blocks the underlying session UI; long trees window to fit | [[run-transcripts]], [[2026-08-25-council-tree-modal]] |
 
 The wiki scaffold shipped in the same commit as the council scaffold — the
 wiki is not an add-on. The full arc and commit-message discipline live in the
@@ -82,6 +83,7 @@ git log; this table is a secondary summary that can drift.
 - [[2026-08-25-remote-mcp-oauth-fix]] — the v0.11.1 redirect-URI fix
 - [[2026-08-25-mcp-login-refresh]] — the v0.11.2 live-runtime-refresh fix
 - [[2026-08-25-council-init-approve]] — the v0.11.3 /council-init --approve fix
+- [[2026-08-25-council-tree-modal]] — the v0.11.4 /council-tree modal fix
 
 ## Sources
 

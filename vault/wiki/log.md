@@ -1,3 +1,16 @@
+## [2026-08-25] ingest | /council-tree full-screen modal backdrop (v0.11.4)
+Ingested the v0.11.4 fix: /council-tree and the transcript viewer rendered as
+bare overlays — the TUI compositor has no backdrop (OverlayOptions lacks a
+background/dim field; compositeTuiLine splices lines over the base), so the
+session UI showed through. New withModalFrame draws a full-screen opaque
+backdrop (theme.bg customMessageBg) + centered bordered panel; both open
+paths use overlayOptions width/maxHeight 100% anchor top-left; CouncilTree
+windows to maxRows around the selection.
+- **Created:** sources/2026-08-25-council-tree-modal.
+- **Updated:** run-transcripts (modal presentation + Related), pi-council-overview
+  (v0.11.4 row, commit count 85→87), index.
+- **Contradictions flagged:** none.
+
 ## [2026-08-25] ingest | /council-init --approve trust fix (v0.11.3)
 Ingested the v0.11.3 fix: /council-init's pi install -l failed headless with
 "Project is not trusted" because pi's trust prompt never appears in

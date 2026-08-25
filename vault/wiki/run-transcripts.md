@@ -56,6 +56,15 @@ timeout), per-run scoping (current run vs. all runs), and Enter to open the
 live-tailing transcript viewer, Esc to back out. Wired at session start to the
 hub's current run id.
 
+**Modal presentation (v0.11.4):** both the tree and the transcript viewer
+render as **full-screen modals** — an opaque backdrop over the whole terminal
+plus a centered bordered panel — via `withModalFrame()`. The TUI overlay
+compositor offers no backdrop of its own (`OverlayOptions` has no
+background/dim field; `compositeTuiLine` just splices lines over the base), so
+the component must draw it; before v0.11.4 the underlying session UI showed
+through, making the tree unreadable. The tree also windows to a `maxRows`
+around the selection so long trees stay in the panel.
+
 ## Consumers
 
 - [[hub-job-supervision]] — the hub writes the manifests and pid file; the
@@ -68,6 +77,7 @@ hub's current run id.
 
 - [[hub-job-supervision]], [[seats]], [[smoke-test]]
 - [[pi-council-overview]] — version arc
+- [[2026-08-25-council-tree-modal]] — the v0.11.4 full-screen modal fix
 
 ## Sources
 
@@ -75,3 +85,4 @@ hub's current run id.
   `extensions/navigator.ts`
 - `extensions/index.ts` (wiring)
 - `docs/superpowers/plans/2026-08-24-council-transcript-navigator.md`
+- [[2026-08-25-council-tree-modal]]
