@@ -14,9 +14,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- EV-3 — Activate the council theme on session start
-
 ## In Progress
+
+- EV-3 — Activate the council theme on session start
 
 ## In Review
 

@@ -1,7 +1,7 @@
 ---
 id: EV-3
 title: Activate the council theme on session start
-state: Deliberating
+state: In Progress
 owner: null
 epic: EPIC-1
 goal: At session start the council extension materializes the .council.json theme into a pi theme and activates it so the TUI renders in the configured palette and a repo without a theme section leaves pi's theme untouched
