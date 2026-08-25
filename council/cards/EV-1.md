@@ -1,7 +1,7 @@
 ---
 id: EV-1
 title: Port the oh-my-pi palette to a shipped pi theme
-state: Ready
+state: Deliberating
 owner: null
 epic: EPIC-1
 goal: A pi-council theme pair for dark and light terminals ships in the package and resolves through pi's theme loader with colors matching oh-my-pi's dark.json and light.json
