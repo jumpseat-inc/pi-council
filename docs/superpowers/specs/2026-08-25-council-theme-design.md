@@ -85,38 +85,46 @@ writes it into settings).
 - **Reserved key + sibling loader (settled).** Today `loadCouncilConfig`
   (seats.ts:103-132) iterates every `council` entry through
   `parseAgentOverride` — so a `council.theme` key parses as a **phantom seat
-  override** (verified: `{"council":{"theme":"dark"}}` → `{"theme":
-  {"model":"dark"}}`; `{"council":{"theme":{"enabled":true}}}` → empty
-  override for phantom seat `"theme"`). The fix is a **sibling loader
+  override** (verified against current main: `{"council":{"theme":"dark"}}`
+  THROWS `council["theme"] model "dark" must be qualified as provider/id` —
+  it does not produce a phantom override; `{"council":{"theme":
+  {"enabled":true}}}` produces a phantom empty seat `{"theme":{}}`). The fix
+  is a **sibling loader
   `loadThemeConfig()`**, with `theme` a reserved key skipped in the
-  `loadCouncilConfig` loop — **not** a return-shape change on
+  `loadCouncilConfig` loop (the one-line guard closes both cases above) —
+  **not** a return-shape change on
   `loadCouncilConfig` (blast radius verified: `loadSeat` seats.ts:179,
   `scaffold.test.ts:42`, `seats.test.ts:263,270` — a return-shape change
   breaks all three, a sibling loader breaks none; the theme section has a
   different validation vocabulary than seat overrides).
-- **Working proposal** (EV-2's deliberation fixes the final shape; this is
-  the baseline it starts from):
+- **Theme section shape (settled — EV-2 fixed it).** The flat `overrides`
+  working proposal was rejected in deliberation: a variant-agnostic `vars`
+  override under `variant: "auto"` has no statically known variant, so it can
+  only validate against the union of both var sets — accepting a light-only
+  var that silently no-ops on a dark terminal. The settled shape is
+  per-variant blocks, validated per-variant:
   ```json
   {
     "council": { "<seat>": { "model"?, "thinking"? }, ... },
     "theme": {
       "enabled": true,
       "variant": "auto",
-      "overrides": { "accent": "#febc38" }
+      "dark":  { "vars": { "<varName>": "<value>" }, "colors": { "<tokenName>": "<value>" } },
+      "light": { "vars": { "<varName>": "<value>" }, "colors": { "<tokenName>": "<value>" } }
     }
   }
   ```
   - `variant` ∈ `auto | dark | light`; `auto` follows terminal background →
-    `pi-council-dark` / `pi-council-light`.
-  - `overrides` keyed by pi `ThemeColor` / `ThemeBg` names, values in pi's
-    four accepted formats (hex / 256-index / var-ref / `""`).
-  - **Open design detail left to EV-2** (recorded as proposal, not settled):
-    owner proposed a vars/colors split (`overrides: { vars?:
-    Record<string,string>, colors?: Partial<Record<ThemeColor|ThemeBg,
-    string>> }`); principal proposed flat overrides keyed by token name with
-    values possibly var-refs resolving against the shipped theme's `vars` —
-    merge = "resolve shipped vars → apply per-token overrides, with shipped
-    vars still in scope for override var-refs", not a flat `colors` merge.
+    `pi-council-dark` / `pi-council-light` (resolution is EV-3's job).
+  - `vars` keys must be declared vars of that variant (dark and light var
+    sets differ; cross-variant pins throw); an override here transitively
+    recolors every token whose shipped value references the var.
+  - `colors` keys are pi `ThemeColor` / `ThemeBg` names (51 shipped + 4
+    optional), values in pi's four accepted formats (hex / 256-index /
+    var-ref to a declared var / `""`). An override here pins that token only.
+  - No `name` key — family identity `pi-council` lives in the shipped asset
+    names (`pi-council-dark` / `pi-council-light`); a `name` key is an
+    unknown key and throws.
 - **Merge semantics (settled):** the merge happens at the **JSON-shape
   level**, never Theme-instance surgery — `Theme` instances are opaque
   (`fgColors`/`bgColors` private Maps converted to ANSI at construction;
@@ -127,15 +135,17 @@ writes it into settings).
   unresolved (the omp look depends on `colors.accent` being the var-ref
   `"accent"` in dark / `"teal"` in light, and `colors.border` being
   `"blue"` in both); a repo edit to `theme.dark.vars.accent` must
-  transitively recolor `accent`/`border`.
+  transitively recolor `accent`/`mdListBullet` (dark) — `border` follows
+  `vars.blue`, not `vars.accent` (verified against the shipped files).
   EV-2's acceptance "the default scaffold section matches the shipped omp
   palette" means **resolves to the same colors after merge because the
   scaffold section is a delta (empty overrides), not a palette dump**.
 - **Off switch (settled):** absence = off (matches today's absent-file
   behavior); `theme: false` and `theme: { enabled: false }` both accepted as
-  explicit off via one falsy/enabled-check expression. Pinned rule:
-  `council.theme` falsy OR `council.theme.enabled === false` ⇒ off;
-  otherwise on. Presence implies enabled; deletion and `enabled:false` behave
+  explicit off via one falsy/enabled-check expression (falsy non-object
+  forms: `false` / `null` / `0` / `""`). Pinned rule: `theme` falsy OR
+  `theme.enabled === false` ⇒ off; otherwise on.
+  Presence implies enabled; deletion and `enabled:false` behave
   identically so EV-3 has one code path.
 - **Validation (settled):** fail-fast, message naming the file. Valid token
   names = `ThemeColor ∪ ThemeBg` (51 required + 4 optional); valid values =
@@ -266,8 +276,8 @@ A numbered convention **9.6**, beside 9.5, documenting:
   first two; name all three, EV-1 picks); whether variant files are
   hand-written or generated; hot-reload behavior for package-shipped themes;
   per-token override merge at file vs instance level.
-- **EV-2:** the final theme-section shape, including the overrides
-  representation (vars/colors split vs flat — §3). EV-2's draft acceptance
+- **EV-2:** the final theme-section shape (settled — per-variant `vars`/
+  `colors` blocks, §3). EV-2's draft acceptance
   line "`loadCouncilConfig` returns the parsed theme section" gets a one-word
   fix at implementation time ("`loadThemeConfig` returns the parsed theme
   section") — **this spec outranks the child card's draft wording**.
