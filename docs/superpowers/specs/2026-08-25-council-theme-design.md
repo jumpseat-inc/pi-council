@@ -121,11 +121,13 @@ writes it into settings).
   level**, never Theme-instance surgery — `Theme` instances are opaque
   (`fgColors`/`bgColors` private Maps converted to ANSI at construction;
   `getFgAnsi`/`getBgAnsi` return ANSI, not raw values). The extension holds
-  the base JSON (the shipped asset file read from disk via public
-  `getPackageDir`) and constructs a fresh `Theme`; merge is data-in/data-out
-  over JSON. A var-ref survives the merge unresolved (the omp look depends on
-  `colors.accent` being the var-ref `"amber"`); a repo edit to
-  `theme.dark.vars.amber` must transitively recolor `accent`/`border`.
+  the base JSON (the shipped asset file read from disk via
+  `path.join(PKG_ROOT, "themes", ...)`) and constructs a fresh `Theme`;
+  merge is data-in/data-out over JSON. A var-ref survives the merge
+  unresolved (the omp look depends on `colors.accent` being the var-ref
+  `"accent"` in dark / `"teal"` in light, and `colors.border` being
+  `"blue"` in both); a repo edit to `theme.dark.vars.accent` must
+  transitively recolor `accent`/`border`.
   EV-2's acceptance "the default scaffold section matches the shipped omp
   palette" means **resolves to the same colors after merge because the
   scaffold section is a delta (empty overrides), not a palette dump**.
@@ -201,9 +203,12 @@ raw `"light/dark"` pair. Never read `ui.theme.name` — after any
   `loadThemeFromPath`. EV-1 declares `themePaths` (or a `themes/` dir /
   `pi.themes` manifest entry); EV-3 uses `ui.getTheme(name)` +
   `ui.setTheme(instance)`.
-- **Merge base:** the shipped asset JSON read from disk via public
-  `getPackageDir` — it cannot be introspected off `ui.getTheme(name)`
-  because `Theme` instances are opaque.
+- **Merge base:** the shipped asset JSON read from disk via
+  `path.join(PKG_ROOT, "themes", ...)` — it cannot be introspected off
+  `ui.getTheme(name)` because `Theme` instances are opaque.
+  `getPackageDir()` walks up from pi's own dist and returns pi's install
+  dir, so reading there would silently load pi's built-in themes (accent
+  `#8abeb7`) instead of the shipped omp palette.
 
 ### 5. Surface compliance — token-only drawing rule (two clauses)
 

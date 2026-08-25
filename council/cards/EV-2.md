@@ -30,6 +30,12 @@ for the Council to fix, subject to these requirements:
 - Editing a var or token recolors the next session; the shape should be
   small enough to hand-edit in a text editor.
 
+> EV-2 reads the shipped theme JSON off disk via
+> `path.join(PKG_ROOT, "themes", ...)`. Do NOT use `getPackageDir()` — that
+> is pi's install dir, not pi-council's root, and would silently load pi's
+> built-in theme (accent `#8abeb7`) instead of the shipped omp palette. See
+> spec §4 (corrected).
+
 ## Acceptance
 
 - `loadCouncilConfig` returns the parsed theme section; unit tests cover
