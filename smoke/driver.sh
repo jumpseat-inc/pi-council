@@ -54,6 +54,33 @@ GOT_STATE="$(sed -n 's/^state: *//p' council/cards/EV-1.md | head -1)"
 if [ "$GOT_STATE" = "Done" ]; then
 	echo "phase 1: EV-1 already Done — merge gate already completed (no harness merge)"
 else
+	if [ "$GOT_STATE" = "In Progress" ]; then
+		# Flash-model variance: the facilitator may surface the git-strategy
+		# question before implementation (card In Progress) instead of at the
+		# merge gate (card In Review). Play the human: record the delivery
+		# ruling and resume the run once.
+		echo "phase 1: facilitator paused at In Progress — recording delivery ruling, resuming once"
+		python3 -c "
+import pathlib
+p = pathlib.Path('council/cards/EV-1.md')
+t = p.read_text()
+t += '''
+## Delivery mechanism (pre-decided — do not ask)
+
+This fixture has no git remote, no gh, and no CI. Delivery is a local feature
+branch in a worktree, verified at that branch by the Skeptic and judged by the
+Judge, then merged into local main at the human merge gate. The git strategy is
+decided; do not surface it as a question.
+'''
+p.write_text(t)
+"
+		git add council/cards/EV-1.md
+		git commit -q -m "smoke: record delivery mechanism ruling (harness plays the human)" \
+			|| fatal "phase 1: delivery ruling commit failed"
+		timeout "$PHASE1_TIMEOUT" pi --approve --model "$FLASH" -p "/council EV-1" \
+			|| fatal "phase 1: resumed /council EV-1 did not settle within ${PHASE1_TIMEOUT}s"
+		GOT_STATE="$(sed -n 's/^state: *//p' council/cards/EV-1.md | head -1)"
+	fi
 	if [ "$GOT_STATE" != "In Review" ]; then
 		fatal "phase 1: EV-1 stopped at state '$GOT_STATE', expected the In Review merge gate"
 	fi
