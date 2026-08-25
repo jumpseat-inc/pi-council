@@ -1,7 +1,7 @@
 ---
 id: EV-4
 title: Theme compliance and live repaint of council surfaces
-state: Ready
+state: Deliberating
 owner: null
 epic: EPIC-1
 goal: Every council-drawn element from the /council-tree modal and transcript viewer to the widget and command outputs draws from pi theme tokens and repaints when the active theme changes mid-session
@@ -42,3 +42,235 @@ most of the work is audit + fill gaps, not greenfield:
 - A simulated mid-session theme switch repaints an open modal (test proves
   the new palette appears without closing/reopening, or the fix is
   documented if pi cannot support it).
+
+## Deliberation Record
+
+### Step 1 — classification (facilitator)
+
+Full council (cross-seam: navigator.ts / index.ts / theme-activation.ts /
+seats.ts / tests; spec-ambiguous: watcher scope, live-repaint mechanism,
+name-based surfaces; design-judgment) AND surface-touching (modal,
+transcript viewer, widget, /council-jobs, /council-init summary) →
+designer seated in steps 2–3. Card promoted to Deliberating.
+
+### Round 1 — independent first pass (owner, principal, designer)
+
+Three seats dispatched independently with only the card + binding rulings.
+Positions recorded verbatim (trimmed of preamble).
+
+#### owner — engineering voice
+
+Audit: the token-only rule survives today entirely — grep confirms zero
+literal ANSI bytes (the only \x1b hits are inside the known comment,
+navigator.ts:25-26), zero hex literals, zero chalk; NavTheme =
+Pick<Theme,"fg"|"bold"|"bg"> is the enforcement seam. What breaks the
+GOAL (not the rule): widget and /council-jobs are plain strings (clause
+(b) compliant) so their "carry token codes" acceptance is only satisfiable
+as a negative (zero-ANSI) assertion or via setWidget's **function form**
+(content(tui, theme) => Component, interactive-mode.js:1737) — the only
+token-carrier. Live repaint: the claim "the modal captures theme at open"
+is FALSE at the value level — the factory's theme argument is the
+module-level live Proxy (interactive-mode.js:2179; theme.js:641-648
+resolves t[prop] against globalThis[THEME_KEY] at CALL time), so every
+render runs against the current instance. The open modal WILL repaint if
+(a) TUI.invalidate() reaches overlay.component.invalidate() — yes
+(tui.js:430-434 + interactive-mode callback 761-765); (b) CouncilTree's
+width cache clears — yes (invalidate(): cached = undefined, navigator.ts);
+(c) pi re-renders open overlays — yes (compositeOverlays re-invokes
+component.render each frame). **Genuine hazard found: pi's HTML export
+throws under an active council theme** — exportSessionToHtml resolves
+themeName from [options.themeName, settings].find(name →
+getThemeByName(name) !== undefined) (agent-session.js:2680); with the
+settings leaf unset/"light/dark" this yields undefined →
+generateThemeVars(undefined) → getResolvedThemeColors(undefined) → name :=
+currentThemeName = "<in-memory>" → loadThemeJson("<in-memory>") throws
+"Theme not found" (theme.js:457-475), uncaught in the export path.
+
+Watcher design: re-run activateTheme (EV-3's session glue, try/caught) on
+a change; watch the parent dir of `.council.json` with basename filter +
+re-arm on rename/delete (fs.watch on the file itself dies on
+rename-reverses saves); 200-350ms debounce, last-write-wins; never watch
+settings.json; `{noop}` at reload (section removed / enabled:false) → keep
+the last materialized Theme + warn notify (de-activating would need
+ui.setTheme(string) which WRITES settings — forbidden by EV-3's zero-
+settings-write; documented: reverting needs a restart); `{block}` (settings
+got a concrete name while re-reading) → pi has already displaced us;
+invalid change → try/catch inside activateTheme notifies and the watch
+STAYS ARMED; arm at session_start only when loadThemeConfig !== undefined;
+a section appearing mid-session is not supported (documented).
+
+Name surface: getResolvedThemeColors(name)/getThemeExportColors(name)
+read JSON by name off asset/registry — the in-memory instance is reachable
+NOWHERE. Implementable: (a) shipped-name continuity —
+getResolvedThemeColors("pi-council-dark") returns the EV-1 shipped
+un-merged palette (regression assert); (b) a council-owned pure
+`resolvedPalette(variant)` mirror (merge → resolve → hex) reusing
+getResolved/resolveVarRef/fallbacks/split — the deliverable for "carrying
+the council palette"; it does NOT re-wire pi's export. NOT implementable
+within NAME-1/zero-name: HTML export carrying the merged palette and
+/settings showing the materialized theme — pi cannot (its name-lookup
+depends on a registered name/file); isLightTheme("pi-council-light")
+returns false (checks name === "light") — second pi-cannot for the export
+CSS. The /export crash is an actual epic-side regression to document and
+test.
+
+Widget / /council-jobs: keep **plain strings** as default (clause-(b)
+compliant; nothing to go stale on a theme switch); the token step-up is the
+function form (seat in accent, state in success/error/warning, pid muted,
+last-event dim) BUT pi does not re-invoke the widget factory on theme
+switch — codes would freeze until the next setWidget tick — so the strings
+build is the honest choice; snapshot asserts zero ANSI on widget lines (or
+function-form codes if the form is taken). /council-jobs stays a plain
+u.notify join — no per-token colors; its acceptance is a zero-ANSI
+assertion.
+
+Test design: REAL themes not fake — reuse loadPiThemeModule; snapshot with
+materializeTheme({variant:"dark"},"dark","truecolor") asserting exact
+ANSI bytes (accent \x1b[38;2;254;188;56m, selectedBg
+\x1b[48;2;49;54;63m, ...) on modal/viewer lines; repaint sim: render
+overlay via the module `theme` proxy with theme A, then
+setThemeInstance(B) + overlay.invalidate() (the TUI does this) + render
+again → B's ANSI assert with the SAME overlay object (no re-open —
+acceptance proved); watcher tests via the manual watch→reload path;
+name-surface regression; grep-audit as a unit test (not git-grep).
+
+Numbered falsifiable claims (owner): (1) pi passes the module live theme
+proxy (theme.js:641-648) as the factory theme arg (interactive-me.js:2179)
+— rendering with mod.theme then setThemeInstance(B) then re-render yields
+B's ANSI with no re-open; (2) TUI.invalidate() calls every open overlay's
+.component.invalidate() (tui.js) — a width-keyed cache in a correct
+component cannot go stale; (3) setThemeInstance fires onThemeChangeCallback
+and interactive-mode invalidates + requests render — the re-render chain
+is complete without extension code; (4) setWidget(string[]) never
+colorizes — "the widget carries token codes" is only satisfiable via
+zero-ANSI assertion or the function form; (5) export HTML while the
+council theme is active resolves themeName to undefined →
+getResolvedThemeColors(undefined) → loadThemeJson("<in-memory>") thrOWs
+"Theme not found" — must be documented;/ fix is pi's; (6)
+getResolvedThemeColors("pi-council-light") returns the SHIPPED UN-MERGED
+palette — the NAME-1 boundary; (7) onThemeChange is a single-slot
+(callback replaced) — the extension must never call it (would break pi's
+repaint loop); (8) the parent-dir fs.watch + basename filter + debounce
+fires exactly one setTheme per save even under an editor's rename-burst;
+(9) reload {noop} (section removed) keeps the last theme with NO pi
+settings write (ui.setTheme never called — EV-3 zero-mutation holds); (10)
+getResolvedThemeColors("pi-council-dark") stays equal to EV-1's shipped
+map after EV-4.
+
+#### principal — cross-cutting reframe
+
+The card's live-repaint frame is partially backwards: showExtensionCustom
+invokes factory(this.ui, theme, this.keybindings, close)
+(interactive-mode.js:2188) with the module-level Proxy (theme.js:644-653,
+get reads globalThis[THEME_KEY] at property-access time);
+setThemeInstance (theme.js:689-696) swaps the global, sets
+currentThemeName="<in-memory>", fires onThemeChangeCallback; pi's own
+re-theme of an open component is ui.invalidate() →
+updateEditorBorderColor() → requestRender (interactive-mode.js:761-764).
+So CouncilTree/Transcript theme fields are live proxies, not snapshots.
+The only baked-ANSI state is CouncilTree.cached, cleared by invalidate()
+(navigator.ts, wired into the overlay contract) and by the 2s refresh
+timer. The modal does NOT capture at open.
+
+Ruling 2b collides with NAME-1: getResolvedThemeColors(name) resolves
+name ?? currentThemeName ?? default and calls loadThemeJson(name)
+(theme.js:836-839), which throws for any registered theme without
+sourcePath and throws "Theme not found: <in-memory>" for the in-memory
+name. getThemeExportColors try/catches and returns {}. The merged palette
+is only in globalThis — reachable via the Proxy and NO name-lookup-based
+API. The extension already holds the resolved pallevo
+itself (resolveThemeColors(withThemeColorFallbacks(merged.colors),
+merged.vars)) — missing only the unexported ansi256ToHex (theme.js:826).
+setWidget's plan clause governs the string-array overload; the factory G
+overload ((tui, theme) => Component, types.d.ts:98-100) is rule-
+compliant. RPC mode drops factory-form widgets (rpc-mode.js:123-131:
+"factory functions are ignored") — a themed widget silently no-ops
+headless. Off-transition gap: revert "off" mid-session has no way back to
+the user's custom settings theme without the string branch of
+ui.setTheme (writes settings) or a non-public loadThemeFromPath — nobody
+owns that seam.
+
+Reframe: (1) this card is mostly "make the already-present live repaint
+provable and audit it" — the test is the deliverable that pins the
+contract; (2) re-scopse ruling 2b: getResolvedThemeColors(name) is
+implementable only as a council-owned resolvedPalette() helper, never via
+pi's name-lookup; HTML export palette + /settings registration are pi-
+limitations (document + follow-up), not getResolvedThemeColors". The
+watcher's off and block→activate transitions need specifying before any
+watcher code.
+
+Testable claims (principal): (1) a fake theme whose tokens read a mutable
+binding, rendered once through the modal override, shows the new token tag
+after invalidate()+render with no re-construction; (2) CouncilTree.cached
+is the sole stale-ANSI state and is already cleared by both invalidate()
+and the 2s refresh timer; (3) getResolvedThemeColors() no-arg throws after
+setThemeInstance and getResolvedThemeColors("pi-council-dark") returns
+the unmerged EV-1 palette; (4) string-array/notify paths (widget
+index.ts:88-107, /council-jobs 252-263) contain zero \x1b[ bytes;
+(5) a factory-form widget is TUI-only (dropped in rpc-mode); (6) reverting
+activation "off" mid-session has no code path today that restores a
+user's custom settings theme without settings mutation — the watcher spec
+must close this.
+
+#### designer: human-centered
+
+Three additive pieces: (1) wire the repaint loop to CouncilTree.invalidate()
+so cached content lines repaint on theme switch (the cache trap
+navigator.ts:120,148 — cached lines survive a theme change because width
+does not change; without this the user sees a HALF-PAINTED modal: new
+border+backdrop, stale rows); (2) convert renderWidget (index.ts:89-108)
+to the function form so the seat name shows in accent, running state in
+success, timeout flag in warning, last-event tail in dim — bounded color,
+ evaluated by glance, <200ms scan vs ~600ms plain; (3) an fs.watch on
+<cwd>/.council.json that re-derives the merged Theme and re-calls
+setTheme(instance) (ruling: shipped file edits are silent no-ops;
+.council edits must repaint live). /council-jobs and /council-init stay
+plain notifies.
+
+Gulf of Evaluation: at session start and every subsequent switch, the
+user's question is "did the theme apply?" — answered by a visible repaint;
+without (1) a half-painted overlay is the worst-case gulf (a wrong state
+presented as correct); without (3) the documented "live" expectation is
+silently violated.
+
+Designer's falsifiable predictions: P1 light accent (#5a8080) over
+customMessageBg (#ede7f6) WCAG luminance ≥3:1 (≈3.6 by hand); P2 dark
+accent (#febc38) over customMessageBg (#2a2530) ≈8.5 (passes); P3 the
+token-only grep audit finds matches only in the whitelisted comment
+(extensions/navigator.ts:24-26) and test fixtures; P4 cache-stale probe —
+the CouncilTree rendered with theme A then B returns A for the CONTENT
+lines until invalidate() clears the cache (the load-bearing fix); P5
+TranscriptView already recomputes every render(recaches); P6 HTML export:
+getResolvedThemeColors with the in-memory active returns the shipped
+palette (not the merged), or ## triangles; P7 a function-form widget
+rebuilds on invalidate and repaints when the watcher fires; P8 watcher
+calls instance setTheme, never string — settings.json byte-identical;
+P9 no-foreign-ANSI: every ANSI byte sequence across modal/viewer/widget is
+one of the theme's getFgAnsi/getBgAnsi outputs; P10 watcher fires exactly
+once per debounce-stable write; P11 (taste, lowest rank) light-mode
+selection could gets bg selectedBg highlight instead of fg-only accent.
+
+Designer preferences: (d.i vs d.ii) /settings registration — prefers
+showing the merged instance under a sentinel name so the user can see "what
+is active" (d.ii — display nothing — is the safer fallback if the
+settings list misbehaves); product-owner rules. Sentinel name
+"pi-council-active" on the merged instance so getResolvedThemeColors
+returns the right palette for export — unless product-owner reads EV-3
+literally and forbids; fallback is an extension-side wrapper bypassing pi's
+name API. Widget coloring intensity (accent/success/error/dim) is taste;
+the binding constraint is no-foreign-ANSI (P9).
+
+### Round 1 — facilitator verification note
+
+The exported path is verified real on pi 0.84.2: agent-session.js
+`exportToHtml` resolves themeName via [options.themeName,
+settingsManager.getTheme()].find(getThemeByName !== undefined) — using
+settings leaf unset/"light/dark" yields undefined → exportSessionToHtml →
+generateHtml → generateThemeVars(undefined) → getResolvedThemeColors
+(undefined) → currentThemeName "<in-memory>" → loadThemeJson throws
+uncaught "Theme not found: <in-memory>" (export-html/index.js:71-102,
+agent-session.js:2695). /export under an active council theme currently
+fails; the shipped "pi-council-dark"/light" names stay resolvable. This
+is a genuine epic-visible regression entangled with ruling 2(b).
+
+### (Round 2 follows in step 3)
