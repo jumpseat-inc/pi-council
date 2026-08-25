@@ -115,7 +115,7 @@ instead of rejected with `invalid_request`.
 - [[remote-oauth-login]] — the copy-paste pattern this subsystem implements
 - [[headless-pi]] — operating pi without a human at the keyboard
 - [[2026-08-23-mcp-implementation-plan]], [[2026-08-23-mcp-support-design-spec]],
-  [[2026-08-25-remote-mcp-oauth]]
+  [[2026-08-25-remote-mcp-oauth]], [[2026-08-25-remote-mcp-oauth-fix]]
 
 ## Sources
 

@@ -1,3 +1,11 @@
+## [2026-08-25] ingest | Remote OAuth redirect-URI fix (v0.11.1) — catalog completion
+Completed the v0.11.1 ingest: source page filed, catalog + overview updated.
+- **Created:** sources/2026-08-25-remote-mcp-oauth-fix.
+- **Updated:** pi-council-overview (v0.11.1 row + commit count 76→81),
+  index (fix source entry), remote-oauth-login + mcp-support (source backlink).
+- **Contradictions flagged:** (none new — the "fixed constant" correction was
+  recorded in the earlier entry).
+
 ## [2026-08-25] ingest | Remote OAuth redirect-URI fix (v0.11.1)
 Ingested the v0.11.1 bugfix for the reported invalid_request "redirect_uri
 does not match any of the OAuth 2.0 Client's pre-registered redirect urls".

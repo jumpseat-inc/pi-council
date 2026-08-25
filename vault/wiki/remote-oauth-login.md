@@ -84,7 +84,9 @@ instead.
 - [[mcp-support]] — the subsystem with the concrete two-phase commands
 - [[headless-pi]] — the operating rules for pi without a human at the keyboard
 - [[2026-08-25-remote-mcp-oauth]] — the source: design spec + implementation
+- [[2026-08-25-remote-mcp-oauth-fix]] — the source: v0.11.1 registered-URI fix
 
 ## Sources
 
 - [[2026-08-25-remote-mcp-oauth]]
+- [[2026-08-25-remote-mcp-oauth-fix]]
