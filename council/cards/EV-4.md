@@ -385,3 +385,37 @@ selection bg, footer phrasing.
 
 ### (Round 3 does not run — positions converged after round 2; the two
 standing open items are routed after the Skeptic + Consolidator passes.)
+
+### Round 3 — Skeptic attack (step 4)
+
+One Skeptic dispatch, full deliberation record. It attacked the live-repaint
+chain, the export crash, the no-ANSI audit, the widget semantics, the name
+surfaces, and the watcher assumptions — running probes against the REAL pi
+theme module (deep-import) plus a read of the pi source. Verdict: ALL 17
+objections closed-green; NO open objections.
+
+A. Live repaint (proxy → setThemeInstance → invalidate → same-instance
+re-render shows new ANSI) closed-green, positive + negative probe. B.1
+HTML export crash: getResolvedThemeColors() no-arg after setThemeInstance
+throws "Theme not found: <in-memory>" closed-green. B.2 export wrong
+palette: settings "light"/"dark" resolve to the builtin (accent
+#8abeb7) not the council palette (#febc38) closed-green; B.2c "light/dark"
+leaf → getThemeByName undefined → themeName undefined → crash closed-green.
+C no-ANSI audit closed-green (only the whitelisted comment). D.1
+setWidget(string[]) never colorizes closed-green; D.2 factory invoked once
+per setWidget, stored, NOT re-invoked on invalidate closed-green (code
+analysis of setExtensionWidget/renderWidgetContainer). E.1 isLightTheme
+("pi-council-light") === false; E.2 registered-without-sourcePath throws;
+E.3 getThemeByName("pi-council") undefined — all closed-green. F.1-F.6
+watcher-forward assumptions (loadThemeConfig absent → undefined; activate
+idempotent; malformed → notify no-crash; enabled:false → noop; block →
+notify-ish; zero settings writes) all closed-green. 7 onThemeChange
+single-slot, extension never calls it closed-green. P5 TranscriptView no-
+cache closed-green.
+
+Skeptic ran: full suite 203 pass / 2 skip / 0 fail + tsc clean before and
+after its probes (probe files deleted after use). Facilitator re-verified:
+bun test 203 pass / 2 skip / 0 fail, bunx tsc --noEmit clean, no probe
+strays in test/, validate.py clean.
+
+New objections: none. No open objection survives to step 5.
