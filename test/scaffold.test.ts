@@ -5,7 +5,7 @@ import * as path from "node:path";
 import { scaffoldInto } from "../extensions/scaffold.ts";
 import { PKG_ROOT } from "../extensions/seats.ts";
 import { loadMcpConfig } from "../extensions/mcp/config.ts";
-import { COUNCIL_CONFIG_FILE, loadCouncilConfig, loadSeat } from "../extensions/seats.ts";
+import { COUNCIL_CONFIG_FILE, loadCouncilConfig, loadSeat, loadThemeConfig, loadShippedTheme, mergeThemeSection } from "../extensions/seats.ts";
 
 const SCAFFOLD = path.join(PKG_ROOT, "council", "scaffold");
 
@@ -95,4 +95,39 @@ test("scaffold writes context7 + tavily mcp.json and renders @CONFIG_DIR@ in pre
 	const createdFiles = second.created.filter((c) => c !== "vault/raw" && c !== "vault/wiki/sources");
 	expect(createdFiles).toEqual([]);
 	expect(second.skipped).toContain(".pi/council/mcp.json");
+});
+
+test("fresh scaffold writes the theme section; rerun over theme-less .council.json is a byte-for-byte no-op", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-init-theme-"));
+	const first = scaffoldInto(root, SCAFFOLD);
+	expect(first.created).toContain(COUNCIL_CONFIG_FILE);
+	const seededConfig = JSON.parse(fs.readFileSync(path.join(root, COUNCIL_CONFIG_FILE), "utf-8"));
+	expect(seededConfig.theme).toEqual({ enabled: true, variant: "auto" });
+	expect(loadThemeConfig(root)).toEqual({ enabled: true, variant: "auto" });
+
+	// rerun over a user-written theme-less .council.json: byte-for-byte no-op
+	const userConfig = JSON.stringify({ council: { owner: { model: "x/y" } } });
+	fs.writeFileSync(path.join(root, COUNCIL_CONFIG_FILE), userConfig);
+	const second = scaffoldInto(root, SCAFFOLD);
+	const createdFiles = second.created.filter((c) => c !== "vault/raw" && c !== "vault/wiki/sources");
+	expect(createdFiles).toEqual([]);
+	expect(second.skipped).toContain(COUNCIL_CONFIG_FILE);
+	expect(fs.readFileSync(path.join(root, COUNCIL_CONFIG_FILE), "utf-8")).toBe(userConfig);
+	expect(loadThemeConfig(root)).toBeUndefined(); // absence = off; no theme key is added
+});
+
+test("delta acceptance: seeded theme section merges to byte-identical shipped palettes", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-init-delta-"));
+	scaffoldInto(root, SCAFFOLD);
+	const seeded = loadThemeConfig(root)!;
+	const dark = loadShippedTheme("dark");
+	const light = loadShippedTheme("light");
+	const mergedDark = mergeThemeSection(dark, seeded.dark);
+	expect(mergedDark.vars).toEqual(dark.vars);
+	expect(mergedDark.colors).toEqual(dark.colors);
+	expect(mergedDark.export).toEqual(dark.export);
+	const mergedLight = mergeThemeSection(light, seeded.light);
+	expect(mergedLight.vars).toEqual(light.vars);
+	expect(mergedLight.colors).toEqual(light.colors);
+	expect(mergedLight.export).toEqual(light.export);
 });
