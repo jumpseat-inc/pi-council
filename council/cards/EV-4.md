@@ -1,7 +1,7 @@
 ---
 id: EV-4
 title: Theme compliance and live repaint of council surfaces
-state: In Review
+state: In Progress
 owner: null
 epic: EPIC-1
 goal: Every council-drawn element from the /council-tree modal and transcript viewer to the widget and command outputs draws from pi theme tokens and repaints when the active theme changes mid-session
@@ -500,3 +500,11 @@ The owner's implementation was interrupted by a provider error after committing 
 Gates verified locally on PR head: `bun install --frozen-lockfile` clean; `bunx tsc --noEmit` clean; `bun test` 224 pass / 2 skip / 0 fail; `python3 council/validate.py` all artifacts valid.
 
 Branch `feat/ev4-theme-compliance` pushed; **PR #6 opened** (head SHA `78a844b`), base `main`. State → `In Review` per step 8 (observed: PR open — not gated on an owner report). Next: Skeptic verify (step 9).
+
+## Step 9 — Skeptic verify, cycle 1 of ≤3 (BLOCK)
+
+Skeptic verified PR #6 (job settled in 3.8m, 25 turns). Ran the full gate set on the PR head, all green (`bun install` clean; `bunx tsc --noEmit` clean; `bun test` 224 pass / 2 skip / 0 fail; `python3 council/validate.py` all valid). Probed every implemented claim: watcher §7 (6 tests), RULING 1 keep-last (no setTheme on removal), RULING 2 no status surface, zero-ANSI-no-hex widget/jobs/modal/viewer, live-repaint pinning (4 tests), resolvedPalette/ansi256ToHex §4, zero-settings-write — **7 closed-green**.
+
+**ONE block (objection #8, `open-untested`):** the spec §3.5/§10 require a **pinning test** asserting the HTML-export crash — `getResolvedThemeColors(undefined)` / `loadThemeJson("<in-memory>")` throws "Theme not found". The owner documented the limitation (README) but never wrote the test; no test asserted the throw. Per step 9, card returned to In Progress and the specific item handed back to the owner.
+
+**Cycle-1 fix:** added `test/theme-export-pinning.test.ts` — after `setThemeInstance(materializeTheme(dark))`, the no-arg `getResolvedThemeColors()` throws `/Theme not found: <in-memory>/`, pinning the documented pi-side regression (fix is pi's, filed as follow-up; never implemented here). Re-ran gates: `bunx tsc --noEmit` clean, `bun test` 225 pass / 2 skip / 0 fail, `python3 council/validate.py` all artifacts valid. Pushed to the branch (new head `66aab25`). State → In Progress during the fix. Next: Skeptic re-verify at head `66aab25` (cycle 2).
