@@ -19,9 +19,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-5 — Document the council theme system
-
 ## In Review
+
+- EV-5 — Document the council theme system
 
 ## Needs Human
 
