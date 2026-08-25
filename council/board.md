@@ -21,10 +21,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-5 — Document the council theme system
-
 ## Needs Human
 
 ## Done
 
 - EV-6 — Add the gates GitHub Actions workflow
+- EV-5 — Document the council theme system
