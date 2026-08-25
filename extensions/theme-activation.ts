@@ -163,6 +163,12 @@ export interface PiThemeModule {
 	getThemeByName(name: string): Theme | undefined;
 	setRegisteredThemes(themes: Theme[]): void;
 	detectTerminalBackgroundFromEnv(options?: { env?: NodeJS.ProcessEnv }): { theme: "dark" | "light" };
+	// EV-4 §5: pi's theme.js also exports the live Proxy (`theme`, reads
+	// globalThis at call time) and setThemeInstance (swaps the global, fires
+	// onThemeChange). Declared so the repaint pinning tests can drive the
+	// real TUI swap; the extension itself NEVER calls setThemeInstance.
+	theme: Theme;
+	setThemeInstance(theme: Theme): void;
 }
 let cachedPiThemeModule: Promise<PiThemeModule> | undefined;
 

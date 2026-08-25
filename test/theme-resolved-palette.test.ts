@@ -18,8 +18,12 @@ test("ansi256ToHex: basic 16, cube 220, grayscale endpoints (pi theme.js parity)
 test("resolvedPalette(dark) equals the resolved shipped asset; non-empty values are 6-digit hex", () => {
 	const pal = resolvedPalette("dark");
 	const shipped = loadShippedTheme("dark");
-	const expected = resolveThemeColors(withThemeColorFallbacks(shipped.colors), shipped.vars);
-	// identical to the EV-3 resolver output when nothing numeric is present
+	const resolved = resolveThemeColors(withThemeColorFallbacks(shipped.colors), shipped.vars);
+	// identical to the EV-3 resolver output when nothing numeric is present —
+	// normalize the (string|number) resolved map to strings for the equality
+	// check (resolvedPalette always emits hex strings)
+	const expected: Record<string, string> = {};
+	for (const [key, value] of Object.entries(resolved)) expected[key] = String(value);
 	expect(pal).toEqual(expected);
 	expect(pal.accent).toBe("#febc38");
 	expect(pal.text).toBe(""); // default-fg sentinel passes through, never invented
