@@ -1,7 +1,7 @@
 ---
 id: EV-4
 title: Theme compliance and live repaint of council surfaces
-state: Deliberating
+state: In Progress
 owner: null
 epic: EPIC-1
 goal: Every council-drawn element from the /council-tree modal and transcript viewer to the widget and command outputs draws from pi theme tokens and repaints when the active theme changes mid-session

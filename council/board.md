@@ -13,10 +13,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- EV-4 — Theme compliance and live repaint of council surfaces
+
 
 ## In Progress
 
+- EV-4 — Theme compliance and live repaint of council surfaces
 ## In Review
 
 ## Needs Human
