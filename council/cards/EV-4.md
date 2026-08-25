@@ -462,3 +462,23 @@ buckets. Per <escalation_contract>: the facilitator never dispatches
 product-owner / steward; a resumption with the ruling will continue from
 here. Packet carries positions and test results as facts only (no
 recommendation).
+
+### Step 6 — RULING RECEIVED (product-owner, verbatim; immutable for the run)
+
+BINDING RULING (product-owner, verbatim):
+
+RULING 1 (off-transition): Position A — keep the last materialized theme,
+warn via notify, and document that reversing to the user's prior theme
+requires a restart. Do NOT implement live off-revert (Position B) — it
+re-opens EV-3's strict-whitelist block predicate and the custom-pair resolution
+question for a marginal UX win.
+
+RULING 2 (council-owned status surface): Option A — display nothing. Do
+NOT add a one-line council-drawn status surface reading the materialized
+instance. The live repaint itself is the answer to "did the theme
+apply?".
+
+Both rulings applied under <escalation_contract> step 1 as binding;
+recovery of the card resumes from the settled design in Rounds 1–4 with
+these two rulings folded in. Proceed to step 7 (write the spec) with no
+re-opened disputes.
