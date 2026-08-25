@@ -5,7 +5,7 @@
 	"keywords": ["pi-package"],
 	"license": "MIT",
 	"type": "module",
-	"pi": { "extensions": ["./extensions"] },
+	"pi": { "extensions": ["./extensions"], "themes": ["./themes"] },
 	"peerDependencies": {
 		"@earendil-works/pi-coding-agent": "*",
 		"typebox": "*"
