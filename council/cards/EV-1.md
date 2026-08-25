@@ -10,8 +10,9 @@ goal: A pi-council theme pair for dark and light terminals ships in the package 
 ## Intent
 
 User-visible surface: the whole pi TUI — this card produces the theme asset
-that later cards activate; on its own it makes "pi-council" selectable in
-/settings (as the `pi-council-dark` / `pi-council-light` pair).
+that later cards activate; on its own it makes the `pi-council-dark` /
+`pi-council-light` pair selectable in /settings (the family name
+`pi-council` is a prose-only selector, never a theme name — NAME-1).
 
 oh-my-pi (github.com/can1357/oh-my-pi) ships `dark.json` / `light.json` in
 packages/coding-agent/src/modes/theme/. Their palettes:
@@ -86,3 +87,12 @@ maps them onto terminal appearance.
 HARD REDS for implementation: (1) not name:"dark"/"light"; (2) not without "themes":["./themes"] in pi manifest; (3) not the 4 optional tokens in shipped files; (4) not resolving var-refs to hex.
 
 ### Round 4 — Consolidator synthesis (step 5)
+
+**consolidator** — three buckets:
+**Settled (the design the owner implements):** two hand-written committed JSON files at themes/pi-council-dark.json and themes/pi-council-light.json, declared via literal-path "themes":["./themes"] in package.json's pi manifest. Four hard reds: (1) JSON name = filename = pi-council-dark/pi-council-light, never dark/light; (2) the manifest entry is required; (3) the 4 optional tokens omitted (withThemeColorFallbacks fills at construction; file=51, resolved=55); (4) var-refs preserved, never resolved to hex. Colors: omp's 51 live tokens verbatim, dead keys stripped; var-refs with omp's real names (no amber var); four "" defaults kept; omp export verbatim; $schema → pi theme-schema URL. No hot-reload machinery; README carries the "base palette — do not edit; customize via .council.json" notice. Provenance: vendored test/fixtures/omp/{dark,light}.json from pinned SHA + full resolved-map test; test/theme.test.ts importing pi's real theme.js via absolute path in shared test/theme-loader.ts; tests T1-T8 as the owner enumerated.
+**Open judgment (product-owner, escalating to steward):** (1) Where the spec §3/§4 docs-only corrections land — owner: EV-1's PR carries both fixes so EV-2 reads corrected spec; principal: the §4 correction must be promoted into EV-2's card text (a note in EV-1's transcript is the failure mode) and needs no follow-up card (spec §8 "one-word fix at implementation time" precedent). Two different delivery mechanisms for the same fact; both survived scrutiny; no test settles which routing reaches EV-2's owner. (2) Card-intent wording bug ("makes 'pi-council' selectable in /settings") — all seats agree it's a wording bug per NAME-1; the card-text edit itself is a product-owner action. (3) Routing of the designer's two remaining out-of-band falsifiable predictions (/settings lists the pair under the pi-council- prefix; .council.json override repaints live) — they belong to EV-3/EV-4 or a smoke test; which card owns each and whether a smoke test is warranted is a routing call no test settles.
+**Open objections:** none. All 10 Skeptic claims closed-green; 41 settling tests against pi's real loader; repo suite 138 pass / 0 fail. The four hard reds are implementation guardrails, not outstanding objections.
+
+### Step 6 — routing (facilitator)
+- Item (2) substance is squarely covered by Phase-1 ruling NAME-1 + spec §2 (family is a prose-only selector; the theme name is never `pi-council`; `/settings` lists exactly the two variants) — the card's own intent already carries the disambiguating parenthetical "as the pi-council-dark / pi-council-light pair". Applied NAME-1 to the card text (intent wording conformed: "makes the pi-council-dark / pi-council-light pair selectable in /settings"). Citation: NAME-1.
+- Items (1) and (3) are not answered by any Phase-1 ruling. Per the escalation contract, these route to the orchestrator for a ruling-seat call.
