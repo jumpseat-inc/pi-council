@@ -1,7 +1,7 @@
 ---
 id: EV-3
 title: Activate the council theme on session start
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-1
 goal: At session start the council extension materializes the .council.json theme into a pi theme and activates it so the TUI renders in the configured palette and a repo without a theme section leaves pi's theme untouched
@@ -144,3 +144,15 @@ and the consolidator returned no open judgment for `product-owner`/`steward`,
 so the run wrote up the settled design (no re-litigation). Card set
 `In Progress` on card + board (commit ed0f25c), `python3 council/validate.py`
 clean. Handed to owner for implementation in an isolated worktree.
+
+### Facilitator — step 8 recovery run (owner implementation done)
+
+Recovery resume: prior runner stalled waiting on owner dispatch. Spec was
+already committed (318e3ce), plan committed on branch `feat/ev3-theme-activation`
+(5ff710d), no PR open. This run dispatched owner (job-16.1, settled 7.2m)
+to implement on the existing branch per the committed plan/spec.
+
+- **Owner commit:** `e24bc65 feat(theme): activate the council theme on session start (EV-3)` — `extensions/theme-activation.ts` (+225), `test/theme-activation.test.ts` (+300), `extensions/index.ts` (+2, wiring `void activateTheme(ctx, repoRoot)` above `initHubIdentity(mintRunId())` in session_start).
+- **Owner's four gates (reported):** bun install --frozen-lockfile exit 0; bunx tsc --noEmit exit 0; bun test 203 pass / 2 skip / 0 fail (baseline 182; +21 new); python3 council/validate.py clean.
+- **PR #5 OPEN** — `main ← feat/ev3-theme-activation`, head e24bc65, body "Closes EV-3 (EPIC-1); design spec 318e3ce." Verified on disk: branch pushed (origin/feat/ev3-theme-activation = e24bc65), `gh pr view 5` state OPEN. Diff scope = plan doc + module + tests + wiring only; no seats.ts / themes / council changes.
+- Step 8 rule: `In Review` written from observed artifact (branch + open PR), not the owner's report. Card + board set In Review.
