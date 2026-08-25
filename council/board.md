@@ -19,8 +19,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-2 — Theme configuration in the scaffold .council.json
-
 ## Needs Human
 
 ## Done
@@ -28,3 +26,4 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-1 — Port the oh-my-pi palette to a shipped pi theme
 - EV-6 — Add the gates GitHub Actions workflow
 - EV-5 — Document the council theme system
+- EV-2 — Theme configuration in the scaffold .council.json

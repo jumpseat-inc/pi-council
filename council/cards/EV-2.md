@@ -1,7 +1,7 @@
 ---
 id: EV-2
 title: Theme configuration in the scaffold .council.json
-state: In Review
+state: Done
 owner: null
 epic: EPIC-1
 goal: The scaffold .council.json carries an editable theme section that loadThemeConfig parses and validates and that merges repo overrides over the shipped omp defaults
@@ -105,3 +105,11 @@ The original step-8 owner dispatch stalled mid-Task 5 (after writing the failing
 ### Step 9 — Skeptic verification (branch feat/ev2-theme-config @ 628999f)
 
 VERDICT: **does not block.** All four gates pass in full, run by the Skeptic itself (not taken from the owner's report): `bun install --frozen-lockfile` no changes; `bunx tsc --noEmit` exit 0; `bun test` 182 pass / 2 skip / 0 fail (2 skips = integration self-skip without COUNCIL_INTEGRATION=1, documented); `python3 council/validate.py` "All council artifacts valid". Gate-integrity check: injected a type error, tsc caught it (TS2322) — the gate is capable of failing. All seven open-untested objections from Round 3 are **closed-green** with their settling tests run and passing (theme:{} → {variant:"auto"}; delta acceptance both variants; falsy vocabulary incl. null/0/""; export preservation; "" sentinel; absent variant default; colors vocabulary 51+4 with nonexistent throwing). All closed-red record corrections are **closed-green** against the verified var-consumer graph (dark cyan→[borderAccent,bashMode], blue→[border] only, accent→[accent,mdListBullet]; thinkingLow/mdLink/mdHeading literal hexes; council.theme reserved-key guard both forms). Six independent probes P1–P6 all closed-green, including an independent re-derivation of the var-consumer graph from the shipped theme files and a PR-scope check (no out-of-spec changes; spec §10 items absent). No open objections remain.
+
+### Step 10 — Judge verdict
+
+**PASS** (fresh pair of eyes, goal + Skeptic evidence only). Basis: editable theme section in scaffold `.council.json` confirmed (probes P2/P4); `loadThemeConfig` parses and validates (vocabulary, defaults, off-switch, reserved-key guard); merges repo overrides over shipped omp defaults (export preserved, delta acceptance, verified var-consumer graph). Full suite 182/2/0, no open objections. Goal met.
+
+### Step 11/12 — Merge (deterministic check, features-deliver substitution)
+
+All five criteria held: (1) owner gates green in full (Skeptic re-ran: tsc 0, 182/2/0, validate clean); (2) GitHub Actions `gates` workflow SUCCESS on PR head SHA 9154880 (`gh pr checks 4 --json name,state,workflow` → gates/SUCCESS); (3) no blocking Skeptic objection; (4) judge PASS; (5) no Needs Human / outstanding ruling. Merged with `gh pr merge 4 --merge --match-head-commit 9154880...` — **PR #4 merged, merge commit c3c0d92**, CI green on merged SHA (run 32887181652, success). Local main rebased from origin/main — fast-forwarded cleanly (442a55c already applied via branch restoration, skipped). Card set Done.
