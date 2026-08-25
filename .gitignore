@@ -6,6 +6,6 @@ node_modules/
 # pi harness + transient hub state
 .pi/git/
 .pi/council/.pids.json
-# Smoke test run artifacts
-smoke/artifacts/*
-!smoke/artifacts/.gitkeep
+# Smoke test run artifacts (dot-dir so bun test never discovers them)
+smoke/.artifacts/*
+!smoke/.artifacts/.gitkeep

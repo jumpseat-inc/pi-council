@@ -14,7 +14,7 @@ fi
 docker build -q -t "$IMAGE" "$REPO_ROOT/smoke"
 
 TS="$(date +%Y%m%d-%H%M%S)"
-OUT="$REPO_ROOT/smoke/artifacts/$TS"
+OUT="$REPO_ROOT/smoke/.artifacts/$TS"
 CID="smoke-$TS"
 mkdir -p "$OUT"
 
@@ -33,12 +33,12 @@ fi
 docker rm -f "$CID" >/dev/null 2>&1 || true
 
 # Prune to the last $KEEP runs.
-ls -1dt "$REPO_ROOT"/smoke/artifacts/2* 2>/dev/null | tail -n +$((KEEP + 1)) | xargs -r rm -rf
+ls -1dt "$REPO_ROOT"/smoke/.artifacts/2* 2>/dev/null | tail -n +$((KEEP + 1)) | xargs -r rm -rf
 
 if [ "$STATUS" -eq 0 ]; then
-	echo "SMOKE PASS (artifacts: smoke/artifacts/$TS)"
+	echo "SMOKE PASS (artifacts: smoke/.artifacts/$TS)"
 else
-	echo "SMOKE FAIL phase exit=$STATUS (artifacts: smoke/artifacts/$TS)" >&2
+	echo "SMOKE FAIL phase exit=$STATUS (artifacts: smoke/.artifacts/$TS)" >&2
 	if [ -f "$OUT/work/.pi/council/runs" ] || [ -d "$OUT/work/.pi/council/runs" ]; then
 		LAST="$(find "$OUT/work/.pi/council/runs" -name '*.jsonl' -print0 2>/dev/null | xargs -0 ls -t 2>/dev/null | head -1)"
 		if [ -n "$LAST" ]; then

@@ -58,7 +58,7 @@ smoke/
   assert.sh       # shared assertion helpers: frontmatter state, board column
                   # membership, functional CLI probes, manifest inspection
   fixture/        # committed consumer repo (below)
-  artifacts/      # gitignored; per-run output, pruned to last 5
+  .artifacts/    # gitignored (dot-dir: bun test skips it); per-run output, pruned to last 5
 ```
 
 `package.json` gains a `"smoke": "bash smoke/run.sh"` script.
@@ -148,7 +148,7 @@ cost single-digit dollars).
 
 Every run, pass or fail, copies the worktree out of the container (minus
 `node_modules`): board, card files, `git log`/diff, `.pi/council/runs/`
-manifests and seat session JSONL. Landing dir `smoke/artifacts/<timestamp>/`,
+manifests and seat session JSONL. Landing dir `smoke/.artifacts/<timestamp>/`,
 gitignored, pruned to the last 5. On red, `run.sh` additionally prints the
 failed phase, exit code, and the tail of the last seat transcript.
 
