@@ -273,4 +273,115 @@ agent-session.js:2695). /export under an active council theme currently
 fails; the shipped "pi-council-dark"/light" names stay resolvable. This
 is a genuine epic-visible regression entangled with ruling 2(b).
 
-### (Round 2 follows in step 3)
+### Round 2 — bounded exchange (owner, principal, designer)
+
+(Owner's first round-2 job stalled at 4 turns with no output; re-dispatched
+once with identical input per facilitator dispatch discipline — settled.)
+
+#### owner (round 2, source-pinned)
+
+D1 no repaint bug exists: setThemeInstance fires onThemeChangeCallback
+(single-slot, theme.js:706-717); pi's only registration is ui.invalidate()
++ updateEditorBorderColor() + requestRender (interactive-mode.js:761-765);
+TUI.invalidate() iterates the whole overlayStack calling
+overlay.component.invalidate() (pi-tui/tui.js:429-434); the council overlay
+wires invalidate: () => tree.invalidate() → cached = undefined, so the next
+compositeOverlays frame re-renders against the live Proxy. The 2s timer is
+belt-and-braces. The designer's half-pint is false of the WIRED overlay.
+Deliverable = pinning test; if red, the seam (navigator.ts invalidate
+wiring) is the bugfix — test before code. D2: function form invoked exactly
+once per setWidget call and stored (interactive-mode.js:1733-1735);
+invalidate() never re-invokes it; worse: rpc-mode drops factory widgets
+entirely (rpc-model.js:123-131) — taking the function form downgrades every
+headless session from plain-widget-lines to NO widget at all: a functional
+regression, not a taste trade. Plain strings stay; /council-jobs plain.
+D3: sentinel dead on three grounds — (1) NAME-1; (2) registry: a registered
+theme without sourcePath THROWS at loadResultThemeJson
+("does not have a source path", theme.js:467-469) and an in-memory instance
+has no sourcePath (writing a temp JSON breaks EV-3 zero-on-disk); (3) worse
+than dead: a sentinel would appear in /settings and selecting it routes pi
+through the string branch → settings write with no file. Designer's d.ii
+(display nothing) is the only safe posture. resolvedPalette (merge→resolve→
+ansic256ToHex copy) is the deliverable for "carrying the council palette."
+D4/export: verified path freezes — agent-sessions exportToHtml resolves
+themeName from [options.themeName, settings.getTheme()].find(getThemeByName
+!== undefined), undefined under active council theme → getResolvedThemeColors
+(undefined) → currentThemeName "<in-memory>" → loadThemeJson throws (uncaught
+in export-html:191). No extension interception scan exists. In-scope
+deliverable: a pinning test asserting loadThemeJson("<in-memory>") throws +
+ documentation + pi-side follow-up. Watcher: uniformly impl-settled — arm
+only when config exists; parent-dir fs.watch + basename + re-arm on
+rename; 250ms debounce last-write-wins; activate → setTheme(instance);
+block → notify-only; noop/removed → keep last theme + warn (zero-write is
+EV-3's binding rule, not a re-openable product question); malformed →
+notify + stay armed; never watch settings.json; unref+close on shutdown.
+Only open contact: severity-tracking the /export crash as a follow-up.
+
+Owner's runnable tests: D1 wired-overlay setThemeInstance(B)+invalidate()+
+same-CouncilTree-same-width re-render → B's accent ANSI; D1b without
+invalidate → cached A-ANSI (isolates the seam); D2 renderWidget
+string[] + /council-jobs join contain zero \\x1b[; D3
+getResolvedThemeColors("pi-council-") equals the shipped file map
+(regression); D4/export loadThemeJson("<in-memory>") throws (pins the
+limitation); D4 watcher reload path rules (noop → no setTheme; malformed →
+notify + still armed; one valid save → one reload).
+
+#### principal (round 2)
+
+The repaint case is free: ctx.ui.setTheme(instance) → instance branch →
+setThemeInstance (fires callback) + notifyChanged (second invalidate),
+zero settings write (interactive-mode.js:1946-1954; theme-controller.js:66-
+71). onThemeChange is single-celled; owner #7 holds. Export is broken in
+TWO modes, not one: crash when the leaf ∈ {undefined,"light/dark"}
+(getResolvedThemeColors(undefined) → loadThemeJson("<in-memory>") throws)
+AND silent un-merged palette when the leaf ∈ {"light","dark"} (resolves to
+the builtin, exporting colors the council never merged).
+materializeTheme passes no options, so the instance has both name and
+sourcePath undefined — name-lookup can never reach it (theme.js:466-477
+:e for brand). Shared blind spot: widget re-paint path — owner's #4 (freeze
+until next setWidget) vs designer's P7 (rebuilds on invalidate) asserted
+opposite facts about the same region; neither cited renderWidgetContainer;
+insist on a test over prose. Resolutions: D1 drop "cache-bug" frame —
+deliverable is the contract probe (render A → setThemeInstance(B) →
+invalidate → re-render; assert B ANSI on the same overlay); no wiring ships
+unless the probe fails; contingency keyed cache on (width, theme) stays
+DOCUMENTED-only. D2: GGAp function form is compliant; plain strings ship
+(zero-ANSI assert); color contingent on the repaint test. D3 dead-not-
+fallback: NAME-1 AND theme.js:466-477; resolvedPalette + shipped-name
+regression + two-mode export doc + follow-up. D4: own correction —
+off-revert is NOT strictly blocked: loadThemeFromPath is exported and on our
+PiThemeModule surface, so live off-revert is technically possible without a
+settings write, but re-opens custom-pair resolution. Product-owner chooses:
+keep-last + warn/restart (safer) vs live off-revert (more code/risk).
+block→activate: implementation can settle via re-read-each-fire.
+
+#### designer (round 2)
+
+Converges on D1 (no live half-paint; the probe is the contract pin;
+contingency if a future cached component lacks the hook), D2 (drop the
+colored widget — owner round-1 asserted the freeze, principal confirmed the
+headless no-op; a stale frozen-color widget after a switch is costlier than
+the <group> gain; keep plain strings; the choice is functional, not taste),
+D3 (the sentinel remains a collack; resolvedPalette(variant) is the
+surface; NAME-1 honored). Holds on /settings registration (d.i vs d.ii)
+product-owner; holds on D4 off/block - transitions (cover rulings); new
+P7-critical falsifiable test: does a factory widget's render get re-invoked
+on theme switch (empirical hinge — if yes, function form back in play;
+if no, plain strings win); theme P6 two-part: (a) getResolvedThemeColors()
+no-arg under in-memory returns the SHIPPED palette (NAME-1 boundary),
+(b) council-owned resolvedPalette(variant) returns the merged hex map.
+P1/P2 contrast (light #5a8080-on-#ede7f6 ≈ 3.6; dark #febc50-on-#2a2530 ≈
+8.5); P3 zero-ANSI grep; P4 cache-stale probe load-bearing; P5 transcript
+no-cache repaint; P8 watcher zero settings-mutation; P9 no-foreign-ANSI;
+P10 watcher-once; P11 light-bg-selection taste, lowest.
+
+Designer product-cover rulings: (1) /settings — d.i sentinel (dead with
+NAME-1 per both seats) vs d.ii display-nothing (safe) vs a council-owned
+"what is active" footstated; (2) off-transition — keep-last-warn-restart vs
+live off-revert; (3) block → activate: one-shot arm with freeze-on-block vs
+de-redecide. Preference: keep-last + warn; unaperture d-in; one-shot arm.
+Taste ranked last: widget recolor (only if P7 flips), light-mode
+selection bg, footer phrasing.
+
+### (Round 3 does not run — positions converged after round 2; the two
+standing open items are routed after the Skeptic + Consolidator passes.)
