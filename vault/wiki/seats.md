@@ -6,7 +6,7 @@ aliases: [seat, seat schema, council seat]
 tags: [pi-council/concept]
 sources: ["[[2026-08-23-council-json-override]]", "[[2026-08-24-bugfix-seat-prose]]"]
 created: 2026-08-23
-updated: 2026-08-24
+updated: 2026-08-25
 ---
 
 > ⚠️ Derived from `extensions/seats.ts`, `extensions/child.ts`, and the nine `council/agents/*.md` files (captured 2026-08-23). Verify against `seats.ts` for schema details.
@@ -44,15 +44,28 @@ body: `<council_runtime>` (resolved procedures dir) and `<repository_grounding>`
 `Glob`→`find, ls`. The `hub` grant (from `task`/`hub`) exposes council_wait,
 council_dispatch, council_cancel — only if `spawns` is non-empty.
 
+> ⚠️ **Superseded (v0.10.0):** before the smoke-test bugfix, this grant was
+> registration-only — `child.ts` registered the hub tools and `isCallAllowed`
+> permitted them, but `buildChildArgv`'s `--tools` allowlist omitted them, and
+> pi hides anything not on that list from the model. A hub-enabled child
+> (council-runner) could never actually dispatch. Fixed in v0.10.0: the three
+> hub tool names are appended to `--tools` when `grantsFor(seat).hub`. See
+> [[2026-08-25-smoke-test-bugfixes]] bug 3.
+
 ## Child sandboxing
 
 A dispatched seat runs headless (`pi --mode json -p`) and is sandboxed by
 `child.ts`:
 - `--tools` is an **exact-name allowlist** of granted tools incl. enumerated
-  MCP `mcp__<server>__<tool>` names.
+  MCP `mcp__<server>__<tool>` names — and, since v0.10.0, the hub tool names
+  for hub-enabled seats (see the superseded note above).
 - A `tool_call` whose name is not granted (or whose server is not in `mcp:`) is
   blocked with a refusal message.
 - MCP tools must be registered **eagerly** at startup (lazy connect deadlocks).
+
+Headless dispatch also imposes mode rules on the **parent** that dispatches:
+commands must block until the dispatched turn completes (`waitForIdle`), or
+print mode tears the runtime down mid-turn — see [[headless-pi]].
 
 ## Seats in the package
 

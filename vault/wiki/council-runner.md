@@ -6,7 +6,7 @@ aliases: [council-runner, runner]
 tags: [pi-council/seat]
 sources: ["[[2026-08-24-bugfix-seat-prose]]"]
 created: 2026-08-23
-updated: 2026-08-24
+updated: 2026-08-25
 ---
 
 > ⚠️ Derived from `council/agents/council-runner.md` (captured 2026-08-23). Verify against the seat file.
@@ -25,6 +25,13 @@ A **facilitator for exactly one card** (dispatched by /features-deliver's
 Phase 2), executing the full `/council` loop in its own turn. It decides
 nothing — routes work, counts rounds/dispatches, writes the board. The human's
 reserved powers are re-homed per the authority map in `features-deliver.md`.
+
+> ⚠️ **Corrected (v0.10.0):** this page previously asserted the runner
+> "dispatches the working seats" as fact. Before v0.10.0 that was aspirational
+> — hub tools were never on the child's `--tools` allowlist, so the runner
+> HALTed before dispatching a single seat and `/features-deliver` was broken
+> end-to-end. Fixed by the smoke-test bugfix; see
+> [[2026-08-25-smoke-test-bugfixes]] bug 3.
 
 ## Distinctive contracts
 

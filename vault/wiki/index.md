@@ -37,6 +37,9 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[preflight]] — The card-aware, fail-fast shell+script gate before every run.
 - [[llm-wiki]] — The persistent, compounding knowledge base (sources → wiki → schema).
 - [[council-config]] — The committed `.council.json`; field-level per-seat model/thinking override, scaffold-seeded.
+- [[smoke-test]] — The definitive unattended end-to-end test: isolated container drives a real /council loop + /features-deliver epic, asserts structure, re-runs gates itself; caught 3 production bugs.
+- [[headless-pi]] — pi's non-interactive modes (-p/json/rpc): no trust prompt, single-shot teardown, stale ctx, and the waitForIdle pattern for command turns.
+- [[run-transcripts]] — the on-disk run substrate: per-job manifests + session JSONL under .pi/council/runs/, the job forest, and the /council-tree live transcript viewer (ctrl+shift+t).
 
 ## Comparisons
 
@@ -54,4 +57,7 @@ _(none yet)_
 - [[2026-08-23-council-json-override]] — V0.7.0: the committed .council.json field-level seat override layer.
 - [[2026-08-24-bugfix-seat-prose]] — Bugfix: purges stale deliver.md / GATE-EVIDENCE.md / hardcoded .pi / "registry" framing from seat + procedure prose.
 - [[2026-08-24-ask-user-question]] — Ask-user-question second dependency: generalized COUNCIL_DEPENDENCIES list, preflight gate.
+- [[2026-08-24-unattended-smoke-test-design]] — Design of the v0.10.0 unattended smoke test: container, fixture, phases, hard-fail contract.
+- [[2026-08-24-unattended-smoke-test-plan]] — Six-task runbook that built the smoke test (fixture, image, driver, costing tasks).
+- [[2026-08-25-smoke-test-bugfixes]] — The three production bugs the smoke caught (headless dispatch, MCP startup, hub-tool allowlist) + v0.10.0 release.
 

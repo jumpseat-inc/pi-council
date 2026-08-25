@@ -6,7 +6,7 @@ aliases: [procedures, slash commands, commands]
 tags: [pi-council/concept]
 sources: ["[[2026-08-24-bugfix-seat-prose]]"]
 created: 2026-08-23
-updated: 2026-08-24
+updated: 2026-08-25
 ---
 
 # Procedure Commands
@@ -30,6 +30,18 @@ description.
   before `pi.sendUserMessage`.
 - The engine commands (`/council-init`, `/council-jobs`, `/mcp …`) are registered
   alongside; the wiki commands (`/wiki-ingest/-:query/-lint`) are procedures too.
+
+## Headless dispatch (v0.10.0)
+
+A procedure command's handler sends the rendered procedure via
+`pi.sendUserMessage` — and in non-interactive modes (**print/json/rpc**) the
+handler must **block until the dispatched turn completes**, or the runtime is
+torn down before the turn runs. Before v0.10.0 the handler was fire-and-forget,
+so `/council` was a **silent no-op** headlessly (TUI worked by luck of the
+session staying alive). The extension `sendUserMessage` API resolves before the
+turn runs, so the handler fires it, polls `ctx.isIdle()`, then awaits
+`ctx.waitForIdle()` — see [[headless-pi]] and
+[[2026-08-25-smoke-test-bugfixes]] bug 1.
 
 ## The seven packaged procedures
 

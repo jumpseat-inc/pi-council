@@ -6,7 +6,7 @@ aliases: [hub, job table, council_dispatch]
 tags: [pi-council/concept]
 sources: ["[[2026-08-24-bugfix-seat-prose]]"]
 created: 2026-08-23
-updated: 2026-08-24
+updated: 2026-08-25
 ---
 
 # Hub Job Supervision
@@ -48,6 +48,11 @@ accumulating output tokens/cost and stopReason — and `tool_execution_start`
   report. Never cancels on timeout.
 - **`council_cancel`** — SIGTERM+SIGKILL a running job.
 
+Since v0.10.0 these tools also reach the **child's model**: `buildChildArgv`
+appends their names to the child's `--tools` allowlist for hub-enabled seats
+(previously registration-only — children could never see or call them; see
+[[2026-08-25-smoke-test-bugfixes]] bug 3).
+
 ## The wait-report format
 
 The report carries `state`, `turns`, `cost`, `output`, `stopReason`,
@@ -62,6 +67,7 @@ this is the whitespace observer of the guard.
 ## Related
 
 - [[seats]], [[council-loop]], [[model-output-floors]]
+- [[run-transcripts]] — the on-disk manifests + transcript viewer (v0.9.0)
 
 ## Sources
 
