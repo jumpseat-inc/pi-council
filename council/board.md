@@ -15,7 +15,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-3 — Activate the council theme on session start
 - EV-4 — Theme compliance and live repaint of council surfaces
 - EV-5 — Document the council theme system
-- EV-6 — Add the gates GitHub Actions workflow
 
 ## Deliberating
 
@@ -26,3 +25,5 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Needs Human
 
 ## Done
+
+- EV-6 — Add the gates GitHub Actions workflow
