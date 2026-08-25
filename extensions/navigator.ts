@@ -1,12 +1,12 @@
 import type { ExtensionAPI, ExtensionContext, Theme } from "@earendil-works/pi-coding-agent";
-import { Key, matchesKey, truncateToWidth, wrapTextWithAnsi, type Component } from "@earendil-works/pi-tui";
+import { Key, matchesKey, truncateToWidth, visibleWidth, wrapTextWithAnsi, type Component } from "@earendil-works/pi-tui";
 import { findSessionFile, listRunIds, readManifests } from "./runs.ts";
 import { buildTree, flattenTree, textTree, type TreeNode } from "./tree.ts";
 import { TranscriptTail, type TranscriptBlock } from "./transcript.ts";
 
 export const TREE_SHORTCUT = "ctrl+shift+t";
 
-export type NavTheme = Pick<Theme, "fg" | "bold">;
+export type NavTheme = Pick<Theme, "fg" | "bold" | "bg">;
 
 const GLYPH: Record<string, string> = {
 	running: "●",
@@ -16,6 +16,51 @@ const GLYPH: Record<string, string> = {
 	cancelled: "⊘",
 	timeout: "⚠",
 };
+
+/**
+ * Wrap component content in a full-screen modal frame: an opaque backdrop
+ * over the whole terminal (so the underlying session UI is blocked) plus a
+ * centered bordered panel holding the content. The TUI overlay compositor
+ * offers no backdrop of its own — OverlayOptions has no background/dim field
+ * — so the component must draw it. theme.bg/fg resets are scoped (\x1b[39m /
+ * \x1b[49m), so a bg wrap around fg-colored content nests cleanly.
+ */
+export function withModalFrame(
+	theme: NavTheme,
+	width: number,
+	rows: number,
+	content: string[],
+	opts: { panelWidth?: number; maxPanelHeight?: number } = {},
+): string[] {
+	const panelWidth = Math.min(opts.panelWidth ?? 100, Math.max(1, width - 4));
+	const contentWidth = Math.max(1, panelWidth - 4);
+	const maxPanelHeight = Math.max(1, opts.maxPanelHeight ?? rows);
+	const panelHeight = Math.min(content.length + 2, maxPanelHeight);
+	const shown = content.slice(0, Math.max(0, panelHeight - 2));
+	const panelTop = Math.max(0, Math.floor((rows - panelHeight) / 2));
+	const panelLeft = Math.max(0, Math.floor((width - panelWidth) / 2));
+	const border = (s: string) => theme.fg("border", s);
+	const backdrop = (s: string) => theme.bg("customMessageBg", s);
+	const out: string[] = [];
+	for (let r = 0; r < rows; r++) {
+		const local = r - panelTop;
+		let seg: string;
+		if (local < 0 || local >= panelHeight) {
+			seg = "";
+		} else if (local === 0 || local === panelHeight - 1) {
+			const horiz = "─".repeat(Math.max(0, panelWidth - 2));
+			seg = border(local === 0 ? `┌${horiz}┐` : `└${horiz}┘`);
+		} else {
+			const text = truncateToWidth(shown[local - 1] ?? "", contentWidth);
+			const padded = text + " ".repeat(Math.max(0, contentWidth - visibleWidth(text)));
+			seg = border("│ ") + padded + border(" │");
+		}
+		const left = " ".repeat(panelLeft);
+		const rightPad = Math.max(0, width - panelLeft - visibleWidth(seg));
+		out.push(backdrop(left + seg + " ".repeat(rightPad)));
+	}
+	return out;
+}
 
 export class CouncilTree implements Component {
 	private rows: Array<{ node: TreeNode; runId: string }> = [];
@@ -29,6 +74,7 @@ export class CouncilTree implements Component {
 		private theme: NavTheme,
 		private onOpen: (node: TreeNode, runId: string) => void,
 		private onClose: () => void,
+		private maxRows = Number.MAX_SAFE_INTEGER,
 	) {
 		this.refresh();
 	}
@@ -78,13 +124,27 @@ export class CouncilTree implements Component {
 			),
 		];
 		if (this.rows.length === 0) lines.push(this.theme.fg("dim", "  (no jobs)"));
-		this.rows.forEach((r, i) => {
+		// Window around the selection when the tree is taller than the panel budget,
+		// so the highlighted row stays on screen.
+		const start =
+			this.rows.length > this.maxRows
+				? Math.max(
+						0,
+						Math.min(this.selected - Math.floor((this.maxRows - 1) / 2), this.rows.length - this.maxRows),
+					)
+				: 0;
+		const windowed = this.rows.slice(start, start + Math.min(this.maxRows, this.rows.length));
+		windowed.forEach((r, i) => {
+			const idx = start + i;
 			const m = r.node.manifest;
 			const glyph = r.node.orphaned ? "☠" : (GLYPH[m.state] ?? "?");
 			const mins = ((Date.now() - m.startedAt) / 60_000).toFixed(1);
 			const row = `${"  ".repeat(r.node.depth)}${glyph} ${m.id} ${m.seat} ${mins}m${m.state === "running" ? "" : ` ${m.state}`}`;
-			lines.push(truncateToWidth(i === this.selected ? this.theme.fg("accent", `> ${row}`) : `  ${row}`, width));
+			lines.push(truncateToWidth(idx === this.selected ? this.theme.fg("accent", `> ${row}`) : `  ${row}`, width));
 		});
+		if (this.rows.length > windowed.length) {
+			lines.push(this.theme.fg("dim", `  … ${this.rows.length - windowed.length} more`));
+		}
 		this.cached = { w: width, lines };
 		return lines;
 	}
@@ -103,6 +163,7 @@ export function registerNavigator(pi: ExtensionAPI, repoRoot: string, currentRun
 		}
 		await ctx.ui.custom<string | null>(
 			(tui: any, theme: NavTheme, _kb: unknown, done: (v: string | null) => void) => {
+				const termRows = Math.max(10, (tui?.terminal?.rows ?? 24));
 				const tree = new CouncilTree(
 					repoRoot,
 					currentRunId(),
@@ -111,6 +172,7 @@ export function registerNavigator(pi: ExtensionAPI, repoRoot: string, currentRun
 						openTranscript(ctx, tui, repoRoot, node, runId);
 					},
 					() => close(),
+					termRows - 4,
 				);
 				const refreshTimer = setInterval(() => {
 					tree.refresh();
@@ -121,7 +183,14 @@ export function registerNavigator(pi: ExtensionAPI, repoRoot: string, currentRun
 					done(null);
 				};
 				return {
-					render: (w: number) => tree.render(w),
+					render: (w: number) =>
+						withModalFrame(
+							theme,
+							w,
+							termRows,
+							tree.render(Math.min(96, Math.max(1, w - 8))),
+							{ maxPanelHeight: termRows - 2 },
+						),
 					invalidate: () => tree.invalidate(),
 					handleInput: (d: string) => {
 						tree.handleInput(d);
@@ -129,7 +198,10 @@ export function registerNavigator(pi: ExtensionAPI, repoRoot: string, currentRun
 					},
 				};
 			},
-			{ overlay: true },
+			{
+				overlay: true,
+				overlayOptions: { width: "100%", maxHeight: "100%", margin: 0, anchor: "top-left" },
+			},
 		);
 	};
 
@@ -274,16 +346,34 @@ function openTranscript(ctx: ExtensionContext, tui: any, repoRoot: string, node:
 	const file = findSessionFile(repoRoot, runId, node.manifest.id);
 	void ctx.ui.custom(
 		(_t2: any, theme2: NavTheme, _kb: unknown, done2: (v: null) => void) => {
+			const termRows = Math.max(10, (tui?.terminal?.rows ?? 24));
 			const view = new TranscriptView(
 				file,
 				theme2,
 				`${node.manifest.id} ${node.manifest.seat}${node.orphaned ? " (orphaned)" : ""}`,
-				Math.max(10, (tui?.terminal?.rows ?? 24) - 4),
+				termRows - 4,
 				() => done2(null),
 			);
 			view.setOnChange(() => tui?.requestRender?.());
-			return view;
+			return {
+				render: (w: number) =>
+					withModalFrame(
+						theme2,
+						w,
+						termRows,
+						view.render(Math.min(96, Math.max(1, w - 8))),
+						{ maxPanelHeight: termRows - 2 },
+					),
+				invalidate: () => view.invalidate(),
+				handleInput: (d: string) => {
+					view.handleInput(d);
+					tui?.requestRender?.();
+				},
+			};
 		},
-		{ overlay: true },
+		{
+			overlay: true,
+			overlayOptions: { width: "100%", maxHeight: "100%", margin: 0, anchor: "top-left" },
+		},
 	);
 }

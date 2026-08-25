@@ -2,10 +2,11 @@ import { test, expect } from "bun:test";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import { CouncilTree, TranscriptView, type NavTheme } from "../extensions/navigator.ts";
+import { visibleWidth } from "@earendil-works/pi-tui";
+import { CouncilTree, TranscriptView, withModalFrame, type NavTheme } from "../extensions/navigator.ts";
 import { ensureRunDir, writeManifest, type RunManifest } from "../extensions/runs.ts";
 
-const theme: NavTheme = { fg: (_c, s) => s, bold: (s) => s };
+const theme: NavTheme = { fg: (_c, s) => s, bold: (s) => s, bg: (_c, s) => s };
 
 function m(id: string, over: Partial<RunManifest> = {}): RunManifest {
 	return {
@@ -22,6 +23,39 @@ function m(id: string, over: Partial<RunManifest> = {}): RunManifest {
 		...over,
 	};
 }
+
+test("withModalFrame: fills the whole screen, blocks it with backdrop, draws a bordered panel", () => {
+	let bgCalls = 0;
+	const t: NavTheme = {
+		fg: (_c, s) => s,
+		bold: (s) => s,
+		bg: (_c, s) => {
+			bgCalls++;
+			return s;
+		},
+	};
+	const lines = withModalFrame(t, 80, 24, ["title", "row1", "row2"]);
+	// Exactly one line per terminal row — the base screen is fully covered.
+	expect(lines).toHaveLength(24);
+	// Every line passes through the backdrop background fn — nothing shows through.
+	expect(bgCalls).toBe(24);
+	// Every line is exactly the terminal width.
+	expect(lines.every((l) => visibleWidth(l) === 80)).toBe(true);
+	// Bordered panel: top/bottom border + side rails + content.
+	const joined = lines.join("\n");
+	expect(joined).toContain("┌");
+	expect(joined).toContain("└");
+	expect(joined).toContain("│ title");
+	expect(joined).toContain("│ row1");
+});
+
+test("withModalFrame: caps panel height to maxPanelHeight, dropping overflow content", () => {
+	const t: NavTheme = { fg: (_c, s) => s, bold: (s) => s, bg: (_c, s) => s };
+	const lines = withModalFrame(t, 40, 10, ["a", "b", "c", "d", "e"], { maxPanelHeight: 5 });
+	const joined = lines.join("\n");
+	expect(joined).toContain("│ a");
+	expect(joined).not.toContain("│ e");
+});
 
 test("CouncilTree renders rows indented by depth and selects with arrows", () => {
 	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-nav-"));
