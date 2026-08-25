@@ -1,3 +1,15 @@
+## [2026-08-25] ingest | /council-init --approve trust fix (v0.11.3)
+Ingested the v0.11.3 fix: /council-init's pi install -l failed headless with
+"Project is not trusted" because pi's trust prompt never appears in
+non-interactive modes (defaultProjectTrust "ask" = untrusted). Running
+/council-init IS the approval — it now passes --approve (scoped to the
+single command) when ctx.isProjectTrusted() is false via a new installArgsFor
+helper. superpowers passed earlier because it was already pinned.
+- **Created:** sources/2026-08-25-council-init-approve.
+- **Updated:** council-dependencies (enforcement + Related), pi-council-overview
+  (v0.11.3 row, commit count 83→85), index.
+- **Contradictions flagged:** none.
+
 ## [2026-08-25] ingest | Live runtime refresh after MCP login (v0.11.2)
 Ingested the v0.11.2 fix: /mcp login and /mcp auth stored credentials but
 never reconnected the live runtime, so /mcp list kept showing the stale

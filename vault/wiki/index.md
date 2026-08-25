@@ -64,4 +64,5 @@ _(none yet)_
 - [[2026-08-25-remote-mcp-oauth]] — V0.11.0: two-phase copy-paste remote OAuth login (/mcp login --remote + /mcp auth), persisted PKCE verifier, headless auto-detection.
 - [[2026-08-25-remote-mcp-oauth-fix]] — V0.11.1: registered-list redirect-URI derivation + stale-client re-registration, fixing Clerk's invalid_request.
 - [[2026-08-25-mcp-login-refresh]] — V0.11.2: login/auth now refresh the live runtime so /mcp list reflects credentials, not stale unauthenticated/tools=0.
+- [[2026-08-25-council-init-approve]] — V0.11.3: /council-init passes --approve to pi install -l on untrusted projects, fixing headless dep pinning.
 
