@@ -1,7 +1,7 @@
 ---
 id: EV-4
 title: Theme compliance and live repaint of council surfaces
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-1
 goal: Every council-drawn element from the /council-tree modal and transcript viewer to the widget and command outputs draws from pi theme tokens and repaints when the active theme changes mid-session
@@ -482,3 +482,21 @@ Both rulings applied under <escalation_contract> step 1 as binding;
 recovery of the card resumes from the settled design in Rounds 1–4 with
 these two rulings folded in. Proceed to step 7 (write the spec) with no
 re-opened disputes.
+
+## Step 7 — spec (989a2c4)
+
+Settled design written to `docs/superpowers/specs/2026-08-25-EV-4-design.md` (commit `989a2c4`). The card was set In Progress in the prior run's step 7 and handed to one owner on branch `feat/ev4-theme-compliance` (worktree `/tmp/pi-council-ev4`).
+
+## Step 8 — owner implementation (RECOVERY RESUME)
+
+The owner's implementation was interrupted by a provider error after committing `95f6d24` (`resolvedPalette` + `ansi256ToHex`) with the watcher/tests/docs left uncommitted. Recovery resumed from durable state and completed the implementation per spec §7–§8 (docs §10), fixing strict-tsc type errors left by the interrupted owner passes:
+
+- `extensions/theme-watcher.ts` (new): `.council.json` mid-session watcher — parent-dir `fs.watch` + basename filter, re-arm on rename, ~250ms last-write-wins debounce, `close()` lifecycle (unref+close on shutdown); decision table — malformed → notify + stay armed, section removed/`enabled:false` → keep-last + warn (RULING 1, no `setTheme`, zero settings writes), present → reuse `activateTheme` (activate/block); never watches `settings.json`.
+- Wired into `extensions/index.ts` (`session_start` arm after `activateTheme` gated on `loadThemeConfig` existing; `session_shutdown` close); extracted pure `widgetLines`/`jobLines` builders (behavior-preserving, plain strings, zero-ANSI).
+- Tests (new): `theme-repaint` (live-repaint pinning: positive same-instance no-reopen, negative no-invalidate, proxy-trace, transcript P5), `theme-compliance` (zero-ANSI widget/jobs, no-foreign-ANSI modal/viewer P9, grep-audit-as-unit-test P3), `theme-watcher` (arm-no-reload, one-load-per-rename-burst, malformed-stays-armed, settings.json-ignored, removed-keeps-last RULING 1, close idempotent), `theme-resolved-palette` (ansi256ToHex vectors, resolvedPalette equality + numeric-hex + config-override/repoRoot read).
+- Extended `PiThemeModule` with pi's `theme` Proxy + `setThemeInstance` (the extension itself never calls them; tests drive the real TUI swap).
+- Docs: README "Live theme editing" note + HTML-export regression note (pi-side).
+
+Gates verified locally on PR head: `bun install --frozen-lockfile` clean; `bunx tsc --noEmit` clean; `bun test` 224 pass / 2 skip / 0 fail; `python3 council/validate.py` all artifacts valid.
+
+Branch `feat/ev4-theme-compliance` pushed; **PR #6 opened** (head SHA `78a844b`), base `main`. State → `In Review` per step 8 (observed: PR open — not gated on an owner report). Next: Skeptic verify (step 9).
