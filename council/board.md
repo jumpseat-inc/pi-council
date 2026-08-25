@@ -20,11 +20,10 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-1 — Port the oh-my-pi palette to a shipped pi theme
-
 ## Needs Human
 
 ## Done
 
+- EV-1 — Port the oh-my-pi palette to a shipped pi theme
 - EV-6 — Add the gates GitHub Actions workflow
 - EV-5 — Document the council theme system
