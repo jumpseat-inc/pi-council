@@ -2,6 +2,7 @@ import { test, expect } from "bun:test";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
+import type { SettingsManager } from "@earendil-works/pi-coding-agent";
 import { loadThemeModule } from "./theme-loader.ts";
 import { PKG_ROOT } from "../extensions/seats.ts";
 
@@ -29,8 +30,24 @@ const REQUIRED_51 = [
 /** The 4 optional tokens — OMITTED from the shipped file, filled by withThemeColorFallbacks. */
 const OPTIONAL_4 = ["scrollbarThumb", "searchMatchBg", "searchMatchText", "thinkingMax"] as const;
 
-function readTheme(file: string): Record<string, unknown> {
-	return JSON.parse(fs.readFileSync(file, "utf-8"));
+function readTheme(file: string): RawTheme {
+	return JSON.parse(fs.readFileSync(file, "utf-8")) as RawTheme;
+}
+
+interface RawTheme {
+	$schema?: string;
+	name: string;
+	vars: Record<string, string>;
+	colors: Record<string, string>;
+	export: Record<string, string>;
+}
+
+/** The vendored omp fixture shape — colors may carry 256-index integers in the dead keys. */
+interface OmpFixture {
+	name: string;
+	vars: Record<string, string>;
+	colors: Record<string, string | number>;
+	export: Record<string, string>;
 }
 
 function deadKeys(colors: Record<string, unknown>): string[] {
@@ -42,12 +59,10 @@ function deadKeys(colors: Record<string, unknown>): string[] {
 }
 
 /** Same transform the shipped file applies: strip dead keys, rename, pi $schema. */
-function trimFixture(raw: Record<string, unknown>, name: string): Record<string, unknown> {
+function trimFixture(raw: OmpFixture, name: string): RawTheme {
 	const colors = Object.fromEntries(
-		Object.entries(raw.colors as Record<string, unknown>).filter(
-			([k]) => !deadKeys(raw.colors as Record<string, unknown>).includes(k),
-		),
-	);
+		Object.entries(raw.colors).filter(([k]) => !deadKeys(raw.colors).includes(k)),
+	) as Record<string, string>;
 	return {
 		$schema: "https://raw.githubusercontent.com/earendil-works/pi/main/packages/coding-agent/src/modes/interactive/theme/theme-schema.json",
 		name,
@@ -57,19 +72,35 @@ function trimFixture(raw: Record<string, unknown>, name: string): Record<string,
 	};
 }
 
-async function managerFor(root: string) {
-	const { DefaultPackageManager } = (await import("@earendil-works/pi-coding-agent")) as {
-		DefaultPackageManager: new (opts: { cwd: string; agentDir: string; settingsManager: null }) => {
-			createAccumulator(): { themes: Map<string, { metadata: unknown; enabled: boolean }> };
-			collectPackageResources(
-				root: string,
-				acc: { themes: Map<string, unknown> },
-				filter: undefined,
-				metadata: unknown,
-			): boolean;
-		};
+/**
+ * collectPackageResources/createAccumulator are private in pi's .d.ts but are
+ * the runtime path the package uses to collect shipped themes (no settings
+ * access with filter === undefined). Cast through unknown to drive the real
+ * code — white-box, not a reimplementation.
+ */
+interface PackageManagerSurface {
+	createAccumulator(): { themes: Map<string, { metadata: unknown; enabled: boolean }> };
+	collectPackageResources(
+		root: string,
+		acc: { themes: Map<string, unknown> },
+		filter: undefined,
+		metadata: unknown,
+	): boolean;
+}
+
+async function managerFor(root: string): Promise<PackageManagerSurface> {
+	const { DefaultPackageManager } = (await import("@earendil-works/pi-coding-agent")) as unknown as {
+		DefaultPackageManager: new (opts: {
+			cwd: string;
+			agentDir: string;
+			settingsManager: SettingsManager;
+		}) => PackageManagerSurface;
 	};
-	return new DefaultPackageManager({ cwd: root, agentDir: root, settingsManager: null });
+	return new DefaultPackageManager({
+		cwd: root,
+		agentDir: root,
+		settingsManager: null as unknown as SettingsManager,
+	});
 }
 
 const metadata = { source: "test", scope: "project", origin: "test", baseDir: PKG_ROOT };
@@ -147,7 +178,7 @@ test("T6 full-map equality: shipped resolved map === reference derived from vend
 		["dark", "pi-council-dark-ref"],
 		["light", "pi-council-light-ref"],
 	] as const) {
-		const raw = JSON.parse(fs.readFileSync(path.join(FIXTURES_DIR, `${variant}.json`), "utf-8"));
+		const raw = JSON.parse(fs.readFileSync(path.join(FIXTURES_DIR, `${variant}.json`), "utf-8")) as OmpFixture;
 		const refPath = path.join(tmp, `${variant}-ref.json`);
 		fs.writeFileSync(refPath, JSON.stringify(trimFixture(raw, name), null, "\t"));
 		refPaths.push(refPath);
@@ -217,7 +248,7 @@ test("T7 raw-JSON invariants: var-refs verbatim with real omp names; every var-r
 		["dark", SHIPPED.dark],
 		["light", SHIPPED.light],
 	] as const) {
-		const raw = JSON.parse(fs.readFileSync(path.join(FIXTURES_DIR, `${variant}.json`), "utf-8"));
+		const raw = JSON.parse(fs.readFileSync(path.join(FIXTURES_DIR, `${variant}.json`), "utf-8")) as OmpFixture;
 		const shipped = readTheme(shippedPath);
 		const trimmed = trimFixture(raw, shipped.name);
 		expect(shipped.vars).toEqual(trimmed.vars);
@@ -290,7 +321,7 @@ test("var-ref preservation probe: mutating vars.accent re-resolves the dependent
 	const mutated = {
 		...raw,
 		name: "pi-council-dark-mutated",
-		vars: { ...(raw.vars as Record<string, string>), accent: "#ff00ff" },
+		vars: { ...raw.vars, accent: "#ff00ff" },
 	};
 	const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "pi-council-probe-"));
 	const mutatedPath = path.join(tmp, "pi-council-dark-mutated.json");
