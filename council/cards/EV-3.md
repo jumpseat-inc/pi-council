@@ -79,3 +79,28 @@ All five disputes settled; positions stabilised (used 2 of ≤3 rounds, no round
 3. Notify (D3) — settled, in-scope, non-gating: info on activate (council theme: pi-council-{variant}), warning on block (council theme: blocked (settings.json has '{raw}')), silent on no-section. Thin removable layer.
 4. Construction (D4) — settled: in-memory, no tempfile (spec §4's "writes nothing to disk" is strict; loadThemeFromPath is not publicly reachable). Reimplement withThemeColorFallbacks + resolveThemeColors + 8 bg-key split, then new Theme(fg,bg,mode), ui.setTheme(instance). Ground-truth ANSI smoke in test/theme-loader.ts deep import, both truecolor and 256color, mode from getCapabilities().trueColor.
 5. Card-text (D5) — settled: acceptance line "getThemeByName resolves materialized theme" is a false contract and is DELETED. Corrected acceptance: (i) activated instance's resolved colors match merge→resolve of (loadShippedTheme(variant), section[variant]); (ii) namespace: getThemeByName("pi-council-dark") after activation still returns EV-1's shipped un-merged palette. Name-based surfaces (getResolvedThemeColors(name), HTML export, /settings) are an explicit non-goal, deferred to EV-4.
+
+### Round 3 — Skeptic attacks and runs tests (step 4)
+
+Skeptic dispatched with every Round 1 + Round 2 position and the binding rulings. Settled in 5.7m, 26 turns, all gates (bun install --frozen-lockfile, bunx tsc --noEmit, bun test: 182 pass 2 skip 0 fail, python3 council/validate.py) verified as capable of failing via injected defects. Verdict: **no blocks** — card ready for owner implementation.
+
+| # | Objection | Settling test & result | Status |
+|---|-----------|------------------------|--------|
+| 1 | Strict-whitelist block predicate works for all table rows | Pure mathematical probe `decideThemeActivation` — 11 cases (all table rows, custom pairs, edges) | **closed-green** |
+| 2 | `parseAutoThemeSetting` inverts ANY A/B pair (not just "light/dark") | Verified real pi code: `parseAutoThemeSetting("nord-light/nord-dark")` → `{lightTheme:"nord-light",darkTheme:"nord-dark"}`; same for custom-a/custom-b. Prohibition on routing through it correct. | **closed-green** |
+| 3 | **`detectTerminalBackgroundFromEnv` IS exported from pi's theme.js** — design's "not-public" claim is FALSE | Deep-import verified it resolves; COLORFGBG=15;0→dark, 0;15→light, no env→dark. Owner should call it directly instead of duplicating the ~500-byte function. | **closed-red (factual correction, non-blocking)** |
+| 4 | `resolveThemeColors` / `withThemeColorFallbacks` NOT exported — owner must reimplement | Both `undefined` on deep-imported theme module; internal to `getResolvedThemeColors(name)` | **closed-green** |
+| 5 | In-memory `new Theme(fg,bg,mode)` construction feasible | Constructed real Theme from merged JSON (45 fg + 8 bg keys): `fg("accent")`→`\x1b[38;2;254;188;56m` (omp orange), `bg("selectedBg")`→`\x1b[48;2;49;54;63m`, fallback chain thinkingMax→thinkingXhigh, scrollbarThumb→selectedBg, searchMatchBg→selectedBg, searchMatchText→text all verified | **closed-green** |
+| 6 | **`getCapabilities()` NOT available from public API or theme module** — only from `@earendil-works/pi-tui` (transitive dep) | Verified undefined from both public API and theme.js; `createTheme` in theme module imports it from pi-tui. Owner: import from `@earendil-works/pi-tui`, or use `chalk.level >= 2` substitute. | **closed-red (factual correction, non-blocking)** |
+| 7 | `ExtensionUIContext.setTheme` accepts Theme instances — no deep-import needed | Type defs: `setTheme(theme: string \| Theme): { success: boolean; error?: string }`; call `ctx.ui.setTheme(instance)` | **closed-green** |
+| 8 | `loadThemeFromPath` deep-importable but unusable (no-tempfile stands) | Reachable via deep-import, but needs tempfile which violates spec §4; in-memory construction (objection 5) verified feasible | **closed-green** |
+| 9 | Notify info/warning/silent tri-state | No implementation exists yet; cannot test | **open-untested (non-gating by settled design)** |
+| 10 | Card-text correction — "getThemeByName resolves materialized theme" DELETED | In-memory Theme with name sets `this.name` but registers nothing; `getThemeByName("pi-council-dark")` after activation still returns EV-1's shipped un-merged palette — deletion correct | **closed-green** |
+| 11 | `resolveThemeSetting` inverts custom A/B — confirms blocking must check RAW not resolved | `resolveThemeSetting("nord-light/nord-dark","dark")` → `"nord-dark"`; if predicate checked resolved value, custom pairs would activate | **closed-green** |
+| 12 | Gate integrity — gates capable of failing | Injected defects: bun test exit 1 ✓, tsc exit 2 ✓, validate.py non-zero ✓, bun install --frozen-lockfile exit 0 ✗ (weak gate — noted, not a blocker for this card) | **closed-green** |
+
+**Tests actually run (real output):** `bun test test/theme.test.ts` (10 pass), `bun test test/theme-config.test.ts` (32 pass), `bunx tsc --noEmit` (exit 0), `python3 council/validate.py` (clean), `bun test` (182 pass / 2 skip), `bun install --frozen-lockfile` (exit 0), plus `/tmp/skeptic-ev3-tests.ts`, `/tmp/check-mode-detection.ts`, `/tmp/check-reachability.ts`, `/tmp/gate-integrity.ts`.
+
+**Two actionable factual corrections for the owner (closed-red, non-blocking):**
+- **Obj 3:** call pi's exported `detectTerminalBackgroundFromEnv` directly (deep-import) rather than duplicating it; do not claim it is not-public.
+- **Obj 6:** get mode via `getCapabilities` imported from `@earendil-works/pi-tui` (or `chalk.level >= 2`), not from the pi-coding-agent public API / theme module where it is undefined.
