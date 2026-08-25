@@ -85,7 +85,15 @@ docs/superpowers/    design spec + implementation plan (read before big changes)
    file shadows it. Resolution lives in `loadCouncilConfig`/`applySeatOverride`
    in `seats.ts`; malformed JSON or an invalid `thinking` value throws. Keep
    new override fields there, not in seat frontmatter.
-10. **MCP secrets never go in `mcp.json`** — header values entered via
+ 9.6. **The council theme is configured per-repo via a top-level `theme` key
+    in committed `.council.json`** — a sibling of `council` and a reserved key
+    skipped in the `loadCouncilConfig` loop, parsed by `loadThemeConfig`;
+    `enabled: false` is the off switch (presence implies enabled). Council-drawn
+    UI draws only from pi theme tokens via `fg`/`bg`/`bold` — no literal hex,
+    ANSI escapes, or 256-index literals in council-drawn output — and strings
+    handed to `setWidget`/`notify`/`custom` stay plain text (styling there is
+    pi's job, never inline ANSI).
+ 10. **MCP secrets never go in `mcp.json`** — header values entered via
     `/mcp login` and all OAuth tokens live in `getAgentDir()/council/mcp-auth.json`
     (0600, atomic writes). `$ENV_VAR` indirection in `mcp.json` resolves at
     connect time and is never persisted resolved.
