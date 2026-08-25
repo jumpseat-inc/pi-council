@@ -1,7 +1,7 @@
 ---
 id: EV-2
 title: Theme configuration in the scaffold .council.json
-state: Deliberating
+state: In Progress
 owner: null
 epic: EPIC-1
 goal: The scaffold .council.json carries an editable theme section that loadThemeConfig parses and validates and that merges repo overrides over the shipped omp defaults
