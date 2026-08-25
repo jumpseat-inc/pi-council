@@ -43,3 +43,7 @@ selectable in /settings. This card wires the `.council.json` theme section
 - Without a theme section, activation is a no-op — pi's theme is unchanged.
 - Editing `.council.json` mid-session (or restarting) applies the new
   palette; hot-reload behavior per pi's theme watcher.
+
+## Phase 1 Ruling (recorded, binding)
+
+Recorded 2026 by the human before the run: pi's `"theme": "light/dark"` setting (auto-follow terminal appearance) is **not** an explicit theme choice and does **not** block council activation. The council theme still activates and follows terminal appearance with its own dark/light pair. Only a concrete theme name (e.g. `"theme": "gruvbox"`) in settings.json blocks council activation.

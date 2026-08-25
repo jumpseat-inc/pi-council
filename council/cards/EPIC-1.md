@@ -42,3 +42,11 @@ ingest captures the system.
 - Editing a palette var in `.council.json` changes the rendered colors on the
   next session; a repo without a theme section is untouched.
 - All five child cards land with tests; `bun test` and `python3 council/validate.py` stay green.
+
+## Phase 1 Rulings (recorded, binding on every seat)
+
+Recorded 2026 by the human before the run, immutable for this run, binding on every seat including steward.
+
+- **Ruling CI-1 (merge gate criterion 2):** this repo has no `.github/workflows/`, so the deterministic merge check's criterion 2 is unsatisfiable as-is. The human chose to add a `gates` GitHub Actions workflow as a new child card **EV-6** (draft — the exact YAML — approved in Phase 1). EV-6 lands first; every subsequent card's PR must show the `gates` workflow `state: SUCCESS` before merge.
+- **Ruling MERGE-1 (first autonomous merge):** the human delegated the first merge to the deterministic merge check like every other — no go/no-go pause. All merges run on the five criteria, pinned with `--match-head-commit`.
+- **Ruling NAME-1 (theme name):** the theme family name is `pi-council` and nothing else; variants are `pi-council-dark` / `pi-council-light`.

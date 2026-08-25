@@ -39,3 +39,7 @@ for the Council to fix, subject to these requirements:
   theme section; re-running into a repo with an existing `.council.json`
   leaves it byte-for-byte untouched.
 - The default scaffold section matches the shipped omp palette from EV-1.
+
+## Phase 1 Ruling (recorded, binding)
+
+Recorded 2026 by the human before the run: the exact shape of the `.council.json` theme section was surfaced in the rulings preflight and **deliberately delegated to the Council** ("let the Council decide"). The Council fixes the shape within this card's stated requirements (sibling of `council`, name `pi-council`, repo-over-shipped merge semantics, non-clobbering scaffold) and must **not** escalate the shape question — it is a working decision, not an open-judgment dispute.
