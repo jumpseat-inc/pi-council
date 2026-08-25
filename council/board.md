@@ -18,9 +18,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-1 — Port the oh-my-pi palette to a shipped pi theme
-
 ## In Review
+
+- EV-1 — Port the oh-my-pi palette to a shipped pi theme
 
 ## Needs Human
 
