@@ -18,8 +18,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-3 — Activate the council theme on session start
-
 ## Needs Human
 
 ## Done
@@ -28,3 +26,4 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-6 — Add the gates GitHub Actions workflow
 - EV-5 — Document the council theme system
 - EV-2 — Theme configuration in the scaffold .council.json
+- EV-3 — Activate the council theme on session start

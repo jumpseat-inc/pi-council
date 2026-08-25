@@ -1,7 +1,7 @@
 ---
 id: EV-3
 title: Activate the council theme on session start
-state: In Review
+state: Done
 owner: null
 epic: EPIC-1
 goal: At session start the council extension materializes the .council.json theme into a pi theme and activates it so the TUI renders in the configured palette and a repo without a theme section leaves pi's theme untouched
@@ -156,3 +156,30 @@ to implement on the existing branch per the committed plan/spec.
 - **Owner's four gates (reported):** bun install --frozen-lockfile exit 0; bunx tsc --noEmit exit 0; bun test 203 pass / 2 skip / 0 fail (baseline 182; +21 new); python3 council/validate.py clean.
 - **PR #5 OPEN** — `main ← feat/ev3-theme-activation`, head e24bc65, body "Closes EV-3 (EPIC-1); design spec 318e3ce." Verified on disk: branch pushed (origin/feat/ev3-theme-activation = e24bc65), `gh pr view 5` state OPEN. Diff scope = plan doc + module + tests + wiring only; no seats.ts / themes / council changes.
 - Step 8 rule: `In Review` written from observed artifact (branch + open PR), not the owner's report. Card + board set In Review.
+
+### Facilitator — step 9/10/12 record (merged + CI green → Done)
+
+- **Step 9 Skeptic verify (job-16.2, settled 3.5m):** ran all four gates on
+  branch head e24bc65 — bun install --frozen-lockfile exit 0; bunx tsc
+  --noEmit exit 0; bun test 203 pass / 2 skip / 0 fail; python3
+  council/validate.py clean. Gate integrity proven (injected whitelist defect
+  fails suite). Adversarial probes: zero parseAutoThemeSetting /
+  resolveThemeSetting / ui.theme.name / settingsManager references; no
+  tempfile in activation path; notify strings plain; deep-imported
+  detectTerminalBackgroundFromEnv and getCapabilities (pi-tui); Theme
+  identity verified; scope clean (4 files). All 18 binding requirements
+  green. **Verdict: PASS — no open objections.**
+- **Step 10 Judge (job-45176, goal + Skeptic evidence only):** **PASS** —
+  both halves of the goal met (materialize-activate pipeline wired into
+  session_start; config-undefined rapid noop leaves pi's theme untouched,
+  settings byte-identical).
+- **Deterministic merge check (all five criteria):** (1) owner gates green in
+  full, (2) GitHub Actions `gates` workflow SUCCESS on PR head e24bc65
+  (`gh pr checks 5 --json name,state,workflow` → gates/SUCCESS), (3) no
+  blocking Skeptic objection, (4) judge PASS, (5) no Needs Human/outstanding
+  ruling. Merged `gh pr merge 5 --merge --match-head-commit
+  e24bc65d252714105b19580605854503e560b449` → **PR #5 MERGED**, merge commit
+  **202beaf**.
+- **Step 12 CI on merged SHA:** `gh run list --commit 202beaf` →
+  gates workflow `completed` / `success`. `Done` written from the observed
+  artifact (merged + CI green on merged SHA), per council.md step 12.
