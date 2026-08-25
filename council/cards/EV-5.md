@@ -1,7 +1,7 @@
 ---
 id: EV-5
 title: Document the council theme system
-state: Ready
+state: Deliberating
 owner: null
 epic: EPIC-1
 goal: A design spec under docs/superpowers plus AGENTS.md and README entries describe the council theme system so the wiki ingest captures it

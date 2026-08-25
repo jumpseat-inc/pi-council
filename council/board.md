@@ -14,9 +14,10 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-2 — Theme configuration in the scaffold .council.json
 - EV-3 — Activate the council theme on session start
 - EV-4 — Theme compliance and live repaint of council surfaces
-- EV-5 — Document the council theme system
 
 ## Deliberating
+
+- EV-5 — Document the council theme system
 
 ## In Progress
 
