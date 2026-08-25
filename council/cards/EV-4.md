@@ -419,3 +419,46 @@ bun test 203 pass / 2 skip / 0 fail, bunx tsc --noEmit clean, no probe
 strays in test/, validate.py clean.
 
 New objections: none. No open objection survives to step 5.
+
+### Round 4 — Consolidator synthesis (step 5)
+
+Settled (table of 10 disputes with the Skeptic test that closed each): live
+repaint = pinning test not code; sentinel/name surfaces dead (NAME-1 +
+registry-throws-without-sourcePath + would drive the string branch);
+widget + /council-jobs + /council-init plain text (acceptance = zero-ANSI
+assertions); watcher spec as in round 2; export = pi-limitation,
+documented + follow-ups; onThemeChange pi-owned. Open objections: NONE
+(17/17 closed-green).
+
+OPEN JUDGMENT — the consolidator buckets exactly two items, both routed to
+product-owner (I cannot dispatch ruling seats; ESCALATION below):
+
+1. OFF-TRANSITION (section removed / enabled:false mid-session). The EV-3
+zero-settings-write binding does NOT settle it: owner argued keep-last is
+forced because de-activation needs ui.setTheme(string) (a write), but
+principal corrected — exported loadThemeFromPath is on the PiThemeModule
+surface, so live off-revert is technically possible with ZERO writes (it
+merely re-opens custom-pair resolution). Two options, both zero-write:
+   A (owner): keep the last materialized theme + warn + document
+   restart-to-revert. Simpler, safer; stale palette till restart.
+   B (principal): live off-revert to the user's prior/settings theme via
+   loadThemeFromPath; zero writes; re-opens custom-pair resolution and
+   adds code/risk. Designer prefers A (taste-ranked, holds for ruling).
+2. COUNCIL-OWNED STATUS SURFACE (the "what is active" affordance). The
+   pi-owned /settings half is SETTLED (nothing to rule: sentinel is dead
+   under NAME-1, would drive the string branch). Only the council-drawn
+   half is open:
+   A) display nothing (designer d.ii — safe).
+   B) a council-owned one-line status (e.g., footer/notify "theme:
+      pi-council-dark (in-memory)") reading the instance directly —
+      answers "did the theme apply?"; a thin removable layer + a wording
+      decision. Owner/principal attests neither for nor against; designer
+      raised it.
+
+### Step 6 — routing (facilitator): ESCALATION to product-owner
+
+Both items are open-judgment with no settling test, per consolidator
+buckets. Per <escalation_contract>: the facilitator never dispatches
+product-owner / steward; a resumption with the ruling will continue from
+here. Packet carries positions and test results as facts only (no
+recommendation).
