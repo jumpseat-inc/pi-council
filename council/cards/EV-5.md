@@ -159,3 +159,24 @@ Working agreements both seats converged on (settle into the spec as design): the
 **OPEN OBJECTIONS (six, all spec prescriptions falsifiable only post-implementation — all six must be recorded in the step-7 spec as prescriptions, not deferred):** (1) four-state activation table — the form is a prescription, but the content of state (c) is open judgment #1 and cannot be asserted as settled; (2) merge semantics at JSON-shape level — prescription anchored by var-ref-survives-merge and fail-fast-validation testable claims; vars/colors-split vs flat-overrides sub-detail owned by EV-2; (3) token-only drawing rule as normative prescription (two clauses) — today-compliance settled, rule itself prescribed in AGENTS.md 9.6 and the spec, audit-whitelist nuance recorded (raw \x1b[ grep false-positives on navigator.ts:25 comment), audit test deferred to EV-4; (4) settings.json raw detection — implementability settled (no public settings accessor), spec must prescribe raw-disk-read or the EV-3 ruling is untestable — not deferrable; (5) name namespace in-memory-only — record as prescription plus the rejected materialize-to-disk alternative; (6) hot-reload via the extension's own watcher on .council.json (setThemeInstance stops pi's watcher — settled fact) — prescribe re-run merge → new Theme → ui.setTheme(instance), implementation deferred to EV-4.
 
 **Step 6 routing:** open judgment #1 (and #2) → ruling seat (product-owner, escalating to steward). Spec-writing at step 7 holds on #1 only; everything else in the spec can proceed.
+
+### ESCALATION ruling (step 6, binding, appended verbatim)
+
+=== BINDING RULING (product-owner, via ESCALATION resumption) ===
+
+RULING Q1 (activation): Side B — a persisted literal `"dark"` / `"light"` in `settings.json` is NOT treated as a deliberate concrete theme selection and does NOT block council activation. The activation table has four states, but state (c) is activate, not block:
+
+| State | settings.json `theme` raw value | Council action |
+|---|---|---|
+| (a) | unset | **activate** (auto-detect terminal) |
+| (b) | `"light/dark"` (the pair) | **activate** (raw auto-follow) |
+| (c) | literal `"dark"` or `"light"` | **activate** (auto-detection carve-out extends to its persisted form) |
+| (d) | any other concrete name | **block** (consumer's explicit pick wins) |
+
+README precedence line: "A non-built-in concrete theme in settings.json (e.g. `gruvbox`) wins; the auto-follow pair and a persisted literal built-in `dark`/`light` — pi's recorded auto-detect — do not block council activation. To turn the council theme off, remove the `theme` section from `.council.json` or set `theme.enabled: false`."
+
+RULING Q2 (README economy): Owner's call — update the bullet. Keep README.md:161-162 ("Per-seat model/thinking overrides" under "How installation works"), update it to enumerate both the `council` seat-override block AND the new top-level `theme` key. Update the README.md:181 Git-table row (mandated regardless). Add the "What you get" theme-customization subsection per EV-5's card intent.
+
+=== END BINDING RULING ===
+
+**Step 7 resumption note:** open judgment #1 settled by the ruling above (state (c) = activate, Side B); open judgment #2 settled (update the bullet, keep README.md:161-162). Spec-writing proceeds per the settled design.
