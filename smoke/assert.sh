@@ -32,6 +32,39 @@ sys.exit(1)
 PY
 }
 
+# move_board_line <root> <card-id> <to-column> — move the board line
+# `- <ID> — <Title>` under the ## <to-column> section (validate.py's rules).
+move_board_line() {
+	local root="$1" id="$2" col="$3"
+	python3 - "$root/council/board.md" "$id" "$col" <<'PY'
+import re, sys, pathlib
+p, cid, col = sys.argv[1], sys.argv[2], sys.argv[3]
+text = pathlib.Path(p).read_text()
+lines = text.splitlines()
+out = []
+line = None
+for ln in lines:
+    if re.match(rf"^- {re.escape(cid)} — ", ln.strip()):
+        line = ln
+        continue
+    out.append(ln)
+if line is None:
+    print(f"move_board_line: no line for {cid}", file=sys.stderr)
+    sys.exit(1)
+res = []
+inserted = False
+for ln in out:
+    res.append(ln)
+    if ln.startswith(f"## {col}"):
+        res.append(line)
+        inserted = True
+if not inserted:
+    print(f"move_board_line: no ## {col} section", file=sys.stderr)
+    sys.exit(1)
+pathlib.Path(p).write_text("\n".join(res) + "\n")
+PY
+}
+
 # assert_json_links <json> — parse <json> and compare against the exact
 # expected extraction of test/fixtures/sample.md in document order.
 assert_json_links() {

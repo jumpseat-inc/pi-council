@@ -43,3 +43,57 @@ bash council/preflight.sh || fatal "preflight failed after init"
 
 echo
 echo "SMOKE PHASE 0 PASS"
+
+phase "1 council loop EV-1"
+timeout "$PHASE1_TIMEOUT" pi --approve --model "$FLASH" -p "/council EV-1" \
+	|| fatal "phase 1: /council EV-1 did not settle within ${PHASE1_TIMEOUT}s"
+
+phase "1 harness merge gate (plays the human)"
+cd "$WORK" || fatal "no worktree"
+GOT_STATE="$(sed -n 's/^state: *//p' council/cards/EV-1.md | head -1)"
+if [ "$GOT_STATE" = "Done" ]; then
+	echo "phase 1: EV-1 already Done — merge gate already completed (no harness merge)"
+else
+	if [ "$GOT_STATE" != "In Review" ]; then
+		fatal "phase 1: EV-1 stopped at state '$GOT_STATE', expected the In Review merge gate"
+	fi
+	FEATURE_BRANCHES="$(git for-each-ref --format='%(refname:short)' refs/heads | grep -v '^main$' || true)"
+	COUNT="$(printf '%s\n' "$FEATURE_BRANCHES" | grep -c . || true)"
+	if [ "$COUNT" -ne 1 ]; then
+		fatal "phase 1: expected exactly one feature branch to merge, found: '$FEATURE_BRANCHES'"
+	fi
+	git merge --no-ff "$FEATURE_BRANCHES" -m "smoke: merge EV-1 feature branch (harness plays the human merge gate)" \
+		|| fatal "phase 1: merge of $FEATURE_BRANCHES failed"
+	python3 -c "
+import pathlib
+p = pathlib.Path('council/cards/EV-1.md')
+t = p.read_text()
+p.write_text(t.replace('state: In Review', 'state: Done'))
+"
+	move_board_line "$WORK" "EV-1" "Done" || fatal "phase 1: board line move failed"
+	python3 council/validate.py || fatal "phase 1: validate.py failed after harness merge"
+	git add -A
+	git commit -q -m "smoke: EV-1 Done (harness merge gate)" \
+		|| fatal "phase 1: reconciliation commit failed"
+fi
+
+assert_card_state "$WORK" "EV-1" "Done" || fatal "phase 1: EV-1 card is not Done"
+assert_board_column "$WORK" "EV-1" "Done" || fatal "phase 1: EV-1 board line not under Done"
+
+RUN_DIR="$WORK/.pi/council/runs"
+[ -d "$RUN_DIR" ] || fatal "phase 1: no runs dir at $RUN_DIR"
+SEAT_SESSIONS="$(find "$RUN_DIR" -name '*.jsonl' | wc -l | tr -d ' ')"
+if [ "$SEAT_SESSIONS" -lt 3 ]; then
+	fatal "phase 1: expected >= 3 seat sessions in runs/, found $SEAT_SESSIONS"
+fi
+
+phase "1 kill-shot probes EV-1"
+cd "$WORK" || fatal "no worktree"
+bun run typecheck || fatal "phase 1: typecheck failed after the run"
+bun test || fatal "phase 1: test suite failed after the run"
+COUNT="$(bun src/cli.ts test/fixtures/sample.md --count)" \
+	|| fatal "phase 1: --count invocation failed"
+[ "$COUNT" = "3" ] || fatal "phase 1: --count probe expected 3, got '$COUNT'"
+
+echo
+echo "SMOKE PHASE 1 PASS"
