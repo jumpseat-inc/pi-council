@@ -53,7 +53,7 @@ git commit -m "docs(plan): EV-2 theme config implementation plan"
 ### Task 2: `loadThemeConfig` — parse, off-switch, fail-fast validation
 
 **Files:**
-- Create: `test/theme.test.ts`
+- Create: `test/theme-config.test.ts` (EV-2 suite. NOTE: `test/theme.test.ts` already exists on main — it is EV-1's committed suite (T1–T8, brand anchors, var-ref probe, 334 lines, imports `test/theme-loader.ts`). Never overwrite it; EV-2 tests live in a separate file.)
 - Modify: `extensions/seats.ts` (types + vocab constants + `loadShippedTheme` + `parseThemeSection` + `parseThemeVariantBlock` + `parseOverrideMap` + `validateThemeValue` + `loadThemeConfig`, placed after `loadCouncilConfig`; module-level constants go near `PKG_ROOT`)
 
 **Interfaces:**
@@ -65,7 +65,7 @@ git commit -m "docs(plan): EV-2 theme config implementation plan"
   - `export function loadShippedTheme(variant: "dark" | "light"): ShippedTheme`
   - `export function loadThemeConfig(repoRoot: string): ThemeSection | undefined`
 
-- [ ] **Step 1: Write the failing tests** — `test/theme.test.ts`:
+- [ ] **Step 1: Write the failing tests** — `test/theme-config.test.ts`:
 
 ```ts
 import { test, expect } from "bun:test";
@@ -222,7 +222,7 @@ test('"" is a valid override value (use-pi-default sentinel)', () => {
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `bun test test/theme.test.ts`
+Run: `bun test test/theme-config.test.ts`
 Expected: FAIL — `loadThemeConfig is not defined` (import error), every test errors.
 
 - [ ] **Step 3: Implement** — add to `extensions/seats.ts`, right after the `PKG_ROOT` export:
@@ -396,13 +396,13 @@ export function loadThemeConfig(repoRoot: string): ThemeSection | undefined {
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `bun test test/theme.test.ts`
+Run: `bun test test/theme-config.test.ts`
 Expected: all tests in this file PASS.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add extensions/seats.ts test/theme.test.ts
+git add extensions/seats.ts test/theme-config.test.ts
 git commit -m "feat(theme): loadThemeConfig — parse, off-switch, fail-fast validation"
 ```
 
@@ -412,13 +412,13 @@ git commit -m "feat(theme): loadThemeConfig — parse, off-switch, fail-fast val
 
 **Files:**
 - Modify: `extensions/seats.ts` (`loadCouncilConfig` loop, ~line 133)
-- Modify: `test/theme.test.ts` (append reserved-key tests)
+- Modify: `test/theme-config.test.ts` (append reserved-key tests)
 
 **Interfaces:**
 - Consumes: `loadCouncilConfig` (existing, unchanged return shape `Record<string, AgentOverride>`), `loadThemeConfig` from Task 2.
 - Produces: the guard behavior — `council.theme` is skipped, never a phantom seat.
 
-- [ ] **Step 1: Write the failing tests** — append to `test/theme.test.ts` (add `loadCouncilConfig` to the import list):
+- [ ] **Step 1: Write the failing tests** — append to `test/theme-config.test.ts` (add `loadCouncilConfig` to the import list):
 
 ```ts
 test("zero blast radius: top-level theme is invisible to loadCouncilConfig", () => {
@@ -445,7 +445,7 @@ test("reserved-key isolation: sibling theme parses; mis-nested council.theme is 
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `bun test test/theme.test.ts`
+Run: `bun test test/theme-config.test.ts`
 Expected: the three new tests FAIL — `loadCouncilConfig({council:{theme:"dark"}})` throws `must be qualified as provider/id`; the object form returns `{ theme: {} }`.
 
 - [ ] **Step 3: Implement** — add the reserved-key skip in `loadCouncilConfig`'s loop:
@@ -462,13 +462,13 @@ Expected: the three new tests FAIL — `loadCouncilConfig({council:{theme:"dark"
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `bun test test/theme.test.ts`
-Expected: all PASS. Then the full suite: `bun test` — expected 148 + new theme tests pass, 2 skip, 0 fail, **no existing expectation edits** (zero blast radius).
+Run: `bun test test/theme-config.test.ts`
+Expected: all PASS. Then the full suite: `bun test` — expected 148 + 10 EV-1 + 23 theme-config tests = 171 pass / 2 skip / 0 fail, **no existing expectation edits** (zero blast radius).
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add extensions/seats.ts test/theme.test.ts
+git add extensions/seats.ts test/theme-config.test.ts
 git commit -m "feat(theme): reserved-key guard for mis-nested council.theme"
 ```
 
@@ -478,13 +478,13 @@ git commit -m "feat(theme): reserved-key guard for mis-nested council.theme"
 
 **Files:**
 - Modify: `extensions/seats.ts` (add `mergeThemeSection` after `loadThemeConfig`)
-- Modify: `test/theme.test.ts` (append merge tests; add `mergeThemeSection` to the import list)
+- Modify: `test/theme-config.test.ts` (append merge tests; add `mergeThemeSection` to the import list)
 
 **Interfaces:**
 - Consumes: `ShippedTheme`, `ThemeVariantBlock` (Task 2), `loadShippedTheme` (Task 2).
 - Produces: `export function mergeThemeSection(base: ShippedTheme, overrideBlock?: ThemeVariantBlock): { vars: Record<string, string | number>; colors: Record<string, string | number>; export: Record<string, string>; }` — used by Task 5's delta acceptance and by EV-3.
 
-- [ ] **Step 1: Write the failing tests** — append to `test/theme.test.ts`:
+- [ ] **Step 1: Write the failing tests** — append to `test/theme-config.test.ts`:
 
 ```ts
 test("mergeThemeSection with no overrides deep-equals the full shipped base including export", () => {
@@ -566,7 +566,7 @@ test("per-variant independence: dark overrides never touch merged light", () => 
 
 - [ ] **Step 2: Run tests to verify they fail**
 
-Run: `bun test test/theme.test.ts`
+Run: `bun test test/theme-config.test.ts`
 Expected: FAIL — `mergeThemeSection is not defined`.
 
 - [ ] **Step 3: Implement** — add to `extensions/seats.ts`, after `loadThemeConfig`:
@@ -593,13 +593,13 @@ export function mergeThemeSection(
 
 - [ ] **Step 4: Run tests to verify they pass**
 
-Run: `bun test test/theme.test.ts`
+Run: `bun test test/theme-config.test.ts`
 Expected: all PASS.
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add extensions/seats.ts test/theme.test.ts
+git add extensions/seats.ts test/theme-config.test.ts
 git commit -m "feat(theme): pure mergeThemeSection with export preservation"
 ```
 
