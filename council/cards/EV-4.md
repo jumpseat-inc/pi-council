@@ -512,3 +512,11 @@ Skeptic verified PR #6 (job settled in 3.8m, 25 turns). Ran the full gate set on
 ## Step 9 — cycle 2 (re-verify): ALL GREEN
 
 Skeptic re-dispatched at head `66aab25` (settled in 1.4m). Re-ran the full gate set: `bun install` clean; `bunx tsc --noEmit` clean; `bun test` 225 pass / 2 skip / 0 fail; `python3 council/validate.py` all artifacts valid. Objection #8 now closed-green — the export crash is PINNED by `test/theme-export-pinning.test.ts` (asserts `toThrow(/Theme not found: <in-memory>/)` after `setThemeInstance`), and the Skeptic verified the gate is real by inverting it to `not.toThrow` → RED naming the exact error. All 8 objections closed-green, **no open objections**. Verify loop used 2 of ≤3 cycles. State → In Review (PR open). Next: judge (step 10).
+
+## Step 10 — judge PASS
+
+Judge dispatched with ONLY the card goal + Skeptic evidence (1.7m). **PASS** — re-ran the decisive evidence on the branch: live-repaint pinning (4 tests), compliance (6), watcher (6), config/activation/resolvedPalette (54), export crash pinned, full suite 225 pass / 2 skip / 0 fail, tsc clean, validate clean. The goal — council-drawn elements draw from pi theme tokens and repaint on mid-session theme change — is met and verified.
+
+## Step 11 — deterministic merge gate
+
+Five criteria checked at head `66aab25`: (1) owner gates green; (2) `gh pr checks 6 --json name,state,workflow` → `gates` workflow `state: SUCCESS` (keyed on `workflow`, not name); (3) no blocking Skeptic objection (all 8 closed-green); (4) judge PASS; (5) no Needs Human / outstanding ruling (in Review; step-6 rulings applied). All five hold. Merging with `gh pr merge 6 --match-head-commit 66aab25…` (criterion-2 SHA) — a mismatch would HALT, not retry.
