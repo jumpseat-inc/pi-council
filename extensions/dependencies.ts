@@ -88,6 +88,22 @@ export function resolveDependency(
 	};
 }
 
+/**
+ * The `pi install -l` argv for a dependency. Headless/remote sessions never
+ * show the trust prompt, so without --approve pi refuses project-local
+ * installs with "Project is not trusted. Use --approve...". /council-init is
+ * the sanctioned mechanism for pinning these deps project-locally — the user
+ * approved the intent by running it — so carry that approval through when the
+ * project isn't already trusted. --approve is scoped to the single command,
+ * not a persistent trust grant.
+ */
+export function installArgsFor(source: string, options: { projectTrusted: boolean }): string[] {
+	const args = ["install", "-l"];
+	if (!options.projectTrusted) args.push("--approve");
+	args.push(source);
+	return args;
+}
+
 /** Resolve all scaffold-installed council dependencies at once. */
 export function resolveCouncilDependencies(options: {
 	projectSettingsFile: string | null | undefined;

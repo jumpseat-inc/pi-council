@@ -7,7 +7,7 @@ import { getHub, initHubIdentity, pidFilePath, registerHubTools, shutdownHub } f
 import { PKG_ROOT, proceduresDir } from "./seats.ts";
 import { mintRunId, pruneRuns } from "./runs.ts";
 import { scaffoldInto } from "./scaffold.ts";
-import { resolveCouncilDependencies } from "./dependencies.ts";
+import { installArgsFor, resolveCouncilDependencies } from "./dependencies.ts";
 import { connectParentServers, getMcpManager, registerMcpCommand } from "./mcp/index.ts";
 import { registerNavigator, TREE_SHORTCUT } from "./navigator.ts";
 
@@ -205,7 +205,10 @@ export default function (pi: ExtensionAPI) {
 				}
 
 				if (!dep.portable) {
-					const install = await pi.exec("pi", ["install", "-l", dep.source], {
+					// --approve when the project isn't trusted: headless/remote sessions
+					// never prompt, and without it `pi install -l` refuses with "Project
+					// is not trusted". Running /council-init IS the approval.
+					const install = await pi.exec("pi", installArgsFor(dep.source, { projectTrusted: ctx.isProjectTrusted() }), {
 						signal: ctx.signal,
 						timeout: 60_000,
 					});

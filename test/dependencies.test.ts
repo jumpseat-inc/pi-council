@@ -10,6 +10,7 @@ import {
 	resolveCouncilDependencies,
 	resolveDependency,
 	packagesHolding,
+	installArgsFor,
 } from "../extensions/dependencies.ts";
 
 function writeSettings(file: string, packages: string[]): string {
@@ -90,6 +91,15 @@ test("resolveDependency keeps a stable label + source", () => {
 	const r = resolveDependency(dep, { projectSettingsFile: null, globalSettingsFile: null });
 	expect(r.label).toBe("ask-user-question");
 	expect(r.source).toBe(ASK_USER_QUESTION_SOURCE);
+});
+
+test("installArgsFor: untrusted project gets --approve so pi install -l succeeds headless", () => {
+	// Headless/remote sessions never show the trust prompt; without --approve
+	// pi refuses project-local installs with "Project is not trusted".
+	const dep = COUNCIL_DEPENDENCIES[1]; // ask-user-question
+	expect(installArgsFor(dep.source, { projectTrusted: false })).toEqual(["install", "-l", "--approve", dep.source]);
+	// A trusted project needs no override — installing is already allowed.
+	expect(installArgsFor(dep.source, { projectTrusted: true })).toEqual(["install", "-l", dep.source]);
 });
 
 test("missing settings files never throw", () => {
