@@ -241,7 +241,9 @@ export function buildChildArgv(
 	// --session-dir scopes them away from the user's normal session list.
 	const argv = ["--mode", "json", "-p", "-a", "--session-dir", session.sessionDir, "--session-id", session.sessionId, "--model", seat.model];
 	if (seat.thinkingLevel) argv.push("--thinking", seat.thinkingLevel);
-	argv.push("--tools", [...builtinToolsFor(seat), ...mcpTools].join(","));
+	const tools = [...builtinToolsFor(seat), ...mcpTools];
+	if (grantsFor(seat).hub) tools.push("council_dispatch", "council_wait", "council_cancel");
+	argv.push("--tools", tools.join(","));
 	argv.push("--append-system-prompt", promptFile);
 	argv.push(input);
 	return argv;

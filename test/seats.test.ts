@@ -270,3 +270,30 @@ test("council section missing means no overrides", () => {
 	expect(loadCouncilConfig(root)).toEqual({});
 	expect(loadSeat(root, "owner").model).toBe("openrouter/deepseek/deepseek-v4-flash-0731");
 });
+
+test("buildChildArgv grants hub tools to hub-enabled seats via --tools", () => {
+	const runner = loadSeat(tmpRepo(), "council-runner");
+	const argv = buildChildArgv(
+		runner,
+		"run the card",
+		"/tmp/p.md",
+		[],
+		{ sessionDir: "/r", sessionId: "job-1" },
+	);
+	expect(argv).toContain(
+		"read,bash,edit,write,grep,find,ls,council_dispatch,council_wait,council_cancel",
+	);
+});
+
+test("buildChildArgv does not grant hub tools to seats without the hub grant", () => {
+	const owner = loadSeat(tmpRepo(), "owner");
+	const argv = buildChildArgv(
+		owner,
+		"go",
+		"/tmp/p.md",
+		[],
+		{ sessionDir: "/r", sessionId: "job-1" },
+	);
+	expect(argv).toContain("read,bash,edit,write,grep,find,ls");
+	expect(argv.join(",")).not.toContain("council_dispatch");
+});
