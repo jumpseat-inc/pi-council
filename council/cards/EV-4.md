@@ -1,7 +1,7 @@
 ---
 id: EV-4
 title: Theme compliance and live repaint of council surfaces
-state: In Review
+state: Done
 owner: null
 epic: EPIC-1
 goal: Every council-drawn element from the /council-tree modal and transcript viewer to the widget and command outputs draws from pi theme tokens and repaints when the active theme changes mid-session
@@ -520,3 +520,11 @@ Judge dispatched with ONLY the card goal + Skeptic evidence (1.7m). **PASS** —
 ## Step 11 — deterministic merge gate
 
 Five criteria checked at head `66aab25`: (1) owner gates green; (2) `gh pr checks 6 --json name,state,workflow` → `gates` workflow `state: SUCCESS` (keyed on `workflow`, not name); (3) no blocking Skeptic objection (all 8 closed-green); (4) judge PASS; (5) no Needs Human / outstanding ruling (in Review; step-6 rulings applied). All five hold. Merging with `gh pr merge 6 --match-head-commit 66aab25…` (criterion-2 SHA) — a mismatch would HALT, not retry.
+
+## Step 12 — merge landed + CI green on merged SHA; DONE
+
+PR #6 MERGED (merge commit `7eae545cccba9d57945871cbee70a66c4d1fe2b5`) via `gh pr merge 6 --merge --match-head-commit 66aab25c5c335b4f8239240ceb78bef8b920831d`. Local main fast-forward sync to `7eae545`. Observed artifact: the `gates` check on merged commit `7eae545` reports `completed success` (CI green on the merged SHA). State → **Done** per step 12 (observed artifact, not a seat report). Follow-ups below.
+
+## Step 13 — follow-ups (drafted for the orchestrator to confirm + file; neither is implemented here)
+- **FLLWUP — HTML export under in-memory themes (pi-side fix).** In scope per spec §10: either make `getResolvedThemeColors` fall back sanely under `<in-memory>`, or make `exportSessionToHtml` resolve the settings leaf through the user's path. Criterion: `/export` no longer crashes (throwing `Theme not found: <in-memory>`) under an active council theme; currently documented + pinned by `test/theme-export-pinning.test.ts`.
+- **FLLWUP — council-owned "what is active" surface (blocked by RULING 2).** Filed for a future epic that lifts RULING 2 (display nothing now); the live repaint is the “did it apply?” answer.

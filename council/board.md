@@ -21,11 +21,13 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-4 — Theme compliance and live repaint of council surfaces
+
 
 ## Needs Human
 
 ## Done
+
+- EV-4 — Theme compliance and live repaint of council surfaces
 
 - EV-1 — Port the oh-my-pi palette to a shipped pi theme
 - EV-6 — Add the gates GitHub Actions workflow
