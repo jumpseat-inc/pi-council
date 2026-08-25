@@ -10,10 +10,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Ready
 
-- EV-3 — Activate the council theme on session start
 - EV-4 — Theme compliance and live repaint of council surfaces
 
 ## Deliberating
+
+- EV-3 — Activate the council theme on session start
 
 ## In Progress
 
