@@ -113,9 +113,21 @@ export default function (pi: ExtensionAPI) {
 		initHubIdentity(mintRunId());
 		pruneRuns(repoRoot);
 		getHub(repoRoot, renderWidget); // create hub with onChange → widget refresh
-		void connectParentServers(pi, repoRoot).then((notes) => {
-			if (notes.length > 0 && ctx.hasUI) ctx.ui.notify(`mcp:\n${notes.join("\n")}`, "warning");
-		});
+		void connectParentServers(pi, repoRoot)
+			.then((notes) => {
+				if (notes.length === 0) return;
+				try {
+					if (ctx.hasUI) ctx.ui.notify(`mcp:\n${notes.join("\n")}`, "warning");
+				} catch {
+					// Session replaced/reloaded while MCP connects were in flight —
+					// the notify has nowhere to go; drop it without crashing the session.
+				}
+			})
+			.catch(() => {
+				// Best-effort: a parent MCP connect failure (bad config, OAuth error,
+				// network timeout) must never crash the session via an unhandled
+				// rejection. Seats report their own MCP warnings at dispatch time.
+			});
 		if (!widgetTimer) {
 			widgetTimer = setInterval(renderWidget, 5_000);
 			widgetTimer.unref?.();
@@ -148,9 +160,26 @@ export default function (pi: ExtensionAPI) {
 			const body = raw.replace(/^---\n[\s\S]*?\n---\n/, "");
 			pi.registerCommand(name, {
 				description: argumentHint ? `${description} (${argumentHint})` : description,
-				handler: async (args, _ctx) => {
-					pi.sendUserMessage(renderProcedure(body, procDir, args));
-				},
+					handler: async (args, ctx) => {
+						const routed = renderProcedure(body, procDir, args);
+						if (ctx.mode === "tui") {
+							// Interactive: fire-and-forget — the turn streams to the UI and the
+							// session stays alive, so never block the command handler.
+							void pi.sendUserMessage(routed);
+						} else {
+							// print/json/rpc: block until the dispatched turn completes. The
+							// extension sendUserMessage API is fire-and-forget, so awaiting it
+							// resolves before the turn runs and print mode would tear the
+							// runtime down mid-turn (silent no-op / aborted run).
+							pi.sendUserMessage(routed);
+							// waitForIdle returns immediately if called before the run starts;
+							// yield until the run is active (or already done), then await idle.
+							for (let i = 0; i < 100 && ctx.isIdle(); i++) {
+								await new Promise((r) => setTimeout(r, 25));
+							}
+							await ctx.waitForIdle();
+						}
+					},
 			});
 		}
 	}
