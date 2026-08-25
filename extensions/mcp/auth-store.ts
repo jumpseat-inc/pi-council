@@ -11,6 +11,8 @@ export interface McpAuthServerEntry {
 		tokens?: unknown;
 		/** OAuthDiscoveryState — persisted discovery results */
 		discovery?: unknown;
+		/** Pending PKCE verifier for a two-phase remote login (phase 1 → 2). Single-use. */
+		verifier?: string;
 	};
 }
 

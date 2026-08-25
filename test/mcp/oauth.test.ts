@@ -2,7 +2,13 @@ import { test, expect, beforeAll } from "bun:test";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import { loginOAuth, CouncilOAuthProvider } from "../../extensions/mcp/oauth.ts";
+import {
+	loginOAuth,
+	loginRemote,
+	completeRemoteLogin,
+	parseCallback,
+	CouncilOAuthProvider,
+} from "../../extensions/mcp/oauth.ts";
 import { loadAuth, saveAuth } from "../../extensions/mcp/auth-store.ts";
 import { saveMcpConfig, loadMcpConfig } from "../../extensions/mcp/config.ts";
 import { McpManager } from "../../extensions/mcp/client.ts";
@@ -78,5 +84,49 @@ test("expired access + corrupt refresh → non-connected status", async () => {
 	const rt = await mgr.connect("ctxc", loadMcpConfig(root).servers.ctxc!);
 	expect(["unauthenticated", "reauth-required", "error"]).toContain(rt.status);
 	await mgr.closeAll();
+	await fx.close();
+}, 30_000);
+
+test("parseCallback: full URL → code + derived redirect URI", () => {
+	const { code, redirectUri } = parseCallback("http://127.0.0.1:8765/callback?code=abc123&state=xyz");
+	expect(code).toBe("abc123");
+	expect(redirectUri).toBe("http://127.0.0.1:8765/callback");
+});
+
+test("parseCallback: raw code → code + default remote redirect URI", () => {
+	const { code, redirectUri } = parseCallback("abc123");
+	expect(code).toBe("abc123");
+	expect(redirectUri).toBe("http://127.0.0.1:8765/callback");
+});
+
+test("parseCallback: URL without code throws", () => {
+	expect(() => parseCallback("http://127.0.0.1:8765/callback?state=xyz")).toThrow(/code/);
+});
+
+test("remote login: two-phase copy-paste flow against stub AS persists tokens", async () => {
+	const fx = await startOAuthFixture();
+	const root = tmpRepo();
+	saveMcpConfig(root, { servers: { ctr: { url: fx.serverUrl, auth: "oauth" } } });
+
+	// Phase 1: prints the authorization URL (no browser, no listener), persists verifier
+	const msg = await loginRemote(root, "ctr");
+	const urlMatch = msg.match(/https?:\/\/\S+/);
+	expect(urlMatch).toBeTruthy();
+	const authorizationUrl = urlMatch![0];
+	expect(authorizationUrl).toContain("/authorize");
+	expect(authorizationUrl).toContain("code_challenge=");
+	expect(authorizationUrl).toContain(`redirect_uri=${encodeURIComponent("http://127.0.0.1:8765/callback")}`);
+	expect((loadAuth().servers.ctr?.oauth as { verifier?: string }).verifier).toBeDefined();
+
+	// User's browser: 302 → the pasted URL (what ends up in the address bar)
+	const res = await fetch(authorizationUrl, { redirect: "manual" });
+	const pasted = res.headers.get("location");
+	expect(pasted).toContain("code=test-code");
+
+	// Phase 2: paste it back, tokens persist, verifier consumed
+	const out = await completeRemoteLogin(root, "ctr", pasted!);
+	expect(out).toContain("Authenticated");
+	expect((loadAuth().servers.ctr?.oauth?.tokens as { access_token?: string })?.access_token).toBe("acc-1");
+	expect((loadAuth().servers.ctr?.oauth as { verifier?: string }).verifier).toBeUndefined();
 	await fx.close();
 }, 30_000);

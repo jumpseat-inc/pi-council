@@ -6,6 +6,7 @@ import { runMcpSubcommand, connectParentServers, getMcpManager } from "../../ext
 import { loadMcpConfig, saveMcpConfig } from "../../extensions/mcp/config.ts";
 import { loadAuth } from "../../extensions/mcp/auth-store.ts";
 import { startFixtureHttpServer } from "./fixture-http.ts";
+import { startOAuthFixture } from "./fixture-oauth.ts";
 
 beforeAll(() => {
 	process.env.PI_CODING_AGENT_DIR = fs.mkdtempSync(path.join(os.tmpdir(), "council-mcp-cmds-"));
@@ -75,6 +76,25 @@ test("connectParentServers registers tools and notes failures", async () => {
 	await getMcpManager(root).closeAll();
 	await fx.close();
 });
+
+test("login --remote prints URL; auth completes the copy-paste flow", async () => {
+	const fx = await startOAuthFixture();
+	const root = tmpRepo();
+	saveMcpConfig(root, { servers: { ctr: { url: fx.serverUrl, auth: "oauth" } } });
+
+	const out1 = await runMcpSubcommand(root, "login", ["ctr", "--remote"], {} as never);
+	expect(out1).toContain("Open this URL");
+	const urlMatch = out1.match(/https?:\/\/\S+/);
+	expect(urlMatch).toBeTruthy();
+
+	const res = await fetch(urlMatch![0], { redirect: "manual" });
+	const pasted = res.headers.get("location")!;
+	expect(pasted).toContain("code=test-code");
+
+	const out2 = await runMcpSubcommand(root, "auth", ["ctr", pasted], {} as never);
+	expect(out2).toContain("Authenticated");
+	await fx.close();
+}, 30_000);
 
 test("logout clears stored secrets", async () => {
 	const root = tmpRepo();

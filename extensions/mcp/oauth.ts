@@ -78,7 +78,6 @@ export interface CouncilOAuthProviderOptions {
  * persistence, the browser hook, and the loopback redirect URI.
  */
 export class CouncilOAuthProvider implements OAuthClientProvider {
-	private verifier = "";
 	private open: (url: string) => void;
 
 	constructor(
@@ -128,7 +127,8 @@ export class CouncilOAuthProvider implements OAuthClientProvider {
 	}
 
 	async saveTokens(tokens: OAuthTokens): Promise<void> {
-		this.patch({ tokens });
+		// A verifier is single-use: any token save (exchange or refresh) consumes it.
+		this.patch({ tokens, verifier: undefined });
 	}
 
 	async redirectToAuthorization(authorizationUrl: URL): Promise<void> {
@@ -136,11 +136,13 @@ export class CouncilOAuthProvider implements OAuthClientProvider {
 	}
 
 	async saveCodeVerifier(verifier: string): Promise<void> {
-		this.verifier = verifier;
+		// Persisted (not memory-only) so the two-phase remote flow can split phase 1
+		// (build + print the authorization URL) from phase 2 (paste back, exchange).
+		this.patch({ verifier });
 	}
 
 	async codeVerifier(): Promise<string> {
-		return this.verifier;
+		return this.entry().verifier ?? "";
 	}
 
 	async saveDiscoveryState(state: OAuthDiscoveryState): Promise<void> {
@@ -152,7 +154,7 @@ export class CouncilOAuthProvider implements OAuthClientProvider {
 	}
 
 	async invalidateCredentials(scope: "all" | "client" | "tokens" | "verifier" | "discovery"): Promise<void> {
-		if (scope === "all") this.patch({ client: undefined, tokens: undefined, discovery: undefined });
+		if (scope === "all") this.patch({ client: undefined, tokens: undefined, discovery: undefined, verifier: undefined });
 		else if (scope === "client") this.patch({ client: undefined });
 		else if (scope === "tokens") this.patch({ tokens: undefined });
 		else if (scope === "discovery") this.patch({ discovery: undefined });
@@ -186,4 +188,91 @@ export async function loginOAuth(repoRoot: string, serverName: string, opts: Log
 	} finally {
 		listener.close();
 	}
+}
+
+/**
+ * Fixed loopback redirect URI for remote (copy-paste) login. RFC 8252 allows
+ * any port on 127.0.0.1 for native clients; fixed so phase 1 and phase 2 agree
+ * without persisting the URI. 8765 is unusual among common dev ports
+ * (3000/5000/8000/8080/5173/4321...). The code that lands here is useless
+ * without the PKCE verifier, which never leaves this machine — so even a port
+ * collision on the *user's* laptop can't be turned into a token.
+ */
+export const REMOTE_REDIRECT_URI = "http://127.0.0.1:8765/callback";
+
+/**
+ * Heuristic: is this process likely running without a browser the user can
+ * see? Strong signals — an SSH session, or Linux without DISPLAY/WAYLAND_DISPLAY
+ * (headless server, container). SSH into a desktop usually carries DISPLAY via
+ * X11 forwarding, so SSH_TTY alone is not conclusive; the /mcp login command
+ * also accepts explicit --remote / --local overrides.
+ */
+export function isRemoteSession(): boolean {
+	if (process.env.SSH_TTY) return true;
+	if (process.platform === "linux" && !process.env.DISPLAY && !process.env.WAYLAND_DISPLAY) return true;
+	return false;
+}
+
+/**
+ * Parse what the user pastes back after authorizing in their own browser.
+ * Accepts the full redirected URL (query or fragment code) or a bare code.
+ * The redirect URI is derived from the URL's origin+path — what the browser
+ * actually landed on — falling back to the fixed URI for bare codes.
+ */
+export function parseCallback(pasted: string): { code: string; redirectUri: string } {
+	const trimmed = pasted.trim();
+	try {
+		const url = new URL(trimmed);
+		const code =
+			url.searchParams.get("code") ?? new URLSearchParams(url.hash.slice(1)).get("code");
+		if (!code) throw new Error(`No "code" parameter in pasted URL.`);
+		return { code, redirectUri: `${url.origin}${url.pathname}` };
+	} catch (e) {
+		if (e instanceof Error && e.message.includes('No "code"')) throw e;
+		// Not a URL — treat the whole paste as the raw authorization code.
+		return { code: trimmed, redirectUri: REMOTE_REDIRECT_URI };
+	}
+}
+
+/**
+ * Remote login, phase 1: discovery + DCR + PKCE, then print the authorization
+ * URL instead of opening a browser or starting a loopback listener. The PKCE
+ * verifier (and client/discovery state) persist via the provider; the user
+ * opens the URL on any device and pastes the redirected URL back into
+ * /mcp auth <server> <url> (phase 2).
+ */
+export async function loginRemote(repoRoot: string, serverName: string): Promise<string> {
+	const cfg = loadMcpConfig(repoRoot).servers[serverName];
+	if (!cfg) throw new Error(`Unknown MCP server "${serverName}".`);
+	if (!cfg.url) throw new Error(`MCP server "${serverName}" is not a remote http server; OAuth requires "url".`);
+	let captured = "";
+	const provider = new CouncilOAuthProvider(serverName, REMOTE_REDIRECT_URI, {
+		openUrl: (url) => {
+			captured = url;
+		},
+	});
+	const first = await auth(provider, { serverUrl: cfg.url });
+	if (first === "AUTHORIZED") return `Already authenticated to "${serverName}".`;
+	if (!captured) throw new Error("Remote login: no authorization URL was produced.");
+	return [
+		`Open this URL in any browser, authorize, then paste the full redirected URL back:`,
+		`  ${captured}`,
+		`Then run: /mcp auth ${serverName} <pasted-url>`,
+	].join("\n");
+}
+
+/**
+ * Remote login, phase 2: exchange the pasted redirect URL's code for tokens.
+ * The provider re-loads the persisted client, discovery state, and PKCE
+ * verifier from phase 1, so the exchange completes without a browser.
+ */
+export async function completeRemoteLogin(repoRoot: string, serverName: string, pasted: string): Promise<string> {
+	const cfg = loadMcpConfig(repoRoot).servers[serverName];
+	if (!cfg) throw new Error(`Unknown MCP server "${serverName}".`);
+	if (!cfg.url) throw new Error(`MCP server "${serverName}" is not a remote http server; OAuth requires "url".`);
+	const { code, redirectUri } = parseCallback(pasted);
+	const provider = new CouncilOAuthProvider(serverName, redirectUri, { openUrl: () => {} });
+	const second = await auth(provider, { serverUrl: cfg.url, authorizationCode: code });
+	if (second !== "AUTHORIZED") throw new Error("OAuth flow did not reach AUTHORIZED state.");
+	return `Authenticated to "${serverName}".`;
 }

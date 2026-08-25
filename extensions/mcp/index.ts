@@ -3,7 +3,13 @@ import { loadMcpConfig, saveMcpConfig, validateEntry, type McpServerConfig } fro
 import { clearServerSecrets, loadAuth, saveAuth } from "./auth-store.ts";
 import { McpManager, type McpServerRuntime } from "./client.ts";
 import { jsonSchemaToTypebox } from "./schema.ts";
-import { CouncilOAuthProvider, loginOAuth } from "./oauth.ts";
+import {
+	CouncilOAuthProvider,
+	loginOAuth,
+	loginRemote,
+	completeRemoteLogin,
+	isRemoteSession,
+} from "./oauth.ts";
 import type { Seat } from "../seats.ts";
 
 let managerSingleton: McpManager | null = null;
@@ -108,11 +114,13 @@ export async function runMcpSubcommand(
 		case "status":
 			return probeServer(repoRoot, args[0]);
 		case "login":
-			return loginServer(repoRoot, args[0], ctx);
+			return loginServer(repoRoot, args[0], ctx, args.slice(1));
+		case "auth":
+			return completeRemoteLogin(repoRoot, args[0], args.slice(1).join(" "));
 		case "logout":
 			return logoutServer(repoRoot, args[0]);
 		default:
-			return "Usage: /mcp list | add <name> <url> [none|header|oauth] | add <name> -- <command> [args…] | remove <name> | status <name> | login <name> | logout <name>";
+			return "Usage: /mcp list | add <name> <url> [none|header|oauth] | add <name> -- <command> [args…] | remove <name> | status <name> | login <name> [--remote|--local] | auth <name> <url-or-code> | logout <name>";
 	}
 }
 
@@ -182,8 +190,8 @@ async function probeServer(repoRoot: string, name?: string): Promise<string> {
 	return `${name}: ${rt.status}${rt.error ? ` — ${rt.error}` : ""}\n${tools}`;
 }
 
-async function loginServer(repoRoot: string, name: string | undefined, ctx: ExtensionCommandContext): Promise<string> {
-	if (!name) return "Usage: /mcp login <name>";
+async function loginServer(repoRoot: string, name: string | undefined, ctx: ExtensionCommandContext, flags: string[] = []): Promise<string> {
+	if (!name) return "Usage: /mcp login <name> [--remote|--local]";
 	const cfg = loadMcpConfig(repoRoot);
 	const serverCfg = cfg.servers[name];
 	if (!serverCfg) return `Unknown server "${name}".`;
@@ -204,8 +212,13 @@ async function loginServer(repoRoot: string, name: string | undefined, ctx: Exte
 		saveAuth(store);
 		return `Stored secrets for "${name}". Reconnect: /mcp status ${name}`;
 	}
-	// oauth
-	return loginOAuth(repoRoot, name);
+	// oauth — auto-detect headless/remote unless explicitly overridden
+	let remote: boolean | undefined;
+	for (const f of flags) {
+		if (f === "--remote") remote = true;
+		else if (f === "--local") remote = false;
+	}
+	return (remote ?? isRemoteSession()) ? loginRemote(repoRoot, name) : loginOAuth(repoRoot, name);
 }
 
 async function logoutServer(repoRoot: string, name?: string): Promise<string> {
@@ -219,7 +232,7 @@ async function logoutServer(repoRoot: string, name?: string): Promise<string> {
 
 export function registerMcpCommand(pi: ExtensionAPI, repoRoot: string): void {
 	pi.registerCommand("mcp", {
-		description: "Manage Council MCP servers: list | add | remove | status | login | logout",
+		description: "Manage Council MCP servers: list | add | remove | status | login [--remote] | auth | logout",
 		handler: async (args, ctx) => {
 			const parts = (args ?? "").trim().split(/\s+/).filter(Boolean);
 			const out = await runMcpSubcommand(repoRoot, parts[0] ?? "", parts.slice(1), ctx);
