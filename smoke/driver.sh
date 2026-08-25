@@ -97,3 +97,41 @@ COUNT="$(bun src/cli.ts test/fixtures/sample.md --count)" \
 
 echo
 echo "SMOKE PHASE 1 PASS"
+
+phase "2 epic delivery EPIC-1"
+timeout "$PHASE2_TIMEOUT" pi --approve --model "$FLASH" -p "/features-deliver EPIC-1" \
+	|| fatal "phase 2: /features-deliver EPIC-1 did not settle within ${PHASE2_TIMEOUT}s"
+
+assert_card_state "$WORK" "EV-2" "Done" || fatal "phase 2: EV-2 card is not Done"
+assert_card_state "$WORK" "EV-3" "Done" || fatal "phase 2: EV-3 card is not Done"
+assert_board_column "$WORK" "EV-2" "Done" || fatal "phase 2: EV-2 board line not under Done"
+assert_board_column "$WORK" "EV-3" "Done" || fatal "phase 2: EV-3 board line not under Done"
+python3 council/validate.py || fatal "phase 2: validate.py failed after epic delivery"
+
+phase "2 kill-shot probes EV-2/EV-3"
+cd "$WORK" || fatal "no worktree"
+JSON_OUT="$(bun src/cli.ts test/fixtures/sample.md --json)" \
+	|| fatal "phase 2: --json invocation failed"
+assert_json_links "$JSON_OUT" || fatal "phase 2: --json output mismatch"
+set +e
+bun src/cli.ts test/fixtures/sample.md --json --count >/dev/null 2>&1
+CONFLICT_EXIT=$?
+set -e
+[ "$CONFLICT_EXIT" -eq 2 ] || fatal "phase 2: --json --count conflict exited $CONFLICT_EXIT, want 2"
+IMAGES_OUT="$(bun src/cli.ts test/fixtures/sample.md --images)" \
+	|| fatal "phase 2: --images invocation failed"
+assert_images_output "$IMAGES_OUT" || fatal "phase 2: --images output mismatch"
+
+bun run typecheck || fatal "phase 2: typecheck failed on final tree"
+bun test || fatal "phase 2: test suite failed on final tree"
+
+phase "2 council-runner dispatch evidence"
+RUN_DIR="$WORK/.pi/council/runs"
+[ -d "$RUN_DIR" ] || fatal "phase 2: no runs dir at $RUN_DIR"
+RUNNER_SESSIONS="$(grep -rl '"seat":"council-runner"\|"seat": "council-runner"' "$RUN_DIR" 2>/dev/null | wc -l | tr -d ' ')"
+if [ "$RUNNER_SESSIONS" -lt 1 ]; then
+	fatal "phase 2: no council-runner session found under $RUN_DIR"
+fi
+
+echo
+echo "SMOKE PASS — full council loop + epic delivery verified"

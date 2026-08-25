@@ -231,7 +231,15 @@ seat model provider OpenRouter has an API key source — an ambient
 bun install
 bun test              # full suite (integration test gated behind COUNCIL_INTEGRATION=1)
 bunx tsc --noEmit     # typecheck
+bun run smoke         # unattended end-to-end smoke test (needs OPENROUTER_API_KEY)
 ```
+
+`bun run smoke` builds an isolated Docker container, installs this package
+into the fixture consumer repo under `smoke/fixture/`, then drives a full
+`/council` card loop and a `/features-deliver` epic run with all seats
+overridden to one flash model. Hard fail, no retries; every run writes
+forensics to `smoke/artifacts/<timestamp>/`. Design:
+`docs/superpowers/specs/2026-08-24-unattended-smoke-test-design.md`.
 
 See `AGENTS.md` for repository conventions, and
 `docs/superpowers/specs/` + `docs/superpowers/plans/` for the design
