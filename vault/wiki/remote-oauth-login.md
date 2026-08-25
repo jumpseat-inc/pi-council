@@ -40,7 +40,12 @@ instead.
   anywhere — a misdirected redirect, a port collision, a malicious local
   listener — and can't be turned into a token.
 - **Fixed loopback URI.** RFC 8252 allows any port on `127.0.0.1`; a fixed
-  port means both phases agree without persisting the URI.
+  port means both phases agree without persisting the URI. **But** the URI
+  actually advertised is the client's *registered* `redirect_uris[0]` when a
+  client is already persisted (e.g. from an earlier loopback login) — the
+  fixed constant only applies to a fresh registration. Advertising a foreign
+  URI against a reused client makes the AS reject with `invalid_request`
+  (Clerk-style), so derivation from the registered list is the real mechanism.
 - **No relay.** The code only travels browser → user's paste. No ngrok,
   no localtunnel, no SSH `-L`.
 - **`state` is skippable.** CSRF risk is negligible for a human copy-paste +
@@ -59,6 +64,12 @@ instead.
   paste can't replay.
 - The redirect URI derived from the paste (`origin + pathname`) must match
   what phase 1 registered; fall back to the fixed URI for bare codes.
+- **Stale clients get re-registered.** When a persisted client's registered
+  list doesn't cover the current loopback listener URI, the loopback flow
+  invalidates the client and DCRs a fresh one (pre-emptively when there's no
+  refresh token, so the browser opens once with the right URL; after a failed
+  refresh otherwise). An orphaned DCR client is harmless — re-login wants
+  fresh tokens anyway.
 
 ## Where it lives
 

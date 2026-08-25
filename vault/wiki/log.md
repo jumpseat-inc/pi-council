@@ -1,3 +1,20 @@
+## [2026-08-25] ingest | Remote OAuth redirect-URI fix (v0.11.1)
+Ingested the v0.11.1 bugfix for the reported invalid_request "redirect_uri
+does not match any of the OAuth 2.0 Client's pre-registered redirect urls".
+Root cause: a persisted DCR client (from an earlier loopback login) has a
+fixed registered redirect-URI list; the login flows advertised a foreign URI
+(the remote 127.0.0.1:8765 constant, or a fresh ephemeral listener port) and
+Clerk rejected it. Fix: redirectUrl derives from the client's registered
+redirect_uris[0]; loopback login pre-invalidates stale clients (re-DCRs them)
+so the browser opens once with the correct URL. Fixture AS now echoes +
+validates redirect_uris Clerk-style so the class is caught.
+- **Updated:** remote-oauth-login (registered-URI derivation + stale-client
+  re-registration), mcp-support (same, + v0.11.1 version lineage).
+- **Contradictions flagged:** remote-oauth-login/mcp-support previously stated
+  the redirect URI is "the fixed 127.0.0.1:8765 constant" — now derived from
+  the registered client's list when one exists. Reconciled, not silently
+  overwritten.
+
 ## [2026-08-25] ingest | Remote MCP OAuth login (v0.11.0)
 Ingested the v0.11.0 remote-login feature: the two-phase copy-paste OAuth flow
 for headless/remote agents (/mcp login --remote prints the authorization URL;

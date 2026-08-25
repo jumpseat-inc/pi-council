@@ -104,7 +104,10 @@ were rebalanced as the defaults shifted (see [[preflight]] and
 unauthenticated/error servers in v0.10.0 (see
 [[2026-08-25-smoke-test-bugfixes]]), and **v0.11.0 added remote copy-paste
 OAuth login** (`auth` subcommand, persisted verifier) — see
-[[2026-08-25-remote-mcp-oauth]].
+[[2026-08-25-remote-mcp-oauth]]. **v0.11.1** fixes the reused-client
+redirect-URI mismatch: the advertised URI derives from the client's
+registered `redirect_uris`, and stale loopback clients are re-registered
+instead of rejected with `invalid_request`.
 
 ## Related
 
