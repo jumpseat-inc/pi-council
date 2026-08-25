@@ -38,9 +38,16 @@ Schema → TypeBox). Tool results: text.
 - **`login <name>`** — `oauth` mode auto-detects a headless/remote session
   (`SSH_TTY` set, or Linux without DISPLAY/WAYLAND_DISPLAY) and routes to the
   copy-paste flow; `--remote` / `--local` force either way. `header` mode
-  prompts for secrets.
+  prompts for secrets. On success the live runtime reconnects so `/mcp list`
+  reflects the new status (v0.11.2).
 - **`auth <name> <pasted>`** — phase 2 of remote login: exchanges the code
-  pasted back from the user's browser (v0.11.0).
+  pasted back from the user's browser, then reconnects the live runtime
+  (v0.11.0 feature; refresh added v0.11.2).
+- **Status freshness.** `/mcp list` reads the cached in-memory runtime. Before
+  v0.11.2, login/auth stored credentials but never reconnected, so a fresh
+  login still showed `unauthenticated tools=0` until `/reload` or `/mcp status`.
+  Tool registration for the live session still requires `/reload` (pi has no
+  tool deregistration) — the reconnect fixes status/dispatch accuracy only.
 
 ## Authentication
 
@@ -107,7 +114,9 @@ OAuth login** (`auth` subcommand, persisted verifier) — see
 [[2026-08-25-remote-mcp-oauth]]. **v0.11.1** fixes the reused-client
 redirect-URI mismatch: the advertised URI derives from the client's
 registered `redirect_uris`, and stale loopback clients are re-registered
-instead of rejected with `invalid_request`.
+instead of rejected with `invalid_request`. **v0.11.2** makes login/auth
+refresh the live runtime so `/mcp list` reflects credentials (previously
+stale `unauthenticated` until /reload).
 
 ## Related
 
@@ -115,7 +124,8 @@ instead of rejected with `invalid_request`.
 - [[remote-oauth-login]] — the copy-paste pattern this subsystem implements
 - [[headless-pi]] — operating pi without a human at the keyboard
 - [[2026-08-23-mcp-implementation-plan]], [[2026-08-23-mcp-support-design-spec]],
-  [[2026-08-25-remote-mcp-oauth]], [[2026-08-25-remote-mcp-oauth-fix]]
+  [[2026-08-25-remote-mcp-oauth]], [[2026-08-25-remote-mcp-oauth-fix]],
+  [[2026-08-25-mcp-login-refresh]]
 
 ## Sources
 

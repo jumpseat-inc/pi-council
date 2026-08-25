@@ -1,3 +1,16 @@
+## [2026-08-25] ingest | Live runtime refresh after MCP login (v0.11.2)
+Ingested the v0.11.2 fix: /mcp login and /mcp auth stored credentials but
+never reconnected the live runtime, so /mcp list kept showing the stale
+unauthenticated/tools=0 captured at session start. New refreshServerRuntime
+reconnects after header/oauth login and auth (phase 2), fixing status +
+dispatch accuracy; tool registration still needs /reload. Test tightened
+(was vacuous toContain('connected') — 'not connected' contains it).
+- **Created:** sources/2026-08-25-mcp-login-refresh.
+- **Updated:** mcp-support (status-freshness section + v0.11.2 lineage),
+  pi-council-overview (v0.11.2 row, commit count 81→83), index.
+- **Contradictions flagged:** none — the design's "refresh after login" was
+  aspirational and is now real (noted, not a conflict).
+
 ## [2026-08-25] ingest | Remote OAuth redirect-URI fix (v0.11.1) — catalog completion
 Completed the v0.11.1 ingest: source page filed, catalog + overview updated.
 - **Created:** sources/2026-08-25-remote-mcp-oauth-fix.

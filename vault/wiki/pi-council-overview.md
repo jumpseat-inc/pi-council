@@ -9,7 +9,7 @@ created: 2026-08-23
 updated: 2026-08-25
 ---
 
-`pi-council` (v0.11.1) is an installable [pi](https://pi.dev) package, distributed
+`pi-council` (v0.11.2) is an installable [pi](https://pi.dev) package, distributed
 as `pi install git:github.com/tistaharahap/pi-council`. Installing it once and
 running `/council-init` gives **any** repository the same opinionated workflow:
 a facilitator-driven Council of specialized seats that deliberates, implements,
@@ -44,7 +44,7 @@ See [[council-loop]], [[engineering-board]], and the nine [[seats]]+s.
 ## Versions
 
 The release arc (from the git log on `main`) shows how quickly the engine
-matured — roughly 81 commits, following **[Conventional Commits]** with the
+matured — roughly 83 commits, following **[Conventional Commits]** with the
 `version` bumped in the same commit as each behavior change:
 
 | Version | What landed | See |
@@ -63,6 +63,7 @@ matured — roughly 81 commits, following **[Conventional Commits]** with the
 | v0.10.0 | **Unattended smoke test** + 3 engine bugfixes: headless-safe procedure dispatch, MCP startup hardening, hub tools exposed to seat children | [[smoke-test]], [[2026-08-25-smoke-test-bugfixes]] |
 | v0.11.0 | **Remote MCP OAuth login** — two-phase copy-paste flow (`/mcp login --remote` + `/mcp auth`), persisted PKCE verifier, headless auto-detection; no tunnels | [[remote-oauth-login]], [[2026-08-25-remote-mcp-oauth]] |
 | v0.11.1 | **Fix reused-client redirect-URI mismatch** — advertised URI derives from the client's registered `redirect_uris`, stale loopback clients re-register instead of failing with `invalid_request` | [[remote-oauth-login]], [[2026-08-25-remote-mcp-oauth-fix]] |
+| v0.11.2 | **Live runtime refresh after login/auth** — `/mcp list` reflects credentials instead of stale `unauthenticated tools=0` until /reload | [[mcp-support]], [[2026-08-25-mcp-login-refresh]] |
 
 The wiki scaffold shipped in the same commit as the council scaffold — the
 wiki is not an add-on. The full arc and commit-message discipline live in the
@@ -78,6 +79,7 @@ git log; this table is a secondary summary that can drift.
 - [[mcp-support]], [[hub-job-supervision]], [[headless-pi]] — the engine subsystems
 - [[remote-oauth-login]] — the v0.11.0 copy-paste OAuth pattern for headless agents
 - [[2026-08-25-remote-mcp-oauth-fix]] — the v0.11.1 redirect-URI fix
+- [[2026-08-25-mcp-login-refresh]] — the v0.11.2 live-runtime-refresh fix
 
 ## Sources
 
