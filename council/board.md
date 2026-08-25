@@ -17,9 +17,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-2 — Theme configuration in the scaffold .council.json
-
 ## In Review
+
+- EV-2 — Theme configuration in the scaffold .council.json
 
 ## Needs Human
 

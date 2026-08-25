@@ -1,7 +1,7 @@
 ---
 id: EV-2
 title: Theme configuration in the scaffold .council.json
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-1
 goal: The scaffold .council.json carries an editable theme section that loadThemeConfig parses and validates and that merges repo overrides over the shipped omp defaults
@@ -101,3 +101,7 @@ Objections:
 ### Recovery note (facilitator, step 8 resumption)
 
 The original step-8 owner dispatch stalled mid-Task 5 (after writing the failing scaffold tests, before implementing the scaffold seed) and was cancelled by the hub's anti-stall monitor. Partial work reviewed against the committed spec and **verified by the facilitator before trusting it**: `feat/ev2-theme-config` branch (local, unpushed) carries plan (198249c), `loadThemeConfig` + reserved-key guard (7f01968), pure `mergeThemeSection` with export preservation (6d6cfbc). Facilitator-observed gate results on the branch worktree: `bunx tsc --noEmit` clean; `test/theme-config.test.ts` 32 pass / 0 fail (covers all seven open-untested settling tests + both closed-red graph corrections); full `bun test` 180 pass / 2 fail, the 2 being the new Task-5 scaffold tests failing only because the scaffold seed is not yet implemented (expected red). The worktree `.worktrees/feat/ev2-theme-config` holds the uncommitted Task-5 test edits. Verdict: tasks 1–4 are verified-correct landed work — recovered, not redone. Remaining: Task 5 (implement scaffold seed, verify tests, commit), Task 6 (spec §9 doc updates: EV-5 §3, README Theme customization, AGENTS.md 9.6 verify), Task 7 (four gates in full, push, open PR). Owner redispatched to complete.
+
+### Step 9 — Skeptic verification (branch feat/ev2-theme-config @ 628999f)
+
+VERDICT: **does not block.** All four gates pass in full, run by the Skeptic itself (not taken from the owner's report): `bun install --frozen-lockfile` no changes; `bunx tsc --noEmit` exit 0; `bun test` 182 pass / 2 skip / 0 fail (2 skips = integration self-skip without COUNCIL_INTEGRATION=1, documented); `python3 council/validate.py` "All council artifacts valid". Gate-integrity check: injected a type error, tsc caught it (TS2322) — the gate is capable of failing. All seven open-untested objections from Round 3 are **closed-green** with their settling tests run and passing (theme:{} → {variant:"auto"}; delta acceptance both variants; falsy vocabulary incl. null/0/""; export preservation; "" sentinel; absent variant default; colors vocabulary 51+4 with nonexistent throwing). All closed-red record corrections are **closed-green** against the verified var-consumer graph (dark cyan→[borderAccent,bashMode], blue→[border] only, accent→[accent,mdListBullet]; thinkingLow/mdLink/mdHeading literal hexes; council.theme reserved-key guard both forms). Six independent probes P1–P6 all closed-green, including an independent re-derivation of the var-consumer graph from the shipped theme files and a PR-scope check (no out-of-spec changes; spec §10 items absent). No open objections remain.
