@@ -127,3 +127,20 @@ Recorded verbatim from the consolidator dispatch:
 - **Open objections** — Skeptic objections whose settling test has not passed:
   - **#9 — notify info/warning/silent tri-state.** Settling test: implement the notify layer and run it. Status: **not run** (no implementation exists yet). Explicitly **non-gating by settled design** — D3 is a thin removable layer; its absence does not change the activation decision or the construction path. This rides with the implementation, not against hand-off.
 - **Ready to hand off?** — **yes, to owner** for implementation. All five disputes are settled; the Skeptic returned **no blocks**. Two closed-red **non-blocking factual corrections** must be applied during implementation (not judgment calls — verified deltas to the plan): (1) call pi's **exported** `detectTerminalBackgroundFromEnv` directly rather than duplicating it (D2/#3); (2) import `getCapabilities` from `@earendil-works/pi-tui` (or `chalk.level >= 2`) for the `mode` arg, since it is undefined on the public API and theme module (D4/#6). The single open objection (#9 notify tri-state) is non-gating by settled design and is exercised once the notify layer is written. No open judgment remains for `product-owner`/`steward`.
+
+### Step 7 — design spec committed, handoff (facilitator run record)
+
+The design spec `docs/superpowers/specs/2026-08-25-EV-3-design.md` was
+rebuilt this run from the card's Deliberation record (Rounds 1–3) and the
+consolidator synthesis (4ae6acb), verified on disk and in git:
+- **Spec commit:** `318e3ce docs(spec): EV-3 design — theme activation on session start`
+- Confirmed on disk (`ls` present, 13 KB) and in `git log` (top of main).
+- Spec self-review passed: no placeholder/TODO; internal consistency checked
+  against the settled design; scope bounded to the card goal; single-design
+  readability for an owner with no deliberation memory.
+
+Per council.md step 7, all five disputes were already settled in the record
+and the consolidator returned no open judgment for `product-owner`/`steward`,
+so the run wrote up the settled design (no re-litigation). Card set
+`In Progress` on card + board (commit ed0f25c), `python3 council/validate.py`
+clean. Handed to owner for implementation in an isolated worktree.
