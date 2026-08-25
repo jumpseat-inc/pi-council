@@ -79,6 +79,53 @@ export function resolveThemeColors(
 	return out;
 }
 
+// [ev4-palette-table] basicColors is the same data table pi's unexported
+// ansi256ToHex uses (theme.js ~line 794). It is converter data, not drawing
+// color — the EV-4 zero-hex audit (test/theme-compliance.test.ts) whitelists
+// exactly this region via the marker tags.
+export function ansi256ToHex(index: number): string {
+	const basicColors = [
+		"#000000", "#800000", "#008000", "#808000",
+		"#000080", "#800080", "#008080", "#c0c0c0",
+		"#808080", "#ff0000", "#00ff00", "#ffff00",
+		"#0000ff", "#ff00ff", "#00ffff", "#ffffff",
+	];
+	if (index < 16) return basicColors[index];
+	if (index < 232) {
+		const cubeIndex = index - 16;
+		const r = Math.floor(cubeIndex / 36);
+		const g = Math.floor((cubeIndex % 36) / 6);
+		const b = cubeIndex % 6;
+		const toHex = (n: number) => (n === 0 ? 0 : 55 + n * 40).toString(16).padStart(2, "0");
+		return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+	}
+	const gray = 8 + (index - 232) * 10;
+	const grayHex = gray.toString(16).padStart(2, "0");
+	return `#${grayHex}${grayHex}${grayHex}`;
+}
+// [ev4-palette-table]
+
+/**
+ * Pure after the optional config read: the MERGED resolved hex map a variant's
+ * in-memory Theme is built from (EV-3 chain), with any 256-index integers
+ * hexed via ansi256ToHex. `""` passes through (pi's default-terminal-fg
+ * sentinel — never invented into a color). config reads from
+ * <repoRoot>/.council.json only when no override is passed.
+ */
+export function resolvedPalette(
+	variant: "dark" | "light",
+	configOverride?: ThemeSection,
+	repoRoot?: string,
+): Record<string, string> {
+	const config = configOverride ?? (repoRoot !== undefined ? loadThemeConfig(repoRoot) : undefined);
+	const block = config !== undefined ? (variant === "dark" ? config.dark : config.light) : undefined;
+	const merged = mergeThemeSection(loadShippedTheme(variant), block);
+	const resolved = resolveThemeColors(withThemeColorFallbacks(merged.colors), merged.vars);
+	const out: Record<string, string> = {};
+	for (const [key, value] of Object.entries(resolved)) out[key] = typeof value === "number" ? ansi256ToHex(value) : value;
+	return out;
+}
+
 /**
  * Apply pi's internal fallback chain with `??` semantics on the merged colors
  * BEFORE construction. The Theme constructor applies the same fallbacks
@@ -116,6 +163,12 @@ export interface PiThemeModule {
 	getThemeByName(name: string): Theme | undefined;
 	setRegisteredThemes(themes: Theme[]): void;
 	detectTerminalBackgroundFromEnv(options?: { env?: NodeJS.ProcessEnv }): { theme: "dark" | "light" };
+	// EV-4 §5: pi's theme.js also exports the live Proxy (`theme`, reads
+	// globalThis at call time) and setThemeInstance (swaps the global, fires
+	// onThemeChange). Declared so the repaint pinning tests can drive the
+	// real TUI swap; the extension itself NEVER calls setThemeInstance.
+	theme: Theme;
+	setThemeInstance(theme: Theme): void;
 }
 let cachedPiThemeModule: Promise<PiThemeModule> | undefined;
 

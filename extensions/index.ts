@@ -4,8 +4,9 @@ import { CONFIG_DIR_NAME, getAgentDir, type ExtensionAPI, type ExtensionContext 
 import { runChildMode } from "./child.ts";
 import { Hub } from "./hub.ts";
 import { getHub, initHubIdentity, pidFilePath, registerHubTools, shutdownHub } from "./hub-tools.ts";
-import { PKG_ROOT, proceduresDir } from "./seats.ts";
+import { PKG_ROOT, loadThemeConfig, proceduresDir } from "./seats.ts";
 import { activateTheme } from "./theme-activation.ts";
+import { watchCouncilConfig, type CouncilConfigWatcher } from "./theme-watcher.ts";
 import { mintRunId, pruneRuns } from "./runs.ts";
 import { scaffoldInto } from "./scaffold.ts";
 import { installArgsFor, resolveCouncilDependencies } from "./dependencies.ts";
@@ -64,6 +65,33 @@ function frontmatterField(raw: string, key: string): string | undefined {
 	return m?.[1]?.trim();
 }
 
+/**
+ * Pure builder for the live widget strings (EV-4 §8): plain text, zero ANSI,
+ * no `#hex` — nothing to go stale on a theme switch, satisfying AGENTS.md 9.6.
+ */
+export function widgetLines(
+	active: Array<{ seat: string; startedAt: number; events: string[]; state: string }>,
+): string[] {
+	return active.map((j) => {
+		const mins = Math.floor((Date.now() - j.startedAt) / 60_000);
+		const secs = Math.floor(((Date.now() - j.startedAt) % 60_000) / 1000);
+		const last = j.events[j.events.length - 1] ?? "…";
+		const flag = j.state === "timeout" ? " ⚠ over ceiling" : "";
+		return `⏳ ${j.seat} ${mins}m${String(secs).padStart(2, "0")}s  last: ${last}${flag}`;
+	});
+}
+
+/** Pure builder for the /council-jobs table (plain text, zero ANSI / #hex). */
+export function jobLines(
+	jobs: Array<{ id: string; seat: string; state: string; startedAt: number; pid: number | null | undefined; events: string[] }>,
+): string[] {
+	return jobs.map((j) => {
+		const mins = ((Date.now() - j.startedAt) / 60_000).toFixed(1);
+		const recent = j.events.slice(-3).join("  ");
+		return `${j.id}  ${j.seat.padEnd(14)} ${j.state.padEnd(9)} ${mins}m  pid=${j.pid}  ${recent}`;
+	});
+}
+
 /** Substitute runtime placeholders into a stripped procedure body. */
 export function renderProcedure(strippedBody: string, procDir: string, args?: string): string {
 	return strippedBody
@@ -83,6 +111,7 @@ export default function (pi: ExtensionAPI) {
 	// ---- parent mode ----
 	let uiCtx: ExtensionContext | null = null;
 	let widgetTimer: ReturnType<typeof setInterval> | null = null;
+	let themeWatcher: CouncilConfigWatcher | null = null;
 	registerHubTools(pi, repoRoot);
 	registerNavigator(pi, repoRoot, () => getHub(repoRoot).runId);
 
@@ -95,16 +124,7 @@ export default function (pi: ExtensionAPI) {
 			uiCtx.ui.setWidget("council", []);
 			return;
 		}
-		uiCtx.ui.setWidget(
-			"council",
-			active.map((j) => {
-				const mins = Math.floor((Date.now() - j.startedAt) / 60_000);
-				const secs = Math.floor(((Date.now() - j.startedAt) % 60_000) / 1000);
-				const last = j.events[j.events.length - 1] ?? "…";
-				const flag = j.state === "timeout" ? " ⚠ over ceiling" : "";
-				return `⏳ ${j.seat} ${mins}m${String(secs).padStart(2, "0")}s  last: ${last}${flag}`;
-			}),
-		);
+		uiCtx.ui.setWidget("council", widgetLines(active));
 	};
 
 	pi.on("session_start", (_event, ctx) => {
@@ -112,6 +132,19 @@ export default function (pi: ExtensionAPI) {
 		const swept = Hub.sweepStalePids(pidFilePath(repoRoot));
 		if (swept > 0 && ctx.hasUI) ctx.ui.notify(`council: swept ${swept} orphaned seat process(es)`, "warning");
 		void activateTheme(ctx, repoRoot); // EV-3: in-memory council theme; try/caught inside, never crashes session_start
+		// EV-4 §7: arm the live .council.json watcher ONLY when a theme section
+		// exists at session_start (sync gate). No config at start → no watcher,
+		// forever this session: a section appearing mid-session is unsupported.
+		// Note: a section REMOVED mid-session is still watched (RULING 1 keep-last).
+		try {
+			if (loadThemeConfig(repoRoot) !== undefined) {
+				themeWatcher?.close();
+				themeWatcher = watchCouncilConfig(ctx, repoRoot);
+			}
+		} catch {
+			// Malformed config at start — activateTheme already notified; arm nothing.
+			themeWatcher = null;
+		}
 		initHubIdentity(mintRunId());
 		pruneRuns(repoRoot);
 		getHub(repoRoot, renderWidget); // create hub with onChange → widget refresh
@@ -141,6 +174,8 @@ export default function (pi: ExtensionAPI) {
 			clearInterval(widgetTimer);
 			widgetTimer = null;
 		}
+		themeWatcher?.close();
+		themeWatcher = null;
 		void getMcpManager(repoRoot).closeAll();
 		shutdownHub();
 	});
@@ -249,11 +284,7 @@ export default function (pi: ExtensionAPI) {
 				ctx.ui.notify("No council jobs this session.", "info");
 				return;
 			}
-			const lines = jobs.map((j) => {
-				const mins = ((Date.now() - j.startedAt) / 60_000).toFixed(1);
-				const recent = j.events.slice(-3).join("  ");
-				return `${j.id}  ${j.seat.padEnd(14)} ${j.state.padEnd(9)} ${mins}m  pid=${j.pid}  ${recent}`;
-			});
+			const lines = jobLines(jobs);
 			ctx.ui.notify(lines.join("\n"), "info");
 		},
 	});

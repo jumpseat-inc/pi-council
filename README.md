@@ -157,6 +157,31 @@ non-clobberingly; `auto` is the default for fresh installs.
 > council theme off, remove the `theme` section from `.council.json` or set
 > `theme.enabled: false`.
 
+### Live theme editing
+
+Edits to `.council.json` repaint the council surfaces live, no restart
+needed: an open `/council-tree` modal (and transcript viewer) re-renders
+against the new palette within ~250ms, and `/council-jobs` / the widget stay
+plain text (they carry no color to go stale).
+
+- **Removing the theme** — removing the `theme` section (or
+  `theme.enabled: false`) mid-session keeps the **last materialized council
+  theme active until you restart**; there is no live off-revert. To go back
+  to your pre-council theme, restart.
+- **Adding the theme mid-session is not watched** — a `theme` section that
+  appears after a session started with none is not picked up until restart
+  (the watcher arms only when a section exists at session start).
+- **`settings.json` is never touched.** The extension only ever applies the
+  in-memory council theme via `ui.setTheme(instance)` — it never writes
+  pi's settings.json, at activation or on edit. (Replacing `.council.json`
+  is fine; `settings.json` is not watched.)
+- **HTML export limitation (pi-side, not fixed here).** While the council
+  theme is active, `/export` either throws `Theme not found: <in-memory>`
+  (settings.json leaf unset, or `light/dark`) or silently exports the
+  built-in palette (leaf `light`/`dark`). Both are pi-side regressions
+  under in-memory activation, tracked as follow-ups; the active palette is
+  only reachable through the live interface, never through a name lookup.
+
 ## Commands
 
 | Command                            | What it does                                                              |
