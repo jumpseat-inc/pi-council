@@ -115,8 +115,11 @@ export async function runMcpSubcommand(
 			return probeServer(repoRoot, args[0]);
 		case "login":
 			return loginServer(repoRoot, args[0], ctx, args.slice(1));
-		case "auth":
-			return completeRemoteLogin(repoRoot, args[0], args.slice(1).join(" "));
+		case "auth": {
+			const out = await completeRemoteLogin(repoRoot, args[0], args.slice(1).join(" "));
+			await refreshServerRuntime(repoRoot, args[0]);
+			return out;
+		}
 		case "logout":
 			return logoutServer(repoRoot, args[0]);
 		default:
@@ -190,6 +193,20 @@ async function probeServer(repoRoot: string, name?: string): Promise<string> {
 	return `${name}: ${rt.status}${rt.error ? ` — ${rt.error}` : ""}\n${tools}`;
 }
 
+/**
+ * After a credential change (login/auth), reconnect the live runtime so
+ * /mcp list reflects the new status instead of the stale one captured at
+ * session start. Tool registration for the live session still requires
+ * /reload (pi has no tool deregistration).
+ */
+async function refreshServerRuntime(repoRoot: string, name: string): Promise<void> {
+	const cfg = loadMcpConfig(repoRoot).servers[name];
+	if (!cfg || cfg.enabled === false) return;
+	const manager = getMcpManager(repoRoot);
+	await manager.close(name);
+	await manager.connect(name, cfg);
+}
+
 async function loginServer(repoRoot: string, name: string | undefined, ctx: ExtensionCommandContext, flags: string[] = []): Promise<string> {
 	if (!name) return "Usage: /mcp login <name> [--remote|--local]";
 	const cfg = loadMcpConfig(repoRoot);
@@ -210,6 +227,7 @@ async function loginServer(repoRoot: string, name: string | undefined, ctx: Exte
 		}
 		store.servers[name] = entry;
 		saveAuth(store);
+		await refreshServerRuntime(repoRoot, name);
 		return `Stored secrets for "${name}". Reconnect: /mcp status ${name}`;
 	}
 	// oauth — auto-detect headless/remote unless explicitly overridden
@@ -218,7 +236,11 @@ async function loginServer(repoRoot: string, name: string | undefined, ctx: Exte
 		if (f === "--remote") remote = true;
 		else if (f === "--local") remote = false;
 	}
-	return (remote ?? isRemoteSession()) ? loginRemote(repoRoot, name) : loginOAuth(repoRoot, name);
+	const out = (remote ?? isRemoteSession()) ? await loginRemote(repoRoot, name) : await loginOAuth(repoRoot, name);
+	if (out.includes("Authenticated") || out.includes("Already authenticated")) {
+		await refreshServerRuntime(repoRoot, name);
+	}
+	return out;
 }
 
 async function logoutServer(repoRoot: string, name?: string): Promise<string> {

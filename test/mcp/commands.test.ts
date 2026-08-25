@@ -93,6 +93,14 @@ test("login --remote prints URL; auth completes the copy-paste flow", async () =
 
 	const out2 = await runMcpSubcommand(root, "auth", ["ctr", pasted], {} as never);
 	expect(out2).toContain("Authenticated");
+	// Credentials changed → the live runtime must reconnect, so /mcp list
+	// reflects the new status instead of the stale unauthenticated from startup.
+	const list = await runMcpSubcommand(root, "list", [], {} as never);
+	expect(list).toMatch(/ctr\s+http\s+auth=oauth\s+connected\s+tools=\d+/);
+	expect(list).not.toContain("unauthenticated");
+	// The reconnect left an open connection to the fixture; close it so the
+	// fixture's server.close() can finish (Node >=19 waits for open sockets).
+	await getMcpManager(root).closeAll();
 	await fx.close();
 }, 30_000);
 
