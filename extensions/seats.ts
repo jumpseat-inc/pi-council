@@ -28,6 +28,189 @@ export const COUNCIL_CONFIG_FILE = ".council.json";
 /** Absolute package root — one level above extensions/. */
 export const PKG_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
+// ---- theme config (.council.json "theme" section) ----
+
+export interface ThemeVariantBlock {
+	vars?: Record<string, string | number>;
+	colors?: Record<string, string | number>;
+}
+
+export interface ThemeSection {
+	enabled?: boolean;
+	variant: "auto" | "dark" | "light";
+	dark?: ThemeVariantBlock;
+	light?: ThemeVariantBlock;
+}
+
+/** The shipped theme asset shape: { vars, colors, export }. */
+export interface ShippedTheme {
+	vars: Record<string, string>;
+	colors: Record<string, string>;
+	export: Record<string, string>;
+}
+
+/** Optional pi theme tokens that join the 51 shipped colors keys. */
+const OPTIONAL_TOKENS = ["scrollbarThumb", "searchMatchBg", "searchMatchText", "thinkingMax"];
+
+/** Read a shipped theme asset. Base for all merges — never getPackageDir(). */
+export function loadShippedTheme(variant: "dark" | "light"): ShippedTheme {
+	const file = path.join(PKG_ROOT, "themes", `pi-council-${variant}.json`);
+	return JSON.parse(fs.readFileSync(file, "utf-8")) as ShippedTheme;
+}
+
+const SHIPPED_DARK = loadShippedTheme("dark");
+const SHIPPED_LIGHT = loadShippedTheme("light");
+const DARK_VARS = new Set(Object.keys(SHIPPED_DARK.vars));
+const LIGHT_VARS = new Set(Object.keys(SHIPPED_LIGHT.vars));
+const VALID_COLOR_KEYS = new Set([
+	...Object.keys(SHIPPED_DARK.colors),
+	...Object.keys(SHIPPED_LIGHT.colors),
+	...OPTIONAL_TOKENS,
+]);
+
+function isHex6(s: string): boolean {
+	return /^#[0-9a-fA-F]{6}$/.test(s);
+}
+
+function validateThemeValue(raw: unknown, variant: "dark" | "light", file: string, where: string): void {
+	const declared = variant === "dark" ? DARK_VARS : LIGHT_VARS;
+	if (raw === "") return;
+	if (typeof raw === "string") {
+		if (isHex6(raw) || declared.has(raw)) return;
+		throw new Error(
+			`${file}: ${where} value ${JSON.stringify(raw)} must be a 6-digit hex color, an integer 0-255, a var-ref to a declared var, or ""`,
+		);
+	}
+	if (typeof raw === "number" && Number.isInteger(raw) && raw >= 0 && raw <= 255) return;
+	throw new Error(
+		`${file}: ${where} value ${JSON.stringify(raw)} must be a 6-digit hex color, an integer 0-255, a var-ref to a declared var, or ""`,
+	);
+}
+
+function parseOverrideMap(
+	rec: Record<string, unknown>,
+	variant: "dark" | "light",
+	layer: "vars" | "colors",
+	file: string,
+): Record<string, string | number> {
+	const declared = variant === "dark" ? DARK_VARS : LIGHT_VARS;
+	const out: Record<string, string | number> = {};
+	for (const [key, value] of Object.entries(rec)) {
+		if (layer === "vars" && !declared.has(key)) {
+			throw new Error(`${file}: theme.${variant}.vars["${key}"] is not a declared var of the ${variant} variant`);
+		}
+		if (layer === "colors" && !VALID_COLOR_KEYS.has(key)) {
+			throw new Error(`${file}: theme.${variant}.colors["${key}"] is not a valid theme token`);
+		}
+		validateThemeValue(value, variant, file, `theme.${variant}.${layer}["${key}"]`);
+		out[key] = value as string | number;
+	}
+	return out;
+}
+
+function parseThemeVariantBlock(raw: unknown, variant: "dark" | "light", file: string): ThemeVariantBlock {
+	if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
+		throw new Error(`${file}: "theme.${variant}" must be an object`);
+	}
+	const rec = raw as Record<string, unknown>;
+	for (const key of Object.keys(rec)) {
+		if (key !== "vars" && key !== "colors") {
+			throw new Error(`${file}: unknown key "theme.${variant}.${key}"`);
+		}
+	}
+	const block: ThemeVariantBlock = {};
+	if (rec.vars !== undefined) {
+		if (typeof rec.vars !== "object" || rec.vars === null || Array.isArray(rec.vars)) {
+			throw new Error(`${file}: "theme.${variant}.vars" must be an object`);
+		}
+		block.vars = parseOverrideMap(rec.vars as Record<string, unknown>, variant, "vars", file);
+	}
+	if (rec.colors !== undefined) {
+		if (typeof rec.colors !== "object" || rec.colors === null || Array.isArray(rec.colors)) {
+			throw new Error(`${file}: "theme.${variant}.colors" must be an object`);
+		}
+		block.colors = parseOverrideMap(rec.colors as Record<string, unknown>, variant, "colors", file);
+	}
+	return block;
+}
+
+function parseThemeSection(raw: Record<string, unknown>, file: string): ThemeSection {
+	const out: ThemeSection = { variant: "auto" };
+	for (const key of Object.keys(raw)) {
+		switch (key) {
+			case "enabled":
+				if (typeof raw.enabled !== "boolean") {
+					throw new Error(`${file}: theme.enabled must be a boolean`);
+				}
+				out.enabled = raw.enabled;
+				break;
+			case "variant":
+				if (raw.variant !== "auto" && raw.variant !== "dark" && raw.variant !== "light") {
+					throw new Error(`${file}: theme.variant must be one of "auto", "dark", "light"`);
+				}
+				out.variant = raw.variant;
+				break;
+			case "dark":
+				out.dark = parseThemeVariantBlock(raw.dark, "dark", file);
+				break;
+			case "light":
+				out.light = parseThemeVariantBlock(raw.light, "light", file);
+				break;
+			default:
+				throw new Error(`${file}: unknown key "theme.${key}"`);
+		}
+	}
+	return out;
+}
+
+/**
+ * Read and validate the optional top-level `theme` section of `.council.json`.
+ * Returns undefined when the section is absent or explicitly off (theme: false /
+ * null / 0 / "" / { enabled: false }). Presence implies enabled; `theme: {}`
+ * returns { variant: "auto" }. Malformed JSON or invalid content throws naming
+ * the file.
+ */
+export function loadThemeConfig(repoRoot: string): ThemeSection | undefined {
+	const file = path.join(repoRoot, COUNCIL_CONFIG_FILE);
+	if (!fs.existsSync(file)) return undefined;
+	let parsed: unknown;
+	try {
+		parsed = JSON.parse(fs.readFileSync(file, "utf-8"));
+	} catch (e) {
+		throw new Error(`${file}: malformed JSON — ${e instanceof Error ? e.message : String(e)}`);
+	}
+	if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+		throw new Error(`${file}: root must be a JSON object`);
+	}
+	const raw = (parsed as Record<string, unknown>).theme;
+	if (raw === undefined) return undefined;
+	// Falsy non-object forms are the explicit off switch.
+	if (raw === false || raw === null || raw === 0 || raw === "") return undefined;
+	if (typeof raw !== "object" || Array.isArray(raw)) {
+		throw new Error(`${file}: "theme" must be an object`);
+	}
+	const section = parseThemeSection(raw as Record<string, unknown>, file);
+	return section.enabled === false ? undefined : section;
+}
+
+/**
+ * Merge a repo override block over a shipped base at the JSON level.
+ * The vars map merges first, then the colors map; repo wins per key. The
+ * base's var-refs are never resolved to hex here — un-overridden tokens keep
+ * their var-refs so a repo vars edit transitively recolors referencing tokens
+ * at Theme construction (EV-3). `export` is preserved untouched. Pure, no I/O.
+ */
+export function mergeThemeSection(
+	base: ShippedTheme,
+	overrideBlock?: ThemeVariantBlock,
+): { vars: Record<string, string | number>; colors: Record<string, string | number>; export: Record<string, string> } {
+	return {
+		vars: { ...base.vars, ...(overrideBlock?.vars ?? {}) },
+		colors: { ...base.colors, ...(overrideBlock?.colors ?? {}) },
+		export: { ...base.export },
+	};
+}
+
 function parseList(raw: string): string[] {
 	const inner = raw.trim().replace(/^\[/, "").replace(/\]$/, "");
 	return inner
@@ -132,6 +315,8 @@ export function loadCouncilConfig(repoRoot: string): Record<string, AgentOverrid
 	}
 	const out: Record<string, AgentOverride> = {};
 	for (const [name, value] of Object.entries(council as Record<string, unknown>)) {
+		// "theme" is reserved — parsed by loadThemeConfig, never a seat override.
+		if (name === "theme") continue;
 		out[name] = parseAgentOverride(name, value, file);
 	}
 	return out;

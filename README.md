@@ -118,8 +118,7 @@ The council ships an oh-my-pi-themed dark/light pair — `pi-council-dark` and
 `pi-council-light`. The shipped files under `themes/` are the base palette —
 do not edit them; customize via `.council.json`. Recolor it per-repo from the
 committed `.council.json`, under a top-level `theme` key, a sibling of
-`council` (final shape owned by EV-2; this is the working proposal from the
-epic's design spec):
+`council`:
 
 ```json
 {
@@ -127,18 +126,28 @@ epic's design spec):
   "theme": {
     "enabled": true,
     "variant": "auto",
-    "overrides": { "accent": "#febc38" }
+    "dark": { "vars": { "cyan": "#0088fa" }, "colors": { "accent": "#ff8800" } },
+    "light": { "vars": {}, "colors": {} }
   }
 }
 ```
 
+`/council-init` seeds the minimal `{ "enabled": true, "variant": "auto" }`
+non-clobberingly; `auto` is the default for fresh installs.
+
 - **Variant pinning** — `variant` is `auto`, `dark`, or `light`; `auto`
   follows the terminal background and resolves to `pi-council-dark` /
-  `pi-council-light`. `/council-init` seeds the section non-clobberingly, so
-  `auto` is the default for fresh installs.
-- **Per-token overrides** — `overrides` is keyed by pi theme token names
-  (`accent`, `border`, …) with values in pi's accepted formats (hex,
-  256-index, var-ref, or `""`).
+  `pi-council-light`.
+- **Per-variant overrides** — `dark` and `light` are optional override
+  blocks, each with two optional maps. `vars` is keyed by the shipped var
+  names of that variant (dark and light var sets differ — a var the variant
+  lacks throws); `colors` is keyed by pi theme token names (`accent`,
+  `border`, …). Values in either are hex (6-digit), a 256-index integer
+  0–255, a var-ref to a declared var of that variant, or `""` (use pi's
+  default). Invalid tokens and values fail loudly, naming `.council.json`.
+- **Transitive recolor** — a `vars` override recolors every token whose
+  shipped value references that var (e.g. dark `vars.cyan` recolors
+  `borderAccent` and `bashMode`); a `colors` override pins that one token.
 - **Off switch** — presence implies enabled; remove the `theme` section
   or set `theme.enabled: false` to turn the council theme off.
 

@@ -36,5 +36,9 @@
 			"model": "openrouter/deepseek/deepseek-v4-pro",
 			"thinking": "high"
 		}
+	},
+	"theme": {
+		"enabled": true,
+		"variant": "auto"
 	}
 }
