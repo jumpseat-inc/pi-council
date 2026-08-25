@@ -6,7 +6,7 @@ aliases: [wiki, karpathy wiki, vault]
 tags: [pi-council/concept]
 sources: []
 created: 2026-08-23
-updated: 2026-08-24
+updated: 2026-08-25
 ---
 
 # LLM Wiki
@@ -24,11 +24,11 @@ It's edited (via `/wiki-*` procedures); never hand-edited by a seat.
 
 1. **`vault/raw/`** — immutable sources (articles, transcripts, rulings). Read
    only, never edit. Images in `vault/raw/assets/`.
-2. **`vault/wiki/`** — generated pages: `sources/<n></n> one per source; plus
-   flat entity/concept/comparison/overview/synthesis pages (Obsidian resolves
-   `links` by note title, not path).
-3. **`vault/CLAUDE.md`** — the schema/rules the maintainer follows ($LAYERS,
-   ops, page format). It is co-evolved with the human.
+2. **`vault/wiki/`** — generated pages: `sources/` — one summary page per
+   source; plus flat entity/concept/comparison/overview/synthesis pages
+   (Obsidian resolves `links` by note title, not path).
+3. **`vault/CLAUDE.md`** — the schema/rules the maintainer follows (Three
+   layers, ops, page format). It is co-evolved with the human.
 
 ## Page format (frontmatter)
 

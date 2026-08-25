@@ -6,7 +6,7 @@ aliases: [consolidator seat]
 tags: [pi-council/seat]
 sources: []
 created: 2026-08-23
-updated: 2026-08-23
+updated: 2026-08-25
 ---
 
 > ⚠️ Derived from `council/agents/consolidator.md` (captured 2026-08-23). Verify against the seat file.
@@ -23,7 +23,7 @@ three kinds:
 
 1. **Settled** — seats agreed, or a Skeptic test closed it (record the test and
    its result).
-2. **Open judgment** — no testing settles it (values/tradeoffs/tast); carries
+2. **Open judgment** — no testing settles it (values/tradeoffs/taste); carries
    forward to `product-owner`, escalating to `steward`.
 3. **Open objections** — a Skeptic objection whose settling test hasn't passed.
    Never downgraded to settled because time passed or it looked minor.

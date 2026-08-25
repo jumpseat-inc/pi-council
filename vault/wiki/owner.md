@@ -6,13 +6,12 @@ aliases: [owner seat]
 tags: [pi-council/seat]
 sources: [[2026-08-23-pi-council-design-spec]]
 created: 2026-08-23
-updated: 2026-08-23
+updated: 2026-08-25
 ---
 
 > ⚠️ Derived from `council/agents/owner.md` @ `df3...` (captured 2026-08-23). Verify against the seat file.
 
-**Model:** `openrouter/deepseek/deepseek-v4-flash-0731:high` (one of the two
-seat models pinned to `:high`).
+**Model:** `openrouter/deepseek/deepseek-v4-flash-0731:high`.
 **Tools:** Read, Grep, Glob, Edit, Write, Bash (full implementer).
 **MCP:** `[context7, tavily]`.
 **Superpowers pointers:** writing-plans, test-driven-development, using-git-worktrees,
@@ -29,7 +28,7 @@ never on `main`.
 
 When handed an agreed spec, the owner:
 
-1. turns it into a plan under `docs/sunny.../plans/`;
+1. turns it into a plan under `docs/superpowers/plans/`;
 2. implements the minimum that satisfies it — **no scope, no tall speculation**;
 3. clears all four gates **in order**: typecheck → tests (Mongo up) → real-data
    import smoke → boot + `/healthz` `ok`;

@@ -6,7 +6,7 @@ aliases: [preflight gate]
 tags: [pi-council/concept]
 sources: ["[[2026-08-24-ask-user-question]]"]
 created: 2026-08-23
-updated: 2026-08-24
+updated: 2026-08-25
 ---
 
 # Preflight
@@ -42,8 +42,9 @@ second council dependency (see [[council-dependencies]]).
 ## Contract
 
 `FAIL:` **halts the run** verbatim; the script prints no install steps (the
-facilitator's job is remediation). It's card-aware: an import-dataset check is
-skipped unless the card involves import.
+facilitator's job is remediation). It's card-aware: with a card id it verifies
+`council/cards/<id>.md` exists (the packaged template's comment invites
+project-specific extensions, but the shipped check is presence-only).
 
 ## Related
 

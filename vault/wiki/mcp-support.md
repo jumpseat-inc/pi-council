@@ -6,12 +6,12 @@ aliases: [mcp, model context protocol]
 tags: [pi-council/concept]
 sources: []
 created: 2026-08-23
-updated: 2026-08-23
+updated: 2026-08-25
 ---
 
 # MCP Support
 
-> ⚠️ Derived from `extensions/mcp/**` (index, config, auth-store, client, oauth, schema) (captured 2026-08-23). Verify against the source; mature subsystem (v0.22.0→v0.4.0).
+> ⚠️ Derived from `extensions/mcp/**` (index, config, auth-store, client, oauth, schema) (captured 2026-08-23). Verify against the source; mature subsystem (v0.2.0→v0.4.0).
 
 pi has no built-in MCP, so pi-council ships one. Seats can call tools from
 **registered, authenticated MCP servers** (Context7, Tavily, ...). This is the

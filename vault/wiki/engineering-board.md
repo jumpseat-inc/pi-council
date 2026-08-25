@@ -6,10 +6,10 @@ aliases: [board, card, kanban]
 tags: [pi-council/concept]
 sources: []
 created: 2026-08-23
-updated: 2026-08-23
+updated: 2026-08-25
 ---
 
-> ⚠️ Derived from `council/procedures/board-out-create-card.md`, `features-new.md` and `council/scaffold/council/board.md` @ `8913c6b`/`8f1882b` (captured 2026-08-23). Verify against the procedure files.
+> ⚠️ Derived from `council/procedures/board-create-card.md`, `features-new.md` and `council/scaffold/council/board.md` @ `8913c6b`/`8f1882b` (captured 2026-08-23). Verify against the procedure files.
 
 The board is the source of truth for what the Council is building. It is a git-tracked
 set of markdown files under `council/`:
@@ -22,7 +22,7 @@ set of markdown files under `council/`:
 
 ## Card frontmatter
 
-- `id` — globally unique, filename-matching; prefix `EV-` / `FULLWUP-` / `BUG-` / `EPIC-`, `[1-9]\d*`, no zero-lead.
+- `id` — globally unique, filename-matching; prefix `EV-` / `FLLWUP-` / `BUG-` / `EPIC-`, `[1-9]\d*`, no zero-lead.
 - `title`, `state` (one of `Backlog`, `Ready`, `Deliberating`, `In Progress`,
   `In Review`, `Needs Human`, `Done`), `owner`, `epic` (null or parent epic id),
   `goal`.

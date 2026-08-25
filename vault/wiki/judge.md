@@ -6,7 +6,7 @@ aliases: [judge seat]
 tags: [pi-council/seat]
 sources: []
 created: 2026-08-23
-updated: 2026-08-23
+updated: 2026-08-25
 ---
 
 > ⚠️ Derived from `council/agents/judge.md` (captured 2026-08-23). Verify against the seat file.
@@ -14,8 +14,8 @@ updated: 2026-08-23
 **Model:** `openrouter/qwen/qwen3.6-35b-a3b:medium`.
 **Tools:** Read, Bash (Write is deliberately absent — the judge never edits).
 **Superpowers pointers:** verification-before-completion only.
-**Deliberately NOT a Council seat** — it shares no context with the grabbers or
-the owner (fresh positive).
+**Deliberately NOT a Council seat** — it shares no context with the generators or
+the owner (fresh pair of eyes).
 
 ## Role
 

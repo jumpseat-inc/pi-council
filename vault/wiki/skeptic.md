@@ -6,7 +6,7 @@ aliases: [skeptic seat]
 tags: [pi-council/seat]
 sources: [[2026-08-23-pi-council-design-spec]]
 created: 2026-08-23
-updated: 2026-08-23
+updated: 2026-08-25
 ---
 
 > ⚠️ Derived from `council/agents/skeptic.md` (captured 2026-08-23). Verify against the seat file.
@@ -27,8 +27,8 @@ protect: the shared blind spots of a single model run.
 ## Objections and fairness
 
 - The Skeptic files only **falsifiable objections** — each must name the concrete,
-  runnable settling test (`bun test` file, `bun run import:PLN`, a requir/expected
-  response).
+  runnable settling test (`bun test` file, `bun run import:PLN`, a request and
+  an expected response).
 - When it raises an objection, it **runs the settling test itself**. If a test
   passes and the objection was wrong, it says so plainly (`closed-green`).
 - It has **standing to block** a card on red or unverified items.

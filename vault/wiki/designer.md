@@ -6,7 +6,7 @@ aliases: [designer seat]
 tags: [pi-council/seat]
 sources: []
 created: 2026-08-23
-updated: 2026-08-23
+updated: 2026-08-25
 ---
 
 > ⚠️ Derived from `council/agents/designer.md` (captured 2026-08-23). Verify against the seat file.
@@ -29,7 +29,7 @@ in front of the screen at the moment they need a charger.
   owner builds against.
 - **Cannot see the running interface** — no browser, no screenshot. Any claim
   about rendered appearance is a hypothesis it labels as one and hands to the
-  skeptor/owner as an out-of-band CDP smoke.
+  skeptic/owner as an out-of-band CDP smoke.
 - State which gulf a card widens/narrows; design the smallest change that closes
   a named gulf. A redesign where a signifier would do is **scope**.
 - **Escalate** to product-owner when the real dispute is worth-building or

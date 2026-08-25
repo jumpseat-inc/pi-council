@@ -6,7 +6,7 @@ aliases: [grounding block]
 tags: [pi-council/concept]
 sources: []
 created: 2026-08-23
-updated: 2026-08-23
+updated: 2026-08-25
 ---
 
 > ⚠️ Derived from `extensions/seats.ts` @ `7fa6ec9` + `docs` spec (captured 2026-08-23). Verify against `seats.ts` (`buildSystemPrompt`, `groundingBlock`).
@@ -26,7 +26,7 @@ prompt (after the seat body and `<council_runtime>`):
 
 This is deliberate design: seats are pointed at a **compiling knowledge store**
 (the wiki) rather than a re-loaded skill mechanism. The wiki is itself
-LLM-maintained; grounding flows through the ground shell and the wiki.
+LLM-maintained; grounding flows through the grounding block and the wiki.
 
 ## Consequences
 
