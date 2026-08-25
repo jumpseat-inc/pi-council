@@ -112,6 +112,40 @@ facilitator routes work between seats and never decides itself:
 wiki; rulings land in `vault/raw/` and get ingested, so decisions compound
 across cards instead of evaporating between sessions.
 
+### Theme customization
+
+The council ships an oh-my-pi-themed dark/light pair — `pi-council-dark` and
+`pi-council-light`. Recolor it per-repo from the committed `.council.json`,
+under a top-level `theme` key, a sibling of `council` (final shape owned by
+EV-2; this is the working proposal from the epic's design spec):
+
+```json
+{
+  "council": { "<seat>": { "model"?, "thinking"? }, ... },
+  "theme": {
+    "enabled": true,
+    "variant": "auto",
+    "overrides": { "accent": "#febc38" }
+  }
+}
+```
+
+- **Variant pinning** — `variant` is `auto`, `dark`, or `light`; `auto`
+  follows the terminal background and resolves to `pi-council-dark` /
+  `pi-council-light`. `/council-init` seeds the section non-clobberingly, so
+  `auto` is the default for fresh installs.
+- **Per-token overrides** — `overrides` is keyed by pi theme token names
+  (`accent`, `border`, …) with values in pi's accepted formats (hex,
+  256-index, var-ref, or `""`).
+- **Off switch** — presence implies enabled; remove the `theme` section
+  or set `theme.enabled: false` to turn the council theme off.
+
+> A non-built-in concrete theme in settings.json (e.g. `gruvbox`) wins; the
+> auto-follow pair and a persisted literal built-in `dark`/`light` — pi's
+> recorded auto-detect — do not block council activation. To turn the
+> council theme off, remove the `theme` section from `.council.json` or set
+> `theme.enabled: false`.
+
 ## Commands
 
 | Command                            | What it does                                                              |
