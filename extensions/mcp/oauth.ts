@@ -101,6 +101,15 @@ export class CouncilOAuthProvider implements OAuthClientProvider {
 	}
 
 	get redirectUrl(): string {
+		// Prefer a redirect URI the AS actually registered for this client. A
+		// persisted DCR client (e.g. from an earlier loopback login with an
+		// ephemeral port) has a fixed registered list; advertising a foreign URI
+		// (the remote constant, or a fresh ephemeral port) makes the AS reject
+		// with invalid_request "redirect_uri does not match". Copy-paste login
+		// works with ANY registered URI — it needn't be reachable.
+		const client = this.entry().client as { redirect_uris?: string[] } | undefined;
+		const registered = client?.redirect_uris;
+		if (registered && registered.length > 0) return registered[0];
 		return this.redirectUri;
 	}
 
@@ -179,8 +188,37 @@ export async function loginOAuth(repoRoot: string, serverName: string, opts: Log
 	const redirectUri = `http://127.0.0.1:${listener.port}/callback`;
 	const provider = new CouncilOAuthProvider(serverName, redirectUri, opts);
 	try {
+		// If a persisted client was registered for a different redirect URI (e.g. an
+		// earlier ephemeral loopback port), the AS would reject our fresh listener
+		// URI. When there's no refresh token to short-circuit phase 1, invalidate
+		// NOW so the browser opens once, with the correct URL. (A persisted client
+		// whose registered list happens to cover our URI is left alone.)
+		const existingClient = loadAuth().servers[serverName]?.oauth?.client as
+			| { redirect_uris?: string[] }
+			| undefined;
+		const existingTokens = loadAuth().servers[serverName]?.oauth?.tokens as
+			| { refresh_token?: string }
+			| undefined;
+		if (
+			existingClient?.redirect_uris?.length &&
+			!existingClient.redirect_uris.includes(redirectUri) &&
+			!existingTokens?.refresh_token
+		) {
+			provider.invalidateCredentials("client");
+		}
 		const first = await auth(provider, { serverUrl: cfg.url });
 		if (first === "AUTHORIZED") return `Already authenticated to "${serverName}".`;
+		// Refresh failed (a refresh token was present but is dead): if the persisted
+		// client is stale, force a fresh DCR registration and rebuild the URL.
+		if (
+			existingClient?.redirect_uris?.length &&
+			!existingClient.redirect_uris.includes(redirectUri) &&
+			existingTokens?.refresh_token
+		) {
+			provider.invalidateCredentials("client");
+			const rebuilt = await auth(provider, { serverUrl: cfg.url });
+			if (rebuilt !== "REDIRECT") throw new Error("OAuth flow did not reach REDIRECT after client re-registration.");
+		}
 		const code = await listener.waitForCode(opts.callbackTimeoutMs ?? 5 * 60_000);
 		const second = await auth(provider, { serverUrl: cfg.url, authorizationCode: code });
 		if (second !== "AUTHORIZED") throw new Error("OAuth flow did not reach AUTHORIZED state.");

@@ -23,6 +23,9 @@ export interface OAuthFixture {
  */
 export async function startOAuthFixture(): Promise<OAuthFixture> {
 	let codeChallenge = "";
+	// Clerk-style: DCR echoes back the client's redirect_uris, and /authorize +
+	// /token validate the redirect_uri against that registered list.
+	let registeredRedirectUris: string[] = [];
 
 	const as = http.createServer((req, res) => {
 		const url = new URL(req.url ?? "/", `http://${req.headers.host ?? "127.0.0.1"}`);
@@ -33,6 +36,14 @@ export async function startOAuthFixture(): Promise<OAuthFixture> {
 		if (req.method === "GET" && url.pathname === "/authorize") {
 			codeChallenge = url.searchParams.get("code_challenge") ?? "";
 			const redirectUri = url.searchParams.get("redirect_uri") ?? "";
+			if (registeredRedirectUris.length > 0 && !registeredRedirectUris.includes(redirectUri)) {
+				send(400, {
+					error: "invalid_request",
+					error_description:
+						"The 'redirect_uri' parameter does not match any of the OAuth 2.0 Client's pre-registered redirect urls.",
+				});
+				return;
+			}
 			const state = url.searchParams.get("state") ?? "";
 			res.writeHead(302, { Location: `${redirectUri}?code=test-code&state=${encodeURIComponent(state)}` });
 			res.end();
@@ -52,7 +63,19 @@ export async function startOAuthFixture(): Promise<OAuthFixture> {
 			return;
 		}
 		if (req.method === "POST" && url.pathname === "/register") {
-			send(201, { client_id: "test-client-id", redirect_uris: [] });
+			let body = "";
+			req.on("data", (c) => (body += c));
+			req.on("end", () => {
+				try {
+					registeredRedirectUris = (JSON.parse(body).redirect_uris ?? []) as string[];
+				} catch {
+					registeredRedirectUris = [];
+				}
+				send(201, {
+					client_id: "test-client-id",
+					redirect_uris: registeredRedirectUris,
+				});
+			});
 			return;
 		}
 		if (req.method === "POST" && url.pathname === "/token") {
@@ -61,12 +84,17 @@ export async function startOAuthFixture(): Promise<OAuthFixture> {
 			req.on("end", () => {
 				const params = new URLSearchParams(body);
 				const grant = params.get("grant_type");
-				if (grant === "authorization_code") {
-					const verifier = params.get("code_verifier") ?? "";
-					if (params.get("code") !== "test-code" || s256(verifier) !== codeChallenge) {
-						send(400, { error: "invalid_grant" });
-						return;
-					}
+			if (grant === "authorization_code") {
+				const verifier = params.get("code_verifier") ?? "";
+				const redirectUri = params.get("redirect_uri") ?? "";
+				if (
+					params.get("code") !== "test-code" ||
+					s256(verifier) !== codeChallenge ||
+					(registeredRedirectUris.length > 0 && !registeredRedirectUris.includes(redirectUri))
+				) {
+					send(400, { error: "invalid_grant" });
+					return;
+				}
 					send(200, { access_token: "acc-1", token_type: "Bearer", expires_in: 3600, refresh_token: "ref-1" });
 				} else if (grant === "refresh_token") {
 					if (params.get("refresh_token") !== "ref-1") {
