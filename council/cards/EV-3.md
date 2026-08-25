@@ -69,4 +69,13 @@ All three generators converged on the mechanism: new module (owner `extensions/t
 5. **Card-text correction** — acceptance line "getThemeByName resolves materialized theme" is not satisfiable under in-memory; correct the card text to the settled assertion.
 
 ### Notes in the card record
-- Designer's `vault/raw/2026-08-25-design-ev3.md` carries falsifiable CDP-smoke predictions; those P1–P8 are inputs a Skeptic can run, never gate assertions.
+- Designer's `vault/raw/2026-08-25-design-ev3.md` (R1, P1–P8) and `vault/raw/2026-08-25-design-ev3-round2.md` (R2, P22–P36) carry falsifiable CDP-smoke predictions; those are inputs a Skeptic can run, never gate assertions.
+
+### Round 2 — bounded exchange (owner / principal / designer)
+
+All five disputes settled; positions stabilised (used 2 of ≤3 rounds, no round 3).
+1. Block predicate (D1) — settled, strict whitelist. Activate iff raw settings `theme` value ∈ {undefined, "light/dark", "dark", "light"}; everything else incl. a custom `A/B` pair like "nord-light/nord-dark" blocks (row d). Must NOT route through `parseAutoThemeSetting` (inverts any A/B into an auto pair). If a string with "/" appears it is a concrete named arrangement → block.
+2. Auto-variant (D2) — settled: env heuristic; the `ui.theme` pre-read is retracted (Theme.getColorMode() returns color depth, not the dark/light variant). Chain: config variant pin → env COLORFGBG luminance (sync terminalThemeFromEnv) → "dark"; the state-(c) settings literal activates directly via the whitelist, not as a fallback step. Documented non-gating caveat: env heuristic mirrors pi's sync fallback only.
+3. Notify (D3) — settled, in-scope, non-gating: info on activate (council theme: pi-council-{variant}), warning on block (council theme: blocked (settings.json has '{raw}')), silent on no-section. Thin removable layer.
+4. Construction (D4) — settled: in-memory, no tempfile (spec §4's "writes nothing to disk" is strict; loadThemeFromPath is not publicly reachable). Reimplement withThemeColorFallbacks + resolveThemeColors + 8 bg-key split, then new Theme(fg,bg,mode), ui.setTheme(instance). Ground-truth ANSI smoke in test/theme-loader.ts deep import, both truecolor and 256color, mode from getCapabilities().trueColor.
+5. Card-text (D5) — settled: acceptance line "getThemeByName resolves materialized theme" is a false contract and is DELETED. Corrected acceptance: (i) activated instance's resolved colors match merge→resolve of (loadShippedTheme(variant), section[variant]); (ii) namespace: getThemeByName("pi-council-dark") after activation still returns EV-1's shipped un-merged palette. Name-based surfaces (getResolvedThemeColors(name), HTML export, /settings) are an explicit non-goal, deferred to EV-4.
