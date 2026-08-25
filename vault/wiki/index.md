@@ -33,7 +33,8 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[council-dependencies]] — The packages /council-init pins project-locally and preflight enforces (superpowers + ask-user-question).
 - [[ask-user-question]] — The rpiv-ask-user-question extension: a human-in-the-loop question tool for the parent session.
 - [[hub-job-supervision]] — The job table + spawn/monitor/stall-kill engine and 3 council tools.
-- [[mcp-support]] — Model Context Protocol servers, auth, and seat grants (tools only).
+- [[mcp-support]] — Model Context Protocol servers, auth (loopback or copy-paste remote login), and seat grants (tools only).
+- [[remote-oauth-login]] — The copy-paste OAuth pattern for headless/remote agents: print the URL, paste the redirect back, PKCE makes it safe without tunnels.
 - [[preflight]] — The card-aware, fail-fast shell+script gate before every run.
 - [[llm-wiki]] — The persistent, compounding knowledge base (sources → wiki → schema).
 - [[council-config]] — The committed `.council.json`; field-level per-seat model/thinking override, scaffold-seeded.
@@ -60,4 +61,5 @@ _(none yet)_
 - [[2026-08-24-unattended-smoke-test-design]] — Design of the v0.10.0 unattended smoke test: container, fixture, phases, hard-fail contract.
 - [[2026-08-24-unattended-smoke-test-plan]] — Six-task runbook that built the smoke test (fixture, image, driver, costing tasks).
 - [[2026-08-25-smoke-test-bugfixes]] — The three production bugs the smoke caught (headless dispatch, MCP startup, hub-tool allowlist) + v0.10.0 release.
+- [[2026-08-25-remote-mcp-oauth]] — V0.11.0: two-phase copy-paste remote OAuth login (/mcp login --remote + /mcp auth), persisted PKCE verifier, headless auto-detection.
 

@@ -12,7 +12,8 @@ updated: 2026-08-25
 # Headless Pi
 
 The rules that govern pi when there is no human at the keyboard — the substrate
-[[smoke-test]] drives, and the source of two bugs fixed in v0.10.0.
+[[smoke-test]] drives, the source of two bugs fixed in v0.10.0, and the
+environment [[remote-oauth-login]]'s headless auto-detection reads.
 
 ## Modes
 
@@ -54,8 +55,9 @@ headlessly before v0.10.0.
 ## Related
 
 - [[smoke-test]] — the consumer of these rules
+- [[remote-oauth-login]] — the copy-paste OAuth pattern for headless agents (the auth half of operating headless)
 - [[procedure-commands]], [[seats]]
-- [[2026-08-25-smoke-test-bugfixes]]
+- [[2026-08-25-smoke-test-bugfixes]], [[2026-08-25-remote-mcp-oauth]]
 
 ## Sources
 

@@ -1,3 +1,24 @@
+## [2026-08-25] ingest | Remote MCP OAuth login (v0.11.0)
+Ingested the v0.11.0 remote-login feature: the two-phase copy-paste OAuth flow
+for headless/remote agents (/mcp login --remote prints the authorization URL;
+/mcp auth <name> <pasted-url> exchanges the code). The crux: the PKCE verifier
+moved from an in-memory provider field to the persisted auth store
+(oauth.verifier, single-use), making the flow divisible across two commands.
+No tunnels — fixed 127.0.0.1:8765 loopback URI + PKCE (code useless without
+the verifier, which never leaves the agent machine). Auto-detects headless via
+SSH_TTY / no DISPLAY; --remote/--local override.
+- **Created:** sources/2026-08-25-remote-mcp-oauth, concept remote-oauth-login
+  (the pattern generalizes beyond MCP — the user's own cross-agent workflow).
+- **Updated:** mcp-support (command surface + verifier schema + two-phase flow
+  + security correction), pi-council-overview (v0.11.0 row + commit count
+  75→76), headless-pi (auth-half cross-link), index.
+- **Contradictions flagged:** mcp-support claimed the OAuth callback "validates
+  state" — the code never did (loopback listener extracts only code; `state`
+  in oauth.ts is discovery state). Corrected to match code; the paste path
+  scopes state validation out. Also corrected mcp-support's stale version
+  lineage (was v0.2.0→v0.4.0, now through v0.11.0). Reconciled, not silently
+  overwritten.
+
 <!-- Append-only. Newest entries at top. Format: ## [YYYY-MM-DD] <op> | <title> -->
 
 ## [2026-08-25] lint | Wiki lint pass + run-transcripts page

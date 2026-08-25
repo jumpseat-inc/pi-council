@@ -9,7 +9,7 @@ created: 2026-08-23
 updated: 2026-08-25
 ---
 
-`pi-council` (v0.10.0) is an installable [pi](https://pi.dev) package, distributed
+`pi-council` (v0.11.0) is an installable [pi](https://pi.dev) package, distributed
 as `pi install git:github.com/tistaharahap/pi-council`. Installing it once and
 running `/council-init` gives **any** repository the same opinionated workflow:
 a facilitator-driven Council of specialized seats that deliberates, implements,
@@ -44,7 +44,7 @@ See [[council-loop]], [[engineering-board]], and the nine [[seats]]+s.
 ## Versions
 
 The release arc (from the git log on `main`) shows how quickly the engine
-matured — roughly 75 commits, following **[Conventional Commits]** with the
+matured — roughly 76 commits, following **[Conventional Commits]** with the
 `version` bumped in the same commit as each behavior change:
 
 | Version | What landed | See |
@@ -61,6 +61,7 @@ matured — roughly 75 commits, following **[Conventional Commits]** with the
 | v0.8.0 | **ask-user-question dependency** — second project-local pin, generalized `COUNCIL_DEPENDENCIES` list + preflight gate | [[council-dependencies]] |
 | v0.9.0 | **Council transcript navigator** — job forest from run manifests, live transcript viewer overlay | [[hub-job-supervision]] |
 | v0.10.0 | **Unattended smoke test** + 3 engine bugfixes: headless-safe procedure dispatch, MCP startup hardening, hub tools exposed to seat children | [[smoke-test]], [[2026-08-25-smoke-test-bugfixes]] |
+| v0.11.0 | **Remote MCP OAuth login** — two-phase copy-paste flow (`/mcp login --remote` + `/mcp auth`), persisted PKCE verifier, headless auto-detection; no tunnels | [[remote-oauth-login]], [[2026-08-25-remote-mcp-oauth]] |
 
 The wiki scaffold shipped in the same commit as the council scaffold — the
 wiki is not an add-on. The full arc and commit-message discipline live in the
@@ -74,6 +75,7 @@ git log; this table is a secondary summary that can drift.
 - [[council-loop]] — the deliberation → implement → verify → judge procedure
 - [[llm-wiki]] — the schema pattern the vault follows
 - [[mcp-support]], [[hub-job-supervision]], [[headless-pi]] — the engine subsystems
+- [[remote-oauth-login]] — the v0.11.0 copy-paste OAuth pattern for headless agents
 
 ## Sources
 
