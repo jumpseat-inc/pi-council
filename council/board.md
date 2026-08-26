@@ -15,11 +15,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Ready
 
-- EV-8 — Bidirectional arrow-key focus navigation between the input bar and the inline tree
 - EV-9 — Open the selected subagent's progress from the inline tree
 
 ## Deliberating
 
+- EV-8 — Bidirectional arrow-key focus navigation between the input bar and the inline tree
 
 ## In Progress
 
