@@ -1,7 +1,7 @@
 ---
 id: EV-9
 title: Open the selected subagent's progress from the inline tree
-state: Deliberating
+state: In Progress
 owner: null
 epic: EPIC-2
 goal: Pressing enter on the selected row of the inline tree opens that subagent's live progress view with the same streaming transcript content the modal viewer shows today, and closing it returns focus to the tree with the selection preserved
@@ -105,3 +105,19 @@ Hand-to-owner recommendation: rule tiny-regime first, then owner TDD-fails-first
 ### Open judgment routed to product-owner (step 6)
 
 The consolidator sorted ONE open-judgment item requiring a ruling: the termRows ≤ 6 tiny-regime viewport behavior (O1-fix is blocked until ruled). Per escalation contract step 1, checked Phase 1 rulings (EV-9 R1 inline-bounded, EV-7 R1 last-activity→designer, OV-1 coexist, OV-2 RPC guard, PO EV-8 editor-driven) — NONE cover the tiny-regime floor. Not re-asked; routed per contract step 2 → ESCALATION to orchestrator. No recommendation carried. Card held in Deliberating pending the ruling (do not advance to step 7 spec write until ruled).
+
+### Step 6 resolution — product-owner ruling (verbatim, binding on all seats including steward)
+
+**Ruling (EV-9 viewport floor):** Choose **option (a), silent variant, with the minimum supported terminal height pinned at 7 rows**. At `termRows ≤ 6`, Enter on a highlighted tree row is consumed as a no-op: `controller.surface` stays `"tree"`, no progress viewport opens, no separator row, the tree rows remain visible (`treeLines ≥ 1`). Esc continues to do the right thing. At `termRows ≥ 7`, the existing two-regime formula runs as designed. Implemented as a single guard `if (termRows < 7) return;` at the top of the controller's `enterProgress(sid)`. Source document: `vault/raw/2026-08-26-po-ev9-tiny-regime-floor.md`.
+
+**Options rejected:** (b) Shrink the floor / admit a sub-1 progress band — incoherent (progress is integer rows); compression breaks binding constraints (Phase 1 tree-rows-visible, platform chrome, separator). (a) with single-line overflow indicator variant — infeasible at termRows<=6 (treeLines≥1 + footer 1 = 2 > avail=1).
+
+**Grounding:** invariant is non-negotiable (settled across three seats); O1 closed-red is a fact at termRows<=6. Phase 1 ruling forbids chrome/floor compression. Platform floor: navigator.ts:416,651 already enforces `termRows = Math.max(10, ...)` for the modal — an explicit refusal-to-render at degenerate heights; `7` is the natural breakpoint (designer's tiny-regime entry `avail < 7`).
+
+**OUT OF SCOPE BUT FLAGGED (owner responsibility in the SPE-9 spec, NOT this ruling):** the formula's UPPER-bound invariant violation at `termRows ∈ {7..11}` — the pinned case `(8,5)→(1,2)` overflows `avail=3`, and `(12,8)→(3,3)`, `(40,11)` correctly. This was not surfaced by the consolidator. The owner MUST address this in the spec write so the whole formula is consistent, not just the lower bound this ruling fixes. Carry this explicitly into step 7.
+
+**Reversibility:** Low. One guard + three tests.
+
+---
+
+**Step 7 (this run):** The owner MUST write the settled design spec at `docs/superpowers/specs/2026-08-26-EV-9-design.md` including the ruling's floor guard AND an addressed upper-bound fix for `termRows ∈ {7..11}`. See the facilitator log in EPIC-2 step-7 spec file.

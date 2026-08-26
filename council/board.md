@@ -17,9 +17,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- EV-9 — Open the selected subagent's progress from the inline tree
-
 ## In Progress
+
+- EV-9 — Open the selected subagent's progress from the inline tree
 
 ## In Review
 

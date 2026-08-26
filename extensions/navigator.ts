@@ -4,7 +4,15 @@ import { Key, matchesKey, truncateToWidth, visibleWidth, wrapTextWithAnsi, type 
 import { findSessionFile, listRunIds, readManifests } from "./runs.ts";
 import { buildTree, flattenTree, textTree, type TreeNode } from "./tree.ts";
 import { lastActivity, TranscriptTail, type TranscriptBlock } from "./transcript.ts";
-import { TreeFocusState, installTreeEditor, restoreTreeEditor, TREE_ROW_MARKER } from "./focus-nav.ts";
+import {
+	TreeFocusState,
+	installTreeEditor,
+	restoreTreeEditor,
+	TREE_ROW_MARKER,
+	computeProgressLayout,
+	PROGRESS_CHROME,
+	DISPLAY_FLOOR,
+} from "./focus-nav.ts";
 
 export const TREE_SHORTCUT = "ctrl+shift+t";
 
@@ -296,15 +304,30 @@ export class CouncilTreeWidget implements Component {
 	private cached?: { w: number; sig: string; lines: string[] };
 	private now: () => number;
 	private controller?: TreeFocusState;
+	/** EV-9: captured terminal height used by floor guard + progress layout. */
+	private termRowsCap = 24;
+	/** EV-9: harness render tick (transcript appends request a repaint). */
+	private onRender?: () => void;
+	/** EV-9: live inline TranscriptView for the selected session. */
+	private viewFor?: { sessionId: string; view: TranscriptView };
 
 	constructor(
 		private repoRoot: string,
 		private currentRunId: () => string | undefined,
 		private theme: NavTheme,
-		opts: { now?: () => number; controller?: TreeFocusState } = {},
+		opts: {
+			now?: () => number;
+			controller?: TreeFocusState;
+			/** EV-9: captured terminal height (mirrors the modal's Math.max capture). */
+			termRowsCap?: number;
+			/** EV-9: harness render tick (view.onChange → refresh + this). */
+			onRender?: () => void;
+		} = {},
 		maxRows = ROWS_MAX,
 	) {
 		this.controller = opts.controller;
+		this.termRowsCap = opts.termRowsCap ?? 24;
+		this.onRender = opts.onRender;
 		this.now = opts.now ?? Date.now;
 		this.refresh();
 	}
@@ -368,7 +391,8 @@ export class CouncilTreeWidget implements Component {
 	}
 
 	render(width: number): string[] {
-		const sig = `${this.controller?.surface ?? "editor"}:${this.controller?.selectedSessionId ?? ""}`;
+		const surface = this.controller?.surface ?? "editor";
+		const sig = `${surface}:${this.controller?.selectedSessionId ?? ""}`;
 		if (this.cached?.w === width && this.cached.sig === sig) return this.cached.lines;
 		const ordered = [...this.rows].sort(
 			(a, b) => (STATE_ORDER[stateOf(a.node)] ?? 99) - (STATE_ORDER[stateOf(b.node)] ?? 99),
@@ -376,6 +400,22 @@ export class CouncilTreeWidget implements Component {
 		// EV-8: keep the controller's row list (sessionId order) in sync so the
 		// editor's arrow routing and the highlighted row share one source (O6).
 		this.controller?.setRows(ordered.map(({ node }) => node.manifest.sessionId));
+		const avail = Math.max(1, this.termRowsCap - PROGRESS_CHROME);
+		let lines: string[];
+		if (surface === "progress" && this.termRowsCap >= DISPLAY_FLOOR) {
+			// EV-9: inline progress expansion — stacked tree rows + separator + transcript.
+			lines = this.renderProgress(width, ordered);
+		} else {
+			// EV-7/EV-8 tree surface (editor or tree focus); cap to the physical
+			// below-chrome budget so a tiny terminal never overflows avail.
+			lines = this.renderTree(width, ordered);
+			if (lines.length > avail) lines = lines.slice(0, avail);
+		}
+		this.cached = { w: width, sig, lines };
+		return lines;
+	}
+
+	private renderTree(width: number, ordered: Array<{ node: TreeNode }>): string[] {
 		const lines: string[] = [];
 		if (ordered.length === 0) {
 			lines.push(this.theme.fg("dim", "no council jobs this session"));
@@ -395,8 +435,53 @@ export class CouncilTreeWidget implements Component {
 			}
 		}
 		lines.push(this.theme.fg("dim", "up/down move · enter view · /council-tree to close"));
-		this.cached = { w: width, sig, lines };
 		return lines;
+	}
+
+	/** EV-9: stacked tree rows + separator (yields at the hard floor) + progress lines. */
+	private renderProgress(width: number, ordered: Array<{ node: TreeNode }>): string[] {
+		const layout = computeProgressLayout(this.termRowsCap, ordered.length);
+		const tree = ordered.slice(0, layout.treeLines).map(({ node }) => truncateToWidth(this.rowLine(node), width));
+		const sep = layout.sepLines > 0 ? [truncateToWidth(this.theme.fg("dim", "── progress ──────────────"), width)] : [];
+		const view = this.controller?.selectedSessionId ? this.ensureView(layout.progressLines) : undefined;
+		const viewLines = view ? view.render(width).slice(0, layout.progressLines) : [];
+		return [...tree, ...sep, ...viewLines];
+	}
+
+	/** Build (once per selected session) the live TranscriptView; installs it as viewHost. */
+	private ensureView(viewportRows: number): TranscriptView | undefined {
+		const sid = this.controller?.selectedSessionId ?? null;
+		if (!sid) return undefined;
+		if (this.viewFor?.sessionId === sid) return this.viewFor.view;
+		const runId = this.currentRunId() ?? "";
+		const file = findSessionFile(this.repoRoot, runId, sid);
+		const node = this.rows.find((r) => r.node.manifest.sessionId === sid);
+		const title = node ? `${node.node.manifest.id} ${node.node.manifest.seat}` : sid;
+		const view = new TranscriptView(file, this.theme, title, Math.max(1, viewportRows), () => {
+			/* surface close handled via backFromProgress; not a modal close */
+		});
+		view.setOnChange(() => {
+			// O5: refresh() (re-read rows + clear cache), NOT invalidate() alone, so a
+			// new job landing during progress reappears on the next render.
+			this.refresh();
+			this.onRender?.();
+		});
+		if (this.controller) this.controller.viewHost = { handleInput: (d: string) => view.handleInput(d) };
+		this.viewFor = { sessionId: sid, view };
+		return view;
+	}
+
+	/** The live inline transcript view, for parity/teardown tests. */
+	get activeTranscriptView(): TranscriptView | undefined {
+		return this.viewFor?.view;
+	}
+
+	/** EV-9: clear both clocks — the widget's view owns the 1s transcript timer. */
+	dispose(): void {
+		const v = this.viewFor?.view;
+		this.viewFor = undefined;
+		if (this.controller) this.controller.viewHost = null;
+		v?.dispose();
 	}
 
 	invalidate(): void {
@@ -491,7 +576,15 @@ export function registerNavigator(pi: ExtensionAPI, repoRoot: string, currentRun
 		ctx.ui.setWidget(
 			COUNCIL_TREE_WIDGET_KEY,
 			(tui: any, theme: NavTheme) => {
-				const widget = new CouncilTreeWidget(repoRoot, currentRunId, theme, { controller: treeController! });
+				const termRowsCap = Math.max(1, tui?.terminal?.rows ?? 24);
+				if (treeController) treeController.termRowsCap = termRowsCap;
+				const widget = new CouncilTreeWidget(repoRoot, currentRunId, theme, {
+					controller: treeController!,
+					termRowsCap,
+					onRender: () => tui?.requestRender?.(),
+				});
+				// EV-9 dual clocks: 2s tree refresh here, 1s transcript tail inside the
+				// inline view. BOTH cleared in dispose (T10).
 				const timer = setInterval(() => {
 					widget.refresh();
 					tui?.requestRender?.();
@@ -499,7 +592,10 @@ export function registerNavigator(pi: ExtensionAPI, repoRoot: string, currentRun
 				return {
 					render: (w: number) => widget.render(w),
 					invalidate: () => widget.invalidate(),
-					dispose: () => clearInterval(timer),
+					dispose: () => {
+						clearInterval(timer);
+						widget.dispose();
+					},
 				};
 			},
 			{ placement: "belowEditor" },
