@@ -19,9 +19,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- EV-8 — Bidirectional arrow-key focus navigation between the input bar and the inline tree
-
 ## In Progress
+
+- EV-8 — Bidirectional arrow-key focus navigation between the input bar and the inline tree
 
 
 ## In Review
