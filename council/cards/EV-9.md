@@ -29,6 +29,16 @@ state on close.
 
 Depends on EV-7 and EV-8.
 
+## Phase 1 rulings (binding, immutable for EPIC-2)
+
+1. **Progress renders inline, as an expansion of the tree panel's region.**
+   The selected subagent's live progress view (TranscriptView content
+   contract: same streaming blocks, expand, thinking, follow) is rendered
+   inline in the below-editor region as an expansion of the tree panel,
+   not as the full-screen modal overlay. The tree panel and its rows stay
+   visible above the progress expansion. The driver comes back to the
+   tree with the selection intact. (Orchestrator Phase 1, 2026-08-26.)
+
 ## Acceptance
 
 - Enter on a highlighted running job shows its transcript streaming live

@@ -45,3 +45,13 @@ This card is display-only: focus and key navigation belong to EV-8.
 - Render tests cover the new row format and the last-activity text against
   fixture manifests and transcripts; `bun test` and `bunx tsc --noEmit`
   pass.
+
+## Phase 1 rulings (binding, immutable for EPIC-2)
+
+1. **Last-activity copy delegates to the designer.** The card's own wording
+   stands — "the council picks the source and the exact copy, and the
+   designer seat decides how it reads at a glance." No Phase 1 ruling fixes
+   a format. A runner applies this card's intent as-is; the designer's
+   glance decision is final unless the designer itself raises a dispute,
+   which routes per the EPIC-2 judgment table. (Orchestrator Phase 1,
+   2026-08-26.)
