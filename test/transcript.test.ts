@@ -2,7 +2,7 @@ import { test, expect } from "bun:test";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import { parseTranscript, TranscriptTail } from "../extensions/transcript.ts";
+import { lastActivity, parseTranscript, TranscriptTail } from "../extensions/transcript.ts";
 
 const HEADER = `{"type":"session","version":3,"id":"job-1","timestamp":"t","cwd":"/x"}`;
 const USER = `{"type":"message","id":"1","parentId":null,"timestamp":"t","message":{"role":"user","content":[{"type":"text","text":"do it"}]}}`;
@@ -29,7 +29,34 @@ test("parseTranscript tolerates a trailing partial line", () => {
 	expect(blocks.map((b) => b.kind)).toEqual(["user"]);
 });
 
-test("TranscriptTail returns only new blocks per poll and buffers partials", () => {
+const ISO_USER = `{"type":"message","id":"1","parentId":null,"timestamp":"2026-01-01T00:00:00.000Z","message":{"role":"user","content":[{"type":"text","text":"do it"}]}}`;
+const ISO_RESULT = `{"type":"message","id":"3","parentId":"2","timestamp":"2026-01-01T00:00:00.050Z","message":{"role":"toolResult","toolCallId":"c1","toolName":"bash","content":[{"type":"text","text":"a.txt\\nb.txt"}],"isError":false}}`;
+
+// EV-7: `at` is the ISO timestamp threaded through parseTranscript (falls back to message.timestamp).
+test("parseTranscript preserves ISO at on each block", () => {
+	const parsed = parseTranscript(ISO_USER + "\n" + ISO_RESULT);
+	const user = parsed[0];
+	const result = parsed[1];
+	expect(user.at).toBe(Date.parse("2026-01-01T00:00:00.000Z"));
+	expect(result.at).toBe(Date.parse("2026-01-01T00:00:00.050Z"));
+});
+
+test("lastActivity returns the max-at block; NaN-stamped fixtures have no last block", () => {
+	const iso = parseTranscript(ISO_USER + "\n" + ISO_RESULT);
+	expect(lastActivity(iso)?.kind).toBe("toolResult");
+	const nanStamped = parseTranscript([HEADER, USER, ASSISTANT, RESULT].join("\n"));
+	expect(lastActivity(nanStamped)).toBeUndefined();
+});
+
+// keeps the `at` surface out of the live-tail path that only reads new bytes
+test("TranscriptTail blocks carry at", () => {
+	const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "council-tail-at-")), "s.jsonl");
+	fs.writeFileSync(file, HEADER + "\n" + ISO_USER.replace("2026-01-01T00:00:00.000Z", "2026-01-01T00:00:30.000Z") + "\n");
+	const tail = new TranscriptTail(file);
+	expect(tail.poll()[0].at).toBe(Date.parse("2026-01-01T00:00:30.000Z"));
+});
+
+test("TranscriptTail tolerates only new blocks and buffers partials", () => {
 	const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "council-tail-")), "s.jsonl");
 	fs.writeFileSync(file, HEADER + "\n" + USER + "\n");
 	const tail = new TranscriptTail(file);
