@@ -157,6 +157,61 @@ GLANCE snippet the owner implements from." **GLANCE DESIGN**:
 - **Coexist (design log, engine call):** when the tree is open it takes the
   glance role; the above-editor widget shows when closed. Not a designer
   ruling; logged as a preference, the council routes it (Q2).
+### Round 2 Skeptic (step 4)
+
+**Baseline:** `bunx tsc --noEmit` PASS (no type errors). `bun test` 226 pass,
+2 skip, 0 fail.
+
+**Current-code claim checks (probes actually run):**
+- C1 closed-green: `RunManifest` (`extensions/runs.ts:16-26`) has only
+  `startedAt`, `settledAt` — no `lastActivityAt`; hub in-memory `Job`
+  (`hub.ts:35`) has it but `writeJobManifest` never serializes it
+  (`hub.ts:113-125`).
+- C2 closed-green: `TranscriptBlock` (`transcript.ts:4-10`) has no `at`/
+  `timestamp`; `parseTranscript` reads `e.type`, `e.message.role`, etc.
+  but never `e.timestamp` (`transcript.ts:20-57`). Probe: 3 blocks parsed,
+  zero carry timestamp.
+- C3 closed-green: EV-4 §8 rejection was scoped to the widget (plain-string
+  `widgetLines` in `index.ts`); the tree path (`ctx.ui.custom` overlay) is
+  unaffected; `theme-repaint.test.ts` proves the overlay component receives
+  the live theme Proxy.
+- C4 closed-red (pre-existing latent bug, not this card): `hasUI()` returns
+  `true` in RPC (`runner.js:274-276`: RPC passes a real ExtensionUIContext,
+  not noOpUIContext). Current `/council-tree` (`navigator.ts:57`) checks
+  `!ctx.hasUI` → enters TUI path → `ctx.ui.custom()` returns `undefined`
+  silently in RPC: no output, no error. EV-7's `ctx.mode === "tui"` guard is
+  the correct fix.
+- API: `ctx.ui.setWidget` (string[] and factory overloads) exists
+  (`types.d.ts:97-98`); `{ placement:"belowEditor" }` valid
+  (`types.d.ts:43`); factory `dispose()` called on `setWidget(key,undefined)`
+  and by `clearExtensionWidgets()` (`interactive-mode.js:1715-1724`).
+
+**Objections and results:**
+- O1 — small.crit: my step-4 input phrasing "setGlobal" does not exist in pi;
+  correct API is `setWidget` (the seats' actual recommendation). closed-green
+  semantically (facilitator transcription slip; design intent = setWidget).
+- O2 closed-green: extending `TranscriptBlock.at` touches `TranscriptView`
+  (`navigator.ts:130-216`), `parseTranscript`, `TranscriptTail`, 4 test
+  files; all fixtures use `"timestamp":"t"` → `Date.parse("t")`=NaN — NaN
+  fallback mandatory, not optional. Design already specifies it.
+- O3 closed-green: factory component reads live theme Proxy at render time;
+  `CouncilTree` width cache goes stale on theme swap unless `invalidate()`
+  called; design's 2s refresh calls `refresh()` → `cached=undefined` →
+  repaint with new tokens. `theme-repaint.test.ts` already green.
+- O4 open-untested (block-to-confirm): `session_shutdown` handler
+  (`index.ts:121-128`) currently does NOT call `setWidget(key, undefined)`;
+  pi's internal `clearExtensionWidgets()` covers same-session teardown, but
+  the extension should call `setWidget("council-tree", undefined)`
+  explicitly per the design. Confirm against the branch.
+- O5 open-untested (block-to-confirm): implementation must guard on
+  `ctx.mode === "tui"` (not `!ctx.hasUI`) so RPC routes to console textTree;
+  current `navigator.ts:57` uses the buggy `hasUI`. Confirm against branch.
+- O6 closed-green: `MAX_WIDGET_LINES=10` constraint absorbed — `CouncilTree`
+  already has viewport windowing (`navigator.ts:92-105`) + `… N more`.
+
+**Verdict: no blocks.** All objections closed-green or open-untested with
+defined settling tests for step 9.
+
 ## Phase 1 rulings (binding, immutable for EPIC-2)
 
 1. **Last-activity copy delegates to the designer.** The card's own wording
