@@ -1,7 +1,7 @@
 ---
 id: EV-8
 title: Bidirectional arrow-key focus navigation between the input bar and the inline tree
-state: In Progress
+state: Done
 owner: null
 epic: EPIC-2
 goal: While the inline tree is visible, pressing down from the focused input bar moves keyboard focus into the tree, up and down move the highlighted selection across rows, and pressing up on the topmost row returns focus to the input bar

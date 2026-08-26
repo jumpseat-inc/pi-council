@@ -21,9 +21,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-8 — Bidirectional arrow-key focus navigation between the input bar and the inline tree
-
-
 ## In Review
 
 
@@ -31,6 +28,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Needs Human
 
 ## Done
+
+- EV-8 — Bidirectional arrow-key focus navigation between the input bar and the inline tree
 
 - EV-7 — Render the job tree inline beneath the input bar with per-row last activity
 
