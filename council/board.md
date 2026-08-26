@@ -19,7 +19,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-9 — Open the selected subagent's progress from the inline tree
 
 ## In Review
 
@@ -28,6 +27,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Needs Human
 
 ## Done
+
+- EV-9 — Open the selected subagent's progress from the inline tree
 
 - EV-8 — Bidirectional arrow-key focus navigation between the input bar and the inline tree
 

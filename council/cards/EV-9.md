@@ -1,7 +1,7 @@
 ---
 id: EV-9
 title: Open the selected subagent's progress from the inline tree
-state: In Progress
+state: Done
 owner: null
 epic: EPIC-2
 goal: Pressing enter on the selected row of the inline tree opens that subagent's live progress view with the same streaming transcript content the modal viewer shows today, and closing it returns focus to the tree with the selection preserved
@@ -121,3 +121,36 @@ The consolidator sorted ONE open-judgment item requiring a ruling: the termRows 
 ---
 
 **Step 7 (this run):** The owner MUST write the settled design spec at `docs/superpowers/specs/2026-08-26-EV-9-design.md` including the ruling's floor guard AND an addressed upper-bound fix for `termRows ∈ {7..11}`. See the facilitator log in EPIC-2 step-7 spec file.
+
+### Step 8 — owner implementation (job-11.1)
+
+Branch `feat/ev9-inline-progress`, PR #9 (open, head SHA `0f6f9ae6`). Worktree `.worktrees/ev9-inline-progress`, main untouched, board/card unmodified by owner. Changed 4 files: `extensions/focus-nav.ts` (surface union `editor|tree|progress`, `enterProgress(sid)` with floor guard `if (termRowsCap < 7) return false`, `backFromProgress()` preserving selection, `classifyProgressKey`, `computeProgressLayout` two-regime upper-bound-fixed), `extensions/navigator.ts` (`CouncilTreeWidget` stacked `[...treeRows, separator, ...viewLines]`, lazy live `TranscriptView`, `onChange → refresh()`, dispose clears both clocks), wiring. EV-7/EV-8 test files + `hub.ts` byte-identical. TDD fail-first for O1 floor, upper-bound pin `(8,5)→(1,1,1)`, O3 setProgress preserves, O4 ▌-hidden + real Enter, O5 refresh-vs-invalidate, classify exhaustiveness. Gates (owner's actual output): tsc clean, `bun test` 268 pass / 2 skip / 0 fail (253 baseline + 15 EV-9), `validate.py` clean. No boot gate claimed (TUI-only widget path, unit-covered). Status In Review set from observed artifact (PR open).
+
+### Skeptic verify — cycle 1 (job-11.2), verdict BLOCKS
+
+Ran full gates at branch head `0f6f9ae6`: `bunx tsc --noEmit` clean; `bun test` 268/2/0; `validate.py` clean. EV-8 test + `hub.ts` + `transcript.ts` + `classifyTreeKey` byte-identical; injected swap → 4 EV-8 failures, restore → 14/14 (gate integrity green). Probes: O1-lower (floor guard) closed-green; O1-upper bound (every termRows 7..11, tree+sep+progress ≤ avail, each ≥1) closed-green; O2 union widening closed-green (three sites handle progress; tsc exhaustive); O3 never-exit closed-green; O5 refresh-vs-invalidate closed-green; O4/principal cache folds surface closed-green; dual-clock dispose closed-green; parity closed-green; **O4 Enter-activator closed-red**: `CustomTreeEditor.handleInput` line ~314 calls `this.onActivate(...)` (→ `activateSession` → modal `openTranscript`), NOT `controller.enterProgress(sid)`. `enterProgress` is defined but never called from extension code — the inline progress surface is unreachable by any user-triggerable action. **This violates the card's primary acceptance criterion (Enter opens the inline progress view, not the modal).**
+
+Red item handed to owner (exact): change `focus-nav.ts:314` from `if (key === "enter") this.onActivate(...)` to `if (key === "enter") this.controller.enterProgress(this.controller.selectedSessionId ?? "");` and add a test proving Enter in tree mode transitions `controller.surface` to `"progress"` (no existing test covers this integration point). Everything else closed-green.
+
+### Owner fix (job-11.3) — verify cycle 1 resolved
+
+`focus-nav.ts:314` now calls `this.controller.enterProgress(this.controller.selectedSessionId ?? "")`; modal `onActivate`/`activateSession`/`openTranscript` preserved for FLLWUP-4/legacy. New integration test (Enter from `surface==="tree"` → `"progress"`, selection preserved) + tiny-regime no-op test, additive to `test/ev9-progress.test.ts` (EV-8 unmodified). Gates: tsc clean, `bun test` 270/2/0, validate.py clean. PR #9 head → `e3866501`.
+
+### Skeptic verify — cycle 2 (job-11.4), verdict PASS
+
+Full gates at head `e3866501`: tsc clean; `bun test` 270/2/0 (1244 expect); validate.py clean. All 10 objections closed-green: O4 Enter-activator now green (integration test passes, focus-nav.ts:314 calls `enterProgress`, `onActivate` never invoked from handleInput, modal off-ramp fully removed from the Enter path); O1-lower floor guard; O1-upper (every termRows 7..11, (8,5)→(1,1,1), normal pins); O2 union widening (tsc exhaustive); O3 never-exit; O4 cache; O5 refresh; dual-clock dispose; parity; EV-8 gate integrity (file byte-identical SHA 76d9899, injected regression fails, restore green). PASS — no open objections.
+
+### Step 10 — judge (job-12), verdict PASS
+
+Judge input was strictly the card goal + recorded Skeptic evidence (cycle 2), per council.md step 10. Verdict **PASS**: O4 Enter-activator integration test proves a real Enter on a tree row opens inline progress via `enterProgress` (not the modal); transcript parity test confirms shared streaming content with the modal viewer; O3 `backFromProgress` via escape returns to `surface === "tree"` with selection preserved because `exit()` (which nulls `selectedSessionId`) is never called; O1 floor guard + upper-bound pins verified; EV-8 gate integrity (file byte-identical, injected regression fails then restores green). No goal-coverage gap.
+
+### Step 11 — deterministic merge gate (pre-authorized autonomously)
+
+Five criteria checked at head `e3866501` (PR #9): (1) owner gates green in full (tsc clean, bun test 270/2/0, validate.py clean); (2) GitHub Actions `gates` workflow SUCCESS at head SHA; (3) no blocking Skeptic objection (cycle 2 PASS, all 10 closed-green); (4) judge PASS (step 10); (5) no Needs Human / outstanding ruling. Merged with `gh pr merge 9 --match-head-commit e3866501`; merged SHA `3582a14`, CI green on merged SHA (gates workflow, on main, success).
+
+### Step 12 — sync and reconcile
+
+origin/main advanced to the merge `3582a14`. Local record commits for steps 8-9 lived on a divergent local branch (the facilitator's post-PR record writes were local-only); the merged tree carries the deliberation + spec but not those records. Reconciliation: `main` reset onto `origin/main` (`3582a14`), and this card record + board were rebuilt to carry the full record — step-8 owner, step-9 cycles 1-2, step-10 judge, step-11 merge — with the card set `Done` from the observed artifact (merged + CI green on merged SHA), not from any seat's report. validate.py clean.
+
+## Done (observed artifact)
+EV-9: PR #9 merged `3582a14`, gates SUCCESS on merged SHA. Card `Done`.
