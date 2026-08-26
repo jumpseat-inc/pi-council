@@ -333,9 +333,12 @@ export class CouncilTreeWidget implements Component {
 		const seat = node.manifest.seat;
 		const bold = st === "running" || st === "stalled";
 		const token = (STATE_TOKEN[st] ?? "muted") as ThemeColor;
-		const seatField = bold ? this.theme.bold(this.theme.fg(token, seat)) : this.theme.fg(token, seat);
+		const styled = bold ? this.theme.bold(this.theme.fg(token, seat)) : this.theme.fg(token, seat);
+		// stable left edge: seat field padded to (at least) 14 visible columns
+		const pad = Math.max(0, 14 - visibleWidth(styled));
+		const seatField = styled + " ".repeat(pad);
 		if (st === "running") {
-			const block = this.tailRead(node);
+			const block = this.lastBlocks.get(this.keyFor(node));
 			if (block) {
 				const msg = activityCopy(block);
 				const age = Number.isFinite(block.at) ? formatAge(this.now() - block.at) : "";
@@ -359,10 +362,11 @@ export class CouncilTreeWidget implements Component {
 		if (ordered.length === 0) {
 			lines.push(this.theme.fg("dim", "no council jobs this session"));
 		} else {
-			const shown = ordered.slice(0, ROWS_MAX);
-			for (const { node } of shown) lines.push(truncateToWidth(this.rowLine(node), width));
-			if (ordered.length > ROWS_MAX) {
-				lines.push(this.theme.fg("dim", `... ${ordered.length - ROWS_MAX} more`));
+			const overflow = ordered.length > ROWS_MAX;
+			const rowBudget = overflow ? ROWS_MAX - 1 : ROWS_MAX;
+			for (const { node } of ordered.slice(0, rowBudget)) lines.push(truncateToWidth(this.rowLine(node), width));
+			if (overflow) {
+				lines.push(this.theme.fg("dim", `... ${ordered.length - rowBudget} more`));
 			}
 		}
 		lines.push(this.theme.fg("dim", "up/down move · enter view · /council-tree to close"));
