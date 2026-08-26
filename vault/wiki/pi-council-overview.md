@@ -4,7 +4,7 @@ type: overview
 summary: pi-council is an installable pi package pairing a multi-agent Council deliberation/implementation loop with an LLM-maintained wiki — the workflow's opinions are the product.
 aliases: [pi-council, council, the Council]
 tags: [pi-council/overview]
-sources: ["[[2026-08-23-readme]]", "[[2026-08-23-pi-council-design-spec]]"]
+sources: ["[[2026-08-23-readme]]", "[[2026-08-23-pi-council-design-spec]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]"]
 created: 2026-08-23
 updated: 2026-08-26
 ---
@@ -70,6 +70,7 @@ behavior change:
 | EPIC-1 (main) | **Council theme subsystem** — omp-palette dark/light pair, `.council.json` recolor surface, session-start activation, token-only drawing + live repaint. Landed on `main`; tagged as **v0.12.0** | [[council-theme]] |
 | v0.12.0 | **Council theme + wiki ingest release** — the EPIC-1 theme epic now version-tagged; clean-green smoke run of the full loop + epic in a fresh container (`bun run smoke`, `EXIT=0`) | [[council-theme]], [[2026-08-26-smoke-v0.12.0]] |
 | v0.12.1 | **Fix theme module resolution** — in an installed package the council theme silently never activated because `loadPiThemeModule` located pi's internal module via a bare-specifier `import.meta.resolve` that pi's extension remap does not cover; now walks pi's **own install root** via the public `getPackageDir()` API. Committed on `main` (commit `392dce7`); tag pending at ingest | [[council-theme]], [[2026-08-26-theme-module-resolution-fix]] |
+| EPIC-2 (main) | **Inline council job tree** — `/council-tree` now renders inline beneath the input bar (EV-7 per-row last activity), with editor-driven arrow-key focus (EV-8) and Enter opening the selected subagent's live inline progress (EV-9). Supersedes the v0.11.4 modal. Landed on `main` via PRs #7/#8/#9; package.json still at v0.12.1, version bump/tag pending | [[council-job-tree-inline]], [[2026-08-26-po-ev8-ruling]], [[2026-08-26-po-ev9-tiny-regime-floor]] |
 
 The wiki scaffold shipped in the same commit as the council scaffold — the
 wiki is not an add-on. The full arc and commit-message discipline live in the
@@ -79,6 +80,7 @@ git log; this table is a secondary summary that can drift.
 
 - [[council-config]] — the `.council.json` per-seat override file (now also hosts the theme section)
 - [[council-theme]] — the EPIC-1 omp-palette theme subsystem
+- [[council-job-tree-inline]] — the EPIC-2 inline job-tree surface (EV-7/8/9)
 - [[smoke-test]] — the unattended end-to-end test (the v0.12.0 run was a clean green)
 - [[2026-08-26-smoke-v0.12.0]] — the v0.12.0 smoke-test record
 - [[seats]] — the 9 Council entities

@@ -159,7 +159,7 @@ would misattribute the shipped behavior.
 ## Related
 
 - [[council-config]] — the `.council.json` host of the `theme` section
-- [[run-transcripts]] — the modal/transcript surfaces that draw the theme
+- [[run-transcripts]] → [[council-job-tree-inline]] — the tree/transcript surfaces that draw the theme (modal → inline as of EPIC-2)
 - [[pi-council-overview]] — the release arc this epic extends
 - [[seats]], [[product-owner]] — designer (position) + PO (rulings) seats
 - [[smoke-test]] — receives the `/settings` prefix prediction; shipped and **clean-green** in the v0.12.0 smoke run ([[2026-08-26-smoke-v0.12.0]])

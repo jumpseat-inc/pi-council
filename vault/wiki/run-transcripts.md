@@ -1,12 +1,12 @@
 ---
 title: Run Transcripts
 type: concept
-summary: The on-disk substrate that makes every council run navigable — per-job manifests and seat session JSONL under .pi/council/runs/, a job forest built from manifests, and the /council-tree overlay + ctrl+shift+t live transcript viewer.
+summary: The on-disk substrate that makes every council run navigable — per-job manifests and seat session JSONL under .pi/council/runs/, a job forest built from manifests, and the /council-tree + ctrl+shift+t live surface that reads it (inline below-editor as of EPIC-2).
 aliases: [runs, run manifests, transcript viewer, council-tree, session jsonl]
 tags: [pi-council/concept]
-sources: ["[[2026-08-25-smoke-test-bugfixes]]"]
+sources: ["[[2026-08-25-smoke-test-bugfixes]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]"]
 created: 2026-08-25
-updated: 2026-08-25
+updated: 2026-08-26
 ---
 
 # Run Transcripts
@@ -47,34 +47,40 @@ children sorted numerically by id, and an `orphaned` flag (manifest says
 assistant, thinking, toolCall, toolResult — with text, label, and byte counts.
 `TranscriptTail` provides incremental tailing for the live viewer.
 
-## The `/council-tree` overlay (`extensions/navigator.ts`)
+## The `/council-tree` surface (`extensions/navigator.ts`)
 
 A TUI component registered by the parent (`registerNavigator`, invoked as a
-slash command or via **`ctrl+shift+t`**): a scrollable job tree with status
-glyphs (`●` running, `✓` done, `✗` failed, `⏸` stalled, `⊘` cancelled, `⚠`
-timeout), per-run scoping (current run vs. all runs), and Enter to open the
-live-tailing transcript viewer, Esc to back out. Wired at session start to the
-hub's current run id.
+slash command or via **`ctrl+shift+t`**): a scrollable **inline job tree**
+with status glyphs (`●` running, `✓` done, `✗` failed, `⏸` stalled, `⊘`
+cancelled, `⚠` timeout), per-run scoping (current run vs. all runs), and
+Enter to open the live-tailing transcript, Esc to back out. Wired at
+session start to the hub's current run id.
 
-**Modal presentation (v0.11.4):** both the tree and the transcript viewer
-render as **full-screen modals** — an opaque backdrop over the whole terminal
-plus a centered bordered panel — via `withModalFrame()`. The TUI overlay
-compositor offers no backdrop of its own (`OverlayOptions` has no
-background/dim field; `compositeTuiLine` just splices lines over the base), so
-the component must draw it; before v0.11.4 the underlying session UI showed
-through, making the tree unreadable. The tree also windows to a `maxRows`
-around the selection so long trees stay in the panel.
+**Inline presentation (EPIC-2, v0.12.x — supersedes the v0.11.4 modal).**
+`/council-tree` now renders as an **inline full-width panel beneath the
+input bar** (`setWidget(key, factory, { placement: "belowEditor" })`),
+pushing message content up instead of dimming the terminal. The tree adds
+**per-row last activity** (from the transcript timestamp seam), gains
+**editor-driven arrow-key focus**, and opens the selected subagent's live
+transcript as an **inline expansion** of the tree region. See the dedicated
+[[council-job-tree-inline]] page for the full surface + the binding rulings.
 
-**Theming (EPIC-1, EV-4):** the modal and transcript viewer draw **solely
-from activated pi theme tokens** — `customMessageBg` backdrop (withModalFrame),
-`border` panel rails, `accent` selection cursor, `dim` hints/overflow, `bold`
-headers, and transcript labels (`accent` user, `success` assistant, `dim`
-thinking, `warning` toolCall, `muted` toolResult) — per the token-only drawing
-rule (AGENTS.md 9.6, [[council-theme]]). Under the council theme the modal
-follows the activated palette and **repaints live on mid-session theme
-change** via `onThemeChange → tree.invalidate()` — see [[council-theme]] and
-[[2026-08-25-design-ev4-round1]] (the audit that caught the
-`CouncilTree` width-memoization repaint bug).
+The **former full-screen modal** (opaque backdrop + centered bordered panel
+via `withModalFrame()`, [v0.11.4]) is **superseded** by this inline form. The
+modal code path survives only behind the `navigator.ts:57` guard, which is
+the subject of FLLWUP-4 (RPC silent-no-op repair). This is an evolution, not
+a silent overwrite: the modal was the correct v0.11.4 fix for the
+backdrop-less overlay; EPIC-2 replaced it with a first-class inline surface.
+
+**Theming (EPIC-1, EV-4):** the tree and transcript draw **solely from
+activated pi theme tokens** — `border` rails, `accent` selection cursor +
+the `▌` marker, `dim` hints/overflow, `bold` headers, and transcript labels
+(`accent` user, `success` assistant, `dim` thinking, `warning` toolCall,
+`muted` toolResult) — per the token-only drawing rule (AGENTS.md 9.6,
+[[council-theme]]). Under the council theme the surface follows the
+activated palette and **repaints live on mid-session theme change** via
+`onThemeChange → invalidate()` — see [[council-theme]] and
+[[2026-08-25-design-ev4-round1]].
 
 ## Consumers
 
@@ -87,15 +93,18 @@ change** via `onThemeChange → tree.invalidate()` — see [[council-theme]] and
 ## Related
 
 - [[hub-job-supervision]], [[seats]], [[smoke-test]]
-- [[council-theme]] — the palette/theme tokens the modal draws
+- [[council-job-tree-inline]] — the EPIC-2 inline below-editor surface (EV-7/8/9) that reads this substrate; supersedes the v0.11.4 modal presentation
+- [[council-theme]] — the palette/theme tokens the tree/transcript draw
 - [[pi-council-overview]] — version arc
-- [[2026-08-25-council-tree-modal]] — the v0.11.4 full-screen modal fix
+- [[2026-08-25-council-tree-modal]] — the v0.11.4 full-screen modal fix (now superseded by [[council-job-tree-inline]])
 - [[2026-08-25-design-ev4-round1]] — the EV-4 audit/source
+- [[2026-08-26-po-ev8-ruling]], [[2026-08-26-po-ev9-tiny-regime-floor]] — binding rulings shaping the inline surface
 
 ## Sources
 
 - `extensions/runs.ts`, `extensions/tree.ts`, `extensions/transcript.ts`,
-  `extensions/navigator.ts`
+  `extensions/navigator.ts`, `extensions/focus-nav.ts`
 - `extensions/index.ts` (wiring)
 - `docs/superpowers/plans/2026-08-24-council-transcript-navigator.md`
 - [[2026-08-25-council-tree-modal]]
+- [[2026-08-26-po-ev8-ruling]], [[2026-08-26-po-ev9-tiny-regime-floor]]

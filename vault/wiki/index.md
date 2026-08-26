@@ -42,7 +42,8 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[council-theme]] — EPIC-1's omp-palette theme subsystem: pinned dark/light pair, `.council.json` recolor surface, four-state activation, token-only drawing + live repaint (v0.12.1: module located via `getPackageDir()`, not a bare-specifier).
 - [[smoke-test]] — The definitive unattended end-to-end test: isolated container drives a real /council loop + /features-deliver epic, asserts structure, re-runs gates itself; caught 3 bugs at birth, clean-green since v0.12.0.
 - [[headless-pi]] — pi's non-interactive modes (-p/json/rpc): no trust prompt, single-shot teardown, stale ctx, and the waitForIdle pattern for command turns.
-- [[run-transcripts]] — the on-disk run substrate: per-job manifests + session JSONL under .pi/council/runs/, the job forest, and the /council-tree live transcript viewer (ctrl+shift+t).
+- [[run-transcripts]] — the on-disk run substrate: per-job manifests + session JSONL under .pi/council/runs/, the job forest, and the /council-tree surface (inline as of EPIC-2) reading it.
+- [[council-job-tree-inline]] — EPIC-2's inline below-editor job tree (EV-7 last activity, EV-8 editor-driven focus, EV-9 inline progress); supersedes the /council-tree modal.
 
 ## Comparisons
 
@@ -75,4 +76,9 @@ _(none yet)_
 - [[2026-08-25-design-ev4-round1]] — Designer audit for EV-4: token-only surface map, CouncilTree cache-stale repaint trap, widget function form, in-memory HTML-export gap.
 - [[2026-08-26-smoke-v0.12.0]] — Clean-green v0.12.0 smoke run of the full council loop + epic in a fresh container; the harness as stability gate, not bug-hunter.
 - [[2026-08-26-theme-module-resolution-fix]] — Bugfix v0.12.1: the council theme silently never activated in an installed package because `loadPiThemeModule` used a bare-specifier `import.meta.resolve` (not covered by pi's extension remap); now walks pi's install root via public `getPackageDir()`.
+- [[2026-08-26-design-ev8]] — Designer EV-8 first pass: focus as a signifier (▌ marker + vim-mode label), derived multi-line rule, safe release-and-replay default.
+- [[2026-08-26-po-ev8-ruling]] — PO EV-8 ruling: editor-driven focus (no setFocus), forward-unhandled keys, taste set endorsed (-- TREE --, U+258C, no j/k).
+- [[2026-08-26-design-ev9]] — Designer EV-9 first pass: inline progress expansion (tree rows + divider + TranscriptView), shared-VStack bound, progress routing table.
+- [[2026-08-26-design-ev9-round2]] — Designer EV-9 round 2: tree-as-anchor height budget (drops 50/50), Enter-as-no-op reaffirmed, union encoding.
+- [[2026-08-26-po-ev9-tiny-regime-floor]] — PO EV-9 ruling: min supported terminal height 7 rows; below it Enter is a consumed no-op (inline progress silently unavailable).
 

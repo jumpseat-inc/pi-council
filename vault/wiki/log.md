@@ -143,6 +143,25 @@ SSH_TTY / no DISPLAY; --remote/--local override.
 
 <!-- Append-only. Newest entries at top. Format: ## [YYYY-MM-DD] <op> | <title> -->
 
+## [2026-08-26] ingest | EPIC-2 Inline Council Job Tree
+Ingested the whole EPIC-2 run: /council-tree became an **inline below-editor
+panel** (EV-7 per-row last activity via a transcript timestamp seam) with
+editor-driven arrow-key focus (EV-8) and Enter opening inline progress
+(EV-9). Created the council-job-tree-inline concept page and 5 source pages
+(design-ev8, po-ev8-ruling editor-driven, design-ev9, design-ev9-round2,
+po-ev9-tiny-regime-floor min-height-7). Reconcord run-transcripts
+(modal → inline), added the EPIC-2 row to pi-council-overview (still v0.12.1,
+tag pending), cross-linked council-theme, updated index.
+- **Created:** council-job-tree-inline + sources/2026-08-26-design-ev8,
+  sources/2026-08-26-po-ev8-ruling, sources/2026-08-26-design-ev9,
+  sources/2026-08-26-design-ev9-round2, sources/2026-08-26-po-ev9-tiny-regime-floor
+- **Updated:** run-transcripts, pi-council-overview, council-theme, index
+- **Contradictions flagged:** 1 — run-transcripts claimed /council-tree is a
+  v0.11.4 full-screen modal; EPIC-2 replaces that with the inline below-editor
+  panel (per the card goal). Reconciled, not silently overwritten; the modal
+  path survives only behind navigator.ts:57 (FLLWUP-4).
+
+
 ## [2026-08-25] lint | Wiki lint pass + run-transcripts page
 Ran the Lint operation: fixed 11 pages of mechanical issues (stale claims in
 preflight/owner/overview, corrupted seat-derived wording in judge/skeptic/
