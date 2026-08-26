@@ -1,5 +1,10 @@
 import { test, expect } from "bun:test";
+import * as fs from "node:fs";
+import * as os from "node:os";
+import * as path from "node:path";
 import type { TUI } from "@earendil-works/pi-tui";
+import { CouncilTreeWidget } from "../extensions/navigator.ts";
+import { ensureRunDir, writeManifest, type RunManifest } from "../extensions/runs.ts";
 import {
 	TreeFocusState,
 	classifyTreeKey,
@@ -250,28 +255,67 @@ test("T5/O6: selection is keyed by sessionId and survives a running-first re-sor
 	expect(c.selectedSessionId).toBe("a");
 });
 
-test("T8: the widget draws the ▌ marker on the selected row only when surface==='tree' and the row does not overflow the budget", () => {
-	const { renderWidget } = widgetHarness();
+test("T8: the widget draws the ▌ marker on the selected row only when surface==='tree', budget is never exceeded", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "ev8-widget-"));
+	const runId = "run8";
+	ensureRunDir(root, runId);
+	writeManifest(root, runId, m("job-1"));
+	writeManifest(root, runId, m("job-2"));
 	const controller = new TreeFocusState();
 	controller.setOpen(true);
-	controller.setRows(["job-1"]);
-	controller.enter();
-	const lines = renderWidget(controller);
-	expect(lines[0]!.startsWith(MARK)).toBe(true);
-	// only the selected row is marked
-	expect(lines.filter((l) => l.startsWith(MARK))).toHaveLength(1);
+	const w = new CouncilTreeWidget(root, () => runId, identityTheme, { controller });
+	w.render(200); // syncs controller rows from the sorted widget view
+	controller.enter(); // selects row 0
+	const marked = w.render(200)[0]!;
+	expect(marked.startsWith(MARK)).toBe(true);
+	expect(marked.indexOf(MARK)).toBe(0); // marker is the leftmost single cell
+	const all = w.render(200);
+	expect(all.filter((l) => l.startsWith(MARK))).toHaveLength(1); // only the selected row
+	expect(all.length).toBeLessThanOrEqual(10); // MAX_WIDGET_LINES never exceeded
 });
 
-// --- light widget harness —— real render asserts live in ev7-council-tree-widget, this builds the same contract
-function widgetHarness() {
-	return { renderWidget: (c: TreeFocusState) => renderWidgetMock(c) };
+test("T7: closing the tree (close-with-focus) resets surface to editor and clears any marker/highlight", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "ev8-widget7-"));
+	const runId = "run7";
+	ensureRunDir(root, runId);
+	writeManifest(root, runId, m("job-1"));
+	const controller = new TreeFocusState();
+	controller.setOpen(true);
+	const w = new CouncilTreeWidget(root, () => runId, identityTheme, {
+		controller,
+		now: () => Date.parse("2026-01-01T00:05:00.000Z"),
+	});
+	w.render(1);
+	controller.enter();
+	expect(controller.surface).toBe("tree");
+	// toggle-close path: setOpen(false) resets surface+selection (same as restoreTreeEditor
+	// being called on close). Widget never shows the tree sigil while the tree is closed.
+	controller.setOpen(false);
+	expect(controller.surface).toBe("editor");
+	expect(controller.selectedSessionId).toBeNull();
+	const afterClose = w.render(1);
+	expect(afterClose.some((l) => l.startsWith(MARK))).toBe(false);
+	expect(afterClose.join("\n").includes(TREE_MODE_LABEL)).toBe(false);
+});
+
+// --- helpers for the real widget tests ---
+const identityTheme = { fg: (_c: string, s: string) => s, bold: (s: string) => s, bg: (_c: string, s: string) => s };
+function m(id: string, over: Partial<RunManifest> = {}): RunManifest {
+	return {
+		id,
+		seat: "owner",
+		model: "m/x",
+		parentJobId: null,
+		pid: process.pid,
+		sessionId: id,
+		state: "running",
+		startedAt: Date.parse("2026-01-01T00:00:00.000Z"),
+		settledAt: null,
+		exitCode: null,
+		...over,
+	};
 }
-function renderWidgetMock(c: TreeFocusState): string[] {
-	// Simplified render contract for the widget's marker decision (kept in sync with navigator.ts).
-	const rows = ["job-1", "job-2"];
-	// When tree-focus and selectedSessionId set, prefix the marker to that row.
-	return rows.map((sid) => (c.surface === "tree" && c.selectedSessionId === sid ? `${MARK} ${sid}` : sid));
-}
+
 
 // ---------------------------------------------------------------------------
 // imported-only assertions: keep treeSelect helper coverage sane
