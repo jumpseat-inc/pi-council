@@ -44,8 +44,10 @@ See [[council-loop]], [[engineering-board]], and the nine [[seats]]+s.
 ## Versions
 
 The release arc (from the git log on `main`) shows how quickly the engine
-matured — roughly 87 commits, following **[Conventional Commits]** with the
-`version` bumped in the same commit as each behavior change:
+matured — the current count is well past 100 commits (the EPIC-1 theme epic
+landed on main but is not yet version-tagged as of this writing), following
+**[Conventional Commits]** with the `version` bumped in the same commit as each
+behavior change:
 
 | Version | What landed | See |
 |---|---|---|
@@ -66,6 +68,7 @@ matured — roughly 87 commits, following **[Conventional Commits]** with the
 | v0.11.2 | **Live runtime refresh after login/auth** — `/mcp list` reflects credentials instead of stale `unauthenticated tools=0` until /reload | [[mcp-support]], [[2026-08-25-mcp-login-refresh]] |
 | v0.11.3 | **Fix `/council-init` dep install on headless** — passes `--approve` to `pi install -l` when the project isn't trusted, so ask-user-question (etc.) pinning no longer fails with "Project is not trusted" | [[council-dependencies]], [[2026-08-25-council-init-approve]] |
 | v0.11.4 | **Fix `/council-tree` readability** — full-screen modal (opaque backdrop + bordered panel) blocks the underlying session UI; long trees window to fit | [[run-transcripts]], [[2026-08-25-council-tree-modal]] |
+| EPIC-1 (main) | **Council theme subsystem** — omp-palette dark/light pair, `.council.json` recolor surface, session-start activation, token-only drawing + live repaint. Landed on `main` behind yet-to-be-tagged version | [[council-theme]] |
 
 The wiki scaffold shipped in the same commit as the council scaffold — the
 wiki is not an add-on. The full arc and commit-message discipline live in the
@@ -73,7 +76,8 @@ git log; this table is a secondary summary that can drift.
 
 ## Related
 
-- [[council-config]] — the v0.7.0 per-seat model/thinking override file
+- [[council-config]] — the `.council.json` per-seat override file (now also hosts the theme section)
+- [[council-theme]] — the EPIC-1 omp-palette theme subsystem
 - [[smoke-test]] — the v0.10.0 unattended end-to-end test
 - [[seats]] — the 9 Council entities
 - [[council-loop]] — the deliberation → implement → verify → judge procedure

@@ -1,3 +1,21 @@
+## [2026-08-25] ingest | EPIC-1 Council Theme subsystem
+Ingested the EPIC-1 theme deliverable — the oh-my-pi-palette theme subsystem
+(EV-1 port, EV-2 config, EV-3 activation, EV-4 compliance/repaint) and the
+design + governance reasoning trail behind it. Created the council-theme
+concept page and 5 source pages (design-ev1-round2, po-ev1-escalation,
+design-ev3, design-ev3-round2, design-ev4-round1); updated council-config
+(theme section + reserved key), run-transcripts (token-drawn modal + live
+repaint), pi-council-overview (EPIC-1 row), index. Flagged 4 contradictions
+between raw designer positions and the settled spec/rule (see the page's
+Contradictions section).
+- **Created:** council-theme, sources/2026-08-25-design-ev1-round2,
+  sources/2026-08-25-po-ev1-escalation, sources/2026-08-25-design-ev3,
+  sources/2026-08-25-design-ev3-round2, sources/2026-08-25-design-ev4-round1.
+- **Updated:** council-config, run-transcripts, pi-council-overview, index.
+- **Contradictions flagged:** 4 (EV-3 ui.theme vs env variance; tempfile vs
+  in-memory; sentinel//settings vs RULING 2 + FLLWUP-1 deferral; custom-pair
+  activate-vs-block).
+
 ## [2026-08-25] ingest | /council-tree full-screen modal backdrop (v0.11.4)
 Ingested the v0.11.4 fix: /council-tree and the transcript viewer rendered as
 bare overlays — the TUI compositor has no backdrop (OverlayOptions lacks a

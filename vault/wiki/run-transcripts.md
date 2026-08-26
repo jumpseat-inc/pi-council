@@ -65,6 +65,17 @@ the component must draw it; before v0.11.4 the underlying session UI showed
 through, making the tree unreadable. The tree also windows to a `maxRows`
 around the selection so long trees stay in the panel.
 
+**Theming (EPIC-1, EV-4):** the modal and transcript viewer draw **solely
+from activated pi theme tokens** — `customMessageBg` backdrop (withModalFrame),
+`border` panel rails, `accent` selection cursor, `dim` hints/overflow, `bold`
+headers, and transcript labels (`accent` user, `success` assistant, `dim`
+thinking, `warning` toolCall, `muted` toolResult) — per the token-only drawing
+rule (AGENTS.md 9.6, [[council-theme]]). Under the council theme the modal
+follows the activated palette and **repaints live on mid-session theme
+change** via `onThemeChange → tree.invalidate()` — see [[council-theme]] and
+[[2026-08-25-design-ev4-round1]] (the audit that caught the
+`CouncilTree` width-memoization repaint bug).
+
 ## Consumers
 
 - [[hub-job-supervision]] — the hub writes the manifests and pid file; the
@@ -76,8 +87,10 @@ around the selection so long trees stay in the panel.
 ## Related
 
 - [[hub-job-supervision]], [[seats]], [[smoke-test]]
+- [[council-theme]] — the palette/theme tokens the modal draws
 - [[pi-council-overview]] — version arc
 - [[2026-08-25-council-tree-modal]] — the v0.11.4 full-screen modal fix
+- [[2026-08-25-design-ev4-round1]] — the EV-4 audit/source
 
 ## Sources
 

@@ -1,6 +1,6 @@
 {
 	"name": "pi-council",
-	"version": "0.11.4",
+	"version": "0.12.0",
 	"description": "Multi-agent Council deliberation/delivery system with an integrated LLM wiki, for pi",
 	"keywords": ["pi-package"],
 	"license": "MIT",

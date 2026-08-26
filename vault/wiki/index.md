@@ -37,7 +37,8 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[remote-oauth-login]] — The copy-paste OAuth pattern for headless/remote agents: print the URL, paste the redirect back, PKCE makes it safe without tunnels.
 - [[preflight]] — The card-aware, fail-fast shell+script gate before every run.
 - [[llm-wiki]] — The persistent, compounding knowledge base (sources → wiki → schema).
-- [[council-config]] — The committed `.council.json`; field-level per-seat model/thinking override, scaffold-seeded.
+- [[council-config]] — The committed `.council.json`; field-level per-seat model/thinking override PLUS a top-level `theme` section, scaffold-seeded.
+- [[council-theme]] — EPIC-1's omp-palette theme subsystem: pinned dark/light pair, `.council.json` recolor surface, four-state activation, token-only drawing + live repaint.
 - [[smoke-test]] — The definitive unattended end-to-end test: isolated container drives a real /council loop + /features-deliver epic, asserts structure, re-runs gates itself; caught 3 production bugs.
 - [[headless-pi]] — pi's non-interactive modes (-p/json/rpc): no trust prompt, single-shot teardown, stale ctx, and the waitForIdle pattern for command turns.
 - [[run-transcripts]] — the on-disk run substrate: per-job manifests + session JSONL under .pi/council/runs/, the job forest, and the /council-tree live transcript viewer (ctrl+shift+t).
@@ -66,4 +67,9 @@ _(none yet)_
 - [[2026-08-25-mcp-login-refresh]] — V0.11.2: login/auth now refresh the live runtime so /mcp list reflects credentials, not stale unauthenticated/tools=0.
 - [[2026-08-25-council-init-approve]] — V0.11.3: /council-init passes --approve to pi install -l on untrusted projects, fixing headless dep pinning.
 - [[2026-08-25-council-tree-modal]] — V0.11.4: /council-tree + transcript viewer render as full-screen modals (backdrop + bordered panel), fixing unreadable overlay.
+- [[2026-08-25-design-ev1-round2]] — Designer round-2 on EV-1: theme port requires the pi.themes manifest entry + verbatim omp var names + hot-reload asymmetry.
+- [[2026-08-25-po-ev1-escalation]] — PO ruling on EV-1: spec §3/§4 corrections ride the PR + EV-2 pointer; predictions route to smoke/EV-4; NAME-1 card edit stands.
+- [[2026-08-25-design-ev3]] — Designer first-pass on EV-3: pure decideActivation, raw-settings detection, in-memory construction, notify as evaluation signal.
+- [[2026-08-25-design-ev3-round2]] — Designer round-2 on EV-3: the five activation disputes (custom pairs block, ui.theme continuity, tempfile, corrected acceptance).
+- [[2026-08-25-design-ev4-round1]] — Designer audit for EV-4: token-only surface map, CouncilTree cache-stale repaint trap, widget function form, in-memory HTML-export gap.
 
