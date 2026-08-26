@@ -1,10 +1,13 @@
 import type { ExtensionAPI, ExtensionContext, Theme } from "@earendil-works/pi-coding-agent";
+import type { ThemeColor } from "@earendil-works/pi-coding-agent";
 import { Key, matchesKey, truncateToWidth, visibleWidth, wrapTextWithAnsi, type Component } from "@earendil-works/pi-tui";
 import { findSessionFile, listRunIds, readManifests } from "./runs.ts";
 import { buildTree, flattenTree, textTree, type TreeNode } from "./tree.ts";
-import { TranscriptTail, type TranscriptBlock } from "./transcript.ts";
+import { lastActivity, TranscriptTail, type TranscriptBlock } from "./transcript.ts";
 
 export const TREE_SHORTCUT = "ctrl+shift+t";
+
+export const COUNCIL_TREE_WIDGET_KEY = "council-tree";
 
 export type NavTheme = Pick<Theme, "fg" | "bold" | "bg">;
 
@@ -16,6 +19,46 @@ const GLYPH: Record<string, string> = {
 	cancelled: "⊘",
 	timeout: "⚠",
 };
+
+const STATE_ORDER: Record<string, number> = {
+	running: 0,
+	stalled: 1,
+	timeout: 1,
+	failed: 2,
+	orphaned: 2,
+	cancelled: 3,
+	done: 3,
+};
+
+const STATE_TOKEN: Record<string, ThemeColor> = {
+	running: "accent",
+	done: "success",
+	failed: "error",
+	stalled: "warning",
+	cancelled: "dim",
+	timeout: "warning",
+	orphaned: "error",
+};
+
+export function formatAge(ms: number): string {
+	if (!Number.isFinite(ms) || ms < 0) return "";
+	const s = Math.floor(ms / 1000);
+	if (s < 60) return `${s}s`;
+	const minutes = Math.floor(ms / 60000);
+	if (minutes < 60) return `${minutes}m`;
+	const h = Math.floor(ms / 3600000);
+	return `${h}h ${minutes % 60}m`;
+}
+
+/** The `ctx.mode` guard for the inline widget path: TUI only (NOT !ctx.hasUI). */
+export function surfaceForMode(mode: string): "widget" | "console" {
+	return mode === "tui" ? "widget" : "console";
+}
+
+/** Tear down the inline tree widget — only meaningful in TUI (OV-2 guard). */
+export function clearTreeWidget(ctx: { mode: string; ui: { setWidget(k: string, v: unknown): void } }): void {
+	if (ctx.mode === "tui") ctx.ui.setWidget(COUNCIL_TREE_WIDGET_KEY, undefined);
+}
 
 /**
  * Wrap component content in a full-screen modal frame: an opaque backdrop
@@ -154,6 +197,188 @@ export class CouncilTree implements Component {
 	}
 }
 
+/** The `ctx.mode === "tui"` guard: widget surface only in interactive TUI. */
+const WIDGET_LINES_MAX = 10; // 1 hint line + 9 rows
+const ROWS_MAX = WIDGET_LINES_MAX - 1;
+
+function glyphFor(node: TreeNode): string {
+	if (node.orphaned) return "☠";
+	return GLYPH[node.manifest.state] ?? "?";
+}
+
+function stateOf(node: TreeNode): string {
+	return node.orphaned ? "orphaned" : node.manifest.state;
+}
+
+function firstArgOf(block: TranscriptBlock): string {
+	if (!block.detail) return "";
+	try {
+		const obj = JSON.parse(block.detail);
+		if (obj && typeof obj === "object") {
+			for (const v of Object.values(obj)) {
+				if (typeof v === "string") return v;
+			}
+		}
+	} catch {
+		/* not JSON → no first arg */
+	}
+	return "";
+}
+
+/** Verb-first last-activity copy from a TranscriptBlock (designer GLANCE). */
+function activityCopy(block: TranscriptBlock): string {
+	switch (block.kind) {
+		case "toolCall": {
+			const arg = firstArgOf(block);
+			return `ran ${block.label ?? "tool"}${arg ? ` ${arg.slice(0, 30)}` : ""}`;
+		}
+		case "thinking":
+			return "thinking";
+		case "assistant":
+			return "replied";
+		case "toolResult":
+			return `got ${block.label ?? "tool"}`;
+		case "user":
+			return "idle";
+	}
+}
+
+/** Status copy for a non-running row, collapsed to manifest state + settledAt. */
+function settledCopy(node: TreeNode, now: number): { copy: string; age: string } {
+	const st = stateOf(node);
+	const m = node.manifest;
+	const settledAge = (m.settledAt != null ? formatAge(now - m.settledAt) : "") as string;
+	switch (st) {
+		case "done":
+			return { copy: "settled", age: settledAge };
+		case "failed":
+			return { copy: "failed", age: "" };
+		case "stalled":
+			return { copy: "stalled", age: settledAge };
+		case "cancelled":
+			return { copy: "cancelled", age: "" };
+		case "timeout": {
+			const secs = m.settledAt != null ? Math.max(0, Math.floor((now - m.settledAt) / 1000)) : 0;
+			return { copy: `timeout ${secs}s`, age: "" };
+		}
+		case "orphaned":
+			return { copy: "orphaned", age: "" };
+		default:
+			return { copy: st, age: "" };
+	}
+}
+
+/**
+ * EV-7 display-only inline below-editor tree widget: one stable row per job
+ * (state glyph + seat + verb-first last activity + right-aligned age). Reads
+ * tree shape from manifests (current-run scoped, matching the modal's
+ * `scopeAll=false`), and tail-reads the running seat's transcript for the
+ * last-activity seam so the 2s refresh is O(rows × appended-bytes), not a
+ * full parse per node. Non-running rows collapse to manifest state. Renders
+ * theme tokens at render time (repaint-safe on a mid-session recolor).
+ */
+export class CouncilTreeWidget implements Component {
+	private rows: Array<{ node: TreeNode }> = [];
+	private tails = new Map<string, TranscriptTail>();
+	private lastBlocks = new Map<string, TranscriptBlock | undefined>();
+	private cached?: { w: number; lines: string[] };
+	private now: () => number;
+
+	constructor(
+		private repoRoot: string,
+		private currentRunId: () => string | undefined,
+		private theme: NavTheme,
+		opts: { now?: () => number } = {},
+		maxRows = ROWS_MAX,
+	) {
+		this.now = opts.now ?? Date.now;
+		this.refresh();
+	}
+
+	private keyFor(node: TreeNode): string {
+		return `${node.manifest.sessionId}`;
+	}
+
+	/** Tail-read the running seat's transcript; NaN `at` blocks are ignored (lastActivity skips them). */
+	private tailRead(node: TreeNode): TranscriptBlock | undefined {
+		const key = this.keyFor(node);
+		const file = findSessionFile(this.repoRoot, this.currentRunId() ?? "", node.manifest.sessionId);
+		if (!file) return undefined;
+		if (!this.tails.has(key)) {
+			this.tails.set(key, new TranscriptTail(file));
+		}
+		const tail = this.tails.get(key)!;
+		const fresh = tail.poll();
+		if (fresh.length > 0) {
+			const la = lastActivity(fresh);
+			const prev = this.lastBlocks.get(key);
+			if (la && (!prev || !Number.isFinite(prev.at) || la.at > prev.at)) this.lastBlocks.set(key, la);
+		}
+		return this.lastBlocks.get(key);
+	}
+
+	refresh(): void {
+		const runId = this.currentRunId();
+		this.rows = runId ? flattenTree(buildTree(readManifests(this.repoRoot, runId))).map((node) => ({ node })) : [];
+		// drain/refresh tails for running seats (tail-read, not full parse)
+		for (const { node } of this.rows) {
+			if (stateOf(node) === "running") this.tailRead(node);
+		}
+		this.cached = undefined;
+	}
+
+	private rowLine(node: TreeNode): string {
+		const st = stateOf(node);
+		const glyph = glyphFor(node);
+		const seat = node.manifest.seat;
+		const bold = st === "running" || st === "stalled";
+		const token = (STATE_TOKEN[st] ?? "muted") as ThemeColor;
+		const styled = bold ? this.theme.bold(this.theme.fg(token, seat)) : this.theme.fg(token, seat);
+		// stable left edge: seat field padded to (at least) 14 visible columns
+		const pad = Math.max(0, 14 - visibleWidth(styled));
+		const seatField = styled + " ".repeat(pad);
+		if (st === "running") {
+			const block = this.lastBlocks.get(this.keyFor(node));
+			if (block) {
+				const msg = activityCopy(block);
+				const age = Number.isFinite(block.at) ? formatAge(this.now() - block.at) : "";
+				return `${glyph} ${seatField} · ${msg}${age ? " " + age : ""}`;
+			}
+			// no transcript/timestamp reachable → fall back to manifest startedAt
+			const age = formatAge(this.now() - node.manifest.startedAt);
+			return `${glyph} ${seatField} · spawned${age ? " " + age : ""}`;
+		}
+		const s = settledCopy(node, this.now());
+		const copy = s.copy + (s.age ? " " + s.age : "");
+		return `${glyph} ${seatField} · ${copy}`;
+	}
+
+	render(width: number): string[] {
+		if (this.cached?.w === width) return this.cached.lines;
+		const ordered = [...this.rows].sort(
+			(a, b) => (STATE_ORDER[stateOf(a.node)] ?? 99) - (STATE_ORDER[stateOf(b.node)] ?? 99),
+		);
+		const lines: string[] = [];
+		if (ordered.length === 0) {
+			lines.push(this.theme.fg("dim", "no council jobs this session"));
+		} else {
+			const overflow = ordered.length > ROWS_MAX;
+			const rowBudget = overflow ? ROWS_MAX - 1 : ROWS_MAX;
+			for (const { node } of ordered.slice(0, rowBudget)) lines.push(truncateToWidth(this.rowLine(node), width));
+			if (overflow) {
+				lines.push(this.theme.fg("dim", `... ${ordered.length - rowBudget} more`));
+			}
+		}
+		lines.push(this.theme.fg("dim", "up/down move · enter view · /council-tree to close"));
+		this.cached = { w: width, lines };
+		return lines;
+	}
+
+	invalidate(): void {
+		this.cached = undefined;
+	}
+}
+
 export function registerNavigator(pi: ExtensionAPI, repoRoot: string, currentRunId: () => string | undefined): void {
 	const open = async (ctx: ExtensionContext): Promise<void> => {
 		if (!ctx.hasUI) {
@@ -205,16 +430,51 @@ export function registerNavigator(pi: ExtensionAPI, repoRoot: string, currentRun
 		);
 	};
 
+	// EV-7: stateful TUI-gated toggle for the inline below-editor tree.
+	// Non-TUI (headless/RPC) routes to the console textTree fallback. The old
+	// modal `open()` above is left untouched (OV-2: navigator.ts:57 guard is
+	// out of EV-7's scope — a follow-up card repairs it).
+	let treeOpen = false;
+	const toggleWidget = async (ctx: ExtensionContext): Promise<void> => {
+		if (surfaceForMode(ctx.mode) === "console") {
+			const lines = textTree(repoRoot, listRunIds(repoRoot).slice(0, 5));
+			console.log(lines.length ? lines.join("\n") : "No council jobs yet.");
+			return;
+		}
+		if (treeOpen) {
+			ctx.ui.setWidget(COUNCIL_TREE_WIDGET_KEY, undefined);
+			treeOpen = false;
+			return;
+		}
+		ctx.ui.setWidget(
+			COUNCIL_TREE_WIDGET_KEY,
+			(tui: any, theme: NavTheme) => {
+				const widget = new CouncilTreeWidget(repoRoot, currentRunId, theme);
+				const timer = setInterval(() => {
+					widget.refresh();
+					tui?.requestRender?.();
+				}, 2000);
+				return {
+					render: (w: number) => widget.render(w),
+					invalidate: () => widget.invalidate(),
+					dispose: () => clearInterval(timer),
+				};
+			},
+			{ placement: "belowEditor" },
+		);
+		treeOpen = true;
+	};
+
 	pi.registerCommand("council-tree", {
 		description: "Browse the live council job tree and seat transcripts",
 		handler: async (_args, ctx) => {
-			await open(ctx);
+			await toggleWidget(ctx);
 		},
 	});
 	pi.registerShortcut(TREE_SHORTCUT, {
 		description: "Open the council job tree",
 		handler: async (ctx) => {
-			await open(ctx);
+			await toggleWidget(ctx);
 		},
 	});
 }

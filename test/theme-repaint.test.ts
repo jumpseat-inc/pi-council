@@ -2,7 +2,7 @@ import { test, expect } from "bun:test";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import { CouncilTree, TranscriptView } from "../extensions/navigator.ts";
+import { CouncilTree, CouncilTreeWidget, TranscriptView } from "../extensions/navigator.ts";
 import { ensureRunDir, writeManifest, type RunManifest } from "../extensions/runs.ts";
 import { loadPiThemeModule, materializeTheme } from "../extensions/theme-activation.ts";
 
@@ -130,4 +130,41 @@ test("transcript re-paint: TranscriptView re-renders fresh each render (P5) — 
 	// TranscriptView has NO cache — re-render reflects B immediately (P5)
 	expect(view.render(80).join("\n")).toContain(ACCENT_B);
 	view.dispose();
+});
+
+test("EV-7 widget repaint: factory built once, render re-reads live theme on a normal tick (no second factory call)", async () => {
+	const mod = await loadPiThemeModule();
+	const A = await materializeTheme({ variant: "dark" }, "dark", "truecolor");
+	const B = await materializeTheme(
+		{ variant: "dark", dark: { colors: { accent: "#ff0000" } } },
+		"dark",
+		"truecolor",
+	);
+	mod.setThemeInstance(A);
+
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "ev7-repaint-"));
+	const runId = "runR";
+	ensureRunDir(root, runId);
+	writeManifest(root, runId, {
+		id: "job-1",
+		seat: "owner",
+		model: "m/x",
+		parentJobId: null,
+		pid: process.pid,
+		sessionId: "job-1",
+		state: "running",
+		startedAt: Date.now(),
+		settledAt: null,
+		exitCode: null,
+	});
+	// the SAME widget instance, never re-constructed (T3: no 2nd factory call)
+	const widget = new CouncilTreeWidget(root, () => runId, mod.theme as never, { now: () => Date.now() });
+	const joinedA = widget.render(100).join("\n");
+	expect(joinedA).toContain(ACCENT_A); // running row seat is accent
+
+	mod.setThemeInstance(B);
+	widget.invalidate(); // mirror the 2s refresh → refresh() → invalidate()
+	const joinedB = widget.render(100).join("\n");
+	expect(joinedB).toContain(ACCENT_B);
+	expect(joinedB).not.toContain(ACCENT_A);
 });

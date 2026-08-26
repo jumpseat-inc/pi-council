@@ -6,6 +6,14 @@ export interface TranscriptBlock {
 	detail?: string;
 	label?: string;
 	bytes?: number;
+	/** ISO timestamp of the JSONL entry (ms epoch); NaN for the "t" placeholder fixtures. */
+	at: number;
+}
+
+function entryAt(e: any): number {
+	const ts = typeof e?.timestamp === "string" ? e.timestamp : e?.message?.timestamp;
+	const n = Date.parse(ts);
+	return Number.isFinite(n) ? n : NaN;
 }
 
 function firstLine(s: string): string {
@@ -32,20 +40,23 @@ export function parseTranscript(raw: string): TranscriptBlock[] {
 		}
 		if (e?.type !== "message") continue;
 		const m = e.message;
+		if (!m || (m.role !== "user" && m.role !== "assistant" && m.role !== "toolResult")) continue;
+		const at = entryAt(e);
 		if (m?.role === "user") {
-			blocks.push({ kind: "user", text: textOf(m.content) });
+			blocks.push({ kind: "user", text: textOf(m.content), at });
 		} else if (m?.role === "assistant") {
 			for (const part of (m.content ?? []) as Array<Record<string, any>>) {
 				if (part.type === "thinking") {
-					blocks.push({ kind: "thinking", text: firstLine(part.thinking ?? ""), detail: part.thinking ?? "" });
+					blocks.push({ kind: "thinking", text: firstLine(part.thinking ?? ""), detail: part.thinking ?? "", at });
 				} else if (part.type === "text" && part.text) {
-					blocks.push({ kind: "assistant", text: part.text });
+					blocks.push({ kind: "assistant", text: part.text, at });
 				} else if (part.type === "toolCall") {
 					blocks.push({
 						kind: "toolCall",
 						label: String(part.name ?? "tool"),
 						text: String(part.name ?? "tool"),
 						detail: JSON.stringify(part.arguments ?? {}, null, 2),
+						at,
 					});
 				}
 			}
@@ -55,10 +66,20 @@ export function parseTranscript(raw: string): TranscriptBlock[] {
 						.map((c) => (c.type === "text" ? (c.text ?? "") : `[${c.type}]`))
 						.join("\n")
 				: "";
-			blocks.push({ kind: "toolResult", label: String(m.toolName ?? "tool"), text: firstLine(t), detail: t, bytes: t.length });
+			blocks.push({ kind: "toolResult", label: String(m.toolName ?? "tool"), text: firstLine(t), detail: t, bytes: t.length, at });
 		}
 	}
 	return blocks;
+}
+
+/** Last-activity seam: the block with the highest atomic timestamp, NaN-stamped fixtures excluded. */
+export function lastActivity(blocks: TranscriptBlock[]): TranscriptBlock | undefined {
+	let best: TranscriptBlock | undefined;
+	for (const b of blocks) {
+		if (!Number.isFinite(b.at)) continue;
+		if (!best || b.at > best.at) best = b;
+	}
+	return best;
 }
 
 /** Incremental reader: parses bytes appended since the last poll;
