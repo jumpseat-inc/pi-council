@@ -489,3 +489,24 @@ test("T8: ▌ marker appears on the selected row only when surface==='tree'; no 
 1. `bunx tsc --noEmit` → clean.
 2. `bun test` → baseline (239 pass) + new EV-8 tests, green.
 3. `python3 council/validate.py` → `All council artifacts valid`.
+
+---
+
+## Completion status
+
+All tasks implemented. Local gates: `tsc` clean; `bun test` 253 pass / 0 fail
+(239 baseline + 14 new in `test/ev8-focus-navigation.test.ts`); `validate.py`
+`All council artifacts valid`. Skeptic closures on the branch (`test/ev8-focus-navigation.test.ts`):
+
+- **O3 closed-green** — `test("O3 closed: after a non-overlay dialog close (setFocus(editor)), Down still routes by controller.surface, typing still lands in the editor")`.
+- **O4 closed-green** — `test("O4/T6: composing editor keeps the prior editor's handleInput running for its keys (no clobber)")`.
+- **O6 closed-green** — `test("T5/O6: selection is keyed by sessionId and survives a running-first re-sort")`.
+
+Spec T1–T8 all have a passing component test:
+- T1 entry delivery: `T1/O1: Down from editor ... enters tree ... selects row 0` + `T1: Down from a multi-line draft on a mid line does NOT enter the tree`.
+- T2 multi-line gate: `T2/O5: shouldEnterTreeOnDown ...`.
+- T3 state machine: `T3: state machine ...`, `T3: up-on-row0 ...`, `T3: escape ...`.
+- T4 forward-unhandled: `T4/OJ-2 forward-unhandled ...`.
+- T5/O6: above. T6/O4: above. T7 teardown: `T7: closing the tree ...`. T8 render: `T8: the widget draws the ▌ marker ...`.
+
+Final state: branch `feat/ev8-focus-nav`, pushed to `origin`, PR opened (not merged) after the gate sequence below clears. No `hub.ts` touched; worked only in the worktree, never on `main`.
