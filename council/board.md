@@ -11,6 +11,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-1 — Fix HTML export under an active in-memory council theme
 - FLLWUP-2 — Make the .council.json theme export section editable
 - FLLWUP-3 — Revisit empty dark and light variant shells for consumer discoverability
+- FLLWUP-4 — Repair /council-tree RPC silent-no-op in navigator.ts:57
 
 ## Ready
 
