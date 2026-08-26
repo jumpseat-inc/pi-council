@@ -11,7 +11,7 @@ import { mintRunId, pruneRuns } from "./runs.ts";
 import { scaffoldInto } from "./scaffold.ts";
 import { installArgsFor, resolveCouncilDependencies } from "./dependencies.ts";
 import { connectParentServers, getMcpManager, registerMcpCommand } from "./mcp/index.ts";
-import { registerNavigator, TREE_SHORTCUT } from "./navigator.ts";
+import { clearTreeWidget, registerNavigator } from "./navigator.ts";
 
 /**
  * Some catalogue entries carry wrong max-output metadata — e.g. OpenRouter's
@@ -169,11 +169,12 @@ export default function (pi: ExtensionAPI) {
 		}
 	});
 	pi.on("turn_end", () => renderWidget());
-	pi.on("session_shutdown", () => {
+	pi.on("session_shutdown", (_event, ctx) => {
 		if (widgetTimer) {
 			clearInterval(widgetTimer);
 			widgetTimer = null;
 		}
+		clearTreeWidget(ctx); // EV-7: inline tree widget lives in ctx.ui; remove it here
 		themeWatcher?.close();
 		themeWatcher = null;
 		void getMcpManager(repoRoot).closeAll();
