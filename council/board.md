@@ -14,13 +14,12 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Ready
 
-- EV-7 — Render the job tree inline beneath the input bar with per-row last activity
 - EV-8 — Bidirectional arrow-key focus navigation between the input bar and the inline tree
 - EV-9 — Open the selected subagent's progress from the inline tree
 
 ## Deliberating
 
-
+- EV-7 — Render the job tree inline beneath the input bar with per-row last activity
 
 ## In Progress
 
