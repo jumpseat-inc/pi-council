@@ -22,8 +22,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-7 — Render the job tree inline beneath the input bar with per-row last activity
-
 
 ## In Review
 
@@ -32,6 +30,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Needs Human
 
 ## Done
+
+- EV-7 — Render the job tree inline beneath the input bar with per-row last activity
 
 - EV-4 — Theme compliance and live repaint of council surfaces
 

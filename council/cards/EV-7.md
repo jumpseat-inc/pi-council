@@ -1,7 +1,7 @@
 ---
 id: EV-7
 title: Render the job tree inline beneath the input bar with per-row last activity
-state: In Progress
+state: Done
 owner: null
 epic: EPIC-2
 goal: /council-tree renders the live job tree as an inline panel beneath the input bar that pushes message content up instead of dimming the terminal with a modal, with each row showing that subagent's last activity next to the seat name
@@ -251,3 +251,48 @@ defined settling tests for step 9.
    glance decision is final unless the designer itself raises a dispute,
    which routes per the EPIC-2 judgment table. (Orchestrator Phase 1,
    2026-08-26.)
+
+### Step 8 — owner implementation (job-5.1)
+
+Owner dispatched 45m ceiling, settled in 42.4m. Branch `feat/ev7-inline-tree`,
+PR #7. Owner re-ran gates in worktree: tsc exit 0, `bun test` 239 pass / 2
+skip / 0 fail (+13 new EV-7 tests in test/ev7-council-tree-widget.test.ts),
+validate.py clean. Plan at
+`docs/superpowers/plans/2026-08-26-EV-7-inline-council-tree.md`. 4 conventional
+commits. PR opened — observed artifact set In Review.
+
+### Step 9 — skeptic verification (job-5.2)
+
+Skeptic at bfc6347d re-ran full gate set: tsc 0 errors, `bun test` 239/0,
+validate clean, GitHub Actions `gates` SUCCESS at head. All three gates proven
+fail-capable (injected invalids → restored). OV-1 closed-green (index.ts
+renderWidget/widgetLines/5s timer untouched; only `clearTreeWidget` added on
+session_shutdown). OV-2 closed-green (navigator.ts:57 `!ctx.hasUI` left as-is;
+new path guards on `surfaceForMode(ctx.mode) === "widget"`). Probes
+O3/O4/O5 + TranscriptBlock.at + tail-read + non-running settleCopy all
+closed-green, plus new render tests vs fixture manifests/transcripts.
+**Verdict: no open objections.** (No ver-will-fix loop needed; 1 verify
+cycle used of 3 cap.)
+
+### Step 10 — judge stop condition (job-5.3)
+
+Judge **PASS**. 9/9 EV-7 widget tests green; inline panel rendered via
+`setWidget(key, factory, {placement:"belowEditor"})` returning plain lines
+(no withModalFrame backdrop) — inline push-up not modal dim; row format
+`${glyph} ${seatName} · ${lastActivity}${age}` matches goal; full suite 239/0,
+tsc 0, OV-1/OV-2 intact.
+
+### Step 11 — merge gate (deterministic, pre-authorized)
+
+Five criteria met at head SHA bfc6347d: (1) owner gates green; (2) GitHub
+Actions `gates` workflow SUCCESS at head; (3) no blocking skeptic objection;
+(4) judge PASS; (5) no Needs Human/outstanding ruling. Merged via
+`gh pr merge 7 --squash --match-head-commit bfc6347d`. Merged SHA
+`dbeb2f9` (#7).
+
+### Step 12 — sync / Done
+
+main synced to origin/main (dbeb2f9). CI green on merged SHA (gates workflow
+databaseId 32936186993, headSha dbeb2f9, conclusion success). Re-verified
+locally on merged main: tsc exit 0, `bun test` 239 pass / 2 skip / 0 fail,
+validate.py clean. EV-7 set **Done**.
