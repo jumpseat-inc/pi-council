@@ -4,7 +4,7 @@ type: concept
 summary: The oh-my-pi-palette theme subsystem for pi-council — a pinned dark/light theme pair, a repo-level .council.json recolor surface, session-start activation with a strict name namespace, and a token-only drawing rule for all council-drawn UI.
 aliases: [theme, pi-council theme, council theme system, theme-section]
 tags: [pi-council/concept]
-sources: ["[[2026-08-25-design-ev1-round2]]", "[[2026-08-25-po-ev1-escalation]]", "[[2026-08-25-design-ev3]]", "[[2026-08-25-design-ev3-round2]]", "[[2026-08-25-design-ev4-round1]]", "[[2026-08-26-smoke-v0.12.0]]"]
+sources: ["[[2026-08-25-design-ev1-round2]]", "[[2026-08-25-po-ev1-escalation]]", "[[2026-08-25-design-ev3]]", "[[2026-08-25-design-ev3-round2]]", "[[2026-08-25-design-ev4-round1]]", "[[2026-08-26-smoke-v0.12.0]]", "[[2026-08-26-theme-module-resolution-fix]]"]
 created: 2026-08-25
 updated: 2026-08-26
 ---
@@ -70,6 +70,31 @@ Off switch: absence of the `theme` section OR `theme.enabled: false` →
 no-op, pi's theme untouched. Notify: info on activate, warning on block,
 silent on no-op.
 
+## Locating pi's theme module (v0.12.1 fix)
+
+Activation and the live repaint both end in `new Theme(fg,bg,mode)`. That
+constructor — plus the internal `detectTerminalBackgroundFromEnv`, the live
+`theme` proxy, and the repaint's `setThemeInstance` — lives in pi's
+**internal** module `dist/modes/interactive/theme/theme.js`, whose deep
+import is blocked by pi's exports map. It must be reached by absolute path.
+
+**v0.12.1 fixed a latent failure here.** The module was located via
+`import.meta.resolve("@earendil-works/pi-coding-agent")` — a raw filesystem
+walk that is **not** covered by pi's extension remap (jiti aliases the bare
+specifier to the bundled copy, but `import.meta.resolve` bypasses that and
+walks real `node_modules`). It works in this repo (a dev `node_modules` has
+the peer), but in an **installed package** the plugin clone's `node_modules`
+has no `@earendil-works/pi-coding-agent`, so activation threw `Cannot find
+module` and the theme silently never applied — see
+[[2026-08-26-theme-module-resolution-fix]]. The fix walks pi's **own install
+root** with the public `getPackageDir()` API into
+`dist/modes/interactive/theme/theme.js`, falling back to the public `Theme`
+identity (internal helpers optional) on bun-binary installs.
+
+**Reusable invariant:** from any extension, resolve pi's internals via
+`getPackageDir()` + a walk into `dist/…`, never a bare-specifier
+`import.meta.resolve` — pi's extension remap does not cover it at runtime.
+
 ## Token-only drawing rule (AGENTS.md 9.6)
 
 - **(a)** Every color the council emits comes from a pi `Theme` token via
@@ -117,6 +142,9 @@ deliberation trail; the shipped behavior is the final authority in every case.
    `loadThemeFromPath`**; spec §4 mandates **in-memory, no third on-disk copy**
    (a try/finally tempfile is a disk write; `loadThemeFromPath` is not
    publicly reachable). Settled path reimplements the resolver + `new Theme`.
+   The hard route to pi's `Theme` constructor (a deep import into
+   `theme.js`) is what the v0.12.1 module-resolution fix hardens — see
+   [[2026-08-26-theme-module-resolution-fix]].
 3. **Status surface.** EV-4 designer prefers a **sentinel name + `/settings`
    row (d.i)**; the product-owner **RULING 2** is "display nothing," and the
    HTML-export/sentinel work was **deferred to FLLWUP-1**, not built in EV-4.
@@ -135,7 +163,7 @@ would misattribute the shipped behavior.
 - [[pi-council-overview]] — the release arc this epic extends
 - [[seats]], [[product-owner]] — designer (position) + PO (rulings) seats
 - [[smoke-test]] — receives the `/settings` prefix prediction; shipped and **clean-green** in the v0.12.0 smoke run ([[2026-08-26-smoke-v0.12.0]])
-- Source pages: [[2026-08-25-design-ev1-round2]], [[2026-08-25-po-ev1-escalation]], [[2026-08-25-design-ev3]], [[2026-08-25-design-ev3-round2]], [[2026-08-25-design-ev4-round1]]
+- Source pages: [[2026-08-25-design-ev1-round2]], [[2026-08-25-po-ev1-escalation]], [[2026-08-25-design-ev3]], [[2026-08-25-design-ev3-round2]], [[2026-08-25-design-ev4-round1]], [[2026-08-26-theme-module-resolution-fix]]
 
 ## Sources
 

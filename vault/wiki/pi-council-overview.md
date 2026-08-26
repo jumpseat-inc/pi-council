@@ -9,7 +9,7 @@ created: 2026-08-23
 updated: 2026-08-26
 ---
 
-`pi-council` (v0.12.0) is an installable [pi](https://pi.dev) package, distributed
+`pi-council` (v0.12.1) is an installable [pi](https://pi.dev) package, distributed
 as `pi install git:github.com/tistaharahap/pi-council`. Installing it once and
 running `/council-init` gives **any** repository the same opinionated workflow:
 a facilitator-driven Council of specialized seats that deliberates, implements,
@@ -69,6 +69,7 @@ behavior change:
 | v0.11.4 | **Fix `/council-tree` readability** — full-screen modal (opaque backdrop + bordered panel) blocks the underlying session UI; long trees window to fit | [[run-transcripts]], [[2026-08-25-council-tree-modal]] |
 | EPIC-1 (main) | **Council theme subsystem** — omp-palette dark/light pair, `.council.json` recolor surface, session-start activation, token-only drawing + live repaint. Landed on `main`; tagged as **v0.12.0** | [[council-theme]] |
 | v0.12.0 | **Council theme + wiki ingest release** — the EPIC-1 theme epic now version-tagged; clean-green smoke run of the full loop + epic in a fresh container (`bun run smoke`, `EXIT=0`) | [[council-theme]], [[2026-08-26-smoke-v0.12.0]] |
+| v0.12.1 | **Fix theme module resolution** — in an installed package the council theme silently never activated because `loadPiThemeModule` located pi's internal module via a bare-specifier `import.meta.resolve` that pi's extension remap does not cover; now walks pi's **own install root** via the public `getPackageDir()` API. Committed on `main` (commit `392dce7`); tag pending at ingest | [[council-theme]], [[2026-08-26-theme-module-resolution-fix]] |
 
 The wiki scaffold shipped in the same commit as the council scaffold — the
 wiki is not an add-on. The full arc and commit-message discipline live in the

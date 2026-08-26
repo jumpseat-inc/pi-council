@@ -1,3 +1,19 @@
+## [2026-08-26] ingest | Theme module resolution fix (v0.12.1)
+Ingested the bug/root-cause/fix: in an installed package the council theme
+silently never activated because `loadPiThemeModule` located pi's theme
+module via a bare-specifier `import.meta.resolve("@earendil-works/pi-
+coding-agent")`, a filesystem walk pi's extension remap does NOT cover —
+the plugin clone's node_modules has no peer, so it threw "Cannot find
+module". Fixed by walking pi's own install root with public getPackageDir().
+Created sources/2026-08-26-theme-module-resolution-fix; folded the resolution
+invariant into council-theme (new "Locating pi's theme module" subsection +
+cross-ref from Contradictions #2); added the v0.12.1 row to
+pi-council-overview; updated index. Fix itself committed as `392dce7`, version
+bumped 0.12.0→0.12.1 (tag pending).
+- **Created:** sources/2026-08-26-theme-module-resolution-fix
+- **Updated:** council-theme, pi-council-overview, index
+- **Contradictions flagged:** none
+
 ## [2026-08-26] lint | Wiki consistency pass
 Ran the Lint operation. Fixed stale claim (pi-council-overview: theme epic now
 v0.12.0-tagged, not "yet-to-be-tagged"), re-pointed the one broken wikilink
