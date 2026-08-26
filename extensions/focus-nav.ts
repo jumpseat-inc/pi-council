@@ -311,7 +311,7 @@ export class CustomTreeEditor extends CustomEditor {
 		};
 		const r = routeEditorFocus(this.controller, key, meta);
 		if (r.action === "consumed") {
-			if (key === "enter") this.onActivate(this.tui, this.controller.selectedSessionId);
+			if (key === "enter") this.controller.enterProgress(this.controller.selectedSessionId ?? "");
 			this.tui.requestRender();
 			return;
 		}

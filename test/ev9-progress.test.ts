@@ -19,6 +19,18 @@ const UP = "\x1b[A";
 const ENTER = "\r";
 const ESC = "\x1b";
 
+// --- helpers to drive a real CustomTreeEditor through handleInput (delivery path) ---
+class FakeTUI {
+	mode = "tui";
+	requestRender() {}
+}
+function editorTheme() {
+	return { borderColor: (s: string) => s, selectList: {} };
+}
+function fakeKeybindings() {
+	return { matches: () => false, matchesExact: () => false };
+}
+
 // ---------------------------------------------------------------------------
 // Cycle 1 (fail-first RED → GREEN): surface union, controller methods,
 // classifyProgressKey, and the upper-bound-fixed viewport layout.
@@ -309,4 +321,63 @@ test("T10 dual-clock: widget.dispose() clears the 1s transcript timer (onChange 
 	fs.appendFileSync(file, toolLine("9", "2026-01-01T00:04:59.000Z") + "\n");
 	await new Promise((r) => setTimeout(r, 1300));
 	expect(onChangeCalls).toBe(0); // timer cleared on dispose
+});
+
+// ---------------------------------------------------------------------------
+// Cycle 3 (fix-round, Skeptic closed-red): Enter from the inline tree actually
+// opens inline progress — the user-reachable delivery path. This was the one
+// blocking item: the tree rendered progress but Enter still routed to the
+// modal onActivate. The Enter path below goes through a real
+// CustomTreeEditor.handleInput(ENTER) so it exercises the production wiring,
+// not a direct controller call.
+// ---------------------------------------------------------------------------
+
+test("Integration (Skeptic closed-red): Enter on a highlighted tree row through handleInput → surface transitions to 'progress', selection preserved", () => {
+	const tui = new FakeTUI();
+	const controller = new TreeFocusState();
+	controller.termRowsCap = 24; // above the floor so enceProgress is allowed
+	controller.setOpen(true);
+	controller.setRows(["a", "b", "c"]);
+	controller.enter(); // surface=tree, selected 'a'
+
+	const editor = new CustomTreeEditor(
+		tui as unknown as TUI,
+		editorTheme() as never,
+		fakeKeybindings() as never,
+		controller,
+		() => {}, // onActivate stays present but must NOT be the Enter path
+	);
+	editor.setText("draft");
+
+	expect(controller.surface).toBe("tree");
+	controller.move(1); // highlight row 'b'
+	expect(controller.selectedSessionId).toBe("b");
+
+	editor.handleInput(ENTER);
+
+	expect(controller.surface).toBe("progress"); // Enter opens inline progress, NOT the modal
+	expect(controller.selectedSessionId).toBe("b"); // selected session preserved + opened
+});
+
+test("Integration (Skeptic closed-red): Enter at the tiny regime (termRows 6) is a consumed no-op — surface stays 'tree'", () => {
+	const tui = new FakeTUI();
+	const controller = new TreeFocusState();
+	controller.termRowsCap = 6; // below DISPLAY_FLOOR(7)
+	controller.setOpen(true);
+	controller.setRows(["a", "b", "c"]);
+	controller.enter(); // surface=tree, selected 'a'
+
+	const editor = new CustomTreeEditor(
+		tui as unknown as TUI,
+		editorTheme() as never,
+		fakeKeybindings() as never,
+		controller,
+		() => {},
+	);
+	editor.setText("draft");
+
+	expect(controller.surface).toBe("tree");
+	editor.handleInput(ENTER);
+	expect(controller.surface).toBe("tree"); // guard: no transition at termRows < 7
+	expect(controller.selectedSessionId).toBe("a"); // selection untouched
 });
