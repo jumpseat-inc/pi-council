@@ -7,12 +7,16 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Backlog
 
 - EPIC-1 — omp-themed council theme for pi, configurable from the scaffold .council.json
+- EPIC-2 — Inline council job tree beneath the input bar
 - FLLWUP-1 — Fix HTML export under an active in-memory council theme
 - FLLWUP-2 — Make the .council.json theme export section editable
 - FLLWUP-3 — Revisit empty dark and light variant shells for consumer discoverability
 
 ## Ready
 
+- EV-7 — Render the job tree inline beneath the input bar with per-row last activity
+- EV-8 — Bidirectional arrow-key focus navigation between the input bar and the inline tree
+- EV-9 — Open the selected subagent's progress from the inline tree
 
 ## Deliberating
 
