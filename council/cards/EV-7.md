@@ -212,6 +212,26 @@ GLANCE snippet the owner implements from." **GLANCE DESIGN**:
 **Verdict: no blocks.** All objections closed-green or open-untested with
 defined settling tests for step 9.
 
+### Round 3 Consolidator (step 5)
+
+**SETTLED (spec may assume these):**
+- Vehicle: `ctx.ui.setWidget("council-tree", factory, { placement:"belowEditor" })`, factory form, type-valid under strict tsc; TUI-only surface, headless `textTree` fallback preserved. No EV-4 §8 reopening (C3 closed-green: §8 rejection was widget-scoped; tree path unaffected).
+- Source seam: transcript authoritative for last-activity; `TranscriptBlock.at = Date.parse(e.timestamp)` (fallback message.timestamp); `lastActivity` = max-at block, age = now-at; manifest contributes seat/id/state/parent; non-running rows collapse to manifest state+settledAt; no hub.ts write change (C1/C2 closed-green).
+- Skeptic closures C1/C2/C3/O1/O2/O3/O6 green; C4 closed-red as pre-existing latent bug (the `ctx.mode==="tui"` guard is the correct fix).
+- Principal's 3 shipping conditions binding on owner: (1) repaint D2 pin test — theme swap re-renders on normal tick, no 2nd factory call (mirror theme-repaint.test.ts:116-127); (2) session_shutdown setWidget(key,undefined); (3) NaN-fallback + tail-read.
+- Designer GLANCE (final per Phase 1 copy ruling — settles COPY only): token plan per state; row layout `[glyph 3][seat 14][sep ·][activity flex][elapsed 6]`; verb-first copy per kind + age format; dim/non-running rule running-first; close-by-reinvoke `setWidget(key,undefined)`; hint line `up/down move · enter view · /council-tree to close`; empty-state `no council jobs this session`; MAX_WIDGET_LINES=10 (1+9); token-only.
+- Q4 default current run; Q5 stateful toggle + ctrl+shift+t + session teardown.
+
+**OPEN JUDGMENT (route out of engineering loop):**
+- OJ-1 Q2 coexist: should the above-editor council widget dim/collapse/hide while the tree is open, or both stay visible? Owner leans 'ambient stays'; designer logged preference 'tree takes glance role while open, widget when closed' (explicitly not a ruling); principal attributes dim to designer, PO escalation if P6 (24-row fit) fails. No test settles; two equal sides -> product-owner.
+- OJ-2 C4 scope: does the hidden navigator.ts:57 guard fix (hasUI -> ctx.mode) land in EV-7, or a follow-up card? Side A fix-now (one line, avoids shipping silent RPC regression); Side B split (display-only card). Scope judgment -> product-owner.
+- OJ-3 lastActivity re-spawn scoping (currentRunId vs scopeAll): engineering scope note, owner can resolve during implementation; no PO ruling unless a visible behavior change surfaces.
+
+**OPEN OBJECTIONS (must close green at step 9 before merge):**
+- O4 session_shutdown explicit teardown — confirm `setWidget("council-tree", undefined)` in branch (index.ts:121-128 currently lacks it).
+- O5 `ctx.mode === "tui"` guard on the widget path (not `!ctx.hasUI`), RPC routes to console (navigator.ts:57 currently buggy).
+- O3/T3 repaint D2 pin — new test: theme swap -> re-render on normal tick, no 2nd factory invocation.
+
 ## Phase 1 rulings (binding, immutable for EPIC-2)
 
 1. **Last-activity copy delegates to the designer.** The card's own wording
