@@ -119,3 +119,37 @@ test("clearTreeWidget calls setWidget(key, undefined) only in tui mode", () => {
 	clearTreeWidget({ mode: "rpc", ui } as never);
 	expect(calls).toEqual([{ key: COUNCIL_TREE_WIDGET_KEY, val: undefined }]);
 });
+
+test("CouncilTreeWidget caps rows: 1 hint + 9 rows budget, '... N more' on overflow", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "ev7-widget-cap-"));
+	const runId = "runC";
+	ensureRunDir(root, runId);
+	for (let i = 1; i <= 12; i++) {
+		writeManifest(root, runId, m(`job-${i}`, { state: "done", settledAt: NOW - 60_000 }));
+	}
+	const w = new CouncilTreeWidget(root, () => runId, theme, { now });
+	const lines = w.render(200);
+	expect(lines).toHaveLength(10); // 1 hint + (8 rows + "... N more") ≤ 10
+	expect(lines[lines.length - 1]).toContain("up/down move");
+	expect(lines.join("\n")).toMatch(/\.\.\. 4 more/); // 12 - 8 shown
+});
+
+test("CouncilTreeWidget orders running-first then stalled/failed/done", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "ev7-widget-order-"));
+	const runId = "runO";
+	ensureRunDir(root, runId);
+	writeManifest(root, runId, m("job-d", { state: "done", settledAt: NOW - 60_000 }));
+	writeManifest(root, runId, m("job-r", { state: "running" }));
+	writeManifest(root, runId, m("job-f", { state: "failed", settledAt: NOW - 60_000 }));
+	const w = new CouncilTreeWidget(root, () => runId, theme, { now });
+	const rows = w
+		.render(200)
+		.slice(0, 3)
+		.map((l) => l.replace(/[●✓✗⏸⊘☠⚠]/g, ""));
+	const rIdx = rows.findIndex((l) => l.includes("owner"));
+	const fIdx = rows.findIndex((l) => l.includes("failed"));
+	const dIdx = rows.findIndex((l) => l.includes("settled"));
+	expect(rIdx).toBeLessThan(fIdx);
+	expect(rIdx).toBeLessThan(dIdx);
+	expect(fIdx).toBeLessThan(dIdx);
+});
