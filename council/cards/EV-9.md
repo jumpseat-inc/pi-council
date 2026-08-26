@@ -1,7 +1,7 @@
 ---
 id: EV-9
 title: Open the selected subagent's progress from the inline tree
-state: Deliberating
+state: In Progress
 owner: null
 epic: EPIC-2
 goal: Pressing enter on the selected row of the inline tree opens that subagent's live progress view with the same streaming transcript content the modal viewer shows today, and closing it returns focus to the tree with the selection preserved
