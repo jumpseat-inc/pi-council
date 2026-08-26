@@ -7,7 +7,8 @@
  * EV-3 reuses this for resolveThemeSetting.
  */
 import * as path from "node:path";
-import { fileURLToPath } from "node:url";
+import { pathToFileURL } from "node:url";
+import { getPackageDir } from "@earendil-works/pi-coding-agent";
 
 export interface PiThemeModule {
 	loadThemeFromPath(themePath: string, mode?: string): { name: string };
@@ -22,10 +23,18 @@ let cached: PiThemeModule | undefined;
 
 export async function loadThemeModule(): Promise<PiThemeModule> {
 	if (cached) return cached;
-	const resolved = import.meta.resolve("@earendil-works/pi-coding-agent");
-	const dist = path.dirname(fileURLToPath(resolved));
-	const themePath = path.join(dist, "modes", "interactive", "theme", "theme.js");
-	const mod = (await import(themePath)) as unknown as PiThemeModule;
+	// Locate pi's theme module via the PUBLIC getPackageDir() API — not
+	// `import.meta.resolve("@earendil-works/pi-coding-agent")`, which throws in
+	// an installed package whose node_modules has no @earendil-works peer.
+	const themePath = path.join(
+		getPackageDir(),
+		"dist",
+		"modes",
+		"interactive",
+		"theme",
+		"theme.js",
+	);
+	const mod = (await import(pathToFileURL(themePath).href)) as unknown as PiThemeModule;
 	cached = mod;
 	return cached;
 }

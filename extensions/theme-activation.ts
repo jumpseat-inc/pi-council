@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { fileURLToPath } from "node:url";
-import { CONFIG_DIR_NAME, getAgentDir, Theme, type ExtensionContext } from "@earendil-works/pi-coding-agent";
+import { pathToFileURL } from "node:url";
+import { CONFIG_DIR_NAME, getAgentDir, getPackageDir, Theme, type ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { getCapabilities } from "@earendil-works/pi-tui";
 import { loadShippedTheme, loadThemeConfig, mergeThemeSection, type ThemeSection } from "./seats.ts";
 
@@ -170,21 +170,57 @@ export interface PiThemeModule {
 	theme: Theme;
 	setThemeInstance(theme: Theme): void;
 }
+/**
+ * Pure — resolve the on-disk path of pi's real theme module (Theme class +
+ * the internal-only exports the extension needs: detectTerminalBackgroundFromEnv,
+ * the live `theme` proxy, setThemeInstance, setRegisteredThemes, loadThemeFromPath,
+ * getThemeByName). Package-specifier deep imports are blocked by pi's exports
+ * map (only ".", "./rpc-entry", "./client" are exported), so we walk from pi's
+ * OWN install root into the same file interactive-mode.js imports.
+ *
+ * IMPORTANT: never resolve this via `import.meta.resolve("@earendil-works/pi-coding-agent")`.
+ * That works in this repo's dev tree (the peer is in its node_modules) but THROWS
+ * in an installed package: the plugin clone under ~/.pi/agent/git/<owner>/pi-council
+ * does not materialize the @earendil-works/pi-coding-agent peer in its node_modules,
+ * so the bare-specifier filesystem walk fails and the council theme is never applied
+ * (surfacing as the "Cannot find module '@earendil-works/pi-coding-agent'" warning).
+ * Pi's public getPackageDir() is stable across npm / tsx / bun-binary installs and
+ * is exactly what this walk needs.
+ */
+export function resolveThemeJsPath(packageDir: string): string | null {
+	// dist build (npm/tsx) ships the compiled theme bundle; tsx source runtime
+	// serves the same module as theme.ts; the bun binary bundles it and only
+	// exposes the theme dir of standalone theme files (no theme.js on disk).
+	const candidates = [
+		path.join(packageDir, "dist", "modes", "interactive", "theme", "theme.js"),
+		path.join(packageDir, "src", "modes", "interactive", "theme", "theme.ts"),
+	];
+	return candidates.find((c) => fs.existsSync(c)) ?? null;
+}
+
 let cachedPiThemeModule: Promise<PiThemeModule> | undefined;
 
 /**
  * Deep-import pi's real theme module (dist/modes/interactive/theme/theme.js)
  * — the same file interactive-mode.js imports, so `instanceof Theme` in pi's
- * setTheme branch holds at runtime. Package-specifier deep imports are blocked
- * by pi's exports map, so walk from the resolved entry (as theme-loader.ts).
+ * setTheme branch holds at runtime. The module lives under pi's own install
+ * root (getPackageDir), NOT the plugin's node_modules, so the walk is stable
+ * for installed packages. On a bun-binary install the theme module is bundled
+ * (not on disk); the public `Theme` class still imports fine, so we fall back
+ * to a module exposing the public Theme identity and leave the internal-only
+ * members undefined (activation degrades: terminal auto-detection skipped).
  */
 export function loadPiThemeModule(): Promise<PiThemeModule> {
 	if (!cachedPiThemeModule) {
 		cachedPiThemeModule = (async () => {
-			const resolved = import.meta.resolve("@earendil-works/pi-coding-agent");
-			const dist = path.dirname(fileURLToPath(resolved));
-			const themePath = path.join(dist, "modes", "interactive", "theme", "theme.js");
-			return (await import(themePath)) as unknown as PiThemeModule;
+			const themePath = resolveThemeJsPath(getPackageDir());
+			if (themePath !== null) {
+				return (await import(pathToFileURL(themePath).href)) as unknown as PiThemeModule;
+			}
+			// bun binary: theme.js is embedded, not a real file. The public entry
+			// re-exports the SAME Theme class from the same theme.js module, so
+			// constructor identity holds; internal-only helpers are unavailable.
+			return { Theme } as unknown as PiThemeModule;
 		})();
 	}
 	return cachedPiThemeModule;
@@ -262,7 +298,12 @@ export async function activateTheme(ctx: ExtensionContext, repoRoot: string, opt
 		const config = loadThemeConfig(repoRoot);
 		if (config === undefined) return; // no section -> silent noop, no settings reads, no setTheme
 		const raw = readRawThemeSetting(opts.settingsFiles ?? defaultThemeSettingsFiles(repoRoot));
-		const terminal = (await loadPiThemeModule()).detectTerminalBackgroundFromEnv().theme;
+		const themeMod = await loadPiThemeModule();
+		const terminal =
+			// detectTerminalBackgroundFromEnv is an internal-only theme.js export;
+			// it is absent on a bun-binary install (theme module is bundled), so
+			// fall back to 'dark' rather than throwing a spurious warning.
+			themeMod.detectTerminalBackgroundFromEnv?.().theme ?? "dark";
 		const pin = config.variant === "auto" ? undefined : config.variant;
 		const decision = decideThemeActivation(config, raw, pin, terminal);
 		if (decision.action === "activate") {

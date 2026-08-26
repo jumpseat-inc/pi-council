@@ -9,11 +9,12 @@ import {
 	loadPiThemeModule,
 	materializeTheme,
 	resolveThemeColors,
+	resolveThemeJsPath,
 	splitThemeColors,
 	withThemeColorFallbacks,
 } from "../extensions/theme-activation.ts";
 import { PKG_ROOT, loadShippedTheme as seatsShipped, loadThemeConfig, mergeThemeSection } from "../extensions/seats.ts";
-import type { ExtensionContext } from "@earendil-works/pi-coding-agent";
+import { getPackageDir, type ExtensionContext } from "@earendil-works/pi-coding-agent";
 
 const AUTO = { variant: "auto" as const };
 
@@ -103,6 +104,33 @@ test("construction identity: accent/selectedBg ANSI + fallback chains; both mode
 
 	const t256 = await materializeTheme({ variant: "dark" }, "dark", "256color");
 	expect(t256.getColorMode()).toBe("256color");
+});
+
+// ---- Regression: theme module location -----
+// The shipped extension must locate pi's theme module through pi's PUBLIC
+// getPackageDir() API. `import.meta.resolve("@earendil-works/pi-coding-agent")`
+// works here (the dev dependency is in this repo's node_modules) but THROWS in
+// an installed pi package: the plugin clone's node_modules does not contain
+// the @earendil-works/pi-coding-agent peer, so the bare-specifier walk fails
+// and the council theme is never applied. See the loadPiThemeModule doc comment.
+test("theme module resolves via public getPackageDir(), not bare-specifier resolve", async () => {
+	const pkgDir = getPackageDir();
+	expect(pkgDir).toBeTruthy();
+	expect(fs.existsSync(pkgDir)).toBe(true);
+
+	// The resolved helper must walk pi's install root into the shipped theme
+	// bundle (dist build for npm / tsx), independent of the package's own
+	// node_modules copy of pi-coding-agent.
+	const resolved = resolveThemeJsPath(pkgDir);
+	expect(resolved).not.toBeNull();
+	expect(fs.existsSync(resolved!)).toBe(true);
+	// Pin the DIST walk: it is pi's on-disk bundle under its install root, not a
+	// bare-specifier resolution that depends on the plugin's node_modules.
+	expect(path.dirname(resolved!)).toBe(path.join(pkgDir, "dist", "modes", "interactive", "theme"));
+
+	// The module the extension actually consumes must carry the members it needs.
+	const mod = await loadPiThemeModule();
+	expect(typeof mod.Theme).toBe("function");
 });
 
 test("construction identity: 256 mode matches pi's own loadThemeFromPath", async () => {
