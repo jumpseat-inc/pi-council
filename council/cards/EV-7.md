@@ -58,6 +58,105 @@ Step 1 gate: full council, surface-touching (designer seated).
 
 **designer (independent):** — Inline panel must read at a glance, one row per job, stable left edge + verb-first last-activity summary in a budgeted right column, dim non-running rows, single hint line naming `/council-tree` as close. **Six instruments grounded in artifacts:** (1) stable mapping — left edge anchored in fixed columns (glyph 3, seat 12, elapsed 6, dim `·` separator) from `navigator.ts:135`, drops `{id}` (keyboard-nav territory, EV-8); (2) knowledge-in-the-world — last-activity copy is verb-first noun phrase from `TranscriptBlock.kind`, never a transcript excerpt (`toolCall.label`+first arg, `thinking → "thinking…"`, assistant → first verb, user → idle); (3) constraint+budget — `interactive-mode.js:1746 MAX_WIDGET_LINES=10`; factory form escapes cap but budget 1+9 rows; dock at `:648-654` shows editor sandwiched; (4) feedback+tolerance — non-running rows dimmed `theme.fg("dim",…)`, running-first order: running→stalled→failed→done; (5) forcing function on close — no in-panel button; `/council-tree` toggle removes via `setWidget(key, undefined)` (`:1683-1686`); hint line is knowledge-in-the-world, EV-8 layers keys; (6) token-only drawing — factory form (theme-receiving, `core/extensions/types.d.ts:97-100`), no inline ANSI/hex (AGENTS 9.6, EV-4 settled), factory `invalidate()` repaints on mid-session recolor. **Falsifiable predictions:** P1 verb-first copy scannable; P2 left-edge stable across refreshes; P3 dim non-running rows; P4 running-on-top order; P5 close-by-reinvoke removes widget; P6 coexist with aboveEditor widget (editor ≥5 rows on 24-row terminal); P7 no jumpy layout on 2s refresh; P8 theme repaint on .council.json watcher; P9 empty-state silence (zero lines when nothing running); P10 zero inline code/glyph in production. **Preferences, ranked last:** (a) collapse aboveEditor widget to count when tree visible (scope call, flag to product-owner if P6 fails); (b) EV-8 cursor prefers selectedBg over accent; (c) failed seats stay single-line, EV-9 enter-for-transcript is depth-on-demand.
 
+### Round 2
+
+**owner (round 2):** Verified `types.d.ts:97-98` — both `setWidget` overloads
+(string[] and function) accept `ExtensionWidgetOptions.placement:
+"aboveEditor" | "belowEditor"` (`types.d.ts:43-47`). So factory +
+`belowEditor` is **type-valid**; the principal's mutual exclusion exists only in
+rpc-mode (`rpc.md:1301` "Only string arrays supported in RPC mode; component
+factories are ignored"). That rpc drop **does not matter for /council-tree**:
+this is a TUI-interactive surface (input bar, message area — absent in RPC);
+its no-UI fallback (`navigator.ts open()` guards `!ctx.hasUI`) already covers
+headless. Owner will guard with `ctx.mode === "tui"` (not just `hasUI`, which
+turns true in RPC) so RPC never walks the widget path silently. Hold: the
+factory is the sanctioned path (designer instrument 6), no EV-4 §8 reopening
+needed. **Source:** confirms C1/C2 — `runs.ts` `RunManifest` has no
+`lastActivityAt`; `hub.ts:118-130 writeJobManifest` writes none;
+`parseTranscript` discards the line timestamp. But the ISO `timestamp` already
+lives on every txn line of the `.jsonl`. Cheap fix: extend `TranscriptBlock`
+with `at: number = Date.parse(e.timestamp)` (fall back to `message.timestamp`).
+`lastActivity` for a seat = block with max `at`; age = `now - at`. This
+sidesteps all of `hub.writeJobManifest` coupling. Transcript is authoritative
+last-activity source; manifest contributes seat/id/state/parent for tree
+shape; hub memory redundant. No hub change (proto = AGENTS #7 guards hub).
+Q2 coexist: owner leans tree on-demand + ambient widget stays; whether the
+widget dims while tree is open is a PO/designer call, not engineering.
+Remaining open (stated plainly): Q2 visual overlap is PO/designer; must scope
+`lastActivity` to the current run's session for re-spawned seats
+(`currentRunId` vs `scopeAll`). Testable claims: (1) parseTranscript preserves
+ISO `at` + max by `at`; (2) a two-line transcript with increasing timestamps
+returns block 2 as last-activity (fails today on current `parseTranscript`);
+(3) `setWidget(key, factory, {placement:"belowEditor"})` compiles under strict
+`tsc` (+ an acceptance-mode `--mode tui` no-fallback pin).
+
+**admin note:** The principal's first Round 2 dispatch returned state
+`done` with `stopReason=stop` and zero text output. Re-dispatched once with the
+same input per dispatch discipline; that re-dispatch settled with the full
+position below.
+**principal (Round 2, re-dispatch verdict):** uncovered two blind spots before
+accepting. (1) both owner and designer validate factory + `belowEditor` from
+the *type contract* height but miss a repaint/live-theme pin residual: the
+factory is invoked once; a theme swap must re-render via the component's
+`render()` applying tokens at render time (never baked in the factory body),
+with the 2s interval / an explicit `invalidate()` as the repaint trigger; otherwise the panel sits stale across a mid-session
+`.council.json` recolor -- the exact cache-stale trap EV-4 closed (D2 ghost).
+(2) **per-refresh read cost** -- last-activity for N running sessions every 2s;
+promoting transcript to authoritative source must not be a full
+`parseTranscript` per node per tick (O(rows x file)); the read must be a
+**tail-read** (cached TranscriptTail or last-line seek), not a full parse.
+Also **NaN-stamp**: every existing fixture stamps `"timestamp":"t"` (a
+placeholder; `Date.parse("t")` === NaN); `lastActivity` must treat NaN as
+absent and fall back to manifest `startedAt` -- the age assertion needs real
+ISO stamps in fixtures. **Verdict ACCEPT with 3 shipping conditions** for the
+owner: (1) repaint pin -- test asserting the factory re-renders the live theme
+on a normal tick after a theme swap without calling the factory again
+(mirroring `theme-repaint.test.ts:116-127`); (2) session-teardown --
+`setWidget(key, undefined)` is called on `session_shutdown`, not just the
+interval, per the stale-ctx rule; (3) NaN-fallback + tail-read on the
+authoritative-`at` source claim. Q2: coexist (engineering); whether the
+above-editor widget dims while the tree is open is attributed to the designer,
+PO escalation if P6 (editor >=5 rows on a 24-row terminal) fails. Q3: settled
+as transcript `at` + manifest fallback, NaN-safe, tail-not-full-parse. Q4:
+default current run (parity with the modal's `scopeAll=false`); height budget
+= `MAX_WIDGET_LINES=10` (1 hint + 9 rows). Q5: stateful parent-side toggle,
+`ctrl+shift+t` reuses it, console fallback print-once, `session_shutdown`
+teardown. Testable claims: T1 source (ISO-stamped last block `at` ===
+Date.parse(lastStamp); `"t"` => NaN => manifest fallback), T2 vehicle (strict
+`tsc`; factory invoked once; `render()` re-reads theme tokens each call), T3
+repaint residual D2 (theme swap -> re-render with new tokens, no second factory
+call), T4 no-RPC-regression (RPC mode routes to console `textTree`, never calls
+the factory; assert guard `ctx.mode === "tui"`, not `hasUI`).
+**designer (Round 2, glance + copy decisions):** "Ends the round with a
+GLANCE snippet the owner implements from." **GLANCE DESIGN**:
+- **Vehicle:** factory form `setWidget("council-tree", factory,
+  {placement:"belowEditor"})`, TUI-only; headless = textTree (fallback unchanged).
+- **Token plan per row state:** RUNNING accent, DONE success, FAILED error,
+  STALLED warning, CANCELLED dim, TIMEOUT warning, ORPHANED error.
+- **Row layout / stable left edge:** `[glyph 3][seat 14][sep ' · ' 3][activity flex-truncate][elapsed right-aligned 6]`; seat 14 pads the longest seat name; left edge fixed, no reflow across the 2s refresh.
+- **Activity copy, verb-first from `TranscriptBlock.kind`:** toolCall -> `ran <name> [first-arg <= ~30c]` [+ age]; thinking -> `thinking` [+ age]; assistant -> `replied` [+ age]; toolResult -> `got <name>` [+ age] (only if last block; usually toolCall preempts); user -> `idle` [+ age]. Age format `<60s -> 'Ns', <60m -> 'Nm', >=60m -> 'Nh Mm'`. Fallback (no timestamp reach): same templates, no age suffix; never a fabricated age.
+- **Non-running rows** (dim): activity collapses to manifest state + `settledAt`
+  copy -- `settled <age>`, `failed`, `stalled <age of last>`, `cancelled`,
+  `timeout <secs>`, `orphaned` -- state and `settledAt` are never absent, so no
+  timestamp reach is needed for non-running rows (closes principal's
+  "fallback grammar is undesignated" witness point).
+- **Dim / non-running rule:** running-first order (running -> stalled -> failed
+  -> done); running = full color with seat name bold; done/failed/cancelled =
+  dim; stalled/timeout = warning (eye-catcher); seat name bold for stalled,
+  dim for settled.
+- **Close / forcing function:** no in-panel button; `/council-tree` toggle calls
+  `setWidget(key, undefined)`; hint line names the command (EV-8 layers keys).
+- **Hint line** (bottom): dim `up/down move · enter view · /council-tree to close`.
+- **Empty state:** one dim line `no council jobs this session` (feedback the
+  command was received -- revised from zero-line collapse so the invocation is
+  acknowledged).
+- **Budget / cap:** `MAX_WIDGET_LINES=10` = 1 hint line + 9 rows hard cap; overflow -> dim `... N more` (navigator-style), never draw past the cap.
+- **Token-only (AGENTS 9.6 + EV-4 settled):** every color/bold via `theme.fg`
+  / `theme.bold`, no inline ANSI/hex; `truncateToWidth` ANSI-safe; factory
+  `invalidate()` repaints on theme change.
+- **Coexist (design log, engine call):** when the tree is open it takes the
+  glance role; the above-editor widget shows when closed. Not a designer
+  ruling; logged as a preference, the council routes it (Q2).
 ## Phase 1 rulings (binding, immutable for EPIC-2)
 
 1. **Last-activity copy delegates to the designer.** The card's own wording
