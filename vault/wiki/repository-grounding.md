@@ -6,7 +6,7 @@ aliases: [grounding block]
 tags: [pi-council/concept]
 sources: []
 created: 2026-08-23
-updated: 2026-08-25
+updated: 2026-08-26
 ---
 
 > ⚠️ Derived from `extensions/seats.ts` @ `7fa6ec9` + `docs` spec (captured 2026-08-23). Verify against `seats.ts` (`buildSystemPrompt`, `groundingBlock`).
@@ -46,3 +46,4 @@ LLM-maintained; grounding flows through the grounding block and the wiki.
 - `extensions/seats.ts`
 - `docs/superpowers/specs/2026-08-23-pi-council-design.md`
 - `AGENTS.md` (convention 2)
+- [[2026-08-23-agents]] — the AGENTS.md source summary

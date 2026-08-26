@@ -1,3 +1,28 @@
+## [2026-08-26] lint | Wiki consistency pass
+Ran the Lint operation. Fixed stale claim (pi-council-overview: theme epic now
+v0.12.0-tagged, not "yet-to-be-tagged"), re-pointed the one broken wikilink
+[[superpowers-dependency]]→[[council-dependencies]] in log (left the
+plain-text historical mentions intact), added the [[2026-08-23-agents]] source
+cross-ref to seats/override-resolution/repository-grounding Sources, and
+grounded remote-oauth-login with the RFC 7636 (PKCE) citation + Sources
+entries. No orphan concept pages; frontmatter schema clean; "three production
+bugs" vs Bug 1-4 is accurate (Bug 4 is repo hygiene).
+- **Changed:** pi-council-overview, log, seats, override-resolution,
+  repository-grounding, remote-oauth-login
+- **Contradictions flagged:** none
+
+## [2026-08-26] ingest | Smoke Test v0.12.0 clean green
+Recorded the unattended smoke-test run of v0.12.0 (bun run smoke, EXIT=0):
+full /council EV-1 loop + /features-deliver EPIC-1 epic green from a fresh
+container, tsc clean, 5→18 test suite, exact CLI probes. Created
+sources/2026-08-26-smoke-v0.12.0; updated smoke-test (added the clean-green
+datum to Track record), pi-council-overview (v0.12.0 version row + header),
+council-theme (cross-link), index. No contradictions — this run confirms the
+harness is now a stability gate, not a bug-hunter.
+- **Created:** sources/2026-08-26-smoke-v0.12.0, vault/raw/2026-08-26-smoke-v0.12.0
+- **Updated:** smoke-test, pi-council-overview, council-theme, index
+- **Contradictions flagged:** none
+
 ## [2026-08-25] ingest | EPIC-1 Council Theme subsystem
 Ingested the EPIC-1 theme deliverable — the oh-my-pi-palette theme subsystem
 (EV-1 port, EV-2 config, EV-3 activation, EV-4 compliance/repaint) and the
@@ -191,7 +216,7 @@ ingesting-repo-docs skill. Discussed plan with the human first; wrote 26 pages.
 ## [2026-08-23] query | Drop the git-history page
 Removed `git-history-and-releases` after human review; its version-arc and
 commit-discipline content was redistributed into [[pi-council-overview]],
-[[preflight]], [[mcp-support]], [[superpowers-dependency]], and
+[[preflight]], [[mcp-support]], [[council-dependencies]], and
 [[model-output-floors]].
 
 ## [2026-08-22] scaffold | LLM Wiki initialized

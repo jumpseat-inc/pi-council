@@ -6,7 +6,8 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 ## Overviews
 
 - [[pi-council-overview]] — Pi-council as an installable package: the Council
-  + wiki workflow, two engine halves, the loop, and the release version arc.
+  + wiki workflow, two engine halves, the loop, and the release version arc
+  (through v0.12.0).
 
 ## Entities
 
@@ -39,7 +40,7 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[llm-wiki]] — The persistent, compounding knowledge base (sources → wiki → schema).
 - [[council-config]] — The committed `.council.json`; field-level per-seat model/thinking override PLUS a top-level `theme` section, scaffold-seeded.
 - [[council-theme]] — EPIC-1's omp-palette theme subsystem: pinned dark/light pair, `.council.json` recolor surface, four-state activation, token-only drawing + live repaint.
-- [[smoke-test]] — The definitive unattended end-to-end test: isolated container drives a real /council loop + /features-deliver epic, asserts structure, re-runs gates itself; caught 3 production bugs.
+- [[smoke-test]] — The definitive unattended end-to-end test: isolated container drives a real /council loop + /features-deliver epic, asserts structure, re-runs gates itself; caught 3 bugs at birth, clean-green since v0.12.0.
 - [[headless-pi]] — pi's non-interactive modes (-p/json/rpc): no trust prompt, single-shot teardown, stale ctx, and the waitForIdle pattern for command turns.
 - [[run-transcripts]] — the on-disk run substrate: per-job manifests + session JSONL under .pi/council/runs/, the job forest, and the /council-tree live transcript viewer (ctrl+shift+t).
 
@@ -72,4 +73,5 @@ _(none yet)_
 - [[2026-08-25-design-ev3]] — Designer first-pass on EV-3: pure decideActivation, raw-settings detection, in-memory construction, notify as evaluation signal.
 - [[2026-08-25-design-ev3-round2]] — Designer round-2 on EV-3: the five activation disputes (custom pairs block, ui.theme continuity, tempfile, corrected acceptance).
 - [[2026-08-25-design-ev4-round1]] — Designer audit for EV-4: token-only surface map, CouncilTree cache-stale repaint trap, widget function form, in-memory HTML-export gap.
+- [[2026-08-26-smoke-v0.12.0]] — Clean-green v0.12.0 smoke run of the full council loop + epic in a fresh container; the harness as stability gate, not bug-hunter.
 

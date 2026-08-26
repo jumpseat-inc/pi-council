@@ -75,4 +75,5 @@ seat children — which meant `/features-deliver` was broken end-to-end). See
 ## Sources
 
 - `smoke/run.sh`, `smoke/driver.sh`, `smoke/assert.sh`, `smoke/fixture/`
-- [[2026-08-24-unattended-smoke-test-design]], [[2026-08-24-unattended-smoke-test-plan]], [[2026-08-25-smoke-test-bugfixes]]
+- [[2026-08-24-unattended-smoke-test-design]], [[2026-08-24-unattended-smoke-test-plan]]
+- [[2026-08-26-smoke-v0.12.0]] — clean-green v0.12.0 run, [[2026-08-25-smoke-test-bugfixes]]

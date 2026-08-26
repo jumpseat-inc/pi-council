@@ -6,7 +6,7 @@ aliases: [overrides, repo-override]
 tags: [pi-council/concept]
 sources: ["[[2026-08-23-council-json-override]]", "[[2026-08-24-bugfix-seat-prose]]"]
 created: 2026-08-23
-updated: 2026-08-24
+updated: 2026-08-26
 ---
 
 # Override Resolution
@@ -63,3 +63,4 @@ pi's own clone).
 - `extensions/seats.ts`, `extensions/index.ts`
 - `docs/superpowers/specs/2026-08-23-pi-council-design.md`
 - [[2026-08-24-bugfix-seat-prose]]
+- [[2026-08-23-agents]] — convention 5: repo-local resources shadow packaged ones by filename

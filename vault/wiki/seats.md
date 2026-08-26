@@ -6,7 +6,7 @@ aliases: [seat, seat schema, council seat]
 tags: [pi-council/concept]
 sources: ["[[2026-08-23-council-json-override]]", "[[2026-08-24-bugfix-seat-prose]]"]
 created: 2026-08-23
-updated: 2026-08-25
+updated: 2026-08-26
 ---
 
 > ⚠️ Derived from `extensions/seats.ts`, `extensions/child.ts`, and the nine `council/agents/*.md` files (captured 2026-08-23). Verify against `seats.ts` for schema details.
@@ -86,3 +86,4 @@ product-owner, skeptic (the sole adversary), steward.
 - `council/agents/*.md`
 - [[2026-08-23-pi-council-design-spec]]
 - [[2026-08-24-bugfix-seat-prose]]
+- [[2026-08-23-agents]] — the AGENTS.md hard conventions (seat schema, tool-grant vocabulary, override semantics)

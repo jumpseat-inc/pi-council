@@ -6,7 +6,7 @@ aliases: [copy-paste oauth, manual oauth, paste-back oauth, remote login, headle
 tags: [pi-council/concept]
 sources: ["[[2026-08-25-remote-mcp-oauth]]"]
 created: 2026-08-25
-updated: 2026-08-25
+updated: 2026-08-26
 ---
 
 # Remote OAuth Login
@@ -38,7 +38,8 @@ instead.
 - **PKCE is the lock.** The authorization code is useless without the
   verifier. If the verifier never leaves the agent machine, the code can land
   anywhere — a misdirected redirect, a port collision, a malicious local
-  listener — and can't be turned into a token.
+  listener — and can't be turned into a token. (PKCE is standardized in
+  [RFC 7636](https://www.rfc-editor.org/rfc/rfc7636).)
 - **Fixed loopback URI.** RFC 8252 allows any port on `127.0.0.1`; a fixed
   port means both phases agree without persisting the URI. **But** the URI
   actually advertised is the client's *registered* `redirect_uris[0]` when a
@@ -90,3 +91,4 @@ instead.
 
 - [[2026-08-25-remote-mcp-oauth]]
 - [[2026-08-25-remote-mcp-oauth-fix]]
+- [RFC 7636 — PKCE](https://www.rfc-editor.org/rfc/rfc7636), [RFC 8252 — OAuth 2.0 for Native Apps](https://www.rfc-editor.org/rfc/rfc8252)

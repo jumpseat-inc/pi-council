@@ -4,9 +4,9 @@ type: concept
 summary: The oh-my-pi-palette theme subsystem for pi-council — a pinned dark/light theme pair, a repo-level .council.json recolor surface, session-start activation with a strict name namespace, and a token-only drawing rule for all council-drawn UI.
 aliases: [theme, pi-council theme, council theme system, theme-section]
 tags: [pi-council/concept]
-sources: ["[[2026-08-25-design-ev1-round2]]", "[[2026-08-25-po-ev1-escalation]]", "[[2026-08-25-design-ev3]]", "[[2026-08-25-design-ev3-round2]]", "[[2026-08-25-design-ev4-round1]]"]
+sources: ["[[2026-08-25-design-ev1-round2]]", "[[2026-08-25-po-ev1-escalation]]", "[[2026-08-25-design-ev3]]", "[[2026-08-25-design-ev3-round2]]", "[[2026-08-25-design-ev4-round1]]", "[[2026-08-26-smoke-v0.12.0]]"]
 created: 2026-08-25
-updated: 2026-08-25
+updated: 2026-08-26
 ---
 
 # Council Theme
@@ -134,7 +134,7 @@ would misattribute the shipped behavior.
 - [[run-transcripts]] — the modal/transcript surfaces that draw the theme
 - [[pi-council-overview]] — the release arc this epic extends
 - [[seats]], [[product-owner]] — designer (position) + PO (rulings) seats
-- [[smoke-test]] — receives the `/settings` prefix prediction
+- [[smoke-test]] — receives the `/settings` prefix prediction; shipped and **clean-green** in the v0.12.0 smoke run ([[2026-08-26-smoke-v0.12.0]])
 - Source pages: [[2026-08-25-design-ev1-round2]], [[2026-08-25-po-ev1-escalation]], [[2026-08-25-design-ev3]], [[2026-08-25-design-ev3-round2]], [[2026-08-25-design-ev4-round1]]
 
 ## Sources
