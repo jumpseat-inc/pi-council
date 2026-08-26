@@ -232,6 +232,16 @@ defined settling tests for step 9.
 - O5 `ctx.mode === "tui"` guard on the widget path (not `!ctx.hasUI`), RPC routes to console (navigator.ts:57 currently buggy).
 - O3/T3 repaint D2 pin — new test: theme swap -> re-render on normal tick, no 2nd factory invocation.
 
+## Rulings applied on resume (product-owner, binding — appended verbatim)
+
+**RULING OV-1 (coexist):** Ship (a) — both the new inline tree panel and the existing ambient above-editor council widget render simultaneously when the tree is open. Collapse/hide behavior is not adopted on this card.
+
+**RULING OV-2 (RPC scope):** Split. EV-7 fixes only the new inline panel path's guard (`ctx.mode === "tui"`). The pre-existing `navigator.ts:57` `!ctx.hasUI` guard is left as-is and lands in a new follow-up card to be ratified at step-13 sync (suggested title: "Repair /council-tree RPC silent-no-op in `navigator.ts:57`" — its own `goal` will either delete the dead modal path or fix the guard, depending on whether EV-7's replacement leaves the path reachable).
+
+**OV-1 ground note (for the engineer):** the ambient above-editor widget's EV-4 plain-text/zero-ANSI contract is preserved and untouched. EV-7's inline panel below-editor is a second, independent widget; the existing `renderWidget()`/`widgetLines()` timer in index.ts is NOT modified by this card. The inline panel closes and "restores normal layout" — that means the ambient widget remains the always-visible status line, unchanged.
+
+**OV-2 ground note:** EV-7's new inline path MUST guard on `ctx.mode === "tui"` (settled O5, non-optional). The pre-existing `navigator.ts:57` modal path is out of EV-7's scope entirely — do not fix it here; it is the follow-up's. The follow-up card (step 13) is where the RPC modal-path repair (or deletion) lands.
+
 ## Phase 1 rulings (binding, immutable for EPIC-2)
 
 1. **Last-activity copy delegates to the designer.** The card's own wording
