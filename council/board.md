@@ -7,6 +7,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Backlog
 
 - EPIC-1 — omp-themed council theme for pi, configurable from the scaffold .council.json
+- FLLWUP-1 — Fix HTML export under an active in-memory council theme
+- FLLWUP-2 — Make the .council.json theme export section editable
+- FLLWUP-3 — Revisit empty dark and light variant shells for consumer discoverability
 
 ## Ready
 
