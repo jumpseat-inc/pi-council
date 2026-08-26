@@ -2,6 +2,7 @@
 title: 2026-08-25 "Remote MCP OAuth Login" (v0.11.0)
 type: source
 summary: The two-phase copy-paste OAuth login for headless/remote agents — /mcp login <server> --remote prints the authorization URL, /mcp auth <server> <url> exchanges the pasted code; the PKCE verifier persisted to the auth store is what makes the split possible.
+aliases: []
 tags: [pi-council/source]
 sources: []
 created: 2026-08-25

@@ -2,6 +2,7 @@
 title: 2026-08-23 Pi-council Implementation Plan
 type: source
 summary: The task-by-array of steps to turn the pi-council design spec into the package — the authoritative engineering runbook (9 seats, 7 procedures, ported tests, override/scaffold/grounding/substitution coverage).
+aliases: []
 tags: [pi-council/source]
 sources: []
 created: 2026-08-23

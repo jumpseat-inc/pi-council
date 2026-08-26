@@ -2,6 +2,7 @@
 title: 2026-08-23 "MCP Support" Design Spec
 type: source
 summary: The design of the MCP subsystem (v0.2.0) — servers registry, split storage (committable config vs secret auth), parent auth + seat consumption, and the exact-name tool allowlist mechanic.
+aliases: []
 tags: [pi-council/source]
 sources: []
 created: 2026-08-23

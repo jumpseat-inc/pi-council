@@ -1,3 +1,36 @@
+## [2026-08-26] lint | Wiki lint pass — v0.13.0 + stale-claim reconciliation
+Ran the Lint operation. Fixed mechanical issues (log.md EPIC-2 entry out of
+chronological order → moved to top; mcp-support header note v0.2.0→v0.11.0 →
+v0.11.2; 9 source pages missing `aliases`; broken [[superpowers-dependency]]
+link → plain text). Recorded the v0.13.0 release (EPIC-2 now tagged, commit
+fae42f3) in pi-council-overview; reconciled council-theme's stale "modal"
+references to the inline panel; aligned mcp-support's "fixed loopback URI"
+claim with the v0.11.1 registered-URI derivation. No orphan pages; index
+complete.
+- **Changed:** log, pi-council-overview, council-theme, mcp-support,
+  9 source pages (aliases)
+- **Contradictions flagged:** 3 (v0.13.0 release unrecorded; council-theme
+  "modal" vs EPIC-2 inline; mcp-support "fixed URI" vs v0.11.1 derivation).
+  Reconciled, not silently overwritten.
+
+## [2026-08-26] ingest | EPIC-2 Inline Council Job Tree
+Ingested the whole EPIC-2 run: /council-tree became an **inline below-editor
+panel** (EV-7 per-row last activity via a transcript timestamp seam) with
+editor-driven arrow-key focus (EV-8) and Enter opening inline progress
+(EV-9). Created the council-job-tree-inline concept page and 5 source pages
+(design-ev8, po-ev8-ruling editor-driven, design-ev9, design-ev9-round2,
+po-ev9-tiny-regime-floor min-height-7). Reconcord run-transcripts
+(modal → inline), added the EPIC-2 row to pi-council-overview (still v0.12.1,
+tag pending), cross-linked council-theme, updated index.
+- **Created:** council-job-tree-inline + sources/2026-08-26-design-ev8,
+  sources/2026-08-26-po-ev8-ruling, sources/2026-08-26-design-ev9,
+  sources/2026-08-26-design-ev9-round2, sources/2026-08-26-po-ev9-tiny-regime-floor
+- **Updated:** run-transcripts, pi-council-overview, council-theme, index
+- **Contradictions flagged:** 1 — run-transcripts claimed /council-tree is a
+  v0.11.4 full-screen modal; EPIC-2 replaces that with the inline below-editor
+  panel (per the card goal). Reconciled, not silently overwritten; the modal
+  path survives only behind navigator.ts:57 (FLLWUP-4).
+
 ## [2026-08-26] ingest | Theme module resolution fix (v0.12.1)
 Ingested the bug/root-cause/fix: in an installed package the council theme
 silently never activated because `loadPiThemeModule` located pi's theme
@@ -17,7 +50,7 @@ bumped 0.12.0→0.12.1 (tag pending).
 ## [2026-08-26] lint | Wiki consistency pass
 Ran the Lint operation. Fixed stale claim (pi-council-overview: theme epic now
 v0.12.0-tagged, not "yet-to-be-tagged"), re-pointed the one broken wikilink
-[[superpowers-dependency]]→[[council-dependencies]] in log (left the
+superpowers-dependency → [[council-dependencies]] in log (left the
 plain-text historical mentions intact), added the [[2026-08-23-agents]] source
 cross-ref to seats/override-resolution/repository-grounding Sources, and
 grounded remote-oauth-login with the RFC 7636 (PKCE) citation + Sources
@@ -141,27 +174,6 @@ SSH_TTY / no DISPLAY; --remote/--local override.
   lineage (was v0.2.0→v0.4.0, now through v0.11.0). Reconciled, not silently
   overwritten.
 
-<!-- Append-only. Newest entries at top. Format: ## [YYYY-MM-DD] <op> | <title> -->
-
-## [2026-08-26] ingest | EPIC-2 Inline Council Job Tree
-Ingested the whole EPIC-2 run: /council-tree became an **inline below-editor
-panel** (EV-7 per-row last activity via a transcript timestamp seam) with
-editor-driven arrow-key focus (EV-8) and Enter opening inline progress
-(EV-9). Created the council-job-tree-inline concept page and 5 source pages
-(design-ev8, po-ev8-ruling editor-driven, design-ev9, design-ev9-round2,
-po-ev9-tiny-regime-floor min-height-7). Reconcord run-transcripts
-(modal → inline), added the EPIC-2 row to pi-council-overview (still v0.12.1,
-tag pending), cross-linked council-theme, updated index.
-- **Created:** council-job-tree-inline + sources/2026-08-26-design-ev8,
-  sources/2026-08-26-po-ev8-ruling, sources/2026-08-26-design-ev9,
-  sources/2026-08-26-design-ev9-round2, sources/2026-08-26-po-ev9-tiny-regime-floor
-- **Updated:** run-transcripts, pi-council-overview, council-theme, index
-- **Contradictions flagged:** 1 — run-transcripts claimed /council-tree is a
-  v0.11.4 full-screen modal; EPIC-2 replaces that with the inline below-editor
-  panel (per the card goal). Reconciled, not silently overwritten; the modal
-  path survives only behind navigator.ts:57 (FLLWUP-4).
-
-
 ## [2026-08-25] lint | Wiki lint pass + run-transcripts page
 Ran the Lint operation: fixed 11 pages of mechanical issues (stale claims in
 preflight/owner/overview, corrupted seat-derived wording in judge/skeptic/
@@ -256,3 +268,5 @@ commit-discipline content was redistributed into [[pi-council-overview]],
 
 ## [2026-08-22] scaffold | LLM Wiki initialized
 Vault scaffolded; index.md and log.md created. No sources ingested yet.
+
+<!-- Append-only. Newest entries at top. Format: ## [YYYY-MM-DD] <op> | <title> -->

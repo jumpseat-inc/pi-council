@@ -2,6 +2,7 @@
 title: 2026-08-25 "Live Runtime Refresh After MCP Login" (v0.11.2)
 type: source
 summary: The v0.11.2 fix — /mcp login and /mcp auth now reconnect the live runtime, so /mcp list shows connected + tools instead of the stale unauthenticated/tools=0 captured at session start.
+aliases: []
 tags: [pi-council/source]
 sources: ["[[2026-08-25-remote-mcp-oauth]]", "[[2026-08-25-remote-mcp-oauth-fix]]"]
 created: 2026-08-25

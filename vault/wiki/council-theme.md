@@ -14,7 +14,7 @@ updated: 2026-08-26
 The theme subsystem shipped by **EPIC-1** (EV-1..EV-4). It gives pi-council a
 signature oh-my-pi ("omp") look that a consumer can recolor per-repo from a
 committed `.council.json`, activated at session start, and enforced token-only
-across every surface the council draws — including the `/council-tree` modal.
+across every surface the council draws — including the `/council-tree` inline panel.
 
 The design risk that shaped it: **three would-be sources of truth for a single
 color** — the shipped theme asset, the `.council.json` config, and the runtime
@@ -40,7 +40,7 @@ ui.setTheme(instance)  — zero settings-mutation
 | **EV-1** | Port omp `dark.json`/`light.json` (pinned SHA `eab72e88` — 51 live tokens each, exactly pi's required set) to `themes/pi-council-{dark,light}.json` + a `pi.themes` manifest entry (required — without it the pair is invisible to pi's loader). Verbatim omp var names. |
 | **EV-2** | `.council.json` gains a top-level `theme` section (per-variant `vars`/`colors` blocks, `enabled`/`variant`), parsed by `loadThemeConfig`, `theme` reserved/skipped in `loadCouncilConfig`. Scaffold seeds non-clobberingly. |
 | **EV-3** | Session-start activation: four-state whitelist, in-memory `new Theme` + `ui.setTheme(instance)`, raw-settings detection off disk, one-time notify. |
-| **EV-4** | Token-only drawing rule enforced, `.council.json` mid-session watcher, `resolvedPalette(variant)` helper, live repaint of the modal. |
+| **EV-4** | Token-only drawing rule enforced, `.council.json` mid-session watcher, `resolvedPalette(variant)` helper, live repaint of the tree/transcript surface. |
 
 ## The name namespace (inviolate)
 
@@ -103,17 +103,17 @@ identity (internal helpers optional) on bun-binary installs.
 - **(b)** Strings handed to `setWidget`/`notify`/`custom` are **plain text**;
   styling is pi's job, never inline ANSI.
 
-Today-compliance: the modal / transcript viewer / backdrop all draw from tokens
-(`customMessageBg`, `border`, `accent`, `dim`, `success`, `warning`, `muted`,
-`bold`); the widget and `/council-jobs` and `/council-init` stay plain text.
+Today-compliance: the inline tree / transcript viewer draw from tokens
+(`border`, `accent`, `dim`, `bold`, `success`, `warning`, `muted`); the widget
+and `/council-jobs` and `/council-init` stay plain text.
 
 ## Live repaint (EV-4)
 
 A `.council.json` watcher re-runs merge → `new Theme` → `ui.setTheme(instance)`
 mid-session. The critical fix: **`CouncilTree` memoizes its output on width**,
-so a theme switch while the modal is open would leave content in the old
-palette (border/backdrop repaint via the live proxy, rows stale) — a
-half-painted modal worse than none. `onThemeChange → tree.invalidate()` closes
+so a theme switch while the tree is open would leave content in the old
+palette (border repaint via the live proxy, rows stale) — a half-painted
+surface worse than none. `onThemeChange → tree.invalidate()` closes
 it. `RULING 1`: on off-transition, keep the last materialized theme + notify
 (no live off-revert). `RULING 2`: display no council-owned "which theme is
 active" status surface — the repaint itself is the answer.

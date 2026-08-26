@@ -2,6 +2,7 @@
 title: 2026-08-23 MCP Implementation Plan
 type: source
 summary: The task-by-task build-out of the MCP subsystem per the design spec — v0.2.0 with SDK-internals-grounded fixtures, OAuth browser flow, tool-bridging entry points, and seed TDD coverage.
+aliases: []
 tags: [pi-council/source]
 sources: []
 created: 2026-08-23

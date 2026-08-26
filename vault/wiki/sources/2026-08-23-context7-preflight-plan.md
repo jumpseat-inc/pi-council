@@ -2,6 +2,7 @@
 title: 2026-08-23 Context7-by-default + Preflight Plan
 type: source
 summary: The v0.3.0 bounded task plan — ship Context7 as a default MCP server, grant it to six seats, and make preflight structurally assert the registration + stored auth.
+aliases: []
 tags: [pi-council/source]
 sources: []
 created: 2026-08-23

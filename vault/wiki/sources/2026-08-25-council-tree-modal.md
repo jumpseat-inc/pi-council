@@ -2,6 +2,7 @@
 title: 2026-08-25 "/council-tree Full-Screen Modal Backdrop" Fix (v0.11.4)
 type: source
 summary: The v0.11.4 fix — /council-tree and the transcript viewer render as full-screen modals (opaque backdrop + bordered panel), because the TUI overlay compositor offers no backdrop of its own.
+aliases: []
 tags: [pi-council/source]
 sources: ["[[2026-08-24-unattended-smoke-test-plan]]", "[[2026-08-25-remote-mcp-oauth]]"]
 created: 2026-08-25

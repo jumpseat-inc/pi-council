@@ -2,6 +2,7 @@
 title: 2026-08-25 "/council-init --approve Trust" Fix (v0.11.3)
 type: source
 summary: The v0.11.3 fix — /council-init passes --approve to pi install -l when the project isn't trusted, so headless/remote dep pinning no longer fails with "Project is not trusted".
+aliases: []
 tags: [pi-council/source]
 sources: ["[[2026-08-24-ask-user-question]]", "[[2026-08-23-council-json-override]]"]
 created: 2026-08-25

@@ -6,12 +6,12 @@ aliases: [mcp, model context protocol]
 tags: [pi-council/concept]
 sources: ["[[2026-08-25-remote-mcp-oauth]]"]
 created: 2026-08-23
-updated: 2026-08-25
+updated: 2026-08-26
 ---
 
 # MCP Support
 
-> ⚠️ Derived from `extensions/mcp/**` (index, config, auth-store, client, oauth, schema) (captured 2026-08-23; remote-login section captured 2026-08-25). Verify against the source; mature subsystem (v0.2.0→v0.11.0).
+> ⚠️ Derived from `extensions/mcp/**` (index, config, auth-store, client, oauth, schema) (captured 2026-08-23; remote-login section captured 2026-08-25). Verify against the source; mature subsystem (v0.2.0→v0.11.2).
 
 pi has no built-in MCP, so pi-council ships one. Seats can call tools from
 **registered, authenticated MCP servers** (Context7, Tavily, ...). This is the
@@ -64,8 +64,10 @@ Schema → TypeBox). Tool results: text.
      5-minute window) captures the code.
    - **Remote copy-paste (any machine):** capture the authorization URL and
      print it. The user opens it on any device and pastes the redirected URL
-     back into `/mcp auth`. The fixed loopback URI is
-     `http://127.0.0.1:8765/callback`; the PKCE verifier persisted from
+     back into `/mcp auth`. The advertised redirect URI derives from the
+     client's registered `redirect_uris[0]` when a client is already
+     persisted (falling back to the fixed `http://127.0.0.1:8765/callback`
+     only for a fresh registration); the PKCE verifier persisted from
      phase 1 (single-use, consumed on token save) makes phase 2 safe with no
      tunnels or relays. See [[remote-oauth-login]] for the pattern.
 

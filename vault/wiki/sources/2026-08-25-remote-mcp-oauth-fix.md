@@ -2,6 +2,7 @@
 title: 2026-08-25 "Remote MCP OAuth Redirect-URI Fix" (v0.11.1)
 type: source
 summary: The v0.11.1 bugfix for the invalid_request "redirect_uri does not match" — a persisted DCR client's registered redirect-URI list drove the advertised URI, and stale loopback clients get re-registered instead of rejected.
+aliases: []
 tags: [pi-council/source]
 sources: ["[[2026-08-25-remote-mcp-oauth]]"]
 created: 2026-08-25
