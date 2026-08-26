@@ -4,6 +4,7 @@ import { Key, matchesKey, truncateToWidth, visibleWidth, wrapTextWithAnsi, type 
 import { findSessionFile, listRunIds, readManifests } from "./runs.ts";
 import { buildTree, flattenTree, textTree, type TreeNode } from "./tree.ts";
 import { lastActivity, TranscriptTail, type TranscriptBlock } from "./transcript.ts";
+import { TreeFocusState, installTreeEditor, restoreTreeEditor, TREE_ROW_MARKER } from "./focus-nav.ts";
 
 export const TREE_SHORTCUT = "ctrl+shift+t";
 
@@ -58,6 +59,17 @@ export function surfaceForMode(mode: string): "widget" | "console" {
 /** Tear down the inline tree widget — only meaningful in TUI (OV-2 guard). */
 export function clearTreeWidget(ctx: { mode: string; ui: { setWidget(k: string, v: unknown): void } }): void {
 	if (ctx.mode === "tui") ctx.ui.setWidget(COUNCIL_TREE_WIDGET_KEY, undefined);
+}
+
+// EV-8: module-level shared focus controller for the inline tree. The editor
+// (CustomTreeEditor) and the widget both read/write it; it is (re-)armed per
+// open/close and never outlives a session.
+let treeController: TreeFocusState | null = null;
+
+/** Tear down the EV-8 editor + focus surface on session_shutdown / close. */
+export function shutdownTreeFocus(ctx: { mode: string; ui: { setEditorComponent(f: unknown): void } }): void {
+	treeController?.setOpen(false);
+	if (ctx.mode === "tui") restoreTreeEditor(ctx.ui as never);
 }
 
 /**
@@ -281,16 +293,18 @@ export class CouncilTreeWidget implements Component {
 	private rows: Array<{ node: TreeNode }> = [];
 	private tails = new Map<string, TranscriptTail>();
 	private lastBlocks = new Map<string, TranscriptBlock | undefined>();
-	private cached?: { w: number; lines: string[] };
+	private cached?: { w: number; sig: string; lines: string[] };
 	private now: () => number;
+	private controller?: TreeFocusState;
 
 	constructor(
 		private repoRoot: string,
 		private currentRunId: () => string | undefined,
 		private theme: NavTheme,
-		opts: { now?: () => number } = {},
+		opts: { now?: () => number; controller?: TreeFocusState } = {},
 		maxRows = ROWS_MAX,
 	) {
+		this.controller = opts.controller;
 		this.now = opts.now ?? Date.now;
 		this.refresh();
 	}
@@ -354,23 +368,34 @@ export class CouncilTreeWidget implements Component {
 	}
 
 	render(width: number): string[] {
-		if (this.cached?.w === width) return this.cached.lines;
+		const sig = `${this.controller?.surface ?? "editor"}:${this.controller?.selectedSessionId ?? ""}`;
+		if (this.cached?.w === width && this.cached.sig === sig) return this.cached.lines;
 		const ordered = [...this.rows].sort(
 			(a, b) => (STATE_ORDER[stateOf(a.node)] ?? 99) - (STATE_ORDER[stateOf(b.node)] ?? 99),
 		);
+		// EV-8: keep the controller's row list (sessionId order) in sync so the
+		// editor's arrow routing and the highlighted row share one source (O6).
+		this.controller?.setRows(ordered.map(({ node }) => node.manifest.sessionId));
 		const lines: string[] = [];
 		if (ordered.length === 0) {
 			lines.push(this.theme.fg("dim", "no council jobs this session"));
 		} else {
 			const overflow = ordered.length > ROWS_MAX;
 			const rowBudget = overflow ? ROWS_MAX - 1 : ROWS_MAX;
-			for (const { node } of ordered.slice(0, rowBudget)) lines.push(truncateToWidth(this.rowLine(node), width));
+			for (const { node } of ordered.slice(0, rowBudget)) {
+				const selected =
+					this.controller?.surface === "tree" && this.controller.selectedSessionId === node.manifest.sessionId;
+				const base = this.rowLine(node);
+				// EV-8: ▌ (U+258C) prefixes the selected row only while tree-focus (O6/OJ-3).
+				const line = selected ? `${this.theme.fg("accent", TREE_ROW_MARKER)} ${base}` : base;
+				lines.push(truncateToWidth(line, width));
+			}
 			if (overflow) {
 				lines.push(this.theme.fg("dim", `... ${ordered.length - rowBudget} more`));
 			}
 		}
 		lines.push(this.theme.fg("dim", "up/down move · enter view · /council-tree to close"));
-		this.cached = { w: width, lines };
+		this.cached = { w: width, sig, lines };
 		return lines;
 	}
 
@@ -435,6 +460,19 @@ export function registerNavigator(pi: ExtensionAPI, repoRoot: string, currentRun
 	// modal `open()` above is left untouched (OV-2: navigator.ts:57 guard is
 	// out of EV-7's scope — a follow-up card repairs it).
 	let treeOpen = false;
+	treeController = new TreeFocusState();
+
+	/** EV-8 Enter action: open the transcript for the selected session (existing row action). */
+	const activateSession = (ctx: ExtensionContext, tui: unknown, sessionId: string | null): void => {
+		if (!sessionId) return;
+		const runId = currentRunId();
+		if (!runId) return;
+		const node = flattenTree(buildTree(readManifests(repoRoot, runId))).find(
+			(n) => n.manifest.sessionId === sessionId,
+		);
+		if (node) openTranscript(ctx, tui as never, repoRoot, node, runId);
+	};
+
 	const toggleWidget = async (ctx: ExtensionContext): Promise<void> => {
 		if (surfaceForMode(ctx.mode) === "console") {
 			const lines = textTree(repoRoot, listRunIds(repoRoot).slice(0, 5));
@@ -443,13 +481,17 @@ export function registerNavigator(pi: ExtensionAPI, repoRoot: string, currentRun
 		}
 		if (treeOpen) {
 			ctx.ui.setWidget(COUNCIL_TREE_WIDGET_KEY, undefined);
+			treeController?.setOpen(false);
+			restoreTreeEditor(ctx.ui);
 			treeOpen = false;
 			return;
 		}
+		treeController?.setOpen(true);
+		installTreeEditor(ctx.ui, treeController!, (tui, sid) => activateSession(ctx, tui, sid));
 		ctx.ui.setWidget(
 			COUNCIL_TREE_WIDGET_KEY,
 			(tui: any, theme: NavTheme) => {
-				const widget = new CouncilTreeWidget(repoRoot, currentRunId, theme);
+				const widget = new CouncilTreeWidget(repoRoot, currentRunId, theme, { controller: treeController! });
 				const timer = setInterval(() => {
 					widget.refresh();
 					tui?.requestRender?.();

@@ -11,7 +11,7 @@ import { mintRunId, pruneRuns } from "./runs.ts";
 import { scaffoldInto } from "./scaffold.ts";
 import { installArgsFor, resolveCouncilDependencies } from "./dependencies.ts";
 import { connectParentServers, getMcpManager, registerMcpCommand } from "./mcp/index.ts";
-import { clearTreeWidget, registerNavigator } from "./navigator.ts";
+import { clearTreeWidget, registerNavigator, shutdownTreeFocus } from "./navigator.ts";
 
 /**
  * Some catalogue entries carry wrong max-output metadata — e.g. OpenRouter's
@@ -175,6 +175,7 @@ export default function (pi: ExtensionAPI) {
 			widgetTimer = null;
 		}
 		clearTreeWidget(ctx); // EV-7: inline tree widget lives in ctx.ui; remove it here
+		shutdownTreeFocus(ctx); // EV-8: reset focus surface + restore the composed-over editor
 		themeWatcher?.close();
 		themeWatcher = null;
 		void getMcpManager(repoRoot).closeAll();
