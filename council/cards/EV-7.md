@@ -1,7 +1,7 @@
 ---
 id: EV-7
 title: Render the job tree inline beneath the input bar with per-row last activity
-state: Deliberating
+state: In Progress
 owner: null
 epic: EPIC-2
 goal: /council-tree renders the live job tree as an inline panel beneath the input bar that pushes message content up instead of dimming the terminal with a modal, with each row showing that subagent's last activity next to the seat name

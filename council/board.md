@@ -19,10 +19,10 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- EV-7 — Render the job tree inline beneath the input bar with per-row last activity
 
 ## In Progress
 
+- EV-7 — Render the job tree inline beneath the input bar with per-row last activity
 
 
 ## In Review
