@@ -65,7 +65,7 @@ test("parses owner seat: model split, tools, no autoloadSkills", () => {
 	expect(owner.tools).toEqual(["Read", "Grep", "Glob", "Edit", "Write", "Bash"]);
 	expect((owner as unknown as Record<string, unknown>).autoloadSkills).toBeUndefined();
 	expect(owner.body).toContain("<role>");
-	expect(owner.body).not.toContain("ev-guide` skill");
+	expect(owner.body).not.toContain("ev-guide");
 });
 
 test("parses council-runner spawns list", () => {

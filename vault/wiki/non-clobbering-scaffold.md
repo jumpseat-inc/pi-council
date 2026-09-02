@@ -38,7 +38,7 @@ reported in `skipped` and left byte-for-byte untouched.
   tavily (OAuth), also non-clobbering (a consumer's file wins).
 
 Re-running on an already-initialized repo is a **no-op** — this is what protects
-the consumer's data (e.g. ev-guide's board and wiki) across reinstalls.
+the consumer's data (e.g. a consumer's board and wiki) across reinstalls.
 
 ## Related
 

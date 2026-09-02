@@ -3,7 +3,7 @@
 Round-2 design response on card EV-3 (Activate the council theme on
 session start). Engages the five open disputes the round-1
 convergence surfaced, names the gulf each closes, and predicts the
-visible failures a driver / consumer would hit if each side landed
+visible failures a person / consumer would hit if each side landed
 wrong. Supersedes nothing in `vault/raw/` for EV-3 (round-1 design
 note `2026-08-25-design-ev3.md` stands; this doc is the round-2
 delta, not a rewrite).

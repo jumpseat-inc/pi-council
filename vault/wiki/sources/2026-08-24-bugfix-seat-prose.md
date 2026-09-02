@@ -1,7 +1,7 @@
 ---
 title: 2026-08-24 seat/procedure mechanism-reference hygiene (bugfix)
 type: source
-summary: A working-tree bugfix pass that purges ev-guide-era leftovers from packaged pi-council — the stale `deliver.md` filename, a repo-specific `GATE-EVIDENCE.md` gate path, a hardcoded `.pi`, and the pre-packaged "agent registry / restart" framing — locked in with regression tests.
+summary: A working-tree bugfix pass that purges extraction-era leftovers from packaged pi-council — the stale `deliver.md` filename, a repo-specific `GATE-EVIDENCE.md` gate path, a hardcoded `.pi`, and the pre-packaged "agent registry / restart" framing — locked in with regression tests.
 aliases: [bugfix seat prose, mechanism-reference hygiene, deliver.md fix]
 tags: [pi-council/source]
 sources: []
@@ -15,7 +15,7 @@ updated: 2026-08-24
 > (captured 2026-08-24). Verify against those files.
 
 Six fixes, all one family: references that were accurate for the pre-extraction
-ev-guide design but wrong for pi-council, where seats and procedures are package
+source-repo design but wrong for pi-council, where seats and procedures are package
 resources resolved from disk — not pi agents loaded into a startup registry.
 
 ## The six fixes
@@ -24,7 +24,7 @@ resources resolved from disk — not pi agents loaded into a startup registry.
    and `features-new.md` still named the procedure by its old filename.
 2. **Dropped `docs/gates/GATE-EVIDENCE.md`** from [[council-loop]]'s
    `/features-deliver` deterministic merge check — that gate file is
-   ev-guide-specific and not shipped; criterion 1 is now "every owner gate green,
+   source-repo-specific and not shipped; criterion 1 is now "every owner gate green,
    in full" (the owner seat body defines its own gates).
 3. **Hardcoded `.pi` → `CONFIG_DIR_NAME`** in the [[procedure-commands]] scan
    loop (`extensions/index.ts`), consistent with AGENTS.md convention #3 and
@@ -42,7 +42,7 @@ resources resolved from disk — not pi agents loaded into a startup registry.
 
 ## Takeaways
 
-- Extraction from ev-guide left **mechanism prose** stale even where the engine
+- Extraction from the source repo left **mechanism prose** stale even where the engine
   was already generalized — filenames and resolution framing, not just path
   literals.
 - Seat resolution is now explicitly **disk-at-dispatch-time** ([[seats]],

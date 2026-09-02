@@ -15,7 +15,7 @@ centered panel hides the session underneath while it is open. The
 maintainer wants the tree as a first-class part of the main screen
 instead — rendered inline at the bottom of pi's chrome, beneath the
 input text bar in the status-bar area, pushing message content up to
-make room. While the panel is up, the driver keeps seeing the
+make room. While the panel is up, the person keeps seeing the
 conversation scroll by above it.
 
 The interaction model is keyboard-driven: the arrow keys move between

@@ -89,7 +89,7 @@ consumed no-op (see [[2026-08-26-po-ev9-tiny-regime-floor]]).
 ## Why inline and not a modal
 
 The maintainer wants the tree as first-class chrome, not an overlay: the
-driver keeps seeing the conversation scroll above while the panel is up. The
+person keeps seeing the conversation scroll above while the panel is up. The
 modal's full-screen backdrop (v0.11.4) hid the session; the inline panel
 lives in the status-bar region and pushes content up instead. The former
 modal code path remains only behind the `navigator.ts:57` guard targeted by

@@ -17,7 +17,7 @@ verifies, and judges work on a card board — backed by an LLM-maintained wiki
 under `vault/` so every run's knowledge compounds.
 
 The workflow's opinions are deliberate and are the product: the seats' domain
-prose (PETA SPKLU examples, portfolio doctrine, gate discipline), the board/card
+prose (portfolio doctrine, gate discipline), the board/card
 discipline, and the wiki schema ship as-is. Consumers tune via **repo-local
 overrides** (a seat at `<repo>/.pi/agents/<name>.md` shadows the packaged one),
 never by forking the package.

@@ -42,3 +42,15 @@ test("council prose does not describe seats as a restartable agent registry", ()
 		expect(text, `${rel} references a stale "named agent" resolution`).not.toContain("named agent");
 	}
 });
+
+test("council prose carries no hardcoded product domain", () => {
+	// Seats and procedures are domain-neutral: they ship for any repository,
+	// and product-specific facts come from the `<repository_grounding>` block,
+	// never from a hardcoded domain in the prose. Guard against the removed
+	// domain creeping back in.
+	const forbidden =
+		/\b(PETA|SPKLU|spklu|ev-guide|evguide|Surabaya|Bahasa|Indonesian|Indonesia|charger|charging|maplibre|Mongo|healthz|PLN)\b/;
+	for (const [rel, text] of councilMarkdown()) {
+		expect(text, `${rel} references a removed product domain`).not.toMatch(forbidden);
+	}
+});

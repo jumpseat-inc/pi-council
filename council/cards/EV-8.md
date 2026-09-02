@@ -19,7 +19,7 @@ returns focus to the input bar.
 
 User-visible surfaces: the highlighted row state in the panel, and a
 clear indication of which surface owns the keyboard (input bar versus
-tree) so a driver is never typing into the wrong place — the designer
+tree) so a person is never typing into the wrong place — the designer
 seat decides the affordance. Text being typed while the input bar is
 focused must stay in the editor; while the tree holds focus, arrow
 keys must not corrupt editor content, and keys the tree does not
@@ -143,7 +143,7 @@ cleanest shape borrows pi's vim modal-editor pattern (CustomEditor subclass, Pat
 mode label in the same place vim puts NORMAL/INSERT (simple: new sklearn) — and a
 single-cell **`▌` indicator** prefixed to the highlighted row in the panel below.
 The widget stays passive/display-only, with its selection driven by the editor
-forwarding arrows through a single pipe. Gulf closed: a driver scanning the panel has
+forwarding arrows through a single pipe. Gulf closed: a person scanning the panel has
 no way to know whether keys land in the editor or the tree (info lives off-screen in
 focus machinery); this exposes it on the editor border (where vim puts NORMAL/INSERT)
 and the highlighted row. Knowledge in the world: `NORMAL`/`INSERT` is a learned

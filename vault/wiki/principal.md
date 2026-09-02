@@ -19,8 +19,8 @@ output floor exists for.
 
 ## Role
 
-The engineering voice for **cross-seam cards** — ones where the seams (import →
-API → tiles → frontend) are where the risk lives. Reads **across** the seams and
+The engineering voice for **cross-seam cards** — ones where the seams (data →
+API → serving → frontend) are where the risk lives. Reads **across** the seams and
 says what no single-vantage seat can see: where one side's assumption bakes into
 a contract the other side never gets to look at. It is:
 

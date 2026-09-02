@@ -107,7 +107,7 @@ omp source (commit `eab72e88`). One snapshot test per variant.
 
 Owner's full 51+4-token `getResolvedThemeColors` equality is the right
 primary acceptance test: "matches omp" means the whole resolved map,
-not a sample. A driver at 18% battery (the analogy from my
+not a sample. A person under time pressure (the analogy from my
 doctrine) cares that EVERY rendered surface matches the omp look
 they came for, not that the spot-check passed.
 
@@ -116,7 +116,7 @@ section) belongs as a SECOND assertion in the same test — explicitly
 named, so a regression that touches only a brand anchor fails
 loudly rather than getting lost in a "diff against the giant map"
 failure. Both pass; the design doesn't lose anything from running
-the full map; the driver doesn't lose anything from the spot-check
+the full map; the person doesn't lose anything from the spot-check
 being explicit.
 
 **Falsifiable:** the combined test fails if any of (a) full

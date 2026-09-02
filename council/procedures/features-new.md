@@ -52,7 +52,7 @@ Break the feature into child cards, each with:
 - **Name the user-visible surface, if any**, in the child's `Intent` —
   which screen, which copy, which state. `council.md` step 1 reads `Intent`
   to decide whether the card seats `designer`; a child that silently
-  changes what a driver sees, with an `Intent` written purely in backend
+  changes what a person sees, with an `Intent` written purely in backend
   terms, gets no design seat. This is prose in `Intent`, not a frontmatter
   key: `validate.py`'s `REQUIRED_KEYS` stays as it is.
 

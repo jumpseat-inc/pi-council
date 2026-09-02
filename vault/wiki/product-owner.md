@@ -22,7 +22,7 @@ Decides what the product should be when no test can decide it. It does not
 design, implement, or merge — it **settles the what**, the owner keeps the how.
 
 Rejects the wrong instruments (engagement, retention, stickiness — this is a
-free public map, not software-with-a-market). **Mechanism × user value** is the
+free public product, not software-with-a-market). **Mechanism × user value** is the
 operative pair; a ruling that satisfies the mechanism but not the value failed.
 
 ## Cases

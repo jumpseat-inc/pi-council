@@ -39,7 +39,7 @@ Default timeout: 15 minutes per dispatch (`timeout_minutes: 15`). The owner's im
 dispatch (step 8) is the long pole — give it 45 minutes
 (`timeout_minutes: 45`). The Skeptic's verification dispatch (step 9) is
 the second-longest: it re-runs the full gate set (typecheck, the whole
-test suite, the import smoke, the production boot) plus its own probes —
+test suite, the import gate, the production boot) plus its own probes —
 give it 30 minutes (`timeout_minutes: 30`), and if its window elapses
 while the job is visibly progressing (turns still climbing, recent tool
 activity in the report), prefer one further `council_wait` on the same
@@ -67,7 +67,7 @@ import-dataset check unless the card mentions import or normalization.
 Stop on any `FAIL:` line. The script deliberately prints no install steps —
 that's your job, not its. Surface every `FAIL:` line verbatim to the human,
 then give remediation guidance appropriate to their actual OS (a missing
-Bun, Mongo not running, `gh` auth, a stale `main` — not how to fix it on
+Bun, a database not running, `gh` auth, a stale `main` — not how to fix it on
 their machine). Do not proceed to step 1 until preflight passes.
 
 ## 1. Read and gate
@@ -88,8 +88,8 @@ narrowly-scoped, unambiguous change confined to one area — is mechanical.
 
 **Second, independently of that decision: is the card surface-touching?**
 A card is surface-touching if it changes what a person sees, reads, or does
-— the map surface, the trip planner or itinerary, any user-visible copy
-(including Bahasa strings and error text), an empty state, or an error
+— any visible surface, any user-visible copy
+(including strings and error text), an empty state, or an error
 state. This is orthogonal to full-vs-mechanical: a one-line copy change is
 mechanical *and* surface-touching. Record both bits. A surface-touching
 **full-council** card adds `designer` as a third generator in steps 2–3. A

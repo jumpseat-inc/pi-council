@@ -72,8 +72,8 @@ catch.
 Two environment facts this session may expose that you must not re-learn
 the hard way:
 
-- **Mongo must be reachable** for the test gate, the import smoke, and the
-  boot gate. If a card's gates need Mongo and it is not up, that is a
+- **The database must be reachable** for the test gate, the import gate, and the
+  boot gate. If a card's gates need the database and it is not up, that is a
   `HALT`, not a chance to start docker yourself — Phase 0 owns that.
 - **Seat dispatchability is not guaranteed.** See
   `<seat_resolution_check>` below — resolve this before touching the card,
@@ -232,7 +232,7 @@ Default timeout: 15 minutes per dispatch (`timeout_minutes: 15`). The owner's im
 dispatch (step 8) is the long pole — give it 45 minutes
 (`timeout_minutes: 45`). The Skeptic's verification dispatch (step 9) is
 the second-longest: it re-runs the full gate set (typecheck, the whole
-test suite, the import smoke, the production boot) plus its own probes —
+test suite, the import gate, the production boot) plus its own probes —
 give it 30 minutes (`timeout_minutes: 30`), and if its window elapses
 while the job is visibly progressing (turns still climbing, recent tool
 activity in the report), prefer one further `council_wait` on the same

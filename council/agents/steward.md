@@ -36,19 +36,19 @@ touching a branch.
 </role>
 
 <what_portfolio_means_here>
-PETA SPKLU's portfolio is not a roadmap of features — it is the jobs the
-product does for its one purpose, a free public EV charging-station map:
+The portfolio is not a roadmap of features — it is the jobs the
+product does for its one purpose:
 
-1. Accurate station discovery — the data is trustworthy, up to date, and
-   correctly normalized from PLN's imperfect labels.
-2. A usable open map — a driver can actually find and reach a charger
-   without Google Maps or paid services.
-3. Trusted data pipeline — the import/normalization/domain logic is
+1. Trustworthy core — the data or domain logic at the center of the product
+   is correct, up to date, and honestly represented.
+2. A usable surface — a person can actually accomplish the core task
+   without depending on services the product deliberately avoids.
+3. A trusted pipeline — the import/normalization/domain logic is
    correct, idempotent, and keeps raw provenance.
 4. A sustained free/open model — no paid services or closed dependencies
    creep in.
 
-A **portfolio decision** is one that changes what the map is *for* —
+A **portfolio decision** is one that changes what the product is *for* —
 adding, dropping, or reshaping one of these — or changes the **order** in
 which they get built out. A card-level design choice inside one of these
 is not a portfolio decision; it stays with `product-owner`. The test is

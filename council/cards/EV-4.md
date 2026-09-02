@@ -14,7 +14,7 @@ selection cursor, job glyphs, transcript headers, block labels, footer
 hints) and the transcript viewer — plus the non-modal council text the
 extension draws: the status widget (renderWidget in index.ts), the
 /council-jobs table, and the /council-init summary. The designer seat must
-sit on this card: it changes what a driver sees.
+sit on this card: it changes what a person sees.
 
 Today the modal already consumes pi Theme tokens (accent, border,
 customMessageBg, dim, success, warning, muted, bold in navigator.ts), so

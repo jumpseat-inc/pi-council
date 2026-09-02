@@ -13,12 +13,12 @@ updated: 2026-08-23
 > Docs drift; the codebase is the source of truth — verify against code before relying on this.
 
 The design spec behind pi-council as an installable package. It is the
-generalization of the working council extension extracted from `ev-guide` and
-foundation for the implementation plan.
+generalization of the working council extension extracted from the source
+repo and foundation for the implementation plan.
 
 ## What it specifies
 
-- **Origin** — extracted from `ev-guide/.pi/extensions/council/`.
+- **Origin** — extracted from the source repo's `.pi/extensions/council/`.
 - **Goal** — `pi install git:github.com/tistaharahap/pi-council` + `/council-init`
   gives any repo the identical workflow. The workflow's opinions ship as-is;
   only per-project **data** stays repo-local.

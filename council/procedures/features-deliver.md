@@ -39,7 +39,7 @@ Run `bash council/preflight.sh` once, at run start, before any card
 container is dispatched. Any `FAIL:` line halts the run — environment repair
 is never autonomous, the same rule `/council` step 0 states for an attended
 run. This command is not interactive, so if preflight reports something
-that needs a human action (e.g. Mongo not up, `gh` unauthenticated), refuse
+that needs a human action (e.g. a database not up, `gh` unauthenticated), refuse
 to start and report it rather than working around it.
 
 **Seats must be dispatchable by name before the run commits to anything.**
@@ -68,7 +68,7 @@ now, not every possible dispute a deliberation might raise later.
 
 Surface-touching cards raise the most predictable class of open-judgment
 call — user-visible copy, what a state is named, how much uncertainty to
-show a driver about data that has no realtime availability and no prices.
+show a person about data that has no realtime availability and no prices.
 Front-load these specifically: a copy ruling recorded in Phase 1 saves an
 `ESCALATION` round-trip per card.
 

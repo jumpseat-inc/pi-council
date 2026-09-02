@@ -23,14 +23,14 @@ retiring work, and accepting a residual permanently. It **stands in** for the
 human during unattended runs — a stand-in, not a replacement; the human remains
 final authority, and a recorded decision outranks it.
 
-**Portfolio** is the jobs the product does for its one purpose — here, a free
-public EV-charging map:
-1. Accurate station discovery,
-2. a usable open map,
+**Portfolio** is the jobs the product does for its one purpose:
+1. A trustworthy core — the data or domain logic at the center is correct and
+   honestly represented,
+2. a usable surface,
 3. a trusted data pipeline,
 4. a sustained free/open model.
 
-A **portfolio decision** changes what the map is *for* (adding/dropping/shaping
+A **portfolio decision** changes what the product is *for* (adding/dropping/shaping
 one) or its build order. A card-level design choice stays with product-owner.
 Test: "does this move what the product is for, or just how one part of it works?"
 

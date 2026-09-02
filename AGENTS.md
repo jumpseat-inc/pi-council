@@ -46,11 +46,11 @@ docs/superpowers/    design spec + implementation plan (read before big changes)
 
 ## Hard conventions
 
-1. **Seats are opinionated on purpose.** The domain prose in
-   `council/agents/*.md` (PETA SPKLU examples, portfolio doctrine, gate
-   discipline) is the product, not an accident. Do not generalize, soften, or
-   "clean up" seat bodies. The only sanctioned mechanism edits are the
-   wiki-grounding pointers already in place.
+1. **Seats are domain-neutral by design.** Seat bodies are written for any
+   repository, not for one product: they carry no hardcoded product domain.
+   Product-specific grounding comes from the `<repository_grounding>` block
+   that `buildSystemPrompt` appends from the consuming repo's wiki and
+   source. Do not reintroduce a hardcoded product domain into seat bodies.
 2. **Seat schema is fixed**: frontmatter fields are `name`, `description`,
    `model` (optional `:thinking` suffix), `tools`, `spawns`. There is no
    `autoloadSkills` — grounding comes from the `<repository_grounding>` block
@@ -65,7 +65,7 @@ docs/superpowers/    design spec + implementation plan (read before big changes)
    Any new resource type must follow this pattern.
 6. **Scaffold writes are non-clobbering.** `scaffoldInto` never overwrites an
    existing file. Preserve this invariant — consumer repos hold user-modified
-   data (ev-guide's board and wiki must survive reinstalls).
+   data (a consumer's board and wiki must survive reinstalls).
 7. **`hub.ts` is stable.** Its stall/timeout/kill semantics are battle-tested.
    Change behavior only with a failing test first.
 8. **Tool-grant vocabulary** in seat frontmatter uses the omp-style names

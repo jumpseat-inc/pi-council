@@ -257,7 +257,7 @@ ingesting-repo-docs skill. Discussed plan with the human first; wrote 26 pages.
   mcp-support-design-spec, pi-council-implementation-plan, mcp-implementation-plan,
   context7-preflight-plan.
 - **Manifest:** vault/.repo-docs.tsv recorded -- 24 NEW doc files pinned to commit.
-- **Key takeaway:** pi-council generalizes the ev-guide council + wiki into an
+- **Key takeaway:** pi-council generalizes the originating council + wiki into an
   installable, override-able package; the wiki + board are the durable product.
 
 ## [2026-08-23] query | Drop the git-history page

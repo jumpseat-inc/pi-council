@@ -20,8 +20,7 @@ systematic-debugging, verification-before-completion.
 ## Role
 
 The most-cross-cutting seat: engineering voice during refinement, **the single
-implementing owner** once a design is agreed. Owns the whole codebase (import
-pipeline, API, tiles, frontend, schema). It works **in an isolated git worktree**,
+implementing owner** once a design is agreed. Owns the whole codebase. It works **in an isolated git worktree**,
 never on `main`.
 
 ## Owner discipline (the four gates, is exposed)
@@ -30,8 +29,7 @@ When handed an agreed spec, the owner:
 
 1. turns it into a plan under `docs/superpowers/plans/`;
 2. implements the minimum that satisfies it — **no scope, no tall speculation**;
-3. clears all four gates **in order**: typecheck → tests (Mongo up) → real-data
-   import smoke → boot + `/healthz` `ok`;
+3. clears every gate the repository defines, in order, in full;
 4. opens a PR.
 
 The gates are **not scalable down**: a one-line edit clears the same four gates

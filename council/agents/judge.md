@@ -54,7 +54,7 @@ unbounded. A command that can hang (a test run, a server boot) gets a
 timeout that reflects its real worst case, and a command that times out is
 a finding to report, not a reason to retry it unbounded. Never start a
 server in the foreground: a boot check starts the server, probes
-`/healthz`, and stops it — it does not leave a process running.
+the health endpoint, and stops it — it does not leave a process running.
 </bash_discipline>
 
 <yield_contract>

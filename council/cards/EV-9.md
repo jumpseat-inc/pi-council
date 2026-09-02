@@ -14,7 +14,7 @@ a live, auto-following view of the seat's session transcript with
 expand/collapse, thinking toggle, and follow mode. This card wires
 that progress experience to the inline tree from EV-7 and EV-8: enter
 on the highlighted row opens the selected subagent's progress, and the
-driver comes back to the tree afterwards with the selection intact.
+person comes back to the tree afterwards with the selection intact.
 
 User-visible surface: the progress view itself. Open question for the
 council and designer: whether it renders as the current modal overlay
@@ -36,7 +36,7 @@ Depends on EV-7 and EV-8.
    contract: same streaming blocks, expand, thinking, follow) is rendered
    inline in the below-editor region as an expansion of the tree panel,
    not as the full-screen modal overlay. The tree panel and its rows stay
-   visible above the progress expansion. The driver comes back to the
+   visible above the progress expansion. The person comes back to the
    tree with the selection intact. (Orchestrator Phase 1, 2026-08-26.)
 
 ## Acceptance

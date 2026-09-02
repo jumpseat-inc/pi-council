@@ -21,7 +21,7 @@ updated: 2026-08-25
 Design built on Don Norman's instruments: discoverability + understanding,
 signifiers, mapping, feedback, the **two gulfs** (execution/evaluation),
 knowledge in the world, and human error (slips vs mistakes). Argues for people
-in front of the screen at the moment they need a charger.
+in front of the screen at the moment they need it.
 
 ## Constraints
 
@@ -36,9 +36,11 @@ in front of the screen at the moment they need a charger.
   product-shape; never overturn a recorded human decision.
 
 ## Re-grounding
-Public EV charging map for Indonesia on PLN open data: **no realtime availability,
-no prices, no Google Maps**. The map implies "a working thing here, now" that the
-data can't support — the standing design hazard this seat owns.
+The product's own facts (from the wiki and source) bind this seat's reasoning:
+what the data can and cannot claim, where shown values are derived or corrected,
+and which conventions the product has to earn rather than inherit. The gap
+between what the surface implies and what the data knows is the standing design
+hazard this seat owns.
 
 ## Related
 - [[seats]], [[council-loop]], [[engineering-board]]

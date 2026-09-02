@@ -27,7 +27,7 @@ protect: the shared blind spots of a single model run.
 ## Objections and fairness
 
 - The Skeptic files only **falsifiable objections** — each must name the concrete,
-  runnable settling test (`bun test` file, `bun run import:PLN`, a request and
+  runnable settling test (`bun test` file, a data import and an expected count, a request and
   an expected response).
 - When it raises an objection, it **runs the settling test itself**. If a test
   passes and the objection was wrong, it says so plainly (`closed-green`).
