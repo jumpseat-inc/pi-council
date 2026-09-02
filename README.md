@@ -213,7 +213,9 @@ detection, timeout ceilings, and orphan-process sweeping.
   OpenRouter models by default — change them per-seat with the committed
   `.council.json` override, or edit `council/agents/*.md` frontmatter to change
   the defaults)
-- `bun` on PATH (the generic preflight and scaffolded projects assume it)
+- No specific language, runtime, or package manager required of your project —
+  the council adapts to whatever stack the repo already uses (the scaffolded
+  `preflight.sh` is a starting point you extend with your own project gates)
 - Models must exist in pi's catalogue; a seat pinning an unknown model fails
   loudly at dispatch rather than falling back
 

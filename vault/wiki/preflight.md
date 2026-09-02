@@ -26,8 +26,9 @@ Phase 0 runs it once for an epic.
 - **ask-user-question** present project-locally (clone under
   `$CONFIG_DIR_NAME/npm/node_modules/@juicesharp/rpiv-ask-user-question` or pin
   in `$CONFIG_DIR_NAME/settings.json`) — else `FAIL`.
-- **bun** on PATH.
-- project root marker (`package.json`/`bun.lock`); `bun install --frozen-lockfile`.
+- **Project tooling** — the shipped scaffold checks none by default; it
+  invites the repo to add its own build-tool, project-root, and dependency
+  checks (the council imposes no language or runtime).
 - **Card-aware**: `council/cards/<card>.md` exists when given.
 - **main fast-forwards** from origin.
 - **MCP gate** (context7 + tavily): registration present + stored credentials

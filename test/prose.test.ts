@@ -54,3 +54,13 @@ test("council prose carries no hardcoded product domain", () => {
 		expect(text, `${rel} references a removed product domain`).not.toMatch(forbidden);
 	}
 });
+
+test("council prose does not pin a specific tech stack", () => {
+	// Seats and procedures run against whatever stack the consuming repo
+	// already uses, so they must not hardcode a language, runtime, or test
+	// runner. Guard against a stack opinion creeping back in.
+	const forbidden = /\b(bun|bunx|typescript|tsc)\b|bun test|bun run|@ts-expect-error/i;
+	for (const [rel, text] of councilMarkdown()) {
+		expect(text, `${rel} pins a tech stack`).not.toMatch(forbidden);
+	}
+});

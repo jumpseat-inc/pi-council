@@ -74,7 +74,7 @@ the hard way:
 
 - **The database must be reachable** for the test gate, the import gate, and the
   boot gate. If a card's gates need the database and it is not up, that is a
-  `HALT`, not a chance to start docker yourself — Phase 0 owns that.
+  `HALT`, not a chance to start services yourself — Phase 0 owns that.
 - **Seat dispatchability is not guaranteed.** See
   `<seat_resolution_check>` below — resolve this before touching the card,
   not after a dispatch fails partway through a deliberation round.

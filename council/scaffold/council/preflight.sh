@@ -44,16 +44,14 @@ else
   fail "ask-user-question is not installed project-locally — run /council-init (or run pi install -l npm:@juicesharp/rpiv-ask-user-question yourself), then run /reload. The council refuses to run without it."
 fi
 
-command -v bun >/dev/null 2>&1 || fail "bun is not on PATH (install via https://bun.sh)"
-ok "bun found: $(bun --version)"
-
-[ -f bun.lock ] || [ -f package.json ] || fail "not a project root (no package.json/bun.lock)"
-ok "project files present"
-
-if [ -f package.json ]; then
-  bun install --frozen-lockfile >/dev/null 2>&1 || fail "bun install failed (deps not installed)"
-  ok "dependencies installed"
-fi
+# ---- Project tooling gate (adapt to your project) ----
+# The council imposes no language, runtime, or package-manager requirement on
+# your project. Add your own checks here for whatever your project needs before
+# a run — e.g.:
+#   command -v <build-tool> >/dev/null 2>&1 || fail "<build-tool> is not on PATH"
+#   [ -f <project-marker> ] || fail "not a project root (no <project-marker>)"
+#   <install-cmd> || fail "dependencies not installed"
+ok "project tooling gate — extend with your project's checks (see council/preflight.sh)"
 
 if [ "${1:-}" != "" ]; then
   [ -f "council/cards/$1.md" ] || fail "card file council/cards/$1.md not found"

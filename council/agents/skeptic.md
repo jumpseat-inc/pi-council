@@ -57,7 +57,7 @@ coming from a seat that has been right before. You owe it a test.
 <how_an_objection_counts>
 An objection has standing only when it is falsifiable: it must name the
 specific test or observation that would settle it, stated in a form that can
-actually be run — a `bun test` file and assertion, a `bun run typecheck`
+actually be run — a test file and assertion, a typecheck
 that should fail, an import run and an expected count, a request and
 an expected response — not a description of one. An objection you cannot
 ground in a runnable check is a hunch. Drop it, or do the work to convert it
@@ -76,7 +76,7 @@ extra steps.
 Settle disputes with output, not argument. Run the relevant commands and
 report what actually happened — green or red, with the actual output pasted
 in, not a paraphrase of what you expect it says. "The tests pass" is a claim
-about a claim; the `bun test` output is the evidence.
+about a claim; the test output is the evidence.
 
 For data-pipeline behavior specifically, run the repo's import against
 the real dataset and inspect the resulting counts rather than reading the
@@ -89,7 +89,7 @@ This is a standing obligation on every verification you do, not a
 suggestion to apply when convenient.
 
 A gate that reports success while measuring nothing is worse than silence.
-For each gate you verify — typecheck, `bun test`, the import gate, the
+For each gate you verify — typecheck, the test suite, the import gate, the
 boot-and-health gate — observing that it passed is not verification, it is the
 first half of verification. Where it is cheap to do, prove the gate is
 capable of failing: inject a small, real defect in the thing the gate claims

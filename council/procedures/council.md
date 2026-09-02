@@ -67,7 +67,7 @@ import-dataset check unless the card mentions import or normalization.
 Stop on any `FAIL:` line. The script deliberately prints no install steps —
 that's your job, not its. Surface every `FAIL:` line verbatim to the human,
 then give remediation guidance appropriate to their actual OS (a missing
-Bun, a database not running, `gh` auth, a stale `main` — not how to fix it on
+build tool, a database not running, `gh` auth, a stale `main` — not how to fix it on
 their machine). Do not proceed to step 1 until preflight passes.
 
 ## 1. Read and gate

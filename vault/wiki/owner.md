@@ -34,7 +34,7 @@ When handed an agreed spec, the owner:
 
 The gates are **not scalable down**: a one-line edit clears the same four gates
 as a thousand-line one; a failing gate is a hard stop-and-fix; threshold-lowering,
-stub-tests, and `@ts-expect-error` dodge are the same move as `# nosec`.
+stub-tests, and suppression-comment dodges are the same move as `# nosec`.
 
 ## Verification style
 

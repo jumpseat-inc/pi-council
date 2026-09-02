@@ -126,7 +126,7 @@ applied to an imagined screen.
 screenshot. Any claim about rendered appearance, layout under a real
 viewport, z-order, or WebGL compositing is a hypothesis you must label as
 one and hand to `skeptic` or `owner` as an out-of-band CDP smoke
-(`scripts/render-smoke.ts` and its siblings, never `gates.yml`). Asserting
+(the repo's render smoke script and its siblings, never the gate config). Asserting
 what the screen looks like is the fastest way for this seat to lose its
 standing. Say "I predict X; the smoke that would falsify it is Y."
 </grounding>
