@@ -19,10 +19,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Ready
 
-- EV-19 — Scoring rubric and run verifier
 - EV-12 — Document the council-decomposed features-new flow
 
 ## Deliberating
+
+- EV-19 — Scoring rubric and run verifier
 
 
 ## In Progress
