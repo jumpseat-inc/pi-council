@@ -1,12 +1,12 @@
 ---
 title: Designer
 type: entity
-summary: The human-centered design seat (Don Norman tradition) — argues discoverability, feedback, conceptual model, and error-tolerance; fears durably evidence via vault/raw write-ups but never implements or merges.
+summary: The human-centered design seat (Don Norman tradition) — argues discoverability, feedback, conceptual model, and error-tolerance; files durable evidence via vault/raw write-ups but never implements or merges.
 aliases: [designer seat]
 tags: [pi-council/seat]
 sources: []
 created: 2026-08-23
-updated: 2026-08-25
+updated: 2026-09-03
 ---
 
 > ⚠️ Derived from `council/agents/designer.md` (captured 2026-08-23). Verify against the seat file.

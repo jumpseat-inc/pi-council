@@ -6,7 +6,7 @@ aliases: [theme, pi-council theme, council theme system, theme-section]
 tags: [pi-council/concept]
 sources: ["[[2026-08-25-design-ev1-round2]]", "[[2026-08-25-po-ev1-escalation]]", "[[2026-08-25-design-ev3]]", "[[2026-08-25-design-ev3-round2]]", "[[2026-08-25-design-ev4-round1]]", "[[2026-08-26-smoke-v0.12.0]]", "[[2026-08-26-theme-module-resolution-fix]]"]
 created: 2026-08-25
-updated: 2026-08-26
+updated: 2026-09-03
 ---
 
 # Council Theme
@@ -172,5 +172,8 @@ would misattribute the shipped behavior.
 - `extensions/theme-activation.ts`, `extensions/theme-watcher.ts`,
   `extensions/seats.ts` (`loadThemeConfig`), `extensions/navigator.ts`,
   `extensions/index.ts`
-- `council/agents/AGENTS.md` 9.6
+- `AGENTS.md` (repo root) convention 9.6
 - the five `vault/raw/2026-08-25-*` design/source docs
+- [oh-my-pi](https://github.com/can1357/oh-my-pi) — upstream palette source;
+  pinned commit `eab72e88e447a4be45bea2bc302995844c0c51a2`, files
+  `packages/coding-agent/src/modes/theme/{dark,light}.json`

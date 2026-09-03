@@ -4,23 +4,25 @@ type: overview
 summary: pi-council is an installable pi package pairing a multi-agent Council deliberation/implementation loop with an LLM-maintained wiki — the workflow's opinions are the product.
 aliases: [pi-council, council, the Council]
 tags: [pi-council/overview]
-sources: ["[[2026-08-23-readme]]", "[[2026-08-23-pi-council-design-spec]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]"]
+sources: ["[[2026-08-23-readme]]", "[[2026-08-23-pi-council-design-spec]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]", "[[2026-09-03-v0.14.0-domain-neutral-stack-agnostic]]"]
 created: 2026-08-23
-updated: 2026-08-26
+updated: 2026-09-03
 ---
 
-`pi-council` (v0.13.0) is an installable [pi](https://pi.dev) package, distributed
+`pi-council` (v0.14.0) is an installable [pi](https://pi.dev) package, distributed
 as `pi install git:github.com/tistaharahap/pi-council`. Installing it once and
 running `/council-init` gives **any** repository the same opinionated workflow:
 a facilitator-driven Council of specialized seats that deliberates, implements,
 verifies, and judges work on a card board — backed by an LLM-maintained wiki
 under `vault/` so every run's knowledge compounds.
 
-The workflow's opinions are deliberate and are the product: the seats' domain
-prose (portfolio doctrine, gate discipline), the board/card
-discipline, and the wiki schema ship as-is. Consumers tune via **repo-local
-overrides** (a seat at `<repo>/.pi/agents/<name>.md` shadows the packaged one),
-never by forking the package.
+The workflow's opinions are deliberate and are the product: the seats'
+procedural doctrine (portfolio authority, gate discipline, adversary
+verification — as of v0.14.0, **domain-neutral and stack-agnostic**; product
+grounding flows only through the `<repository_grounding>` block), the
+board/card discipline, and the wiki schema ship as-is. Consumers tune via
+**repo-local overrides** (a seat at `<repo>/.pi/agents/<name>.md` shadows the
+packaged one), never by forking the package.
 
 ## The two engine halves
 
@@ -71,6 +73,7 @@ behavior change:
 | v0.12.0 | **Council theme + wiki ingest release** — the EPIC-1 theme epic now version-tagged; clean-green smoke run of the full loop + epic in a fresh container (`bun run smoke`, `EXIT=0`) | [[council-theme]], [[2026-08-26-smoke-v0.12.0]] |
 | v0.12.1 | **Fix theme module resolution** — in an installed package the council theme silently never activated because `loadPiThemeModule` located pi's internal module via a bare-specifier `import.meta.resolve` that pi's extension remap does not cover; now walks pi's **own install root** via the public `getPackageDir()` API. Committed on `main` (commit `392dce7`); tagged v0.12.1 | [[council-theme]], [[2026-08-26-theme-module-resolution-fix]] |
 | v0.13.0 | **Inline council job tree** — `/council-tree` now renders inline beneath the input bar (EV-7 per-row last activity), with editor-driven arrow-key focus (EV-8) and Enter opening the selected subagent's live inline progress (EV-9). Supersedes the v0.11.4 modal. Landed on `main` via PRs #7/#8/#9; released as v0.13.0 (commit `fae42f3`) | [[council-job-tree-inline]], [[2026-08-26-po-ev8-ruling]], [[2026-08-26-po-ev9-tiny-regime-floor]] |
+| v0.14.0 | **Domain-neutral + stack-agnostic** — seats/procedures lose all hardcoded product domain (AGENTS.md convention #1 inverted) and Bun/TS stack assumptions (scaffold preflight invites the repo's own gates); 28 superseded specs/plans archived to wiki-pointing stubs; prose regression guards added (commits `d3a6f38`, `7d5bfa3`, `033f450`) | [[2026-09-03-v0.14.0-domain-neutral-stack-agnostic]] |
 
 The wiki scaffold shipped in the same commit as the council scaffold — the
 wiki is not an add-on. The full arc and commit-message discipline live in the

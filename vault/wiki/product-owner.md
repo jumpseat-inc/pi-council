@@ -6,7 +6,7 @@ aliases: [product-owner seat]
 tags: [pi-council/seat]
 sources: []
 created: 2026-08-23
-updated: 2026-08-23
+updated: 2026-09-03
 ---
 
 > ⚠️ Derived from `council/agents/product-owner.md` (captured 2026-08-23). Verify against the seat file.
@@ -41,8 +41,11 @@ flip." Escalates to [[steward]] whenever the ruling would change the **portfolio
 (declining a card, permanent residual, touching a recorded decision, a goal found
 to be the real defect).
 
-Related: [[seats]], [[council-loop]], [[designer]]/[[consolidator]] — consumers;
-[[steward]] — its escalation target. Model/thinking override: [[council-config]].
+## Related
+
+- [[seats]], [[council-loop]], [[designer]]/[[consolidator]] — consumers
+- [[steward]] — its escalation target
+- [[council-config]] — model/thinking override
 
 ## Sources
 

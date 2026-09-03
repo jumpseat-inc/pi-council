@@ -6,7 +6,7 @@ aliases: [runs, run manifests, transcript viewer, council-tree, session jsonl]
 tags: [pi-council/concept]
 sources: ["[[2026-08-25-smoke-test-bugfixes]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]"]
 created: 2026-08-25
-updated: 2026-08-26
+updated: 2026-09-03
 ---
 
 # Run Transcripts
@@ -56,7 +56,7 @@ cancelled, `⚠` timeout), per-run scoping (current run vs. all runs), and
 Enter to open the live-tailing transcript, Esc to back out. Wired at
 session start to the hub's current run id.
 
-**Inline presentation (EPIC-2, v0.12.x — supersedes the v0.11.4 modal).**
+**Inline presentation (EPIC-2, released as v0.13.0 — supersedes the v0.11.4 modal).**
 `/council-tree` now renders as an **inline full-width panel beneath the
 input bar** (`setWidget(key, factory, { placement: "belowEditor" })`),
 pushing message content up instead of dimming the terminal. The tree adds

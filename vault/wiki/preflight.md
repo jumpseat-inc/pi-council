@@ -6,7 +6,7 @@ aliases: [preflight gate]
 tags: [pi-council/concept]
 sources: ["[[2026-08-24-ask-user-question]]"]
 created: 2026-08-23
-updated: 2026-08-25
+updated: 2026-09-03
 ---
 
 # Preflight
@@ -55,4 +55,3 @@ project-specific extensions, but the shipped check is presence-only).
 ## Sources
 
 - `council/scaffold/council/preflight.sh`
-- reference file for the check it tests

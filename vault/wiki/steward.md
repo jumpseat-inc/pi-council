@@ -6,7 +6,7 @@ aliases: [steward seat]
 tags: [pi-council/seat]
 sources: []
 created: 2026-08-23
-updated: 2026-08-23
+updated: 2026-09-03
 ---
 
 > ⚠️ Derived from `council/agents/steward.md` (captured 2026-08-23). Verify against the seat file.
@@ -41,6 +41,11 @@ Test: "does this move what the product is for, or just how one part of it works?
   flip. Prefers the cheapest-to-reverse option, naming reversibility.
 - Stand-in only from `product-owner` escalation or a genuine strategy fork.
 
-Related: [[seats]], [[council-loop]], [[product-owner]], [[engineering-board]].
-Model/thinking override: [[council-config]].
-Sources: `council/agents/steward.md`, `council/procedures/council.md`.
+## Related
+
+- [[seats]], [[council-loop]], [[product-owner]], [[engineering-board]]
+- [[council-config]] — model/thinking override
+
+## Sources
+
+- `council/agents/steward.md`, `council/procedures/council.md`

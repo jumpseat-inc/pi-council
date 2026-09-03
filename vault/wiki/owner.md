@@ -4,9 +4,9 @@ type: entity
 summary: The Council's engineering voice and the single implementing seat — turns agreed specs into plans, implements in a worktree, clears all four gates to a PR.
 aliases: [owner seat]
 tags: [pi-council/seat]
-sources: [[2026-08-23-pi-council-design-spec]]
+sources: ["[[2026-08-23-pi-council-design-spec]]"]
 created: 2026-08-23
-updated: 2026-08-25
+updated: 2026-09-03
 ---
 
 > ⚠️ Derived from `council/agents/owner.md` @ `df3...` (captured 2026-08-23). Verify against the seat file.
@@ -23,7 +23,7 @@ The most-cross-cutting seat: engineering voice during refinement, **the single
 implementing owner** once a design is agreed. Owns the whole codebase. It works **in an isolated git worktree**,
 never on `main`.
 
-## Owner discipline (the four gates, is exposed)
+## Owner discipline (the four gates)
 
 When handed an agreed spec, the owner:
 

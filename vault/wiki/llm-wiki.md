@@ -6,7 +6,7 @@ aliases: [wiki, karpathy wiki, vault]
 tags: [pi-council/concept]
 sources: []
 created: 2026-08-23
-updated: 2026-08-25
+updated: 2026-09-03
 ---
 
 # LLM Wiki
@@ -58,4 +58,3 @@ written by the repo-seed ingest skill.
 ## Sources
 
 - `vault/CLAUDE.md`, `council/scaffold/vault/CLAUDE.md`
-- the Karpathy bootstrap doc (`vault/.llm-wiki-bootstrap.md`)

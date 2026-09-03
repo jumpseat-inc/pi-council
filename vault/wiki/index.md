@@ -7,7 +7,7 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 
 - [[pi-council-overview]] — Pi-council as an installable package: the Council
   + wiki workflow, two engine halves, the loop, and the release version arc
-  (through v0.13.0).
+  (through v0.14.0).
 
 ## Entities
 
@@ -24,6 +24,7 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 ## Concepts
 
 - [[seats]] — The seat abstraction; frontmatter schema, tool-grants, child sandboxing.
+- [[facilitator]] — The routing-and-bookkeeping role that runs the loop and decides nothing.
 - [[council-loop]] — The facilitator-run deliberation → implement → verify → judge loop.
 - [[engineering-board]] — The card board + cards under council/; validate.py discipline.
 - [[procedure-commands]] — The scanned, override-aware slash-command set + the 7 procedures.
@@ -81,4 +82,5 @@ _(none yet)_
 - [[2026-08-26-design-ev9]] — Designer EV-9 first pass: inline progress expansion (tree rows + divider + TranscriptView), shared-VStack bound, progress routing table.
 - [[2026-08-26-design-ev9-round2]] — Designer EV-9 round 2: tree-as-anchor height budget (drops 50/50), Enter-as-no-op reaffirmed, union encoding.
 - [[2026-08-26-po-ev9-tiny-regime-floor]] — PO EV-9 ruling: min supported terminal height 7 rows; below it Enter is a consumed no-op (inline progress silently unavailable).
+- [[2026-09-03-v0.14.0-domain-neutral-stack-agnostic]] — v0.14.0: seats/procedures de-domained + stack-agnostic, convention #1 inverted, specs/plans archived to stubs.
 

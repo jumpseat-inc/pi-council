@@ -4,9 +4,9 @@ type: entity
 summary: The Council's formal adversary and sole evaluator — assumes every claim is broken until a test demonstrates otherwise, and has standing to block a card.
 aliases: [skeptic seat]
 tags: [pi-council/seat]
-sources: [[2026-08-23-pi-council-design-spec]]
+sources: ["[[2026-08-23-pi-council-design-spec]]"]
 created: 2026-08-23
-updated: 2026-08-25
+updated: 2026-09-03
 ---
 
 > ⚠️ Derived from `council/agents/skeptic.md` (captured 2026-08-23). Verify against the seat file.

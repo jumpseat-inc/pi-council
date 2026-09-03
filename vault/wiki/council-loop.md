@@ -6,17 +6,19 @@ aliases: [council run, deliberation loop]
 tags: [pi-council/concept]
 sources: ["[[2026-08-24-bugfix-seat-prose]]"]
 created: 2026-08-23
-updated: 2026-08-24
+updated: 2026-09-03
 ---
 
 > ⚠️ Derived from `council/procedures/council.md` + `council-runner.md` (captured 2026-08-23). Verify against the procedure files.
 
-`/council` is the core procedure. The **facilitator decides nothing** — it routes
+`/council` is the core procedure. The **facilitator decides nothing** (see
+[[facilitator]]) — it routes
 work, fans seats out, counts rounds, and writes the board. Tests decide testable
 disputes; ruling seats decide judgment; the human decides the rest.
 
-## The 15 steps (compressed)
+## The 15 steps (compressed, steps 0–14)
 
+0. **Preflight** — run `council/preflight.sh` first; any `FAIL:` line halts the run (see [[preflight]]).
 1. **Read and gate** — card must be `state: Ready`; decide full-vs-mechanical and surface-touching.
 2. **Independent first pass** — dispatch `owner` + (`designer` if surface).
 3. **Bounded exchange** — 2-3 rounds max; each generator responds to others.
@@ -52,6 +54,7 @@ repo-specific gate file (see [[2026-08-24-bugfix-seat-prose]]).
 ## Related
 
 - [[engineering-board]], [[seats]], [[preflight]], [[council-dependencies]]
+- [[facilitator]] — the routing role this procedure instantiates
 - [[2026-08-23-pi-council-design-spec]]
 
 ## Sources

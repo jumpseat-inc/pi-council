@@ -1,7 +1,44 @@
+## [2026-09-03] ingest | v0.14.0 — Domain-Neutral + Stack-Agnostic
+Ingested the v0.14.0 release (commits d3a6f38 / 7d5bfa3 / 033f450 / dd49bf1):
+seats, procedures, and wiki pages stripped of the EV-charging/PLN product
+domain (AGENTS.md convention #1 inverted: "opinionated on purpose" → "domain-
+neutral by design"; grounding flows only via <repository_grounding>), Bun/TS
+stack assumptions replaced by the repo's own tooling (scaffold preflight now
+invites the consumer's own gates), 28 superseded specs/plans archived to
+wiki-pointing stubs, prose regression guards added. Created the source page;
+updated pi-council-overview (version → v0.14.0, new table row, "domain prose
+ships as-is" claim reconciled to procedural-only doctrine), updated index.
+- **Created:** sources/2026-09-03-v0.14.0-domain-neutral-stack-agnostic
+- **Updated:** pi-council-overview, index, log
+- **Contradictions flagged:** 1 — overview claimed "the seats' domain prose
+  (portfolio doctrine, gate discipline) ship as-is"; v0.14.0 removes exactly
+  that. Reconciled: procedural doctrine ships, domain grounding is per-repo.
+
+## [2026-09-03] lint | Mechanical lint pass — post-v0.14.0 drift sweep
+Ran the Lint operation against repo state (HEAD = v0.14.0). Mechanical fixes:
+council-loop "15 steps" was missing step 0 (preflight) — added, matching
+`council/procedures/council.md` steps 0–14; run-transcripts "EPIC-2 v0.12.x" →
+released as v0.13.0; dropped llm-wiki's dangling `vault/.llm-wiki-bootstrap.md`
+citation (file no longer exists); council-theme's `council/agents/AGENTS.md`
+source path → repo-root `AGENTS.md` 9.6; garbled text fixed (designer summary
+"fears durably evidence" → "files durable evidence"; owner heading "the four
+gates, is exposed"); product-owner/steward inline Related/Sources → proper
+`##` sections; owner/skeptic frontmatter `sources` → quoted-array form;
+preflight.md trailing fragment dropped; council-runner gained its first
+[[smoke-test]] link. No broken wikilinks, no orphans, index complete,
+frontmatter schema clean.
+- **Changed:** council-loop, run-transcripts, llm-wiki, council-theme,
+  designer, owner, skeptic, product-owner, steward, preflight, council-runner,
+  log
+- **Contradictions flagged:** 2 — (1) v0.14.0 shipped (domain-neutral +
+  stack-agnostic refactors) with no wiki ingest yet; (2) judge page says
+  "Deliberately NOT a Council seat" while seats/index count it among the nine.
+  Both left for human steer.
+
 ## [2026-08-26] lint | Wiki lint pass — v0.13.0 + stale-claim reconciliation
 Ran the Lint operation. Fixed mechanical issues (log.md EPIC-2 entry out of
 chronological order → moved to top; mcp-support header note v0.2.0→v0.11.0 →
-v0.11.2; 9 source pages missing `aliases`; broken [[superpowers-dependency]]
+v0.11.2; 9 source pages missing `aliases`; broken `[[superpowers-dependency]]`
 link → plain text). Recorded the v0.13.0 release (EPIC-2 now tagged, commit
 fae42f3) in pi-council-overview; reconciled council-theme's stale "modal"
 references to the inline panel; aligned mcp-support's "fixed loopback URI"
