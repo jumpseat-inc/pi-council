@@ -4,6 +4,7 @@ import * as os from "node:os";
 import * as path from "node:path";
 import {
 	parseSeatFile,
+	parseQualifiedModel,
 	loadSeat,
 	listSeatNames,
 	builtinToolsFor,
@@ -78,6 +79,33 @@ test("consolidator is read-only", () => {
 	const c = loadSeat(tmpRepo(), "consolidator");
 	expect(builtinToolsFor(c)).toEqual(["read"]);
 	expect(grantsFor(c)).toEqual({ hub: false });
+});
+
+test("parseQualifiedModel is exported and splits a known :thinking suffix", () => {
+	expect(parseQualifiedModel("openrouter/q/q:medium", "unit")).toEqual({
+		model: "openrouter/q/q",
+		thinkingLevel: "medium",
+	});
+});
+
+test("parseQualifiedModel throws on an unknown non-empty :thinking suffix (Q3)", () => {
+	expect(() => parseQualifiedModel("openrouter/q/q:MediuM", "unit")).toThrow(/MediuM/);
+	expect(() => parseQualifiedModel("openrouter/q/q:MAX", "unit")).toThrow(/MAX/);
+	expect(() => parseQualifiedModel("openrouter/q/q:maxx", "unit")).toThrow(/maxx/);
+});
+
+test("parseQualifiedModel: bare ids throw, trailing empty suffix keeps today's behavior (Q3)", () => {
+	expect(() => parseQualifiedModel("qwen3.6-35b", "unit")).toThrow(/must be qualified/);
+	expect(parseQualifiedModel("openrouter/q/q:", "unit").model).toBe("openrouter/q/q:");
+});
+
+test("parseSeatFile frontmatter rejects an unknown :thinking suffix (Q3)", () => {
+	expect(() =>
+		parseSeatFile(`---\nname: x\ndescription: d\nmodel: openrouter/q/q:MediuM\n---\nbody`, "x.md"),
+	).toThrow(/MediuM/);
+	expect(() =>
+		parseSeatFile(`---\nname: x\ndescription: d\nmodel: openrouter/q/q:off\n---\nbody`, "x.md"),
+	).not.toThrow();
 });
 
 test("model without thinking suffix parses cleanly", () => {

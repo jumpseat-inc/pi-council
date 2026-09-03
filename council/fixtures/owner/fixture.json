@@ -1,0 +1,24 @@
+{
+	"schemaVersion": 1,
+	"taskId": "owner",
+	"name": "Implement a ready card in a pinned consumer repo and mark it Done",
+	"fixtureVersion": "1.0.0",
+	"kind": "seat",
+	"target": {
+		"type": "seat",
+		"seat": "owner"
+	},
+	"inputFile": "input.md",
+	"seed": {
+		"dir": "seed",
+		"treeDigest": "sha256:0642a03492c89b72cefeebe06903cf68ff321c72c93dfaf1fff7fec0339c4daa"
+	},
+	"env": {
+		"TZ": "UTC"
+	},
+	"timeoutMinutes": 120,
+	"policy": {
+		"gates": []
+	},
+	"graderModel": "openrouter/qwen/qwen3.6-35b-a3b:medium"
+}

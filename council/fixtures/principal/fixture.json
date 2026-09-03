@@ -1,0 +1,24 @@
+{
+	"schemaVersion": 1,
+	"taskId": "principal",
+	"name": "Find the cross-seam blind spot in a proposal against its spec",
+	"fixtureVersion": "1.0.0",
+	"kind": "seat",
+	"target": {
+		"type": "seat",
+		"seat": "principal"
+	},
+	"inputFile": "input.md",
+	"seed": {
+		"dir": "seed",
+		"treeDigest": "sha256:82368eb2b29920b9d47816fea258ab98fa44f93417773f930f029dff6b80310e"
+	},
+	"env": {
+		"TZ": "UTC"
+	},
+	"timeoutMinutes": 120,
+	"policy": {
+		"gates": []
+	},
+	"graderModel": "openrouter/qwen/qwen3.6-35b-a3b:medium"
+}

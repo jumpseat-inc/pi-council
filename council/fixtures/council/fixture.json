@@ -1,0 +1,71 @@
+{
+	"schemaVersion": 1,
+	"taskId": "council",
+	"name": "Convene the Council on a ready card in a pinned mini project",
+	"fixtureVersion": "1.0.0",
+	"kind": "procedure",
+	"target": {
+		"type": "procedure",
+		"command": "/council",
+		"arguments": [
+			"EV-1"
+		]
+	},
+	"seed": {
+		"dir": "seed",
+		"treeDigest": "sha256:f5a41df535be0a0d944084a11ec4e37e2a1a4595c6d34fcbd9fa2474f05f36e7"
+	},
+	"env": {
+		"TZ": "UTC",
+		"GIT_AUTHOR_NAME": "Fixture Robot",
+		"GIT_AUTHOR_EMAIL": "fixture@example.invalid"
+	},
+	"timeoutMinutes": 240,
+	"policy": {
+		"gates": [
+			{
+				"id": "confirm",
+				"humanStep": 1,
+				"when": [],
+				"verdict": "answer",
+				"answerText": "Proceed with the pinned intent: run the council loop for EV-1 on this scratch repo. Rulings are recorded; do not stop for a human decision.",
+				"then": "answer"
+			},
+			{
+				"id": "merge-gate",
+				"humanStep": 11,
+				"when": [
+					{
+						"kind": "job-state",
+						"role": "owner",
+						"state": "done"
+					},
+					{
+						"kind": "job-state",
+						"role": "skeptic",
+						"state": "done"
+					},
+					{
+						"kind": "report-contains",
+						"role": "judge",
+						"token": "PASS"
+					},
+					{
+						"kind": "board-column",
+						"cardId": "$args[0]",
+						"notIn": [
+							"Needs Human"
+						]
+					},
+					{
+						"kind": "file-exists",
+						"path": "docs/superpowers/specs/2026-09-03-EV-1-design.md"
+					}
+				],
+				"verdict": "approve",
+				"then": "merge"
+			}
+		]
+	},
+	"graderModel": "openrouter/qwen/qwen3.6-35b-a3b:medium"
+}

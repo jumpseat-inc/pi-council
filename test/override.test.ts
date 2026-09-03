@@ -109,6 +109,23 @@ afterEach(() => {
 
 const FM = `---\nname: seat\ndescription: d\nmodel: openrouter/a/model:off\n---\nbody`;
 
+test("applySeatOverride rejects an unknown :thinking suffix on the override model (Q3)", () => {
+	// object-form override
+	const root = tmpRepo();
+	fs.writeFileSync(
+		path.join(root, COUNCIL_CONFIG_FILE),
+		JSON.stringify({ council: { owner: { model: "openrouter/b/model:maxx" } } }),
+	);
+	expect(() => loadSeat(root, "owner")).toThrow(/maxx/);
+	// string-shorthand override (parsed by loadCouncilConfig → same fold)
+	const root2 = tmpRepo();
+	fs.writeFileSync(
+		path.join(root2, COUNCIL_CONFIG_FILE),
+		JSON.stringify({ council: { owner: "openrouter/b/model:MediuM" } }),
+	);
+	expect(() => loadSeat(root2, "owner")).toThrow(/MediuM/);
+});
+
 test("B1: resolveEffectiveModel precedence — param > env > .council.json > frontmatter, all four combinations", () => {
 	// seat = loadSeat output: frontmatter a, .council.json b already applied.
 	const frontmatter = parseSeatFile(FM, "seat.md");

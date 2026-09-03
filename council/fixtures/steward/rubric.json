@@ -1,0 +1,11 @@
+{
+	"schemaVersion": 1,
+	"rubricVersion": "1.0.0",
+	"criteria": [
+		{
+			"id": "c1",
+			"type": "judge",
+			"prompt": "Grade ruling.md on the policy-question.md in the fixture seed: does it resolve the convention-line question authoritatively (both sides of the resolution chain, package default and repo override), state the whole-dir rule and the missing-rubric consequence, and give exact wording a future reader can apply without re-deriving it?"
+		}
+	]
+}

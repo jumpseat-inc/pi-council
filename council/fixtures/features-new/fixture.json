@@ -1,0 +1,35 @@
+{
+	"schemaVersion": 1,
+	"taskId": "features-new",
+	"name": "Decompose a pinned feature intent into an epic and child cards",
+	"fixtureVersion": "1.0.0",
+	"kind": "procedure",
+	"target": {
+		"type": "procedure",
+		"command": "/features-new",
+		"arguments": [
+			"Add JSON and markdown output modes to the links CLI"
+		]
+	},
+	"seed": {
+		"dir": "seed",
+		"treeDigest": "sha256:2989340897cfe51002d57e15bc10f205c1a9a325a90a80e30483dc2e2e50b599"
+	},
+	"env": {
+		"TZ": "UTC"
+	},
+	"timeoutMinutes": 240,
+	"policy": {
+		"gates": [
+			{
+				"id": "confirm",
+				"humanStep": 1,
+				"when": [],
+				"verdict": "answer",
+				"answerText": "Draft the epic and child cards and confirm the decomposition: the fixture plays the human, so state the intent has been seen and proceed.",
+				"then": "answer"
+			}
+		]
+	},
+	"graderModel": "openrouter/qwen/qwen3.6-35b-a3b:medium"
+}

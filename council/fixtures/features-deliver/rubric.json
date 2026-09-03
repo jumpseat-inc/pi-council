@@ -1,0 +1,31 @@
+{
+	"schemaVersion": 1,
+	"rubricVersion": "1.0.0",
+	"criteria": [
+		{
+			"id": "c1",
+			"type": "gate",
+			"check": { "kind": "gates", "argv": ["python3", "council/validate.py"], "expect": { "exitCode": 0, "stdoutContains": "All council artifacts valid" } }
+		},
+		{
+			"id": "c2",
+			"type": "gate",
+			"check": { "kind": "artifact-contains", "path": "deliverables/EV-1.md", "contains": "GATES GREEN" }
+		},
+		{
+			"id": "c3",
+			"type": "gate",
+			"check": { "kind": "artifact-contains", "path": "deliverables/EV-2.md", "contains": "GATES GREEN" }
+		},
+		{
+			"id": "c4",
+			"type": "gate",
+			"check": { "kind": "artifact-contains", "path": "deliverables/EV-3.md", "contains": "GATES GREEN" }
+		},
+		{
+			"id": "c5",
+			"type": "gate",
+			"check": { "kind": "settled", "role": "council-runner" }
+		}
+	]
+}

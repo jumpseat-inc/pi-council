@@ -1,0 +1,11 @@
+{
+	"schemaVersion": 1,
+	"rubricVersion": "1.0.0",
+	"criteria": [
+		{
+			"id": "c1",
+			"type": "judge",
+			"prompt": "Grade design.md against design-brief.md in the fixture seed: does it specify the progress feature's interface, a plain-text progress format with no ANSI escapes and no new runtime dependencies, the skip/quiet behavior, TTY detection, and concrete acceptance probes — while keeping the default output byte-compatible?"
+		}
+	]
+}

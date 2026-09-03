@@ -1,0 +1,26 @@
+{
+	"schemaVersion": 1,
+	"rubricVersion": "1.0.0",
+	"criteria": [
+		{
+			"id": "c1",
+			"type": "gate",
+			"check": { "kind": "gates", "argv": ["python3", "council/validate.py"], "expect": { "exitCode": 0, "stdoutContains": "All council artifacts valid" } }
+		},
+		{
+			"id": "c2",
+			"type": "gate",
+			"check": { "kind": "artifact-present", "path": "docs/superpowers/specs/2026-09-03-EV-1-design.md" }
+		},
+		{
+			"id": "c3",
+			"type": "gate",
+			"check": { "kind": "artifact-contains", "path": "docs/superpowers/specs/2026-09-03-EV-1-design.md", "contains": "## Goal" }
+		},
+		{
+			"id": "c4",
+			"type": "gate",
+			"check": { "kind": "settled", "role": "facilitator" }
+		}
+	]
+}

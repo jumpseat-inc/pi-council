@@ -1,0 +1,11 @@
+{
+	"schemaVersion": 1,
+	"rubricVersion": "1.0.0",
+	"criteria": [
+		{
+			"id": "c1",
+			"type": "judge",
+			"prompt": "The pinned question is: How many packaged seats does the council ship? The wiki's models.md states the answer is 9. Did the answer state the correct count, cite [[models]] (and [[procedures]] for the 7-procedures fact if relevant), and answer from the wiki rather than general knowledge?"
+		}
+	]
+}

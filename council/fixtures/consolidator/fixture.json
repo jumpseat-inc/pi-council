@@ -1,0 +1,24 @@
+{
+	"schemaVersion": 1,
+	"taskId": "consolidator",
+	"name": "Synthesize two deliberation fragments into an agreed design",
+	"fixtureVersion": "1.0.0",
+	"kind": "seat",
+	"target": {
+		"type": "seat",
+		"seat": "consolidator"
+	},
+	"inputFile": "input.md",
+	"seed": {
+		"dir": "seed",
+		"treeDigest": "sha256:9f7fb4baab568c5b4fe2c372b0eea1a61751655cb0323c5e2387f8274476f6ab"
+	},
+	"env": {
+		"TZ": "UTC"
+	},
+	"timeoutMinutes": 120,
+	"policy": {
+		"gates": []
+	},
+	"graderModel": "openrouter/qwen/qwen3.6-35b-a3b:medium"
+}

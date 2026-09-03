@@ -1,0 +1,26 @@
+{
+	"schemaVersion": 1,
+	"rubricVersion": "1.0.0",
+	"criteria": [
+		{
+			"id": "c1",
+			"type": "gate",
+			"check": { "kind": "gates", "argv": ["python3", "council/validate.py"], "expect": { "exitCode": 0, "stdoutContains": "All council artifacts valid" } }
+		},
+		{
+			"id": "c2",
+			"type": "gate",
+			"check": { "kind": "artifact-present", "path": "vault/wiki/sources/2026-08-25-links-cli-design-session.md" }
+		},
+		{
+			"id": "c3",
+			"type": "gate",
+			"check": { "kind": "artifact-contains", "path": "vault/wiki/sources/2026-08-25-links-cli-design-session.md", "contains": "summary:" }
+		},
+		{
+			"id": "c4",
+			"type": "judge",
+			"prompt": "Grade the wiki ingest of vault/raw/2026-08-25-links-cli-design-session.md: does the source summary capture the pinned facts (current CLI behavior, the three discussed features, the open questions) and cross-link the entity and concept pages it created?"
+		}
+	]
+}

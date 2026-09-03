@@ -239,6 +239,10 @@ export function parseSeatFile(content: string, fileName: string): Seat {
 		if (THINKING_LEVELS.has(suffix)) {
 			thinkingLevel = suffix;
 			model = model.slice(0, colon);
+		} else if (suffix !== "") {
+			throw new Error(
+				`${fileName}: model "${model}" has unknown :thinking suffix ":${suffix}" (expected one of ${[...THINKING_LEVELS].join(", ")})`,
+			);
 		}
 	}
 	return {
@@ -267,21 +271,28 @@ function qualifiedOrThrow(raw: string, fileName: string, where: string): string 
 
 /**
  * Parse the shared qualified-model grammar `provider/id` or `provider/id:thinking`.
- * The `:thinking` suffix splits off only when it names a known thinking level
- * (the same rule frontmatter and `.council.json` use); anything else stays part
- * of the model id. Unqualified values throw — this is a second grammar, not a
- * looser one.
+ * A known `:thinking` suffix splits off; a non-empty unknown suffix throws (Q3)
+ * instead of silently remaining part of the model id; a trailing colon with an
+ * empty suffix keeps today's behavior. Unqualified values throw — this is a
+ * second grammar, not a looser one.
  */
-function parseQualifiedModel(raw: string, where: string): { model: string; thinkingLevel?: string } {
+export function parseQualifiedModel(raw: string, where: string): { model: string; thinkingLevel?: string } {
 	if (!raw.includes("/")) {
 		throw new Error(`${where}: model "${raw}" must be qualified as provider/id`);
 	}
 	let model = raw.trim();
 	let thinkingLevel: string | undefined;
 	const colon = model.lastIndexOf(":");
-	if (colon > 0 && THINKING_LEVELS.has(model.slice(colon + 1))) {
-		thinkingLevel = model.slice(colon + 1);
-		model = model.slice(0, colon);
+	if (colon > 0) {
+		const suffix = model.slice(colon + 1);
+		if (THINKING_LEVELS.has(suffix)) {
+			thinkingLevel = suffix;
+			model = model.slice(0, colon);
+		} else if (suffix !== "") {
+			throw new Error(
+				`${where}: model "${raw}" has unknown :thinking suffix ":${suffix}" (expected one of ${[...THINKING_LEVELS].join(", ")})`,
+			);
+		}
 	}
 	return { model, thinkingLevel };
 }
@@ -401,9 +412,16 @@ export function applySeatOverride(seat: Seat, config: Record<string, AgentOverri
 	if (ov.model) {
 		model = ov.model;
 		const colon = model.lastIndexOf(":");
-		if (colon > 0 && THINKING_LEVELS.has(model.slice(colon + 1))) {
-			thinkingLevel = model.slice(colon + 1);
-			model = model.slice(0, colon);
+		if (colon > 0) {
+			const suffix = model.slice(colon + 1);
+			if (THINKING_LEVELS.has(suffix)) {
+				thinkingLevel = suffix;
+				model = model.slice(0, colon);
+			} else if (suffix !== "") {
+				throw new Error(
+					`council["${seat.name}"].model "${model}" has unknown :thinking suffix ":${suffix}" (expected one of ${[...THINKING_LEVELS].join(", ")})`,
+				);
+			}
 		}
 	}
 	if (ov.thinking) thinkingLevel = ov.thinking;
