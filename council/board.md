@@ -8,20 +8,20 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 - EPIC-1 — omp-themed council theme for pi, configurable from the scaffold .council.json
 - EPIC-2 — Inline council job tree beneath the input bar
-- EPIC-3 — Model eval harness for council commands and seats
+- EPIC-4 — Model eval harness for council commands and seats
 - FLLWUP-1 — Fix HTML export under an active in-memory council theme
 - FLLWUP-2 — Make the .council.json theme export section editable
 - FLLWUP-3 — Revisit empty dark and light variant shells for consumer discoverability
 - FLLWUP-4 — Repair /council-tree RPC silent-no-op in navigator.ts:57
-- EV-12 — Shipped benchmark fixtures for commands and seats
-- EV-13 — Scoring rubric and run verifier
-- EV-14 — Matrix runner with repeat aggregation
-- EV-15 — Results leaderboard with variance
+- EV-18 — Shipped benchmark fixtures for commands and seats
+- EV-19 — Scoring rubric and run verifier
+- EV-20 — Matrix runner with repeat aggregation
+- EV-21 — Results leaderboard with variance
 
 ## Ready
 
-- EV-10 — Design the council model eval system
-- EV-11 — Per-run model override for eval dispatches
+- EV-16 — Design the council model eval system
+- EV-17 — Per-run model override for eval dispatches
 
 ## Deliberating
 
