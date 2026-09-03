@@ -20,11 +20,10 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Ready
 
 - EV-20 — Matrix runner with repeat aggregation
-- EV-12 — Document the council-decomposed features-new flow
 
 ## Deliberating
 
-
+- EV-12 — Document the council-decomposed features-new flow
 
 ## In Progress
 
