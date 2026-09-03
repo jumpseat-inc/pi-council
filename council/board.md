@@ -21,9 +21,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- EV-10 — features-new decomposition dispatches the council
-
 ## In Progress
+
+- EV-10 — features-new decomposition dispatches the council
 
 
 ## In Review
