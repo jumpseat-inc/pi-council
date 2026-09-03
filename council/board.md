@@ -12,8 +12,13 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-2 — Make the .council.json theme export section editable
 - FLLWUP-3 — Revisit empty dark and light variant shells for consumer discoverability
 - FLLWUP-4 — Repair /council-tree RPC silent-no-op in navigator.ts:57
+- EPIC-3 — Council-decomposed features-new with a bounded session
 
 ## Ready
+
+- EV-10 — features-new decomposition dispatches the council
+- EV-11 — Bounded decomposition session
+- EV-12 — Document the council-decomposed features-new flow
 
 ## Deliberating
 
