@@ -31,14 +31,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-16 — Design the council model eval system
-
-
-
 ## Needs Human
 
 ## Done
 
+- EV-16 — Design the council model eval system
 - EV-10 — features-new decomposition dispatches the council
 - EV-9 — Open the selected subagent's progress from the inline tree
 
