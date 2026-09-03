@@ -22,9 +22,10 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 - EV-11 — Bounded decomposition session
 - EV-12 — Document the council-decomposed features-new flow
-- EV-18 — Shipped benchmark fixtures for commands and seats
 
 ## Deliberating
+
+- EV-18 — Shipped benchmark fixtures for commands and seats
 
 ## In Progress
 
