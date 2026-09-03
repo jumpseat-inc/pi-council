@@ -84,7 +84,7 @@ test("C3a: writeManifest persists id/seat/model/parentJobId/pid/state/startedAt/
 	});
 	const loaded = readManifests(root, runId);
 	expect(loaded[0].pid).toBe(12345);
-	const m = loaded[0] as Record<string, unknown>;
+	const m = loaded[0] as unknown as Record<string, unknown>;
 	expect(m.usage).toBeUndefined();
 	expect(m.stopReason).toBeUndefined();
 	expect(m.elapsedMs).toBeUndefined();
