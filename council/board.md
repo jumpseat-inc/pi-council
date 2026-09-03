@@ -16,11 +16,12 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Ready
 
-- EV-10 — features-new decomposition dispatches the council
 - EV-11 — Bounded decomposition session
 - EV-12 — Document the council-decomposed features-new flow
 
 ## Deliberating
+
+- EV-10 — features-new decomposition dispatches the council
 
 ## In Progress
 
