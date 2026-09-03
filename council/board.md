@@ -30,8 +30,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-10 — features-new decomposition dispatches the council
-
 ## In Review
 
 
@@ -40,6 +38,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Done
 
+- EV-10 — features-new decomposition dispatches the council
 - EV-9 — Open the selected subagent's progress from the inline tree
 
 - EV-8 — Bidirectional arrow-key focus navigation between the input bar and the inline tree
