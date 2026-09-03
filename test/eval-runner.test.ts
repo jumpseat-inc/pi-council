@@ -165,3 +165,60 @@ test("F1b: a settled hub job persists usage and stopReason to the manifest", asy
 	expect(m.usage!.cost).toBeCloseTo(0.001, 10);
 	expect(m.stopReason).toBe("stop");
 });
+
+// ---- dispatch primitive (EV-20 §4) — parameterized by cwd, one override path ----
+
+import { getHub, initHubIdentity, shutdownHub } from "../extensions/hub-tools.ts";
+import { loadSeat } from "../extensions/seats.ts";
+import { spawnSeatJob } from "../extensions/dispatch.ts";
+
+test("dispatch primitive: cell spawned with cwd=scratch carries the override (B2/B4/D2 mirror)", async () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-disp-"));
+	const dir = path.join(root, CONFIG_DIR_NAME, "agents");
+	fs.mkdirSync(dir, { recursive: true });
+	fs.writeFileSync(path.join(dir, "agent-s.md"), `---\nname: agent-s\ndescription: d\nmodel: openrouter/frontmatter/model\ntools: Read\n---\nbody`);
+	const scratch = path.join(root, "scratch");
+	fs.mkdirSync(scratch, { recursive: true });
+	initHubIdentity("run-disp", "cellA");
+	const hub = getHub(root);
+	const captures: any[] = [];
+	const real = hub.spawnJob.bind(hub);
+	(hub as unknown as { spawnJob: (o: Record<string, unknown>) => unknown }).spawnJob = (o: Record<string, unknown>) => {
+		captures.push(o);
+		return real({ ...o, command: "bun", args: [STUB] } as Parameters<typeof real>[0]);
+	};
+	const seat = loadSeat(root, "agent-s");
+	const res = spawnSeatJob({
+		repoRoot: root, hub, seat, input: "task", cwd: scratch,
+		timeoutMs: 60_000, stallMs: 60_000,
+		model: "openrouter/ovr/model", isModelAvailable: (m) => m === "openrouter/ovr/model",
+	});
+	expect(res.jobId).toBe("cellA.1");
+	expect(captures).toHaveLength(1);
+	expect(captures[0].cwd).toBe(scratch);
+	expect(captures[0].args as string[]).toContain("--model");
+	expect((captures[0].args as string[])[(captures[0].args as string[]).indexOf("--model") + 1]).toBe("openrouter/ovr/model");
+	expect(captures[0].env.COUNCIL_EVAL_MODEL).toBe("openrouter/ovr/model");
+	const ms = readManifests(root, "run-disp");
+	expect(ms.find((m) => m.id === "cellA.1")!.model).toBe("openrouter/ovr/model");
+	expect(process.env.COUNCIL_EVAL_MODEL).toBeUndefined();
+	shutdownHub();
+});
+
+test("dispatch primitive: unknown effective model refuses loudly, naming it (B3)", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-dispb-"));
+	const dir = path.join(root, CONFIG_DIR_NAME, "agents");
+	fs.mkdirSync(dir, { recursive: true });
+	fs.writeFileSync(path.join(dir, "agent-s.md"), `---\nname: agent-s\ndescription: d\nmodel: openrouter/frontmatter/model\ntools: Read\n---\nbody`);
+	initHubIdentity("run-dispb", "cellA");
+	const hub = getHub(root);
+	const seat = loadSeat(root, "agent-s");
+	expect(() =>
+		spawnSeatJob({
+			repoRoot: root, hub, seat, input: "task", cwd: root,
+			timeoutMs: 60_000, stallMs: 60_000,
+			model: "openrouter/unknown/model9", isModelAvailable: () => false,
+		}),
+	).toThrow(/openrouter\/unknown\/model9/);
+	shutdownHub();
+});
