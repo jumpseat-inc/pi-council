@@ -6,10 +6,10 @@ aliases: [pi-council, council, the Council]
 tags: [pi-council/overview]
 sources: ["[[2026-08-23-readme]]", "[[2026-08-23-pi-council-design-spec]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]", "[[2026-09-03-v0.14.0-domain-neutral-stack-agnostic]]"]
 created: 2026-08-23
-updated: 2026-09-03
+updated: 2026-09-04
 ---
 
-`pi-council` (v0.14.0) is an installable [pi](https://pi.dev) package, distributed
+`pi-council` (v0.15.0) is an installable [pi](https://pi.dev) package, distributed
 as `pi install git:github.com/tistaharahap/pi-council`. Installing it once and
 running `/council-init` gives **any** repository the same opinionated workflow:
 a facilitator-driven Council of specialized seats that deliberates, implements,
@@ -84,6 +84,10 @@ git log; this table is a secondary summary that can drift.
 - [[council-config]] — the `.council.json` per-seat override file (now also hosts the theme section)
 - [[council-theme]] — the EPIC-1 omp-palette theme subsystem
 - [[council-job-tree-inline]] — the EPIC-2 inline job-tree surface (EV-7/8/9)
+- [[three-wave-decomposition]] — the EPIC-3 seated-decomposition rewrite of /features-new
+- [[presented-never-written]] — the two-part gate presentation (attribution-free Part 1, ledger Part 2)
+- [[card-id-allocation]] — the id-collision/union-merge discipline from the EPIC-3 run
+- [[2026-09-04-epic3-run-ledger]] — the EPIC-3 run record (v0.15.0)
 - [[smoke-test]] — the unattended end-to-end test (the v0.12.0 run was a clean green)
 - [[2026-08-26-smoke-v0.12.0]] — the v0.12.0 smoke-test record
 - [[seats]] — the 9 Council entities

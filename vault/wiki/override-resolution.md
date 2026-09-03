@@ -6,7 +6,7 @@ aliases: [overrides, repo-override]
 tags: [pi-council/concept]
 sources: ["[[2026-08-23-council-json-override]]", "[[2026-08-24-bugfix-seat-prose]]"]
 created: 2026-08-23
-updated: 2026-08-26
+updated: 2026-09-04
 ---
 
 # Override Resolution
@@ -46,6 +46,19 @@ The rules:
 - This is the sanctioned tuning mechanism — **do not fork the package** to
   specialize seats for one repo.
 
+## Shadowing as a smoke-run technique (EPIC-3, v0.15.0)
+
+Filename shadowing doubles as the **scratch-copy smoke technique**: to
+exercise a rewritten procedure headlessly without touching the real board,
+copy `council/` into a temp dir and place the rewrite at
+`<scratch>/$CONFIG_DIR_NAME/council/procedures/<file>.md` — the override
+path. The **user-scope install supplies the package** (do NOT project-pin
+pi-council in the scratch: a project-local pin alongside the user-scope
+install creates a dual-install tool conflict that broke the first attempt);
+the scratch `council/` shadows the packaged payload by filename. See
+[[smoke-test]] for the heavyweight Docker variant and
+[[2026-09-04-epic3-run-ledger]] for the working invocation.
+
 ## Commit discipline
 
 Repo overrides are committable `.pi/` content (but never `.pi/git/`, which is
@@ -64,3 +77,4 @@ pi's own clone).
 - `docs/superpowers/specs/2026-08-23-pi-council-design.md`
 - [[2026-08-24-bugfix-seat-prose]]
 - [[2026-08-23-agents]] — convention 5: repo-local resources shadow packaged ones by filename
+- [[2026-09-04-epic3-run-ledger]] — the scratch-copy smoke technique built on this page

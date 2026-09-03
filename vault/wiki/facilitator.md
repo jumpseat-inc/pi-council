@@ -6,7 +6,7 @@ aliases: [facilitator role, the facilitator]
 tags: [pi-council/concept]
 sources: ["[[2026-08-23-pi-council-design-spec]]"]
 created: 2026-09-03
-updated: 2026-09-03
+updated: 2026-09-04
 ---
 
 # Facilitator
@@ -30,6 +30,13 @@ judgment; the human decides the rest.
   run, `validate.py` after every write (see [[engineering-board]]).
 - **Routes what doesn't close** — open-judgment to [[product-owner]] /
   [[steward]]; unresolved objections to `Needs Human`.
+- **Never authors** — the strongest form of decide-nothing (v0.15.0):
+  `/features-new`'s procedure text says "you author nothing at any step" —
+  the facilitator dispatches waves, aggregates **verbatim**, and presents;
+  the [[three-wave-decomposition]] artifact is seat-authored end to end,
+  and the fallback draft is the mechanical verbatim aggregate, never
+  facilitator synthesis. Provenance reaches the human only via the
+  [[presented-never-written|Part-2 ledger]], never the facilitator's voice.
 - **Never merges** — the human merge gate is reserved; the facilitator only
   records the merged-with-green-CI outcome.
 
@@ -52,3 +59,4 @@ exists to avoid.
 
 - `council/procedures/council.md`, `council/procedures/features-deliver.md`
 - [[2026-08-23-pi-council-design-spec]]
+- [[2026-09-04-epic3-run-ledger]] — the authors-nothing doctrine as shipped

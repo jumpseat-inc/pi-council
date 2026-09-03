@@ -6,7 +6,7 @@ aliases: [product-owner seat]
 tags: [pi-council/seat]
 sources: []
 created: 2026-08-23
-updated: 2026-09-03
+updated: 2026-09-04
 ---
 
 > ⚠️ Derived from `council/agents/product-owner.md` (captured 2026-08-23). Verify against the seat file.
@@ -33,6 +33,14 @@ operative pair; a ruling that satisfies the mechanism but not the value failed.
    anything requiring an edit to the goal (immutable once In Progress).
 3. **Mid-flow decisions** — rule promptly.
 4. **Promotion ratification** for Backlog → Ready.
+5. **Wave-3 decomposition ruler** (v0.15.0) — in `/features-new`'s
+   [[three-wave-decomposition]], product-owner runs last, unconditionally,
+   and **rules but never generates**: it ratifies/amends the epic goal and
+   child states, rules disputes with dissent named. The EV-10 step-6 ruling
+   rejected PO-as-wave-1-author precisely because authoring the epic goal
+   and then ruling on it in wave 3 is a self-review loop the human at the
+   gate cannot see — the structural expression of "decide the what, never
+   design the how". Ruled EPIC-3's three mid-run escalations this way.
 
 ## Grounding and escalation
 
@@ -51,3 +59,4 @@ to be the real defect).
 
 - `council/agents/product-owner.md`
 - [[2026-08-23-pi-council-design-spec]]
+- [[2026-09-04-epic3-run-ledger]] — the wave-3 ruling-only precedent + three rulings

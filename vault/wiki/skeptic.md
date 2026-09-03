@@ -6,7 +6,7 @@ aliases: [skeptic seat]
 tags: [pi-council/seat]
 sources: ["[[2026-08-23-pi-council-design-spec]]"]
 created: 2026-08-23
-updated: 2026-09-03
+updated: 2026-09-04
 ---
 
 > ⚠️ Derived from `council/agents/skeptic.md` (captured 2026-08-23). Verify against the seat file.
@@ -39,6 +39,17 @@ Reports use status terms: `closed-green` (test ran, passed), `closed-red` (test
 ran, failed), `open-untested` (falsifiable, not yet run). The consolidator and
 judge consume these.
 
+## Completeness charter, scoped (v0.15.0)
+
+In `/features-new`'s [[three-wave-decomposition]], the wave-2 skeptic attacks
+completeness **only in falsifiable form** (stub-satisfiability, unfalsifiable
+output formats, Ready-vs-Backlog bar) — observational missing-child arguments
+belong to [[principal]]/[[designer]] in their native formats. The EPIC-3
+smoke run verified the scoping held under parallel dispatch: 4 objections,
+all falsifiable, zero observational (see [[2026-09-04-epic3-run-ledger]]).
+The scoping keeps the skeptic's attack runnable without stretching its
+charter into the other seats' observational territory.
+
 ## Related
 
 - [[seats]], [[council-loop]], [[consolidator]]
@@ -50,3 +61,4 @@ judge consume these.
 
 - `council/agents/skeptic.md`
 - `council/procedures/council.md`
+- [[2026-09-04-epic3-run-ledger]] — the completeness-charter scoping verified in the EPIC-3 smoke run

@@ -1,3 +1,22 @@
+## [2026-09-04] ingest | EPIC-3 Run Ledger — Council-Decomposed Features-New (v0.15.0)
+Ingested the EPIC-3 autonomous run: /features-new rebuilt as a three-wave
+seated deliberation with a bounded session (3 rounds, fixed-endpoint
+convergence, mechanical-verbatim fallback), the two-part gate presentation
+(attribution-free Part 1, presented-never-written Part 2 ledger), README
+honesty fix, and the operational lessons (stale-clone id collision reconciled
+by union merge; long blocking council_waits read as stalls — poll in ≤8-min
+slices; confabulated judge REJECT re-dispatched with facts, not argued).
+Captured the raw ledger at vault/raw/2026-09-04-epic3-run-ledger.md.
+Flagged: /council's early-stop clause vs /features-new's no-early-stop is a
+deliberate scoped divergence (recorded on council-loop, not a contradiction);
+procedure-commands' old solo-decomposition framing superseded.
+- **Created:** sources/2026-09-04-epic3-run-ledger, three-wave-decomposition,
+  presented-never-written, card-id-allocation
+- **Updated:** council-runner, hub-job-supervision, procedure-commands,
+  engineering-board, override-resolution, smoke-test, council-loop,
+  product-owner, principal, skeptic, facilitator, judge, pi-council-overview,
+  index, log
+
 ## [2026-09-03] ingest | v0.14.0 — Domain-Neutral + Stack-Agnostic
 Ingested the v0.14.0 release (commits d3a6f38 / 7d5bfa3 / 033f450 / dd49bf1):
 seats, procedures, and wiki pages stripped of the EV-charging/PLN product

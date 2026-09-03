@@ -6,7 +6,7 @@ aliases: [judge seat]
 tags: [pi-council/seat]
 sources: []
 created: 2026-08-23
-updated: 2026-09-03
+updated: 2026-09-04
 ---
 
 > ⚠️ Derived from `council/agents/judge.md` (captured 2026-08-23). Verify against the seat file.
@@ -35,12 +35,22 @@ else** — its value is that it owes no deference to the design.
 
 - `/council` step 10 dispatches the judge. On `REJECT`, the card returns to
   `In Progress`. On `PASS`, the human merge gate proceeds.
+- **A REJECT built on confabulated premises is re-dispatched, not argued**
+  (EPIC-3 precedent, v0.15.0): one judge REJECT cited a nonexistent deleted
+  paragraph and a misread acceptance clause; the runner verified both
+  premises false against `git show`, re-dispatched the judge **once** with
+  the corrected factual record (neutral — no verdict coaching), and the
+  re-dispatched judge verified the branch independently and PASSed. The
+  judge's fresh-context value survives only if the correction supplies
+  **facts**, never the desired verdict. See [[council-runner]],
+  [[2026-09-04-epic3-run-ledger]].
 
 ## Related
 
 - [[seats]], [[council-loop]], [[skeptic]]
 - [[owner]] — the implementer it evaluates
 - [[council-config]] — default model/thinking override
+- [[2026-09-04-epic3-run-ledger]] — the confabulated-REJECT re-dispatch precedent
 
 ## Sources
 

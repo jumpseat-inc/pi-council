@@ -6,7 +6,7 @@ aliases: [hub, job table, council_dispatch]
 tags: [pi-council/concept]
 sources: ["[[2026-08-24-bugfix-seat-prose]]"]
 created: 2026-08-23
-updated: 2026-08-25
+updated: 2026-09-04
 ---
 
 # Hub Job Supervision
@@ -64,6 +64,18 @@ this is the whitespace observer of the guard.
 
 `/council-jobs` prints the live job table.
 
+## Long blocking waits look like stalls (EPIC-3 lesson)
+
+The stall monitor keys on **tool activity**, not on whether a wait is
+legitimate. A facilitator/runner that issues one long `council_wait` over a
+30–45-minute seat dispatch produces no activity for the whole window and is
+anti-stall-killed with its seat's partial work forfeited — three EPIC-3
+containers died exactly this way. The caller-side fix: **poll in
+≤8-minute slices**, re-waiting the same job while it is visibly progressing
+(turns climbing, recent events). The hub never kills on timeout — cancel is
+the caller's move, and cancelling mid-gate forfeits every gate already run.
+See [[council-runner]], [[2026-09-04-epic3-run-ledger]].
+
 ## Related
 
 - [[seats]], [[council-loop]], [[model-output-floors]]
@@ -74,3 +86,4 @@ this is the whitespace observer of the guard.
 - `extensions/hub.ts`, `extensions/hub-tools.ts`
 - [[2026-08-23-pi-council-design-spec]]
 - [[2026-08-24-bugfix-seat-prose]]
+- [[2026-09-04-epic3-run-ledger]] — the stall-window vs blocking-wait lesson

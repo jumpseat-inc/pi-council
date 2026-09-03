@@ -6,7 +6,7 @@ aliases: [board, card, kanban]
 tags: [pi-council/concept]
 sources: []
 created: 2026-08-23
-updated: 2026-08-25
+updated: 2026-09-04
 ---
 
 > ⚠️ Derived from `council/procedures/board-create-card.md`, `features-new.md` and `council/scaffold/council/board.md` @ `8913c6b`/`8f1882b` (captured 2026-08-23). Verify against the procedure files.
@@ -39,10 +39,15 @@ set of markdown files under `council/`:
   with its cards is the inconsistency `validate.py` exists to catch).
 - Card **goal text is immutable** once a card is `In Progress` — any work needing
   a goal edit is, by definition, a new card (not a fold-in, per the product-owner).
+- **Id allocation is a HEAD operation** (EPIC-3 collision lesson): a parallel
+  session on a stale clone allocated `EPIC-3`/`EV-10..15` to itself and the
+  mains diverged; reconciled by union merge, never rewrite. See
+  [[card-id-allocation]].
 
 ## Related
 
 - [[council-loop]], [[seats]]
+- [[card-id-allocation]] — the id-collision/union-merge discipline (v0.15.0)
 - [[2026-08-23-pi-council-design-spec]]
 
 ## Sources

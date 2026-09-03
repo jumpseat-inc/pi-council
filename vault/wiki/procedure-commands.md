@@ -6,7 +6,7 @@ aliases: [procedures, slash commands, commands]
 tags: [pi-council/concept]
 sources: ["[[2026-08-24-bugfix-seat-prose]]"]
 created: 2026-08-23
-updated: 2026-08-25
+updated: 2026-09-04
 ---
 
 # Procedure Commands
@@ -49,7 +49,7 @@ turn runs, so the handler fires it, polls `ctx.isIdle()`, then awaits
 |---|---|
 | `/council [card]` | The full deliberation → implement → verify → judge loop ([[council-loop]]) |
 | `/board-create-card <desc>` | Draft + confirm + file a board card ([[engineering-board]]) |
-| `/features-new <feature>` | Decompose a feature into an epic + child cards |
+| `/features-new <feature>` | Decompose a feature into an epic + child cards **by seated deliberation** (three waves — see [[three-wave-decomposition]], v0.15.0) |
 | `/features-deliver <EPIC-KEY>` | Deliver an epic autonomously via council-runners |
 | `/wiki-ingest <path>` | Ingest a source into the wiki (drives the Ingest op) |
 | `/wiki-query <question>` | Query the wiki with citations |
@@ -65,6 +65,7 @@ as `$ARGUMENTS`.
 ## Related
 
 - [[override-resolution]], [[seats]], [[council-loop]]
+- [[three-wave-decomposition]] — the v0.15.0 seated-decomposition rewrite of `/features-new`
 - [[2026-08-23-pi-council-design-spec]]
 
 ## Sources

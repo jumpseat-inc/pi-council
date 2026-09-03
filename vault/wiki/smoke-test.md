@@ -6,7 +6,7 @@ aliases: [smoke, unattended smoke test, smoke test]
 tags: [pi-council/smoke-test]
 sources: ["[[2026-08-24-unattended-smoke-test-design]]", "[[2026-08-24-unattended-smoke-test-plan]]", "[[2026-08-25-smoke-test-bugfixes]]"]
 created: 2026-08-25
-updated: 2026-08-25
+updated: 2026-09-04
 ---
 
 # Smoke Test
@@ -66,6 +66,18 @@ In its first implementation round it caught **three real production bugs**
 seat children — which meant `/features-deliver` was broken end-to-end). See
 [[2026-08-25-smoke-test-bugfixes]].
 
+## The lighter sibling: the SMOKE-1 scratch run (v0.15.0)
+
+The EPIC-3 run added a second, lighter smoke pattern for **in-run procedure
+verification** (the SMOKE-1 ruling): a scratch copy of `council/` in a temp
+dir with the rewrite at the [[override-resolution|override path]], headless
+`pi -p "/features-new <toy>"`, dispatched-job-ids as evidence, real board
+untouched. It complements — does not replace — the Docker smoke: it can run
+mid-epic on a single procedure change. Its record: it caught the
+[[presented-never-written|Part-1 attribution blur]] (the run's one real
+design bug). And its cap lesson: a 20-minute ceiling killed a healthy run
+mid-aggregation — the ceiling was the bug, not the run.
+
 ## Related
 
 - [[headless-pi]] — the operating-mode rules the driver depends on
@@ -76,4 +88,6 @@ seat children — which meant `/features-deliver` was broken end-to-end). See
 
 - `smoke/run.sh`, `smoke/driver.sh`, `smoke/assert.sh`, `smoke/fixture/`
 - [[2026-08-24-unattended-smoke-test-design]], [[2026-08-24-unattended-smoke-test-plan]]
+- [[2026-08-24-unattended-smoke-test-design]], [[2026-08-24-unattended-smoke-test-plan]]
 - [[2026-08-26-smoke-v0.12.0]] — clean-green v0.12.0 run, [[2026-08-25-smoke-test-bugfixes]]
+- [[2026-09-04-epic3-run-ledger]] — the SMOKE-1 scratch-run variant

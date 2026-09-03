@@ -6,7 +6,7 @@ aliases: [council run, deliberation loop]
 tags: [pi-council/concept]
 sources: ["[[2026-08-24-bugfix-seat-prose]]"]
 created: 2026-08-23
-updated: 2026-09-03
+updated: 2026-09-04
 ---
 
 > ⚠️ Derived from `council/procedures/council.md` + `council-runner.md` (captured 2026-08-23). Verify against the procedure files.
@@ -42,6 +42,20 @@ disputes; ruling seats decide judgment; the human decides the rest.
 - **Stop one bad agent before scaling to more.**
 - **Owner gates met in full regardless of change size.**
 
+## Early stop — a scoped divergence from /features-new (flagged)
+
+ council.md's step-3 exchange may **stop early if positions have
+stabilised**. As of v0.15.0, `/features-new` deliberately does **not**
+import that clause ([[three-wave-decomposition]]): its session always runs
+all three waves — wave 3 ([[product-owner]] ruling) can never be skipped,
+and convergence is recorded only at that fixed endpoint. This is a
+**deliberate divergence between sibling procedures, not a contradiction** —
+the early-stop clause remains correct for `/council` (where a full exchange
+loop exists to truncate), and CAP-1's no-early-stop is what keeps
+`/features-new` from importing it. The EV-12 step-6 ruling declined a
+follow-up that would have "reconciled" the two framings — they govern
+different procedures.
+
 ## Ruling seats & recursion
 
 `product-owner` rules card-level open-judgment; escalates to `steward` for
@@ -62,3 +76,4 @@ repo-specific gate file (see [[2026-08-24-bugfix-seat-prose]]).
 - `council/procedures/council.md` @ `8913c6b`
 - `council/procedures/features-deliver.md`
 - [[2026-08-24-bugfix-seat-prose]]
+- [[2026-09-04-epic3-run-ledger]] — the early-stop divergence record

@@ -6,7 +6,7 @@ aliases: [council-runner, runner]
 tags: [pi-council/seat]
 sources: ["[[2026-08-24-bugfix-seat-prose]]"]
 created: 2026-08-23
-updated: 2026-09-03
+updated: 2026-09-04
 ---
 
 > ⚠️ Derived from `council/agents/council-runner.md` (captured 2026-08-23). Verify against the seat file.
@@ -47,6 +47,10 @@ reserved powers are re-homed per the authority map in `features-deliver.md`.
   seats is a shared hypothesis, not a test result.
 - **Dispatch discipline** — every dispatch bounded and note/waited; a `stalled`
   re-dispatch is treated like a timeout; never dispatch a third time.
+  **Poll-slice long waits** (EPIC-3 lesson): never issue a `council_wait`
+  longer than ~8 minutes — three EPIC-3 containers were anti-stall-killed
+  while blocked in single 30–45-minute waits (see [[hub-job-supervision]];
+  [[2026-09-04-epic3-run-ledger]]).
 - **Seat resolution check** — verifies each needed seat resolves by name; seats
   resolve from disk at dispatch time, so a gap is a missing seat file → `HALT`,
   never a registry restart.

@@ -45,6 +45,9 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[headless-pi]] — pi's non-interactive modes (-p/json/rpc): no trust prompt, single-shot teardown, stale ctx, and the waitForIdle pattern for command turns.
 - [[run-transcripts]] — the on-disk run substrate: per-job manifests + session JSONL under .pi/council/runs/, the job forest, and the /council-tree surface (inline as of EPIC-2) reading it.
 - [[council-job-tree-inline]] — EPIC-2's inline below-editor job tree (EV-7 last activity, EV-8 editor-driven focus, EV-9 inline progress); supersedes the /council-tree modal.
+- [[three-wave-decomposition]] — The /features-new structure (v0.15.0): three bounded waves — principal authors, skeptic+designer attack, product-owner rules last; facilitator authors nothing; human gate untouched.
+- [[presented-never-written]] — The two-part /features-new gate: attribution-free card drafts exactly as written, plus a never-persisted ledger of contributors and unresolved disagreements.
+- [[card-id-allocation]] — Board ids are allocated at fetched HEAD, never a stale clone's memory; diverged mains reconcile by union merge; validate.py is the net.
 
 ## Comparisons
 
@@ -83,4 +86,5 @@ _(none yet)_
 - [[2026-08-26-design-ev9-round2]] — Designer EV-9 round 2: tree-as-anchor height budget (drops 50/50), Enter-as-no-op reaffirmed, union encoding.
 - [[2026-08-26-po-ev9-tiny-regime-floor]] — PO EV-9 ruling: min supported terminal height 7 rows; below it Enter is a consumed no-op (inline progress silently unavailable).
 - [[2026-09-03-v0.14.0-domain-neutral-stack-agnostic]] — v0.14.0: seats/procedures de-domained + stack-agnostic, convention #1 inverted, specs/plans archived to stubs.
+- [[2026-09-04-epic3-run-ledger]] — The EPIC-3 run (v0.15.0): /features-new rebuilt as a three-wave seated deliberation with a bounded session; the id-collision, stall-window, and confabulated-judge lessons.
 

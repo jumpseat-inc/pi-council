@@ -6,7 +6,7 @@ aliases: [principal seat]
 tags: [pi-council/seat]
 sources: []
 created: 2026-08-23
-updated: 2026-08-23
+updated: 2026-09-04
 ---
 
 > ⚠️ Derived from `council/agents/principal.md` (captured 2026-08-23). Verify against the seat file.
@@ -35,6 +35,13 @@ a contract the other side never gets to look at. It is:
   render path that consumes it, and vice-versa).
 - Grounds every position in **the files on both sides** of the seam.
 - Uses **testable claims**, not prose.
+- **Wave-1 decomposition author** (v0.15.0) — in `/features-new`'s
+  [[three-wave-decomposition]], principal alone authors the first artifact:
+  the child slicing/goals/states in its native Reframe format, plus the epic
+  goal as a one-line **transcription of the human's intake** (the human is
+  the author of what the product is for). The EV-10 step-6 ruling chose
+  principal for charter fit: a feature decomposed into epic + children *is*
+  a reframe into its seams.
 
 ## Related
 
@@ -42,6 +49,7 @@ a contract the other side never gets to look at. It is:
 - [[model-output-floors]] — its model is the floor example
 - [[owner]], [[designer]]
 - [[council-config]] — its model is a config-overridable default
+- [[2026-09-04-epic3-run-ledger]] — the wave-1 authorship ruling
 
 ## Sources
 
