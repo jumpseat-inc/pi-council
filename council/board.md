@@ -33,14 +33,13 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-19 — Scoring rubric and run verifier
-
 
 
 ## Needs Human
 
 ## Done
 
+- EV-19 — Scoring rubric and run verifier
 - EV-17 — Per-run model override for eval dispatches
 - EV-18 — Shipped benchmark fixtures for commands and seats
 - EV-16 — Design the council model eval system
