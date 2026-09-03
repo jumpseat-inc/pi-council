@@ -81,6 +81,34 @@ test("C1: replayJudgeVerdicts -> gradeCell reproduces a byte-identical ResultRec
 	expect(io2.runCalls.length).toBe(1);
 });
 
+// --- Q1 (EV-20): VerdictRecord carries repeat, projected from meta.repeat ---
+
+test("Q1: projectVerdictRecord carries repeat from meta.repeat", async () => {
+	const io = new FakeIO();
+	io.files.set("a.txt", "hello");
+	const r = rub([{ id: "c1", type: "gate", check: { kind: "artifact-present", path: "a.txt" } }]);
+	const result = await gradeCell({ rubric: r, io, judgeVerdicts: {}, meta: { ...META, repeat: 3 } });
+	const vr = projectVerdictRecord(result, {
+		usage: { input: 1, output: 2, cost: 3, turns: 4 },
+		elapsedMs: 5,
+	});
+	expect(vr.repeat).toBe(3);
+});
+
+test("Q1: VerdictRecord type carries repeat (schema round-trip)", () => {
+	const vr: VerdictRecord = {
+		cellId: "c",
+		repeat: 1,
+		gradedBy: "g",
+		fixtureVersion: "1.0.0",
+		rubricVersion: "1.0.0",
+		perCriterion: [],
+		gradedAt: 1,
+		gradingUsage: { input: 0, output: 0, cost: 0, elapsedMs: 0 },
+	};
+	expect(vr.repeat).toBe(1);
+});
+
 // --- 10.2 C2 structural half: different scoredUnder -> distinct records; first deep-unchanged ---
 
 test("C2: re-grading under a different scoredUnder yields a distinct record, the original is unchanged", async () => {
