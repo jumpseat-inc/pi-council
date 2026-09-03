@@ -108,3 +108,117 @@ test("features-new step 2 mandates attribution-free Part 1 card drafts", () => {
 	expect(flat).toContain("no seat names, no wave numbers, and no deliberation narrative");
 	expect(flat).toContain("Attribution belongs solely in the Part 2 ledger");
 });
+
+// EV-11 (bounded decomposition session): prose pins on the whitespace-
+// flattened features-new.md step-2 bound text. All are red until the EV-11
+// bound text lands; none can be made green by an "any-dissent => fallback",
+// "or explicit escalation", or persisted-status implementation.
+
+test("features-new step 2 bounds the session at three waves = three rounds before wave 1", () => {
+	const text = fs.readFileSync(
+		path.join(PKG_ROOT, "council", "procedures", "features-new.md"),
+		"utf-8",
+	);
+	const flat = text.replace(/\s+/g, " ");
+	// EV-11 CAP-1: the decomposition session is bounded at the same numeric
+	// cap /council uses — three waves are the three rounds.
+	expect(flat).toContain("three waves = three rounds");
+	expect(flat).toContain("same numeric cap");
+	// The no-re-dispatch clause must fire before Wave 1, with the stall-retry
+	// carve-out riding the same sentence.
+	const noRedispatch = "no seat is re-dispatched to respond to another seat's position";
+	expect(flat.indexOf(noRedispatch)).toBeGreaterThan(-1);
+	expect(flat.indexOf(noRedispatch)).toBeLessThan(flat.indexOf("Wave 1"));
+	const sentence = flat.split(". ").find((s) => s.includes(noRedispatch));
+	expect(sentence).toBeDefined();
+	expect(sentence!.includes("a stall re-dispatch is a retry, not a round")).toBe(true);
+});
+
+test("features-new step 2 states convergence as zero open in-scope judgments, not unanimity", () => {
+	const text = fs.readFileSync(
+		path.join(PKG_ROOT, "council", "procedures", "features-new.md"),
+		"utf-8",
+	);
+	const flat = text.replace(/\s+/g, " ");
+	// Convergence = zero open in-scope judgments after wave 3, where open
+	// means unruled by product-owner AND not settled by a runnable check.
+	expect(flat).toContain("a named dissent is not non-convergence");
+	expect(flat).toContain("zero open in-scope judgments remain after wave 3");
+	expect(flat).toContain("unruled by product-owner");
+	expect(flat).toContain("not settled by a runnable check");
+	// Escalation co-occurs with non-convergence: an escalated, unruled item is
+	// an open disagreement that becomes the fallback's content.
+	expect(flat).toContain("escalated, unruled item is non-converged");
+	expect(flat).toContain("is the fallback's canonical content");
+	expect(flat).toContain("unresolved disagreement for the human");
+	// Dogwatch: the superseded round-1 phrasing must not reappear.
+	expect(flat).not.toContain("or explicit escalation");
+});
+
+test("features-new step 2 records convergence at the fixed endpoint, never by stopping early", () => {
+	const text = fs.readFileSync(
+		path.join(PKG_ROOT, "council", "procedures", "features-new.md"),
+		"utf-8",
+	);
+	const flat = text.replace(/\s+/g, " ");
+	expect(flat).toContain("convergence is recorded at the fixed endpoint");
+	expect(flat).toContain("product-owner always runs last");
+	expect(flat).toContain("no early stop");
+	// council.md's "stop early if stabilised" is disavowed, not imported.
+	expect(flat).toContain("stop early if stabilised");
+	expect(flat).toContain("not imported");
+	const sentence = flat.split(". ").find((s) => s.includes("stop early if stabilised"));
+	expect(sentence).toBeDefined();
+	expect(sentence!.includes("not imported")).toBe(true);
+});
+
+test("features-new step 2 fallback is the mechanical verbatim aggregate carried to the existing gate", () => {
+	const text = fs.readFileSync(
+		path.join(PKG_ROOT, "council", "procedures", "features-new.md"),
+		"utf-8",
+	);
+	const flat = text.replace(/\s+/g, " ");
+	const blockStart = flat.indexOf("**Bounded session and fallback.**");
+	expect(blockStart).toBeGreaterThan(-1);
+	const blockEnd = flat.indexOf("**Aggregation.**");
+	expect(blockEnd).toBeGreaterThan(blockStart);
+	const block = flat.slice(blockStart, blockEnd);
+	// FALLBACK-1: the fallback draft is the mechanical verbatim aggregate of
+	// all recorded contributions — never facilitator-authored synthesis.
+	expect(block).toContain("mechanical verbatim aggregate");
+	// Carry-to-gate: labeled unresolved at the existing approval gate — no new
+	// gate, no Needs Human stop.
+	expect(block).toContain("labeled unresolved");
+	expect(block).toContain("existing approval gate");
+	expect(block).toContain("no new gate");
+	expect(block).toContain("Needs Human");
+	// The dispatch double-fail stop is an incomplete-run outcome, not the fallback.
+	const sentence = flat.split(". ").find((s) => s.includes("double-fail"));
+	expect(sentence).toBeDefined();
+	expect(sentence!.includes("not the fallback")).toBe(true);
+});
+
+test("features-new step 2 session status line sits in the Part 2 paragraph, adjacent to the guard", () => {
+	const text = fs.readFileSync(
+		path.join(PKG_ROOT, "council", "procedures", "features-new.md"),
+		"utf-8",
+	);
+	const flat = text.replace(/\s+/g, " ");
+	// STEP-6 ruling's final copy, verbatim.
+	expect(flat).toContain("Session status: Non-converged after 3 rounds");
+	expect(flat).toContain("this is a fallback draft");
+	expect(flat).toContain("Ledger only — presented, never written");
+	// Ruled dissents keep their ruling — the session marker never over-claims.
+	expect(flat).not.toContain("every disagreement");
+	// Sited inside the Part 2 ledger-description paragraph.
+	const statusIdx = flat.indexOf("Session status: Non-converged after 3 rounds");
+	expect(statusIdx).toBeGreaterThan(flat.indexOf("**Attribution and the disagreement ledger**"));
+	expect(statusIdx).toBeLessThan(flat.indexOf("**Part 1 card drafts must be attribution-free.**"));
+	// Adjacent to the existing guard, not mere file-wide co-occurrence.
+	expect(Math.abs(statusIdx - flat.indexOf("presented, never written"))).toBeLessThanOrEqual(200);
+	// The post-Wave-3 seam block carries neither the status line nor a guard
+	// restatement.
+	const seam = flat.slice(flat.indexOf("**Wave 3 —"), flat.indexOf("**Aggregation.**"));
+	expect(seam).not.toContain("Session status");
+	expect(seam).not.toContain("presented, never written");
+});
