@@ -18,7 +18,7 @@ The question brought me to the fundamentals in the next subsections.
 
 ### Prompt Then Get Prompted
 
-Describe what feature or product if from scratch you want then as the council deliberates it'll prompt you for more details. You have a council that'll support you, be skeptical and implement your ideas.
+Describe what feature or product you want; the council deliberates it and prepares a draft, then at the single step-3 gate you approve the exact set before anything is written. You have a council that'll support you, be skeptical and implement your ideas.
 
 ### LLM Wiki
 
@@ -106,6 +106,14 @@ facilitator routes work between seats and never decides itself:
 | `steward`        | Portfolio-level authority; product-owner's escalation target           |
 | `council-runner` | Autonomous per-card execution container for epic delivery              |
 
+`/features-new` decomposition is deliberated by four seats —
+product-owner, designer, principal, skeptic — in three waves (product-owner
+rules last; no early stop). After the full three-wave session, you always get
+a draft to approve: every card, every run, nothing is written until you
+approve the exact draft set, epic included, each exactly as it would be
+written, in one pass at the single gate. See
+`council/procedures/features-new.md`.
+
 **The wiki** — a three-layer knowledge base under `vault/`:
 `vault/raw/` (immutable sources) → `vault/wiki/` (generated pages) →
 `vault/CLAUDE.md` (the schema). Council seats ground themselves through the
@@ -189,7 +197,7 @@ plain text (they carry no color to go stale).
 | `/council-init`                    | Scaffold the council/ + vault/ trees (never overwrites); installs superpowers + ask-user-question project-locally |
 | `/council [card-id]`               | Run the full deliberation → owner → verify → judge loop on a card         |
 | `/board-create-card <desc>`        | Draft a new board card, confirm with you, file it                         |
-| `/features-new <feature>`          | Decompose a feature into an epic + child cards                            |
+| `/features-new <feature>`          | The feature is deliberated by product-owner, designer, principal, and skeptic in a bounded three-wave session; nothing reaches the board until you approve the draft set |
 | `/features-deliver <EPIC-KEY>`     | Deliver an epic autonomously via `council-runner`                         |
 | `/wiki-ingest <source>`            | Ingest a source into the wiki                                             |
 | `/wiki-lint`                       | Health-check the wiki (contradictions, orphans, gaps)                     |
