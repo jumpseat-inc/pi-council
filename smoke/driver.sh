@@ -161,4 +161,50 @@ if [ "$RUNNER_SESSIONS" -lt 1 ]; then
 fi
 
 echo
-echo "SMOKE PASS — full council loop + epic delivery verified"
+phase "3 council-eval matrix (EV-20 Q3 §8)"
+cd "$WORK" || fatal "no worktree"
+PHASE3_TIMEOUT=$((30 * 60))
+PHASE3_TASK="eval-smoke"
+PHASE3_MODEL="$FLASH"
+EVAL_OUT="$(mktemp)"
+REEVAL_OUT="$(mktemp)"
+
+# Drive the full /council-eval seam headlessly: dispatch->scratch->grade->store->summary.
+timeout "$PHASE3_TIMEOUT" pi --approve -p "/council-eval $PHASE3_TASK $PHASE3_MODEL --repeat 2" >"$EVAL_OUT" 2>&1 \
+	|| fatal "phase 3: /council-eval did not settle within ${PHASE3_TIMEOUT}s"
+
+# (b) the transcript carries durable [council-eval] lines.
+grep -q '\[council-eval\]' "$EVAL_OUT" \
+	|| fatal "phase 3: no [council-eval] lines in the run transcript"
+
+# (a) per-repeat snapshot dirs (r1, r2) exist under council/eval-results/<cellId>/.
+SNAP_COUNT="$(find "$WORK/council/eval-results" -mindepth 3 -maxdepth 3 -type d -name snapshot 2>/dev/null | wc -l | tr -d ' ')"
+if [ "$SNAP_COUNT" -lt 2 ]; then
+	fatal "phase 3: expected >= 2 snapshot dirs (r1/r2), found $SNAP_COUNT under council/eval-results"
+fi
+
+# (c) aggregateCell(readAll(cellId)) byte-identical live vs re-derivation: recompute
+# the summary purely from the on-disk records (same summarizeStore path) and compare.
+(cd "$PKG" && bun smoke/reeval.ts "$WORK/council/eval-results" >"$REEVAL_OUT" 2>&1) \
+	|| { echo "phase 3: re-derivation failed:"; cat "$REEVAL_OUT" >&2; fatal "phase 3: re-derivation failed"; }
+assert_reeval_identical "$EVAL_OUT" "$REEVAL_OUT" \
+	|| fatal "phase 3: live summary != record-derived re-derivation"
+
+# (d) validate.py green after the matrix runs.
+python3 council/validate.py || fatal "phase 3: validate.py failed after the matrix"
+
+rm -f "$EVAL_OUT" "$REEVAL_OUT"
+
+phase "3 council-eval seam evidence"
+EVAL_RESULTS="$WORK/council/eval-results"
+[ -d "$EVAL_RESULTS" ] || fatal "phase 3: no eval-results dir at $EVAL_RESULTS"
+RESULT_COUNT="$(find "$EVAL_RESULTS" -name '*.json' | wc -l | tr -d ' ')"
+if [ "$RESULT_COUNT" -lt 2 ]; then
+	fatal "phase 3: expected >= 2 eval result records, found $RESULT_COUNT"
+fi
+
+phase "3 snapshots persisted"
+find "$EVAL_RESULTS" -mindepth 3 -maxdepth 3 -type d -name snapshot | sed "s|$WORK/||" >&2
+
+echo
+echo "SMOKE PASS — full council loop + epic delivery + council-eval matrix verified"

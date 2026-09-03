@@ -1,0 +1,13 @@
+{
+	"schemaVersion": 1,
+	"taskId": "eval-smoke",
+	"name": "EV-20 smoke: run a gate-only cell to completion (Q3 §8)",
+	"fixtureVersion": "1.0.0",
+	"kind": "seat",
+	"target": { "type": "seat", "seat": "owner" },
+	"inputFile": "input.md",
+	"seed": { "dir": "seed", "treeDigest": "sha256:7ae3fca83d70cd40dbce06de5b4142ccbe1f30e551cd99f452314f5dbf3d7891" },
+	"timeoutMinutes": 15,
+	"policy": { "gates": [] },
+	"graderModel": "openrouter/deepseek/deepseek-v4-flash-0731"
+}

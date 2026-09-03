@@ -91,3 +91,23 @@ banner <https://example.com/banner.png>"
 		return 1
 	fi
 }
+
+# assert_reeval_identical <live-out> <reeval-out> — EV-20 §8(c). Extract the
+# record-derived summary lines (they carry `graded=`; progress lines do not)
+# from the live `/council-eval` transcript and compare byte-for-byte with a pure
+# re-derivation from the on-disk records (both funnel through summarizeStore).
+assert_reeval_identical() {
+	local live="$1" reval="$2" live_sum reval_sum
+	live_sum="$(grep -E '\[council-eval\].*graded=' "$live" || true)"
+	reval_sum="$(grep -E '\[council-eval\].*graded=' "$reval" || true)"
+	if [ -z "$live_sum" ]; then
+		echo "assert_reeval_identical: no summary lines in live transcript" >&2
+		return 1
+	fi
+	if [ "$live_sum" != "$reval_sum" ]; then
+		echo "assert_reeval_identical: live summary != record-derived re-derivation" >&2
+		printf '%s\n' "live:   $live_sum" "reeval: $reval_sum" >&2
+		return 1
+	fi
+}
+
