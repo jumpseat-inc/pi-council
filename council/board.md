@@ -25,9 +25,10 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- EV-18 — Shipped benchmark fixtures for commands and seats
 
 ## In Progress
+
+- EV-18 — Shipped benchmark fixtures for commands and seats
 
 ## In Review
 
