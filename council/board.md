@@ -20,7 +20,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Ready
 
-- EV-11 — Bounded decomposition session
 - EV-12 — Document the council-decomposed features-new flow
 
 ## Deliberating
@@ -28,6 +27,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
+- EV-11 — Bounded decomposition session
 - EV-18 — Shipped benchmark fixtures for commands and seats
 
 ## In Review

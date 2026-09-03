@@ -40,7 +40,12 @@ card itself — only children point up at it.
 
 The decomposition is deliberated by the four seats SEATS-1 names —
 `product-owner`, `designer`, `principal`, `skeptic` — in three waves. You
-route, wait, aggregate verbatim, and author nothing.
+route, wait, aggregate verbatim, and author nothing. The session is bounded
+at three waves = three rounds, the same numeric cap `/council`'s step 3
+exchange uses: no seat is re-dispatched to respond to another seat's
+position — no wave is re-run, no fourth dispatch, and a stall re-dispatch
+is a retry, not a round; disagreements are ruled in wave 3, never
+exchanged.
 
 **Wave 1 — `principal` authors the first decomposition artifact.**
 
@@ -103,6 +108,26 @@ Ruling-only:
 It never re-slices children and never rewrites undisputed child goals — that
 boundary is what keeps it ruling, not generating.
 
+**Bounded session and fallback.** Every run ends after wave 3, when
+convergence is recorded at the fixed endpoint — product-owner always runs
+last, and there is no early stop: council.md's "stop early if stabilised"
+is not imported here. The session has converged when wave 3 has ruled
+every open-judgment dispute the attackers surfaced — zero open in-scope
+judgments remain after wave 3, where open means unruled by product-owner
+and not settled by a runnable check; a named dissent is not
+non-convergence, and a named, ruled dissent is a converged run. An
+escalated, unruled item is non-converged by construction and is the
+fallback's canonical content — it rides to the step-3 gate as an
+unresolved disagreement for the human. If the cap is hit
+without convergence, the facilitator drafts the decomposition anyway: the
+fallback draft is the mechanical verbatim aggregate of all recorded
+contributions, including wave 3's amendments — never facilitator-authored
+synthesis, never a most-advanced-seat position as base. Every open
+disagreement is carried into the step-3 draft pass labeled unresolved, for
+the human to settle at the existing approval gate — no new gate, no
+`Needs Human` stop. The dispatch discipline's double-fail stop is an
+incomplete-run outcome, not the fallback.
+
 **Aggregation.** Aggregate **all recorded contributions** verbatim, labeled
 by seat, by mechanical concordance — children aligned by stated scope,
 agreeing elements drafted from the agreement and attributed to the seats
@@ -122,7 +147,10 @@ two-line note naming the seat and the dimension (scope, testability,
 surface, state-assignment), verbatim or a faithful ≤2-line restatement;
 and a `Decision: unresolved — your call` marker on every line of the
 disagreement block. The ledger is **presented, never written** — it does
-not survive onto the on-disk card.
+not survive onto the on-disk card. Session status: Non-converged after 3
+rounds — this is a fallback draft. The unresolved items below are for your
+decision at the existing approval gate. Ledger only — presented, never
+written.
 
 **Part 1 card drafts must be attribution-free.** The card text presented
 "exactly as each would be written to disk" carries no seat names, no wave
