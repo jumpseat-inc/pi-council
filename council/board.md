@@ -23,10 +23,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
+- EV-10 — features-new decomposition dispatches the council
 
 ## In Review
 
-- EV-10 — features-new decomposition dispatches the council
+
 
 
 ## Needs Human
