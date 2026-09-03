@@ -64,3 +64,30 @@ test("council prose does not pin a specific tech stack", () => {
 		expect(text, `${rel} pins a tech stack`).not.toMatch(forbidden);
 	}
 });
+
+const STEP3_FIXTURE = `## 3. Draft-then-confirm — every card, no exceptions
+
+Reuse \`/board-create-card\`'s draft-then-confirm gate **for every card this
+command produces, the epic included.** Present the full draft of the epic
+and every child — complete frontmatter and \`Intent\` section, exactly as each
+would be written to disk — to the human in one pass.
+
+The human may edit any card, drop any child, or approve the set as-is.
+**Write nothing to disk until the human approves.** There is no default
+approval, no timeout that counts as consent, and no proceeding on the
+assumption that silence means yes.
+
+`;
+
+test("features-new step 3 is byte-identical to the settled draft-then-confirm block", () => {
+	const text = fs.readFileSync(
+		path.join(PKG_ROOT, "council", "procedures", "features-new.md"),
+		"utf-8",
+	);
+	const start = text.indexOf("## 3. Draft-then-confirm");
+	const end = text.indexOf("## 4. On approval");
+	expect(start, "step-3 heading must exist").toBeGreaterThan(-1);
+	expect(end, "step-4 heading must exist").toBeGreaterThan(start);
+	const shippedBlock = text.slice(start, end);
+	expect(shippedBlock).toEqual(STEP3_FIXTURE);
+});
