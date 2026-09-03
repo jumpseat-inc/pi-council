@@ -17,12 +17,13 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-5 — Criterion-type-aware judge projection in projectVerdictRecord
 - EV-21 — Results leaderboard with variance
 
-## Ready
+## Deliberating
 
 - EV-20 — Matrix runner with repeat aggregation
-- EV-12 — Document the council-decomposed features-new flow
 
-## Deliberating
+## Ready
+
+- EV-12 — Document the council-decomposed features-new flow
 
 
 
