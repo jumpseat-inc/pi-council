@@ -222,3 +222,163 @@ test("dispatch primitive: unknown effective model refuses loudly, naming it (B3)
 	).toThrow(/openrouter\/unknown\/model9/);
 	shutdownHub();
 });
+
+// ---- parseEvalArgs grammar (spec §2 / §10.10) ----
+
+import {
+	REPEAT_CAP,
+	REPEAT_DEFAULT,
+	SCORED_UNDER_SELF,
+	ensureEvalDir,
+	evalResultsDir,
+	isGateOnlyFixture,
+	parseEvalArgs,
+	persistCellSnapshot,
+	readAllResults,
+	writeResultRecord,
+	writeVerdictRecord,
+} from "../extensions/eval-runner.ts";
+import type { ResultRecord, VerdictRecord } from "../extensions/eval-rubric.ts";
+
+test("grammar: no args -> no task, default repeat, snapshot on", () => {
+	const a = parseEvalArgs([]);
+	expect(a.task).toBeUndefined();
+	expect(a.models).toEqual([]);
+	expect(a.repeat).toBe(REPEAT_DEFAULT);
+	expect(a.persistSnapshot).toBe(true);
+});
+
+test("grammar: --repeat N and --repeat=N; multiple models; task first", () => {
+	expect(parseEvalArgs(["council", "m/x", "--repeat", "5"])).toEqual({
+		task: "council", models: ["m/x"], repeat: 5, persistSnapshot: true,
+	});
+	expect(parseEvalArgs(["council", "m/x", "m/y", "--repeat=2"]).repeat).toBe(2);
+	expect(parseEvalArgs(["council", "m/x", "m/y", "--repeat=2"]).models).toEqual(["m/x", "m/y"]);
+});
+
+test("grammar: --no-persist-snapshot turns the snapshot flag off", () => {
+	expect(parseEvalArgs(["council", "m/x", "--no-persist-snapshot"]).persistSnapshot).toBe(false);
+	expect(parseEvalArgs(["council", "m/x", "--persist-snapshot"]).persistSnapshot).toBe(true);
+});
+
+test("grammar: repeat above the hard cap rejects loudly", () => {
+	expect(() => parseEvalArgs(["council", "m/x", "--repeat", String(REPEAT_CAP + 1)])).toThrow(/20/);
+});
+
+test("grammar: non-integer or zero repeat rejects", () => {
+	expect(() => parseEvalArgs(["council", "m/x", "--repeat", "abc"])).toThrow();
+	expect(() => parseEvalArgs(["council", "m/x", "--repeat", "0"])).toThrow();
+});
+
+// ---- store: verdict repeat round-trip (spec §10.2) ----
+
+function vrec(over: Partial<VerdictRecord> = {}): VerdictRecord {
+	return {
+		cellId: "taskA|m/x",
+		repeat: 1,
+		gradedBy: "g",
+		fixtureVersion: "1.0.0",
+		rubricVersion: "1.0.0",
+		perCriterion: [],
+		gradedAt: 1,
+		gradingUsage: { input: 0, output: 0, cost: 0, elapsedMs: 0 },
+		...over,
+	};
+}
+
+test("verdict repeat round-trip: repeats 1..3 produce three distinct keyed files", () => {
+	const store = ensureEvalDir(fs.mkdtempSync(path.join(os.tmpdir(), "council-ver-")));
+	writeVerdictRecord(store, vrec({ repeat: 1 }));
+	writeVerdictRecord(store, vrec({ repeat: 2 }));
+	writeVerdictRecord(store, vrec({ repeat: 3 }));
+	const files = fs.readdirSync(store).filter((f) => f.endsWith(".json"));
+	expect(files).toHaveLength(3);
+	expect(new Set(files)).toHaveLength(3); // keys differ by repeat (only the r<N> segment varies)
+	for (const n of [1, 2, 3]) expect(files.some((f) => f.includes(`__r${n}__`))).toBe(true);
+});
+
+test("verdict first-write-wins: same tuple same payload is a no-op, divergent throws, new key is a new file", () => {
+	const store = ensureEvalDir(fs.mkdtempSync(path.join(os.tmpdir(), "council-ver2-")));
+	writeVerdictRecord(store, vrec({ repeat: 1 }));
+	writeVerdictRecord(store, vrec({ repeat: 1 })); // identical -> no-op
+	expect(fs.readdirSync(store).filter((f) => f.endsWith(".json"))).toHaveLength(1);
+	// a different gradedBy is a NEW key tuple -> a second file, not a conflict
+	writeVerdictRecord(store, vrec({ repeat: 1, gradedBy: "g2" }));
+	expect(fs.readdirSync(store).filter((f) => f.endsWith(".json"))).toHaveLength(2);
+	// divergent payload for the SAME key tuple -> throw (defect)
+	expect(() => writeVerdictRecord(store, vrec({ repeat: 1, perCriterion: [{ criterionId: "c", verdict: "pass", evidence: "e" }] }))).toThrow();
+});
+
+test("result store key (spec §10.3): two graders under the same version pair both survive; fixture bump = new version-keyed set", () => {
+	const store = ensureEvalDir(fs.mkdtempSync(path.join(os.tmpdir(), "council-res-")));
+	const base: ResultRecord = {
+		cellId: "taskA|m/x", taskId: "taskA", model: "m/x", repeat: 1,
+		fixtureVersion: "1.0.0", rubricVersion: "1.0.0",
+		perCriterion: [], score: 0.5, gradedAt: 1, scoredUnder: "g1",
+	};
+	const scope = { state: "done" as const, usage: { input: 0, output: 0, cost: 0, turns: 0 }, elapsedMs: 1, repoState: "sha256:" + "b".repeat(64) };
+	writeResultRecord(store, { ...base, scoredUnder: "g1" }, scope);
+	writeResultRecord(store, { ...base, scoredUnder: "g2" }, scope);
+	// fixture bump -> new version-keyed set (same cellId/repeat/graders, new fixtureVersion)
+	writeResultRecord(store, { ...base, fixtureVersion: "2.0.0", scoredUnder: "g1" }, scope);
+	const all = readAllResults(store);
+	expect(all).toHaveLength(3);
+	expect(all.filter((r) => r.fixtureVersion === "1.0.0")).toHaveLength(2);
+	expect(all.filter((r) => r.fixtureVersion === "2.0.0")).toHaveLength(1);
+});
+
+test("result store: divergent same-tuple throws; identical no-op", () => {
+	const store = ensureEvalDir(fs.mkdtempSync(path.join(os.tmpdir(), "council-res2-")));
+	const base: ResultRecord = { cellId: "c", taskId: "t", model: "m", repeat: 1, fixtureVersion: "1.0.0", rubricVersion: "1.0.0", perCriterion: [], score: 0.5, gradedAt: 1, scoredUnder: "g" };
+	const scope = { state: "done" as const, usage: { input: 0, output: 0, cost: 0, turns: 0 }, elapsedMs: 1, repoState: "sha256:" + "b".repeat(64) };
+	writeResultRecord(store, base, scope);
+	writeResultRecord(store, base, scope); // identical -> no-op
+	expect(fs.readdirSync(store).filter((f) => f.endsWith(".json"))).toHaveLength(1);
+	expect(() => writeResultRecord(store, { ...base, score: 0.6 }, scope)).toThrow();
+});
+
+test("result record carries the repoState cellScope (Q2)", () => {
+	const store = ensureEvalDir(fs.mkdtempSync(path.join(os.tmpdir(), "council-res3-")));
+	const base: ResultRecord = { cellId: "c", taskId: "t", model: "m", repeat: 1, fixtureVersion: "1.0.0", rubricVersion: "1.0.0", perCriterion: [], score: 0.5, gradedAt: 1, scoredUnder: SCORED_UNDER_SELF };
+	const scope = { state: "done" as const, usage: { input: 1, output: 2, cost: 3, turns: 4 }, elapsedMs: 9, repoState: "sha256:" + "c".repeat(64) };
+	writeResultRecord(store, base, scope);
+	const [r] = readAllResults(store);
+	expect(r.cellScope.repoState).toBe("sha256:" + "c".repeat(64));
+	expect(r.cellScope.elapsedMs).toBe(9);
+});
+
+// ---- gate-only sentinel (spec §10.4 / Q1-D2) ----
+
+import { validateRubric } from "../extensions/eval-fixtures.ts";
+
+test("gate-only sentinel: a rubric with only gate criteria is gate-only (scoredUnder self); judge renders it not", () => {
+	const gateOnly = validateRubric(
+		{ schemaVersion: 1, rubricVersion: "1.0.0", criteria: [{ id: "c1", type: "gate", check: { kind: "artifact-present", path: "out.txt" } }] },
+		"f",
+	);
+	expect(isGateOnlyFixture(gateOnly)).toBe(true);
+	const judge = validateRubric(
+		{ schemaVersion: 1, rubricVersion: "1.0.0", criteria: [{ id: "j1", type: "judge", prompt: "p" }] },
+		"f",
+	);
+	expect(isGateOnlyFixture(judge)).toBe(false);
+	expect(SCORED_UNDER_SELF).toBe("self");
+});
+
+// ---- snapshot persistence (spec §10.5 / Q2) ----
+
+import { sha256Tree } from "../extensions/eval-fixtures.ts";
+
+test("snapshot: persist copies the scratch tree; --no-persist-snapshot skips the copy", () => {
+	const store = ensureEvalDir(fs.mkdtempSync(path.join(os.tmpdir(), "council-snap-")));
+	const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "council-scratch-"));
+	fs.writeFileSync(path.join(scratch, "out.txt"), "artifact");
+	fs.mkdirSync(path.join(scratch, "sub"));
+	fs.writeFileSync(path.join(scratch, "sub", "nested.md"), "hi");
+	persistCellSnapshot(store, "taskA|m/x", 1, scratch, true);
+	const snapDir = path.join(store, "taskA_m_x", "r1", "snapshot");
+	expect(fs.existsSync(snapDir)).toBe(true);
+	expect(sha256Tree(snapDir)).toBe(sha256Tree(scratch));
+	persistCellSnapshot(store, "taskA|m/x", 2, scratch, false);
+	expect(fs.existsSync(path.join(store, "taskA_m_x", "r2", "snapshot"))).toBe(false);
+});
