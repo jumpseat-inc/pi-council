@@ -18,9 +18,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-## Ready
-
 - EV-21 — Results leaderboard with variance
+## Ready
 
 
 ## In Progress
