@@ -8,16 +8,23 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 - EPIC-1 — omp-themed council theme for pi, configurable from the scaffold .council.json
 - EPIC-2 — Inline council job tree beneath the input bar
+- EPIC-3 — Council-decomposed features-new with a bounded session
+- EPIC-4 — Model eval harness for council commands and seats
 - FLLWUP-1 — Fix HTML export under an active in-memory council theme
 - FLLWUP-2 — Make the .council.json theme export section editable
 - FLLWUP-3 — Revisit empty dark and light variant shells for consumer discoverability
 - FLLWUP-4 — Repair /council-tree RPC silent-no-op in navigator.ts:57
-- EPIC-3 — Council-decomposed features-new with a bounded session
+- EV-18 — Shipped benchmark fixtures for commands and seats
+- EV-19 — Scoring rubric and run verifier
+- EV-20 — Matrix runner with repeat aggregation
+- EV-21 — Results leaderboard with variance
 
 ## Ready
 
 - EV-11 — Bounded decomposition session
 - EV-12 — Document the council-decomposed features-new flow
+- EV-16 — Design the council model eval system
+- EV-17 — Per-run model override for eval dispatches
 
 ## Deliberating
 
@@ -26,7 +33,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-10 — features-new decomposition dispatches the council
 
 ## In Review
-
 
 
 
