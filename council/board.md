@@ -28,12 +28,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## In Progress
 
 - EV-11 — Bounded decomposition session
+- EV-20 — Matrix runner with repeat aggregation
 
 
 
 ## In Review
-
-- EV-20 — Matrix runner with repeat aggregation
 
 
 
