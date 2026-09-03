@@ -462,10 +462,13 @@ function validateCheck(raw: unknown, file: string, where: string): RubricCheck {
 		case "settled": {
 			const role = typeof raw.role === "string" && raw.role !== "" ? raw.role : undefined;
 			const p = typeof raw.path === "string" && raw.path !== "" ? raw.path : undefined;
-			if (role === undefined && p === undefined) {
-				throw new Error(`${file}: settled check must carry at least one of "role" or "path"`);
+			if (role === undefined) {
+				throw new Error(`${file}: settled check must carry "role" (a settled check is role-only)`);
 			}
-			return { kind, ...(role !== undefined ? { role } : {}), ...(p !== undefined ? { path: p } : {}) };
+			if (p !== undefined) {
+				throw new Error(`${file}: settled check must not carry "path" — use artifact-present for a file probe`);
+			}
+			return { kind, role };
 		}
 		case "artifact-present":
 			return { kind, path: requireString(raw, "path", file, `${where}.check`) };
