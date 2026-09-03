@@ -29,9 +29,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-16 — Design the council model eval system
-
 ## In Review
+
+- EV-16 — Design the council model eval system
 
 
 
