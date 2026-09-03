@@ -91,3 +91,20 @@ test("features-new step 3 is byte-identical to the settled draft-then-confirm bl
 	const shippedBlock = text.slice(start, end);
 	expect(shippedBlock).toEqual(STEP3_FIXTURE);
 });
+
+test("features-new step 2 mandates attribution-free Part 1 card drafts", () => {
+	// Step-9 cycle-1 O1: the smoke run's Part 1 card drafts embedded seat
+	// names, wave numbers, and deliberation narrative in Intent prose that
+	// would be written to disk. The step-2 gate-presentation text must carry
+	// an explicit, unmissable mandate forbidding that, so the blur is
+	// structurally prevented, not incidentally absent.
+	const text = fs.readFileSync(
+		path.join(PKG_ROOT, "council", "procedures", "features-new.md"),
+		"utf-8",
+	);
+	// Whitespace-normalized so the pin survives line wrapping in the prose.
+	const flat = text.replace(/\s+/g, " ");
+	expect(flat).toContain("Part 1 card drafts must be attribution-free");
+	expect(flat).toContain("no seat names, no wave numbers, and no deliberation narrative");
+	expect(flat).toContain("Attribution belongs solely in the Part 2 ledger");
+});

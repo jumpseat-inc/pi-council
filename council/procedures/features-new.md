@@ -124,6 +124,21 @@ and a `Decision: unresolved — your call` marker on every line of the
 disagreement block. The ledger is **presented, never written** — it does
 not survive onto the on-disk card.
 
+**Part 1 card drafts must be attribution-free.** The card text presented
+"exactly as each would be written to disk" carries no seat names, no wave
+numbers, and no deliberation narrative — nothing that attributes, narrates,
+or dates the deliberation. Forbidden in every card's frontmatter and
+`Intent`: `(Designer, wave 2)`, `(product-owner, wave 3)`, `(skeptic, wave
+2)`, "principal argued Ready; overruled", "principal flagged the drift in
+wave 1", "Scope ruling (product-owner, wave 3)", "Why state is Backlog
+(product-owner, wave 3)", "Evidence shape (skeptic, wave 2)" — any seat
+name, wave number, or deliberation narrative, in any form. A card's
+`Intent` names the user-visible surface and the goal's reasoning, never
+who said what in which wave. Attribution belongs solely in the Part 2
+ledger surface and the `runs/` transcript; if a card's text needs a
+deliberation fact, it does not belong in the card — it belongs in the
+ledger.
+
 **Dispatch discipline.** Every dispatch is bounded: `council_dispatch` →
 note the returned job id → `council_wait` with a window → on stall, cancel
 + one re-dispatch with the same input → on double-fail, stop and surface to
