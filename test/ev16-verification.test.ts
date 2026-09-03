@@ -65,15 +65,15 @@ test("C2a: childEnv copies base + injects COUNCIL_RUN_ID/COUNCIL_JOB_ID", () => 
 
 test("C2b: tree.ts builds parent-child from parentJobId", () => {
 	const manifests: RunManifest[] = [
-		{ id: "job-1", seat: "runner", model: "m1", parentJobId: null, pid: 1, sessionId: "s1", state: "done", startedAt: 100, settledAt: 200, exitCode: 0 },
-		{ id: "job-1.1", seat: "owner", model: "m2", parentJobId: "job-1", pid: 2, sessionId: "s1", state: "done", startedAt: 110, settledAt: 190, exitCode: 0 },
+		{ id: "job-1", seat: "runner", model: "m1", parentJobId: null, pid: 1, sessionId: "s1", state: "done", startedAt: 100, settledAt: 200, exitCode: 0, usage: { input: 0, output: 0, cost: 0, turns: 0 } },
+		{ id: "job-1.1", seat: "owner", model: "m2", parentJobId: "job-1", pid: 2, sessionId: "s1", state: "done", startedAt: 110, settledAt: 190, exitCode: 0, usage: { input: 0, output: 0, cost: 0, turns: 0 } },
 	];
 	const tree = buildTree(manifests);
 	expect(tree[0].children[0].manifest.parentJobId).toBe("job-1");
 });
 
-// ========== CLAIM 3: writeJobManifest persists limited fields ==========
-test("C3a: writeManifest persists id/seat/model/parentJobId/pid/state/startedAt/settledAt/exitCode only", () => {
+// ========== CLAIM 3: writeJobManifest persists telemetry (EV-16 §7 extension) ==========
+test("C3a: writeManifest round-trips usage and stopReason (RunManifest §7 extension)", () => {
 	const root = tmpRepo();
 	const runId = mintRunId();
 	ensureRunDir(root, runId);
@@ -81,13 +81,14 @@ test("C3a: writeManifest persists id/seat/model/parentJobId/pid/state/startedAt/
 		id: "job-test", seat: "owner", model: "test/model", parentJobId: null,
 		pid: 12345, sessionId: "session-1", state: "done",
 		startedAt: Date.now(), settledAt: Date.now(), exitCode: 0,
+		usage: { input: 10, output: 5, cost: 0.001, turns: 1 },
+		stopReason: "stop",
 	});
 	const loaded = readManifests(root, runId);
 	expect(loaded[0].pid).toBe(12345);
-	const m = loaded[0] as unknown as Record<string, unknown>;
-	expect(m.usage).toBeUndefined();
-	expect(m.stopReason).toBeUndefined();
-	expect(m.elapsedMs).toBeUndefined();
+	expect(loaded[0].usage).toEqual({ input: 10, output: 5, cost: 0.001, turns: 1 });
+	expect(loaded[0].stopReason).toBe("stop");
+	expect((loaded[0] as unknown as Record<string, unknown>).elapsedMs).toBeUndefined(); // still derived from startedAt/settledAt, not persisted
 	fs.rmSync(path.join(root, CONFIG_DIR_NAME), { recursive: true, force: true });
 });
 

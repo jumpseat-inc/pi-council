@@ -98,6 +98,8 @@ export class Hub {
 			startedAt: job.startedAt,
 			settledAt: job.exitCode !== null ? Date.now() : null,
 			exitCode: job.exitCode,
+			usage: job.usage,
+			...(job.stopReason !== undefined ? { stopReason: job.stopReason } : {}),
 		});
 	}
 

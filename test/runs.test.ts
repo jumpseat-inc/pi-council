@@ -31,6 +31,7 @@ function manifest(id: string, over: Partial<RunManifest> = {}): RunManifest {
 		startedAt: Date.now(),
 		settledAt: null,
 		exitCode: null,
+		usage: { input: 0, output: 0, cost: 0, turns: 0 },
 		...over,
 	};
 }

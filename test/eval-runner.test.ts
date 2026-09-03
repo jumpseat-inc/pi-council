@@ -103,3 +103,65 @@ test("E1b: a strongly separated pair is NOT tied (CI on mean difference excludes
 	expect(t.tied).toBe(false);
 	expect(t.ciLo > 0 || t.ciHi < 0).toBe(true);
 });
+
+// ---- RunManifest extension (EV-16 §7) — failing test first (convention 7) ----
+
+import { Hub } from "../extensions/hub.ts";
+import { ensureRunDir, readManifests, sumSubtree, writeManifest, type RunManifest } from "../extensions/runs.ts";
+
+const STUB = path.join(import.meta.dir, "stub-child.ts");
+
+function manifest(id: string, over: Partial<RunManifest> = {}): RunManifest {
+	return {
+		id,
+		seat: "owner",
+		model: "m/x",
+		parentJobId: null,
+		pid: null,
+		sessionId: id,
+		state: "done",
+		startedAt: 1,
+		settledAt: 2,
+		exitCode: 0,
+		usage: { input: 10, output: 5, cost: 1.5, turns: 2 },
+		...over,
+	};
+}
+
+test("F1: sumSubtree over a 3-deep parentJobId chain equals the hand-computed cost", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-sub-"));
+	ensureRunDir(root, "runS");
+	writeManifest(root, "runS", manifest("job-1", { usage: { input: 10, output: 5, cost: 1.5, turns: 2 } }));
+	writeManifest(root, "runS", manifest("job-1.1", { parentJobId: "job-1", usage: { input: 10, output: 5, cost: 2.0, turns: 1 } }));
+	writeManifest(root, "runS", manifest("job-1.1.1", { parentJobId: "job-1.1", usage: { input: 10, output: 5, cost: 0.5, turns: 3 } }));
+	writeManifest(root, "runS", manifest("job-2", { usage: { input: 10, output: 5, cost: 9.0, turns: 9 } }));
+	const ms = readManifests(root, "runS");
+	expect(sumSubtree(ms, "job-1")).toBeCloseTo(1.5 + 2.0 + 0.5, 10);
+	expect(sumSubtree(ms, "job-1", "turns")).toBe(2 + 1 + 3);
+});
+
+test("F1b: a settled hub job persists usage and stopReason to the manifest", async () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-manu-"));
+	ensureRunDir(root, "runMU");
+	const pidFile = path.join(os.tmpdir(), `council-eval-hub-${process.pid}.json`);
+	const hub = new Hub({ monitorIntervalMs: 50, pidFile, run: { repoRoot: root, runId: "runMU" } });
+	const job = hub.spawnJob({
+		id: hub.allocateId(),
+		seat: "stub",
+		command: "bun",
+		args: [STUB],
+		cwd: import.meta.dir,
+		env: { ...process.env, STUB_MODE: "emit" } as Record<string, string>,
+		timeoutMs: 30_000,
+		stallMs: 30_000,
+	});
+	await hub.wait([job.id], 10_000);
+	hub.shutdown();
+	const m = JSON.parse(
+		fs.readFileSync(path.join(root, CONFIG_DIR_NAME, "council", "runs", "runMU", `${job.id}.json`), "utf-8"),
+	) as { usage?: { turns: number; cost: number }; stopReason?: string };
+	expect(m.usage).toBeDefined();
+	expect(m.usage!.turns).toBe(1);
+	expect(m.usage!.cost).toBeCloseTo(0.001, 10);
+	expect(m.stopReason).toBe("stop");
+});
