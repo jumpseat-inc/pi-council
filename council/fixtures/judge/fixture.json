@@ -1,0 +1,24 @@
+{
+	"schemaVersion": 1,
+	"taskId": "judge",
+	"name": "Verdict on a goal with a deterministic fact as cross-check",
+	"fixtureVersion": "1.0.0",
+	"kind": "seat",
+	"target": {
+		"type": "seat",
+		"seat": "judge"
+	},
+	"inputFile": "input.md",
+	"seed": {
+		"dir": "seed",
+		"treeDigest": "sha256:4269859550c191753860a7b77443606fffa4acb1359192740b31bcb08b4db6d4"
+	},
+	"env": {
+		"TZ": "UTC"
+	},
+	"timeoutMinutes": 120,
+	"policy": {
+		"gates": []
+	},
+	"graderModel": "openrouter/qwen/qwen3.6-35b-a3b:medium"
+}

@@ -1,0 +1,11 @@
+{
+	"schemaVersion": 1,
+	"rubricVersion": "1.0.0",
+	"criteria": [
+		{
+			"id": "c1",
+			"type": "judge",
+			"prompt": "Grade ruling.md on the dispute in dispute.md in the fixture seed: does it pick one side with a binding rationale, address the counter-argument (variance vs completeness), state whether the ruling applies the same way to procedures as to seats, and read as an actionable decision?"
+		}
+	]
+}

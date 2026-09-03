@@ -1,0 +1,35 @@
+{
+	"schemaVersion": 1,
+	"taskId": "board-create-card",
+	"name": "Draft one card from a pinned intent, confirm, and land it on the board",
+	"fixtureVersion": "1.0.0",
+	"kind": "procedure",
+	"target": {
+		"type": "procedure",
+		"command": "/board-create-card",
+		"arguments": [
+			"Add a --limit flag to the links CLI"
+		]
+	},
+	"seed": {
+		"dir": "seed",
+		"treeDigest": "sha256:a523aa4300c985902829f0674a634e512fdfd299b4efccd367dc714ca9f9e90d"
+	},
+	"env": {
+		"TZ": "UTC"
+	},
+	"timeoutMinutes": 120,
+	"policy": {
+		"gates": [
+			{
+				"id": "confirm",
+				"humanStep": 1,
+				"when": [],
+				"verdict": "answer",
+				"answerText": "Approve this card draft: the fixture plays the human, so confirm the intent has been seen and write the card.",
+				"then": "answer"
+			}
+		]
+	},
+	"graderModel": "openrouter/qwen/qwen3.6-35b-a3b:medium"
+}

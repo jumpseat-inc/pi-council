@@ -1,0 +1,11 @@
+{
+	"schemaVersion": 1,
+	"rubricVersion": "1.0.0",
+	"criteria": [
+		{
+			"id": "c1",
+			"type": "judge",
+			"prompt": "Grade analysis.md against spec-excerpt.md and proposal.md in the fixture seed: does it identify the cross-seam blind spot (a .council.json pin sits below the env/param layers and cannot carry a per-fixture grader), name the precedence contract the proposal violates, and give a concrete reframe instead of a general caution?"
+		}
+	]
+}

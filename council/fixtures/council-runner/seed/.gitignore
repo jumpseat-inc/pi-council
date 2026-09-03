@@ -1,0 +1,4 @@
+node_modules/
+.pi/git/
+.pi/npm/
+.pi/council/.pids.json

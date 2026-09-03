@@ -1,0 +1,26 @@
+{
+	"schemaVersion": 1,
+	"taskId": "wiki-query",
+	"name": "Answer a pinned question from a wiki with known facts",
+	"fixtureVersion": "1.0.0",
+	"kind": "procedure",
+	"target": {
+		"type": "procedure",
+		"command": "/wiki-query",
+		"arguments": [
+			"How many packaged seats does the council ship?"
+		]
+	},
+	"seed": {
+		"dir": "seed",
+		"treeDigest": "sha256:bb6dae8b52a18b04c3e2ddbbf7ad0c4b075a3c20011576f7437459405a174344"
+	},
+	"env": {
+		"TZ": "UTC"
+	},
+	"timeoutMinutes": 120,
+	"policy": {
+		"gates": []
+	},
+	"graderModel": "openrouter/qwen/qwen3.6-35b-a3b:medium"
+}

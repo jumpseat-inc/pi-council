@@ -1,0 +1,21 @@
+{
+	"schemaVersion": 1,
+	"rubricVersion": "1.0.0",
+	"criteria": [
+		{
+			"id": "c1",
+			"type": "gate",
+			"check": { "kind": "artifact-contains", "path": "vault/wiki/index.md", "contains": "[[history]]" }
+		},
+		{
+			"id": "c2",
+			"type": "gate",
+			"check": { "kind": "artifact-contains", "path": "vault/wiki/overview.md", "contains": "0.1.0" }
+		},
+		{
+			"id": "c3",
+			"type": "gate",
+			"check": { "kind": "gates", "argv": ["python3", "council/validate.py"], "expect": { "exitCode": 0, "stdoutContains": "All council artifacts valid" } }
+		}
+	]
+}

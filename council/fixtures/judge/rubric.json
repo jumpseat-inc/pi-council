@@ -1,0 +1,21 @@
+{
+	"schemaVersion": 1,
+	"rubricVersion": "1.0.0",
+	"criteria": [
+		{
+			"id": "c1",
+			"type": "gate",
+			"check": { "kind": "gates", "argv": ["bun", "test"], "expect": { "exitCode": 0 } }
+		},
+		{
+			"id": "c2",
+			"type": "gate",
+			"check": { "kind": "artifact-contains", "path": "judge-report.md", "contains": "VERDICT: PASS" }
+		},
+		{
+			"id": "c3",
+			"type": "gate",
+			"check": { "kind": "settled", "role": "judge" }
+		}
+	]
+}

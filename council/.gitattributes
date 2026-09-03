@@ -1,0 +1,6 @@
+# EV-18 (Q2): seeds carry pinned sha256 treeDigests verified at every load.
+# A CRLF-normalizing checkout would change the digested bytes, so every text
+# file under council/ is forced to LF in a fresh checkout — `* text=auto
+# eol=lf`. All seed files are text (verified on EV-18: no binaries, no
+# symlinks), so no tighter text-only globs are needed.
+* text=auto eol=lf

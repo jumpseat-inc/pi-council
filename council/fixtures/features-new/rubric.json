@@ -1,0 +1,21 @@
+{
+	"schemaVersion": 1,
+	"rubricVersion": "1.0.0",
+	"criteria": [
+		{
+			"id": "c1",
+			"type": "gate",
+			"check": { "kind": "gates", "argv": ["python3", "council/validate.py"], "expect": { "exitCode": 0, "stdoutContains": "All council artifacts valid" } }
+		},
+		{
+			"id": "c2",
+			"type": "gate",
+			"check": { "kind": "artifact-contains", "path": "council/board.md", "contains": "JSON and markdown output" }
+		},
+		{
+			"id": "c3",
+			"type": "judge",
+			"prompt": "Grade the epic decomposition written by this run for the pinned intent (JSON and markdown output modes for the links CLI): does it name a testable epic goal, draft child cards that split the work into independently observable pieces, and keep the board consistent with validate.py? Name the epic card id and quote the goal."
+		}
+	]
+}

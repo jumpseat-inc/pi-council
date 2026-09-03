@@ -1,0 +1,35 @@
+{
+	"schemaVersion": 1,
+	"taskId": "wiki-ingest",
+	"name": "Ingest a pinned raw source into the LLM wiki",
+	"fixtureVersion": "1.0.0",
+	"kind": "procedure",
+	"target": {
+		"type": "procedure",
+		"command": "/wiki-ingest",
+		"arguments": [
+			"2026-08-25-links-cli-design-session.md"
+		]
+	},
+	"seed": {
+		"dir": "seed",
+		"treeDigest": "sha256:3ed41cd722bee481cfe7bc8ec414364eddf8a1bf022bfd6f6e7455a620284247"
+	},
+	"env": {
+		"TZ": "UTC"
+	},
+	"timeoutMinutes": 120,
+	"policy": {
+		"gates": [
+			{
+				"id": "ingest-discussion",
+				"humanStep": 1,
+				"when": [],
+				"verdict": "answer",
+				"answerText": "The takeaways summary is pinned in the source; proceed with the Ingest operation directly — the fixture plays the human discussion turn.",
+				"then": "answer"
+			}
+		]
+	},
+	"graderModel": "openrouter/qwen/qwen3.6-35b-a3b:medium"
+}

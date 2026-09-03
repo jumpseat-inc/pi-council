@@ -11,9 +11,10 @@ import { test, expect } from "bun:test";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
+import { spawnSync } from "node:child_process";
 import { CONFIG_DIR_NAME } from "@earendil-works/pi-coding-agent";
 import { applyRulings, loadFixture, listFixtureTasks, sha256Tree, validatePolicy, type PolicyGate } from "../extensions/eval-fixtures.ts";
-import { PKG_ROOT } from "../extensions/seats.ts";
+import { PKG_ROOT, loadSeat, parseQualifiedModel } from "../extensions/seats.ts";
 
 function tmpRepo(): string {
 	return fs.mkdtempSync(path.join(os.tmpdir(), "council-fixtures-"));
@@ -198,11 +199,13 @@ test("loadFixture: repo-side directory resolves as override and is read-only ove
 	expect(after).toBe(before);
 });
 
-test("listFixtureTasks: validates self-description and reports sorted repo-side ids", () => {
+test("listFixtureTasks: validates self-description and unions repo-side ids with the packaged 16", () => {
 	const root = tmpRepo();
 	writeSyntheticFixture(root, "b-task", { fixture: { ...MINIMAL_FIXTURE, taskId: "b-task" } });
 	writeSyntheticFixture(root, "a-task", { fixture: { ...MINIMAL_FIXTURE, taskId: "a-task" } });
-	expect(listFixtureTasks(root)).toEqual(["a-task", "b-task"]);
+	const all = listFixtureTasks(root);
+	expect(all.slice(0, 2)).toEqual(["a-task", "b-task"]);
+	expect(all).toEqual(ALL_TASKS_UNION);
 	const root2 = tmpRepo();
 	writeSyntheticFixture(root2, "z", { fixture: { ...MINIMAL_FIXTURE, taskId: "zz" } });
 	expect(() => listFixtureTasks(root2)).toThrow(/does not match directory name/);
@@ -350,4 +353,137 @@ test("validatePolicy: unknown keys/kinds/verdicts, bad then-vocab, and answerTex
 		validatePolicy({ gates: [{ id: "a", humanStep: 1, when: [{ kind: "job-state", role: "o", state: "merged" }], verdict: "approve" }] }, file),
 	).toThrow(/merged/);
 	expect(() => validatePolicy({ gates: [{ id: "a", humanStep: 1, when: [], verdict: "approve", bogus: 1 }] }, file)).toThrow(/bogus/);
+});
+
+// ================= shipped-data suite (packaged fixtures under PKG_ROOT) =================
+
+const PROC_TASKS = [
+	"board-create-card",
+	"council",
+	"features-deliver",
+	"features-new",
+	"wiki-ingest",
+	"wiki-lint",
+	"wiki-query",
+];
+const SEAT_TASKS = [
+	"consolidator",
+	"council-runner",
+	"designer",
+	"judge",
+	"owner",
+	"principal",
+	"product-owner",
+	"skeptic",
+	"steward",
+];
+const ALL_TASKS = [...PROC_TASKS, ...SEAT_TASKS].sort();
+const ALL_TASKS_UNION = ["a-task", "b-task", ...ALL_TASKS].sort();
+
+function readFixtureJson(task: string): string {
+	return fs.readFileSync(path.join(PKG_ROOT, "council", "fixtures", task, "fixture.json"), "utf-8");
+}
+
+function readRubricJson(task: string): string {
+	return fs.readFileSync(path.join(PKG_ROOT, "council", "fixtures", task, "rubric.json"), "utf-8");
+}
+
+test("item 6: listFixtureTasks(PKG_ROOT) returns exactly the 16 shipped ids in sorted order", () => {
+	expect(listFixtureTasks(PKG_ROOT)).toEqual(ALL_TASKS);
+});
+
+test("item 6: every fixture loads clean — schema, rubric present, digest self-check, taskId == dirname", () => {
+	for (const task of ALL_TASKS) {
+		const loaded = loadFixture(PKG_ROOT, task);
+		expect(loaded.source).toBe("packaged");
+		expect(loaded.fixture.taskId).toBe(task);
+		expect(loaded.fixture.schemaVersion).toBe(1);
+		expect(loaded.fixture.seed.treeDigest).toMatch(/^sha256:[0-9a-f]{64}$/);
+		expect(loaded.rubric.criteria.length).toBeGreaterThanOrEqual(1);
+		expect(loaded.rubric.criteria.length).toBeLessThanOrEqual(5);
+	}
+});
+
+test("item 6: procedure fixtures reference real shipped commands; seat fixtures resolve via loadSeat + pin inputFile", () => {
+	const shipped = new Set(PROC_TASKS);
+	for (const task of PROC_TASKS) {
+		const f = loadFixture(PKG_ROOT, task).fixture;
+		expect(f.kind).toBe("procedure");
+		expect(f.target.type).toBe("procedure");
+		if (f.target.type === "procedure") expect(shipped.has(f.target.command.slice(1))).toBe(true);
+		expect(f.inputFile).toBeUndefined();
+	}
+	for (const task of SEAT_TASKS) {
+		const f = loadFixture(PKG_ROOT, task).fixture;
+		expect(f.kind).toBe("seat");
+		expect(f.target.type).toBe("seat");
+		expect(f.inputFile).toBeDefined();
+		if (f.target.type === "seat") expect(loadSeat(PKG_ROOT, f.target.seat).name).toBe(f.target.seat);
+	}
+});
+
+test("item 7: determinism (A1 fixture half) — every shipped seed recomputes to its pinned treeDigest", () => {
+	for (const task of ALL_TASKS) {
+		const loaded = loadFixture(PKG_ROOT, task);
+		expect(sha256Tree(loaded.seedDir)).toBe(loaded.fixture.seed.treeDigest);
+	}
+});
+
+test("item 8: no network-dependent state — no http(s):// in fixture/rubric JSON; rubric gate argv never calls gh/mcp/curl/wget", () => {
+	for (const task of ALL_TASKS) {
+		expect(readFixtureJson(task)).not.toMatch(/https?:\/\//);
+		expect(readRubricJson(task)).not.toMatch(/https?:\/\//);
+		const loaded = loadFixture(PKG_ROOT, task);
+		for (const c of loaded.rubric.criteria) {
+			if (c.type !== "gate" || c.check.kind !== "gates") continue;
+			for (const arg of c.check.argv) {
+				expect(arg).not.toMatch(/^(gh|mcp|curl|wget)$/);
+			}
+		}
+	}
+});
+
+test("item 10: graderModel grammar — all 16 parse via parseQualifiedModel; a bare id and an unknown suffix fail load", () => {
+	for (const task of ALL_TASKS) {
+		const f = loadFixture(PKG_ROOT, task).fixture;
+		expect(() => parseQualifiedModel(f.graderModel, "check")).not.toThrow();
+	}
+	const root = tmpRepo();
+	writeSyntheticFixture(root, "x", { fixture: { ...MINIMAL_FIXTURE, graderModel: "qwen3.6-35b" } });
+	expect(() => loadFixture(root, "x")).toThrow(/must be qualified/);
+	const root2 = tmpRepo();
+	writeSyntheticFixture(root2, "x", { fixture: { ...MINIMAL_FIXTURE, graderModel: "openrouter/q/q:MediuM" } });
+	expect(() => loadFixture(root2, "x")).toThrow(/MediuM/);
+});
+
+test("item 2: council/.gitattributes exists and carries the Q2 ruling content", () => {
+	const attrs = fs.readFileSync(path.join(PKG_ROOT, "council", ".gitattributes"), "utf-8");
+	expect(attrs).toContain("* text=auto eol=lf");
+});
+
+test("item 9: shadowing — repo-side task dir wins whole-dir; unoverridden resolves packaged; a repo dir missing its own rubric never falls back", () => {
+	const root = tmpRepo();
+	writeSyntheticFixture(root, "wiki-query", {
+		fixture: { ...MINIMAL_FIXTURE, taskId: "wiki-query", name: "REPO MARKER" },
+		seedFiles: { "a.md": "x" },
+	});
+	const overridden = loadFixture(root, "wiki-query");
+	expect(overridden.source).toBe("override");
+	expect(overridden.fixture.name).toBe("REPO MARKER");
+	expect(loadFixture(root, "council").source).toBe("packaged");
+	const tasks = listFixtureTasks(root);
+	expect(tasks).toContain("wiki-query");
+	expect(tasks).toContain("council");
+	expect(tasks.filter((t) => t === "wiki-query")).toHaveLength(1);
+
+	// a repo dir shadowing a packaged task WITHOUT its own rubric fails loudly (C3), never packaged fallback
+	const root2 = tmpRepo();
+	writeSyntheticFixture(root2, "council", { rubric: null });
+	expect(() => loadFixture(root2, "council")).toThrow(/rubric\.json/);
+});
+
+test("item 11 (A2): with all 16 fixtures present, python3 council/validate.py exits 0 with the ok marker", () => {
+	const res = spawnSync("python3", ["council/validate.py"], { cwd: PKG_ROOT, encoding: "utf-8" });
+	expect(res.status).toBe(0);
+	expect(res.stdout).toContain("All council artifacts valid");
 });

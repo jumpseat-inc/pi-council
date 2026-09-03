@@ -1,0 +1,21 @@
+{
+	"schemaVersion": 1,
+	"rubricVersion": "1.0.0",
+	"criteria": [
+		{
+			"id": "c1",
+			"type": "gate",
+			"check": { "kind": "gates", "argv": ["bash", "test/probe.sh"], "expect": { "exitCode": 1 } }
+		},
+		{
+			"id": "c2",
+			"type": "gate",
+			"check": { "kind": "artifact-contains", "path": "skeptic-findings.md", "contains": "VERDICT: FALSE" }
+		},
+		{
+			"id": "c3",
+			"type": "gate",
+			"check": { "kind": "settled", "role": "skeptic" }
+		}
+	]
+}

@@ -1,0 +1,127 @@
+{
+	"schemaVersion": 1,
+	"taskId": "features-deliver",
+	"name": "Deliver a three-child epic unattended under recorded delivery rulings",
+	"fixtureVersion": "1.0.0",
+	"kind": "procedure",
+	"target": {
+		"type": "procedure",
+		"command": "/features-deliver",
+		"arguments": [
+			"EPIC-1"
+		]
+	},
+	"seed": {
+		"dir": "seed",
+		"treeDigest": "sha256:03b4a9724522e79bb71ddd5e776b2661646cbface921edb3dd2e2c336564b680"
+	},
+	"env": {
+		"TZ": "UTC",
+		"GIT_AUTHOR_NAME": "Fixture Robot",
+		"GIT_AUTHOR_EMAIL": "fixture@example.invalid"
+	},
+	"timeoutMinutes": 240,
+	"policy": {
+		"gates": [
+			{
+				"id": "confirm",
+				"humanStep": 1,
+				"when": [],
+				"verdict": "answer",
+				"answerText": "Proceed with the recorded delivery rulings in DELIVERY-RULINGS.md: per-child merge gates, local re-run attestation only, no network attestation.",
+				"then": "answer"
+			},
+			{
+				"id": "child-ev1-merge",
+				"humanStep": 11,
+				"when": [
+					{
+						"kind": "job-state",
+						"role": "owner",
+						"state": "done"
+					},
+					{
+						"kind": "report-contains",
+						"role": "judge",
+						"token": "PASS"
+					},
+					{
+						"kind": "file-contains",
+						"path": "deliverables/EV-1.md",
+						"token": "GATES GREEN"
+					},
+					{
+						"kind": "board-column",
+						"cardId": "EV-1",
+						"notIn": [
+							"Needs Human"
+						]
+					}
+				],
+				"verdict": "approve",
+				"then": "merge"
+			},
+			{
+				"id": "child-ev2-merge",
+				"humanStep": 11,
+				"when": [
+					{
+						"kind": "job-state",
+						"role": "owner",
+						"state": "done"
+					},
+					{
+						"kind": "report-contains",
+						"role": "judge",
+						"token": "PASS"
+					},
+					{
+						"kind": "file-contains",
+						"path": "deliverables/EV-2.md",
+						"token": "GATES GREEN"
+					},
+					{
+						"kind": "board-column",
+						"cardId": "EV-2",
+						"notIn": [
+							"Needs Human"
+						]
+					}
+				],
+				"verdict": "approve",
+				"then": "merge"
+			},
+			{
+				"id": "child-ev3-merge",
+				"humanStep": 11,
+				"when": [
+					{
+						"kind": "job-state",
+						"role": "owner",
+						"state": "done"
+					},
+					{
+						"kind": "report-contains",
+						"role": "judge",
+						"token": "PASS"
+					},
+					{
+						"kind": "file-contains",
+						"path": "deliverables/EV-3.md",
+						"token": "GATES GREEN"
+					},
+					{
+						"kind": "board-column",
+						"cardId": "EV-3",
+						"notIn": [
+							"Needs Human"
+						]
+					}
+				],
+				"verdict": "approve",
+				"then": "merge"
+			}
+		]
+	},
+	"graderModel": "openrouter/qwen/qwen3.6-35b-a3b:medium"
+}

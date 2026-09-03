@@ -1,0 +1,11 @@
+{
+	"schemaVersion": 1,
+	"rubricVersion": "1.0.0",
+	"criteria": [
+		{
+			"id": "c1",
+			"type": "judge",
+			"prompt": "Grade synthesis.md against council/deliberation.md in the fixture seed: does it extract the converged design (override-first resolution order) and name the open dispute (whether the override dir is scaffold-seeded) without inventing positions beyond the two fragments? Score on grounding in the fragments, completeness, and faithful attribution."
+		}
+	]
+}

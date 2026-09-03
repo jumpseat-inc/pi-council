@@ -1,0 +1,24 @@
+{
+	"schemaVersion": 1,
+	"taskId": "skeptic",
+	"name": "Break a planted-claim fixture with a re-runnable probe",
+	"fixtureVersion": "1.0.0",
+	"kind": "seat",
+	"target": {
+		"type": "seat",
+		"seat": "skeptic"
+	},
+	"inputFile": "input.md",
+	"seed": {
+		"dir": "seed",
+		"treeDigest": "sha256:8872429fc4944c2bab57abe2405aef7e454484405df68e731c48769ee6f1e9eb"
+	},
+	"env": {
+		"TZ": "UTC"
+	},
+	"timeoutMinutes": 120,
+	"policy": {
+		"gates": []
+	},
+	"graderModel": "openrouter/qwen/qwen3.6-35b-a3b:medium"
+}
