@@ -201,14 +201,21 @@ test("C8b: repo-root council/ dir (which IS PKG_ROOT/council/ for this package) 
 });
 
 // ========== CLAIM 9: council_dispatch schema ==========
-test("C9a: council_dispatch has no model/thinking params (verified via source)", () => {
-	// hub-tools.ts: parameters: Type.Object({ seat, input, timeout_minutes?, stall_minutes? })
-	// No model, no thinking.
-	expect(true).toBe(true);
+test("C9a: council_dispatch schema includes optional model/thinking/cellId (EV-17 override glance)", () => {
+	// hub-tools.ts: parameters: Type.Object({ seat, input, timeout_minutes?, stall_minutes?, model?, thinking?, cellId? })
+	const src = fs.readFileSync(path.join(REPO_ROOT, "extensions", "hub-tools.ts"), "utf-8");
+	const blockStart = src.indexOf("parameters: Type.Object");
+	const block = src.slice(blockStart, src.indexOf("async execute", blockStart));
+	for (const key of ["seat", "input", "timeout_minutes", "stall_minutes", "model", "thinking", "cellId"]) {
+		expect(block, `council_dispatch schema declares ${key}`).toContain(`${key}:`);
+	}
 });
 
-test("C9b: buildChildArgv takes (seat, input, promptFile, mcpTools, session) — no model override param", () => {
-	// Function signature: buildChildArgv(seat, input, promptFile, mcpTools=[], session)
-	// No model or thinking override parameter.
-	expect(true).toBe(true);
+test("C9b: buildChildArgv signature unchanged — the EV-17 override flows through the seat, not a new param", () => {
+	// The effective (model, thinking) is written back onto the seat before
+	// buildChildArgv runs; the argv builder keeps its 5-arg signature.
+	const src = fs.readFileSync(path.join(REPO_ROOT, "extensions", "seats.ts"), "utf-8");
+	const sig = src.match(/export function buildChildArgv\([^)]*\)/)?.[0] ?? "";
+	const argCount = sig.slice(0, sig.lastIndexOf(")")).split(",").filter((s) => s.trim().length > 0).length;
+	expect(argCount).toBe(5);
 });

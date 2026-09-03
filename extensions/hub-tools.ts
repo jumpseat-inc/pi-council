@@ -4,7 +4,7 @@ import * as path from "node:path";
 import { CONFIG_DIR_NAME, type ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
 import { Hub, type JobReport } from "./hub.ts";
-import { buildChildArgv, buildSystemPrompt, loadSeat, proceduresDir } from "./seats.ts";
+import { buildChildArgv, buildSystemPrompt, loadSeat, proceduresDir, resolveEffectiveModel } from "./seats.ts";
 import { childEnv, ensureRunDir, mintRunId } from "./runs.ts";
 import { getMcpManager } from "./mcp/index.ts";
 
@@ -70,6 +70,9 @@ export function registerHubTools(pi: ExtensionAPI, repoRoot: string, opts: HubTo
 			stall_minutes: Type.Optional(
 				Type.Number({ description: "No-activity window before auto-cancel (default 4)" }),
 			),
+			model: Type.Optional(Type.String({ description: "Override this dispatch's model (provider/id or provider/id:thinking). Wins over COUNCIL_EVAL_MODEL, .council.json, and frontmatter — nothing is written to disk." })),
+			thinking: Type.Optional(Type.String({ description: "Override this dispatch's thinking level (off|minimal|low|medium|high|xhigh|max). Wins over the model's :thinking suffix." })),
+			cellId: Type.Optional(Type.String({ description: "Eval cell id this dispatch belongs to — the harness passes it on grader dispatches; the verdict record carries it." })),
 		}),
 		async execute(_id, params, _signal, _onUpdate, ctx) {
 			if (opts.allowedSeats && !opts.allowedSeats.includes(params.seat)) {
@@ -90,7 +93,20 @@ export function registerHubTools(pi: ExtensionAPI, repoRoot: string, opts: HubTo
 			} catch (e) {
 				return { content: [{ type: "text", text: String(e) }], details: {}, isError: true };
 			}
-			// Loud model check: resolvable in the catalogue or fail now.
+			// EV-17 per-run model override: per-dispatch model/thinking param >
+			// COUNCIL_EVAL_MODEL env > .council.json > frontmatter. Resolved AFTER
+			// loadSeat and BEFORE the catalogue check; the effective (model,
+			// thinking) is written back onto the seat so the check validates what
+			// will actually spawn and the manifest/argv/child-env all agree.
+			const envModel = process.env.COUNCIL_EVAL_MODEL;
+			const effective = resolveEffectiveModel(seat, envModel, { model: params.model, thinking: params.thinking });
+			const modelOverridden = envModel !== undefined || params.model !== undefined;
+			const thinkOverridden =
+				params.thinking !== undefined || (modelOverridden && effective.thinkingLevel !== seat.thinkingLevel);
+			if (modelOverridden || thinkOverridden) {
+				seat = { ...seat, model: effective.model, thinkingLevel: effective.thinkingLevel };
+			}
+			// Loud model check against the EFFECTIVE model: resolvable in the catalogue or fail now.
 			const known = ctx.modelRegistry
 				.getAvailable()
 				.some((m: { provider: string; id: string }) => `${m.provider}/${m.id}` === seat.model);
@@ -99,7 +115,7 @@ export function registerHubTools(pi: ExtensionAPI, repoRoot: string, opts: HubTo
 					content: [
 						{
 							type: "text",
-							text: `Seat "${seat.name}" pins model "${seat.model}", which is not in pi's catalogue. No fallback — fix the seat file or model config.`,
+							text: `Seat "${seat.name}" resolved to model "${seat.model}", which is not in pi's catalogue. No fallback — fix the seat file, .council.json, COUNCIL_EVAL_MODEL, or the dispatch model param.`,
 						},
 					],
 					details: {},
@@ -126,6 +142,19 @@ export function registerHubTools(pi: ExtensionAPI, repoRoot: string, opts: HubTo
 			const jobId = hub.allocateId();
 			const runId = hub.runId ?? mintRunId();
 			const dir = ensureRunDir(repoRoot, runId);
+			// The eval carrier rides this spawn's env — never the parent's
+			// process.env — so it is ambient inside this subtree and invisible to
+			// every non-eval dispatch and every sibling. childEnv propagates it to
+			// descendants exactly like COUNCIL_RUN_ID/COUNCIL_JOB_ID. It encodes the
+			// effective pair (provider/id or provider/id:thinking) only when an
+			// override is in effect.
+			const spawnEnv: Record<string, string | undefined> = { ...process.env, COUNCIL_SEAT: seat.name };
+			if (modelOverridden || thinkOverridden) {
+				spawnEnv.COUNCIL_EVAL_MODEL =
+					thinkOverridden && effective.thinkingLevel !== undefined
+						? `${effective.model}:${effective.thinkingLevel}`
+						: effective.model;
+			}
 			const job = hub.spawnJob({
 				id: jobId,
 				seat: seat.name,
@@ -136,7 +165,7 @@ export function registerHubTools(pi: ExtensionAPI, repoRoot: string, opts: HubTo
 					sessionId: jobId,
 				}),
 				cwd: repoRoot,
-				env: childEnv({ ...process.env, COUNCIL_SEAT: seat.name }, runId, jobId),
+				env: childEnv(spawnEnv, runId, jobId),
 				timeoutMs: (params.timeout_minutes ?? 15) * 60_000,
 				stallMs: (params.stall_minutes ?? 4) * 60_000,
 				cleanup: () => {

@@ -265,6 +265,76 @@ function qualifiedOrThrow(raw: string, fileName: string, where: string): string 
 	return raw;
 }
 
+/**
+ * Parse the shared qualified-model grammar `provider/id` or `provider/id:thinking`.
+ * The `:thinking` suffix splits off only when it names a known thinking level
+ * (the same rule frontmatter and `.council.json` use); anything else stays part
+ * of the model id. Unqualified values throw — this is a second grammar, not a
+ * looser one.
+ */
+function parseQualifiedModel(raw: string, where: string): { model: string; thinkingLevel?: string } {
+	if (!raw.includes("/")) {
+		throw new Error(`${where}: model "${raw}" must be qualified as provider/id`);
+	}
+	let model = raw.trim();
+	let thinkingLevel: string | undefined;
+	const colon = model.lastIndexOf(":");
+	if (colon > 0 && THINKING_LEVELS.has(model.slice(colon + 1))) {
+		thinkingLevel = model.slice(colon + 1);
+		model = model.slice(0, colon);
+	}
+	return { model, thinkingLevel };
+}
+
+/** Optional per-dispatch override params on council_dispatch (EV-17). */
+export interface DispatchModelParam {
+	model?: string;
+	thinking?: string;
+}
+
+/**
+ * Resolve the effective (model, thinkingLevel) for an eval dispatch.
+ * Precedence, exactly: explicit per-dispatch param > COUNCIL_EVAL_MODEL env
+ * > `.council.json` override > seat frontmatter. The seat passed in is the
+ * post-loadSeat seat, so the `.council.json` > frontmatter layer is already
+ * collapsed into it (loadSeat → applySeatOverride). Pure; no I/O.
+ *
+ * Each dimension independently falls through to the next-lower source: a param
+ * that supplies only `model` leaves thinking to the env suffix, then the seat.
+ * All three override sources parse the shared `provider/id[:thinking]` grammar.
+ */
+export function resolveEffectiveModel(
+	seat: Pick<Seat, "model" | "thinkingLevel">,
+	envVal?: string,
+	param?: DispatchModelParam,
+): { model: string; thinkingLevel?: string } {
+	let model = seat.model;
+	let thinkingLevel = seat.thinkingLevel;
+
+	// Layer 2: COUNCIL_EVAL_MODEL env — canonical eval carrier.
+	if (envVal !== undefined && envVal.trim() !== "") {
+		const parsed = parseQualifiedModel(envVal, "COUNCIL_EVAL_MODEL");
+		model = parsed.model;
+		if (parsed.thinkingLevel !== undefined) thinkingLevel = parsed.thinkingLevel;
+	}
+
+	// Layer 3: per-dispatch params — optional sugar that win when present.
+	if (param) {
+		if (param.model !== undefined && param.model.trim() !== "") {
+			const parsed = parseQualifiedModel(param.model, "council_dispatch model");
+			model = parsed.model;
+			if (parsed.thinkingLevel !== undefined) thinkingLevel = parsed.thinkingLevel;
+		}
+		if (param.thinking !== undefined && param.thinking.trim() !== "") {
+			if (!THINKING_LEVELS.has(param.thinking)) {
+				throw new Error(`council_dispatch thinking must be one of ${[...THINKING_LEVELS].join(", ")}`);
+			}
+			thinkingLevel = param.thinking;
+		}
+	}
+	return { model, thinkingLevel };
+}
+
 function parseAgentOverride(name: string, raw: unknown, fileName: string): AgentOverride {
 	if (typeof raw === "string") {
 		return { model: qualifiedOrThrow(raw, fileName, `council["${name}"]`) };
