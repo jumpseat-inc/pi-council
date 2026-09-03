@@ -4,7 +4,7 @@ import { CONFIG_DIR_NAME, getAgentDir, type ExtensionAPI, type ExtensionContext 
 import { runChildMode } from "./child.ts";
 import { Hub } from "./hub.ts";
 import { getHub, initHubIdentity, pidFilePath, registerHubTools, shutdownHub } from "./hub-tools.ts";
-import { PKG_ROOT, loadThemeConfig, proceduresDir } from "./seats.ts";
+import { PKG_ROOT, loadThemeConfig, proceduresDir, parseQualifiedModel } from "./seats.ts";
 import { activateTheme } from "./theme-activation.ts";
 import { watchCouncilConfig, type CouncilConfigWatcher } from "./theme-watcher.ts";
 import { mintRunId, pruneRuns } from "./runs.ts";
@@ -12,6 +12,14 @@ import { scaffoldInto } from "./scaffold.ts";
 import { installArgsFor, resolveCouncilDependencies } from "./dependencies.ts";
 import { connectParentServers, getMcpManager, registerMcpCommand } from "./mcp/index.ts";
 import { clearTreeWidget, registerNavigator, shutdownTreeFocus } from "./navigator.ts";
+import {
+	fixtureTaskDir,
+	parseEvalArgs,
+	resolveDriver,
+	runMatrix,
+	summaryLines,
+} from "./eval-runner.ts";
+import { listFixtureTasks, loadFixture } from "./eval-fixtures.ts";
 
 /**
  * Some catalogue entries carry wrong max-output metadata — e.g. OpenRouter's
@@ -288,6 +296,74 @@ export default function (pi: ExtensionAPI) {
 			}
 			const lines = jobLines(jobs);
 			ctx.ui.notify(lines.join("\n"), "info");
+		},
+	});
+
+	pi.registerCommand("council-eval", {
+		description: "Run a council eval matrix: [task] [model...] [--repeat N] [--no-persist-snapshot]. No args lists available fixture tasks.",
+		handler: async (args, ctx) => {
+			const emit = (line: string) => {
+				if (ctx.hasUI) ctx.ui.notify(line, "info");
+				else console.log(line);
+			};
+			try {
+				// No-arg form: list fixture tasks + usage, then return (spec §1).
+				const parsed = parseEvalArgs(args.trim() ? args.trim().split(/\s+/) : []);
+				if (parsed.task === undefined) {
+					const tasks = listFixtureTasks(repoRoot);
+					emit(
+						[
+							"[council-eval] usage: /council-eval <task> <model...> [--repeat N] [--no-persist-snapshot]",
+						"",
+						"Available fixture tasks:",
+						...tasks.map((t) => `  ${t}`),
+					].join("\n"),
+				);
+				return;
+			}
+
+			// Resolve the fixture (throws loudly naming the available list on unknown).
+			const holder = loadFixture(repoRoot, parsed.task);
+			if (parsed.models.length === 0) {
+				throw new Error(`no model given — usage: /council-eval <task> <model...> [--repeat N]`);
+			}
+
+			// Pre-validate each model: shared parseQualifiedModel + catalogue availability (R-4).
+			const known = new Set(
+				ctx.modelRegistry.getAvailable().map((m: { provider: string; id: string }) => `${m.provider}/${m.id}`),
+			);
+			for (const raw of parsed.models) {
+				const p = parseQualifiedModel(raw, "council-eval model");
+				if (!known.has(p.model)) {
+					throw new Error(`model "${raw}" resolves to "${p.model}", which is not in pi's catalogue — no fallback; pass provider/id exactly`);
+				}
+			}
+
+			// Echo-then-run (spec §3): confirm the resolved matrix before any cell spawns.
+			const total = parsed.models.length * parsed.repeat;
+			emit(
+				`[council-eval] confirmed: task=${parsed.task} fixtureVersion=${holder.fixture.fixtureVersion} models=[${parsed.models.join(", ")}] repeat=${parsed.repeat} dispatch=${total}`,
+			);
+
+			const taskDir = fixtureTaskDir(repoRoot, parsed.task, holder.source);
+			const { driverSeat, input, seedDir } = resolveDriver(taskDir, holder);
+			const out = await runMatrix({
+				repoRoot,
+				hub: getHub(repoRoot),
+				taskId: parsed.task,
+				driverSeat,
+				input,
+				seedDir,
+				models: parsed.models,
+				repeat: parsed.repeat,
+				persist: parsed.persistSnapshot,
+				isModelAvailable: (m) => known.has(m),
+				echo: emit,
+			});
+			emit(summaryLines(out.summaries).join("\n"));
+		} catch (e) {
+			emit(`[council-eval] error: ${e instanceof Error ? e.message : String(e)}`);
+		}
 		},
 	});
 }

@@ -15,8 +15,9 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { execFile } from "node:child_process";
+import { CONFIG_DIR_NAME } from "@earendil-works/pi-coding-agent";
 import { writeAtomic, sumSubtree, readManifests, type RunManifest } from "./runs.ts";
-import { loadFixture, sha256Tree, type Rubric } from "./eval-fixtures.ts";
+import { loadFixture, sha256Tree, type LoadedFixture, type Rubric } from "./eval-fixtures.ts";
 import {
 	gradeCell,
 	projectVerdictRecord,
@@ -29,7 +30,7 @@ import {
 } from "./eval-rubric.ts";
 import { aggregateCell, type CellSummary } from "./eval-stats.ts";
 import { spawnSeatJob } from "./dispatch.ts";
-import { loadSeat, parseQualifiedModel } from "./seats.ts";
+import { loadSeat, parseQualifiedModel, PKG_ROOT } from "./seats.ts";
 import type { Hub } from "./hub.ts";
 
 export const REPEAT_DEFAULT = 3;
@@ -528,6 +529,32 @@ export async function runCellAndGrade(o: RunCellAndGradeOpts): Promise<void> {
 
 // ---- matrix driver + summary (record-derived projection) ----
 
+/** Resolve the fixture's fixture.json/rubric.json/seed dir (override or packaged). */
+export function fixtureTaskDir(repoRoot: string, taskId: string, source: "override" | "packaged"): string {
+	return source === "override"
+		? path.join(repoRoot, CONFIG_DIR_NAME, "council", "fixtures", taskId)
+		: path.join(PKG_ROOT, "council", "fixtures", taskId);
+}
+
+/**
+ * Resolve the cell-driver seat, its input, and the seed dir from a loaded fixture.
+ * seat-kind: the target seat drives the cell from its inputFile. procedure-kind:
+ * the autonomous facilitator (council-runner) drives the rendered slash command.
+ * seedDir is the already-resolved seed tree (runMatrix loads it itself).
+ */
+export function resolveDriver(taskDir: string, holder: LoadedFixture): { driverSeat: string; input: string; seedDir: string } {
+	if (holder.fixture.target.type === "seat") {
+		const inputPath = path.join(taskDir, holder.fixture.inputFile as string);
+		return { driverSeat: holder.fixture.target.seat, input: fs.readFileSync(inputPath, "utf-8"), seedDir: holder.seedDir };
+	}
+	const args = holder.fixture.target.arguments.join(" ");
+	return {
+		driverSeat: "council-runner",
+		input: args ? `${holder.fixture.target.command} ${args}` : holder.fixture.target.command,
+		seedDir: holder.seedDir,
+	};
+}
+
 export interface RunMatrixOpts {
 	repoRoot: string;
 	hub: Hub;
@@ -594,16 +621,25 @@ export async function runMatrix(o: RunMatrixOpts): Promise<MatrixOutcome> {
 		}
 	}
 
-	const records = readAllResults(store);
+	const summaries = summarizeStore(store);
+	return { store, fixtureVersion, rubricVersion, summaries };
+}
+
+/**
+ * Pure, record-derived per-cell summaries over the whole store. This is the
+ * same-function-both-sides recompute (spec §3 / EV-21 leaderboard import): the
+ * live command summary and a pure re-derivation from the on-disk records both
+ * funnel through here, so they are byte-identical by construction (smoke Phase 3 §8(c)).
+ */
+export function summarizeStore(store: string): CellSummary[] {
 	const grouped = new Map<string, StoredResultRecord[]>();
-	for (const rec of records) {
+	for (const rec of readAllResults(store)) {
 		const key = `${rec.cellId}\u0000${rec.scoredUnder}`;
 		const arr = grouped.get(key);
 		if (arr) arr.push(rec);
 		else grouped.set(key, [rec]);
 	}
-	const summaries = [...grouped.values()].map((recs) => aggregateCell(recs));
-	return { store, fixtureVersion, rubricVersion, summaries };
+	return [...grouped.values()].map((recs) => aggregateCell(recs));
 }
 
 /** Pure, record-derived per-cell summary projection (plain text, no ANSI/hex). */

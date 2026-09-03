@@ -485,3 +485,62 @@ test("summaryLines: [council-eval] prefix, self sentinel, indeterminate label, p
 	expect(lines[0]).toContain("indeterminate (length majority)");
 	expect(lines[0]).not.toMatch(/\x1b|#[0-9a-fA-F]{6}/);
 });
+
+// ---- command wiring (EV-20 §1) + record-derived re-derivation (smoke §8(c)) ----
+
+import { summarizeStore, resolveDriver, fixtureTaskDir } from "../extensions/eval-runner.ts";
+import { PKG_ROOT } from "../extensions/seats.ts";
+
+test("GATE: index.ts registers /council-eval wired to parseEvalArgs + runMatrix + summaryLines (EV-20 §1)", () => {
+	const src = fs.readFileSync(path.join(import.meta.dir, "..", "extensions", "index.ts"), "utf-8");
+	expect(src).toContain('pi.registerCommand("council-eval"');
+	expect(src).toMatch(/listFixtureTasks\(repoRoot\)/); // no-arg list form
+	expect(src).toMatch(/parseEvalArgs\(/);
+	expect(src).toMatch(/ctx\.modelRegistry\.getAvailable\(\)/); // catalogue pre-validation
+	expect(src).toMatch(/runMatrix\(\{/);
+	expect(src).toMatch(/summaryLines\(out\.summaries\)/); // record-derived summary render
+});
+
+test("summarizeStore: record-derived re-derivation matches aggregateCell over the store (same-function-both-sides)", () => {
+	const store = ensureEvalDir(fs.mkdtempSync(path.join(os.tmpdir(), "council-ss-")));
+	const base: ResultRecord = {
+		cellId: "taskA|m/x", taskId: "taskA", model: "m/x", repeat: 1,
+		fixtureVersion: "1.0.0", rubricVersion: "1.0.0", scoredUnder: SCORED_UNDER_SELF,
+		perCriterion: [], score: 1.0, gradedAt: 1,
+	};
+	const scope = { state: "done" as const, usage: { input: 1, output: 1, cost: 0.001, turns: 1 }, elapsedMs: 2, repoState: "sha256:" + "d".repeat(64) };
+	writeResultRecord(store, { ...base, repeat: 1 }, scope);
+	writeResultRecord(store, { ...base, repeat: 2 }, scope);
+	const summaries = summarizeStore(store);
+	expect(summaries).toHaveLength(1);
+	const s = aggregateCell(readAllResults(store));
+	expect(summaries[0].cellId).toBe("taskA|m/x");
+	expect(summaries[0].scoredUnder).toBe(SCORED_UNDER_SELF);
+	expect(summaries[0].n_graded).toBe(s.n_graded);
+	expect(summaries[0].mean).toBe(s.mean);
+	expect(summaries[0].sigma).toBe(s.sigma);
+});
+
+test("resolveDriver: seat-kind -> target seat + inputFile contents; procedure-kind -> council-runner + slash invocation", () => {
+	const dir = fs.mkdtempSync(path.join(os.tmpdir(), "council-drv-"));
+	fs.writeFileSync(path.join(dir, "input.md"), "do the thing");
+	const seat = resolveDriver(dir, {
+		fixture: { target: { type: "seat", seat: "owner" }, inputFile: "input.md" },
+		seedDir: dir, source: "override",
+	} as unknown as Parameters<typeof resolveDriver>[1]);
+	expect(seat.driverSeat).toBe("owner");
+	expect(seat.input).toBe("do the thing");
+	expect(seat.seedDir).toBe(dir);
+	const proc = resolveDriver(dir, {
+		fixture: { target: { type: "procedure", command: "/council", arguments: ["EV-1"] } },
+		seedDir: dir, source: "override",
+	} as unknown as Parameters<typeof resolveDriver>[1]);
+	expect(proc.driverSeat).toBe("council-runner");
+	expect(proc.input).toBe("/council EV-1");
+});
+
+test("fixtureTaskDir: override under CONFIG_DIR_NAME, packaged under PKG_ROOT", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-ftd-"));
+	expect(fixtureTaskDir(root, "eval-smoke", "override")).toBe(path.join(root, CONFIG_DIR_NAME, "council", "fixtures", "eval-smoke"));
+	expect(fixtureTaskDir(root, "eval-smoke", "packaged")).toBe(path.join(PKG_ROOT, "council", "fixtures", "eval-smoke"));
+});
