@@ -30,31 +30,119 @@ does. Assign the next `EPIC-<n>` id by scanning `council/cards/` for the
 highest existing `EPIC-` number and incrementing (first one is `EPIC-1`).
 
 The epic card's `goal` names what the whole feature delivers, not any one
-child's slice of it. `epic: null` on the epic card itself — only children
-point up at it.
+child's slice of it — but you do not draft it. The epic goal is authored in
+wave 1 of step 2 by `principal` as a one-line transcription of the human's
+intake (`$ARGUMENTS`): the human is the author of what the product is for,
+and principal transcribes it into the goal field. `epic: null` on the epic
+card itself — only children point up at it.
 
 ## 2. Decompose into child cards
 
-Break the feature into child cards, each with:
+The decomposition is deliberated by the four seats SEATS-1 names —
+`product-owner`, `designer`, `principal`, `skeptic` — in three waves. You
+route, wait, aggregate verbatim, and author nothing.
 
-- **A single testable `goal`** — same bar `/board-create-card` step 3 sets:
-  falsifiable, not satisfiable by a stub, no colon-space sequence anywhere
-  in the value.
-- **`epic:` set to the epic's id** — this is what makes it a child rather
-  than a freestanding card.
-- **`state` set per `/board-create-card` step 4** — `Ready` only if the
-  child is already detailed enough for the Council to deliberate on without
-  further clarification, otherwise `Backlog`. This is not optional
-  bookkeeping: `state` is one of `validate.py`'s `REQUIRED_CARD_KEYS`, and
-  `council.md` step 1 hard-gates a card's Council run on `state == Ready`,
-  so a card missing this or holding the wrong value either fails validation
-  outright or silently blocks `/features-deliver` from ever picking it up.
-- **Name the user-visible surface, if any**, in the child's `Intent` —
-  which screen, which copy, which state. `council.md` step 1 reads `Intent`
-  to decide whether the card seats `designer`; a child that silently
-  changes what a person sees, with an `Intent` written purely in backend
-  terms, gets no design seat. This is prose in `Intent`, not a frontmatter
-  key: `validate.py`'s `REQUIRED_KEYS` stays as it is.
+**Wave 1 — `principal` authors the first decomposition artifact.**
+
+Dispatch `principal` once with: the feature (`$ARGUMENTS`), the template,
+the board, the assigned epic id, the procedural bars (goal falsifiability,
+no colon-space sequence, state rules, Intent-surface rule, em-dash/board
+rules), and the mandated output shape. The bars are the ones
+`/board-create-card` steps 3–4 set: each child has a single testable `goal`
+(falsifiable, not satisfiable by a stub, no colon-space sequence anywhere
+in the value), `epic:` set to the epic's id, `state` `Ready` only if the
+child is already detailed enough for the Council to deliberate on without
+further clarification (otherwise `Backlog`), and the user-visible surface,
+if any, named in the child's `Intent` — which screen, which copy, which
+state. Principal's output, in its native `Reframe` format:
+
+- the **child decomposition** — the slicing, with per-child `goal`, `state`
+  (proposed `Backlog` or `Ready`), and surface flag;
+- the **epic goal** — a one-line transcription of the human's intake.
+
+**Wave 2 — `skeptic` + `designer` attack in parallel.**
+
+Dispatch both with **identical input** (principal's artifact), each in its
+native format, with the completeness charter. Independence preserved: no
+input contains another seat's critique.
+
+- `skeptic` attacks each `goal` for falsifiability / stub-satisfiability /
+  colon-space and each `state` against the Ready-vs-Backlog bar, with
+  runnable checks against the draft text itself.
+- `designer` flags which children are surface-touching and argues the
+  `Intent` must name the screen/copy/state, in its native `Design position`
+  format.
+
+**Completeness charter (scoped per-seat).** Attacking seats attack what's
+missing as well as what's there; a wholesale rejection of the slicing is a
+named disagreement, not a patch request. The charter is scoped so it never
+collides with a seat's own body:
+
+- `skeptic` attacks completeness **only in falsifiable form** — e.g. a goal
+  satisfiable by a stub, a child whose `state` cannot be deliberated. It
+  never files an observational "missing child" objection, because its
+  `<how_an_objection_counts>` requires a runnable settling test and a
+  missing child has none.
+- `principal` and `designer` carry the **observational missing-child
+  arguments** in their native formats (principal: seam-cut observations;
+  designer: what the person needs).
+
+**Wave 3 — `product-owner` rules, last, unconditionally.**
+
+Dispatch `product-owner` with the amended draft + the disagreement ledger.
+Ruling-only:
+
+- ratify or amend the **epic goal** and each child's **`state`**;
+- rule each open-judgment dispute the attackers surfaced, **dissent named**,
+  in its `Ruling` / `Options rejected` / `Grounding` / `Reversibility`
+  format;
+- escalate what its `<escalation>` forbids (portfolio change, reversing a
+  recorded human decision, the goal itself is the defect) to the human per
+  SEATS-1.
+
+It never re-slices children and never rewrites undisputed child goals — that
+boundary is what keeps it ruling, not generating.
+
+**Aggregation.** Aggregate **all recorded contributions** verbatim, labeled
+by seat, by mechanical concordance — children aligned by stated scope,
+agreeing elements drafted from the agreement and attributed to the seats
+whose text produced them, single-source elements attributed to their
+proposer, and every conflicting position recorded as a **named
+disagreement** with both sides and their job ids. Never paraphrase a seat's
+line and never resolve a disagreement. You author nothing at any step.
+
+**Attribution and the disagreement ledger** live at the step-3 gate
+presentation and the `runs/` transcript, **never in card files**. The gate
+presentation has two clearly-separated parts: (1) the card text exactly as
+it will be written, and (2) a clearly-separate, never-written ledger
+surface — per-card `Contributors:` line naming every seat whose dispatch
+produced a substantive contribution; a `Disagreements:` block listing any
+seat that did not endorse the card as drafted, each disagreement a one- or
+two-line note naming the seat and the dimension (scope, testability,
+surface, state-assignment), verbatim or a faithful ≤2-line restatement;
+and a `Decision: unresolved — your call` marker on every line of the
+disagreement block. The ledger is **presented, never written** — it does
+not survive onto the on-disk card.
+
+**Part 1 card drafts must be attribution-free.** The card text presented
+"exactly as each would be written to disk" carries no seat names, no wave
+numbers, and no deliberation narrative — nothing that attributes, narrates,
+or dates the deliberation. Forbidden in every card's frontmatter and
+`Intent`: `(Designer, wave 2)`, `(product-owner, wave 3)`, `(skeptic, wave
+2)`, "principal argued Ready; overruled", "principal flagged the drift in
+wave 1", "Scope ruling (product-owner, wave 3)", "Why state is Backlog
+(product-owner, wave 3)", "Evidence shape (skeptic, wave 2)" — any seat
+name, wave number, or deliberation narrative, in any form. A card's
+`Intent` names the user-visible surface and the goal's reasoning, never
+who said what in which wave. Attribution belongs solely in the Part 2
+ledger surface and the `runs/` transcript; if a card's text needs a
+deliberation fact, it does not belong in the card — it belongs in the
+ledger.
+
+**Dispatch discipline.** Every dispatch is bounded: `council_dispatch` →
+note the returned job id → `council_wait` with a window → on stall, cancel
++ one re-dispatch with the same input → on double-fail, stop and surface to
+the human. Job ids are on record.
 
 ## 3. Draft-then-confirm — every card, no exceptions
 
