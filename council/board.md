@@ -15,17 +15,15 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-3 — Revisit empty dark and light variant shells for consumer discoverability
 - FLLWUP-4 — Repair /council-tree RPC silent-no-op in navigator.ts:57
 - FLLWUP-5 — Criterion-type-aware judge projection in projectVerdictRecord
-- EV-21 — Results leaderboard with variance
 
 ## Deliberating
 
 ## Ready
 
+- EV-21 — Results leaderboard with variance
 
 
 ## In Progress
-
-- EV-20 — Matrix runner with repeat aggregation
 
 
 
@@ -38,6 +36,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Done
 
+- EV-20 — Matrix runner with repeat aggregation
 - EV-12 — Document the council-decomposed features-new flow
 - EV-11 — Bounded decomposition session
 - EV-19 — Scoring rubric and run verifier
