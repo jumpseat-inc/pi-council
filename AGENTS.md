@@ -62,6 +62,13 @@ docs/superpowers/    design spec + implementation plan (read before big changes)
    `~/.pi/agent/git/...` or `.pi/git/...` paths by hand.
 5. **Override semantics**: repo-local resources shadow packaged ones by
    filename (`<repo>/$CONFIG_DIR_NAME/agents/`, `<repo>/$CONFIG_DIR_NAME/council/procedures/`).
+   Eval fixtures (extensions/eval-fixtures.ts) are a consumer-data-with-default
+   exception on the same pattern: the packaged default lives at
+   `council/fixtures/<task>/` and the repo-local override at
+   `<repo>/$CONFIG_DIR_NAME/council/fixtures/<task>/` — whole-task-dir first-hit
+   (`fixture.json` + `rubric.json` + `seed/` resolve together from one side,
+   never mixed halves), packaged seeds carry a pinned sha256 `treeDigest`
+   verified at load, and `/council-init` performs no copy of fixture trees.
    Any new resource type must follow this pattern.
 6. **Scaffold writes are non-clobbering.** `scaffoldInto` never overwrites an
    existing file. Preserve this invariant — consumer repos hold user-modified
