@@ -21,12 +21,13 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Ready
 
-- EV-11 — Bounded decomposition session
 - EV-12 — Document the council-decomposed features-new flow
 - EV-16 — Design the council model eval system
 - EV-17 — Per-run model override for eval dispatches
 
 ## Deliberating
+
+- EV-11 — Bounded decomposition session
 
 ## In Progress
 
