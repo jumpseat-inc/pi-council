@@ -23,11 +23,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- EV-19 — Scoring rubric and run verifier
 
 
 ## In Progress
 
+- EV-19 — Scoring rubric and run verifier
 - EV-11 — Bounded decomposition session
 
 
