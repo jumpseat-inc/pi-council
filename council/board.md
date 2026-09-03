@@ -27,9 +27,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- EV-11 — Bounded decomposition session
-
 ## In Progress
+
+- EV-11 — Bounded decomposition session
 
 ## In Review
 
