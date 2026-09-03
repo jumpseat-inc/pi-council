@@ -19,8 +19,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- EV-20 — Matrix runner with repeat aggregation
-
 ## Ready
 
 - EV-12 — Document the council-decomposed features-new flow
@@ -30,6 +28,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## In Progress
 
 - EV-11 — Bounded decomposition session
+- EV-20 — Matrix runner with repeat aggregation
 
 
 
