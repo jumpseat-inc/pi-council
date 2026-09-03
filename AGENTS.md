@@ -141,7 +141,7 @@ docs/superpowers/    design spec + implementation plan (read before big changes)
 
 ## Release notes
 
-- `pi install git:github.com/tistaharahap/pi-council[@ref]` pins git refs. Note
+- `pi install git:github.com/jumpseat-inc/pi-council[@ref]` pins git refs. Note
   `pi install` defaults to user scope (`~/.pi/agent/settings.json`, clone under
   `~/.pi/agent/git/...`); `-l` makes it project-local (`.pi/settings.json`,
   `.pi/git/...`). Same package in both scopes → project entry wins. Bump

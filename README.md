@@ -37,7 +37,7 @@ A council consisting of different functions and a diverse LLM model selection to
 Install it once and any repository gets the full workflow:
 
 ```bash
-pi install git:github.com/tistaharahap/pi-council
+pi install git:github.com/jumpseat-inc/pi-council
 ```
 
 By default this installs to your **user settings** (`~/.pi/agent/settings.json`,
@@ -48,7 +48,7 @@ package pin to travel with the repo (see [Git: what to commit](#git-what-to-comm
 never commit `.pi/git/` — pi manages that clone itself.
 
 ```bash
-pi install -l git:github.com/tistaharahap/pi-council
+pi install -l git:github.com/jumpseat-inc/pi-council
 ```
 
 (If the same package exists in both scopes, the project entry wins. To move an
