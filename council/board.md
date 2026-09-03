@@ -23,7 +23,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 - EV-11 — Bounded decomposition session
 - EV-12 — Document the council-decomposed features-new flow
-- EV-17 — Per-run model override for eval dispatches
 
 ## Deliberating
 
@@ -35,6 +34,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Done
 
+- EV-17 — Per-run model override for eval dispatches
 - EV-16 — Design the council model eval system
 - EV-10 — features-new decomposition dispatches the council
 - EV-9 — Open the selected subagent's progress from the inline tree
