@@ -229,6 +229,7 @@ import {
 	REPEAT_CAP,
 	REPEAT_DEFAULT,
 	SCORED_UNDER_SELF,
+	cellIdFor,
 	ensureEvalDir,
 	evalResultsDir,
 	isGateOnlyFixture,
@@ -268,6 +269,11 @@ test("grammar: repeat above the hard cap rejects loudly", () => {
 test("grammar: non-integer or zero repeat rejects", () => {
 	expect(() => parseEvalArgs(["council", "m/x", "--repeat", "abc"])).toThrow();
 	expect(() => parseEvalArgs(["council", "m/x", "--repeat", "0"])).toThrow();
+});
+
+test("Q1-D1 cellId form: taskId|model[:thinking] (pipe separator, thinking optional)", () => {
+	expect(cellIdFor("features-deliver", "openrouter/deepseek/deepseek-v4-flash-0731")).toBe("features-deliver|openrouter/deepseek/deepseek-v4-flash-0731");
+	expect(cellIdFor("features-deliver", "openrouter/deepseek/deepseek-v4-flash-0731", "high")).toBe("features-deliver|openrouter/deepseek/deepseek-v4-flash-0731:high");
 });
 
 // ---- store: verdict repeat round-trip (spec §10.2) ----
@@ -381,4 +387,101 @@ test("snapshot: persist copies the scratch tree; --no-persist-snapshot skips the
 	expect(sha256Tree(snapDir)).toBe(sha256Tree(scratch));
 	persistCellSnapshot(store, "taskA|m/x", 2, scratch, false);
 	expect(fs.existsSync(path.join(store, "taskA_m_x", "r2", "snapshot"))).toBe(false);
+});
+
+// ---- grade-and-persist core (recording harness; no dispatch) ----
+
+import { gradeAndPersist, extractJudgeVerdicts, summaryLines, bindGradeIO, readAllVerdicts, type TerminalTelemetry } from "../extensions/eval-runner.ts";
+import type { GradeIO, JudgeVerdicts } from "../extensions/eval-rubric.ts";
+
+function recordingIO(): GradeIO & { files: Map<string, string> } {
+	const files = new Map<string, string>();
+	return {
+		files,
+		readFile: (p) => files.get(p),
+		jobState: () => undefined,
+		run: () => ({ exitCode: 0, stdout: "" }),
+	};
+}
+
+const TERM: TerminalTelemetry = {
+	state: "done",
+	elapsedMs: 5,
+	usage: { input: 10, output: 5, cost: 0.001, turns: 1 },
+	repoState: "sha256:" + "e".repeat(64),
+};
+
+const VIDX = "e".repeat(64);
+
+test("gradeAndPersist: gate-only fixture -> scoredUnder self, result written, NO verdict", async () => {
+	const store = ensureEvalDir(fs.mkdtempSync(path.join(os.tmpdir(), "council-gp-")));
+	const rubric = validateRubric(
+		{ schemaVersion: 1, rubricVersion: "1.0.0", criteria: [{ id: "c1", type: "gate", check: { kind: "artifact-present", path: "out.txt" } }] },
+		"f",
+	);
+	const io = recordingIO();
+	io.files.set("out.txt", "x");
+	const { verdictWritten, result } = await gradeAndPersist({
+		store,
+		rubric,
+		io,
+		judgeVerdicts: {},
+		meta: { cellId: "t|x", taskId: "t", model: "x", repeat: 1, scoredUnder: SCORED_UNDER_SELF, fixtureVersion: "1.0.0", rubricVersion: "1.0.0", gradedAt: 1 },
+		terminal: TERM,
+		judge: undefined,
+	});
+	expect(result.scoredUnder).toBe(SCORED_UNDER_SELF);
+	expect(result.score).toBe(1.0);
+	expect(verdictWritten).toBe(false);
+	const recs = readAllResults(store);
+	expect(recs).toHaveLength(1);
+	expect(recs[0].cellScope.repoState).toBe(TERM.repoState);
+	expect(readAllVerdicts(store)).toHaveLength(0);
+});
+
+test("gradeAndPersist: judge-bearing fixture -> VerdictRecord written keyed by repeat, scoredUnder = grader", async () => {
+	const store = ensureEvalDir(fs.mkdtempSync(path.join(os.tmpdir(), "council-gp2-")));
+	const rubric = validateRubric(
+		{ schemaVersion: 1, rubricVersion: "1.0.0", criteria: [{ id: "g", type: "gate", check: { kind: "artifact-present", path: "out.txt" } }, { id: "j1", type: "judge", prompt: "p" }] },
+		"f",
+	);
+	const io = recordingIO();
+	io.files.set("out.txt", "x");
+	const judgeVerdicts: JudgeVerdicts = { j1: "pass" };
+	const { verdictWritten } = await gradeAndPersist({
+		store,
+		rubric,
+		io,
+		judgeVerdicts,
+		meta: { cellId: "t|x", taskId: "t", model: "x", repeat: 3, scoredUnder: "openrouter/g/m1", fixtureVersion: "1.0.0", rubricVersion: "1.0.0", gradedAt: 1 },
+		terminal: TERM,
+		judge: { gradedBy: "openrouter/g/m1", gradingUsage: { input: 1, output: 2, cost: 3, elapsedMs: 4 } },
+	});
+	expect(verdictWritten).toBe(true);
+	const verdicts = readAllVerdicts(store);
+	expect(verdicts).toHaveLength(1);
+	expect(verdicts[0].repeat).toBe(3); // Q1: the verdict record is repeat-keyed
+	expect(verdicts[0].gradedBy).toBe("openrouter/g/m1");
+	const recs = readAllResults(store);
+	expect(recs[0].scoredUnder).toBe("openrouter/g/m1");
+});
+
+test("O3: extractJudgeVerdicts maps PASS/REJECT lines to criteria and flags indeterminacy", () => {
+	expect(extractJudgeVerdicts("**Verdict** — PASS\n**Verdict** — REJECT", ["a", "b"])).toEqual({ verdicts: { a: "pass", b: "fail" }, indeterminate: false });
+	expect(extractJudgeVerdicts("**Verdict** — REJECT", ["a", "b"])).toEqual({ verdicts: { a: "fail" }, indeterminate: true });
+	expect(extractJudgeVerdicts("", ["a"])).toEqual({ verdicts: {}, indeterminate: true });
+});
+
+test("summaryLines: [council-eval] prefix, self sentinel, indeterminate label, plain text", () => {
+	const s = aggregateCell([
+		stubResult({ repeat: 1, score: 1.0, scoredUnder: "self" }),
+		stubResult({ repeat: 2, score: 1.0, cellScope: scope({ stopReason: "length" }) }),
+		stubResult({ repeat: 3, score: 1.0, cellScope: scope({ stopReason: "length" }) }),
+	]);
+	const lines = summaryLines([s]);
+	expect(lines[0]).toContain("[council-eval]");
+	expect(lines[0]).toContain("(self)");
+	expect(lines[0]).toContain("graded=1/3");
+	expect(lines[0]).toContain("indeterminate (length majority)");
+	expect(lines[0]).not.toMatch(/\x1b|#[0-9a-fA-F]{6}/);
 });
