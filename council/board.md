@@ -23,8 +23,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 
 
-## Deliberating
-
 ## In Progress
 
 - EV-20 — Matrix runner with repeat aggregation

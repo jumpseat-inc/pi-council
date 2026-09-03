@@ -3,6 +3,13 @@ import * as path from "node:path";
 import { CONFIG_DIR_NAME } from "@earendil-works/pi-coding-agent";
 import type { JobState } from "./hub.ts";
 
+export interface Usage {
+	input: number;
+	output: number;
+	cost: number;
+	turns: number;
+}
+
 export interface RunManifest {
 	id: string;
 	seat: string;
@@ -14,6 +21,10 @@ export interface RunManifest {
 	startedAt: number;
 	settledAt: number | null;
 	exitCode: number | null;
+	/** EV-16 §7 — persisted at settle (distinct from the in-memory-only JobReport).
+	 * Optional: manifests written before the extension (or a partial write) may lack it. */
+	usage?: Usage;
+	stopReason?: string;
 }
 
 export interface RunInfo {
@@ -138,4 +149,22 @@ export function pruneRuns(repoRoot: string, keep = 15, isAlive: (pid: number) =>
 
 export function childEnv(base: Record<string, string | undefined>, runId: string, jobId: string): Record<string, string> {
 	return { ...base, COUNCIL_RUN_ID: runId, COUNCIL_JOB_ID: jobId } as Record<string, string>;
+}
+
+/**
+ * Sum a usage metric over the job-forest subtree rooted at `rootId` inclusive
+ * (parentJobId-chain descendants). Pure. Old manifests written before the §7
+ * extension carry no `usage` — treated as 0 (a missing usage is a no-op, never
+ * a crash). EV-16 §7: command-level cost = Σ over the subtree.
+ */
+export function sumSubtree(manifests: RunManifest[], rootId: string, metric: keyof Usage = "cost"): number {
+	const children = (id: string): RunManifest[] => manifests.filter((m) => m.parentJobId === id);
+	let sum = 0;
+	const walk = (id: string): void => {
+		const node = manifests.find((m) => m.id === id);
+		if (node) sum += (node.usage as Usage | undefined)?.[metric] ?? 0;
+		for (const c of children(id)) walk(c.id);
+	};
+	walk(rootId);
+	return sum;
 }

@@ -45,9 +45,10 @@ export interface GradingUsage {
 	stopReason?: string;
 }
 
-/** EV-16 §6.3 — the grader's contribution; EV-20's persistence unit. Judge criteria only. */
+/** EV-16 §6.3 (Q1 amendment: gains `repeat`) — the grader's contribution; EV-20's persistence unit. Judge criteria only. */
 export interface VerdictRecord {
 	cellId: string;
+	repeat: number;
 	gradedBy: string;
 	fixtureVersion: string;
 	rubricVersion: string;
@@ -69,6 +70,22 @@ export interface ResultRecord {
 	perCriterion: GradedCriterion[]; // ALL criteria, rubric order
 	score: number; // passes / criteria.length, 0..1
 	gradedAt: number;
+}
+
+/** EV-20 cell-scope terminal block — attached by the store writer at persistence (NOT in gradeCell).
+ * `state` is the job's terminal state (done|stalled|timeout|failed), persisted so the terminal-state
+ * histogram (E3) and n_attempted/n_graded are recomputable from records alone (R-5). */
+export interface CellScope {
+	state: "done" | "stalled" | "timeout" | "failed";
+	usage: { input: number; output: number; cost: number; turns: number };
+	elapsedMs: number;
+	stopReason?: string;
+	repoState: string; // "sha256:<64 hex>"
+}
+
+/** The persisted ResultRecord: gradeCell's pure output + the writer-attached cellScope. */
+export interface StoredResultRecord extends ResultRecord {
+	cellScope: CellScope;
 }
 
 interface GradeMeta {
@@ -204,6 +221,7 @@ export function projectVerdictRecord(
 
 	return {
 		cellId: result.cellId,
+		repeat: result.repeat,
 		gradedBy: result.scoredUnder,
 		fixtureVersion: result.fixtureVersion,
 		rubricVersion: result.rubricVersion,

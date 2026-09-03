@@ -17,6 +17,7 @@ function m(id: string, over: Partial<RunManifest> = {}): RunManifest {
 		startedAt: 1,
 		settledAt: 2,
 		exitCode: 0,
+		usage: { input: 0, output: 0, cost: 0, turns: 0 },
 		...over,
 	};
 }

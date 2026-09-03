@@ -1,0 +1,11 @@
+{
+	"schemaVersion": 1,
+	"rubricVersion": "1.0.0",
+	"criteria": [
+		{
+			"id": "c1",
+			"type": "gate",
+			"check": { "kind": "settled", "role": "owner" }
+		}
+	]
+}
