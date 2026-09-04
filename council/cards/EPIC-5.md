@@ -38,3 +38,13 @@ registration and wiring).
   with EV-25.
 - All children land with tests; `bun test`, `bunx tsc --noEmit`, and
   `python3 council/validate.py` stay green.
+
+## Phase 1 rulings (features-deliver, binding for this run)
+
+- **R-1 (build order)**: writer-first — the cards run EV-22 → EV-24 →
+  EV-23 → EV-25. The first `.council.json` write path lands and is proven
+  before the modal builds on it; EV-25 is last (it depends on the other
+  three).
+
+Recorded human decision — immutable for the run and binding on every seat,
+`steward` included.
