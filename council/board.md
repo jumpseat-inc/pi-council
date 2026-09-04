@@ -21,13 +21,14 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EPIC-5 — /council-models provider and model picker for per-seat .council.json overrides
 - EV-25 — Register the /council-models command and wire picker to writer
 - FLLWUP-9 — Explicit clear-thinking-override affordance for a seat
+- FLLWUP-10 — Writer thinking preservation matches loader resolution for object-form model overrides
 
 ## Deliberating
 
+- EV-23 — Token-only modal picker for per-seat provider and model selection
+
 
 ## Ready
-
-- EV-23 — Token-only modal picker for per-seat provider and model selection
 
 ## In Progress
 
