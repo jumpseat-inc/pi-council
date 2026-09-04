@@ -20,6 +20,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-8 — council-leaderboard task drill-down filter
 - EPIC-5 — /council-models provider and model picker for per-seat .council.json overrides
 - EV-25 — Register the /council-models command and wire picker to writer
+- FLLWUP-9 — Explicit clear-thinking-override affordance for a seat
 
 ## Deliberating
 
