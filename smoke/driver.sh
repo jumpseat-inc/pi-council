@@ -241,5 +241,57 @@ python3 council/validate.py || fatal "phase 4: validate.py failed after the lead
 
 rm -f "$LB_OUT" "$LB_REVAL" "$LB_VIEW"
 
+phase "5 council-models (EV-25)"
+cd "$WORK" || fatal "no worktree"
+CM_OUT="$(mktemp)"
+CM_SEAT="$(mktemp)"
+CM_WRITE="$(mktemp)"
+CM_FAIL="$(mktemp)"
+
+# (a) no-arg form: R-2 usage block + per-seat current listing (all 9 seats override-pinned).
+timeout 120 pi --approve -p "/council-models" >"$CM_OUT" 2>&1 \
+	|| fatal "phase 5: /council-models no-arg did not settle"
+grep -Fq '[council-models] usage: /council-models [<seat> [<provider>/<model>[:thinking]]]' "$CM_OUT" \
+	|| fatal "phase 5: R-2 usage line missing"
+grep -Fq 'Current per-seat models:' "$CM_OUT" \
+	|| fatal "phase 5: listing header missing"
+# Fixture pins are suffix-less string shorthands; each seat's FRONTMATTER
+# `:suffix` thinking survives the level-less override (council-config
+# precedence: explicit thinking > override :suffix > frontmatter), so the
+# effective line names the preserved level.
+grep -Fq 'owner: openrouter/deepseek/deepseek-v4-flash-0731:high (override)' "$CM_OUT" \
+	|| fatal "phase 5: owner override line missing"
+
+# (b) single-seat form: usage line + that seat's current line.
+timeout 120 pi --approve -p "/council-models owner" >"$CM_SEAT" 2>&1 \
+	|| fatal "phase 5: /council-models owner did not settle"
+grep -Fq '[council-models] usage:' "$CM_SEAT" || fatal "phase 5: single-seat usage line missing"
+grep -Fq 'owner: openrouter/deepseek/deepseek-v4-flash-0731:high (override)' "$CM_SEAT" \
+	|| fatal "phase 5: single-seat current line missing"
+
+# (c) write form: validate + write + R-3 notify (post-write read-back), file asserted.
+timeout 120 pi --approve -p "/council-models owner openrouter/deepseek/deepseek-v4-flash-0731:high" >"$CM_WRITE" 2>&1 \
+	|| fatal "phase 5: /council-models write did not settle"
+grep -Fq 'council-models: wrote owner → openrouter/deepseek/deepseek-v4-flash-0731:high in .council.json — takes effect at the next dispatch.' \
+	"$CM_WRITE" || fatal "phase 5: R-3 notify copy missing"
+python3 -c '
+import json
+cfg = json.load(open(".council.json"))
+val = cfg["council"]["owner"]
+assert val == {"model": "openrouter/deepseek/deepseek-v4-flash-0731", "thinking": "high"}, val
+assert len(cfg["council"]) == 9, "write must not disturb other seats: %d" % len(cfg["council"])
+' || fatal "phase 5: post-write .council.json mismatch"
+python3 council/validate.py || fatal "phase 5: validate.py failed after the write"
+
+# (d) failure: model outside the catalogue → error, file byte-identical (nothing written).
+cp .council.json "$WORK/.council.json.cm-before"
+timeout 120 pi --approve -p "/council-models owner openrouter/no-such-model/xyz" >"$CM_FAIL" 2>&1 \
+	|| fatal "phase 5: /council-models invalid-model did not settle"
+grep -Fq '[council-models] error:' "$CM_FAIL" || fatal "phase 5: invalid-model error missing"
+cmp -s .council.json "$WORK/.council.json.cm-before" || fatal "phase 5: invalid model still wrote .council.json"
+rm -f "$WORK/.council.json.cm-before"
+
+rm -f "$CM_OUT" "$CM_SEAT" "$CM_WRITE" "$CM_FAIL"
+
 echo
-echo "SMOKE PASS — full council loop + epic delivery + council-eval matrix + council-leaderboard verified"
+echo "SMOKE PASS — full council loop + epic delivery + council-eval matrix + council-leaderboard + council-models verified"
