@@ -30,12 +30,12 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-24 — Non-destructive .council.json merge-write for seat overrides
 
 
 
 ## In Review
 
+- EV-24 — Non-destructive .council.json merge-write for seat overrides
 
 
 
