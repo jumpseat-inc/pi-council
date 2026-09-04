@@ -29,9 +29,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-23 — Token-only modal picker for per-seat provider and model selection
-
 ## In Review
+
+- EV-23 — Token-only modal picker for per-seat provider and model selection
 
 
 
