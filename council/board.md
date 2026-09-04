@@ -24,8 +24,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Deliberating
 ## Deliberating
 
-- EV-22 — Resolve enabled providers and models for the picker from pi's registry
-
 ## Ready
 
 - EV-23 — Token-only modal picker for per-seat provider and model selection
@@ -33,7 +31,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-
+- EV-22 — Resolve enabled providers and models for the picker from pi's registry
 
 ## In Review
 
