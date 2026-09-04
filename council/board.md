@@ -31,16 +31,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-23 — Token-only modal picker for per-seat provider and model selection
-
-
-
-
-
 ## Needs Human
 
 ## Done
 
+- EV-23 — Token-only modal picker for per-seat provider and model selection
 - EV-24 — Non-destructive .council.json merge-write for seat overrides
 - EV-22 — Resolve enabled providers and models for the picker from pi's registry
 - EV-21 — Results leaderboard with variance
