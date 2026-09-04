@@ -17,12 +17,12 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-5 — Criterion-type-aware judge projection in projectVerdictRecord
 
 ## Deliberating
-
-- EV-21 — Results leaderboard with variance
 ## Ready
 
 
 ## In Progress
+
+- EV-21 — Results leaderboard with variance
 
 
 
