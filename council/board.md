@@ -35,7 +35,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-24 — Non-destructive .council.json merge-write for seat overrides
 
 
 
@@ -44,6 +43,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Done
 
+- EV-24 — Non-destructive .council.json merge-write for seat overrides
 - EV-22 — Resolve enabled providers and models for the picker from pi's registry
 - EV-21 — Results leaderboard with variance
 - EV-20 — Matrix runner with repeat aggregation
