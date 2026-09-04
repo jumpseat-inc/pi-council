@@ -14,7 +14,7 @@ export interface Seat {
 	body: string;
 }
 
-const THINKING_LEVELS = new Set(["off", "minimal", "low", "medium", "high", "xhigh", "max"]);
+export const THINKING_LEVELS = new Set(["off", "minimal", "low", "medium", "high", "xhigh", "max"]);
 
 /**
  * Optional per-agent model/thinking overrides from a committed `.council.json`
