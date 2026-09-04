@@ -206,5 +206,40 @@ fi
 phase "3 snapshots persisted"
 find "$EVAL_RESULTS" -mindepth 3 -maxdepth 3 -type d -name snapshot | sed "s|$WORK/||" >&2
 
+phase "4 council-leaderboard (EV-21 §6)"
+cd "$WORK" || fatal "no worktree"
+LB_OUT="$(mktemp)"
+LB_REVAL="$(mktemp)"
+LB_VIEW="$(mktemp)"
+
+# Drive /council-leaderboard headlessly against the Phase-3 gate-only records
+# (eval-smoke seat fixture, one model, one version pair).
+timeout 120 pi --approve -p "/council-leaderboard" >"$LB_OUT" 2>&1 \
+	|| fatal "phase 4: /council-leaderboard did not settle"
+
+# (a) State B renders for the gate-only store.
+grep -q 'results exist, all gate-only (self)' "$LB_OUT" \
+	|| fatal "phase 4: State B line did not render for the gate-only store"
+
+# (b) both slices render (By command / By seat), each labeled by its axis.
+grep -q 'By command (procedure fixtures)' "$LB_OUT" \
+	|| fatal "phase 4: By-command slice not rendered"
+grep -q 'By seat (seat fixtures)' "$LB_OUT" \
+	|| fatal "phase 4: By-seat slice not rendered"
+
+# (c) summarizeStore (reeval) and the leaderboard reader agree byte-for-byte on
+# n/mean/σ over the same Phase-3 records (same-function-both-sides).
+(cd "$PKG" && bun smoke/reeval.ts "$WORK/council/eval-results" >"$LB_REVAL" 2>&1) \
+	|| fatal "phase 4: summarizeStore re-derivation failed"
+(cd "$PKG" && bun smoke/leaderview.ts "$WORK/council/eval-results" "$WORK" >"$LB_VIEW" 2>&1) \
+	|| fatal "phase 4: leaderboard reader failed"
+assert_leaderboard_matches_reeval "$LB_VIEW" "$LB_REVAL" \
+	|| fatal "phase 4: leaderboard reader != summarizeStore on n/mean/σ"
+
+# (d) validate.py green after the leaderboard runs.
+python3 council/validate.py || fatal "phase 4: validate.py failed after the leaderboard"
+
+rm -f "$LB_OUT" "$LB_REVAL" "$LB_VIEW"
+
 echo
-echo "SMOKE PASS — full council loop + epic delivery + council-eval matrix verified"
+echo "SMOKE PASS — full council loop + epic delivery + council-eval matrix + council-leaderboard verified"
