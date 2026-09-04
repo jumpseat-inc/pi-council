@@ -23,13 +23,14 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- EV-24 — Non-destructive .council.json merge-write for seat overrides
 
 ## Ready
 
 - EV-23 — Token-only modal picker for per-seat provider and model selection
 
 ## In Progress
+
+- EV-24 — Non-destructive .council.json merge-write for seat overrides
 
 
 
