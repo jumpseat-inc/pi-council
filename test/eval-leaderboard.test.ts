@@ -230,7 +230,8 @@ test("claim 9: index.ts registers /council-leaderboard wired to the pure module,
 	const next = src.indexOf("pi.registerCommand", lbIdx + 10);
 	const block = src.slice(lbIdx, next === -1 ? src.length : next);
 	expect(block).toMatch(/renderLeaderboard\(/);
-	expect(block).not.toMatch(/runMatrix/);
+	// purity: the handler never CALLS runMatrix (no side-effect path from a rank query)
+	expect(block).not.toMatch(/runMatrix\(/);
 });
 
 test("claim 9b: leaderboard render is plain text — no ANSI, no literal hex (9.6)", () => {
