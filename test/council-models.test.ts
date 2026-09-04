@@ -84,7 +84,7 @@ test("H1b: override seats render `<seat>: <model>[:thinking] (override)` byte-ex
 	});
 	const text = run("", repo);
 	expect(text).toContain("owner: openrouter/deepseek/deepseek-v4-flash-0731:high (override)");
-	expect(text).toContain("skeptic: openrouter/deepseek/deepseek-v4-flash-0731 (override)");
+	expect(text).toContain("skeptic: openrouter/deepseek/deepseek-v4-flash-0731:high (override)"); // frontmatter `:high` survives the level-less shorthand
 	expect(text).toContain("consolidator: frontmatter default");
 });
 
@@ -105,8 +105,10 @@ test("H3: <seat> <provider>/<model>[:thinking] → validates, writes, R-3 notify
 	expect(JSON.parse(cfg(repo)).council.owner).toEqual({ model: FLASH, thinking: "high" });
 });
 
-test("H3b: a level-less write notifies without a :suffix and writes no thinking key", () => {
-	const repo = makeRepo();
+test("H3b: a level-less write over a no-thinking seat notifies without a :suffix and writes no thinking key", () => {
+	const repo = makeRepo({
+		[path.join(CONFIG_DIR_NAME, "agents", "owner.md")]: seatFile("owner", "openrouter/base/x"),
+	});
 	const text = run(`owner ${FLASH}`, repo);
 	expect(text).toBe(
 		"council-models: wrote owner → openrouter/deepseek/deepseek-v4-flash-0731 in .council.json — takes effect at the next dispatch.",
