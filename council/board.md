@@ -18,10 +18,15 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-6 — Judge-bearing fixture smoke (Phase 5)
 - FLLWUP-7 — eval-results retention policy
 - FLLWUP-8 — council-leaderboard task drill-down filter
+- EPIC-5 — /council-models provider and model picker for per-seat .council.json overrides
+- EV-25 — Register the /council-models command and wire picker to writer
 
 ## Deliberating
 ## Ready
 
+- EV-22 — Resolve enabled providers and models for the picker from pi's registry
+- EV-23 — Token-only modal picker for per-seat provider and model selection
+- EV-24 — Non-destructive .council.json merge-write for seat overrides
 
 ## In Progress
 
