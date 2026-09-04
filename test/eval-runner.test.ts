@@ -521,6 +521,62 @@ test("summarizeStore: record-derived re-derivation matches aggregateCell over th
 	expect(summaries[0].sigma).toBe(s.sigma);
 });
 
+// ---- CONFIRM-2 (EV-21): version-pair-aware summarizeStore group key ----
+// The store filename key carries (fixtureVersion, rubricVersion); summarizeStore
+// must group on the full pair so a fixture bump + re-run never pools two
+// incomparable rubric versions into one blended mean. Failing-test-first.
+
+test("CONFIRM-2: two-version store -> TWO CellSummaries, per-version means (0.45 / 0.9), never one blended mean", () => {
+	const store = ensureEvalDir(fs.mkdtempSync(path.join(os.tmpdir(), "council-c2-")));
+	const scope = { state: "done" as const, usage: { input: 1, output: 1, cost: 0.001, turns: 1 }, elapsedMs: 2, repoState: "sha256:" + "f".repeat(64) };
+	const base: ResultRecord = {
+		cellId: "taskA|m/x", taskId: "taskA", model: "m/x", repeat: 1,
+		fixtureVersion: "1.0.0", rubricVersion: "1.0.0", scoredUnder: SCORED_UNDER_SELF,
+		perCriterion: [], score: 0, gradedAt: 1,
+	};
+	// version pair (1.0.0, 1.0.0): repeats score 0.4, 0.5 -> mean 0.45
+	writeResultRecord(store, { ...base, repeat: 1, score: 0.4 }, scope);
+	writeResultRecord(store, { ...base, repeat: 2, score: 0.5 }, scope);
+	// version pair (2.0.0, 2.0.0): repeats score 0.8, 1.0 -> mean 0.9
+	writeResultRecord(store, { ...base, fixtureVersion: "2.0.0", rubricVersion: "2.0.0", repeat: 1, score: 0.8 }, scope);
+	writeResultRecord(store, { ...base, fixtureVersion: "2.0.0", rubricVersion: "2.0.0", repeat: 2, score: 1.0 }, scope);
+
+	const summaries = summarizeStore(store);
+	// RED today: the old key ${cellId}\0${scoredUnder} pools both version-keyed
+	// sets into ONE blended summary (mean 0.675). The fix must return TWO.
+	expect(summaries).toHaveLength(2);
+	const byVer = new Map(summaries.map((s) => [`${s.fixtureVersion}/${s.rubricVersion}`, s]));
+	expect(byVer.get("1.0.0/1.0.0")!.mean).toBeCloseTo(0.45, 10);
+	expect(byVer.get("2.0.0/2.0.0")!.mean).toBeCloseTo(0.9, 10);
+	// additive fields: version pair carried per summary; gradedScores = raw graded repeats
+	expect([...byVer.keys()].sort()).toEqual(["1.0.0/1.0.0", "2.0.0/2.0.0"]);
+	expect(byVer.get("1.0.0/1.0.0")!.gradedScores).toEqual([0.4, 0.5]);
+	expect(byVer.get("2.0.0/2.0.0")!.gradedScores).toEqual([0.8, 1.0]);
+});
+
+test("CONFIRM-2: rubric-only bump also splits cohorts (same fixtureVersion, different rubricVersion)", () => {
+	const store = ensureEvalDir(fs.mkdtempSync(path.join(os.tmpdir(), "council-c2b-")));
+	const scope = { state: "done" as const, usage: { input: 1, output: 1, cost: 0.001, turns: 1 }, elapsedMs: 2, repoState: "sha256:" + "g".repeat(64) };
+	const base: ResultRecord = {
+		cellId: "taskA|m/x", taskId: "taskA", model: "m/x", repeat: 1, score: 0,
+		scoredUnder: SCORED_UNDER_SELF, rubricVersion: "1.0.0",
+		perCriterion: [], gradedAt: 1, fixtureVersion: "1.0.0",
+	};
+	writeResultRecord(store, { ...base, rubricVersion: "1.0.0", repeat: 1, score: 0.5 }, scope);
+	writeResultRecord(store, { ...base, rubricVersion: "2.0.0", repeat: 1, score: 0.9 }, scope);
+	const summaries = summarizeStore(store);
+	expect(summaries).toHaveLength(2);
+});
+
+test("CONFIRM-2: summaryLines appends the fixture/rubric version stamp when versions are present", () => {
+	const s = aggregateCell([
+		stubResult({ repeat: 1, score: 0.5, fixtureVersion: "1.0.0", rubricVersion: "7.2.0" }),
+		stubResult({ repeat: 2, score: 0.5, fixtureVersion: "1.0.0", rubricVersion: "7.2.0" }),
+	]);
+	const lines = summaryLines([s]);
+	expect(lines[0]).toContain("fixture=1.0.0 rubric=7.2.0");
+});
+
 test("resolveDriver: seat-kind -> target seat + inputFile contents; procedure-kind -> council-runner + slash invocation", () => {
 	const dir = fs.mkdtempSync(path.join(os.tmpdir(), "council-drv-"));
 	fs.writeFileSync(path.join(dir, "input.md"), "do the thing");

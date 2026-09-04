@@ -634,7 +634,12 @@ export async function runMatrix(o: RunMatrixOpts): Promise<MatrixOutcome> {
 export function summarizeStore(store: string): CellSummary[] {
 	const grouped = new Map<string, StoredResultRecord[]>();
 	for (const rec of readAllResults(store)) {
-		const key = `${rec.cellId}\u0000${rec.scoredUnder}`;
+		// CONFIRM-2 (EV-21): group on the FULL version pair the store filename key
+		// carries (resultStoreName) — not just cellId+scoredUnder — so a fixture
+		// or rubric bump + re-run never pools incomparable versions into one
+		// blended mean. Single-version stores are unaffected (same key up to the
+		// version suffix they all share), preserving byte-identity.
+		const key = `${rec.cellId}\u0000${rec.scoredUnder}\u0000${rec.fixtureVersion}\u0000${rec.rubricVersion}`;
 		const arr = grouped.get(key);
 		if (arr) arr.push(rec);
 		else grouped.set(key, [rec]);
@@ -652,6 +657,12 @@ export function summaryLines(summaries: CellSummary[]): string[] {
 				? " indeterminate (length majority)"
 				: " indeterminate (no graded repeats)"
 			: "";
-		return `[council-eval] ${s.cellId} (${s.scoredUnder}): graded=${s.n_graded}/${s.n_attempted} mean=${mean} σ=${sigma} lengthFlagged=${s.lengthFlagged} done=${s.histogram.done} stalled=${s.histogram.stalled} timeout=${s.histogram.timeout} failed=${s.histogram.failed}${flag}`;
+		// CONFIRM-2: version-stamp the cohort so a live user can tell a bumped
+		// fixture/rubric cohort apart without diving into the records.
+		const stamp =
+			s.fixtureVersion !== "" || s.rubricVersion !== ""
+				? ` fixture=${s.fixtureVersion || "?"} rubric=${s.rubricVersion || "?"}`
+				: "";
+		return `[council-eval] ${s.cellId} (${s.scoredUnder}): graded=${s.n_graded}/${s.n_attempted} mean=${mean} σ=${sigma} lengthFlagged=${s.lengthFlagged} done=${s.histogram.done} stalled=${s.histogram.stalled} timeout=${s.histogram.timeout} failed=${s.histogram.failed}${flag}${stamp}`;
 	});
 }

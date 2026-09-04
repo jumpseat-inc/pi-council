@@ -21,10 +21,16 @@ export interface CellTerminalHistogram {
 export interface CellSummary {
 	cellId: string;
 	scoredUnder: string;
+	/** fixture version of this cohort (version-homogeneous by construction). */
+	fixtureVersion: string;
+	/** rubric version of this cohort (version-homogeneous by construction). */
+	rubricVersion: string;
 	/** repeats attempted (records present) */
 	n_attempted: number;
 	/** repeats whose score counts toward mean/σ (done + not length-flagged) */
 	n_graded: number;
+	/** raw graded repeat scores (done + not length-flagged), repeat order — feeds adjacent-pair compareCellTriage (E1). */
+	gradedScores: number[];
 	/** done repeats flagged stopReason=length (E2 — flagged, never scored 0) */
 	lengthFlagged: number;
 	/** mean over graded repeats; null when none graded */
@@ -44,13 +50,17 @@ export interface CellSummary {
  * Histogram is counted from `cellScope.state` (persisted by the writer).
  */
 export function aggregateCell(records: StoredResultRecord[]): CellSummary {
+	// Deterministic repeat order (the store is repeat-keyed; filesystem read
+	// order is not): gradedScores must be stable across reads, and every other
+	// aggregate is order-independent, so a repeat-sort is safe.
+	const sorted = [...records].sort((a, b) => (a.repeat ?? 0) - (b.repeat ?? 0));
 	const graded: number[] = [];
 	let lengthFlagged = 0;
 	const histogram: CellTerminalHistogram = { done: 0, stalled: 0, timeout: 0, failed: 0 };
 	const cellId = records[0]?.cellId ?? "";
 	const scoredUnder = records[0]?.scoredUnder ?? "";
 
-	for (const r of records) {
+	for (const r of sorted) {
 		const state = r.cellScope?.state ?? "done";
 		if (state in histogram) histogram[state as keyof CellTerminalHistogram]++;
 		const isLength = r.cellScope?.stopReason === "length";
@@ -70,6 +80,9 @@ export function aggregateCell(records: StoredResultRecord[]): CellSummary {
 	return {
 		cellId,
 		scoredUnder,
+		fixtureVersion: records[0]?.fixtureVersion ?? "",
+		rubricVersion: records[0]?.rubricVersion ?? "",
+		gradedScores: graded,
 		n_attempted: records.length,
 		n_graded,
 		lengthFlagged,

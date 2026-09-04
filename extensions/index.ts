@@ -18,8 +18,10 @@ import {
 	resolveDriver,
 	runMatrix,
 	summaryLines,
+	evalResultsDir,
 } from "./eval-runner.ts";
 import { listFixtureTasks, loadFixture } from "./eval-fixtures.ts";
+import { renderLeaderboard } from "./eval-leaderboard.ts";
 
 /**
  * Some catalogue entries carry wrong max-output metadata — e.g. OpenRouter's
@@ -296,6 +298,26 @@ export default function (pi: ExtensionAPI) {
 			}
 			const lines = jobLines(jobs);
 			ctx.ui.notify(lines.join("\n"), "info");
+		},
+	});
+
+	pi.registerCommand("council-leaderboard", {
+		description: "Render the eval-results leaderboard (per-command and per-seat slices, with variance and triage)",
+		// A pure read (EV-21 §1): a rank query must never trigger a multi-hour matrix,
+		// so this handler calls only renderLeaderboard over the store — never runMatrix
+		// (read/write separation; /council-eval is the sole write path). No-arg form is
+		// the default render; no [task] drill-down in v1. Errors non-fatal.
+		handler: async (_args, ctx) => {
+			const emit = (line: string) => {
+				if (ctx.hasUI) ctx.ui.notify(line, "info");
+				else console.log(line);
+			};
+			try {
+				const lines = renderLeaderboard(evalResultsDir(repoRoot), repoRoot);
+				emit(lines.map((l) => `[council-leaderboard] ${l}`).join("\n"));
+			} catch (e) {
+				emit(`[council-leaderboard] error: ${e instanceof Error ? e.message : String(e)}`);
+			}
 		},
 	});
 

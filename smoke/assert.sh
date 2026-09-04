@@ -111,3 +111,22 @@ assert_reeval_identical() {
 	fi
 }
 
+# assert_leaderboard_matches_reeval <leader-reader-out> <reeval-out> — EV-21 §6(c).
+# Compare the leaderboard reader's per-cohort n/mean/σ byte-for-byte with
+# /council-eval's summarizeStore re-derivation (same-function-both-sides: both
+# funnel the same record set through aggregateCell).
+assert_leaderboard_matches_reeval() {
+	local leader="$1" reval="$2" la ra
+	la="$(grep -oE 'graded=[0-9]+/[0-9]+ mean=[0-9.-]+ σ=[0-9.-]+' "$leader" | sort)"
+	ra="$(grep -oE 'graded=[0-9]+/[0-9]+ mean=[0-9.-]+ σ=[0-9.-]+' "$reval" | sort)"
+	if [ -z "$la" ]; then
+		echo "assert_leaderboard_matches_reeval: no aggregate line in leaderboard reader" >&2
+		return 1
+	fi
+	if [ "$la" != "$ra" ]; then
+		echo "assert_leaderboard_matches_reeval: leaderboard reader != summarizeStore on n/mean/σ" >&2
+		printf '%s\n' "  leader:  $la" "  summary: $ra" >&2
+		return 1
+	fi
+}
+
