@@ -294,7 +294,9 @@ describe("writeSeatOverride", () => {
 			});
 		}).not.toThrow();
 		expect(res!.ok).toBe(false);
-		if (!res!.ok) {
+		// Narrowing guard: `res!` above suppresses but does not narrow, so the
+		// block reads `res.error` only after proving `res` is defined AND !ok.
+		if (res !== undefined && !res.ok) {
 			expect(res.error).toContain(COUNCIL_CONFIG_FILE);
 		}
 		expect(cfg(repo)).toBe(before);
