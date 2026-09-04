@@ -26,8 +26,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-21 — Results leaderboard with variance
-
 
 
 
@@ -35,6 +33,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Done
 
+- EV-21 — Results leaderboard with variance
 - EV-20 — Matrix runner with repeat aggregation
 - EV-12 — Document the council-decomposed features-new flow
 - EV-11 — Bounded decomposition session
