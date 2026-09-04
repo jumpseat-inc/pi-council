@@ -22,11 +22,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-21 — Results leaderboard with variance
-
 
 
 ## In Review
+
+- EV-21 — Results leaderboard with variance
 
 
 
