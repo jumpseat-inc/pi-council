@@ -26,9 +26,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Ready
 
-- EV-25 — Register the /council-models command and wire picker to writer
-
 ## In Progress
+
+- EV-25 — Register the /council-models command and wire picker to writer
 
 ## In Review
 
