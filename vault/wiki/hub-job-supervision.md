@@ -64,7 +64,7 @@ this is the whitespace observer of the guard.
 
 `/council-jobs` prints the live job table.
 
-## Long blocking waits look like stalls (EPIC-3 lesson)
+## Long blocking waits look like stalls (EPIC-3 lesson; EPIC-5 refinement)
 
 The stall monitor keys on **tool activity**, not on whether a wait is
 legitimate. A facilitator/runner that issues one long `council_wait` over a
@@ -76,10 +76,22 @@ containers died exactly this way. The caller-side fix: **poll in
 the caller's move, and cancelling mid-gate forfeits every gate already run.
 See [[council-runner]], [[2026-09-04-epic3-run-ledger]].
 
+**The invariant, generalized (EPIC-5):** at *every* dispatch layer, the
+no-activity window must exceed the longest legitimate silent wait below
+it. EPIC-5 killed two runner containers from the orchestrator side — one
+legitimately blocked on a 45-min owner dispatch under a 15-min
+orchestrator stall window (poll-slicing is the runner's choice, not the
+orchestrator's). The orchestrator-side fix: set the dispatch's stall
+window above the runner's longest child ceiling (55 min covers the
+45-min owner ceiling). Both dead containers were recovered from
+committed board state with zero work lost — the durable-state discipline
+is what makes an anti-stall kill survivable.
+
 ## Related
 
 - [[seats]], [[council-loop]], [[model-output-floors]]
 - [[run-transcripts]] — the on-disk manifests + transcript viewer (v0.9.0)
+- [[council models picker]] — delivered by the run that refined this page
 
 ## Sources
 
@@ -87,3 +99,5 @@ See [[council-runner]], [[2026-09-04-epic3-run-ledger]].
 - [[2026-08-23-pi-council-design-spec]]
 - [[2026-08-24-bugfix-seat-prose]]
 - [[2026-09-04-epic3-run-ledger]] — the stall-window vs blocking-wait lesson
+- [[2026-09-04-epic5-run-ledger]] — the orchestrator-side stall-window
+  corroboration and the committed-state recovery proof

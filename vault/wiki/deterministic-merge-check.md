@@ -50,13 +50,33 @@ silently. A mismatch is a **HALT, not a retry**.
 - The first autonomous merge of a run should be watched by the human, not
   merely reported.
 
+## Observed practice (EPIC-5 run)
+
+- Four more merges (EV-22 `07317e1`, EV-24 `5fa22a1`, EV-23 `362fe96`,
+  EV-25 `467b744`), squash method this time — `--match-head-commit` pins
+  the SHA regardless of merge method; the re-read-`headRefOid` fallback
+  was held ready but never needed (no push raced a check).
+- The watch-the-first-merge rule was honored by announcing the first
+  merge in-line before the runner dispatched, not gating on a reply
+  (the authority map re-homed merge authority entirely).
+- **Conditional merge evidence (EV-23 J-1)** — a card may ship against a
+  tracked known defect only when its step-9 verification asserts the
+  follow-up-card record exists (FLLWUP-10) *before* the merge; the
+  green-light is a criterion-3 sub-assertion, not a judgment call.
+- Copy rulings were enforced at merge time as literal-string tests with
+  gate-integrity injections (a one-word copy change turned 3 tests red).
+
 ## Related
 
 - [[council loop]] — steps 9–12 this check overlays.
 - [[card id allocation]] — the diverged-main discipline merges interact
   with.
+- [[council models picker]] — the EPIC-5 surface merged under this gate.
 - [[2026-09-04-epic4-run-ledger]] — eight merges executed under this gate.
+- [[2026-09-04-epic5-run-ledger]] — four more, squash-method, conditional
+  green-light.
 
 ## Sources
 
 - [[2026-09-04-epic4-run-ledger]]
+- [[2026-09-04-epic5-run-ledger]]

@@ -1,3 +1,17 @@
+## [2026-09-04] ingest | EPIC-5 Run Ledger — /council-models shipped
+Filed `vault/raw/2026-09-04-epic5-run-ledger.md` (the autonomous run: EV-22..25,
+four deterministic-gate merges, 460→507 tests) and ingested it. Created
+[[council models picker]], [[council config writer]], [[gate parity]],
+[[echo-then-run]] + the source page. Updated [[council-config]] (⚠️ write path
+added — loaders-only description superseded in part), [[deterministic-merge-check]]
+(EPIC-5 practice incl. conditional green-light), [[council-runner]] (mechanical
+path, green-light conditionals, recovery proof), [[hub-job-supervision]] (stall
+invariant generalized to the orchestrator layer), [[council-loop]] (Phase 1
+rulings preflight), [[smoke-test]] (Phase 5 exists; FLLWUP-6 note superseded),
+[[engineering-board]], [[index]]. Key takeaway: capability is enforced at
+selection, never persistence; byte-splice beats re-serialize on committed
+files; the stall-window invariant holds at every dispatch layer.
+
 ## [2026-09-04] ingest | EPIC-4 Run Ledger — Model Eval Harness (v0.15.0/v0.16.0)
 Filed `vault/raw/2026-09-04-epic4-run-ledger.md`, then ingested it plus the five
 EPIC-4 ruling/design sources. Created [[model-eval-harness]], [[eval-store-contract]],

@@ -50,21 +50,45 @@ reserved powers are re-homed per the authority map in `features-deliver.md`.
   **Poll-slice long waits** (EPIC-3 lesson): never issue a `council_wait`
   longer than ~8 minutes — three EPIC-3 containers were anti-stall-killed
   while blocked in single 30–45-minute waits (see [[hub-job-supervision]];
-  [[2026-09-04-epic3-run-ledger]]).
+  [[2026-09-04-epic3-run-ledger]]). EPIC-5 corroboration at the layer
+  above: the orchestrator dispatching *runners* must also set its stall
+  window above the runner's longest legitimate silent wait (55 min
+  covers the 45-min owner ceiling) — see [[2026-09-04-epic5-run-ledger]].
 - **Seat resolution check** — verifies each needed seat resolves by name; seats
   resolve from disk at dispatch time, so a gap is a missing seat file → `HALT`,
   never a registry restart.
 - **Return contract** — report tags `ESCALATION`, `DONE`, `RETIRED`, `HALT`;
   the orchestrator sees only the report.
 
+## Lessons from the EPIC-5 run
+
+- **The mechanical path is real** — when a card's design is fully settled
+  by Phase 1 rulings and landed module contracts, steps 2–6 are skipped
+  and the card itself is the owner handoff (EV-25 did exactly this).
+  Deliberation is not ritual; skipping it when nothing is open is the
+  facilitator's call, recorded on the card face.
+- **Green-light conditional shipping** — an `ESCALATION` ruling may make
+  continuation conditional on a filed follow-up card (EV-23 shipped
+  against the tracked FLLWUP-10 seam); the runner then asserts the
+  follow-up's record exists before any merge. A *temporary, tracked*
+  residual is shippable; a permanent one never is.
+- **Committed-board-state recovery works** — two EPIC-5 containers died
+  on infrastructure and both successors resumed from the committed
+  card/board state (one owner resumed from its own plan doc and partial
+  artifacts) with zero work lost. The board discipline is what makes a
+  crashed container cheap.
+
 ## Related
 
 - [[seats]], [[council-loop]]
 - [[engineering-board]], [[hub-job-supervision]], [[preflight]]
 - [[council-config]] — default model/thinking override
+- [[council models picker]] — the EPIC-5 epic this seat delivered
 
 ## Sources
 
 - `council/agents/council-runner.md`
 - `council/procedures/features-deliver.md`
 - [[2026-08-24-bugfix-seat-prose]]
+- [[2026-09-04-epic5-run-ledger]] — mechanical path, green-light
+  conditionals, recovery-from-committed-state

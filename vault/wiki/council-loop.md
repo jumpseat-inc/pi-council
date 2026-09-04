@@ -4,7 +4,7 @@ type: concept
 summary: The facilitator-run deliberation → implement → verify → judge loop over a board card, bounded by round caps, token ceilings, gate discipline, and a human merge gate.
 aliases: [council run, deliberation loop]
 tags: [pi-council/concept]
-sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-04-epic4-run-ledger]]"]
+sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-04-epic5-run-ledger]]"]
 created: 2026-08-23
 updated: 2026-09-04
 ---
@@ -36,6 +36,26 @@ disputes; ruling seats decide judgment; the human decides the rest.
 12. **Sync + reconcile** — rebase `main`; only merged-with-green-CI sets `Done`.
 13. **Card the follow-ups** — every surfaced idea becomes its own `FLLWUP-n` card.
 14. **Persist** — offer to file durable decisions into the wiki.
+
+## Autonomous-run refinements (EPIC-5)
+
+- **Phase 1 rulings preflight** — /features-deliver front-loads copy and
+  strategy rulings onto card faces before any runner dispatches; they are
+  recorded human decisions, immutable for the run, and a runner that hits
+  a covered dispute applies and cites them rather than re-asking. This
+  converted the most predictable escalation class (surface copy) into
+  zero round-trips.
+- **The mechanical path** — a card whose design is fully settled by
+  rulings + landed contracts skips steps 2–6 entirely (EV-25); the card
+  itself is the step-7 handoff. Deliberation is skipped when nothing is
+  open, never when something is.
+- **Green-light conditional shipping** — a ruling may let a card ship
+  against a tracked known defect (follow-up filed, asserted before
+  merge); a temporary residual is shippable, a permanent one never is.
+- **Follow-up cadence** — step 13 follow-ups are carded and confirmed;
+  the EPIC-5 human waived per-card confirmation mid-run ("just file
+  them"), which the orchestrator applied to the remaining follow-ups —
+  the human may narrow their own gates, explicitly, for the run.
 
 ## Guards
 

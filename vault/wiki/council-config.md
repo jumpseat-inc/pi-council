@@ -6,10 +6,16 @@ aliases: [.council.json, council.json, agent overrides, seat model override, sea
 tags: [pi-council/concept]
 sources: ["[[2026-08-23-council-json-override]]", "[[2026-08-25-design-ev3]]", "[[2026-08-25-design-ev3-round2]]"]
 created: 2026-08-23
-updated: 2026-08-25
+updated: 2026-09-04
 ---
 
 # Council Config
+
+> ⚠️ **Superseded in part (2026-09-04, EPIC-5):** this page described
+> `.council.json` as a read/parse-only surface — loaders, precedence,
+> scaffolding. It now also has a **write path**: [[council config writer]]
+> (`writeSeatOverride`), the first code that mutates the file. The read-path
+> facts below stand unchanged; the write side is new since EV-24.
 
 `council-config` is the committed per-repository tuning file introduced in
 v0.7.0. Unlike filename shadowing ([[override-resolution]]) — where a repo file
@@ -91,6 +97,20 @@ seat's frontmatter thinking (and vice versa).
 check, the child's `--model`/`--thinking` argv, tool grants, and system prompt
 all agree. Both dispatch sides honor one resolved seat.
 
+## The write path (EPIC-5)
+
+Since EV-24 the file is writable: [[council config writer]] performs a
+field-level merge of one seat's `council.<seat>` object — **absent keys
+mean preserve** (a model-only write keeps an existing `thinking`), the
+write is a byte-region splice that leaves the `theme` section, other
+seats, unknown keys, and indentation byte-identical, and validation is
+gate-parity-strict ([[gate parity]]): model-presence in the catalogue
+plus `THINKING_LEVELS` grammar, nothing more — capability is the
+picker's job ([[council models picker]]). Clearing an override is a
+distinct affordance (FLLWUP-9), not silent absence. Known seam: the
+writer's `existingThinking` misses an object-form `model` `:suffix`
+(FLLWUP-10, tracked).
+
 ## Relation to other mechanisms
 
 | Mechanism | Granularity | Merge? |
@@ -115,16 +135,22 @@ consumer's edits ([[non-clobbering-scaffold]]).
 
 ## Related
 
+- [[council config writer]] — the write path (EV-24, EPIC-5)
+- [[council models picker]] — the surface that writes it
+- [[gate parity]] — the writer's validation boundary
 - [[council-theme]] — the palette subsystem the `theme` section drives
 - [[seats]] — the schema fields the config overrides
 - [[override-resolution]] — filename shadowing, the sibling mechanism
 - [[non-clobbering-scaffold]], [[model-output-floors]]
 - [[2026-08-23-council-json-override]] — the source ingest
+- [[2026-09-04-epic5-run-ledger]] — the run that added the writer
 
 ## Sources
 
 - `extensions/seats.ts` (`loadCouncilConfig`, `applySeatOverride`,
   `loadThemeConfig`)
+- `extensions/council-config-writer.ts` (EV-24)
 - `council/scaffold/.council.json`
 - [[2026-08-23-council-json-override]]
 - [[2026-08-25-design-ev3]], [[2026-08-25-design-ev3-round2]]
+- [[2026-09-04-epic5-run-ledger]]

@@ -50,7 +50,8 @@ set of markdown files under `council/`:
 - [[card-id-allocation]] — the id-collision/union-merge discipline (v0.15.0)
 - [[chain-promotion]] — the automated Backlog→Ready cadence for dependent
   child chains (EPIC-4); follow-up cards may also be scoped under an epic
-  via the `epic:` field (FLLWUP-5..8 under EPIC-4)
+  via the `epic:` field (FLLWUP-5..8 under EPIC-4, FLLWUP-9..11 under
+  EPIC-5)
 - [[2026-08-23-pi-council-design-spec]]
 
 ## Sources

@@ -1,10 +1,10 @@
 ---
 title: Smoke Test
 type: concept
-summary: The definitive, unattended end-to-end test — Phases 0–4 drive a real /council loop, a /features-deliver epic, the /council-eval matrix, and /council-leaderboard in an isolated container, re-running gates itself; standing discipline: the first Council command without an end-to-end falsifier is a defect.
+summary: The definitive, unattended end-to-end test — Phases 0–5 drive a real /council loop, a /features-deliver epic, the /council-eval matrix, /council-leaderboard, and /council-models in an isolated container, re-running gates itself; standing discipline: the first Council command without an end-to-end falsifier is a defect.
 aliases: [smoke, unattended smoke test, smoke test]
 tags: [pi-council/smoke-test]
-sources: ["[[2026-08-24-unattended-smoke-test-design]]", "[[2026-08-24-unattended-smoke-test-plan]]", "[[2026-08-25-smoke-test-bugfixes]]", "[[2026-09-04-epic4-run-ledger]]"]
+sources: ["[[2026-08-24-unattended-smoke-test-design]]", "[[2026-08-24-unattended-smoke-test-plan]]", "[[2026-08-25-smoke-test-bugfixes]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-04-epic5-run-ledger]]"]
 created: 2026-08-25
 updated: 2026-09-04
 ---
@@ -56,8 +56,18 @@ check, replacing a human manually installing and driving a council run. It is
    the Phase-3 records; assert the gate-only empty-state line, both
    By-command and By-seat slices, and leaderboard-reader vs
    `summarizeStore` byte-identity on n/mean/σ. Same standing rule: no
-   merge without Phase 4 green. A judge-bearing Phase 5 is filed as follow-up card FLLWUP-6 (under
-   EPIC-4), not yet built.
+   merge without Phase 4 green.
+6. **Phase 5** (EV-25, EPIC-5) — `/council-models` end-to-end in a real
+   session: the headless handler-write path and the modal wiring path
+   (picker mocked at its `SeatModelSelection` contract), plus a scoped
+   real-session run. ⚠️ **Supersedes the earlier "Phase 5 not yet
+   built" note** — that referred to FLLWUP-6's judge-bearing phase,
+   which is **still open**; EPIC-5's Phase 5 is the council-models
+   falsifier, a different phase. Known gap
+   ([[2026-09-04-epic5-run-ledger]]): Phase 5 only executes inside the
+   full multi-phase harness whose real-model ceilings cannot fit a
+   bounded runner window — the **FLLWUP-11** phase selector
+   (`SMOKE_PHASE=5`) is the planned fix.
 
 ## The philosophy: never trust a claim, re-run reality
 
