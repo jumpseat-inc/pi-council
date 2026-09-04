@@ -4,7 +4,7 @@ import { CONFIG_DIR_NAME, getAgentDir, type ExtensionAPI, type ExtensionContext 
 import { runChildMode } from "./child.ts";
 import { Hub } from "./hub.ts";
 import { getHub, initHubIdentity, pidFilePath, registerHubTools, shutdownHub } from "./hub-tools.ts";
-import { PKG_ROOT, loadThemeConfig, proceduresDir, parseQualifiedModel } from "./seats.ts";
+import { PKG_ROOT, listSeatNames, loadSeat, loadCouncilConfig, loadThemeConfig, proceduresDir, parseQualifiedModel } from "./seats.ts";
 import { activateTheme } from "./theme-activation.ts";
 import { watchCouncilConfig, type CouncilConfigWatcher } from "./theme-watcher.ts";
 import { mintRunId, pruneRuns } from "./runs.ts";
@@ -22,6 +22,8 @@ import {
 } from "./eval-runner.ts";
 import { listFixtureTasks, loadFixture } from "./eval-fixtures.ts";
 import { renderLeaderboard } from "./eval-leaderboard.ts";
+import { applySeatSelection, buildProviderDisplayNames, openModelPicker, runHeadless } from "./council-models.ts";
+import { resolveCatalogue, type CatalogueModel } from "./catalogue.ts";
 
 /**
  * Some catalogue entries carry wrong max-output metadata — e.g. OpenRouter's
@@ -317,6 +319,39 @@ export default function (pi: ExtensionAPI) {
 				emit(lines.map((l) => `[council-leaderboard] ${l}`).join("\n"));
 			} catch (e) {
 				emit(`[council-leaderboard] error: ${e instanceof Error ? e.message : String(e)}`);
+			}
+		},
+	});
+
+	pi.registerCommand("council-models", {
+		description:
+			"Show or set a seat's model/thinking override — TUI opens the picker modal; headless prints the usage block + per-seat listing ([<seat> [<provider>/<model>[:thinking]]])",
+		handler: async (args, ctx) => {
+			const emit = (line: string) => {
+				if (ctx.hasUI) ctx.ui.notify(line, "info");
+				else console.log(line);
+			};
+			try {
+				// Single snapshot (EV-23 §10/1): one refresh, one getAvailable per
+				// invocation; the SAME flat array feeds resolveCatalogue AND the
+				// writer's catalogue gate — listing guarantees writability.
+				await ctx.modelRegistry.refresh();
+				const models = ctx.modelRegistry.getAvailable() as CatalogueModel[];
+				const displayNames = buildProviderDisplayNames(ctx.modelRegistry, models);
+				if (ctx.mode === "tui") {
+					// TUI surface: R-1 governs headless; the modal is the TUI surface.
+					// The modal owns zero I/O — the opener owns the write.
+					const rawSeats = listSeatNames(repoRoot).map((n) => loadSeat(repoRoot, n));
+					const resolved = resolveCatalogue(models, displayNames, rawSeats, loadCouncilConfig(repoRoot));
+					const sel = await openModelPicker(ctx, resolved);
+					const out = applySeatSelection(repoRoot, models, sel);
+					if (out.notified !== null) emit(out.notified);
+					else if (out.error !== null) emit(`[council-models] error: ${out.error}`);
+					return;
+				}
+				runHeadless(args, repoRoot, models, displayNames, emit);
+			} catch (e) {
+				emit(`[council-models] error: ${e instanceof Error ? e.message : String(e)}`);
 			}
 		},
 	});
