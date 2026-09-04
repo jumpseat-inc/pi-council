@@ -31,7 +31,15 @@ Children: EV-16 (design spec — lands first), EV-17 (per-run model override),
 EV-18 (benchmark fixtures), EV-19 (scoring rubric and verifier), EV-20
 (matrix runner with repeat aggregation), EV-21 (results leaderboard). The
 later children depend on the spec's definitions and stay `Backlog` until the
-spec lands and the human promotes them.
+spec lands and the human promotes them. All six children landed `Done`
+(EV-20 via PR #16 merged `fb858b0`, EV-21 via PR #18 merged `22630ff`,
+gates green on merged SHAs).
+
+Follow-ups filed by the run and scoped under this epic (human-approved at
+run close, 2026-09-04): FLLWUP-5 (criterion-type-aware judge projection,
+originally filed from EV-19 step 13), FLLWUP-6 (judge-bearing fixture
+smoke), FLLWUP-7 (eval-results retention policy), FLLWUP-8
+(council-leaderboard task drill-down).
 
 ## Acceptance
 

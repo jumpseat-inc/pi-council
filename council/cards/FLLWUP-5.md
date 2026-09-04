@@ -3,7 +3,7 @@ id: FLLWUP-5
 title: Criterion-type-aware judge projection in projectVerdictRecord
 state: Backlog
 owner: null
-epic: null
+epic: EPIC-4
 goal: projectVerdictRecord classifies judge criteria from carried criterion type (or rubric derivation), never from an evidence-content convention
 ---
 

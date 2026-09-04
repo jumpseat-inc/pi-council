@@ -15,6 +15,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-3 — Revisit empty dark and light variant shells for consumer discoverability
 - FLLWUP-4 — Repair /council-tree RPC silent-no-op in navigator.ts:57
 - FLLWUP-5 — Criterion-type-aware judge projection in projectVerdictRecord
+- FLLWUP-6 — Judge-bearing fixture smoke (Phase 5)
+- FLLWUP-7 — eval-results retention policy
+- FLLWUP-8 — council-leaderboard task drill-down filter
 
 ## Deliberating
 ## Ready
