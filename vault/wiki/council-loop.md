@@ -4,7 +4,7 @@ type: concept
 summary: The facilitator-run deliberation → implement → verify → judge loop over a board card, bounded by round caps, token ceilings, gate discipline, and a human merge gate.
 aliases: [council run, deliberation loop]
 tags: [pi-council/concept]
-sources: ["[[2026-08-24-bugfix-seat-prose]]"]
+sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-04-epic4-run-ledger]]"]
 created: 2026-08-23
 updated: 2026-09-04
 ---
@@ -30,6 +30,9 @@ disputes; ruling seats decide judgment; the human decides the rest.
 9. **Verify by acting** — Skeptic at the branch, actual tests.
 10. **Judge the stop condition** — PASS/REJECT from goal + Skeptic evidence only.
 11. **Human merge gate** — human merges, never a seat or the facilitator.
+    Under `/features-deliver` this gate is re-homed to the
+    [[deterministic merge check]] — five mechanical criteria, observed
+    directly, merged `--match-head-commit`.
 12. **Sync + reconcile** — rebase `main`; only merged-with-green-CI sets `Done`.
 13. **Card the follow-ups** — every surfaced idea becomes its own `FLLWUP-n` card.
 14. **Persist** — offer to file durable decisions into the wiki.

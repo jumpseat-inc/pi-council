@@ -1,3 +1,16 @@
+## [2026-09-04] ingest | EPIC-4 Run Ledger — Model Eval Harness (v0.15.0/v0.16.0)
+Filed `vault/raw/2026-09-04-epic4-run-ledger.md`, then ingested it plus the five
+EPIC-4 ruling/design sources. Created [[model-eval-harness]], [[eval-store-contract]],
+[[cell-aggregation]], [[grader-topology]], [[deterministic-merge-check]], [[chain-promotion]],
+[[procedures-vs-commands]] + 7 source pages. Updated [[smoke-test]] (Phases 0–4,
+standing falsifier discipline), [[card-id-allocation]] (divergent-mainline union-merge
+lesson: preserve SHAs cited in card records), [[council-loop]] (deterministic merge
+overlay), [[procedure-commands]] (first TS product commands), [[engineering-board]],
+[[pi-council-overview]] (arc → v0.16.0). Contradictions flagged: grader-topology
+first-write-wins superseded by Q1 repeat; O1 key extended by version pair; EV-21
+ruling's "procedure file" slip reconciled to TS command; acceptance "variance" bound
+as σ.
+
 ## [2026-09-04] ingest | EPIC-3 Run Ledger — Council-Decomposed Features-New (v0.15.0)
 Ingested the EPIC-3 autonomous run: /features-new rebuilt as a three-wave
 seated deliberation with a bounded session (3 rounds, fixed-endpoint

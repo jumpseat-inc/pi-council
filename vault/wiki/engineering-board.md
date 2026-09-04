@@ -4,7 +4,7 @@ type: concept
 summary: The durable, locally-stored kanban state — council/board.md plus one card file per id, validated by validate.py, and the discipline that everything the Council does starts and records there.
 aliases: [board, card, kanban]
 tags: [pi-council/concept]
-sources: []
+sources: ["[[2026-09-04-epic4-run-ledger]]"]
 created: 2026-08-23
 updated: 2026-09-04
 ---
@@ -48,6 +48,9 @@ set of markdown files under `council/`:
 
 - [[council-loop]], [[seats]]
 - [[card-id-allocation]] — the id-collision/union-merge discipline (v0.15.0)
+- [[chain-promotion]] — the automated Backlog→Ready cadence for dependent
+  child chains (EPIC-4); follow-up cards may also be scoped under an epic
+  via the `epic:` field (FLLWUP-5..8 under EPIC-4)
 - [[2026-08-23-pi-council-design-spec]]
 
 ## Sources

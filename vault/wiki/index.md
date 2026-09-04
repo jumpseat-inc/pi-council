@@ -41,13 +41,20 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[llm-wiki]] — The persistent, compounding knowledge base (sources → wiki → schema).
 - [[council-config]] — The committed `.council.json`; field-level per-seat model/thinking override PLUS a top-level `theme` section, scaffold-seeded.
 - [[council-theme]] — EPIC-1's omp-palette theme subsystem: pinned dark/light pair, `.council.json` recolor surface, four-state activation, token-only drawing + live repaint (v0.12.1: module located via `getPackageDir()`, not a bare-specifier).
-- [[smoke-test]] — The definitive unattended end-to-end test: isolated container drives a real /council loop + /features-deliver epic, asserts structure, re-runs gates itself; caught 3 bugs at birth, clean-green since v0.12.0.
+- [[smoke-test]] — The definitive unattended end-to-end test: Phases 0–4 (council loop, epic, /council-eval matrix, /council-leaderboard) in an isolated container; standing discipline — the first Council command without an end-to-end falsifier is a defect.
 - [[headless-pi]] — pi's non-interactive modes (-p/json/rpc): no trust prompt, single-shot teardown, stale ctx, and the waitForIdle pattern for command turns.
 - [[run-transcripts]] — the on-disk run substrate: per-job manifests + session JSONL under .pi/council/runs/, the job forest, and the /council-tree surface (inline as of EPIC-2) reading it.
 - [[council-job-tree-inline]] — EPIC-2's inline below-editor job tree (EV-7 last activity, EV-8 editor-driven focus, EV-9 inline progress); supersedes the /council-tree modal.
 - [[three-wave-decomposition]] — The /features-new structure (v0.15.0): three bounded waves — principal authors, skeptic+designer attack, product-owner rules last; facilitator authors nothing; human gate untouched.
 - [[presented-never-written]] — The two-part /features-new gate: attribution-free card drafts exactly as written, plus a never-persisted ledger of contributors and unresolved disagreements.
 - [[card-id-allocation]] — Board ids are allocated at fetched HEAD, never a stale clone's memory; diverged mains reconcile by union merge; validate.py is the net.
+- [[model-eval-harness]] — The EPIC-4 subsystem: /council-eval matrix runner + /council-leaderboard rankings over 16 shipped fixtures; evidence replaces guesswork for seat model pins.
+- [[eval-store-contract]] — ResultRecord/VerdictRecord keyed on full tuples (cellId, repeat, scoredUnder/gradedBy, versions), append-only, scoredUnder "self" sentinel, cellScope telemetry stamped at settle.
+- [[cell-aggregation]] — The shared pure aggregate: mean/Bessel σ, E1 CI-on-difference triage, E2 length-never-zero, E3 histogram; same-function-both-sides byte-identity; the CONFIRM-2 version-blindness lesson.
+- [[grader-topology]] — Grader as harness-dispatched sibling linked by cellId; cell-invariance by topology, three cost columns, no exclusion rule.
+- [[deterministic-merge-check]] — The features-deliver merge gate: five mechanical criteria observed directly, merged --match-head-commit, Done only after gates green on the merged SHA.
+- [[chain-promotion]] — Dependent child chains promote Backlog→Ready automatically as each predecessor's merge lands; ruled once, executed without re-asking.
+- [[procedures-vs-commands]] — Markdown procedures (LLM judgment is the feature) vs TS commands (LLM obedience is required); the rule of thumb from EPIC-4.
 
 ## Comparisons
 
@@ -87,4 +94,11 @@ _(none yet)_
 - [[2026-08-26-po-ev9-tiny-regime-floor]] — PO EV-9 ruling: min supported terminal height 7 rows; below it Enter is a consumed no-op (inline progress silently unavailable).
 - [[2026-09-03-v0.14.0-domain-neutral-stack-agnostic]] — v0.14.0: seats/procedures de-domained + stack-agnostic, convention #1 inverted, specs/plans archived to stubs.
 - [[2026-09-04-epic3-run-ledger]] — The EPIC-3 run (v0.15.0): /features-new rebuilt as a three-wave seated deliberation with a bounded session; the id-collision, stall-window, and confabulated-judge lessons.
+- [[2026-09-04-epic4-run-ledger]] — The EPIC-4 run (v0.15.0/v0.16.0): the model eval harness end to end; six deterministic-gate merges, the ruling chain, divergent-main repair, CONFIRM-2.
+- [[2026-09-03-po-ev16-grader-topology]] — Grader = harness-dispatched sibling, cellId linkage, three cost columns, no exclusion rule; Q1's repeat dimension superseded its first-write-wins clause.
+- [[2026-09-03-po-ev19-resultrecord-key]] — O1: ResultRecord key (cellId, repeat, scoredUnder) by symmetric mirroring; silent loss of a re-grade rejected.
+- [[2026-09-03-po-epic4-promotion-cadence]] — P1–P5: the automated Backlog→Ready chain for EPIC-4's children.
+- [[2026-09-03-design-ev20]] — Designer r1 on /council-eval: three gulfs, TS-handler-not-procedure scope decision, echo as forcing function.
+- [[2026-09-04-design-ev20-round2]] — Designer r2: matrix pseudo-row dropped (no second progress widget), transcript lines + echo-then-run stay, one shared pure renderer.
+- [[2026-09-03-po-ev21-ruling]] — /council-leaderboard name; CONFIRM-2 fold-in; σ not VARIANCE; four-state empty spectrum; Phase-4 smoke mandatory; kind limitation accepted.
 

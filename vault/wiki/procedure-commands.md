@@ -1,10 +1,10 @@
 ---
 title: Procedure Commands
 type: concept
-summary: The scanned, override-aware slash-command set — preamble customization, seven packaged procedures (council, board, features, wiki), and the hub/mcp engine commands.
+summary: The scanned, override-aware slash-command set — seven packaged procedures plus engine commands; EPIC-4 added the first non-procedure product commands (/council-eval, /council-leaderboard).
 aliases: [procedures, slash commands, commands]
 tags: [pi-council/concept]
-sources: ["[[2026-08-24-bugfix-seat-prose]]"]
+sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-04-epic4-run-ledger]]"]
 created: 2026-08-23
 updated: 2026-09-04
 ---
@@ -30,6 +30,11 @@ description.
   before `pi.sendUserMessage`.
 - The engine commands (`/council-init`, `/council-jobs`, `/mcp …`) are registered
   alongside; the wiki commands (`/wiki-ingest/-:query/-lint`) are procedures too.
+- **EPIC-4 added the first non-procedure *product* commands**:
+  `/council-eval` and `/council-leaderboard` are TS-registered because their
+  correctness depends on LLM *obedience*, not judgment (pre-validation,
+  repeat caps, pure reads) — see [[procedures vs commands]] for the
+  deciding rule.
 
 ## Headless dispatch (v0.10.0)
 

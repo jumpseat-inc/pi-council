@@ -4,7 +4,7 @@ type: concept
 summary: Board ids (EV-/FLLWUP-/BUG-/EPIC-) are allocated at fetched HEAD, never from a stale clone's memory — the EPIC-3/EPIC-4 collision lesson, with union-merge reconciliation and validate.py as the net.
 aliases: [id allocation, id collision, numbering discipline]
 tags: [pi-council/concept, pi-council/board]
-sources: ["[[2026-09-04-epic3-run-ledger]]"]
+sources: ["[[2026-09-04-epic3-run-ledger]]", "[[2026-09-04-epic4-run-ledger]]"]
 created: 2026-09-04
 updated: 2026-09-04
 ---
@@ -46,6 +46,14 @@ consistent.
    kept landing alongside the EPIC-3 run; three separate
    fetch/rebase/resolve cycles were needed. Resolve every board conflict by
    union — never drop the other session's lines.
+5. **EPIC-4 escalated the pattern to divergent mainline history.** Local
+   main held five unpushed EV-20 record commits while origin/main carried
+   parallel EV-11/EV-12 runs; reconciled by union *merge*, deliberately
+   NOT rebase — rebase would have rewritten SHAs cited verbatim in card
+   records. A parallel reconcile from a stale snapshot twice regressed
+   the in-flight card's board state (In Progress → Ready); resolution
+   rule: the card's own run record is authoritative for its own state.
+   Push rejections are routine, not errors — fetch, reconcile, retry.
 
 ## Related
 

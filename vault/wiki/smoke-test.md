@@ -1,10 +1,10 @@
 ---
 title: Smoke Test
 type: concept
-summary: The definitive, unattended end-to-end test — one command drives a real /council loop and a /features-deliver epic in an isolated Docker container, asserting structure and re-running gates itself; it caught three production bugs in its first round.
+summary: The definitive, unattended end-to-end test — Phases 0–4 drive a real /council loop, a /features-deliver epic, the /council-eval matrix, and /council-leaderboard in an isolated container, re-running gates itself; standing discipline: the first Council command without an end-to-end falsifier is a defect.
 aliases: [smoke, unattended smoke test, smoke test]
 tags: [pi-council/smoke-test]
-sources: ["[[2026-08-24-unattended-smoke-test-design]]", "[[2026-08-24-unattended-smoke-test-plan]]", "[[2026-08-25-smoke-test-bugfixes]]"]
+sources: ["[[2026-08-24-unattended-smoke-test-design]]", "[[2026-08-24-unattended-smoke-test-plan]]", "[[2026-08-25-smoke-test-bugfixes]]", "[[2026-09-04-epic4-run-ledger]]"]
 created: 2026-08-25
 updated: 2026-09-04
 ---
@@ -28,10 +28,11 @@ check, replacing a human manually installing and driving a council run. It is
   `preflight.sh` (no MCP/OAuth or origin gates), and an empty `.pi/council/mcp.json`.
   Pre-authored **standing rulings** on the epic/child cards make the autonomous
   flow deterministic.
-- **Driver** — `smoke/driver.sh` runs three phases; `smoke/assert.sh` holds the
-  structural assertions; every phase is `timeout`-ceilinged (30 / 90 min).
+- **Driver** — `smoke/driver.sh` runs phases; `smoke/assert.sh` holds the
+  structural assertions; every phase is `timeout`-ceiled (30 / 90 min,
+  Phase 3 has its own ceiling).
 
-## The three phases
+## The phases
 
 1. **Phase 0** — seed worktree, `pi install -l /pkg`, `pi -p "/council-init"`;
    assert pins, non-clobber (`.council.json`, `preflight.sh`, `board.md`
@@ -44,6 +45,19 @@ check, replacing a human manually installing and driving a council run. It is
 3. **Phase 2** — `pi -p "/features-deliver EPIC-1"`; assert both children
    `Done`, board consistent, exact `--json`/`--images` probes, flag-conflict
    exit 2, council-runner dispatch evidence in `runs/`.
+4. **Phase 3** (EV-20 Q3 ruling) — `pi -p "/council-eval eval-smoke <model>
+   --repeat 2"` headlessly against a seeded gate-only fixture override;
+   assert per-repeat snapshot dirs under `council/eval-results/`, durable
+   `[council-eval]` transcript lines, live-vs-re-derivation byte-identity
+   through *different code paths* (writer path vs reader path — not
+   tautological), `validate.py` green after. "If Phase 3 cannot run, the
+   card does not merge."
+5. **Phase 4** (EV-21 ruling J-2) — `pi -p "/council-leaderboard"` against
+   the Phase-3 records; assert the gate-only empty-state line, both
+   By-command and By-seat slices, and leaderboard-reader vs
+   `summarizeStore` byte-identity on n/mean/σ. Same standing rule: no
+   merge without Phase 4 green. A judge-bearing Phase 5 is filed as follow-up card FLLWUP-6 (under
+   EPIC-4), not yet built.
 
 ## The philosophy: never trust a claim, re-run reality
 
