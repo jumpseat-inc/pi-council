@@ -28,10 +28,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Ready
 
-- EV-26 — Pure model-name filter over the thinking-level cross-product
 - EV-27 — `/`-triggered search input in the model selection modal
 
 ## In Progress
+
+- EV-26 — Pure model-name filter over the thinking-level cross-product
 
 ## In Review
 
