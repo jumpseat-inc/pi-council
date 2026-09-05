@@ -113,3 +113,16 @@ diff on `extensions/seats.ts` (no loader change), 0 skipped new tests.
 **Verdict: NO-BLOCK, no open objection.** Tree hygiene verified after
 (no probe files left in test/, no strays; committed diff confined to
 test/council-config-writer.test.ts +194).
+
+### Step 10 — judge PASS
+Judge dispatched with the card's `goal` and the Skeptic's step-9 evidence
+only (job-11.3), settled in 0.6m. Verdict **PASS**: every goal clause
+verified at head `7d8d386` — standalone clear affordance
+(`clearSeatOverride`, separate from `writeSeatOverride`); `what:"thinking"`
+clears the explicit `thinking` key AND any known `:suffix` thinking
+carrier on the model; `what:"seat"` byte-splices the whole member incl.
+trailing comma (last member re-emits `{}`); absence = idempotent
+`{ok:true}` no-write; 8 round-trip tests each clear an existing override
+and assert `loadCouncilConfig` no longer returns it; byte assertions on
+prefix/suffix spans, theme SHA, other seats, unknown top-level keys (111
+expect calls, 0 fail).
