@@ -29,9 +29,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- FLLWUP-10 — Writer thinking preservation matches loader resolution for object-form model overrides
-
 ## In Review
+
+- FLLWUP-10 — Writer thinking preservation matches loader resolution for object-form model overrides
 
 ## Needs Human
 
