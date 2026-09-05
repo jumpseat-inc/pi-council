@@ -62,7 +62,7 @@ export function echoFor(sel: SeatModelSelection): string {
 /** One cursor row of the J-2 flat cross-product (spec §3). `level ===
  *  undefined` exactly for a `[]` model — its single level-less row, the only
  *  row that earns the "— thinking unchanged" echo. */
-interface PickRow {
+export interface PickRow {
 	model: ModelEntry;
 	level?: string;
 }
@@ -70,13 +70,28 @@ interface PickRow {
 /** J-2: `[]` → one level-less row; 1 level → one `:level` row; N ≥ 2 →
  *  exactly N `:level` rows in supportedThinkingLevels array order — no
  *  level-less row. Display model id is the entry's qualifiedId verbatim. */
-function rowsForProvider(group: ProviderGroup): PickRow[] {
+export function rowsForProvider(group: ProviderGroup): PickRow[] {
 	const rows: PickRow[] = [];
 	for (const model of group.models) {
 		if (model.supportedThinkingLevels.length === 0) rows.push({ model });
 		else for (const level of model.supportedThinkingLevels) rows.push({ model, level });
 	}
 	return rows;
+}
+
+/** EV-26: pure model-name filter over the J-2 cross-product rows; EV-27's
+ *  search input renders from this. Contract (card EV-26 Intent, pinned):
+ *  match field is qualifiedId only — display name is never rendered and
+ *  never matched; case-insensitive substring; the filter runs on the rows
+ *  BEFORE the `:level` suffix is applied at render time, so a query
+ *  containing ":" never matches a suffix; surviving rows are the identical
+ *  PickRow references so resolveSelection() keeps emitting byte-verbatim
+ *  keys; empty query ("" matches every string) → all rows; no match → []
+ *  (the modal owns the no-match copy — EV-27). Pure: no I/O, no rendering,
+ *  no side effects. */
+export function filterModelRows(rows: PickRow[], query: string): PickRow[] {
+	const q = query.toLowerCase();
+	return rows.filter((row) => row.model.qualifiedId.toLowerCase().includes(q));
 }
 
 function clamp(v: number, lo: number, hi: number): number {

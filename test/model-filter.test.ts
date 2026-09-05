@@ -15,7 +15,7 @@ const OPENROUTER: ProviderGroup = {
 	models: [
 		entry("deepseek/deepseek-v4-pro-0813", ["off", "medium", "high"], "openrouter/deepseek/deepseek-v4-pro-0813", "DeepSeek V4 Pro (0813)"),
 		entry("alpha/a", ["off"], "openrouter/alpha/a", "Alpha A"),
-		entry("alias/claude-sonnet", ["off", "high"], "openrouter/alias/claude-sonnet", "Sonnet 4"),
+		entry("alias/claude-sonnet", ["off", "high"], "openrouter/alias/claude-sonnet", "Anthropic Sonnet 4"),
 	],
 };
 const XAI: ProviderGroup = {
@@ -44,8 +44,9 @@ test("EV-26: case-insensitive substring on qualifiedId only; non-matches and dis
 	expect(filterModelRows(ROWS, "grok")[0].level).toBeUndefined(); // level-less [] row survives unfiltered
 	// non-matches excluded
 	expect(filterModelRows(ROWS, "zz-no-such-model")).toEqual([]);
-	// display name is never a match field: "Sonnet 4" exists only as a name
-	expect(filterModelRows(ROWS, "sonnet")).toEqual([]);
+	// display name is never a match field: "anthropic" appears only in the
+	// alias entry's name, never in any qualifiedId
+	expect(filterModelRows(ROWS, "anthropic")).toEqual([]);
 	// surviving rows are the identical PickRow references, not copies
 	hit.forEach((r, i) => expect(r).toBe(ROWS[i]));
 });
