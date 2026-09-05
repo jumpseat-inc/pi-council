@@ -352,3 +352,178 @@ Cross-seam reading:
   specifier is extracted; whether the guard returns an error or throws; how
   the test captures loader output and isolates module resolution; whether
   the existing `PKG_ROOT` seam in `extensions/seats.ts:29` is used.
+
+### Step 3 — bounded exchange, round 1 (positions stabilized by principal +
+designer; owner job-19.4 stalled mid-round and was re-dispatched as job-19.7)
+
+Round-1 responses of principal and designer appended verbatim. The owner's
+round-1 response follows in re-dispatch job-19.7 (the original job-19.4
+stalled after 20 turns during dep-less boot probes — no final position
+emitted — re-dispatched once per the stall protocol).
+
+#### Principal round-1 response (job-19.5)
+
+One hard constraint named up front: this seat's tool grant is read/grep/find/ls
+only — no shell — so the `import.meta.resolve(...)` probe could not be
+literally executed under Bun; evidence substituted from source.
+
+- **The four paths are four routes to the same two files, not four SDK
+  edges.** Exactly five `@modelcontextprotocol` import statements in
+  `extensions/`, all value-imports except one: `client.ts:1-4` (values)
+  and `oauth.ts:3` (values) ; `oauth.ts:7` is `import type`, erased at
+  runtime. The four static paths (`index.ts:13`, `child.ts:4`,
+  `hub-tools.ts:9`, `dispatch.ts:16`) all import `./mcp/index.ts`, which
+  imports `client.ts`/`oauth.ts` — they do not each independently import
+  the SDK. "De-static client/oauth at method level" leaves **zero** static
+  SDK edges in any process shape. The owner's counterpoint is wrong as "a
+  static edge survives", right as "de-static alone doesn't satisfy the
+  card".
+- **Why de-static alone fails is the reverse of the step-2 argument:** the
+  step-2 pairing of de-static + `import.meta.resolve` presence check is
+  invalidated by the owner's counterpoint (2), confirmed from source:
+  jiti's resolver (`unjs/jiti` `src/resolve.ts`) is an ESM-conditions walk
+  with `parentURL` = the importing file, then `ctx.nativeRequire.resolve(id,
+  { paths })`, then extension fallbacks, then `throw lastError`;
+  `nativeRequire` = `createRequire` bound to the loader's own
+  `import.meta.url`. `import.meta.resolve(spec)` under Bun walks
+  node_modules up **from the importing module only** — reproduces stage 1
+  and cannot see stage 2's loader-location fallback. A PKG_ROOT-based probe
+  diverges from the real import by construction and would **false-fire a
+  named "missing SDK" error on an install that jiti resolves successfully**
+  — a direct violation of acceptance. Even if it throws, it throws on the
+  wrong input; immaterial whether the probe throws or returns.
+- **The load-error wrapping contract is version-sensitive.** pi 0.84.2
+  `loader.js:395-416` wraps as `{ extension: null, error: "Failed to load
+  extension: ${message}" }`; `discoverAndLoadExtensions` returns `{
+  extensions, errors }`. The owner's raw `TypeError: The "paths[0]"
+  property must be of type string` observation is consistent with jiti's
+  `nativeRequire.resolve(id, { paths })` throwing under Bun when both
+  stages fail — and does **not** name the SDK. An error-text discriminator
+  on `message.includes('@modelcontextprotocol/sdk')` is unsafe on Bun, and
+  reliance on pi's wrapper *text* is unsafe across versions. Both owner
+  claims are correct.
+- **The decisive cross-seam fact: `package.json` already encodes which
+  specifier fails first.** pi-council declares `@modelcontextprotocol/sdk`
+  under `dependencies` (`^1.30.0`) but `@earendil-works/pi-coding-agent`
+  and `typebox` under `peerDependencies`; pi 0.84.2's own package.json
+  carries `typebox`/`@earendil-works/pi-tui`/`@earendil-works/pi-ai` and
+  **no** `@modelcontextprotocol/sdk`. In the field shape (clone vendored
+  without node_modules, pi installed elsewhere), every bare specifier the
+  extension imports resolves via pi's tree through jiti stage 2 **except**
+  `@modelcontextprotocol/sdk` — the SDK is the *only* unresolvable
+  specifier. "Committed tree minus node_modules" is therefore a faithful
+  fixture — fragile, currently-true-by-accident property of dependency
+  *classification*, not a structural guarantee.
+- **Reframe — the synthesis:** keep `client.ts`/`oauth.ts` static (SDK
+  stays inside `mcp/`); make the *four* `./mcp/index.ts` sites lazy behind
+  a memoized `getMcp()` whose import attempt *is* the probe (the owner's
+  cut); **but on `missing-sdk`, throw the named prose as the factory's
+  first act** so the loader returns `extension: null` with the prose as
+  the inner `message` (the designer's surface). Reject the
+  `import.meta.resolve` presence check entirely. Factory becomes async
+  (the loader already does `await factory(api)`, loader.js:404); its first
+  statement is `await getMcp()`; `getMcp()` does
+  `try { await import("./mcp/index.ts") } catch (e) { try { await
+  import("@modelcontextprotocol/sdk/client") } catch { throw new
+  Error(<named prose>) } throw e }`. The secondary import runs only after
+  the primary already failed; a real bug in `mcp/*` with the SDK present
+  rethrows → honest loader surface. Yields: extension `null`, non-empty
+  `errors`, exit-1, named prose reaching both `discoverAndLoadExtensions.errors`
+  and stderr, healthy install byte-identical, detection faithful to jiti's
+  two-stage walk, before the `seatName` split so children get it too.
+- **Testable claims:** (1) after de-static of client.ts:1-4/oauth.ts:3
+  values, `grep -rn "from \"@modelcontextprotocol" extensions/` returns
+  only `oauth.ts:7` (`import type`) — no static value edge survives in any
+  shape. (2) `import.meta.resolve("@modelcontextprotocol/sdk/client")`
+  from a scratch extension fails while jiti.import succeeds via stage-2 —
+  the false-fire reproduction (not executed — no shell — two-line repro
+  left for the runner). (3) The `paths[0]` escape falsifies any error-text
+  discriminator. (4) Fixture fidelity is decided by *which pi loads the
+  extension*, not the shape: under lock-resolved pi (0.85.1) both shapes
+  reproduce the field failure; under drift 0.84.2 neither does (stage-2
+  tree resolution). Precondition = the FLLWUP-24 lock-sync binding; the
+  cheap fixture is faithful iff the driver runs under lock-resolved pi and
+  asserts the diagnostic names `@modelcontextprotocol/sdk`. (5)
+  Reconciliation: ship `themes/` in both shapes; use "committed tree minus
+  node_modules" as the missing-direction fixture; treat "byte-identical on
+  healthy install" as env-split's existing job.
+- **What remains genuinely open:** (1) **load-error vs partial-load fork
+  is a product decision, not a technical fact** — the acceptance is
+  satisfied by both; sides with designer on title ("Named *failure*")
+  and intent ("extension load currently dies"), but card text does not
+  force it; needs a ruling. (2) Whether the factory may become async —
+  `await factory(api)` tolerates it, but any synchronous caller would
+  break; needs a check. (3) How the "first unresolved entry" is sourced —
+  under Bun it is NOT extractable from the native throw; either hardcode
+  the known first entry (`@modelcontextprotocol/sdk/client` from
+  `client.ts:1`) or accept package-only naming on Bun. (4) Copy decisions
+  remain the designer's.
+
+#### Designer round-1 response (job-19.6)
+
+Adjudicates for the **named-load-error contract** (principal's mechanism,
+its own prediction 3) and against the **diagnostic-command variant**
+(owner's).
+
+- The loader owns the channel: `loader.js:395-416` wraps every thrown
+  error as `Failed to load extension: ${err.message}`, `main.js:633-635`
+  nests it again, `main.js:721` appends the yellow `-ne` hint and exits 1.
+  A person reading stderr sees "Failed to load extension" twice before
+  anything else. The partial-load variant's diagnostic lives in `/mcp`'s
+  `description` — text a person never reads at extension load (palette
+  strings, not the loader-error payload) — plus a load-time console.error
+  one-liner. Both are weaker channels than the loader error. The card's
+  goal is "what happened + what to do at the moment of failure", and that
+  moment is the load-error.
+- **Gulf closed:** Gulf of Evaluation at first invocation (exit-1, named
+  diagnostic naming package + missing module + remedy at package root,
+  before the `-ne` misdirect can be followed); Gulf of Execution for the
+  seat-child case (`COUNCIL_SEAT` set, dep-less): the synchronous presence
+  check at factory top fires before `runChildMode`, so seat children
+  surface the same named prose rather than crashing at first MCP-tool use.
+- **Principle:** reachability through the existing channel beats adding a
+  new affordance; constraint over configuration — the guard's purpose is
+  to convert a non-actionable TypeError into an actionable one. If the
+  guard throws a constructed `Error("pi-council could not load: ...")`,
+  that string survives both wrappers. No new fake command as remedy
+  stands: a `/mcp` command naming the missing dep is a signifier in a
+  channel the person does not reach when the extension fails to load.
+- **Falsifiable predictions:** (P1) healthy install byte-identical —
+  env-split M1/M2/M3 stay green; driver emits `errors` empty, `commands:
+  14`, no diagnostic text in any description. (P2) dep-less driven test
+  names package + module + remedy + counters `-ne`: `errors[0].error`
+  contains `@modelcontextprotocol/sdk`, `bun install` AND `npm install`,
+  package-root instruction, `restart`, and a `-ne` counter ("do NOT use
+  pi -ne ..."). Bun-binary equivalence because the throw is constructed
+  inside the factory, after jiti's resolver returns. (P3) headless CLI
+  channel ordering: exit 1, `errors[0].error` text appears in stderr
+  before the `-ne` hint. (P4) counterfactual: owner's variant produces
+  `errors: []`, `commands: 14`, diagnostic in command description only —
+  acceptance "named diagnostic at extension load" fails on its own terms.
+  (P5) discriminator honesty: if a sync probe false-fires on a healthy
+  install, M1 pole A breaks (14 → 0); if implementation cannot prove
+  probe/resolver equivalence, fall back to the owner's actual-import
+  guard — the named-load-error contract is achievable from either
+  mechanism, so the diagnostic-command is not necessary. (P6) fixture
+  must include `themes/` (+council/): `seats.ts:59` reads
+  `loadShippedTheme("dark")` at module-eval; an extensions/-only copy
+  ENOENTs before the SDK edge is reached.
+- **Surface-copy decisions retained (design seat):** semantic content of
+  the prose (name the package `@modelcontextprotocol/sdk`, the first
+  unresolved subpath, remedy `bun install`/`npm install` at package root,
+  restart, explicit counter to `pi -ne`); "pi-council could not load:"
+  prefix attributing failure to the package; portable package-root phrase
+  ("the directory containing package.json") not absolute; channel order
+  (loader-error string first, then the `-ne` counter).
+- **Released to owner (implementation):** sync probe vs dynamic-import
+  catch — deciding factor is whether `import.meta.resolve(...)` can be
+  proved equivalent to jiti's two-stage walk (if yes, sync probe; if not,
+  the dynamic-import catch with a re-thrown Error is safer; either way the
+  thrown string is the contract); where the throw lives (factory top vs
+  child.ts entry); fixture construction (cp -a/-al, scratch HOME, COUNCIL_*
+  scrub).
+- **Preferences (taste, ranked last):** sync probe over dynamic-import
+  catch on cost/cognition grounds; prose leads with the package name, not
+  the subpath; `-ne` counter phrased as "Do NOT use `pi -ne` — it disables
+  extensions entirely; this is a missing dependency, not an extension
+  configuration error".
