@@ -23,11 +23,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- FLLWUP-24 — Local gates refuse to run when installed deps drift from bun.lock
-
 ## Ready
 
 ## In Progress
+
+- FLLWUP-24 — Local gates refuse to run when installed deps drift from bun.lock
 
 ## In Review
 
