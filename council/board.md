@@ -27,6 +27,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Ready
 
 - FLLWUP-15 — Search-mode modal frame fits the terminal at full window height
+- FLLWUP-19 — Skeptic dispatch inputs pin the verification subject and loop frame
+- FLLWUP-20 — Judge seat guidance names the runner-pinned verification subject
 
 ## In Progress
 
