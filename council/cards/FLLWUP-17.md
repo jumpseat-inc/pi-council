@@ -130,3 +130,22 @@ test at the head worktree (`bun test test/seats.test.ts -t "FLLWUP-17"` →
 five constraint phrases in all three seat bodies (owner/skeptic/judge),
 the driven payload test per seat is present and green. No verify cycle
 consumed (verify cycles used: 1 of ≤3).
+
+### Step 11 — deterministic merge check (features-deliver substitution)
+All five criteria met, read fresh against PR head
+`4da5a6b479923fc97e278258ef357f806b76cc6a`: (1) owner gates green in
+full (owner job-4.1 ran all four gates; Skeptic job-4.2 re-ran them at the
+head: frozen-lockfile install exit 0, `bunx tsc --noEmit` clean, `bun
+test` 548/2/0, `python3 council/validate.py` clean); (2) `gates` workflow
+SUCCESS on the PR head SHA — `gh pr checks 31 --json name,state,workflow` →
+`[{"name":"gates","state":"SUCCESS","workflow":"gates"}]` asserted on
+the `workflow` field per the substitution, run 33958420339 completed
+success at headSha 4da5a6b (the exact PR head, verified via `gh run list
+--branch fllwup-17-seat-immutability`); (3) no blocking Skeptic objection
+(NO-BLOCK, 10/10 closed-green); (4) judge PASS (job-4.3); (5) no Needs
+Human / outstanding ruling (card In Review, zero escalations). Merged
+`gh pr merge 31 --squash --match-head-commit 4da5a6b…` → PR #31 **MERGED**
+(mergedAt 2026-09-05T09:41:21Z), squash commit
+`f35d082208c077f140edf50e3cb61214854b44d7` on `main`. `gates` workflow
+re-ran on the merged SHA: run 33958661326 (observed via `gh run list
+--commit f35d082…`).
