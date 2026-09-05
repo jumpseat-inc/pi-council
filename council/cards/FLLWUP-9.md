@@ -92,3 +92,24 @@ branch `fllwup-9-clear-thinking-override`, head
 rewriting). Observed artifacts confirm: PR OPEN, headRefOid 7d8d386…,
 branch head on origin matches. Set In Review per step 8's
 observed-artifact rule (branch + open PR).
+
+### Step 9 — verified (cycle 1 of ≤3)
+Skeptic dispatched at PR #26 head `7d8d386` (job-11.2), settled in 9.3m.
+All four gates re-run green at the head: `bun install --frozen-lockfile`
+exit 0; `bunx tsc --noEmit` exit 0; `bun test` 551 pass / 2 skip / 0 fail
+(branch-committed suite 536 pass (+8 vs main's 528) + 15 adversarial
+probes; 2 skips = env-gated integration); `python3 council/validate.py`
+clean. Gate integrity demonstrated: stubbing `clearSeatOverride` to a
+`{ok:true}` no-op turns 16 tests red — the test gate can fail. 17
+objections filed (P1..P12, P1b, P4b, P4c, GATE, CONTRACT×2), **all
+closed-green** — duplicate-key last-wins semantics, unknown `:suffix` no-op,
+thinking-only object → loadable `{}`, double-clear idempotence,
+clear-then-write does not resurrect, what:"thinking" on last council member,
+what:"seat" drops unknown member fields wholesale, model `:suffix`-only
+clear preserves theme SHA + unknown key, empty-seat/empty-council no-op,
+last-member trailing-comma validity, clear-then-write-with-thinking
+re-sets, thinking-first member order, stub→16-red gate integrity, zero
+diff on `extensions/seats.ts` (no loader change), 0 skipped new tests.
+**Verdict: NO-BLOCK, no open objection.** Tree hygiene verified after
+(no probe files left in test/, no strays; committed diff confined to
+test/council-config-writer.test.ts +194).
