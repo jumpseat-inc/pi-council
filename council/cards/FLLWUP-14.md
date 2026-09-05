@@ -210,6 +210,131 @@ deterministic verification set via `bun run smoke` (Docker,
 an infra change beyond test-side code and therefore an ESCALATION, not a
 decision).
 
-### Step 3 — bounded exchange (round 2)
+### Step 3 — bounded exchange (rounds 2 of ≤3)
 Both generators re-dispatched with each other's round-1 positions
-verbatim (jobs 10.3/10.4). Rounds recorded verbatim per round.
+verbatim (owner job-10.3, principal job-10.4). Positions stabilised;
+exchange stopped after round 2 (step 3: stop early when stabilised).
+Positions recorded faithfully below.
+
+**owner — round 2 (job-10.3):** Verified the principal's pipeline claims
+by reading the installed pi-tui sources before responding: `terminal.js`
+kitty negotiation (flags 7, `\x1b[>7u\x1b[?u\x1b[c`, reply→
+`setKittyProtocolActive=true`), `stdin-buffer.js`
+`extractCompleteSequences`/`emitDataSequence` pass CSI-u through raw,
+`tui.js:618` filters `isKeyRelease` before the focused overlay's
+`handleInput`, council-models.ts closure hands the raw string to
+`picker.handleInput`. Live decode probe (bun, installed pi-tui):
+`\x1b[47;1:1u`→`/`, `\x1b[233u`→`é`, `\x1b[99;1:1u`→`c`;
+`matchesKey("\x1b[27;1:1u",escape)`, `("\x1b[127;1:1u",backspace)`,
+`("\x1b[13;1:1u",enter)` all true; `isKeyRelease("\x1b[47;1:1u")` false.
+Placement facts confirmed: gates.yml runs `bun test` without secrets;
+smoke/run.sh hard-requires `OPENROUTER_API_KEY` and passes `SMOKE_PHASE`
+through; driver.sh phase 5 is headless-only; `/` gated on
+`group.models.length > 0` with R-4#1 on empty providers. ENDORSES the
+principal's central placement argument: harness lives in the
+`SMOKE_PHASE` path, never `gates.yml`. Four corrections to the
+round-2-merged shape: (1) frame assertions CANNOT be accumulated-stream
+greps (`phase5_run`'s `grep -F` works for a linear headless transcript;
+a pty stream repaints and earlier frames stay in the accumulation, so
+"no longer appears in the stream" claims and changed-footer claims are
+only assertable per-checkpoint: wait for quiescence (no new bytes in a
+poll window, timeout-ceilinged), snapshot bytes since the prior
+checkpoint, ANSI-strip, assert against the snapshot); (2) negotiation
+assertion is only pi's own emitted `\x1b[>7u` in the captured stream —
+`decodeKittyPrintable` is a state-independent pure function, so "search
+opening is evidence kitty mode engaged" is false; drop the
+modifyOtherKeys rationale (owner verified decode with no session state);
+(3) model rows asserted STRUCTURALLY, never hardcoded: capture pre-press
+model rows from the terminal's own frame, then after typing `claude`
+assert every visible row ⊆ pre-frame rows AND contains `claude` —
+self-calibrating; the ruled literals (header, `▌ / filter · esc
+clears`, `No models matching "…".`, `↓ then esc exits search`, both
+footers) are hardcoded byte-exact; (4) the kitty phase must be
+SMOKE_PHASE-isolated only — never folded into the no-SMOKE_PHASE full
+path (the full path is the release stability gate; driver.sh's guard
+"only 5 is supported" changes to accept the new value; the full path
+stays byte-identical). Plus: (5) one live seam the harness will not
+close and should say so — the harness writes press-only forms, never
+kitty press+release pairing (release is `:3`, filtered by `isKeyRelease`;
+if a real kitty run ever double-appends, that is a finding, not a
+harness bug — the expected-frame table stays shared). Accepted: the
+`é` falsifier (`\x1b[233u`; the legacy arm is `length===1 && 32..126`
+so it cannot produce `é` — verified in `model-picker.ts`
+`decodePrintable`). New testable claims: fast unit gate pinning the
+harness vocabulary through the REAL modal with zero new infra —
+`ModelPicker.handleInput("\x1b[47;1:1u")` renders `SEARCH_ROW_EMPTY` at
+line 1; `"\x1b[99;1:1u"` appends `c`; `"\x1b[233u"` renders `▌ é`;
+`"\x1b[127;1:1u"` on `claude` yields `claud` (model-picker.test.ts
+currently pins only the bare forms — net-new coverage); harness truth
+conditions are per-frame (no post-`/` quiescent snapshot contains
+`press / to filter models`; footer last at every checkpoint; `▌ é` only
+after `\x1b[233u`); boot stream contains `\x1b[>7u`; the `\r\r` blind
+pick of seat 0/provider 0 is calibrated by the harness itself (if the
+fixture resolves to `No providers configured`, the phase fails with the
+R-4#1 literal visible — a calibrated failure, not a false pass).
+
+**principal — round 2 (job-10.4):** Read the wiki, the card, both round-1
+positions, the picker source, and the installed pi-tui/pi-ai/pi sources
+on both sides of the seam. The decode side is narrower and better
+behaved than either seat claimed in round 1: `KITTY_CSI_U_REGEX =
+/^\x1b\[(\d+)(?::(\d*))?(?::(\d+))?(?;(\d+))?(?::(\d+))?u$/`
+(pi-tui/dist/keys.js:1104) accepts bare `\x1b[47u`, suffixed
+`\x1b[47;1u`/`\x1b[47;1:1u`, AND non-ASCII `\x1b[233u` → `/`,`/`,`é`
+(keys.js:1120); `matchesKey("\x1b[27u",escape)` and
+`matchesKey("\x1b[127u",backspace)` match via `matchesKittySequence`
+(keys.js:648-754, 478). **The owner's byte table is code-correct as
+written; the suffixed press form is withdrawn as a design requirement**
+(it survives only as a one-line note in the manual README). BUT the
+seam's other side is fatal to the owner's shape as specified:
+`ctx.modelRegistry.getAvailable()` =
+`[...runtime.getAvailableSnapshot()]` (model-registry.js:21-22) =
+`all.filter(m => configuredProviders.has(m.provider))`
+(model-runtime.js:168-174); `configuredProviders` = providers where
+`checkAuth()` is non-undefined (model-runtime.js:176-198); OpenRouter
+auth is `envApiKeyAuth("OpenRouter API key", ["OPENROUTER_API_KEY"])`
+(providers/openrouter.js:12) whose `resolve` reads the credential store
+or env var and returns the key with NO network call and NO `check`
+method (auth/helpers.js:7-34); `checkProviderAuth` falls through to
+`resolveProviderAuth` → non-undefined iff a key is resolvable
+(models.js:225-242). **The owner's harness as specified is
+unreachable-by-construction**: it provisions the terminal and the pi pin
+but NOT the model registry — the 9-seat `.council.json` pin populates
+seats, not providers; a credentialless scratch HOME yields
+`No providers configured` and frames 2-9 can never appear; the owner's
+round-1 risk note ("scratch HOME has no provider credentials so any
+residual misroute fails fast offline") treats the very property that
+kills the harness as a safety feature. Reframe — minimal, inside the
+owner's own shape (owner's harness-primary + same-byte-script-manual-doc
+design ENDORSED): (1) required — `run.sh` must `export
+OPENROUTER_API_KEY="${OPENROUTER_API_KEY:-sk-dummy}"` (any non-empty
+value; presence-only auth → non-empty static OpenRouter catalogue, zero
+real secret, zero network; a dummy key fails at dispatch but the modal
+never dispatches); plus a derived assertion: frame 2 shows ≥1 provider
+row and NOT `No providers configured` (the headless preflight's R-2
+usage-line probe proves registration, not a non-empty registry); (2)
+recommended — the anti-harness-regression falsifier: send `\x1b[233u`
+and require `▌ é`. The owner's three mutation probes mutate PRODUCT
+code; none can detect a harness bug where the driver strips ESC and
+delivers legacy bare bytes — under that bug frame 4 still greens (the
+legacy arm decodes a bare `/`) AND mutation probe 1 still greens; `é`
+(U+00E9 = 233 > 126) is unreachable by any single-byte legacy input, so
+`▌ é` is true iff the driver genuinely delivered CSI-u AND the kitty
+decode ran — the card's gap made falsifiable against its own harness,
+not just against product regressions; (3) sharpen the 0.84.3 unverified
+link — add a cheap preflight guard: `node -e` against the npm-installed
+0.84.3 dist asserting `decodeKittyPrintable("\x1b[47u")==="/"` and
+`matchesKey("\x1b[127u","backspace")`; if those fail the harness reds
+BEFORE the TUI session, disambiguating version regression from product
+bug. Testable claims: (1) `run.sh` with `OPENROUTER_API_KEY` unset must
+still reach frame 2 with ≥1 provider row; (2) `envApiKeyAuth.resolve`
+performs no network I/O — greppable (auth/helpers.js resolve body has no
+fetch/http import; `checkProviderAuth` never calls `apiKey.check` for
+OpenRouter because `envApiKeyAuth` defines no `check` key); (3) all
+three decode forms true against the installed pi-tui today — the
+byte-form dispute is closed by evidence, not argument; (4) mutation: a
+driver bug sending bare `/` instead of `\x1b[47u` — the owner's three
+probes stay green but the `é` assertion reds (a harness without `é` is
+vacuous against this class); (5) frame 2 asserts ≥1 provider row /
+`EMPTY_NO_PROVIDERS` absent. Unverifiable from inside this seat: whether
+0.84.3's bundled pi-tui differs from the installed `"*"` pi-tui —
+exactly the link claim (3) makes runnable before the TUI boots.
