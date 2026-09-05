@@ -112,3 +112,26 @@ and test-file diffs insertion-only (no `-` lines — FLLWUP-16/17 tests
 byte-intact, `<dispatch_discipline>`/`<main_repo_immutability>` blocks
 untouched); frontmatter identical to `main`; worktree verified at the
 head. Set In Review per step 8's observed-artifact rule (branch + open PR).
+
+### Step 9 — verified (cycle 1 of 3)
+Skeptic dispatched at PR #32 head `6f2d60e` (job-5.2), settled in 2.9m.
+All four gates re-run at the head in order, green with real output: `bun
+install --frozen-lockfile` exit 0 ("no changes"); `bunx tsc --noEmit`
+clean; `bun test` 549 pass / 2 skip / 0 fail; `python3 council/validate.py`
+clean. Eight falsifiable probes, **all closed-green**: P1 driven test
+green (`bun test test/seats.test.ts -t "FLLWUP-18"` → 1 pass / 6
+expect()s, all six phrases); P2 gate integrity — defeat injection (block
+removed in a scratch copy → test RED naming the first missing phrase,
+restore → GREEN); P3 block names the subject (PR head SHA + head worktree
+path) and the loop frame (step 10 precedes step 11's mechanical merge,
+facilitator executes, no seat performs) and forbids implying the merge
+happened or is the judge's job; P4 diff insertion-only (zero `-` lines) —
+FLLWUP-16/17 test bodies and the `<dispatch_discipline>`/
+`<main_repo_immutability>` blocks byte-identical to `origin/main`
+(FLLWUP-16/17 tests 4/4, 20 expects); P5 diff scope exactly the three
+files; P6 frontmatter byte-identical to `origin/main`; P7 placement —
+`<judge_dispatch_subject>` at line 270, immediately after
+`</main_repo_immutability>` (268) and before `<return_contract>` (283);
+P8 six phrases contiguous verbatim in the body (closed by P1).
+**Verdict: NO-BLOCK, 8/8 closed-green, no open objection.** Verify cycles
+used: 1 of ≤3.
