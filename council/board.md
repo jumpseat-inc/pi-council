@@ -32,9 +32,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-26 — Pure model-name filter over the thinking-level cross-product
-
 ## In Review
+
+- EV-26 — Pure model-name filter over the thinking-level cross-product
 
 ## Needs Human
 
