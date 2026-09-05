@@ -237,6 +237,136 @@ Grounding used: `vault/wiki/index.md`, `headless-pi`, `smoke-test`,
 (`pi-manifest.js`, `package-manager.js`, `extensions/loader.js`,
 `resource-loader.js`, `main.js:749–755`, `docs/packages.md`,
 `docs/extensions.md`, `CHANGELOG.md`).
+
+### Step 3 — bounded exchange, round 1 (positions stabilized; exchange
+stopped early per council.md)
+
+#### Owner round-2 response (job-15.4)
+
+Evidence gathered: `extensions/index.ts:117-121` (the env split),
+`smoke/search-smoke/run.sh:36-39`, `driver.py:273-274`,
+`README.md:103-107`, and the FLLWUP-14 step-8 deviation record. The open
+question from step 2 is now settled.
+
+- **Approach** — The FLLWUP-14 env question is answered: **yes, the harness
+  ran with COUNCIL_SEAT in its env, and the harness itself witnessed it.**
+  FLLWUP-14 step 8 deviation (1) is verbatim: *"the
+  COUNCIL_SEAT/COUNCIL_JOB_ID/COUNCIL_RUN_ID env of this runner's session
+  makes the extension enter child mode and register nothing — run.sh
+  unsets them; found at bring-up, not assumed."* The fix lives in three
+  places — `search-smoke/run.sh:39` (`unset COUNCIL_SEAT COUNCIL_JOB_ID
+  COUNCIL_RUN_ID PI_SESSION_FILE`), `driver.py:273-274` (same keys popped
+  before spawn), and `README.md:103-107` (the "COUNCIL seat-hazard" note).
+  The discovery probe itself (owner job-10.1: "runner's stock pi 0.85.0
+  loads no extension") was run by a council-runner inside its seat session
+  → child mode inherited → zero commands → misroute; the harness then
+  passed only after scrubbing. **Both the report and the bring-up red are
+  the same package-side env branch, not a 0.85.0 delta — and notably the
+  harness itself only ever boots the pinned 0.84.3 binary (`run.sh`
+  `PI_VERSION=0.84.3`); no harness witness ever exercised 0.85.0.**
+- **On the principal's three claims** — (1) the jiti/factory-stage
+  hypothesis is falsified by the byte-identical loader evidence plus this:
+  the factory *executes fine* on 0.85.0 — `loadExtension` succeeds,
+  cosmetic child-mode registration; no `Failed to load extension`
+  diagnostic ever fires. The seam is not the loader; it is the factory's
+  own `COUNCIL_SEAT` branch (`index.ts:117-121`), version-independent.
+  (2) Agreed, with a trap the reframe must include: the driven
+  verification must be a subprocess **with the council child-mode vars
+  scrubbed from its env** — otherwise the test contaminates itself exactly
+  the way the discovery probe did. (3) Agreed they're one decision; the
+  escalate-degrade is pre-declared: primary goal = registration restored
+  on stock pi (all shipping versions); secondary = pin hygiene.
+  `">=0.84.3 <0.86.0"` contains 0.85.0, so the subprocess test stays
+  honest against the installed binary regardless. The escalate case ("no
+  workaround") does not exist on current evidence — the degrade clause
+  "document + constrain `<0.86.0` + escalate upstream" only triggers if a
+  future real jiti regression surfaces.
+- **Tradeoffs accepted** — The step-2 deliverable (2) drops its "labeled 4
+  as inference" caveat: the root cause is now fully evidenced by the
+  FLLWUP-14 record, no inference remains. Given up: trusting the card's
+  premise narrative ("smoke harness discovered an 0.85.0 breakage") as a
+  version claim — it is an env-hygiene narrative, and the acceptance's
+  "red on current main" assertion must be scoped to the
+  `COUNCIL_SEAT=owner` variant, since clean-env main is green on both
+  versions.
+- **Testable claims** —
+  1. `COUNCIL_SEAT=owner` + installed 0.85.0 binary, `pi -p "/council-eval"`
+     in scratch HOME → zero registered commands, no `Failed to load
+     extension` stderr (proves factory succeeded, child branch ran).
+  2. `env -u COUNCIL_SEAT -u COUNCIL_JOB_ID -u COUNCIL_RUN_ID` + same
+     binary → exit 0, `[council-eval] usage:` — green on current main both
+     versions.
+  3. Mutation probe on `index.ts:117-121` (delete the `COUNCIL_SEAT`
+     branch): claim-1 variant must flip green — proving the env split is
+     the sole mechanism, testable pre-fix.
+
+#### Principal round-2 response (job-15.5)
+
+Read the card, the FLLWUP-14 run record, `extensions/index.ts`,
+`extensions/child.ts`, `smoke/search-smoke/run.sh`, `smoke/run.sh`, and
+`smoke/Dockerfile`.
+
+- **Approach** — The contract is settled on the owner's side; I concede my
+  step-2 hypothesis. (a) No load-layer delta exists (byte-identical loaders
+  + clean-env 0.85.0 registering all 14 commands falsify the jiti/import
+  hypothesis and the card's manifest-drift premise). (b) The real seam is
+  the env-keyed mode split — `extensions/index.ts:66-69` (`const seatName
+  = process.env.COUNCIL_SEAT; if (seatName) { runChildMode(...); return;
+  }`) and `child.ts`'s `runChildMode` register hub tools + seat MCP but
+  **zero slash commands** — version-independent, reproduced on both
+  binaries. (c) The "kitty report" never came from the kitty harness: it
+  hard-pins `PI_VERSION="0.84.3"`, self-provisions an npm prefix, and
+  explicitly `unset COUNCIL_SEAT COUNCIL_JOB_ID COUNCIL_RUN_ID
+  PI_SESSION_FILE`; the Docker path forwards only `OPENROUTER_API_KEY` +
+  `SMOKE_PHASE` into the container — contamination-proof by construction
+  and never exercises 0.85.0. The "stock pi 0.85.0 loads no extension"
+  observation is recorded in FLLWUP-14's owner first-pass as "on the
+  **runner's** stock pi (0.85.0)" — a probe launched from inside the
+  council-runner seat session with `COUNCIL_SEAT=council-runner`
+  inherited, exactly the contaminated context.
+- **Blind spots** — (a) Owner labels the kitty attribution "inference"
+  when the confirming fact is already on the FLLWUP-14 record; the env
+  check deferred to implementation has effectively been done. (b) The
+  devDependency constraint `>=0.84.3 <0.86.0` is not actually "consistent
+  with the root cause": the root cause is version-independent, so
+  `<0.86.0` is a statement about the verified interval, not a fix.
+  Framing it as the fix re-imports the phantom version axis. (c) My own
+  step-2 jiti/import hypothesis was the exact failure my seat prevents;
+  conceded. (d) Neither seat named the actual defect shape: a seat child
+  that shells out to a *parent-mode* command inherits `COUNCIL_SEAT` and
+  silently downgrades the nested invocation — an env-split with no way to
+  distinguish "I am a seat child" from "I am a nested parent-mode tool run
+  from inside a seat child" — nothing to do with pi version.
+- **Reframe** — The proposed design (driven verification through the
+  installed pi's `discoverAndLoadExtensions` + devDependency range + run
+  record) should land as-is. But the card's narrative is wrong: **there is
+  no 0.85.0 load failure to restore.** The defect is (1) an untested
+  registration seam — no gate drives `discoverAndLoadExtensions`, so the
+  contract is invisible — and (2) a version-independent env-keyed mode
+  split that silently downgrades nested parent-mode invocations, which the
+  FLLWUP-14 runner probe tripped. The devDependency change is consistency
+  housekeeping (stop riding `*`), upper bound stated as "verified
+  interval," not "the fix." Acceptance #1's "red on current main" clause
+  needs reframing: current main is *green* on clean env; the red case is
+  the `COUNCIL_SEAT`-set assertion (zero commands), which reproduces the
+  report on **both** versions — that is the honest tripwire.
+- **Testable claims** —
+  1. Report origin: `smoke/run.sh` forwards only `OPENROUTER_API_KEY` +
+     `SMOKE_PHASE` into the container and `search-smoke/run.sh` pins
+     `0.84.3` — the Docker harness cannot produce the reported symptom by
+     construction; the phrase "on the runner's stock pi" places the probe
+     inside a `COUNCIL_SEAT`-set session. No clean-env 0.85.0 load failure
+     has ever been observed; every instance is child-mode.
+  2. Silence discriminator: with `COUNCIL_SEAT` set, pi emits **no**
+     `Failed to load extension ...` diagnostic (silent child mode, zero
+     commands); a genuine load throw (e.g. the no-node_modules SDK
+     fragility) emits that diagnostic via `main.js:749-755`. The FLLWUP-14
+     report records no such diagnostic — assert this in the run record.
+  3. The driven verification's two poles: clean env → `.commands.size ===
+     14`; `COUNCIL_SEAT` set → `.commands.size === 0`, both via the
+     installed pi's `discoverAndLoadExtensions`, both versions. The claim
+     this test encodes is an env-split contract, not a version fix, so the
+     goal text must not say "restore load on 0.85.0."
 - `package.json`'s `@earendil-works/pi-coding-agent` devDependency is a
   deliberate version constraint consistent with the root cause (pin, range,
   or bump — the deliberation rules which), and the choice is recorded.
