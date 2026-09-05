@@ -121,3 +121,12 @@ gate set green at the head; C10 gate integrity — defeat injection per
 seat (block removed in the worktree, test RED naming the missing phrase,
 restore GREEN) ×3. **Verdict: NO-BLOCK, 10/10 closed-green, no open
 objection.** Verify cycles used: 1 of ≤3.
+
+### Step 10 — judge PASS
+Judge dispatched with the card's `goal` and the Skeptic's step-9 evidence
+only (job-4.3), settled in 0.2m. Verdict **PASS**: re-ran the decisive
+test at the head worktree (`bun test test/seats.test.ts -t "FLLWUP-17"` →
+3 pass / 0 fail / 15 expect() calls), independently grep-confirmed the
+five constraint phrases in all three seat bodies (owner/skeptic/judge),
+the driven payload test per seat is present and green. No verify cycle
+consumed (verify cycles used: 1 of ≤3).
