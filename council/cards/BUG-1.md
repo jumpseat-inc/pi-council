@@ -1,7 +1,7 @@
 ---
 id: BUG-1
 title: Backspace deletion in the model search input and a first-use `/` filter hint
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-6
 goal: Pressing backspace while the model search input in the `/council-models` modal is focused deletes the last character of the query and recomputes the filtered list, and before any `/` press the model-level view shows a visible hint that `/` filters models, proven by driven handleInput and render tests.
@@ -97,3 +97,24 @@ Owner dispatched at the card only — the mechanical-path handoff is the
 card's own Intent, goal, and Acceptance (plus the folded FLLWUP-12 pins and
 Phase 1 rulings on this face), with this repo's gate and branch/PR
 conventions named.
+
+### Step 8 — re-dispatch after session disruption (resumed run)
+The above owner dispatch produced nothing that survived: a session
+disruption zeroed the `feat/bug-1-backspace-hint` branch, its worktree
+registration, and its reflog before any commit or PR existed. The
+`.worktrees/feat-bug-1-backspace-hint` directory remains on disk as
+hollowed debris (all files 0 bytes, not registered in `git worktree
+list`, no gitdir, no branch) — not usable as prior work. No commits and
+no PR exist for this card. Re-dispatched the owner (job-1.1) on the
+mechanical-path handoff: the card's own Intent, goal, and Acceptance,
+the folded FLLWUP-12 pins, Phase 1 rulings R-1/R-2/R-3 and EPIC-6 R-1
+restated, this repo's four gates (`bun install --frozen-lockfile`,
+`bunx tsc --noEmit`, `bun test`, `python3 council/validate.py`), and
+the branch/PR conventions. Job settled (job-1.1, done): branch
+`feat/bug-1-backspace-hint` pushed, PR #28 open at head
+`5cedc1e896bd69a2c5a0d2dc2367ee4a26ca015a` (observed via `gh pr view`
+28 — state OPEN), gates workflow `IN_PROGRESS` at verification time.
+Owner-reported gates all exit 0 (bun install --frozen-lockfile, bunx
+tsc --noEmit, bun test 541 pass/2 skip, validate.py clean); driven
+tests 5/5. Card set In Review on frontmatter and board per observed
+artifacts (council.md step 8).
