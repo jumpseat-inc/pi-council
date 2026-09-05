@@ -27,10 +27,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Ready
 
 - FLLWUP-15 — Search-mode modal frame fits the terminal at full window height
-- FLLWUP-17 — Main-repo immutability constraint in the working seats' own guidance
 - FLLWUP-18 — Judge dispatch inputs pin the verification subject and loop frame
 
 ## In Progress
+
+- FLLWUP-17 — Main-repo immutability constraint in the working seats' own guidance
 
 ## In Review
 
