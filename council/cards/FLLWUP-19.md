@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-19
 title: Skeptic dispatch inputs pin the verification subject and loop frame
-state: In Review
+state: Done
 owner: null
 epic: EPIC-6
 goal: The council-runner seat's skeptic-dispatch guidance requires every step-9 skeptic dispatch input to name the PR head SHA and the head worktree path as the verification subject and the loop frame that verification precedes step 10 judging and step 11's mechanical merge which the facilitator executes and no seat performs, proven by a driven payload test on the packaged seat body.
@@ -139,3 +139,31 @@ lines 1–282 and 297–329 of the seat body byte-identical to
 `origin/main`; frontmatter identical; no `extensions/` change; gates
 green (550/2/0). No goal-text fix needed; no premise error. Verify
 cycles used: 1 of ≤3.
+
+### Step 11 — deterministic merge check (features-deliver substitution)
+All five criteria met, read fresh against PR head
+`ce8bb1ce2ef5598dea1391cd9749a2d420a04dde`: (1) owner gates green in
+full (owner job-6.1 ran all four gates in the head worktree; skeptic
+job-6.2 re-ran them at the head: `bun install --frozen-lockfile` no
+changes, `bunx tsc --noEmit` clean, `bun test` 550/2/0,
+`python3 council/validate.py` clean); (2) `gates` workflow SUCCESS on
+the PR head SHA — `gh pr checks 33 --json name,state,workflow` →
+`[{"name":"gates","state":"SUCCESS","workflow":"gates"}]` asserted
+on the `workflow` field per the substitution, run 33959320794
+completed success at headSha ce8bb1c (exact PR head, verified via `gh
+run list --branch fllwup-19-skeptic-dispatch-inputs`); (3) no blocking
+Skeptic objection (NO-BLOCK, 9/9 closed-green); (4) judge PASS
+(job-6.3); (5) no Needs Human / outstanding ruling (card In Review,
+zero escalations). Merged `gh pr merge 33 --squash --match-head-commit
+ce8bb1c…` → PR #33 **MERGED** (mergedAt 2026-09-05T10:02:28Z), squash
+commit `e3d3c88e2ad7ed7c87b5da1fd977ceef21dc7b90` on `main`.
+
+### Step 12 — Done
+`gates` workflow on the merged SHA `e3d3c88` (run 33959581886,
+observed via `gh run list --commit e3d3c88…`, workflowName gates)
+completed success. Board and card set Done; `validate.py` clean;
+reconciliation below (fetch, merge `origin/main` adopting the squash `e3d3c88`
+while keeping this card's record commits d5f20b0/0a7af1c/51ffdc0/883e32f
+and the FLLWUP-19/20 filing commit 1d3af46 — the squash touches only the
+seat body, the plan, and `test/seats.test.ts`, no `council/` record
+overlap), committed and pushed.
