@@ -49,8 +49,10 @@ export interface ShippedTheme {
 	export: Record<string, string>;
 }
 
-/** Optional pi theme tokens that join the 51 shipped colors keys. */
-const OPTIONAL_TOKENS = ["scrollbarThumb", "searchMatchBg", "searchMatchText", "thinkingMax"];
+/** Optional pi theme tokens that join the 51 shipped colors keys. FLLWUP-22:
+ * scrollbarTrack joins (recorded discretion) — a consumer may declare the new
+ * 0.85.x token; on 0.84.3 it is inert-by-construction (fg-map carry, never read). */
+const OPTIONAL_TOKENS = ["scrollbarThumb", "scrollbarTrack", "searchMatchBg", "searchMatchText", "thinkingMax"];
 
 /** Read a shipped theme asset. Base for all merges — never getPackageDir(). */
 export function loadShippedTheme(variant: "dark" | "light"): ShippedTheme {

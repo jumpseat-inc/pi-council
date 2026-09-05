@@ -72,32 +72,41 @@ test("resolveThemeColors mirrors pi: chains, hex/int/'' passthrough, errors", ()
 	expect(() => resolveThemeColors({ a: "b", b: "a" }, { a: "b", b: "a" })).toThrow(/Circular/);
 });
 
-test("withThemeColorFallbacks applies the four pi fallbacks with ?? semantics", () => {
+test("withThemeColorFallbacks applies only the three band-stable pi fallbacks (trim-only)", () => {
 	const w = withThemeColorFallbacks({ text: "#fff", selectedBg: "#111", thinkingXhigh: "#333" });
 	expect(w.thinkingMax).toBe("#333");
 	expect(w.searchMatchText).toBe("#fff");
 	expect(w.searchMatchBg).toBe("#111");
-	expect(w.scrollbarThumb).toBe("#111");
+	// scrollbarThumb is delegated to the installed Theme constructor's
+	// regime-correct fallback — never injected here (FLLWUP-22 trim-only).
+	expect(w.scrollbarThumb).toBeUndefined();
+	// an explicit scrollbarThumb in the input passes through unchanged
+	const withThumb = withThemeColorFallbacks({ text: "#fff", selectedBg: "#111", thinkingXhigh: "#333", scrollbarThumb: "#222" });
+	expect(withThumb.scrollbarThumb).toBe("#222");
 });
 
-test("splitThemeColors: exactly the 8 bg keys land in bgColors, rest in fgColors", () => {
-	const all = [...Object.keys(seatsShipped("dark").colors), "scrollbarThumb", "searchMatchBg", "searchMatchText", "thinkingMax"];
+test("splitThemeColors: exactly the 7 bg keys land in bgColors; scrollbarThumb routes to fg", () => {
+	const all = [...Object.keys(seatsShipped("dark").colors), "scrollbarThumb", "scrollbarTrack", "searchMatchBg", "searchMatchText", "thinkingMax"];
 	const colors = Object.fromEntries(all.map((k) => [k, "#000000"]));
 	const { fgColors, bgColors } = splitThemeColors(colors);
 	expect(Object.keys(bgColors).sort()).toEqual(
-		["selectedBg", "scrollbarThumb", "searchMatchBg", "userMessageBg", "customMessageBg", "toolPendingBg", "toolSuccessBg", "toolErrorBg"].sort(),
+		["selectedBg", "searchMatchBg", "userMessageBg", "customMessageBg", "toolPendingBg", "toolSuccessBg", "toolErrorBg"].sort(),
 	);
 	expect(fgColors.selectedBg).toBeUndefined();
+	expect(fgColors.scrollbarThumb).toBe("#000000");
 	expect(fgColors.accent).toBe("#000000");
 });
 
 // ---- Task 3: deep-import + real Theme construction ----
 
-test("construction identity: accent/selectedBg ANSI + fallback chains; both modes", async () => {
+test("construction identity: accent/selectedBg ANSI + band-stable fallbacks; both modes", async () => {
 	const theme = await materializeTheme({ variant: "dark" }, "dark", "truecolor");
 	expect(theme.getFgAnsi("accent")).toBe("\x1b[38;2;254;188;56m"); // omp accent var
 	expect(theme.getBgAnsi("selectedBg")).toBe("\x1b[48;2;49;54;63m"); // #31363f
-	expect(theme.getBgAnsi("scrollbarThumb")).toBe(theme.getBgAnsi("selectedBg"));
+	// scrollbarThumb dropped here by design (spec §5 item 6 alternative): its
+	// routing is regime-dependent (bg on 0.84.3, fg text on 0.85.x) and is
+	// covered regime-blind by the 256-mode construction identity below plus
+	// the resolved-level drift test in theme.test.ts.
 	expect(theme.getBgAnsi("searchMatchBg")).toBe(theme.getBgAnsi("selectedBg"));
 	expect(theme.getFgAnsi("searchMatchText")).toBe(theme.getFgAnsi("text"));
 	expect(theme.getFgAnsi("thinkingMax")).toBe(theme.getFgAnsi("thinkingXhigh"));
@@ -140,11 +149,24 @@ test("construction identity: 256 mode matches pi's own loadThemeFromPath", async
 	fs.writeFileSync(tmp, JSON.stringify({ name: "ev3-ref", vars: merged.vars, colors: merged.colors }));
 	const ref = mod.loadThemeFromPath(tmp, "256color");
 	const theme = await materializeTheme({ variant: "dark" }, "dark", "256color");
-	for (const key of ["scrollbarThumb", "searchMatchBg", "selectedBg"] as const) {
+	// band-stable bg keys — scrollbarThumb is NOT a bg key on 0.85.x (ThemeBg
+	// drops it), so it is compared regime-blind below.
+	for (const key of ["searchMatchBg", "selectedBg"] as const) {
 		expect(theme.getBgAnsi(key)).toBe(ref.getBgAnsi(key));
 	}
 	for (const key of ["accent", "searchMatchText", "thinkingMax", "mdLink", "thinkingOff", "text"] as const) {
 		expect(theme.getFgAnsi(key)).toBe(ref.getFgAnsi(key));
+	}
+	// scrollbarThumb: council-materialized must equal pi's own loadThemeFromPath
+	// on the same input (the strongest oracle, regime-blind by construction).
+	// The accessor is read from the installed instance's own maps (0.84.3 → bg,
+	// 0.85.x → fg) and routed through the untyped surface (`as never`, precedent
+	// theme-compliance.test.ts) because ThemeBg/ThemeColor differ per band.
+	const thumbIsFg = (theme as unknown as { fgColors: Map<string, unknown> }).fgColors.has("scrollbarThumb");
+	if (thumbIsFg) {
+		expect(theme.getFgAnsi("scrollbarThumb" as never)).toBe(ref.getFgAnsi("scrollbarThumb" as never));
+	} else {
+		expect(theme.getBgAnsi("scrollbarThumb" as never)).toBe(ref.getBgAnsi("scrollbarThumb" as never));
 	}
 	fs.rmSync(tmp, { force: true });
 });
