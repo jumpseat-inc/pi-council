@@ -737,3 +737,23 @@ package.json, bun.lock, gates.yml ×0 bytes); banner pin 2c5ec3b with
 entry carries items (a)–(f) with historical lines 331/337 untouched;
 .repo-docs.tsv row pinned. Stale-probe: `sliceConventions` throws on
 the stale heading (red before refresh). Verify cycles used: 1 of ≤3.
+
+### Step 10 — judge PASS (job-23.3)
+
+Judge dispatched with exactly the card's `goal` (verbatim) + the step-9
+Skeptic evidence, subject pinned (head `2c1142b1…`, head worktree
+`.worktrees/fllwup-25-agents-page`), loop frame stated (step 10
+precedes step 11's mechanical merge, facilitator-executed). Verdict
+**PASS** — all four goal conjuncts mapped to evidence with its own
+direct artifact runs: (1) "the vault wiki source page … matches the
+current AGENTS.md" — diffConventions(agents, page) == [] (T-B) + direct
+diff of all 13 conventions with matching leads; (2) "counting the
+conventions exactly as the file lists them, including clause #13 " —
+labels 1–13 + 9.5/9.6 present in both files; four indices agree on 13
+(derived count, page body bold "thirteen", frontmatter summary word,
+index.md:72 digit); clause #13 present; (3) "proven by a driven or
+scripted consistency check" — the 6-test suite (26 expects) re-run by
+the judge itself: 6 pass / 0 fail; (4) "no behavior change anywhere in
+the gate set" — byte-identity diff 0 bytes on engine/gates files, full
+suite 577/2/0, tsc clean. No REJECT basis; no goal-text defect. Verify
+cycles used: 1 of ≤3.
