@@ -70,3 +70,24 @@ Observed artifacts confirm: PR OPEN, headRefOid 2175b73…, diff touches
 `test/council-models.test.ts` (W3 track), the plan, plus the runner's own
 board/card record commits riding through (established epic pattern). Set In
 Review per step 8's observed-artifact rule (branch + open PR).
+
+### Step 9 — verified (cycle 1 of ≤3)
+Skeptic dispatched at PR #25 head `2175b73` (job-10.2), settled in 7.5m.
+All four gates re-run green at the head: `bun install --frozen-lockfile`
+exit 0; `bunx tsc --noEmit` exit 0; `bun test` 528 pass / 2 skip / 0 fail
+(54 files; 2 skips = env-gated integration); `python3 council/validate.py`
+clean. Gate integrity demonstrated: reverting the FLLWUP-10 object-form
+`model` `:suffix` fallback (keeping only the `.thinking` key check) turned
+both the FLLWUP-10 preservation test and the W3 notify test red — the test
+gate can fail. 14 adversarial probes (AP-1..AP-14) all passed from a
+temp-root probe harness (deleted after): object-form `:suffix` preserved,
+explicit `.thinking` key wins, string shorthand preserved, suffix-less
+writes leave no thinking key, invalid/unknown suffix dropped with file
+loadable, trailing-colon and multi-colon `lastIndexOf` semantics, EV-24
+byte-identity of theme section / other seats / unknown top-level keys,
+multi-seat round-trip. 14 objections filed, **all `closed-green`** (O2
+parse-rule match confirmed against `applySeatOverride`'s exact
+`lastIndexOf(':')` + `THINKING_LEVELS.has(...)` rule; O12 W3 strengthening
+matches post-fix on-disk truth with notify-wiring intent preserved; O13
+both FLLWUP-10 tests + W3 run in the full suite). **Verdict: NO-BLOCK, no
+open objection.**
