@@ -544,3 +544,51 @@ settled design:
   source page [[2026-08-23-agents]] goes stale with the AGENTS.md line —
   follow-up (ingesting-repo-docs), not a gate. No open judgment dispute
   survives to step 6.
+
+### Step 4 — Skeptic attack (job-20.7): BLOCKS, 1 red / 5 green
+
+Six objections, all with real runs in this container:
+
+1. **Exactly-one-match assertion fails on the green tree — CLOSED-RED.**
+   `bun pm ls` (default) returns **2** identical
+   `@earendil-works/pi-coding-agent@0.85.1` lines — the package is both a
+   devDependency (`>=0.84.3 <0.86.0`, bun.lock:11) and a peerDependency
+   (`*`, bun.lock:18), both resolving 0.85.1. The settled design's
+   exactly-one-match assertion would exit 1 on a perfectly synced tree —
+   a false block. Probes: `bun pm ls | grep -c '@earendil-works/pi-coding-agent@'`
+   → 2; `bun pm ls --all | grep -c ...` → **1** (fix verified);
+   `bun pm ls --all | grep 'pi-coding-agent/typebox'` → 0 (no subpath
+   leakage). `bun.lock` is lax JSON (both `JSON.parse` and
+   `python3 json.load` reject it — trailing comma line 9), confirming a
+   text parser is off the table. **Fix required: use `bun pm ls --all`
+   (verified exactly 1) or `count >= 1` with a cross-match version
+   consistency check; never a `head -1` heuristic.**
+2. **Dual-entry pattern is structural, not accidental — supporting.**
+   `typebox@1.3.27` duplicates the same way (2 lines default, 1 with
+   `--all`). Any parse strategy must account for the dual-entry position.
+3. **Scaffold template and fixture seeds distinct — CLOSED-GREEN.**
+   `council/scaffold/council/preflight.sh` carries the generic "Project
+   tooling gate" placeholder, no bun gates — the tripwire belongs only in
+   this repo's adapted copy; smoke/fixture copies untouched.
+4. **Fresh-clone pass-through works under `set -u` — CLOSED-GREEN.**
+   Absent `node_modules/@earendil-works/pi-coding-agent/package.json` →
+   exit 0, no crash; `bun pm ls --all` resolves from the lock even with no
+   node_modules present (probe on a lock-copied scratch tree).
+5. **Insertion ordering structurally enforceable — CLOSED-GREEN.**
+   Insertion span is precisely between line 51
+   (`ok "project files present"`) and line 53
+   (`if [ -f package.json ]; then`); line 54 is the frozen-lockfile
+   install. `indexOf("check-pi-drift.sh") <
+   indexOf("bun install --frozen-lockfile")` holds on the modified file.
+6. **Decoy /typebox concern moot with `bun pm ls` — CLOSED-GREEN.**
+   `pm ls` shows only root-level entries; the bun.lock:520 subpath key is
+   invisible to it. The decoy concern applied only to a hypothetical lock
+   text parser.
+
+Verdict: **BLOCKS** — objection 1 is structurally fatal to the settled
+mechanism as written: the exactly-one-match assertion fails on the green
+tree. The design must switch to `bun pm ls --all` (probe-verified exactly
+1) or adopt `count >= 1` with version-consistency check before
+implementation. This is a test-settled correction (council.md step 4:
+closed by the red result, not by whichever seat argued more persuasively);
+the consolidator carries it into the spec as binding on the owner.
