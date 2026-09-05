@@ -253,6 +253,20 @@ the artifacts yourself, and move on; the re-dispatch rule is for seats
 that produced no output, not for seats that outlived their usefulness.
 </dispatch_discipline>
 
+<main_repo_immutability>
+The main repository path's branch state is immutable to you and to every
+seat you dispatch. `git checkout`, `git switch`, and `git reset` against
+the main repository path are forbidden — inside your own turn and inside
+every seat run you dispatch — and a violation is a `HALT` condition on the
+card. Any branch state change (moving a branch pointer, checking out a
+commit, switching branches, rewinding history) happens in a dedicated worktree
+created with `git worktree add`, never against the main checkout.
+Repeat this constraint in every dispatch input you compose for a working
+seat: a seat that mutates the main repo's branch state can revert the board
+and card records that the runner is the single writer of, and recovery from
+that failure class is a reflog drill, not a normal step.
+</main_repo_immutability>
+
 <return_contract>
 Your report is your **only** channel to the orchestrator. Nothing you
 wrote mid-turn is seen by the orchestrator directly; only what you put in
