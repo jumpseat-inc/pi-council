@@ -122,3 +122,20 @@ P6 frontmatter byte-identical to `origin/main`; P7 placement —
 P8 no `extensions/` change; P9 picker surface untouched.
 **Verdict: NO-BLOCK, 9/9 closed-green, no open objection.** Verify
 cycles used: 1 of ≤3.
+
+### Step 10 — judge PASS
+Judge dispatched (job-6.3) with the card's `goal` and the Skeptic's
+step-9 evidence only, settled in 2.0m. Subject pinned per the FLLWUP-18
+constraint: the input named the exact verification subject (PR head SHA
+`ce8bb1c` and the head worktree path
+`.worktrees/fllwup-19-skeptic-dispatch-inputs`) and the loop frame (step
+10 judging precedes step 11's mechanical merge, facilitator-executed, no
+seat performs; the merge is not a PASS precondition). Verdict **PASS**:
+independently re-verified at the head — driven test green (`bun test
+test/seats.test.ts --test-name-pattern="FLLWUP-19"` → 1 pass / 9
+expect()); defeat injection RED on block removal; all goal phrases in
+the body; insertion-only diff (3 files, 171 insertions, 0 deletions),
+lines 1–282 and 297–329 of the seat body byte-identical to
+`origin/main`; frontmatter identical; no `extensions/` change; gates
+green (550/2/0). No goal-text fix needed; no premise error. Verify
+cycles used: 1 of ≤3.
