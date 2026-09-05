@@ -197,10 +197,10 @@ test("W2: notify derives from the POST-WRITE file read-back — a level-less pic
 	expect(JSON.parse(cfg(repo)).council.owner).toEqual({ model: FLASH, thinking: "low" });
 });
 
-test("W3: object-form :suffix override — the notify names only what the post-write file actually carries (seam-honest)", () => {
-	// FLLWUP-10 seam (NOT fixed in this card): an object-form model carrying a
-	// :suffix with no thinking key drops the level on a level-less write. The
-	// notify must track the on-disk truth, never the pre-write level.
+test("W3: object-form :suffix override — the notify names the level the post-write file actually carries (seam-honest)", () => {
+	// FLLWUP-10 (fixed in this card): an object-form model carrying a :suffix
+	// with no thinking key now PRESERVES the level across a level-less write.
+	// The notify tracks the on-disk read-back, so it claims the preserved level.
 	const repo = makeRepo({
 		[path.join(CONFIG_DIR_NAME, "agents", "owner.md")]: seatFile("owner", "openrouter/base/x"),
 		[COUNCIL_CONFIG_FILE]: JSON.stringify({ council: { owner: { model: `${QWEN}:low` } } }),
@@ -208,8 +208,8 @@ test("W3: object-form :suffix override — the notify names only what the post-w
 	const out = applySeatSelection(repo, MODELS, { seat: "owner", model: FLASH });
 	expect(out.error).toBeNull();
 	expect(out.notified).toBe(modelsNotifyLine("owner", loadSeat(repo, "owner")));
-	expect(out.notified).not.toContain(":low"); // the dropped level is never claimed
-	expect(JSON.parse(cfg(repo)).council.owner).toEqual({ model: FLASH }); // on-disk truth
+	expect(out.notified).toContain(":low"); // the preserved level IS on disk — the notify claims it
+	expect(JSON.parse(cfg(repo)).council.owner).toEqual({ model: FLASH, thinking: "low" }); // on-disk truth
 });
 
 test("W4: null selection → no write, no notify, no error", () => {
