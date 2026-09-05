@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-19
 title: Skeptic dispatch inputs pin the verification subject and loop frame
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-6
 goal: The council-runner seat's skeptic-dispatch guidance requires every step-9 skeptic dispatch input to name the PR head SHA and the head worktree path as the verification subject and the loop frame that verification precedes step 10 judging and step 11's mechanical merge which the facilitator executes and no seat performs, proven by a driven payload test on the packaged seat body.
@@ -75,3 +75,24 @@ set (`.github/workflows/gates.yml` is the authoritative record — this
 repo has no dataset-import or server-boot gate, so the owner's full gate
 set is `bun install --frozen-lockfile`, `bunx tsc --noEmit`, `bun test`,
 `python3 council/validate.py`, all in order, in full).
+
+### Step 8 — owner implemented; In Review
+Owner (job-6.1) settled in 2.2m. TDD: plan at
+`docs/superpowers/plans/2026-09-05-FLLWUP-19-skeptic-dispatch-inputs.md`,
+driven payload test proved RED against the unmodified body (`bun test
+test/seats.test.ts -t "FLLWUP-19"` failing on the skeptic-specific
+phrases), then the `<skeptic_dispatch_subject>` block inserted immediately
+after `</judge_dispatch_subject>` in the same voice. All four gates in
+order at the head worktree: `bun install --frozen-lockfile` exit 0
+("no changes"), `bunx tsc --noEmit` clean, `bun test` 550 pass / 2
+skip / 0 fail (baseline 549; FLLWUP-16/17/18 green, FLLWUP-19 present),
+`python3 council/validate.py` clean.
+
+Facilitator-observed: PR #33 OPEN, branch
+`fllwup-19-skeptic-dispatch-inputs`, head
+`ce8bb1ce2ef5598dea1391cd9749a2d420a04dde`, base `main`; diff scope
+exactly the three planned files (`gh pr diff 33 --name-only`: seat body,
+plan, test file); insertion-only (zero `-` lines in the diff;
+frontmatter untouched); worktree `.worktrees/
+fllwup-19-skeptic-dispatch-inputs` verified at the head. Set In Review
+per step 8's observed-artifact rule (branch + open PR).

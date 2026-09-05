@@ -31,9 +31,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- FLLWUP-19 — Skeptic dispatch inputs pin the verification subject and loop frame
-
 ## In Review
+
+- FLLWUP-19 — Skeptic dispatch inputs pin the verification subject and loop frame
 
 ## Needs Human
 
