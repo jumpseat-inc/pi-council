@@ -191,80 +191,101 @@ deletion (parallel-implementation elimination; framing matters — "designer
 stopped reimplementing a fallback chain"). On VALID_COLOR_KEYS: removal = "the
 boundary made explicit rather than a new break".
 
-#### Round 3 (final — cap reached)
+#### Round 3 (exchange round 2 of 3 — superseded in the finals below where they conflict)
 
-**Owner (job-18.7).** (a) LOCK — CONCEDES to 0.84.3 (principal's round-2 position),
-under principal's non-negotiable: "a consumer installs pi themselves; our
-bun.lock governs our own gates, not their resolution" — the lock is gate-control
-and the card's goal is a supported-range claim evidenced through the gates PLUS
-the record. Designer's "verified up to 0.84.3" is FLLWUP-21's housekeeping
-verbatim, which the card's Intent explicitly calls insufficient — rejected.
-(b) DELETION — line-by-line: delete ONLY the scrollbarThumb line from
-withThemeColorFallbacks (rejects designer's thinkingMax-only reduction — the
-other three fallback sources do not drift); BG_TOKEN_KEYS 8→7 (conceded);
-KEEP VALID_COLOR_KEYS/OPTIONAL_TOKENS (verified: seats.ts:102 throws for any
-unlisted key; activateTheme swallows into a warning → silent total theme
-deactivation — designer's "boundary made explicit" falsified mechanically);
-`as never` at probe sites. (c) Test corpus: 8 items — T5 count `P ≥ 0.85 ? 56 : 55`;
-T6 equality unchanged; T7 regime-conditional (thumb = text/selectedBg by band);
-fallback unit test as 3 ?? + scrollbarThumb pass-through; splitThemeColors
-"exactly the 7 bg keys"; construction identity with regime-conditional thumb
-probe through `never`; 256-mode drops thumb from bgAnsi loop, ≥0.85 asserts
-fg identity; record artifact = 0.85.1 full-gate execution with concrete regime
-values.
+**Owner (job-18.7).** Moves on the seam — at this point holds: lock regenerates
+to 0.85.1 (consumers resolve there); behavioral probe, not version-string parse;
+deletion with the OPTIONAL_TOKENS/VALID_COLOR_KEYS stay; `as never` at probe
+sites. (SUPERSEDED: this round's owner position later conceded the lock to
+principal's 0.84.3+recorded-run via job-18.9, and the FINAL owner position
+(job-18.11) re-committed to 0.85.1 — see finals below.)
 
-**Principal (job-18.8).** LOCK — CONCEDES to owner's 0.85.1, superseding its
-own non-negotiable: "a recorded one-off is evidence, not a gate — it has no
-ongoing falsifying power and will go stale; the only configuration that
-deterministically exercises both ends of `>=0.84.3 <0.86.0` is gates at 0.85.1
-(top, what a consumer resolves) + smoke at 0.84.3 (floor)." DELEGATE, DON'T
-PROBE: delete withThemeColorFallbacks ENTIRELY + drop scrollbarThumb from
-BG_TOKEN_KEYS; pi's own `new Theme` constructor (theme.js:266 on 0.84.3 vs :184
-on 0.85.1) applies the regime-correct ?? fallback itself — the shipped theme
-follows 0.85.x automatically with zero version detection. Keep
-OPTIONAL_TOKENS/VALID_COLOR_KEYS (owner right on silent deactivation).
-RESOLVED-PALETTE correction: has ZERO production consumers (only its unit test
-imports it) — nothing rendered loses a token. Record: byte-exact range, lock
-0.85.1 + smoke 0.84.3, decision "0.85.x-compatible as shipped", supersede
-FLLWUP-21 R-2(b)(i). Rejects designer's (C): "incompatible as shipped" is
-falsified by the delegation argument — the council never draws the scrollbar;
-the only wrong-regime code is the council's own hardcoded fallback/routing,
-which this card deletes.
+**Principal (job-18.8).** at this point holds: gate-2 test-only at two call
+sites; regime-dependent token through `as never`; map count pi-owned 55/56;
+LOCK stays 0.84.3 + non-negotiable recorded one-off 0.85.1 full-gate execution;
+no widening. (SUPERSEDED in the final below: principal re-moved to 0.85.1.)
 
-**Designer (job-18.10).** HOLDS (B)/(C): lock 0.84.3, recorded label
+**Designer (job-18.9).** at this point holds: keep-with-meaning at 0.84.3,
+R-2 framing, routing-only deletion, allowlist stay. (SUPERSEDED by the final
+below.)
+
+#### FINAL positions (exchange round 3 of 3 — the binding finals)
+
+**Owner (job-18.11, FINAL).** LOCK — commits to **(A): lock 0.85.1, smoke
+0.84.3** (floor cover per orchestrator binding): "The 'one-off rots' objection
+is correct and it defeats my own (B). Once I conceded the lock governs only our
+gates and not consumer resolution, the lock's only purpose is to maximize the
+gate set's falsifying power over the claim we record — a 0.84.3 lock means every
+green `bun test` run is green against the band we are *not* claiming." The
+recorded one-off 0.85.1 run is retained as a migration witness but is NO LONGER
+the evidence — the gate set is. Recorded label: "0.85.x-compatible as shipped
+(deltas named)" — record names scrollbarThumb bg→fg with fallback
+selectedBg→text, scrollbarTrack added (fg, ?? muted), searchMatchBg/
+searchMatchText/thinkingMax fallbacks unchanged; upper bound meaning: 0.85.1
+gate-enforced, `<0.86.0` untested boundary. Deletion scope — at this final,
+delete `withThemeColorFallbacks` (extension + its unit test — both dist
+constructors replicate its fills per-regime); drop scrollbarThumb from
+BG_TOKEN_KEYS (8→7); add `scrollbarTrack` to `OPTIONAL_TOKENS`; KEEP the
+OPTIONAL_TOKENS/VALID_COLOR_KEYS mechanism (allowlist deletion = silent
+deactivation via swallowed throw); shipped theme files stay as-is (no explicit
+scrollbar keys). Tests: construction-identity vs `loadThemeFromPath` (both
+modes, 9 probe keys: accent, selectedBg, scrollbarThumb, searchMatchBg,
+searchMatchText, thinkingMax, scrollbarTrack, text), drift assertion
+(scrollbarThumb fg/text on 0.85.1 via the ref), band-stable-3 as construction
+assertions, split 8→7, resolvedPalette oracle rebuilt, allowlist acceptance incl.
+scrollbarTrack, smoke-at-0.84.3 floor, byte-exact lock. `as never` at probe
+sites (precedent theme-compliance.test.ts:79,97). Claims: (c1) on 0.85.1
+scrollbarThumb===text and count 56; on 0.84.3 ===selectedBg and count 55;
+(c2) scrollbarThumb removed from OPTIONAL_TOKENS + a .council.json overriding it
+→ seats.ts:102 throw, theme not applied — falsifies the "not a new break"
+claim.
+
+**Principal (job-18.12, FINAL).** LOCK — **(A): lock → 0.85.1** (regenerate
+`bun.lock`; devDependency string `>=0.84.3 <0.86.0` UNCHANGED — the lock move
+is the card's R-2(b)(i) evidence-generating deliverable, not ceiling-widening;
+the smoke container pins 0.84.3 as the floor). "A recorded one-off is evidence,
+not a gate — it has no ongoing falsifying power and will go stale; the only
+configuration that deterministically exercises both ends of `>=0.84.3 <0.86.0`
+is gates at 0.85.1 + smoke at 0.84.3." Recorded label: "0.85.x-compatible as
+shipped" with the byte-precise deltas: 0.85.x resolves scrollbarThumb in the fg
+map (?? text) + adds scrollbarTrack (?? muted) where 0.84.3 resolves it in the
+bg map (?? selectedBg); the adaptation is DELEGATION (no version detection —
+council stops owning the fallback), not a compatibility shim. Deletion scope —
+YIELDS the tail to owner: "scrollbarThumb out of BG_TOKEN_KEYS (8→7) + the
+scrollbarThumb line out of withThemeColorFallbacks; keep the 3 band-stable lines
+(searchMatchBg/searchMatchText/thinkingMax) — idempotent with the constructor in
+both bands, smaller diff. My 'delete helper entirely' is WITHDRAWN as over-
+broad." KEEP OPTIONAL_TOKENS/VALID_COLOR_KEYS. Test corpus: construction-
+identity, regime-blind: delete the hardcoded getBgAnsi("scrollbarThumb") ===
+getBgAnsi("selectedBg") assertion; assert materializeTheme ≡ pi's own
+loadThemeFromPath as EQUALITY probing scrollbarThumb via the regime-correct
+accessor (fg at 0.85.1, bg at 0.84.3). Concrete values at 0.85.1: post-
+construction count 56 (51 + fg{thinkingMax, searchMatchText, scrollbarThumb} +
+bg{searchMatchBg, scrollbarTrack}), thumb = text, fg-probe no-throw. Designer's
+(C) REJECTED: "incompatible as shipped" is falsified by the delegation argument.
+
+**Designer (job-18.10, FINAL).** HOLDS (B)/(C): lock 0.84.3, recorded label
 "incompatible as shipped; verified-to-0.84.3-only"; deletion scope routing-only
-(drop scrollbarThumb from BG_TOKEN_KEYS; keep searchMatch*/thinkingMax); the
-pure unit test dies with the helper. Rebuts the delegation argument on a
-literal reading: pi's constructor is invoked on the result of mergeThemeSection
-whose scrollbarThumb value comes from the loaded file, not council's helper;
-0.85.1's bundled dark.json/light.json carry `scrollbarThumb: "text"` as a
-non-undefined string, so the constructor's bg `?? selectedBg` fires only if the
-key is stripped — which needs its own council-side decision and test. CONDITIONAL
-ON EVIDENCE: "if owner and principal can demonstrate (via Skeptic-run gate 3 on
-0.85.1 lock + their exact diff) that the four failing tests go green, I will sign
-the optimistic label on that evidence. Without that evidence, the label is a
-forecast, and the card's acceptance clause demands evidence, not a forecast."
-Falsifiable predictions: (1) principal's exact deletion WITHOUT further changes
-still fails gate 3 at 0.85.1 (T7 thumb, 256-mode getBgAnsi throw); (2) a
-per-variant override pinning scrollbarThumb to selectedBg is what actually
-produces green on 0.85.1; (3) the optimistic label is true only with that
-override in place.
+(drop scrollbarThumb from BG_TOKEN_KEYS; keep searchMatch*/thinkingMax in the
+routing); the pure unit test dies with the helper. Rebuts the delegation
+argument on a literal reading: pi's constructor is invoked on the result of
+mergeThemeSection whose scrollbarThumb value comes from the loaded file, not
+council's helper; 0.85.1's bundled dark.json/light.json carry
+`scrollbarThumb: "text"` as a non-undefined string, so the constructor's bg
+`?? selectedBg` fires only if the key is stripped — which needs its own
+council-side decision and test. CONDITIONAL ON EVIDENCE: "if owner and
+principal can demonstrate (via Skeptic-run gate 3 on 0.85.1 lock + their exact
+diff) that the four failing tests go green, I will sign the optimistic label on
+that evidence. Without that evidence, the label is a forecast, and the card's
+acceptance clause demands evidence, not a forecast." Falsifiable predictions:
+(1) principal's exact deletion WITHOUT further changes still fails gate 3 at
+0.85.1 (T7 thumb, 256-mode getBgAnsi throw); (2) a per-variant override pinning
+scrollbarThumb to selectedBg is what actually produces green on 0.85.1;
+(3) the optimistic label is true only with that override in place.
 
-#### Round-3 convergence state (for step 5 consolidator)
+#### Round-3 convergence state (for step 5 consolidator) — actuals
 
-Settled across all three: deletion routing-only (drop scrollbarThumb from
-BG_TOKEN_KEYS 8→7 + drop the scrollbarThumb line from withThemeColorFallbacks);
-KEEP OPTIONAL_TOKENS/VALID_COLOR_KEYS (allowlist deletion = silent consumer
-deactivation); shipped theme files unchanged (no explicit scrollbar keys); the
-three band-stable equalities hold; tests must be regime-aware / construction-
-identity vs pi's loadThemeFromPath; no bound widening beyond the declared range;
-record must name the delta precisely. CONTESTED (2v1 + designer's conditional):
-lock position (owner+principal: regenerates to 0.85.1, gates prove the top,
-smoke 0.84.3 floor; designer: stays 0.84.3) and the recorded label
-("0.85.x-compatible as shipped" vs "incompatible as shipped; verified-to-
-0.84.3-only"). Designer's conditional makes the label contest EMPIRICAL — the
-Skeptic's step-4 gate-3 run on a 0.85.1 lock with the agreed deletion is the
-settling test it itself named.
+**Majority final (owner + principal): lock → 0.85.1 (regenerated bun.lock, devDependency string byte-unchanged), recorded label "0.85.x-compatible as shipped (deltas named)", deletion trim-only on the scrollbarThumb line (principal FINAL explicitly withdrew "delete helper entirely" as over-broad; owner FINAL still prefers full-helper deletion — a 2v1 on trim-only that remains a real sub-dispute for the consolidator), shipped theme files unchanged, tests regime-aware/construction-identity, allowlist kept.** Minority (designer): lock stays 0.84.3, "incompatible as shipped; verified-to-0.84.3-only", conditional on the empirical rewrite-green evidence — the settling test is the step-8/9 run on 0.85.1 with the deletion.
 
 ### Step 4 — Skeptic attack (job-18.13): BLOCKS (2 red, require the step-8 rewrite)
 
