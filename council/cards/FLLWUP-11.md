@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-11
 title: Smoke phase selector for the /council-models Phase 5 falsifier
-state: In Progress
+state: In Review
 owner: owner
 epic: EPIC-6
 goal: smoke/driver.sh accepts an environment-gated phase selector so the /council-models Phase 5 end-to-end smoke runs in isolation without phases 0 through 4 real-model dispatches, proven by running the driver with the selector set and observing only Phase 5 execute and report.
@@ -66,3 +66,34 @@ Card set In Progress on frontmatter and board; `validate.py` clean. Owner
 dispatched at the card (mechanical-path handoff: the card's Intent and
 goal) with the repo gate set, branch/PR conventions, and the environment
 facts (docker up, `OPENROUTER_API_KEY` set).
+
+### Step 8 — In Review (owner implemented, PR #27 open)
+Owner dispatched at the card (job-12.1), settled in 4.6m, report recorded:
+plan `docs/superpowers/plans/2026-09-05-FLLWUP-11-phase-selector.md`
+(committed); `smoke/driver.sh` restructured so Phase 0 and Phase 5 bodies
+are wrapped byte-verbatim into `phase0_prepare()` / `phase5_run()`, with an
+isolation branch ahead of phases 1–4 (function declarations precede the
+branch; bash defines at runtime); `smoke/run.sh` forwards `SMOKE_PHASE`;
+the R-1 fold-in moved H1/H2/H3 expectations to test-local EV-25 R-2/R-3
+ruled literals plus a new source-audit test byte-locking the module
+constants/function output to the ruling. Gates: `bun install
+--frozen-lockfile` exit 0 (bun.lock unchanged); `bunx tsc --noEmit` clean;
+`bun test` 539 pass / 2 skip / 0 fail (main measured 538/2/0 pre-+1);
+`python3 council/validate.py` clean; `bash -n` clean both scripts.
+Acceptance observed by the owner: `SMOKE_PHASE=5 bun run smoke` →
+FLLWUP-11 isolated banner, phase-0 setup (no `SMOKE PHASE 0 PASS`
+verdict), no phases 1–4 banners, all Phase 5 greps green, ending
+`SMOKE PASS — phase 5 (council-models) verified in isolation
+(SMOKE_PHASE=5)`, host exit 0 (artifacts `smoke/.artifacts/20260905-063114`
+in the worktree); FAIL path `SMOKE_PHASE=999` → `SMOKE FAIL: unsupported
+SMOKE_PHASE...`, exit 1 (artifacts `…063129`); no-selector full path
+byte-identical structure (diffed) with the final full-loop PASS line
+intact.
+
+Observed artifacts confirmed by the facilitator: PR #27 OPEN, branch
+`fllwup-11-phase-selector`, head `1b37acdf0a690b019e52b4f0e80d0859e9c03042`,
+base `main` (origin at `bbbeab4`); diff scope = plan, `smoke/driver.sh`,
+`smoke/run.sh`, `test/council-models.test.ts` + this card's own record
+commits riding through (established epic pattern); smoke artifacts
+`20260905-063114`/`063129` present in the worktree's `smoke/.artifacts/`.
+Set In Review per step 8's observed-artifact rule (branch + open PR).

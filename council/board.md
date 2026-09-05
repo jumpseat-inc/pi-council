@@ -27,9 +27,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- FLLWUP-11 — Smoke phase selector for the /council-models Phase 5 falsifier
-
 ## In Review
+
+- FLLWUP-11 — Smoke phase selector for the /council-models Phase 5 falsifier
 
 ## Needs Human
 
