@@ -20,10 +20,15 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-8 — council-leaderboard task drill-down filter
 - EPIC-5 — /council-models provider and model picker for per-seat .council.json overrides
 - EPIC-6 — /council-models model-name search filter in the model selection modal
+- FLLWUP-13 — No-match state names how to leave search mode
+- FLLWUP-14 — Kitty-protocol terminal smoke for the model search input
 
 ## Deliberating
 
 ## Ready
+
+- FLLWUP-12 — Backspace deletes one character in the model search input
+- FLLWUP-15 — Search-mode modal frame fits the terminal at full window height
 
 ## In Progress
 
