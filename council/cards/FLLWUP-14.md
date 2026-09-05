@@ -498,27 +498,3 @@ Both escalated packets ruled by `product-owner` (via the orchestrator, resumptio
 
 ### Step 7 — spec written, handed to owner (job-12.1)
 Spec saved to `docs/superpowers/specs/2026-09-05-FLLWUP-14-design.md` (full-council path). Contents: delivery shape (`smoke/search-smoke/` = `run.sh` + `driver.py` + `README.md`; same-artifact manual procedure; `SMOKE_PHASE=6`-only placement in `driver.sh` with additive-only guard change; host-level `bash smoke/search-smoke/run.sh` as the runner-gate-set additional gate), R-1 and R-2 folded in verbatim as binding requirements, driver behavior (pty 80×28, flag-1-only kitty capability reply so arrows stay legacy `\x1b[B`, byte table in bare CSI-u form, per-checkpoint snapshots, structural row assertions), nine frames byte-exact against `model-picker.ts` source-verified literals (header `council models — pick a model per seat`; search row `▌ / filter · esc clears`; hint `press / to filter models`; no-match `No models matching "zz".` + `↓ then esc exits search`; footers `↑/↓ move · enter open · esc back` / `↑/↓ move · enter select · esc back`; `No providers configured …` absent at frame 2), preflight chain (R-2 `node -e` → headless R-2 usage-line probe → TUI session), README mandatory statements (R-1 contract change; R-2 guard; objection-7 negotiation limitation; real-terminal split), and the settled testable-claims set (mutation probes, `é` falsifier, greppable no-extension-import, diff-touches-nothing under gates.yml/test/package.json, unset-key still reaches frame 2). Self-review: no placeholders, no scope beyond `smoke/`, single-design on each resolved point (SMOKE_PHASE value 6; Down = `\x1b[B` under flag-1 scope; frame-4 derived-set rule follows the live render). Spec committed. Handed to the sole owner; card → `In Progress`.
-
-### Step 8 — merge-gate red root-caused and fixed (host harness prune, exit 123)
-
-The step-11 merge gate (host run of `bash smoke/search-smoke/run.sh` after the runner's
-and the skeptic's `SMOKE_PHASE=6` container runs) exited **123 with no `SMOKE PASS` line**,
-contradicting the earlier gate evidence. Root cause (read in `smoke/search-smoke/run.sh`):
-the artifacts tree is bind-mounted into the Docker path, whose container runs as root, so a
-container run leaves **root-owned** run dirs (`smoke/.artifacts/search-smoke/20260905-120743`,
-`-121557`) that the host user cannot remove; under `set -euo pipefail` the final prune
-pipeline `ls -1dt … | tail -n +$((KEEP+1)) | xargs -r rm -rf` exits 123 the moment any `rm`
-fails, killing the script before the PASS echo. The frames were green — the defect was the
-gate's exit status, not the harness's frames.
-
-Fix (both host scripts, `smoke/search-smoke/run.sh` and `smoke/run.sh`): the prune is now
-best-effort housekeeping decoupled from the verdict — a tolerant loop prunes every entry it
-can, names every unremovable entry in a visible `prune:` warning on stderr (foreign-owned vs
-own-permission branches), and never inverts a green frame verdict; prune failures are never
-silent. Proven without root: an own `chmod 000` dir (with content) as the oldest prune
-candidate makes the old pipeline exit 123 and the fixed harness exit 0 with the warning
-visible. Re-gates (worktree): `bunx tsc --noEmit` exit 0; `bun test` exit 0 (555 pass/2
-skip/0 fail); `python3 council/validate.py` exit 0; `bash smoke/search-smoke/run.sh` exit 0 +
-`SMOKE PASS` with the root-owned dirs and the chmod-000 proof dir in place (warnings
-visible); `SMOKE_PHASE=6 bash smoke/run.sh` exit 0 + phase-6 PASS. Spec §8 claim 11 pins the
-new contract; README documents the tolerance.
