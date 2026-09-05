@@ -50,6 +50,15 @@ ok "bun found: $(bun --version)"
 [ -f bun.lock ] || [ -f package.json ] || fail "not a project root (no package.json/bun.lock)"
 ok "project files present"
 
+# ---- pi-coding-agent drift tripwire (FLLWUP-24) ----
+# The installed pi engine version must equal bun.lock's resolution before any
+# gate result is trusted. The frozen-lockfile install below silently re-syncs
+# a drifted tree (exit 0), so this fires FIRST, naming the drift and the
+# remedy. The artifact prints its own named FAIL and never writes to
+# node_modules; propagate its exit so the run halts before the self-heal
+# install.
+bash council/check-pi-drift.sh "$PWD" || exit 1
+
 if [ -f package.json ]; then
   bun install --frozen-lockfile >/dev/null 2>&1 || fail "bun install failed (deps not installed)"
   ok "dependencies installed"
