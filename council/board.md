@@ -30,10 +30,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- FLLWUP-13 — No-match state names how to leave search mode
-
-
 ## In Review
+
+- FLLWUP-13 — No-match state names how to leave search mode
 
 ## Needs Human
 
