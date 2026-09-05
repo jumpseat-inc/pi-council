@@ -153,3 +153,29 @@ merge which the facilitator executes and no seat performs, and forbids
 implying the merge has happened or that requiring it is the judge's job.
 No goal-text fix needed; no premise error. No verify cycle consumed
 (verify cycles used: 1 of ≤3).
+
+### Step 11 — deterministic merge check (features-deliver substitution)
+All five criteria met, read fresh against PR head
+`6f2d60ef08c11b2ba0a0ee9244661094cb5ad5ac`: (1) owner gates green in
+full (owner job-5.1 ran all four gates in the head worktree; Skeptic
+job-5.2 re-ran them at the head: frozen-lockfile install exit 0, `bunx
+tsc --noEmit` clean, `bun test` 549/2/0, `python3 council/validate.py`
+clean); (2) `gates` workflow SUCCESS on the PR head SHA — `gh pr checks
+32 --json name,state,workflow` →
+`[{"name":"gates","state":"SUCCESS","workflow":"gates"}]` asserted on
+the `workflow` field per the substitution, run 33958850849 completed
+success at headSha 6f2d60e (exact PR head, verified via `gh run list
+--branch fllwup-18-judge-dispatch-inputs`); (3) no blocking Skeptic
+objection (NO-BLOCK, 8/8 closed-green); (4) judge PASS (job-5.3); (5) no
+Needs Human / outstanding ruling (card In Review, zero escalations).
+Merged `gh pr merge 32 --squash --match-head-commit
+6f2d60e…` → PR #32 **MERGED** (mergedAt 2026-09-05T09:50:02Z), squash
+commit `21a95a8617f910eaf7a3d937fd045eec6696a719` on `main`. `gates`
+workflow re-ran on the merged SHA — run 33959042296 (observed via `gh run
+list --commit 21a95a8…`). Local `main` reconciled by clean ort merge
+adopting the squash (`2c5530f`) while keeping this card's record commits
+(1cd5fcd, 7e5eff4, 6834892, ff5a3f1) — the squash touches only the seat
+body, the plan, and `test/seats.test.ts`, no `council/` record overlap;
+merge exit 0, conflict-marker sweep empty (the one `<<<<<<<` grep hit is
+pre-existing record text in `council/cards/FLLWUP-9.md`), `python3
+council/validate.py` clean after the merge.
