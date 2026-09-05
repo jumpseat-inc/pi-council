@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-16
 title: Seat dispatch inputs forbid main-repo branch-state mutation
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-6
 goal: Working seats dispatched by council-runner receive dispatch inputs that forbid git checkout, git switch, and git reset against the main repository path and require any branch state change to happen in a dedicated worktree, proven by a driven test asserting the constraint is present in the packaged council-runner seat's dispatch discipline plus a documented reflog recovery drill executable against a simulated board reversion.
@@ -82,3 +82,70 @@ commit), the worktree-only binding (never `git checkout`/`switch`/`reset`
 in the main repo path), base-on-`origin/main` (the local `main` carries
 unpushed council record commits that must not appear in the PR diff), and
 branch/PR conventions named.
+
+### Recovery drill — reflog recovery from a main-repo branch-state reversion (Acceptance 2)
+
+Documented from this run's real FLLWUP-13 incident (recovered at commit
+`85dd8c4`, record above): a seat ran `git checkout <sha>` inside the main
+repo, moving main's HEAD off the runner's record commits and reverting the
+board/card faces to a pre-run state. The drill below is the bounded recover
+this card exists to make routine; it is executable against a simulated
+board reversion in a scratch clone (never against this repo's live main):
+
+1. **Detect** the failure class — any of: `python3 council/validate.py`
+   fails or reports a stale board (a board line missing, a card face
+   reverted); `git log --oneline -1` in the main repo is not the runner's
+   last record commit; `git status` shows the working tree at a foreign
+   commit.
+2. **Check for invalidation first**: in the FLLWUP-13 class, the Skeptic
+   and Judge verify the PR head SHA directly, so a local-main HEAD move
+   does not invalidate a PR-head verification — re-read the last-written
+   record line and the pending verification's subject SHA before
+   concluding anything was lost.
+3. **Restore from the reflog** (the recovery is the sanctioned exception
+   to the immutability constraint — it restores the very state the
+   constraint protects; it is never a normal operation): `git reflog`
+   (or `git reflog show main`) to locate the runner's last record commit
+   — FLLWUP-13's actual recovery was `git checkout main`, which landed
+   back on `f6f8e32` because main's reflog recorded the detour;
+   equivalently restore directly to the record SHA (`git checkout
+   <record-sha>` or `git reset --hard <record-sha>` on the recovered
+   repo), then confirm `git status` clean and the record trail intact
+   (`git log --oneline -5`).
+4. **Verify**: `python3 council/validate.py` prints clean; re-read the
+   card face and board and confirm the last-written record is intact;
+   then continue the run from the recovered state. No verdict is
+   invalidated by the recovery itself — only a verification that
+   actually read the moved HEAD would be, and in this failure class it
+   never does.
+
+### Step 8 — In Review (owner implemented, PR #30 open)
+Owner dispatched (job-3.1) at the card, settled in 1.5m. Delivery per its
+report and confirmed observed artifacts: plan
+`docs/superpowers/plans/2026-09-06-FLLWUP-16-main-repo-immutability.md`
+(committed a925bfd, first); a `<main_repo_immutability>` block inserted in
+`council/agents/council-runner.md` between `</dispatch_discipline>` and
+`<return_contract>` — the main repository path's branch state is immutable
+to the runner and every seat it dispatches; `git checkout`, `git switch`,
+and `git reset` against the main repository path are forbidden (violation =
+`HALT`); any branch state change happens in a dedicated worktree created
+with `git worktree add`, and the runner must repeat the constraint in every
+dispatch input it composes; driven payload test
+`council-runner dispatch guidance forbids main-repo branch-state mutation
+(FLLWUP-16)` asserting all five phrases (`main repository path`, `git
+checkout`, `git switch`, `git reset`, `dedicated worktree`) on
+`loadSeat(tmpRepo(), "council-runner").body`. RED→GREEN proven by the owner:
+RED against the unmodified seat (missing `main repository path`), and the
+assertion caught a real defect in the first GREEN attempt (`dedicated
+worktree` split across a line wrap — fixed, then GREEN). No `extensions/`
+change; no model-picker surface touched. Owner gates green in order in the
+worktree: `bun install --frozen-lockfile` exit 0; `bunx tsc --noEmit`
+clean; `bun test` 545 pass / 2 skip / 0 fail; `python3 council/validate.py`
+clean. Facilitator-observed: PR #30 OPEN, branch
+`fllwup-16-main-repo-immutability`, head
+`dacf6be422346a868538b987ffe6e211652d4fcb`, base `main`; diff scope exactly
+the plan + `council/agents/council-runner.md` + `test/seats.test.ts`
+(`gh pr view 30`, `gh pr diff 30 --name-only`); worktree
+`.worktrees/fllwup-16-main-repo-immutability` verified at the head; the
+worktree's own seat test file: `bun test test/seats.test.ts` 33 pass / 0
+fail. Set In Review per step 8's observed-artifact rule (branch + open PR).
