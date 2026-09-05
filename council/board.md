@@ -26,9 +26,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Ready
 
-- FLLWUP-15 — Search-mode modal frame fits the terminal at full window height
-
 ## In Progress
+
+- FLLWUP-15 — Search-mode modal frame fits the terminal at full window height
 
 ## In Review
 
