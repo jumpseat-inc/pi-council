@@ -14,7 +14,9 @@ import {
 	NO_MATCH,
 	SEARCH_ROW_EMPTY,
 	echoFor,
+	filterModelRows,
 	footerFor,
+	rowsForProvider,
 	seatMarker,
 	type SeatModelSelection,
 } from "../extensions/model-picker.ts";
@@ -522,16 +524,16 @@ test("EV-27 6: render cache — claude vs claud (equal filtered set, cursor, win
 	expect(strip(second[1])).toBe("▌ claude");
 });
 
-test("EV-27 7: backspace bytes are guard-only no-ops — \x7f and \x1b[127u leave query unchanged", () => {
+test("EV-27 7: backspace deletes — bare \x7f and kitty \x1b[127u both drop one char (BUG-1)", () => {
 	const { p } = picker(CATALOGUE);
 	p.handleInput(ENTER);
 	p.handleInput(ENTER);
 	p.handleInput("/");
 	for (const ch of "claude") p.handleInput(ch);
 	p.handleInput("\x7f");
-	expect(strip(p.render(80)[1])).toBe("▌ claude");
-	p.handleInput("\x1b[127u");
-	expect(strip(p.render(80)[1])).toBe("▌ claude");
+	expect(strip(p.render(80)[1])).toBe("▌ claud");
+	p.handleInput("\x1b[127u"); // kitty DEL — the same key in kitty encoding
+	expect(strip(p.render(80)[1])).toBe("▌ clau");
 });
 
 test("EV-27 10: modelIndex re-clamps after every keystroke; shrink-then-Enter emits the survivor; empty-set Enter no-ops", () => {
@@ -697,4 +699,62 @@ test("8.13 truncation: narrowed rows still end in :<level>; level never clipped"
 	// and the long ds row actually truncated at width 30
 	expect(rows[0].length).toBeLessThan("openrouter/deepseek/deepseek-v4-pro-0813:off".length);
 	expect(rows[0].length).toBeLessThanOrEqual(30);
+});
+
+test("BUG-1 1: \x7f with a non-empty query and focus in the input deletes exactly one trailing char; the filtered list recomputes through filterModelRows; focus stays", () => {
+	const { p } = picker(CATALOGUE);
+	p.handleInput(ENTER); // provider
+	p.handleInput(ENTER); // model
+	p.handleInput("/");
+	for (const ch of "claude") p.handleInput(ch);
+	expect(strip(p.render(80)[1])).toBe("▌ claude");
+	// one backspace → "claud"
+	p.handleInput("\x7f");
+	const lines = p.render(80).map(strip);
+	expect(lines[1]).toBe("▌ claud");
+	// the filtered list recomputed through the filterModelRows seam — the rendered
+	// row list equals a direct filterModelRows call for the post-backspace query
+	const expected = filterModelRows(rowsForProvider(CATALOGUE.providers[0]), "claud").map(
+		(r) => r.model.qualifiedId + (r.level === undefined ? "" : `:${r.level}`),
+	);
+	const rendered = lines
+		.filter((l) => l.startsWith("> ") || l.startsWith("  "))
+		.map((l) => l.slice(2));
+	expect(rendered).toEqual(expected);
+	expect(lines[lines.length - 1]).toBe(FOOTER_MODEL);
+	// focus stayed in the input: the next printable appends to the query
+	p.handleInput("e"); // → "claude"
+	expect(strip(p.render(80)[1])).toBe("▌ claude");
+	// and Esc still means clear-and-stay (focused), never ascend
+	p.handleInput(ESC);
+	expect(strip(p.render(80)[1])).toBe(SEARCH_ROW_EMPTY);
+});
+
+test("BUG-1 3: \x7f on an empty query and \x7f while unfocused stay no-ops; other control bytes keep their behavior", () => {
+	// empty query: backspace does nothing; search mode (and the empty hint) stays
+	const empty = picker(CATALOGUE);
+	empty.p.handleInput(ENTER);
+	empty.p.handleInput(ENTER);
+	empty.p.handleInput("/");
+	empty.p.handleInput("\x7f");
+	expect(strip(empty.p.render(80)[1])).toBe(SEARCH_ROW_EMPTY);
+	// unfocused: Down takes focus out; backspace must not enter the input or touch the query
+	const unfocused = picker(CATALOGUE);
+	unfocused.p.handleInput(ENTER);
+	unfocused.p.handleInput(ENTER);
+	unfocused.p.handleInput("/");
+	for (const ch of "claude") unfocused.p.handleInput(ch);
+	unfocused.p.handleInput(DOWN); // cursor → row 1, focus out
+	unfocused.p.handleInput("\x7f");
+	let lines = unfocused.p.render(80).map(strip);
+	expect(lines[1]).toBe("▌ claude"); // query untouched
+	expect(lines[2]).toBe("  openrouter/alias/claude-sonnet:off"); // cursor still on row 1
+	// the forward Delete key (\x1b[3~) is NOT backspace — stays a no-op
+	unfocused.p.handleInput("\x1b[3~");
+	lines = unfocused.p.render(80).map(strip);
+	expect(lines[1]).toBe("▌ claude");
+	// and per BUG-1 1's focus proof: an Esc while unfocused ascends (unchanged) —
+	// backspace never granted focus
+	unfocused.p.handleInput(ESC);
+	expect(strip(unfocused.p.render(80)[1]).startsWith("> OpenRouter")).toBe(true);
 });

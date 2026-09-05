@@ -289,8 +289,20 @@ export class ModelPicker implements Component {
 
 		// EV-27 search-mode interception: only at the model level with search open.
 		if (this.level === 2 && this.searchActive) {
-			// Backspace is a guard-only no-op — Esc-clear is the sole deletion.
-			if (matchesKey(data, Key.backspace)) return;
+			// BUG-1: backspace deletes one trailing query char when the input is
+			// focused on a non-empty query; no-op on an empty query or focus-out.
+			// Guarded BEFORE decodePrintable — kitty DEL (`\x1b[127u`) decodes to
+			// "\x7f" — and matchesKey covers `\x7f`, `\x08` (non-Windows), kitty
+			// `\x1b[127u`, and the modify-other-keys form of 127. Focus is kept
+			// (inputFocused untouched); Esc-clear stays the clear-all path.
+			if (matchesKey(data, Key.backspace)) {
+				if (this.inputFocused && this.query !== "") {
+					this.query = this.query.slice(0, -1);
+					this.modelIndex = clamp(this.modelIndex, 0, this.currentRows().length - 1);
+					this.cached = undefined;
+				}
+				return;
+			}
 			if (matchesKey(data, Key.escape)) {
 				if (this.inputFocused) {
 					// Esc-clear: empty the query, keep focus and search mode.
