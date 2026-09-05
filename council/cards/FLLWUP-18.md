@@ -135,3 +135,21 @@ files; P6 frontmatter byte-identical to `origin/main`; P7 placement —
 P8 six phrases contiguous verbatim in the body (closed by P1).
 **Verdict: NO-BLOCK, 8/8 closed-green, no open objection.** Verify cycles
 used: 1 of ≤3.
+
+### Step 10 — judge PASS
+Judge dispatched with the card's `goal` and the Skeptic's step-9 evidence
+only (job-5.3), settled in 0.3m. This dispatch was the first live
+demonstration of the guidance this card ships: the input named the
+exact verification subject (PR head SHA `6f2d60e` and the head worktree
+path `.worktrees/fllwup-18-judge-dispatch-inputs`) and the loop frame
+(step 10 judging precedes step 11's mechanical merge, facilitator-
+executed, no seat performs; the merge is not a PASS precondition).
+Verdict **PASS**: re-ran the decisive tests at the head worktree — `bun
+test test/seats.test.ts -t "FLLWUP-18"` → 1 pass / 6 expect()s; the
+`<judge_dispatch_subject>` block (lines 270–281 of
+`council/agents/council-runner.md`) names the PR head SHA + head worktree
+path as the subject, states step 10 judging precedes step 11's mechanical
+merge which the facilitator executes and no seat performs, and forbids
+implying the merge has happened or that requiring it is the judge's job.
+No goal-text fix needed; no premise error. No verify cycle consumed
+(verify cycles used: 1 of ≤3).
