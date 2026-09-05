@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-22
 title: Theme token drift vs pi 0.85.x grounds the devDependency upper bound
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-6
 goal: The scrollbar theme token drift between pi 0.84.x and 0.85.x is characterized by driven tests that are green on the version range the repo declares supported, and the run record states whether council themes are 0.85.x-compatible with the specific token deltas named, grounding the devDependency upper bound in evidence rather than an untested bound.
@@ -408,3 +408,55 @@ side). No Needs Human; no product-owner dispatch warranted at this point. The
 card proceeds to step 7 with the deliberation's majority design as the spec,
 and the designer's named settling test is written into the spec's verification
 requirements.
+
+### Step 7 — spec written, handed to owner
+
+Spec saved to `docs/superpowers/specs/2026-09-05-FLLWUP-22-design.md` (full
+council path; commit ab2ac30). Contents: settled context (drift is real/narrow/
+fully characterized; one type-level break FLLWUP-21 missed; council never draws
+the scrollbar; shipped themes are 0.85.x-clean as shipped; the breakage is
+test-contract over-pinning; allowlist = consumer recolor contract, MUST be kept;
+three optional-token equalities band-stable), the recorded-decision MECHANISM
+(not a pre-decided label — the step-8/9 evidence picks the side: optimistic
+"0.85.x-compatible as shipped (deltas named)" + lock 0.85.1 + supersede
+FLLWUP-21 R-2(b)(i) if green on both extremes, else pessimistic default), the
+four deliverables (routing-only deletion; regime-aware test rewrite; lock
+regen to 0.85.1; empirical record), the 8-item test corpus, binding exclusions,
+the four-gate set, worktree/PR conventions. Self-review: no placeholders, no
+scope beyond the card goal, single design per resolved point (decision
+mechanism stated as two explicit branches). Card set In Progress (frontmatter +
+board, commit ab2ac30); validate clean; owner dispatched.
+
+### Step 8 — owner delivered (job-18.15), PR #38 open
+
+Owner implemented in worktree `.worktrees/fllwup-22-scrollbar-token-drift`
+(branch `feat/fllwup-22-scrollbar-token-drift` from origin/main a2bf137),
+pushed, PR #38 open (observed: state OPEN, headRefOid `70139f60`, base main;
+diff scope exactly bun.lock, the plan doc, the spec, extensions/seats.ts,
+extensions/theme-activation.ts, test/theme.test.ts,
+test/theme-activation.test.ts — package.json byte-untouched, smoke/untouched,
+no seats/procedures, no env-split fixtures, no themes). Deliverables:
+`docs/superpowers/plans/2026-09-05-FLLWUP-22-plan.md` (committed first —
+empirical record per spec §7), routing-only deletion (`BG_TOKEN_KEYS` 8→7,
+`?? selectedBg` line dropped from `withThemeColorFallbacks`, three band-stable
+lines kept), regime-aware/construction-identity rewrite (version-parameterized
+T5, band-stable T6 equality, provenance-only T7 + band-stable three, new
+drift-characterization test, trim-only unit tests, reference-oracle 256-identity
+with `as never`), `scrollbarTrack` added to `OPTIONAL_TOKENS` (recorded
+discretion — allowlist is the consumer recolor contract), `bun.lock`
+regenerated to in-range top 0.85.1, package.json constraint byte-exact
+untouched. TDD: red baseline first (old corpus 4 fail + 3 new-assertion fails
+on old engine), then green. Owner gates green at head `70139f6` on locked
+0.85.1: (1) `bun install --frozen-lockfile` exit 0 (224 installs, no changes);
+(2) `bunx tsc --noEmit` exit 0 (3 TS2345 cleared); (3) `bun test` 560 pass /
+2 skip (network-gated) / 0 fail; (4) `python3 council/validate.py` clean.
+Recorded 0.84.3 floor (scratch `/tmp/fllwup22-floor-0843`, branch overlaid):
+tsc exit 0, `bun test` 560/2/0 — identical counts at both extremes.
+Recorded decision: the evidence sustains the optimistic side —
+"0.85.x-compatible as shipped (deltas named)"; bound means both extremes
+gate-verified; FLLWUP-21 R-2(b)(i) superseded. Deltas named: scrollbarThumb
+bg`??selectedBg`→fg`??text`; scrollbarTrack added (fg, `??muted`); bgColorKeys
+8→7; resolved count 55→56; theme-json.js+schema; 0.85.0≡0.85.1 byte-identical.
+In Review set (sole condition: open PR, observed). Skeptic at the branch next —
+the 0.85.1 lock move, the trim-vs-full-deletion sub-dispute, the scrollbarTrack
+allowlist addition, and the regime-aware corpus are its prime attack surface.

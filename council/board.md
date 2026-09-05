@@ -29,9 +29,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- FLLWUP-22 — Theme token drift vs pi 0.85.x grounds the devDependency upper bound
-
 ## In Review
+
+- FLLWUP-22 — Theme token drift vs pi 0.85.x grounds the devDependency upper bound
 
 ## Needs Human
 
