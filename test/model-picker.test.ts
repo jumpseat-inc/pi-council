@@ -449,6 +449,107 @@ test("EV-27 3: search row renders between header and first data row; empty byte-
 });
 
 // ---- §8.13 truncation never drops the thinking decision ----
+test("EV-27 2: typing claude narrows the rows to qualifiedId substring matches (case-insensitive)", () => {
+	const { p } = picker(CATALOGUE);
+	p.handleInput(ENTER);
+	p.handleInput(ENTER);
+	p.handleInput("/");
+	for (const ch of "claude") p.handleInput(ch);
+	const rows = p
+		.render(80)
+		.map(strip)
+		.filter((l) => l.startsWith("> ") || l.startsWith("  "))
+		.map((l) => l.slice(2));
+	expect(rows).toEqual(["openrouter/alias/claude-sonnet:off", "openrouter/alias/claude-sonnet:high"]);
+
+	const q = picker(CATALOGUE);
+	q.p.handleInput(ENTER);
+	q.p.handleInput(ENTER);
+	q.p.handleInput("/");
+	for (const ch of "CLAUDE") q.p.handleInput(ch); // uppercase — case-insensitive
+	const qRows = q.p
+		.render(80)
+		.map(strip)
+		.filter((l) => l.startsWith("> ") || l.startsWith("  "))
+		.map((l) => l.slice(2));
+	expect(qRows).toEqual(["openrouter/alias/claude-sonnet:off", "openrouter/alias/claude-sonnet:high"]);
+});
+
+test("EV-27 4: FOOTER_MODEL is the last line at every keystroke incl. no-match", () => {
+	const { p } = picker(CATALOGUE);
+	p.handleInput(ENTER);
+	p.handleInput(ENTER);
+	for (const k of ["/", "c", "l", "a", "u", "d", "e", "z", "z"]) {
+		p.handleInput(k);
+		const lines = p.render(80).map(strip);
+		expect(lines[lines.length - 1]).toBe(FOOTER_MODEL);
+	}
+});
+
+test("EV-27 5: `/` inside the input appends as a literal — anthropic/claude typeable", () => {
+	const { p } = picker(CATALOGUE);
+	p.handleInput(ENTER);
+	p.handleInput(ENTER);
+	p.handleInput("/");
+	for (const ch of "anthropic/claude") p.handleInput(ch);
+	const lines = p.render(80).map(strip);
+	expect(lines[1]).toBe("▌ anthropic/claude");
+	expect(lines[lines.length - 1]).toBe(FOOTER_MODEL);
+	expect(lines.join("\n")).not.toContain(SEARCH_ROW_EMPTY); // still search mode, hint gone
+});
+
+test("EV-27 6: render cache — claude vs claud (equal filtered set, cursor, window) differ", () => {
+	const { p } = picker(CATALOGUE);
+	p.handleInput(ENTER);
+	p.handleInput(ENTER);
+	p.handleInput("/");
+	for (const ch of "claud") p.handleInput(ch);
+	const first = p.render(80);
+	p.handleInput("e");
+	const second = p.render(80);
+	expect(second).not.toEqual(first);
+	expect(strip(second[1])).toBe("▌ claude");
+});
+
+test("EV-27 7: backspace bytes are guard-only no-ops — \x7f and \x1b[127u leave query unchanged", () => {
+	const { p } = picker(CATALOGUE);
+	p.handleInput(ENTER);
+	p.handleInput(ENTER);
+	p.handleInput("/");
+	for (const ch of "claude") p.handleInput(ch);
+	p.handleInput("\x7f");
+	expect(strip(p.render(80)[1])).toBe("▌ claude");
+	p.handleInput("\x1b[127u");
+	expect(strip(p.render(80)[1])).toBe("▌ claude");
+});
+
+test("EV-27 10: modelIndex re-clamps after every keystroke; shrink-then-Enter emits the survivor; empty-set Enter no-ops", () => {
+	const { p, confirmed } = picker(CATALOGUE);
+	p.handleInput(ENTER);
+	p.handleInput(ENTER);
+	p.handleInput("/");
+	p.handleInput("a"); // 3 rows: alpha:off, alias:off, alias:high
+	p.handleInput(DOWN);
+	p.handleInput(DOWN); // index 2
+	p.handleInput("l"); // still 3 rows
+	p.handleInput("i"); // "ali" → 2 rows; index clamps to 1
+	p.handleInput(ENTER); // picks alias:high — no throw
+	const sel = p.resolveSelection();
+	expect(sel).toEqual({ seat: "owner", model: "openrouter/alias/claude-sonnet", thinking: "high" });
+	p.handleInput(ENTER);
+	expect(confirmed).toEqual([sel]);
+
+	const q = picker(CATALOGUE);
+	q.p.handleInput(ENTER);
+	q.p.handleInput(ENTER);
+	q.p.handleInput("/");
+	for (const ch of "zz") q.p.handleInput(ch); // 0 rows
+	q.p.handleInput(ENTER); // consumed no-op, no throw
+	const lines = q.p.render(80).map(strip);
+	expect(lines[1]).toBe("▌ zz");
+	expect(lines[lines.length - 1]).toBe(FOOTER_MODEL);
+});
+
 test("8.13 truncation: narrowed rows still end in :<level>; level never clipped", () => {
 	const { p } = picker(CATALOGUE);
 	p.handleInput(ENTER); // provider

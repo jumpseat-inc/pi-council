@@ -279,6 +279,20 @@ export class ModelPicker implements Component {
 			return;
 		}
 
+		// EV-27 search-mode interception: only at the model level with search open.
+		if (this.level === 2 && this.searchActive) {
+			// Backspace is a guard-only no-op — Esc-clear is the sole deletion.
+			if (matchesKey(data, Key.backspace)) return;
+			const printable = decodePrintable(data);
+			if (printable !== undefined) {
+				this.query += printable;
+				this.inputFocused = true;
+				this.modelIndex = clamp(this.modelIndex, 0, this.currentRows().length - 1);
+				this.cached = undefined;
+				return;
+			}
+		}
+
 		if (matchesKey(data, Key.up)) {
 			if (this.level === 0) this.seatIndex = clamp(this.seatIndex - 1, 0, this.catalogue.seats.length - 1);
 			else if (this.level === 1) this.providerIndex = clamp(this.providerIndex - 1, 0, this.catalogue.providers.length - 1);
