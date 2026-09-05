@@ -603,6 +603,26 @@ real output:
 
 No open objections; no fix loop required. Step 10 (judge) next.
 
+### Step 10 — judge PASS (job-17.3)
+
+Judge dispatched with exactly the card's `goal` (verbatim) + the step-9
+Skeptic evidence, subject pinned (head `7f8bd6dd`, head worktree
+`.worktrees/fllwup-21-env-split-contract`), loop frame stated (step 10
+precedes step 11's mechanical merge, facilitator-executed). Verdict
+**PASS**, all five goal conjuncts mapped to Skeptic evidence: (1) clean
+scratch HOME registers all 14 parent commands (M1 pole A); (2)
+`COUNCIL_SEAT` set registers zero (M1 pole B + M3 bounded exit, no
+usage); (3) driven verification through the installed pi binary (driver
+via devDependency `discoverAndLoadExtensions`; M2/M3 via real
+`dist/cli.js`; 4 tests, 10 expects); (4) root cause documented on the
+run record with evidence (plan doc: env split `extensions/index.ts:117-
+121`, zero-commands → model-dispatch fallthrough, FLLWUP-14 probe
+contamination, loader-drift analysis — all cited); (5) devDependency
+changed to `">=0.84.3 <0.86.0"` with regenerated bun.lock (frozen-
+lockfile green; resolves 0.84.3). Gates re-confirmed; diff scope exactly
+5 files. No REJECT basis raised. Step 11 (deterministic merge check)
+next.
+
 ### Step 6 — route what does not close (product-owner rulings returned, applied)
 
 Both step-5 open-judgment items were escalated per the
