@@ -107,6 +107,19 @@ test("council-runner skeptic-dispatch guidance pins the verification subject and
 	expect(runner.body).toContain("no seat performs");
 });
 
+test("judge seat when-invoked guidance pins the verification subject and loop frame (FLLWUP-20)", () => {
+	const judge = loadSeat(tmpRepo(), "judge");
+	expect(judge.body).toContain("verification subject");
+	expect(judge.body).toContain("loop frame");
+	expect(judge.body).toContain("PR head SHA");
+	expect(judge.body).toContain("head worktree path");
+	expect(judge.body).toContain("step 10 judging");
+	expect(judge.body).toContain("step 11");
+	expect(judge.body).toContain("mechanical merge");
+	expect(judge.body).toContain("facilitator executes");
+	expect(judge.body).toContain("no seat performs");
+});
+
 test("owner seat guidance forbids main-repo branch-state mutation (FLLWUP-17)", () => {
 	const owner = loadSeat(tmpRepo(), "owner");
 	expect(owner.body).toContain("main repository path");
