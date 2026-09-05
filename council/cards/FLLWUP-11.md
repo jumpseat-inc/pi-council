@@ -97,3 +97,29 @@ base `main` (origin at `bbbeab4`); diff scope = plan, `smoke/driver.sh`,
 commits riding through (established epic pattern); smoke artifacts
 `20260905-063114`/`063129` present in the worktree's `smoke/.artifacts/`.
 Set In Review per step 8's observed-artifact rule (branch + open PR).
+
+### Step 9 — verified (cycle 1 of ≤3)
+Skeptic dispatched at PR #27 head `1b37acd` (job-12.2), settled in 6.7m.
+All four gates plus `bash -n` re-run green at the head: `bun install
+--frozen-lockfile` exit 0 no lockfile diff; `bunx tsc --noEmit` clean;
+`bun test` 537 pass / 2 skip / 0 fail (54 files; the owner's 539 vs 537
+discrepancy is bun's counting of fixture-discovered tests — same suite,
+green either way); `python3 council/validate.py` clean.
+Independent acceptance probes, all run fresh (not from the owner's
+artifacts): `SMOKE_PHASE=5 bash smoke/run.sh` via docker → isolation
+banner, phase-0 prep (no verdict), NO phases 1–4 banners, all Phase 5
+greps green, final `SMOKE PASS — phase 5 (council-models) verified in
+isolation (SMOKE_PHASE=5)`, host exit 0; `SMOKE_PHASE=999` → `SMOKE
+FAIL: unsupported SMOKE_PHASE='999'`, exit 1; `git diff` of the driver
+confirms phase 1–4 statements byte-identical to base and the full-loop
+PASS line preserved; grep probe confirms H1/H2/H3 assert `RULED_*`
+literals never module exports; drift injection in a scratch copy (both
+`RULED_*`-literal drift and module-constant drift) turns H1/H2 and the
+source-audit test red — the settlement tripwire works in both
+directions. 11 objections filed, **all `closed-green`**; O11: the
+isolation path does run phase-0's `/council-init` (a short deterministic
+real-session scaffold — required because the fixture ships no
+`validate.py`), observed and judged closed-green against the card's
+record (the Intent's binding property is bounded-window feasibility —
+phases 1–4 never run under the selector; the whole isolation run settles
+in minutes). **Verdict: NO-BLOCK, no open objection.**
