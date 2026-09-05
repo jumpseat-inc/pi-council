@@ -32,14 +32,13 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- FLLWUP-20 — Judge seat guidance names the runner-pinned verification subject
-
 ## Needs Human
 
 ## Done
 
 - FLLWUP-18 — Judge dispatch inputs pin the verification subject and loop frame
 - FLLWUP-19 — Skeptic dispatch inputs pin the verification subject and loop frame
+- FLLWUP-20 — Judge seat guidance names the runner-pinned verification subject
 
 ## Done
 

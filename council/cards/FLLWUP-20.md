@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-20
 title: Judge seat guidance names the runner-pinned verification subject
-state: In Review
+state: Done
 owner: null
 epic: EPIC-6
 goal: The judge seat body's when-invoked guidance describes the input it receives as including the verification subject and loop frame that council-runner pins in every judge dispatch input, proven by a driven payload test asserting the wording on the packaged judge seat body.
@@ -149,3 +149,31 @@ verification subject and loop frame as runner-pinned input elements,
 council-runner.md/owner.md byte-identical to `origin/main`, diff scope
 exactly the three files (+171/−0). No goal-text fix needed; no premise
 error. Verify cycles used: 1 of ≤3.
+
+### Step 11 — deterministic merge check (features-deliver substitution)
+
+All five criteria met, read fresh against PR head
+`d7bb7084dc8e0c2ab50a6b45b589c49f57f8d799`: (1) owner gates green in
+full (owner job-7.1 ran all four gates in the head worktree; skeptic
+job-7.2 re-ran them at the head: `bun install --frozen-lockfile` 224
+packages no changes, `bunx tsc --noEmit` clean, `bun test` 551/2/0,
+`python3 council/validate.py` clean); (2) `gates` workflow SUCCESS on
+the PR head SHA — `gh pr checks 34 --json name,state,workflow` →
+`[{"name":"gates","state":"SUCCESS","workflow":"gates"}]` asserted
+on the `workflow` field per the substitution; (3) no blocking Skeptic
+objection (NO-BLOCK, 12/12 closed-green); (4) judge PASS (job-7.3);
+(5) no Needs Human / outstanding ruling (card In Review, zero
+escalations). Merged `gh pr merge 34 --squash --match-head-commit
+d7bb7084…` → PR #34 **MERGED** (mergedAt 2026-09-05T10:11:12Z), squash
+commit `48f60cc4c1117f36e911ce3ec564dfd773c0dd60` on `main`.
+
+### Step 12 — Done
+
+`gates` workflow on the merged SHA `48f60cc4` (run 33959968323,
+observed via `gh run list --commit 48f60cc4…`, workflowName gates)
+completed success. Board and card set Done; `validate.py` clean;
+reconciliation below (fetch, merge `origin/main` adopting the squash
+`48f60cc4` while keeping this card's record commits
+54d1048/7e7c73d/62c65ef/0c1068e — the squash touches only the judge
+body, the plan, and `test/seats.test.ts`, no `council/` record overlap),
+committed and pushed.
