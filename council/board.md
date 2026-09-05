@@ -31,12 +31,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- FLLWUP-23 — Named failure for pi-council installs missing node_modules
-
 ## Needs Human
 
 ## Done
 
+- FLLWUP-23 — Named failure for pi-council installs missing node_modules
 - FLLWUP-22 — Theme token drift vs pi 0.85.x grounds the devDependency upper bound
 - FLLWUP-21 — Restore pi-council extension load on stock pi 0.85.0 and pin the devDependency
 

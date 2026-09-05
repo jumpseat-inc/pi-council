@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-23
 title: Named failure for pi-council installs missing node_modules
-state: In Review
+state: Done
 owner: null
 epic: EPIC-6
 goal: Installing the pi-council package without its node_modules dependencies produces a named diagnostic at extension load instead of a silent zero-command state, proven by a driven test that loads the extension from a dependency-less install and asserts the diagnostic names the missing module and the remedy.
@@ -841,3 +841,34 @@ the remedy — assertions on `/(bun install|npm install)/` and
 `/directory containing package\.json/`, CLI surface carries restart +
 "Do NOT use 'pi -ne'". No REJECT basis; no goal-text defect. Verify
 cycles used: 1 of ≤3.
+
+### Step 11 — deterministic merge check, merged
+
+Five criteria executed mechanically at PR head `19f0c140…`: (1) owner
+gates green in full (owner job-19.10 ran all four in the head worktree on
+the lock-synced 0.85.1 tree — frozen-lockfile exit 0 "224 installs no
+changes", tsc clean, `bun test` 564/2/0, validate clean — and Skeptic
+job-19.11 re-ran all four at the head with identical results, plus the
+guard-removal mutation probe); (2) `gates` workflow SUCCESS on the PR
+head SHA — `gh pr checks 39 --json name,state,workflow` →
+`[{"name":"gates","state":"SUCCESS","workflow":"gates"}]` asserted
+on the `workflow` field, run 33979306285 completed success at headSha
+19f0c140… (exact PR head verified); (3) no blocking Skeptic objection —
+NO-BLOCK, all 8 closed-green; (4) judge PASS (job-19.13); (5) no Needs
+Human / outstanding ruling (card In Review, zero escalations). Merged
+`gh pr merge 39 --squash --match-head-commit 19f0c140…` → PR #39
+**MERGED** (mergedAt 2026-09-05T17:03:33Z), squash commit **2dd698ff**
+on main.
+
+### Step 12 — Done
+
+`gates` workflow on the merged SHA `2dd698ff` (run 33979762559, observed
+via `gh run list --commit 2dd698ff…`, workflowName gates) completed
+success. Local `main` rebased onto `origin/main` (11 record commits
+replayed cleanly — the spec file is byte-identical on both sides, sha256
+08446ed4, no other path overlaps the squash); `validate.py` clean; board
+and card set Done; reconciliation committed and pushed (origin/main ==
+main at the reconciliation commit). Card closes with no open-untested
+residual — the verify cycle ran once (NO-BLOCK at cycle 1), within the
+≤3 cap. The one step-10 judge dispatch glitch (no text output, job-19.12)
+was re-dispatched once per dispatch discipline and settled as job-19.13.
