@@ -512,6 +512,27 @@ objections remain to clear first.
   `python3 council/validate.py`), and the kitty smoke harness still passes
   against its pinned 0.84.3 (unchanged contract).
 
+### Step 6 — route what does not close (product-owner rulings returned, applied)
+
+Both step-5 open-judgment items were escalated per the
+`<escalation_contract>`; `product-owner` ruled on them (no steward
+escalation — neither ruling changes the portfolio, reverses a recorded
+human decision, or implicates the card's `goal` as a defect). The rulings
+are appended verbatim below as the card's Phase 1 ruling record and are
+binding on every seat, `steward` included. R-1's amendment is applied
+above: the `goal` frontmatter line and the `## Acceptance` section are
+replaced in full with the byte-exact ruling text (the goal's no-colon-space
+property is re-verified on disk via `validate.py`). R-2's framing governs
+how the devDependency pin is written up in the run record (step 7 spec,
+step 8 delivery, step 12 reconciliation).
+
+Note on title: the card's historical title ("Restore pi-council extension
+load on stock pi 0.85.0 and pin the devDependency") predates the
+amendment and was **not** covered by the ruling — no title change was
+ruled. The title stays as filed; the judge never sees it (step 10
+dispatches the judge with the card's `goal` and the Skeptic's evidence
+only — nothing else), and the board line is unchanged.
+
 ### Step 7 — spec written, handed to owner
 
 Spec saved to `docs/superpowers/specs/2026-09-05-FLLWUP-21-design.md`
@@ -623,26 +644,28 @@ lockfile green; resolves 0.84.3). Gates re-confirmed; diff scope exactly
 5 files. No REJECT basis raised. Step 11 (deterministic merge check)
 next.
 
-### Step 6 — route what does not close (product-owner rulings returned, applied)
+### Step 11 — deterministic merge check, merged
 
-Both step-5 open-judgment items were escalated per the
-`<escalation_contract>`; `product-owner` ruled on them (no steward
-escalation — neither ruling changes the portfolio, reverses a recorded
-human decision, or implicates the card's `goal` as a defect). The rulings
-are appended verbatim below as the card's Phase 1 ruling record and are
-binding on every seat, `steward` included. R-1's amendment is applied
-above: the `goal` frontmatter line and the `## Acceptance` section are
-replaced in full with the byte-exact ruling text (the goal's no-colon-space
-property is re-verified on disk via `validate.py`). R-2's framing governs
-how the devDependency pin is written up in the run record (step 7 spec,
-step 8 delivery, step 12 reconciliation).
+Five criteria executed mechanically: (1) owner gates green in full at
+head 7f8bd6dd — `bun install --frozen-lockfile` exit 0, `bunx tsc
+--noEmit` exit 0, `bun test` 559 pass / 2 skip / 0 fail,
+`python3 council/validate.py` clean (owner + Skeptic re-runs); (2)
+GitHub Actions green on the head SHA — `gh pr checks 37` reports
+`gates` workflow `SUCCESS` keyed on `workflow`; (3) no blocking Skeptic
+objection — NO-BLOCK, all closed-green; (4) judge verdict PASS; (5) no
+Needs Human state or outstanding ruling. Merged with
+`gh pr merge 37 --squash --match-head-commit 7f8bd6dd…` → merged SHA
+**48f8ada** (squash), headRefOid match asserted at merge time.
 
-Note on title: the card's historical title ("Restore pi-council extension
-load on stock pi 0.85.0 and pin the devDependency") predates the
-amendment and was **not** covered by the ruling — no title change was
-ruled. The title stays as filed; the judge never sees it (step 10
-dispatches the judge with the card's `goal` and the Skeptic's evidence
-only — nothing else), and the board line is unchanged.
+### Step 12 — Done
+
+`gates` workflow on the merged SHA `48f8ada` (run 33973193974)
+completed **success** (observed via `gh run view`). Local `main`
+rebased onto `origin/main` (record commits replay cleanly); board and
+card set Done; `validate.py` clean; reconciliation committed and pushed
+(`origin/main == main` at the reconciliation commit). Card closes with
+no open-untested residual — the verify cycle ran once (NO-BLOCK at
+cycle 1), within the ≤3 cap.
 
 ## Phase 1 rulings (product-owner, step-6 escalations)
 
