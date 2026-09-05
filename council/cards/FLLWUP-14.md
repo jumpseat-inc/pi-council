@@ -338,3 +338,96 @@ vacuous against this class); (5) frame 2 asserts ≥1 provider row /
 `EMPTY_NO_PROVIDERS` absent. Unverifiable from inside this seat: whether
 0.84.3's bundled pi-tui differs from the installed `"*"` pi-tui —
 exactly the link claim (3) makes runnable before the TUI boots.
+
+### Step 4 — Skeptic attacks (job-11.1)
+Skeptic dispatched with a pointer brief: read the card face (full deliberation
+record), run the settling tests it names, attack the converged shape (pty harness
+primary + same-byte-script manual doc, dummy-key provisioning, `é` falsifier,
+0.84.3 decode preflight guard, per-checkpoint snapshots, SMOKE_PHASE-only
+isolation), and attack the delivery-shape falsifiability. Its report, recorded
+verbatim:
+
+**Objection 1 — model-registry.js line citations reference a file absent from
+the bundled pi-tui:** `find @earendil-works/pi-tui/dist -name '*.js'` (44 files)
+contains no `model-registry.js`. **closed-spectral** — the principal's
+`model-registry.js:21-22` citation cannot be read here; the generic
+dummy-key-populates-registry claim is independently verified (objection 2), but
+the specific source citation underlying the "unreachable-by-construction"
+argument is not verifiable against the 0.85.0 install.
+
+**Objection 2 — OpenRouter envApiKeyAuth dummy-key claim verified:**
+`envApiKeyAuth("OpenRouter API key", ["OPENROUTER_API_KEY"])` in
+pi-ai/providers/openrouter.js; no `check` key → `checkProviderAuth` falls to
+`resolveProviderAuth`; resolve body reads `ctx.env(envVar)` — zero network I/O,
+zero fetch/http imports in auth/helpers.js or auth/resolve.js; `sk-dummy` →
+non-undefined auth → models appear. **closed-green**. Ownership note: the
+dummy-key requirement changes the harness contract (loses its
+"fails-fast-offline" property up-front; a misroute would attempt dispatch with
+the dummy key); neither seat's round-2 text modified its position to restate the
+accepted requirement.
+
+**Objection 3 — all decode/keys probes pass against installed 0.85.0:**
+`\x1b[47;1:1u`→`/`, `\x1b[233u`→`é`, `\x1b[99;1:1u`→`c`;
+`matchesKey("\x1b[27;1:1u",escape)` and `("\x1b[127;1:1u",backspace)` true;
+`isKeyRelease("\x1b[47;1:1u")` false, `("\x1b[47;1:3u")` true. **closed-green** —
+the byte-form dispute is closed by evidence; `é` is unreachable by the legacy
+arm (decodePrintable fallback is `length===1 && 32..126`, model-picker.ts
+L120-121).
+
+**Objection 4 — KITTY_CSI_U_REGEX at keys.js:1104 exactly as claimed:**
+`/^\x1b\[(\d+)(?::(\d*))?(?::(\d+))?(?:;(\d+))?(?::(\d+))?u$/` accepts bare,
+suffixed, and non-ASCII forms. **closed-green**.
+
+**Objection 5 — kitty negotiation query is `\x1b[>7u\x1b[?u\x1b[c`, flags=7:**
+terminal.js:13-15. **closed-green**.
+
+**Objection 6 — dispatch chain as claimed:** `isKeyRelease` filter at tui.js:718-
+723 then `focusedComponent.handleInput(data)` with the raw byte string;
+council-models.ts:149 closes `handleInput: (d) => { picker.handleInput(d); }`.
+**closed-green**.
+
+**Objection 7 — the `é` falsifier proves kitty decode ran, NOT that negotiation
+succeeded:** `decodeKittyPrintable` is a pure state-independent function
+(keys.js:1120-1140); `setKittyProtocolActive(true)` fires only when a kitty
+reply arrives (terminal.js:192-196). A `▌ é` frame proves the `\x1b[233u` bytes
+reached the modal; it does not prove the reply was parsed. The negotiation
+assertion the design carries (pi's own emitted `\x1b[>7u`) proves pi asked, not
+that it accepted. The `kittyProtocolActive` flag is unobservable from outside
+the process. **closed-green on the fact; the interpretation (é = negotiation
+proven) is marked incomplete — the limitation the owner's round-2 correction
+(2) already states must live in the README/spec explicitly.**
+
+**Objection 8 — harness does not exist on main; all behavioral claims about it
+are open-untested by construction:** `ls smoke/search-smoke/` → absent. Design
+positions under attack on falsifiability, not settled facts.
+
+**Objection 9 — the delivery-shape falsifiability split leaves the real-terminal
+half without a gated falsifier:** pty harness falsifies bytes→modal through a
+fake reply; a real kitty terminal's half (DA reply quirk, real keystroke
+emission) is only covered by the manual procedure, which fact-5/the acceptance
+make non-gating. A future regression in negotiation reply-parsing could pass all
+pty harness gates and surface only when a human runs the unenforced manual
+procedure. **open-untested** — the design acknowledges the split (owner:
+"press-only forms, never press+release pairing") but does not define gated
+verification of the real-terminal half.
+
+**Objection 10 — the SMOKE_PHASE extension changes existing gated code:**
+driver.sh:122-123 currently fatal on any `SMOKE_PHASE != 5`; the owner's
+round-2 correction (4) requires the guard to accept a new value — a structural
+change to a shared conditional tree, with leakage-into-the-full-path risk that
+the design asserts away ("stays byte-identical") but does not test. **open-
+untested** — addressable at implementation, assertable at step 9.
+
+**What it ran:** decode/matchesKey/isKeyRelease probe via bun against installed
+0.85.0 (all pass); greps over pi-ai openrouter.js auth/helpers.js (no network
+I/O), keys.js:1104 regex, tui.js isKeyRelease gate, model-picker.ts
+L120-121/L304-380, terminal.js L13-15/L131-196; `.github/workflows/gates.yml`
+(4 gates: tsc, test, validate — no smoke); driver.sh:122-123 guard; `ls
+smoke/search-smoke/` (absent).
+
+**Verdict: Blocks** — (1) the harness does not exist, so every behavioral claim
+is untestable design position; (2) `é` proves decode, not negotiation
+acceptance — the negotiation half is an unasserted assumption; (3) the
+real-terminal half is never falsified by a gate; (4) the principal's strongest
+citation (model-registry.js) is absent from the 0.85.0 install — weakening but
+not overturning the dummy-key requirement (independently verified).
