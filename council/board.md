@@ -23,11 +23,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- FLLWUP-14 — Kitty-protocol terminal smoke for the model search input
-
 ## Ready
 
 ## In Progress
+
+- FLLWUP-14 — Kitty-protocol terminal smoke for the model search input
 
 ## In Review
 
