@@ -760,3 +760,66 @@ Review.
 No open judgment items; no blocking open objection (O1 is NO-BLOCK,
 gate-time verification). No Phase-1 ruling needed; no escalation. The card
 proceeds to step 7 with the consolidator's settled design as the spec.
+
+### Step 7 — spec written, handed to owner
+
+Spec saved to `docs/superpowers/specs/2026-09-05-FLLWUP-23-design.md`
+(full-council path; committed with the In Progress transition, d6c31af).
+Contents per consolidator synthesis: settled context (field shape,
+SDK-only-unresolvable, detection = the import attempt, named-load-error
+contract, async-safe factories, discriminator honesty, five type-only
+sites, themes-mask trap, by-construction entry sourcing, gate-time fixture
+fidelity), the mcp-load.ts mechanism + failure contract, binding prose
+constraints, the four deliverables incl. the fixture decision procedure,
+binding exclusions, the four-gate set, worktree/PR conventions.
+Self-review: no placeholders, no scope beyond the card goal, single design
+per resolved point (fixture shape = deterministic decision procedure).
+Card set In Progress; validate clean; owner dispatched.
+
+### Step 8 — owner delivered (job-19.10), PR #39 open
+
+Owner implemented in worktree `.worktrees/fllwup-23-named-failure`
+(branch `feat/fllwup-23-named-failure` based at origin/main 59019b9d),
+pushed, PR #39 open (observed: state OPEN, headRefOid `19f0c140…`, base
+main; diff scope exactly 11 paths — mcp-load.ts, the dep-less test +
+fixture driver, plan doc, byte-identical spec copy, and the five
+mcp-edge sites index/child/hub-tools/dispatch/eval-runner + its test).
+Fixture decision (A) — self-contained SDK-free scratch, driver inside —
+recorded with a 0.85.1 probe: shape (B) (committed-tree-minus-node_modules,
+driver in repo) → `{"commands":14,"errors":[]}` (jiti stage-2 reaches
+the worktree's own SDK, unfaithful — the step-4 closed-red confirmed
+post-sync); shape (A) → `{"commands":0,"errors":["Failed to load
+extension: pi-council could not load: …"]}` — faithful. RED pre-guard
+reproduced the raw `Cannot find module '@modelcontextprotocol/sdk/client'`.
+Owner gates green at head in the lock-synced worktree (0.85.1):
+frozen-lockfile exit 0 (224 installs, no changes); `bunx tsc --noEmit`
+clean; `bun test` 564 pass / 2 skip / 0 fail (56 files, new 4-test suite,
+env-split 4/4 unmodified); validate clean. Deviations recorded on the
+plan doc: `spawnSeatJob` became async (spec §2's "dispatch handler bodies
+await getMcp()" requires it — sync function, mcp enumeration precedes
+spawn; all 4 call sites updated); the discriminator fixture keeps
+oauth.ts's five mcp-consumed export names before the throw (jiti interop
+reports `Export named … not found` instead of executing a bare top-level
+throw). In Review set (sole condition: open PR, observed); verified
+local main untouched. Skeptic at the branch next.
+
+### Step 9 — Skeptic NO-BLOCK at head 19f0c140 (cycle 1 of 3)
+
+Skeptic (job-19.11) verified at pinned subject: head SHA `19f0c140…`,
+worktree `.worktrees/fllwup-23-named-failure`, loop frame stated (step 9
+precedes step 10 judging and step 11's mechanical merge,
+facilitator-executed). Verdict **NO-BLOCK**, all 8 objections closed-green
+with real output: four gates re-run at head after frozen-lockfile sync
+exit 0 ("224 installs, no changes") — tsc clean, `bun test`
+564/2/0/2669 expect, validate clean; new suite standalone 4/4;
+env-split 4/4 unmodified (diff empty); guard-removal mutation → suite
+goes RED on the defining prose assertion (gate-integrity proven),
+restore → green; discriminator probe (SDK present + corrupted oauth.ts)
+→ `FLLWUP23_EXPLODED` real error no prose, naive bare-throw probe
+confirms the jiti lexer finding (dummy exports necessary); healthy
+control 14 commands / zero errors / no prose; CLI surface probe: dep-less
+→ exit 0 with `errors[0]` = "Failed to load extension: pi-council could
+not load: … Do NOT use 'pi -ne' — it disables extensions entirely and
+does not repair this missing dependency." (all spec §3 items present);
+diff scope exactly 11 paths, protected files zero changes; both
+deviations real, necessary, documented. Verify cycles used: 1 of ≤3.
