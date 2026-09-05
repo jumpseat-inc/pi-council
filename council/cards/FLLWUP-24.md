@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-24
 title: Local gates refuse to run when installed deps drift from bun.lock
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-6
 goal: Running the repo's local gate commands against an installed node_modules that disagrees with bun.lock produces a named failure before any gate result is trusted, proven by a drift-detection assertion that names the stale dependency and the remedy, with the owner instruction set carrying the requirement.
