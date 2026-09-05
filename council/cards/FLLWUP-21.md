@@ -564,6 +564,45 @@ PR, observed). Skeptic dispatch at the branch next — the 0.85.x
 theme-break claim and the lock-resolution deviation are its prime
 attack surface.
 
+### Step 9 — Skeptic NO-BLOCK at head 7f8bd6dd (cycle 1 of 3)
+
+Skeptic (job-17.2) verified at pinned subject: head SHA `7f8bd6dd`,
+worktree `.worktrees/fllwup-21-env-split-contract`, loop frame stated
+(step 9 precedes step 10 judging and step 11's mechanical merge,
+facilitator-executed). Verdict NO-BLOCK; all objections closed-green with
+real output:
+- **Deviation 1 (lock 0.84.3) — CLOSED-GREEN.** Settling test: `diff -r`
+  0.85.0 vs 0.85.1 theme dirs empty (byte-identical); 0.84.3 vs 0.85.1
+  dark/light.json show `scrollbarThumb` changed `selectedBg`→`text` +
+  `scrollbarTrack` added; theme.js fallback changed likewise — the 4
+  committed theme tests asserting `scrollbarThumb === selectedBg` fail
+  under 0.85.x. The claim is real; the in-range gate-safe floor 0.84.3
+  lock is justified; constraint `">=0.84.3 <0.86.0"` byte-exact.
+- **Deviation 2 (M2/M3 cwd shape) — CLOSED-GREEN.** Settling test:
+  literal cwd=<repoRoot> probe → clones superpowers over the network
+  (violates offline) + "No API key found", no registration; consumer-pin
+  probe → exit 0, usage on stderr, no network. Deviation honest and
+  necessary.
+- **Deviation 3 (merged-stream usage) — CLOSED-GREEN.** M2 probe:
+  stdout empty, stderr contains usage, exit 0, no `Failed to load
+  extension`; smoke's own run.sh:112 greps merged streams — the
+  assertion matches the smoke's tripwire.
+- **Env-construction discipline — CLOSED-GREEN.** Mutation probe:
+  runner env carried COUNCIL_SEAT=skeptic + OPENROUTER_API_KEY
+  (73 chars) + JOB/RUN/PI_SESSION env; suite green — explicit-env
+  construction drops all on every spawn.
+- **14-command count — CLOSED-GREEN.** Source enumeration: 7 procedures
+  + 5 explicit + mcp + council-tree = 14, all registered before the
+  COUNCIL_SEAT branch.
+- **R-2 record — CLOSED-GREEN.** Plan doc lines 77-84: (a) constraint
+  string, (b) versions (lock 0.84.3 + deliberation 0.84.3/0.85.0), (c)
+  none outside interval with bound meaning stated.
+- **Binding exclusions — CLOSED-GREEN.** `git diff origin/main --stat`
+  exactly 5 files; peerDependencies `"*"`; no smoke/, seats/, procedures/,
+  or mode-split changes.
+
+No open objections; no fix loop required. Step 10 (judge) next.
+
 ### Step 6 — route what does not close (product-owner rulings returned, applied)
 
 Both step-5 open-judgment items were escalated per the
