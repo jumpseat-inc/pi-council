@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-21
 title: Restore pi-council extension load on stock pi 0.85.0 and pin the devDependency
-state: In Review
+state: Done
 owner: null
 epic: EPIC-6
 goal: The pi-council package's env-keyed parent/child mode split at `extensions/index.ts` registers all parent-mode slash commands on stock pi in a fresh scratch HOME and registers zero slash commands when `COUNCIL_SEAT` is set, proven by a driven headless verification asserting both poles via the installed pi binary, with the root cause of the env-split fallthrough documented and the devDependency on `@earendil-works/pi-coding-agent` changed to a deliberate version constraint consistent with the verified interval.

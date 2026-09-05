@@ -29,11 +29,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- FLLWUP-21 — Restore pi-council extension load on stock pi 0.85.0 and pin the devDependency
-
 ## Needs Human
 
 ## Done
+
+- FLLWUP-21 — Restore pi-council extension load on stock pi 0.85.0 and pin the devDependency
 
 - FLLWUP-14 — Kitty-protocol terminal smoke for the model search input
 
