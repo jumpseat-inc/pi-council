@@ -2,9 +2,10 @@ import { test, expect } from "bun:test";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 import type { SettingsManager } from "@earendil-works/pi-coding-agent";
 import { loadThemeModule } from "./theme-loader.ts";
-import { PKG_ROOT } from "../extensions/seats.ts";
+import { PKG_ROOT, loadThemeConfig } from "../extensions/seats.ts";
 
 const THEMES_DIR = path.join(PKG_ROOT, "themes");
 const FIXTURES_DIR = path.join(PKG_ROOT, "test", "fixtures", "omp");
@@ -27,8 +28,30 @@ const REQUIRED_51 = [
 	"thinkingLow", "thinkingMedium", "thinkingHigh", "thinkingXhigh", "bashMode",
 ] as const;
 
-/** The 4 optional tokens — OMITTED from the shipped file, filled by withThemeColorFallbacks. */
-const OPTIONAL_4 = ["scrollbarThumb", "searchMatchBg", "searchMatchText", "thinkingMax"] as const;
+/**
+ * Installed pi version — resolved exactly like the FLLWUP-21 env-split tests
+ * resolve theirs (import.meta.resolve → package root → package.json). The
+ * gates run this exact installed machinery, so P is the locked band.
+ */
+const ENTRY_PATH = fileURLToPath(import.meta.resolve("@earendil-works/pi-coding-agent"));
+if (!ENTRY_PATH.endsWith(`${path.sep}dist${path.sep}index.js`)) {
+	throw new Error(`FLLWUP-22: package entry resolved to unexpected path ${ENTRY_PATH}`);
+}
+const PI_PKG_ROOT = path.dirname(path.dirname(ENTRY_PATH));
+const PI_VERSION = (JSON.parse(fs.readFileSync(path.join(PI_PKG_ROOT, "package.json"), "utf-8")) as { version: string }).version;
+function semverAtLeast(v: string, target: string): boolean {
+	const a = v.split(".").map((n) => parseInt(n, 10));
+	const b = target.split(".").map((n) => parseInt(n, 10));
+	for (let i = 0; i < Math.max(a.length, b.length); i++) {
+		const x = a[i] ?? 0;
+		const y = b[i] ?? 0;
+		if (x !== y) return x > y;
+	}
+	return true;
+}
+/** 0.85.x moved scrollbarThumb to the fg map (?? text) and added
+ * scrollbarTrack (fg, ?? muted); 0.84.3 resolves it in bg (?? selectedBg). */
+const PI_GE_085 = semverAtLeast(PI_VERSION, "0.85.0");
 
 function readTheme(file: string): RawTheme {
 	return JSON.parse(fs.readFileSync(file, "utf-8")) as RawTheme;
@@ -153,7 +176,7 @@ test("T4 validation + identity: loadThemeFromPath no-throw; name is exactly pi-c
 	expect(mod.loadThemeFromPath(SHIPPED.light, "truecolor").name).toBe("pi-council-light");
 });
 
-test("T5 registration chain: setRegisteredThemes -> getThemeByName; hijack guard; family name; 55 resolved keys", async () => {
+test("T5 registration chain: setRegisteredThemes -> getThemeByName; hijack guard; family name; pi-owned resolved keys", async () => {
 	const mod = await loadThemeModule();
 	mod.setRegisteredThemes([
 		mod.loadThemeFromPath(SHIPPED.dark, "truecolor"),
@@ -167,7 +190,13 @@ test("T5 registration chain: setRegisteredThemes -> getThemeByName; hijack guard
 	// family name is prose-only — never a theme name (NAME-1)
 	expect(mod.getThemeByName("pi-council")).toBeUndefined();
 	const resolved = mod.getResolvedThemeColors("pi-council-dark");
-	expect(Object.keys(resolved)).toHaveLength(55);
+	// pi-owned key count — the map is 51 shipped + pi's fallback fills. The
+	// count is version-parameterized (55 on 0.84.3; 56 once scrollbarTrack
+	// joins the map on 0.85.x), never a hardcoded council literal.
+	for (const k of [...REQUIRED_51, "thinkingMax", "searchMatchBg", "searchMatchText", "scrollbarThumb"]) {
+		expect(Object.keys(resolved), `resolved map missing ${k}`).toContain(k);
+	}
+	expect(Object.keys(resolved)).toHaveLength(PI_GE_085 ? 56 : 55);
 });
 
 test("T6 full-map equality: shipped resolved map === reference derived from vendored omp fixture, both through pi's resolver", async () => {
@@ -195,7 +224,8 @@ test("T6 full-map equality: shipped resolved map === reference derived from vend
 	] as const) {
 		const shippedMap = mod.getResolvedThemeColors(shipped);
 		const refMap = mod.getResolvedThemeColors(ref);
-		expect(Object.keys(shippedMap)).toHaveLength(55);
+		// count is pi-owned and version-parameterized — pinned in T5; the
+		// equality below is the band-stable oracle (Skeptic obj 7d).
 		expect(shippedMap).toEqual(refMap);
 	}
 });
@@ -236,12 +266,16 @@ test("T7 raw-JSON invariants: var-refs verbatim with real omp names; every var-r
 		for (const token of deadKeys(colors)) {
 			expect(colors[token]).toBeUndefined();
 		}
-		// optional tokens equal their fallback sources after resolution
+		// band-stable optional tokens equal their fallback sources after resolution
 		const resolved = mod.getResolvedThemeColors(name);
-		expect(resolved.scrollbarThumb).toBe(resolved.selectedBg);
 		expect(resolved.searchMatchBg).toBe(resolved.selectedBg);
 		expect(resolved.searchMatchText).toBe(resolved.text);
 		expect(resolved.thinkingMax).toBe(resolved.thinkingXhigh);
+		// shipped-file provenance: the council ships NEITHER scrollbar key —
+		// placement identity is delegated to the installed Theme constructor
+		// (0.84.3 bg ?? selectedBg / 0.85.x fg ?? text, track ?? muted).
+		expect(Object.keys(colors)).not.toContain("scrollbarThumb");
+		expect(Object.keys(colors)).not.toContain("scrollbarTrack");
 	}
 	// the fixture itself is the provenance: shipped vars/colors values are byte-identical to the trimmed fixture
 	for (const [variant, shippedPath] of [
@@ -313,6 +347,34 @@ test("brand-anchor spotlight: resolved values fail loudly with a one-line diagno
 		cardBg: "#ffffff",
 		infoBg: "#fffae6",
 	});
+});
+
+test("drift characterization: scrollbar tokens track the installed pi regime; allowlist accepts both", async () => {
+	const mod = await loadThemeModule();
+	mod.setRegisteredThemes([mod.loadThemeFromPath(SHIPPED.dark, "truecolor")]);
+	const resolved = mod.getResolvedThemeColors("pi-council-dark");
+	if (PI_GE_085) {
+		// 0.85.x: scrollbarThumb resolves in fg with text fallback; scrollbarTrack
+		// is new (fg, muted fallback). The shipped file declares neither, so these
+		// are pi's bundled-default fills — the exact drift this card names.
+		expect(resolved.scrollbarThumb).toBe(resolved.text);
+		expect(resolved.scrollbarTrack).toBe(resolved.muted);
+	} else {
+		// 0.84.3: scrollbarThumb resolves in bg with selectedBg fallback; no
+		// scrollbarTrack token exists in the machinery.
+		expect(resolved.scrollbarThumb).toBe(resolved.selectedBg);
+		expect(resolved.scrollbarTrack).toBeUndefined();
+	}
+	// Allowlist acceptance (recorded discretion): a consumer may declare the
+	// new 0.85.x scrollbarTrack — VALID_COLOR_KEYS must not throw, or the
+	// swallowed throw silently deactivates the whole theme (Skeptic obj 5).
+	const allowRoot = fs.mkdtempSync(path.join(os.tmpdir(), "fllwup22-allowlist-"));
+	fs.writeFileSync(
+		path.join(allowRoot, ".council.json"),
+		JSON.stringify({ theme: { dark: { colors: { scrollbarThumb: "#123456", scrollbarTrack: "#654321" } } } }),
+	);
+	expect(() => loadThemeConfig(allowRoot)).not.toThrow();
+	fs.rmSync(allowRoot, { recursive: true, force: true });
 });
 
 test("var-ref preservation probe: mutating vars.accent re-resolves the dependent colors", async () => {

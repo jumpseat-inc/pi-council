@@ -131,19 +131,31 @@ export function resolvedPalette(
  * BEFORE construction. The Theme constructor applies the same fallbacks
  * itself, so doing it first is idempotent and mirrors `withThemeColorFallbacks`.
  */
+/**
+ * Apply pi's internal fallback chain with `??` semantics on the merged colors
+ * BEFORE construction. The Theme constructor applies the same fallbacks
+ * itself, so doing it first is idempotent and mirrors `withThemeColorFallbacks`.
+ *
+ * Trim-only (FLLWUP-22): mirrors the three BAND-STABLE fallback sources only
+ * (`thinkingMax`/`searchMatchBg`/`searchMatchText` — probe-verified identical
+ * on 0.84.3 and 0.85.x). The scrollbar thumb is deliberately NOT mirrored:
+ * its source is regime-dependent (0.84.3 bg `?? selectedBg`; 0.85.x fg
+ * `?? text`), so it is delegated to the installed Theme constructor's own
+ * regime-correct fallback — this helper never reimplements it.
+ */
 export function withThemeColorFallbacks(colors: Record<string, string | number>): Record<string, string | number> {
 	return {
 		...colors,
 		thinkingMax: colors.thinkingMax ?? colors.thinkingXhigh,
-		scrollbarThumb: colors.scrollbarThumb ?? colors.selectedBg,
 		searchMatchBg: colors.searchMatchBg ?? colors.selectedBg,
 		searchMatchText: colors.searchMatchText ?? colors.text,
 	};
 }
 
-/** The 8 bg keys — everything else is fg. */
+/** The 7 bg keys — everything else is fg. FLLWUP-22: scrollbarThumb is dropped
+ * (0.85.x removed it from ThemeBg; the installed constructor routes it via fg). */
 export const BG_TOKEN_KEYS = new Set([
-	"selectedBg", "scrollbarThumb", "searchMatchBg", "userMessageBg", "customMessageBg",
+	"selectedBg", "searchMatchBg", "userMessageBg", "customMessageBg",
 	"toolPendingBg", "toolSuccessBg", "toolErrorBg",
 ]);
 
