@@ -30,9 +30,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- FLLWUP-20 — Judge seat guidance names the runner-pinned verification subject
-
 ## In Review
+
+- FLLWUP-20 — Judge seat guidance names the runner-pinned verification subject
 
 ## Needs Human
 

@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-20
 title: Judge seat guidance names the runner-pinned verification subject
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-6
 goal: The judge seat body's when-invoked guidance describes the input it receives as including the verification subject and loop frame that council-runner pins in every judge dispatch input, proven by a driven payload test asserting the wording on the packaged judge seat body.
@@ -65,7 +65,7 @@ spec file under `docs/superpowers/specs/`).
 ### Step 7 — In Progress, handed to owner
 
 Card set In Progress on frontmatter and board; `validate.py` clean.
-Owner dispatched (job-8.1) at the card only — `goal`/`Intent`/
+Owner dispatched (job-7.1) at the card only — `goal`/`Intent`/
 `Acceptance` verbatim plus the orchestrator's binding constraints (no
 frontmatter change; FLLWUP-17's judge `<main_repo_immutability>` block
 stays byte-identical to `origin/main` — insertion-only diff; the
@@ -77,3 +77,31 @@ enforcement machinery in the judge body) and this repo's gate set
 has no dataset-import or server-boot gate, so the owner's full gate set
 is `bun install --frozen-lockfile`, `bunx tsc --noEmit`, `bun test`,
 `python3 council/validate.py`, all in order, in full).
+
+### Step 8 — owner implemented; In Review
+
+Owner (job-7.1) settled in 1.8m. TDD: plan at
+`docs/superpowers/plans/2026-09-05-FLLWUP-20-judge-when-invoked.md`,
+driven payload test `"judge seat when-invoked guidance pins the
+verification subject and loop frame (FLLWUP-20)"` proved RED against the
+unmodified body (`bun test test/seats.test.ts -t "FLLWUP-20"` failing on
+the first discriminator phrase `verification subject`), then the
+`<when_invoked>` guidance extended with insertion-only prose naming the
+verification subject (PR head SHA + head worktree path) and the loop
+frame (step 10 judging precedes step 11's mechanical merge, facilitator
+executes, no seat performs). All four gates in order at the head
+worktree: `bun install --frozen-lockfile` exit 0 (215 packages),
+`bunx tsc --noEmit` clean, `bun test` 551 pass / 2 skip / 0 fail
+(baseline 550; FLLWUP-16/17/18/19 green, FLLWUP-20 present),
+`python3 council/validate.py` clean.
+
+Facilitator-observed: PR #34 OPEN, branch
+`fllwup-20-judge-when-invoked`, head
+`d7bb7084dc8e0c2ab50a6b45b589c49f57f8d799`, base `main`; diff scope
+exactly the three planned files (`gh pr diff 34 --name-only`: seat body,
+plan, test file); insertion-only (zero deleted content lines in the
+patch; frontmatter untouched); judge `<main_repo_immutability>` block
+extracted for `origin/main` vs PR head — byte-identical; runner body and
+`extensions/` untouched by the PR; worktree
+`.worktrees/fllwup-20-judge-when-invoked` verified at the head. Set In
+Review per step 8's observed-artifact rule (branch + open PR).
