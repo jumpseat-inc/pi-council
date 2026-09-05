@@ -170,3 +170,26 @@ recovery run in a scratch clone (both `git checkout main` from reflog and
 direct record-SHA restore), `validate.py` clean after both paths; P6 no
 engine change (`extensions/` diff empty). **Verdict: NO-BLOCK, 6/6
 closed-green, no open objection.**
+
+### Step 10 — judge PASS
+Judge dispatched with the card's `goal` and the Skeptic's step-9 evidence
+only (job-3.3), settled in 1.3m. First verdict REJECT on a premise error:
+it evaluated the local `main` checkout (where the unmerged PR's
+deliverables are absent by construction) and read the goal's `receive` as
+requiring the merge to have happened. Re-dispatched (job-3.4) with the
+corrected factual record, per the run's documented observed practice
+(factual correction, never verdict coaching): the subject is the PR head
+`dacf6be4` (readable via the head worktree an
+`.worktrees/fllwup-16-main-repo-immutability`), and step 11's
+deterministic merge check is a later mechanical step the facilitator
+executes — no seat merges, and no prior judge in this run applied
+"already merged" as a PASS precondition. Verdict **PASS** (job-3.4,
+0.4m): driven test green at the head (1 pass / 0 fail / 5 expects); the
+`<main_repo_immutability>` block contains every goal element (three
+forbidden commands, main repository path, `HALT` consequence, dedicated
+worktree via `git worktree add`, repeat-in-every-input instruction); the
+reflog recovery drill is documented on this record and executable. No
+goal-text fix needed — the alleged `receive` ambiguity was the premise
+error, not a textual defect. No verify cycle consumed: no fix round or
+step-9 reverify followed the REJECT; the step-10 evaluation was re-run on
+the same verified evidence (verify cycles used: 1 of ≤3).
