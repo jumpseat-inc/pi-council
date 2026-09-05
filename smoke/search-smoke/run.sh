@@ -124,6 +124,30 @@ if [ "$DRIVER_STATUS" -ne 0 ]; then
 fi
 
 # Prune to the last $KEEP runs.
-ls -1dt "$REPO_ROOT"/smoke/.artifacts/search-smoke/2* 2>/dev/null | tail -n +$((KEEP + 1)) | xargs -r rm -rf
+#
+# Pruning is best-effort housekeeping and must never invert a green frame
+# verdict: the artifacts tree is bind-mounted into the Docker smoke path,
+# whose container runs as root, so a container run can leave root-owned run
+# dirs here that this user cannot remove (and a dir can be unremovable for
+# other reasons, e.g. own-permission). We prune every entry we legitimately
+# can, and every entry that cannot be removed is named in a visible warning
+# on stderr — prune failures are never silent.
+pruned=0
+unremovable=0
+while IFS= read -r d; do
+	if rm -rf -- "$d" 2>/dev/null; then
+		pruned=$((pruned + 1))
+	else
+		unremovable=$((unremovable + 1))
+		if [ -O "$d" ]; then
+			echo "search-smoke: prune: cannot remove own run dir $d (permissions) — restore access and remove by hand" >&2
+		else
+			echo "search-smoke: prune: cannot remove foreign-owned run dir $d (e.g. root-owned from a Docker bind-mount run) — left in place" >&2
+		fi
+	fi
+done < <(ls -1dt "$REPO_ROOT"/smoke/.artifacts/search-smoke/2* 2>/dev/null | tail -n +$((KEEP + 1)))
+if [ "$unremovable" -gt 0 ]; then
+	echo "search-smoke: prune: pruned $pruned, left $unremovable in place — verdict unaffected; remove by hand if you own them" >&2
+fi
 
 echo "SMOKE PASS — kitty search-smoke, 9 frames green (artifacts: smoke/.artifacts/search-smoke/$TS)"
