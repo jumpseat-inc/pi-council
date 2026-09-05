@@ -389,3 +389,128 @@ export function writeSeatOverride(args: {
 	writeAtomic(file, patched, existingMode(file));
 	return { ok: true };
 }
+
+/** Byte-splice region that removes `member` from `objectNode`, trailing-comma
+ *  aware (valid JSON output): only-member → re-emit the object span as `{}`;
+ *  non-last → eat the member plus its trailing comma/whitespace up to the next
+ *  key; last → eat the leading comma/whitespace plus the member. */
+function removeMemberEdit(objectNode: ValueNode, member: Member): { start: number; end: number; replacement: string } {
+	const members = objectNode.members ?? [];
+	if (members.length === 1) {
+		return { start: objectNode.start, end: objectNode.end, replacement: "{}" };
+	}
+	const index = members.indexOf(member);
+	if (index === members.length - 1) {
+		const prev = members[index - 1];
+		return { start: prev.value.end, end: member.value.end, replacement: "" };
+	}
+	const next = members[index + 1];
+	return { start: member.keyStart, end: next.keyStart, replacement: "" };
+}
+
+/** Disjoint byte edits that remove every loader-resolvable thinking carrier of
+ *  a seat value (applySeatOverride parity: explicit `thinking` key AND a known
+ *  `THINKING_LEVELS` `:suffix` on a model string or a string-shorthand value).
+ *  Absent carriers → empty edits (no-op; absence means preserve). */
+function clearThinkingEdits(text: string, valueNode: ValueNode): Array<{ start: number; end: number; replacement: string }> {
+	const edits: Array<{ start: number; end: number; replacement: string }> = [];
+	if (valueNode.kind === "object" && valueNode.members !== undefined) {
+		const thinkingMember = valueNode.members.find((m) => m.key === "thinking");
+		if (thinkingMember !== undefined) edits.push(removeMemberEdit(valueNode, thinkingMember));
+		const modelMember = valueNode.members.find((m) => m.key === "model");
+		if (modelMember !== undefined && modelMember.value.kind === "string") {
+			const raw = text.slice(modelMember.value.start + 1, modelMember.value.end - 1);
+			const colon = raw.lastIndexOf(":");
+			if (colon > 0 && THINKING_LEVELS.has(raw.slice(colon + 1))) {
+				edits.push({ start: modelMember.value.start, end: modelMember.value.end, replacement: JSON.stringify(raw.slice(0, colon)) });
+			}
+		}
+	} else if (valueNode.kind === "string") {
+		const raw = text.slice(valueNode.start + 1, valueNode.end - 1);
+		const colon = raw.lastIndexOf(":");
+		if (colon > 0 && THINKING_LEVELS.has(raw.slice(colon + 1))) {
+			edits.push({ start: valueNode.start, end: valueNode.end, replacement: JSON.stringify(raw.slice(0, colon)) });
+		}
+	}
+	return edits;
+}
+
+/** Apply disjoint byte edits highest-offset-first so lower offsets stay valid. */
+function applyEdits(text: string, edits: Array<{ start: number; end: number; replacement: string }>): string {
+	const sorted = [...edits].sort((a, b) => b.start - a.start);
+	let out = text;
+	for (const e of sorted) out = out.slice(0, e.start) + e.replacement + out.slice(e.end);
+	return out;
+}
+
+/** Which override a clear removes. */
+export type ClearSeatTarget = "thinking" | "seat";
+
+/**
+ * FLLWUP-9: the explicit clear affordance. Removes a seat's `thinking` override
+ * (what === "thinking": the explicit `thinking` member AND any known `:suffix`
+ * thinking carrier on the model, mirroring applySeatOverride's thinking key >
+ * :suffix resolution) or its whole `council.<seat>` entry (what === "seat")
+ * from `.council.json` via a byte-region splice — the theme section, every
+ * other seat, unknown top-level keys, indentation, and trailing newline are
+ * byte-identical by construction.
+ *
+ * Absence still means preserve: the clear is the ONLY way the writer removes
+ * a thinking override, and a clear with nothing to remove is an idempotent
+ * no-op — `{ ok: true }`, no write (file byte-identical, mtime unchanged).
+ * Malformed JSON or a non-object root/council refuse with `{ ok: false, error }`
+ * and write NOTHING; only filesystem failures throw (same asymmetry as
+ * `writeSeatOverride`). The loader (`loadCouncilConfig`/`applySeatOverride`) is
+ * unchanged.
+ */
+export function clearSeatOverride(args: {
+	repoRoot: string;
+	seat: string;
+	what: ClearSeatTarget; // "thinking" removes the thinking override; "seat" removes the whole council.<seat> entry
+}): WriteSeatOverrideResult {
+	const { repoRoot, seat, what } = args;
+	const file = path.join(repoRoot, COUNCIL_CONFIG_FILE);
+
+	// ---- 1. Absent file → nothing to clear (idempotent no-op) ----
+	if (!fs.existsSync(file)) return { ok: true };
+
+	// ---- 2. Read + parse. Malformed / non-object root → refuse, never write. ----
+	let text: string;
+	try {
+		text = fs.readFileSync(file, "utf-8");
+	} catch (e) {
+		throw e; // filesystem failure — throws by design
+	}
+	let parsedDoc: unknown;
+	try {
+		parsedDoc = JSON.parse(text);
+	} catch (e) {
+		return { ok: false, error: `${file}: malformed JSON — ${e instanceof Error ? e.message : String(e)}` };
+	}
+	if (typeof parsedDoc !== "object" || parsedDoc === null || Array.isArray(parsedDoc)) {
+		return { ok: false, error: `${file}: root must be a JSON object` };
+	}
+
+	// ---- 3. Locate council.<seat> (string-aware scan, last duplicate wins) ----
+	const root = parseValue(text, skipSpace(text, 0)).node;
+	const rootMembers = root.kind === "object" ? (root.members ?? []) : [];
+	const councilMember = rootMembers.find((m) => m.key === "council");
+	if (councilMember !== undefined && councilMember.value.kind !== "object") {
+		return { ok: false, error: `${file}: "council" must be an object keyed by seat name` };
+	}
+	if (councilMember === undefined) return { ok: true }; // no council section → no-op
+	const councilNode = councilMember.value;
+	const seatMembers = (councilNode.members ?? []).filter((m) => m.key === seat);
+	if (seatMembers.length === 0) return { ok: true }; // seat absent → no-op
+	const seatMember = seatMembers[seatMembers.length - 1]; // last wins — JSON.parse semantics
+
+	const edits =
+		what === "seat"
+			? [removeMemberEdit(councilNode, seatMember)]
+			: clearThinkingEdits(text, seatMember.value);
+	if (what === "thinking" && edits.length === 0) return { ok: true }; // nothing to clear → no write
+
+	const patched = applyEdits(text, edits);
+	writeAtomic(file, patched, existingMode(file));
+	return { ok: true };
+}
