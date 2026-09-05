@@ -29,12 +29,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- FLLWUP-11 — Smoke phase selector for the /council-models Phase 5 falsifier
-
 ## Needs Human
 
 ## Done
 
+- FLLWUP-11 — Smoke phase selector for the /council-models Phase 5 falsifier
 - FLLWUP-10 — Writer thinking preservation matches loader resolution for object-form model overrides
 - EV-27 — `/`-triggered search input in the model selection modal
 - EV-26 — Pure model-name filter over the thinking-level cross-product

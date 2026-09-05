@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-11
 title: Smoke phase selector for the /council-models Phase 5 falsifier
-state: In Review
+state: Done
 owner: owner
 epic: EPIC-6
 goal: smoke/driver.sh accepts an environment-gated phase selector so the /council-models Phase 5 end-to-end smoke runs in isolation without phases 0 through 4 real-model dispatches, proven by running the driver with the selector set and observing only Phase 5 execute and report.
@@ -134,3 +134,43 @@ phases 1–4 live after the branch and are unreachable under the selector;
 (3) the single `SMOKE PASS — phase 5 … verified in isolation` line is the
 only report in the isolation path, observed with all Phase 5 assertions
 green and host exit 0.
+
+### Step 11 — deterministic merge check (features-deliver substitution)
+All five criteria met, read fresh against PR head
+`1b37acdf0a690b019e52b4f0e80d0859e9c03042`: (1) owner gates green in full
+(Skeptic re-ran at the head: frozen-lockfile install, tsc, `bun test`
+537/2/0, validate.py, `bash -n`); (2) `gates` workflow SUCCESS on the PR
+head SHA — `gh pr checks 27 --json name,state,workflow` →
+`[{"name":"gates","state":"SUCCESS","workflow":"gates"}]`, asserted by
+the `workflow` key per the substitution; (3) no blocking Skeptic
+objection (NO-BLOCK, 11/11 closed-green); (4) judge PASS (job-12.3);
+(5) no Needs Human / outstanding ruling. Merged `gh pr merge 27 --squash
+--match-head-commit 1b37acd…` → PR #27 **MERGED** (mergedAt
+2026-09-05T06:40:12Z), merge SHA `73b315009905c655cd9f83ee8b31752775b5c6ce`
+on `main`. `gates` workflow re-ran on the merged SHA: run 33950449663 →
+**completed/success**.
+
+### Step 12 — Done
+Local `main` reconciled: merged squash (73b3150) adopted wholesale, this
+card's step-8/9/10 record commits re-applied on top (the established
+epic pattern — the squash carried the step-7 record, verified
+`git diff 3e064a3 origin/main -- council/` empty before the reset).
+Board and card set Done; `validate.py` clean; reconciliation committed
+and pushed.
+
+### Step 13/14 — follow-up candidates and persistence (for the orchestrator)
+No new FLLWUP card written — step 13's draft-then-confirm gate is the
+orchestrator's. Candidates surfaced by this run: **none rise to a card.**
+Every Skeptic objection closed-green; O11's finding (the isolation path
+does run phase-0's `/council-init` deterministic scaffold because phase 5
+requires the scaffolded worktree, package install, and the fixture ships
+no `validate.py`) is closed by the card record as the pre-authorized
+implementation latitude, not deferred. Persistence offer (step 14): (1)
+`vault/wiki/smoke-test.md`'s known-gap note names `SMOKE_PHASE=5` as the
+"planned fix" for the bounded-window gap — the selector shipped in
+`73b3150`; a wiki-ingest round should reword it to record the resolved
+gap (phases 1–4 never run under the selector; phase-0 prep + phase 5
+report under a single PASS/FAIL line; `/council-init` runs as the
+deterministic scaffold). (2) The isolation-path semantics (setup without
+verdicts, single phase report) is a reusable pattern worth a line in the
+smoke-test page. No vault edits made by this runner.
