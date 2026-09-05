@@ -30,8 +30,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- FLLWUP-9 — Explicit clear-thinking-override affordance for a seat
-
 ## Needs Human
 
 ## Done
@@ -41,6 +39,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-26 — Pure model-name filter over the thinking-level cross-product
 - EV-25 — Register the /council-models command and wire picker to writer
 - EV-23 — Token-only modal picker for per-seat provider and model selection
+- FLLWUP-9 — Explicit clear-thinking-override affordance for a seat
 - EV-24 — Non-destructive .council.json merge-write for seat overrides
 - EV-22 — Resolve enabled providers and models for the picker from pi's registry
 - EV-21 — Results leaderboard with variance

@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-9
 title: Explicit clear-thinking-override affordance for a seat
-state: In Review
+state: Done
 owner: owner
 epic: EPIC-6
 goal: A follow-up affordance removes a seat's thinking override or its whole council.<seat> entry from .council.json explicitly rather than treating absence as preserve, proven by a round-trip test that clears an existing override and byte-asserts the resulting config.
@@ -145,3 +145,43 @@ implementation only (plan `2026-09-05-FLLWUP-9-…md` 422 + writer 125 +
 tests 196), head unchanged `7d8d386`. Discipline hardened for the rest of
 the run: `git diff --cached --name-only` before every commit;
 `git status --porcelain` after every foreign dispatch.
+
+### Step 11 — deterministic merge check (features-deliver substitution)
+All five criteria met, read fresh against PR head
+`7d8d3864f487315d3aca6d0f538ad40e01158d72`: (1) owner gates green in full
+(Skeptic re-ran the four gates at the head); (2) `gates` workflow SUCCESS
+on the PR head SHA — `gh pr checks 26` →
+`[{"name":"gates","state":"SUCCESS","workflow":"gates"}]`, asserted by
+`workflow` key per the substitution; (3) no blocking Skeptic objection
+(NO-BLOCK, 17/17 closed-green); (4) judge PASS; (5) no Needs Human /
+outstanding ruling (R-1 applied in full, none open). Head pin re-read
+immediately before merging (OPEN, head 7d8d386…) and no mismatch. Merged
+`gh pr merge 26 --squash --match-head-commit 7d8d386…` → PR #26
+**MERGED** (mergedAt 2026-09-05T06:22:52Z), merge SHA
+`08438bd53068c12544516dd0310b88883c137d35` on `main`. `gates` workflow
+re-ran on the merged SHA: run 33949654525 → **completed/success**.
+
+### Step 12 — Done
+Local `main` fast-forwarded from the pushed records to the squash
+(origin/main f8b5c46..08438bd; FF-OK — records were pushed as they
+happened this run, so no union merge needed); merged tree verified to
+carry the implementation (plan doc + writer 515 lines + tests 726 lines).
+Board and card set Done; `validate.py` clean; reconciliation committed
+and pushed.
+
+### Step 13/14 — follow-up candidates and persistence (for the orchestrator)
+No new FLLWUP card written — step 13's draft-then-confirm gate is the
+orchestrator's. Candidates surfaced by this run: (1) FLLWUP-11 (the next
+scheduled card) is unaffected by this seam's writer-surface change; (2)
+the step-10 contamination incident (foreign agent job staging
+implementation files into the shared checkout, swept in by a scoped
+`git add` — see the step-10 addendum above) is a council-runner
+discipline lesson worth canonizing (verify `git diff --cached --name-only`
+before every commit and `git status --porcelain` after every dispatch) —
+a wiki/runs note, not a code card; (3) `vault/wiki/council-config-writer.md`
+should eventually document `clearSeatOverride` (the page's Contract
+section predates this card) via wiki-ingest — no vault edits made by this
+runner; (4) the record-hygiene wart on FLLWUP-10's card (a `<<<<<<< HEAD`
+conflict-marker remnant in its Deliberation section from the prior run's
+union-merge reconcile) is worth a tiny clean-up pass by the orchestrator
+— cosmetic, validate.py does not flag it.
