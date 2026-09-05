@@ -14,6 +14,16 @@ PHASE2_TIMEOUT=$((90 * 60))
 phase() { echo; echo "=== $* ==="; }
 fatal() { echo "SMOKE FAIL: $*" >&2; exit 1; }
 
+# FLLWUP-11: environment-gated phase selector. SMOKE_PHASE set → only the
+# named phase's real work runs (Phase 1-4 real-model dispatches never happen);
+# unset/empty → the full path below, byte-for-byte the pre-FLLWUP-11 flow.
+# Only phase 5 is supported today.
+SMOKE_PHASE="${SMOKE_PHASE:-}"
+# Phase 0 — seed $WORK, deps, project-local install, headless /council-init
+# (deterministic scaffold — NO real-model dispatch). Shared verbatim by the full
+# path and the SMOKE_PHASE=5 isolation path; the isolation path suppresses the
+# phase-0 PASS verdict so the run carries a single report (Phase 5's).
+phase0_prepare() {
 phase "0a seed worktree"
 rm -rf "$WORK"
 cp -R "$PKG/smoke/fixture" "$WORK"
@@ -41,9 +51,86 @@ grep -q "rpiv-ask-user-question" .pi/settings.json || fatal "ask-user-question n
 python3 council/validate.py || fatal "validate.py failed after init"
 bash council/preflight.sh || fatal "preflight failed after init"
 
-echo
-echo "SMOKE PHASE 0 PASS"
+	if [ "${1:-1}" = "1" ]; then
+		echo
+		echo "SMOKE PHASE 0 PASS"
+	fi
+}
 
+# Phase 5 — /council-models end-to-end (EV-25). The greps below inline the
+# EV-25 Phase-1 ruling literals VERBATIM (R-2 usage line, listing header,
+# override-line shape; R-3 notify copy) — the ruling, not a module constant,
+# is the authority (FLLWUP-11 R-1).
+phase5_run() {
+phase "5 council-models (EV-25)"
+cd "$WORK" || fatal "no worktree"
+CM_OUT="$(mktemp)"
+CM_SEAT="$(mktemp)"
+CM_WRITE="$(mktemp)"
+CM_FAIL="$(mktemp)"
+
+# (a) no-arg form: R-2 usage block + per-seat current listing (all 9 seats override-pinned).
+timeout 120 pi --approve -p "/council-models" >"$CM_OUT" 2>&1 \
+	|| fatal "phase 5: /council-models no-arg did not settle"
+grep -Fq '[council-models] usage: /council-models [<seat> [<provider>/<model>[:thinking]]]' "$CM_OUT" \
+	|| fatal "phase 5: R-2 usage line missing"
+grep -Fq 'Current per-seat models:' "$CM_OUT" \
+	|| fatal "phase 5: listing header missing"
+# Fixture pins are suffix-less string shorthands; each seat's FRONTMATTER
+# `:suffix` thinking survives the level-less override (council-config
+# precedence: explicit thinking > override :suffix > frontmatter), so the
+# effective line names the preserved level.
+grep -Fq 'owner: openrouter/deepseek/deepseek-v4-flash-0731:high (override)' "$CM_OUT" \
+	|| fatal "phase 5: owner override line missing"
+
+# (b) single-seat form: usage line + that seat's current line.
+timeout 120 pi --approve -p "/council-models owner" >"$CM_SEAT" 2>&1 \
+	|| fatal "phase 5: /council-models owner did not settle"
+grep -Fq '[council-models] usage:' "$CM_SEAT" || fatal "phase 5: single-seat usage line missing"
+grep -Fq 'owner: openrouter/deepseek/deepseek-v4-flash-0731:high (override)' "$CM_SEAT" \
+	|| fatal "phase 5: single-seat current line missing"
+
+# (c) write form: validate + write + R-3 notify (post-write read-back), file asserted.
+timeout 120 pi --approve -p "/council-models owner openrouter/deepseek/deepseek-v4-flash-0731:high" >"$CM_WRITE" 2>&1 \
+	|| fatal "phase 5: /council-models write did not settle"
+grep -Fq 'council-models: wrote owner → openrouter/deepseek/deepseek-v4-flash-0731:high in .council.json — takes effect at the next dispatch.' \
+	"$CM_WRITE" || fatal "phase 5: R-3 notify copy missing"
+python3 -c '
+import json
+cfg = json.load(open(".council.json"))
+val = cfg["council"]["owner"]
+assert val == {"model": "openrouter/deepseek/deepseek-v4-flash-0731", "thinking": "high"}, val
+assert len(cfg["council"]) == 9, "write must not disturb other seats: %d" % len(cfg["council"])
+' || fatal "phase 5: post-write .council.json mismatch"
+python3 council/validate.py || fatal "phase 5: validate.py failed after the write"
+
+# (d) failure: model outside the catalogue → error, file byte-identical (nothing written).
+cp .council.json "$WORK/.council.json.cm-before"
+timeout 120 pi --approve -p "/council-models owner openrouter/no-such-model/xyz" >"$CM_FAIL" 2>&1 \
+	|| fatal "phase 5: /council-models invalid-model did not settle"
+grep -Fq '[council-models] error:' "$CM_FAIL" || fatal "phase 5: invalid-model error missing"
+cmp -s .council.json "$WORK/.council.json.cm-before" || fatal "phase 5: invalid model still wrote .council.json"
+rm -f "$WORK/.council.json.cm-before"
+
+rm -f "$CM_OUT" "$CM_SEAT" "$CM_WRITE" "$CM_FAIL"
+}
+
+# FLLWUP-11 isolation path: SMOKE_PHASE set → phase-0 prep (no verdict) plus
+# ONLY the named phase's real work; one PASS/FAIL report at the end. Values
+# other than 5 are a hard fail — nothing partial executes.
+if [ -n "$SMOKE_PHASE" ]; then
+	if [ "$SMOKE_PHASE" != "5" ]; then
+		fatal "unsupported SMOKE_PHASE='$SMOKE_PHASE' (only 5 is supported)"
+	fi
+	phase "FLLWUP-11 isolated run — SMOKE_PHASE=$SMOKE_PHASE (phases 1-4 real-model work skipped)"
+	phase0_prepare 0
+	phase5_run
+	echo
+	echo "SMOKE PASS — phase 5 (council-models) verified in isolation (SMOKE_PHASE=$SMOKE_PHASE)"
+	exit 0
+fi
+
+phase0_prepare
 phase "1 council loop EV-1"
 timeout "$PHASE1_TIMEOUT" pi --approve --model "$FLASH" -p "/council EV-1" \
 	|| fatal "phase 1: /council EV-1 did not settle within ${PHASE1_TIMEOUT}s"
@@ -241,57 +328,7 @@ python3 council/validate.py || fatal "phase 4: validate.py failed after the lead
 
 rm -f "$LB_OUT" "$LB_REVAL" "$LB_VIEW"
 
-phase "5 council-models (EV-25)"
-cd "$WORK" || fatal "no worktree"
-CM_OUT="$(mktemp)"
-CM_SEAT="$(mktemp)"
-CM_WRITE="$(mktemp)"
-CM_FAIL="$(mktemp)"
-
-# (a) no-arg form: R-2 usage block + per-seat current listing (all 9 seats override-pinned).
-timeout 120 pi --approve -p "/council-models" >"$CM_OUT" 2>&1 \
-	|| fatal "phase 5: /council-models no-arg did not settle"
-grep -Fq '[council-models] usage: /council-models [<seat> [<provider>/<model>[:thinking]]]' "$CM_OUT" \
-	|| fatal "phase 5: R-2 usage line missing"
-grep -Fq 'Current per-seat models:' "$CM_OUT" \
-	|| fatal "phase 5: listing header missing"
-# Fixture pins are suffix-less string shorthands; each seat's FRONTMATTER
-# `:suffix` thinking survives the level-less override (council-config
-# precedence: explicit thinking > override :suffix > frontmatter), so the
-# effective line names the preserved level.
-grep -Fq 'owner: openrouter/deepseek/deepseek-v4-flash-0731:high (override)' "$CM_OUT" \
-	|| fatal "phase 5: owner override line missing"
-
-# (b) single-seat form: usage line + that seat's current line.
-timeout 120 pi --approve -p "/council-models owner" >"$CM_SEAT" 2>&1 \
-	|| fatal "phase 5: /council-models owner did not settle"
-grep -Fq '[council-models] usage:' "$CM_SEAT" || fatal "phase 5: single-seat usage line missing"
-grep -Fq 'owner: openrouter/deepseek/deepseek-v4-flash-0731:high (override)' "$CM_SEAT" \
-	|| fatal "phase 5: single-seat current line missing"
-
-# (c) write form: validate + write + R-3 notify (post-write read-back), file asserted.
-timeout 120 pi --approve -p "/council-models owner openrouter/deepseek/deepseek-v4-flash-0731:high" >"$CM_WRITE" 2>&1 \
-	|| fatal "phase 5: /council-models write did not settle"
-grep -Fq 'council-models: wrote owner → openrouter/deepseek/deepseek-v4-flash-0731:high in .council.json — takes effect at the next dispatch.' \
-	"$CM_WRITE" || fatal "phase 5: R-3 notify copy missing"
-python3 -c '
-import json
-cfg = json.load(open(".council.json"))
-val = cfg["council"]["owner"]
-assert val == {"model": "openrouter/deepseek/deepseek-v4-flash-0731", "thinking": "high"}, val
-assert len(cfg["council"]) == 9, "write must not disturb other seats: %d" % len(cfg["council"])
-' || fatal "phase 5: post-write .council.json mismatch"
-python3 council/validate.py || fatal "phase 5: validate.py failed after the write"
-
-# (d) failure: model outside the catalogue → error, file byte-identical (nothing written).
-cp .council.json "$WORK/.council.json.cm-before"
-timeout 120 pi --approve -p "/council-models owner openrouter/no-such-model/xyz" >"$CM_FAIL" 2>&1 \
-	|| fatal "phase 5: /council-models invalid-model did not settle"
-grep -Fq '[council-models] error:' "$CM_FAIL" || fatal "phase 5: invalid-model error missing"
-cmp -s .council.json "$WORK/.council.json.cm-before" || fatal "phase 5: invalid model still wrote .council.json"
-rm -f "$WORK/.council.json.cm-before"
-
-rm -f "$CM_OUT" "$CM_SEAT" "$CM_WRITE" "$CM_FAIL"
+phase5_run
 
 echo
 echo "SMOKE PASS — full council loop + epic delivery + council-eval matrix + council-leaderboard + council-models verified"
