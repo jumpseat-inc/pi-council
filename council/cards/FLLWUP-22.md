@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-22
 title: Theme token drift vs pi 0.85.x grounds the devDependency upper bound
-state: Deliberating
+state: In Progress
 owner: null
 epic: EPIC-6
 goal: The scrollbar theme token drift between pi 0.84.x and 0.85.x is characterized by driven tests that are green on the version range the repo declares supported, and the run record states whether council themes are 0.85.x-compatible with the specific token deltas named, grounding the devDependency upper bound in evidence rather than an untested bound.

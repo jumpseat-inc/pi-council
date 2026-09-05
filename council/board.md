@@ -23,13 +23,13 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- FLLWUP-22 — Theme token drift vs pi 0.85.x grounds the devDependency upper bound
-
 ## Ready
 
 - FLLWUP-23 — Named failure for pi-council installs missing node_modules
 
 ## In Progress
+
+- FLLWUP-22 — Theme token drift vs pi 0.85.x grounds the devDependency upper bound
 
 ## In Review
 
