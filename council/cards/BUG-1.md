@@ -1,7 +1,7 @@
 ---
 id: BUG-1
 title: Backspace deletion in the model search input and a first-use `/` filter hint
-state: Backlog
+state: In Progress
 owner: null
 epic: EPIC-6
 goal: Pressing backspace while the model search input in the `/council-models` modal is focused deletes the last character of the query and recomputes the filtered list, and before any `/` press the model-level view shows a visible hint that `/` filters models, proven by driven handleInput and render tests.
@@ -61,3 +61,39 @@ Recorded human decisions — immutable for the run and binding on every seat,
 - The hint half's copy, placement, and dismissal semantics are the ruled
   literals in the Phase 1 rulings above (R-1 placement, R-2 copy,
   R-3 dismissal).
+
+## Execution
+
+### Step 1 gate
+Mechanical, surface-touching. The backspace half is fully pinned on this
+face — the folded FLLWUP-12 contract fixes the exact byte (`\x7f`), the
+exact guards (non-empty query AND input focus for delete-one; empty query
+and unfocused stay no-ops), the exact effect (delete one trailing character,
+recompute through the existing `filterModelRows` seam), and an unchanged
+contract for every other control byte. The hint half has no open design
+question: R-1 pins placement (first-render line below the model rows at the
+model level, only while search has never been opened in the current
+modal-open, not a footer, no `▌`), R-2 pins copy (byte-exact `press / to
+filter models`), R-3 pins dismissal (stop at the first `/` press, return on
+next fresh entry to the model level, no session persistence). The change is
+confined to one area (`extensions/model-picker.ts` and its driven tests in
+`test/`) — no cross-seam reach, no design judgment left, no ambiguity an
+owner could resolve two ways. Surface-touching by definition (a visible
+hint line and a visible deletion behavior), but per council.md step 1 a
+surface-touching mechanical card seats no `designer`; any design concern
+this run surfaces routes to step 13 as a follow-up candidate, never to
+reopening the card.
+
+State note: card dispatched at `Backlog`; the features-deliver
+card-selection substitution replaces `Ready` promotion — the orchestrator selects epic-scope cards in dependency order,
+and every EPIC-6 card this run (EV-26, EV-27, FLLWUP-10, FLLWUP-11)
+executed from `Backlog` the same way. Mechanical path: skips steps 2–6,
+proceeds directly to step 7 with the card itself as the owner handoff (no
+spec file under `docs/superpowers/specs/`).
+
+### Step 7 — In Progress, handed to owner
+Card set In Progress on frontmatter and board; `validate.py` clean (below).
+Owner dispatched at the card only — the mechanical-path handoff is the
+card's own Intent, goal, and Acceptance (plus the folded FLLWUP-12 pins and
+Phase 1 rulings on this face), with this repo's gate and branch/PR
+conventions named.
