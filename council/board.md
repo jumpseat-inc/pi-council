@@ -20,13 +20,14 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-8 — council-leaderboard task drill-down filter
 - EPIC-5 — /council-models provider and model picker for per-seat .council.json overrides
 - EPIC-6 — /council-models model-name search filter in the model selection modal
-- FLLWUP-11 — Smoke phase selector for the /council-models Phase 5 falsifier
 
 ## Deliberating
 
 ## Ready
 
 ## In Progress
+
+- FLLWUP-11 — Smoke phase selector for the /council-models Phase 5 falsifier
 
 ## In Review
 
