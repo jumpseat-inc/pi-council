@@ -32,9 +32,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- FLLWUP-18 — Judge dispatch inputs pin the verification subject and loop frame
-
 ## Needs Human
+
+## Done
+
+- FLLWUP-18 — Judge dispatch inputs pin the verification subject and loop frame
 
 ## Done
 

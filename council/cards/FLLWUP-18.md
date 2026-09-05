@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-18
 title: Judge dispatch inputs pin the verification subject and loop frame
-state: In Review
+state: Done
 owner: null
 epic: EPIC-6
 goal: The council-runner seat's judge-dispatch guidance requires every judge dispatch input to name the exact verification subject — the PR head SHA and the head worktree path — and the loop frame that step 10 judging precedes step 11's mechanical merge which the facilitator executes and no seat performs, proven by a driven payload test on the packaged seat body.
@@ -179,3 +179,8 @@ body, the plan, and `test/seats.test.ts`, no `council/` record overlap;
 merge exit 0, conflict-marker sweep empty (the one `<<<<<<<` grep hit is
 pre-existing record text in `council/cards/FLLWUP-9.md`), `python3
 council/validate.py` clean after the merge.
+
+### Step 12 — Done
+`gates` workflow on the merged SHA `21a95a8` (run 33959042296) completed
+success (observed via `gh run view 33959042296`). Board and card set
+Done; `validate.py` clean; reconciliation committed and pushed.
