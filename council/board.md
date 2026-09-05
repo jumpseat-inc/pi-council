@@ -27,6 +27,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Ready
 
 - FLLWUP-15 — Search-mode modal frame fits the terminal at full window height
+- FLLWUP-16 — Seat dispatch inputs forbid main-repo branch-state mutation
 
 ## In Progress
 
