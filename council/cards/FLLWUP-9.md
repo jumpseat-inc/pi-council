@@ -1,8 +1,8 @@
 ---
 id: FLLWUP-9
 title: Explicit clear-thinking-override affordance for a seat
-state: Backlog
-owner: null
+state: In Progress
+owner: owner
 epic: EPIC-6
 goal: A follow-up affordance removes a seat's thinking override or its whole council.<seat> entry from .council.json explicitly rather than treating absence as preserve, proven by a round-trip test that clears an existing override and byte-asserts the resulting config.
 ---
@@ -36,3 +36,28 @@ correctly excluded (spec §8).
 
 Recorded human decision — immutable for the run and binding on every seat,
 `steward` included.
+
+## Deliberation
+
+### Step 1 gate
+Mechanical, not surface-touching. Narrowly-scoped and unambiguous — the
+behavior is fully specified (clear removes the `thinking` member; whole
+`council.<seat>` object when asked; byte-preserve the `theme` section, every
+other seat, and unknown top-level keys; no loader change) and pinned by
+Phase-1 R-1 (writer-level clear operation on
+`extensions/council-config-writer.ts` + round-trip test; no modal UI, no new
+user-visible copy). Confined to one seam (the writer + its test file in
+`test/council-config-writer.test.ts`); remaining freedom is API spelling —
+an implementation choice, not a design tradeoff. Same seam and shape as
+FLLWUP-10 (gated mechanical this epic). Applied R-1 and did not re-ask.
+Not surface-touching → `designer` not seated. Skips steps 2-6; proceeds
+directly to step 7 with the card itself as the owner handoff (no spec file
+— mechanical path). (Features-deliver substitution: card selected by
+orchestrator per steward's ruled build order replaces the attended-flow
+Ready promotion, per the epic's established pattern, cf. FLLWUP-10.)
+
+### Step 7 — In Progress, handed to owner
+Card set In Progress on frontmatter and board, `owner: owner`; `validate.py`
+clean. Owner dispatched at the card (mechanical-path handoff: the card's
+Intent, goal, and Acceptance, with R-1 binding) with repo gate and
+branch/PR conventions.
