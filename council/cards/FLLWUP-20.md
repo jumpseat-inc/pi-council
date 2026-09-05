@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-20
 title: Judge seat guidance names the runner-pinned verification subject
-state: Ready
+state: In Progress
 owner: null
 epic: EPIC-6
 goal: The judge seat body's when-invoked guidance describes the input it receives as including the verification subject and loop frame that council-runner pins in every judge dispatch input, proven by a driven payload test asserting the wording on the packaged judge seat body.
@@ -40,3 +40,40 @@ model picker.
   (insertion-only diff); no `extensions/` change; picker surface untouched.
 - Full gate set stays green (`bun test`, `bunx tsc --noEmit`,
   `python3 council/validate.py`).
+
+## Execution
+
+### Step 1 gate — mechanical, not surface-touching
+
+Mechanical: narrowly-scoped, unambiguous, confined to one area — the
+packaged judge seat body (`council/agents/judge.md`) `<when_invoked>`
+guidance gains the verification subject and loop frame as received-input
+elements, plus a driven payload test in `test/seats.test.ts`. Every
+element is fixed by the orchestrator's binding constraints: no
+frontmatter change; FLLWUP-17's judge immutability block stays
+byte-intact (insertion-only diff); FLLWUP-16/18/19 blocks and tests stay
+byte-intact; no `extensions/` change; picker surface untouched; the
+change is descriptive — the constraint lives in the runner's guidance
+(FLLWUP-18) and no enforcement machinery is duplicated into the judge
+body. No spec ambiguity, no design tradeoff, no cross-seam reach.
+Not surface-touching: seat bodies are agent guidance — nothing a person
+sees, reads, or does changes; no user-visible copy, empty state, or error
+state; picker surface explicitly untouched. Mechanical path skips steps
+2–6 and proceeds to step 7 with the card itself as the owner handoff (no
+spec file under `docs/superpowers/specs/`).
+
+### Step 7 — In Progress, handed to owner
+
+Card set In Progress on frontmatter and board; `validate.py` clean.
+Owner dispatched (job-8.1) at the card only — `goal`/`Intent`/
+`Acceptance` verbatim plus the orchestrator's binding constraints (no
+frontmatter change; FLLWUP-17's judge `<main_repo_immutability>` block
+stays byte-identical to `origin/main` — insertion-only diff; the
+FLLWUP-16/18/19 blocks and tests stay byte-intact; no `extensions/`
+change; picker surface untouched; descriptive change only — the
+constraint itself lives in the runner's guidance, not duplicated as
+enforcement machinery in the judge body) and this repo's gate set
+(`.github/workflows/gates.yml` is the authoritative record — this repo
+has no dataset-import or server-boot gate, so the owner's full gate set
+is `bun install --frozen-lockfile`, `bunx tsc --noEmit`, `bun test`,
+`python3 council/validate.py`, all in order, in full).
