@@ -447,6 +447,71 @@ describe("writeSeatOverride", () => {
 		});
 	});
 
+	test("FLLWUP-10: object-form model :suffix is preserved across a model-only write (loader parity)", () => {
+		// Reproduction from the card: object-form override carrying a :suffix and
+		// NO explicit thinking key. Pre-fix, existingThinking sees only the absent
+		// `.thinking` key, the write emits no thinking line, and the post-write
+		// effective thinking falls back to frontmatter — "low" silently dropped.
+		const fixture =
+			`{\n` +
+			`${T}"council": {\n` +
+			`${T}${T}"designer": {\n` +
+			`${T}${T}${T}"model": "openrouter/minimax/minimax-m3:low"\n` +
+			`${T}${T}},\n` +
+			`${T}${T}"judge": {\n` +
+			`${T}${T}${T}"model": "openrouter/qwen/qwen3.6-35b-a3b:medium"\n` +
+			`${T}${T}}\n` +
+			`${T}},\n` +
+			`${T}"theme": {\n` +
+			`${T}${T}"enabled": true,\n` +
+			`${T}${T}"variant": "auto"\n` +
+			`${T}},\n` +
+			`${T}"unknownTopLevel": { "kept": true }\n` +
+			`}`;
+		const repo = makeRepo({ [COUNCIL_CONFIG_FILE]: fixture });
+		const before = cfg(repo);
+
+		// Model-only write — no `thinking` argument, so preservation is the merge's job.
+		const res = writeSeatOverride({ repoRoot: repo, seat: "designer", model: "openrouter/new/other", catalogue: CATALOGUE });
+		expect(res.ok).toBe(true);
+		const after = cfg(repo);
+
+		// The written entry preserves the level the loader would have resolved:
+		expect(loadCouncilConfig(repo).designer).toEqual({ model: "openrouter/new/other", thinking: "low" });
+		expect(after).toContain(`"thinking": "low"`);
+
+		// EV-24 guarantees still hold through this fixture: only designer's value
+		// span changed; theme, judge, unknown key, indent, trailing bytes identical.
+		const keyAt = before.indexOf('"designer"');
+		const valueStart = before.indexOf("{", keyAt);
+		const valueEnd = objectEnd(before, valueStart);
+		expect(after.startsWith(before.slice(0, valueStart))).toBe(true);
+		expect(after.endsWith(before.slice(valueEnd))).toBe(true);
+		const themeBefore = before.slice(before.indexOf('"theme"'));
+		const themeAfter = after.slice(after.indexOf('"theme"'));
+		expect(sha256(themeAfter)).toBe(sha256(themeBefore));
+		expect(after.slice(after.indexOf('"unknownTopLevel"'))).toBe(before.slice(before.indexOf('"unknownTopLevel"')));
+	});
+
+	test("FLLWUP-10: explicit thinking key still wins over an object-form model :suffix (loader precedence)", () => {
+		// applySeatOverride: `if (ov.thinking) thinkingLevel = ov.thinking;` runs
+		// AFTER suffix parsing — the explicit key must win here too. Regression
+		// pin guarding a wrong fix that checks the :suffix before the .thinking key.
+		const fixture =
+			`{\n` +
+			`${T}"council": {\n` +
+			`${T}${T}"designer": {\n` +
+			`${T}${T}${T}"model": "openrouter/minimax/minimax-m3:low",\n` +
+			`${T}${T}${T}"thinking": "high"\n` +
+			`${T}${T}}\n` +
+			`${T}}\n` +
+			`}`;
+		const repo = makeRepo({ [COUNCIL_CONFIG_FILE]: fixture });
+		const res = writeSeatOverride({ repoRoot: repo, seat: "designer", model: "openrouter/new/other", catalogue: CATALOGUE });
+		expect(res.ok).toBe(true);
+		expect(loadCouncilConfig(repo).designer).toEqual({ model: "openrouter/new/other", thinking: "high" });
+	});
+
 	test("council absent: a council section is inserted before theme, per scaffold order", () => {
 		const repo = makeRepo({
 			[COUNCIL_CONFIG_FILE]: `{\n${T}"theme": { "enabled": true, "variant": "auto" }\n}`,
