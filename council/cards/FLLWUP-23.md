@@ -681,3 +681,82 @@ testability constraint under drift (fixture must be self-contained SDK-free,
 per the card's own "equivalent the deliberation rules" latitude), to be
 re-verified at 0.85.1 post-sync. Also run: `bunx tsc --noEmit` clean;
 driver probes with/without themes, with/without SDK, with corrupted oauth.ts.
+
+### Step 5 — Consolidator synthesis (job-19.9): READY TO HAND OFF
+
+The consolidator sorted the record into settled / open judgment / open
+objections. No open judgment dispute survives; one open objection (O1,
+fixture fidelity) is a gate-time verification, not a design blocker.
+
+#### Agreed design (all seats converged)
+
+- **Mechanism:** new `extensions/mcp-load.ts` (node-builtins only), memoized
+  `getMcp()`: `try { return await import("./mcp/index.ts") } catch (e) {
+  try { await import("@modelcontextprotocol/sdk/client") } catch { throw
+  new Error(NAMED_PROSE) } throw e }`.
+- **De-static the `./mcp/index.ts` edge:** the four direct caller sites
+  (`index.ts:13`, `child.ts:4`, `hub-tools.ts:9`, `dispatch.ts:16`) plus
+  the indirect edge `eval-runner.ts → dispatch.ts` (five total — Skeptic
+  obj 6) become `import type` + runtime access through `getMcp()`;
+  `client.ts`/`oauth.ts` SDK imports stay static inside `mcp/`.
+- **Guard placement:** the factory's first statement is `await getMcp()`,
+  before the `seatName` split, so seat children surface the same prose;
+  `runChildMode` stays sync, its `startSeatMcp` call becomes
+  `void getMcp().then(...)`; `session_start`/`session_shutdown`/
+  hub-tools/dispatch handlers `await getMcp()`; `hub.ts` untouched.
+- **Failure contract (named-load-error):** missing-SDK ⇒ `throw new
+  Error(NAMED_PROSE)` ⇒ `extension: null` + exit-1 + prose as the inner
+  `${message}` under pi's fixed wrappers, reaching both
+  `discoverAndLoadExtensions.errors` and stderr before pi's `-ne` hint.
+  Owner conceded the partial-load variant on the real-CLI channel probe;
+  designer P4 stands; zero sentinel branches.
+- **Prose constraints (binding on the designer's copy):** names
+  `@modelcontextprotocol/sdk` AND the first unresolved subpath
+  `@modelcontextprotocol/sdk/client` (sourced by construction — hardcoded,
+  not extracted from the native throw); remedy `bun install`/`npm install`
+  at the package root (portable phrase); restart guidance; explicit counter
+  to `pi -ne`; "pi-council could not load:" prefix.
+- **Discriminator honesty:** non-SDK failures of the lazy import rethrow.
+- **`import.meta.resolve` presence check rejected** — diverges from jiti's
+  two-stage walk; detection is the import attempt itself.
+
+#### Settled disputes (test/result that closed each)
+
+| Dispute | Settling test | Result |
+|---|---|---|
+| named-load-error vs partial-load-diagnostic-command | owner's real-CLI
+channel probe | owner conceded; loader-error payload is the reachable channel |
+| async factory tolerance | Skeptic obj 7 (loader.js:409/:425 await
+factory; no sync caller) | closed-green |
+| five type-only sites | Skeptic obj 6 (grep) | closed-green |
+| discriminator honesty | Skeptic obj 4 (BOOM/oauth.ts) | closed-green |
+| healthy byte-identity | Skeptic obj 5 (env-split 4/4) | closed-green |
+| prose channel contract | Skeptic obj 3 (SDK-hidden driver + main.js
+ordering) | closed-green |
+| SDK-only-unresolvable | Skeptic obj 8 (both pi package.jsons) |
+closed-green |
+| themes-mask fixture shape | Skeptic obj 2 (ENOENT) | closed-red
+(drift-independent fixture fact) |
+| first-unresolved-entry sourcing | owner probe (deterministic error text)
+| settled — hardcode `@modelcontextprotocol/sdk/client` |
+| `import.meta.resolve` equivalence | principal source-reading of jiti
+resolver | settled — diverges by construction |
+
+#### Open judgment — NONE
+
+#### Open objections — O1 only (fixture fidelity under 0.85.1)
+
+Carried into the spec as a binding gate-time requirement for the owner:
+run the fixture under lock-resolved pi 0.85.1 post `--frozen-lockfile`
+sync (FLLWUP-24 binding); prefer the cheaper committed-tree-minus-
+node_modules variant iff it reproduces the field failure under 0.85.1,
+else ship the self-contained SDK-free fallback (owner's verified shape:
+its own node_modules minus `@modelcontextprotocol`, driver inside the
+scratch). T5/C4 must pass before the step-8 PR can transition to In
+Review.
+
+### Step 6 — route what does not close: nothing to route
+
+No open judgment items; no blocking open objection (O1 is NO-BLOCK,
+gate-time verification). No Phase-1 ruling needed; no escalation. The card
+proceeds to step 7 with the consolidator's settled design as the spec.
