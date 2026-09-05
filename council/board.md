@@ -34,12 +34,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-26 — Pure model-name filter over the thinking-level cross-product
-
 ## Needs Human
 
 ## Done
 
+- EV-26 — Pure model-name filter over the thinking-level cross-product
 - EV-25 — Register the /council-models command and wire picker to writer
 - EV-23 — Token-only modal picker for per-seat provider and model selection
 - EV-24 — Non-destructive .council.json merge-write for seat overrides
