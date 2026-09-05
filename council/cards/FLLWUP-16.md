@@ -149,3 +149,24 @@ the plan + `council/agents/council-runner.md` + `test/seats.test.ts`
 `.worktrees/fllwup-16-main-repo-immutability` verified at the head; the
 worktree's own seat test file: `bun test test/seats.test.ts` 33 pass / 0
 fail. Set In Review per step 8's observed-artifact rule (branch + open PR).
+
+### Step 9 — verified (cycle 1 of 3)
+Skeptic dispatched at PR #30 head `dacf6be4` (job-3.2), settled in 3.5m.
+All four gates re-run at the head in order, green with real output: `bun
+install --frozen-lockfile` exit 0 ("no changes"); `bunx tsc --noEmit`
+clean; `bun test` 545 pass / 2 skip / 0 fail; `python3 council/validate.py`
+clean. Six falsifiable probes, **all closed-green**: P1 the five asserted
+phrases are present verbatim in the packaged council-runner seat body
+(driven test green, 5 expects); P2 gate integrity — defect injection
+(block removed in a scratch copy) turned the FLLWUP-16 test RED on
+`toContain("main repository path")`, restore turned it GREEN; P3 the
+constraint text names `git checkout`/`git switch`/`git reset`, the `main
+repository path` as the forbidden target, a `dedicated worktree` via `git
+worktree add` as the required mechanism, the `HALT` consequence, and the
+repeat-constraint instruction; P4 diff scope exactly the three files,
+nothing from `council/cards/`, `vault/`, or `extensions/`; P5 reflog
+recovery drill (Acceptance 2) executable — a simulated reversion and
+recovery run in a scratch clone (both `git checkout main` from reflog and
+direct record-SHA restore), `validate.py` clean after both paths; P6 no
+engine change (`extensions/` diff empty). **Verdict: NO-BLOCK, 6/6
+closed-green, no open objection.**
