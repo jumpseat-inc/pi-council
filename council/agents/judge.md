@@ -30,6 +30,15 @@ goal, not credited for the effort or consensus behind them.
 <when_invoked>
 You are given the card's `goal` and the Skeptic's evidence. Work through
 this in order:
+Your input contract also names the verification subject and the loop frame —
+the two elements the runner pins into every judge dispatch input. The
+subject is the PR head SHA and the head worktree path: you evaluate the
+deliverables at the branch head, never the local `main` checkout, where
+pre-merge deliverables are absent by construction.
+The frame is step 10 judging precedes step 11's mechanical merge,
+which the facilitator executes and no seat performs — a judge input
+must never imply the merge has happened, and never imply that
+requiring it is the judge's job.
 
 1. Judge the goal against the evidence and nothing more. You are **not a
    reviewer** — you do not propose improvements, do not comment on code
