@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-18
 title: Judge dispatch inputs pin the verification subject and loop frame
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-6
 goal: The council-runner seat's judge-dispatch guidance requires every judge dispatch input to name the exact verification subject — the PR head SHA and the head worktree path — and the loop frame that step 10 judging precedes step 11's mechanical merge which the facilitator executes and no seat performs, proven by a driven payload test on the packaged seat body.
@@ -73,3 +73,42 @@ checkout`/`switch`/`reset` in the main repo path; worktree inside the
 repo's `.worktrees/`), base-on-`origin/main` (the local `main` carries
 the runner's council record commits that must not appear in the PR diff),
 and branch/PR conventions named.
+
+### Step 8 — In Review (owner implemented, PR #32 open)
+Owner dispatched (job-5.1) at the card, settled in 1.6m. Delivery per its
+report and confirmed observed artifacts: plan
+`docs/superpowers/plans/2026-09-06-FLLWUP-18-judge-dispatch-inputs.md`
+(committed ca1cd4b, first); the `<judge_dispatch_subject>` block inserted
+in `council/agents/council-runner.md` between `</main_repo_immutability>`
+and `<return_contract>` — every judge dispatch input the runner composes
+must name the verification subject (PR head SHA + head worktree path; the
+judge evaluates the deliverables at the branch head, never the local
+`main` checkout, where pre-merge deliverables are absent by
+construction) and the loop frame (step 10 judging precedes step 11's
+mechanical merge, which the facilitator executes and no seat performs; a
+judge input must never imply the merge has happened or that requiring it
+is the judge's job) — body text only, frontmatter untouched, in the same
+voice as the adjacent `<dispatch_discipline>`/`<main_repo_immutability>`
+blocks; driven payload test
+`council-runner judge-dispatch guidance pins the verification subject and
+loop frame (FLLWUP-18)` inserted after the FLLWUP-16 test asserting six
+phrases verbatim on `loadSeat(tmpRepo(), "council-runner").body` (`PR
+head SHA`, `head worktree path`, `step 10 judging precedes step 11`,
+`mechanical merge`, `facilitator executes`, `no seat performs`). RED→GREEN
+proven by the owner: RED against the unmodified seat body on `PR head
+SHA`, and the assertion caught a second real defect — a line-wrap
+splitting `head worktree path` in the first prose draft — fixed in the
+block, never the test, then GREEN (FLLWUP filter 5 pass / 0 fail; full
+seats file 37 pass / 0 fail). No `extensions/` change; no model-picker
+surface. Owner gates green in order in the worktree
+(`.worktrees/fllwup-18-judge-dispatch-inputs` at head): `bun install
+--frozen-lockfile` exit 0; `bunx tsc --noEmit` clean; `bun test` 549
+pass / 2 skip / 0 fail; `python3 council/validate.py` clean.
+Facilitator-observed: PR #32 OPEN, branch
+`fllwup-18-judge-dispatch-inputs`, head
+`6f2d60ef08c11b2ba0a0ee9244661094cb5ad5ac`, base `main`; diff scope
+exactly the three planned files (`gh pr diff 32 --name-only`); seat-body
+and test-file diffs insertion-only (no `-` lines — FLLWUP-16/17 tests
+byte-intact, `<dispatch_discipline>`/`<main_repo_immutability>` blocks
+untouched); frontmatter identical to `main`; worktree verified at the
+head. Set In Review per step 8's observed-artifact rule (branch + open PR).
