@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-17
 title: Main-repo immutability constraint in the working seats' own guidance
-state: In Review
+state: Done
 owner: null
 epic: EPIC-6
 goal: The owner, skeptic, and judge seat bodies each carry the main-repo immutability constraint — git checkout, git switch, and git reset forbidden against the main repository path with branch state changes happening only in a dedicated worktree — proven by a driven payload test per seat asserting the constraint phrases on the packaged seat bodies.
@@ -149,3 +149,13 @@ Human / outstanding ruling (card In Review, zero escalations). Merged
 `f35d082208c077f140edf50e3cb61214854b44d7` on `main`. `gates` workflow
 re-ran on the merged SHA: run 33958661326 (observed via `gh run list
 --commit f35d082…`).
+
+### Step 12 — Done
+Local `main` reconciled by clean ort merge adopting the squash (f35d082)
+while keeping this card's record commits (d83e6f1, 2613135, 32a838d,
+85171a4) — the squash touches only the three seat bodies, the plan, and
+`test/seats.test.ts`, no `council/` record overlap; merge exit 0,
+conflict-marker sweep empty, squash confirmed an ancestor of local main.
+`gates` workflow on the merged SHA (run 33958661326) completed/success
+(observed via `gh run list --commit f35d082…`). Board and card set Done;
+`validate.py` clean; reconciliation committed and pushed.

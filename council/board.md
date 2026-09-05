@@ -33,11 +33,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- FLLWUP-17 — Main-repo immutability constraint in the working seats' own guidance
-
 ## Needs Human
 
 ## Done
+
+- FLLWUP-17 — Main-repo immutability constraint in the working seats' own guidance
 
 - FLLWUP-16 — Seat dispatch inputs forbid main-repo branch-state mutation
 
