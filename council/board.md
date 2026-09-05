@@ -32,11 +32,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- FLLWUP-13 — No-match state names how to leave search mode
-
 ## Needs Human
 
 ## Done
+
+- FLLWUP-13 — No-match state names how to leave search mode
 
 - BUG-1 — Backspace deletion in the model search input and a first-use `/` filter hint
 

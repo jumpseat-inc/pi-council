@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-13
 title: No-match state names how to leave search mode
-state: In Review
+state: Done
 owner: null
 epic: EPIC-6
 goal: When the model search query matches zero rows, the modal's no-match rendering includes a hint naming the key sequence that leaves search mode without clearing it, byte-distinct from the ruled no-match literal and both R-4 empty states, proven by driven render tests at the zero-match state.
@@ -157,5 +157,27 @@ NO_MATCH(query) and FOOTER_MODEL; the hint names the real leave-search
 walk (Down→Esc driven, search state dies, fresh re-entry clean);
 byte-distinct from the ruled literal and both R-4 empty states (0x2193
 lead, 23 codepoints, all six distinctness assertions); proven by driven
-render tests — all three FLLWUP-13 tests green, full suite 544 pass / 0
-fail.
+### Step 11 — deterministic merge check (features-deliver substitution)
+All five criteria met, read fresh against PR head
+`acee4a659537777b54fc080f9b4a42945d5fba4a`: (1) owner gates green in full
+(owner job-2.1 + Skeptic job-2.2 re-ran at the head: frozen-lockfile
+install, tsc, `bun test` 544/2/0, validate.py); (2) `gates` workflow
+SUCCESS on the PR head SHA — `gh pr checks 29 --json name,state,workflow`
+→ `[{"name":"gates","state":"SUCCESS","workflow":"gates"}]`,
+asserted on the `workflow` field per the substitution; (3) no blocking
+Skeptic objection (NO-BLOCK, 12/12 closed-green); (4) judge PASS
+(job-2.3); (5) no Needs Human / outstanding ruling (card In Review).
+Merged `gh pr merge 29 --squash --match-head-commit acee4a6…` → PR #29
+**MERGED** (mergedAt 2026-09-05T09:11:44Z), merge SHA
+`b66bc8fe812cb619f82d6a5700172569209fb65b` on `main`. `gates` workflow
+re-ran on the merged SHA: run 33957318453 → **completed/success**
+(observed via `gh run watch`, all four steps green).
+
+### Step 12 — Done
+Local `main` reconciled by union merge adopting the squash (b66bc8f)
+while keeping this card's record commits (the run's established pattern —
+the squash touches only extensions/model-picker.ts,
+test/model-picker.test.ts, and the plan, no council/ overlap;
+`git diff origin/main --stat -- council/` shows only record lines).
+Board and card set Done; `validate.py` clean; reconciliation committed
+and pushed.
