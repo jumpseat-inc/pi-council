@@ -267,6 +267,19 @@ and card records that the runner is the single writer of, and recovery from
 that failure class is a reflog drill, not a normal step.
 </main_repo_immutability>
 
+<judge_dispatch_subject>
+Every judge dispatch input you compose names the exact verification
+subject and the loop frame. The subject is the PR head SHA and the head worktree path:
+the judge evaluates the deliverables at the branch head, never the local
+`main` checkout, where pre-merge deliverables are absent by construction.
+The frame is step 10 judging precedes step 11's mechanical merge,
+which the facilitator executes and no seat performs — a judge input must
+never imply the merge has happened, and never imply that requiring it is
+the judge's job. Repeat this constraint in every judge dispatch input you
+compose: a judge that verifies the wrong subject or the wrong frame
+rejects on a premise error, not on the deliverable.
+</judge_dispatch_subject>
+
 <return_contract>
 Your report is your **only** channel to the orchestrator. Nothing you
 wrote mid-turn is seen by the orchestrator directly; only what you put in
