@@ -413,7 +413,7 @@ export async function runCellAndGrade(o: RunCellAndGradeOpts): Promise<void> {
 	try {
 		// spawn the cell driver with cwd=scratch (the dispatch primitive; the
 		// whole subtree resolves its process.cwd() to scratch -> A1 isolation).
-		const driver = spawnSeatJob({
+		const driver = await spawnSeatJob({
 			repoRoot: o.repoRoot,
 			hub: o.hub,
 			seat: loadSeat(o.repoRoot, o.driverSeat),
@@ -475,7 +475,7 @@ export async function runCellAndGrade(o: RunCellAndGradeOpts): Promise<void> {
 			const parsedG = parseQualifiedModel(o.graderModel, "graderModel");
 			// harness-owned grader dispatch: sibling of the cell, model pin beats env.
 			const gSeat = loadSeat(o.repoRoot, "judge");
-			const g = spawnSeatJob({
+			const g = await spawnSeatJob({
 				repoRoot: o.repoRoot,
 				hub: o.hub,
 				seat: gSeat,

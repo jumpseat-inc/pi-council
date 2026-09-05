@@ -13,7 +13,7 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import type { Hub } from "./hub.ts";
-import { getMcpManager } from "./mcp/index.ts";
+import { getMcp } from "./mcp-load.ts";
 import { childEnv, ensureRunDir, mintRunId } from "./runs.ts";
 import { buildChildArgv, buildSystemPrompt, proceduresDir, resolveEffectiveModel, type Seat } from "./seats.ts";
 
@@ -50,7 +50,7 @@ export interface SpawnedSeat {
  * Throws on an unresolvable effective model (the runner surfaces it as a
  * failed repeat), never falls back silently.
  */
-export function spawnSeatJob(opts: SpawnSeatJobOpts): SpawnedSeat {
+export async function spawnSeatJob(opts: SpawnSeatJobOpts): Promise<SpawnedSeat> {
 	const { repoRoot, hub, seat, input, cwd } = opts;
 	const envModel = process.env.COUNCIL_EVAL_MODEL;
 	const effective = resolveEffectiveModel(seat, envModel, { model: opts.model, thinking: opts.thinking });
@@ -68,10 +68,11 @@ export function spawnSeatJob(opts: SpawnSeatJobOpts): SpawnedSeat {
 	}
 
 	// --tools is an exact-name allowlist: enumerate granted MCP tools here.
+	const mcp = await getMcp();
 	const mcpToolNames: string[] = [];
 	const mcpWarnings: string[] = [];
 	for (const server of seat.mcp ?? []) {
-		const names = getMcpManager(repoRoot).listToolNames(server);
+		const names = mcp.getMcpManager(repoRoot).listToolNames(server);
 		if (names.length === 0) {
 			mcpWarnings.push(
 				`seat grants MCP server "${server}" but it is not connected — its tools are unavailable for this dispatch`,

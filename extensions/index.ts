@@ -10,7 +10,7 @@ import { watchCouncilConfig, type CouncilConfigWatcher } from "./theme-watcher.t
 import { mintRunId, pruneRuns } from "./runs.ts";
 import { scaffoldInto } from "./scaffold.ts";
 import { installArgsFor, resolveCouncilDependencies } from "./dependencies.ts";
-import { connectParentServers, getMcpManager, registerMcpCommand } from "./mcp/index.ts";
+import { getMcp } from "./mcp-load.ts";
 import { clearTreeWidget, registerNavigator, shutdownTreeFocus } from "./navigator.ts";
 import {
 	fixtureTaskDir,
@@ -111,7 +111,8 @@ export function renderProcedure(strippedBody: string, procDir: string, args?: st
 		.replace(/\$ARGUMENTS/g, (args ?? "").trim());
 }
 
-export default function (pi: ExtensionAPI) {
+export default async function (pi: ExtensionAPI) {
+	const mcp = await getMcp();
 	const repoRoot = process.cwd();
 	registerMaxTokensFix(pi, repoRoot);
 	const seatName = process.env.COUNCIL_SEAT;
@@ -139,7 +140,7 @@ export default function (pi: ExtensionAPI) {
 		uiCtx.ui.setWidget("council", widgetLines(active));
 	};
 
-	pi.on("session_start", (_event, ctx) => {
+	pi.on("session_start", async (_event, ctx) => {
 		uiCtx = ctx;
 		const swept = Hub.sweepStalePids(pidFilePath(repoRoot));
 		if (swept > 0 && ctx.hasUI) ctx.ui.notify(`council: swept ${swept} orphaned seat process(es)`, "warning");
@@ -160,7 +161,8 @@ export default function (pi: ExtensionAPI) {
 		initHubIdentity(mintRunId());
 		pruneRuns(repoRoot);
 		getHub(repoRoot, renderWidget); // create hub with onChange → widget refresh
-		void connectParentServers(pi, repoRoot)
+		const mcp = await getMcp();
+		void mcp.connectParentServers(pi, repoRoot)
 			.then((notes) => {
 				if (notes.length === 0) return;
 				try {
@@ -181,7 +183,7 @@ export default function (pi: ExtensionAPI) {
 		}
 	});
 	pi.on("turn_end", () => renderWidget());
-	pi.on("session_shutdown", (_event, ctx) => {
+	pi.on("session_shutdown", async (_event, ctx) => {
 		if (widgetTimer) {
 			clearInterval(widgetTimer);
 			widgetTimer = null;
@@ -190,7 +192,8 @@ export default function (pi: ExtensionAPI) {
 		shutdownTreeFocus(ctx); // EV-8: reset focus surface + restore the composed-over editor
 		themeWatcher?.close();
 		themeWatcher = null;
-		void getMcpManager(repoRoot).closeAll();
+		const mcp = await getMcp();
+		void mcp.getMcpManager(repoRoot).closeAll();
 		shutdownHub();
 	});
 
@@ -288,7 +291,7 @@ export default function (pi: ExtensionAPI) {
 		},
 	});
 
-	registerMcpCommand(pi, repoRoot);
+	mcp.registerMcpCommand(pi, repoRoot);
 
 	pi.registerCommand("council-jobs", {
 		description: "Show the Council job table",
