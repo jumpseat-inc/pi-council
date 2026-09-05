@@ -328,3 +328,62 @@ flaws — the probe table (obj. 4) confirms the regime-aware design is feasible
 exactly as specified. Non-blocking findings to record: lock 0.84.3 (node_modules
 stale at 0.84.2); count is 7 not 4 with the deletion; resolvedPalette is
 dead code.
+
+### Step 5 — Consolidator synthesis (job-18.14): NOT ready to hand off; no ruling ripe
+
+The consolidator left the run record with a full sort — settled / open-judgment /
+open-objections — and a "Ready to hand off? No" verdict. Substance:
+
+**Settled (with real run evidence):** routing-only deletion at the scrollbarThumb
+seam (drop from `BG_TOKEN_KEYS` 8→7 + drop the scrollbarThumb line from
+`withThemeColorFallbacks`); KEEP `OPTIONAL_TOKENS`/`VALID_COLOR_KEYS` (allowlist
+deletion = silent consumer deactivation, obj 5 GREEN); shipped theme files
+unchanged; three band-stable equalities hold on both bands (obj 4 probe table);
+tests must be regime-aware + construction-identity (`as never` precedent); no
+bound widening; record names the delta precisely (obj 3); gate-2 break is
+test-only at two call sites (obj 2 GREEN); resolvedPalette has zero production
+consumers (obj 6); lock resolves 0.84.3 with stale node_modules at 0.84.2
+(facilitator-corrected obj 7b); failure count with deletion is 7 not 4 (obj 7c);
+T6 equality holds both bands, only the hardcoded count is version-sensitive
+(obj 7d).
+
+**Open objections (all the same settling test — the step-8 regime-aware rewrite
+verified green on BOTH 0.84.3 and 0.85.1, clearing gates 2 and 3):** (1) gate-3
+red at 0.85.1 with the deletion and old corpus; (2) gate-2 red at 0.85.1 with
+the deletion; (3) rewrite does not exist yet — acceptance demands green tests
+on the declared side. These are step-8 implementation deliverables, not design
+flaws — the probe table shows the regime-aware design is feasible exactly as
+specified. The consolidator noted the one record inconsistency: the round-3
+"converged" note said trim-only on `withThemeColorFallbacks`, while
+principal's round-2 text advocated deleting the helper entirely — but
+principal's FINAL round-3 position withdrew "delete entirely" as
+over-broad, so trim-only stands settled. A separate minor alternative
+(full-delete variant) was never run but is retired by the withdrawal.
+
+**Open judgment — NOT RIPE, gated on the step-8 rewrite run:** the lock +
+recorded-label fork. Majority (owner + principal, final): lock regenerates to
+0.85.1, label "0.85.x-compatible as shipped (deltas named)", supersede
+FLLWUP-21 R-2(b)(i). Minority (designer, final): lock stays 0.84.3, label
+"incompatible as shipped; verified-to-0.84.3-only" — conditionally: designer
+will sign the optimistic label on the Skeptic's evidence that the rewrite is
+green on a 0.85.1 lock. The label is therefore EMPIRICAL (the step-9 Skeptic
+run at the branch is the settling test designer itself named); no ruling seat
+is called until that run reports. If green: Side A label + (via the run's
+binding-consistency rule) lock at 0.85.1; if not green: Side B wins by
+default. Two minor hygiene items ride with the handoff: `resolvedPalette`
+removal (no production consumer; keep unless its oracle test needs removal)
+and `scrollbarTrack` join of `OPTIONAL_TOKENS` (owner round-3 raised it; the
+allowlist-KEEP rationale extends to it — a consumer declaring the new token
+must not hit the swallowed-throw deactivation; spec resolves it).
+
+### Step 6 — route what does not close: nothing to rule YET
+
+No Phase-1 ruling covers the lock/label question, and none is needed now: the
+consolidator's own routing says the open judgment is NOT RIPE — its empirical
+layer (rewrite green on 0.85.1) is a step-8/9 deliverable, and under the run's
+binding-consistency rule the lock follows whatever label the evidence sustains
+(the card contract: decision made on evidence, tests green on the declared
+side). No Needs Human; no product-owner dispatch warranted at this point. The
+card proceeds to step 7 with the deliberation's majority design as the spec,
+and the designer's named settling test is written into the spec's verification
+requirements.
