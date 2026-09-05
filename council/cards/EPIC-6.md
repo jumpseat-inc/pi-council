@@ -1,7 +1,7 @@
 ---
 id: EPIC-6
 title: /council-models model-name search filter in the model selection modal
-state: Backlog
+state: Done
 owner: null
 epic: null
 goal: The `/council-models` model selection modal gains a `/`-triggered focused search input below the top row that filters the visible model rows by case-insensitive substring on `qualifiedId` as the user types, and pressing Esc with focus in the search input clears its text.

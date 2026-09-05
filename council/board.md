@@ -19,7 +19,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-7 — eval-results retention policy
 - FLLWUP-8 — council-leaderboard task drill-down filter
 - EPIC-5 — /council-models provider and model picker for per-seat .council.json overrides
-- EPIC-6 — /council-models model-name search filter in the model selection modal
 
 ## Deliberating
 
@@ -42,6 +41,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-21 — Restore pi-council extension load on stock pi 0.85.0 and pin the devDependency
 
 - FLLWUP-14 — Kitty-protocol terminal smoke for the model search input
+- EPIC-6 — /council-models model-name search filter in the model selection modal
 
 - FLLWUP-15 — Search-mode modal frame fits the terminal at full window height
 - FLLWUP-18 — Judge dispatch inputs pin the verification subject and loop frame
