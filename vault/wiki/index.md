@@ -69,7 +69,7 @@ _(none yet)_
 ## Sources
 
 - [[2026-08-23-readme]] — README: makes the author's "prompted instead of prompting" project.
-- [[2026-08-23-agents]] — AGENTS.md: the 12 hard conventions + repo operating rules.
+- [[2026-08-23-agents]] — AGENTS.md: the 13 hard conventions + repo operating rules.
 - [[2026-08-23-pi-council-design-spec]] — Design of the pi-council package.
 - [[2026-08-23-mcp-support-design-spec]] — Design of the MCP subsystem (v0.2.0).
 - [[2026-08-23-pi-council-implementation-plan]] — V0.1.0 build-out runbook.
