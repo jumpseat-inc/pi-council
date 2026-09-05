@@ -38,6 +38,11 @@ export const SEARCH_HINT = "/ filter · esc clears";
 export const SEARCH_ROW_EMPTY = `\u258C ${SEARCH_HINT}`;
 /** EPIC-6 R-1 ruled no-match copy — byte-exact, interpolated with the live query. */
 export const NO_MATCH = (query: string): string => `No models matching "${query}".`;
+/** FLLWUP-13 R-1 ruled no-match exit hint — byte-exact (↓ is U+2193), immutable.
+ *  Names the real two-key walk: Down moves focus out of the input, Esc then
+ *  ascends and search state dies with the level. Lives in the no-match region,
+ *  never a footer. */
+export const NO_MATCH_HINT = "↓ then esc exits search";
 /** BUG-1 R-2 ruled pre-press hint — byte-exact, immutable. */
 export const PRE_SEARCH_HINT = "press / to filter models";
 
@@ -233,6 +238,12 @@ export class ModelPicker implements Component {
 				const rows = this.currentRows();
 				if (rows.length === 0) {
 					lines.push(this.theme.fg("dim", NO_MATCH(this.query)));
+					// FLLWUP-13 R-1: dim exit-hint under the ruled literal — a body
+					// line in the no-match region, never a fifth footer. FOOTER_MODEL
+					// below stays byte-exact and last. Renders only inside
+					// searchActive with a non-empty query — mutually exclusive with
+					// the non-search PRE_SEARCH_HINT frame by construction.
+					lines.push(this.theme.fg("dim", NO_MATCH_HINT));
 				} else {
 					this.pushRows(width, lines, rows, false);
 				}

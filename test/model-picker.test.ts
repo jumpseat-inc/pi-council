@@ -12,6 +12,7 @@ import {
 	HEADER,
 	ModelPicker,
 	NO_MATCH,
+	NO_MATCH_HINT,
 	PRE_SEARCH_HINT,
 	SEARCH_ROW_EMPTY,
 	echoFor,
@@ -773,6 +774,61 @@ test("BUG-1 2: before any `/` press, the first model-level render of a fresh pic
 	expect(lines.join("\n")).not.toContain("\u258C"); // R-1: no ▌ focus signifier in non-search frames
 	// persists across re-renders while search has never been opened
 	expect(p.render(80).map(strip)).toContain(PRE_SEARCH_HINT);
+});
+
+// ---- FLLWUP-13 no-match exit hint (EPIC-6 follow-up) ----
+test("FLLWUP-13 ruled copy: NO_MATCH_HINT is the byte-exact R-1 literal, byte-distinct from the R-4 empty states", () => {
+	expect(NO_MATCH_HINT).toBe("↓ then esc exits search"); // ↓ is U+2193 — transcribed from the card face
+	expect(NO_MATCH_HINT).not.toBe(EMPTY_NO_PROVIDERS);
+	expect(NO_MATCH_HINT).not.toBe(EMPTY_NO_MODELS("OpenRouter"));
+});
+
+test("FLLWUP-13 1: zero-match renders the ruled NO_MATCH literal then the dim hint line, in that order, above FOOTER_MODEL — never a fifth footer", () => {
+	const { p } = picker(CATALOGUE);
+	p.handleInput(ENTER);
+	p.handleInput(ENTER);
+	p.handleInput("/");
+	for (const ch of "zzzz") p.handleInput(ch);
+	const lines = p.render(80).map(strip);
+	expect(lines[1]).toBe("▌ zzzz"); // search row unchanged
+	expect(lines[2]).toBe(NO_MATCH("zzzz")); // ruled literal unchanged, in place
+	expect(lines[3]).toBe(NO_MATCH_HINT); // hint line directly under it
+	expect(lines[lines.length - 1]).toBe(FOOTER_MODEL); // four-footer rule intact
+	expect(lines).not.toContain(EMPTY_NO_PROVIDERS);
+	expect(lines).not.toContain(EMPTY_NO_MODELS("OpenRouter"));
+	expect(lines[3]).not.toBe(FOOTER_MODEL); // the hint is a body line, never a footer
+});
+
+test("FLLWUP-13 2: the hint names the real walk — at zero-match, Down moves focus out, Esc ascends, search state dies", () => {
+	const { p } = picker(CATALOGUE);
+	p.handleInput(ENTER);
+	p.handleInput(ENTER);
+	p.handleInput("/");
+	for (const ch of "zzzz") p.handleInput(ch);
+	let lines = p.render(80).map(strip);
+	expect(lines[2]).toBe(NO_MATCH("zzzz"));
+	expect(lines[3]).toBe(NO_MATCH_HINT);
+	// Down at zero rows: no crash; the row list stays empty; the cursor clamps
+	// to the empty range; FOOTER_MODEL still last.
+	p.handleInput(DOWN);
+	lines = p.render(80).map(strip);
+	expect(lines[1]).toBe("▌ zzzz"); // search row unchanged
+	expect(lines[2]).toBe(NO_MATCH("zzzz")); // still zero rows
+	expect(lines[lines.length - 1]).toBe(FOOTER_MODEL);
+	// Esc now ascends — if the input were still focused this would clear-and-stay
+	// (EV-27 8) and the level would not drop; the drop to provider proves the
+	// Down moved focus out of the input (inputFocused false).
+	p.handleInput(ESC);
+	lines = p.render(80).map(strip);
+	expect(lines[0]).toBe(HEADER);
+	expect(lines[1].startsWith("> OpenRouter")).toBe(true); // ascended to provider
+	expect(lines.join("\n")).not.toContain("\u258C"); // search state died with the level
+	expect(lines.join("\n")).not.toContain(NO_MATCH_HINT);
+	// fresh 1→2 re-entry carries no search residue (EV-27 12 mirror)
+	p.handleInput(ENTER);
+	lines = p.render(80).map(strip);
+	expect(lines[1]).toBe("> openrouter/deepseek/deepseek-v4-pro-0813:off");
+	expect(lines.join("\n")).not.toContain("\u258C");
 });
 
 test("BUG-1 4: R-3 dismissal — hint stops at the first `/` press, returns on the next fresh entry to the model level", () => {
