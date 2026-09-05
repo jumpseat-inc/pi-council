@@ -198,7 +198,12 @@ Contents, all mandatory:
    and kept artifacts.
 2. Three product mutation probes: (a) drop the `decodeKittyPrintable` fallback → frame 3 red;
    (b) mutate `SEARCH_ROW_EMPTY` by one byte → frame 3 red; (c) delete the BUG-1 `press / to
-   filter models` hint render → frame 2 red.
+   filter models` hint render → frame 2 red **only at a terminal height where the hint is
+   visible** — at 80×28 with a full catalogue the hint renders below the `withModalFrame` panel
+   clip, so the driver's frame-2 matcher asserts the deterministic clip, not hint presence, there;
+   the hint's byte-exact rendering is pinned by the unit suite (`test/model-picker.test.ts`
+   "BUG-1 2"), which remains the CI gate — this probe's capability is height-dependent (step-9
+   finding, Skeptic objection 1, closed-red as documentation).
 3. Anti-harness-regression `é` falsifier: `\x1b[233u` → `▌ é`. U+00E9 (233 > 126) is unreachable
    by the legacy `length === 1 && 32..126` arm, so `▌ é` is true iff the driver genuinely
    delivered CSI-u **and** kitty decode ran — a driver bug that strips ESC and sends legacy bare
