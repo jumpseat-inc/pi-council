@@ -25,11 +25,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Ready
 
-## Deliberating
+## In Progress
 
 - FLLWUP-21 — Restore pi-council extension load on stock pi 0.85.0 and pin the devDependency
-
-## In Progress
 
 ## In Review
 
