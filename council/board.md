@@ -26,6 +26,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Ready
 
 - FLLWUP-23 — Named failure for pi-council installs missing node_modules
+- FLLWUP-24 — Local gates refuse to run when installed deps drift from bun.lock
 
 ## In Progress
 
