@@ -96,3 +96,29 @@ plan, test file); insertion-only (zero `-` lines in the diff;
 frontmatter untouched); worktree `.worktrees/
 fllwup-19-skeptic-dispatch-inputs` verified at the head. Set In Review
 per step 8's observed-artifact rule (branch + open PR).
+
+### Step 9 — verified (cycle 1 of 3)
+Skeptic dispatched at PR #33 head `ce8bb1c` (job-6.2), settled in 3.0m
+— first live demonstration of the guidance this card ships: the input
+named the exact verification subject (PR head SHA `ce8bb1c` + head
+worktree path `.worktrees/fllwup-19-skeptic-dispatch-inputs`) and the
+loop frame (step 9 verification precedes step 10 judging and step 11's
+mechanical merge, facilitator-executed, no seat performs). All four
+gates re-run at the head in order, green with real output: `bun install
+--frozen-lockfile` no changes; `bunx tsc --noEmit` clean; `bun test`
+550 pass / 2 skip / 0 fail (2553 expects); `python3 council/validate.py`
+clean. Nine falsifiable probes, all **closed-green**: P1 driven test
+green; P2 defeat injection (block removed in a scratch copy → test RED
+naming `step 9 verification precedes step 10 judging`, restore → GREEN);
+P3 block names the verification subject (PR head SHA + head worktree
+path) and the loop frame (step 9 verification precedes step 10 judging
+and step 11's mechanical merge, facilitator-executed, no seat performs)
+and forbids implying the merge happened or is the skeptic's job; P4 diff
+insertion-only (zero `-` lines) — FLLWUP-16/17/18 blocks and tests
+byte-identical to `origin/main`; P5 diff scope exactly the three files;
+P6 frontmatter byte-identical to `origin/main`; P7 placement —
+`<skeptic_dispatch_subject>` at line 283, immediately after
+`</judge_dispatch_subject>` (281) and before `<return_contract>` (297);
+P8 no `extensions/` change; P9 picker surface untouched.
+**Verdict: NO-BLOCK, 9/9 closed-green, no open objection.** Verify
+cycles used: 1 of ≤3.
