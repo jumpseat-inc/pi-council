@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-25
 title: Wiki source page matches AGENTS.md hard-conventions count
-state: In Review
+state: Done
 owner: null
 epic: EPIC-6
 goal: The vault wiki source page summarizing AGENTS.md's hard conventions matches the current AGENTS.md — counting the conventions exactly as the file lists them, including clause #13 added by FLLWUP-24 — proven by a driven or scripted consistency check between the page and the file, with no behavior change anywhere in the gate set.
@@ -757,3 +757,35 @@ the judge itself: 6 pass / 0 fail; (4) "no behavior change anywhere in
 the gate set" — byte-identity diff 0 bytes on engine/gates files, full
 suite 577/2/0, tsc clean. No REJECT basis; no goal-text defect. Verify
 cycles used: 1 of ≤3.
+
+### Step 11 — deterministic merge check, merged
+
+Five criteria executed mechanically at PR head `2c1142b1…`: (1) owner
+gates green in full (owner job-23.1 ran all four at the gated head
+26b2506; Skeptic job-23.2 re-ran all four at the pinned head with
+identical results); (2) `gates` workflow SUCCESS on the PR head SHA —
+`gh pr checks 41` → `[{"name":"gates","state":"SUCCESS","workflow":"gates"}]`
+keyed on the `workflow` field, plus `gh api` check-runs on the exact
+commit → `{"name":"gates","conclusion":"success","head_sha":"2c1142b1…"}`;
+headRefOid re-read immediately before merging == 2c1142b1…; (3) no
+blocking Skeptic objection — NO-BLOCK, all closed-green, cycle 1 of 3;
+(4) judge PASS (job-23.3); (5) no Needs Human / outstanding ruling
+(card In Review, zero escalations; Phase 1 rulings R-1/R-2 applied).
+Merged `gh pr merge 41 --squash --match-head-commit 2c1142b1…` → PR
+#41 **MERGED** (mergedAt 2026-09-05T18:26:35Z), squash commit
+**cb36a15** on main.
+
+### Step 12 — Done
+
+`gates` workflow on the merged SHA `cb36a15` (observed via
+`gh run view 33984075445`, workflowName gates, event push) completed
+**success** (polled to completion). Local `main` fast-forwarded from
+`origin/main` — clean FF, no forced resolution. `validate.py` clean;
+board and card set Done; reconciliation committed and pushed. Card
+closes with **no open-untested residual** — the verify loop ran once
+(NO-BLOCK at cycle 1 of ≤3). Follow-up candidates: none — the
+subject-pinning class (FLLWUP-16..25) is exhausted and the jiti quirk
+and ` 10.` leading-space lint remain ledger-only per the orchestrator's
+rulings; no genuinely new failure class surfaced (the unmerged-branch
+preflight history gate remains the recorded FLLWUP-24 step-9 invariant,
+not a new card).
