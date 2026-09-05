@@ -19,6 +19,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-7 — eval-results retention policy
 - FLLWUP-8 — council-leaderboard task drill-down filter
 - EPIC-5 — /council-models provider and model picker for per-seat .council.json overrides
+- EPIC-6 — /council-models model-name search filter in the model selection modal
 - FLLWUP-9 — Explicit clear-thinking-override affordance for a seat
 - FLLWUP-10 — Writer thinking preservation matches loader resolution for object-form model overrides
 - FLLWUP-11 — Smoke phase selector for the /council-models Phase 5 falsifier
@@ -26,6 +27,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Deliberating
 
 ## Ready
+
+- EV-26 — Pure model-name filter over the thinking-level cross-product
+- EV-27 — `/`-triggered search input in the model selection modal
 
 ## In Progress
 

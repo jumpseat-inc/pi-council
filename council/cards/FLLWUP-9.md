@@ -3,7 +3,7 @@ id: FLLWUP-9
 title: Explicit clear-thinking-override affordance for a seat
 state: Backlog
 owner: null
-epic: EPIC-5
+epic: EPIC-6
 goal: A follow-up affordance removes a seat's thinking override or its whole council.<seat> entry from .council.json explicitly rather than treating absence as preserve, proven by a round-trip test that clears an existing override and byte-asserts the resulting config.
 ---
 

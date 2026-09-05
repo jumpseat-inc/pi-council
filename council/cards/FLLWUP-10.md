@@ -3,7 +3,7 @@ id: FLLWUP-10
 title: Writer thinking preservation matches loader resolution for object-form model overrides
 state: Backlog
 owner: null
-epic: EPIC-5
+epic: EPIC-6
 goal: existingThinking in extensions/council-config-writer.ts parses the object-form model :suffix via the same lastIndexOf(':') plus THINKING_LEVELS membership rule applySeatOverride already uses, so writer preservation matches loader resolution, proven by a test against an object-form override that today silently drops the level to frontmatter on any model change.
 ---
 

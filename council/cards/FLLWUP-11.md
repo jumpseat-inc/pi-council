@@ -3,7 +3,7 @@ id: FLLWUP-11
 title: Smoke phase selector for the /council-models Phase 5 falsifier
 state: Backlog
 owner: null
-epic: EPIC-5
+epic: EPIC-6
 goal: smoke/driver.sh accepts an environment-gated phase selector so the /council-models Phase 5 end-to-end smoke runs in isolation without phases 0 through 4 real-model dispatches, proven by running the driver with the selector set and observing only Phase 5 execute and report.
 ---
 
