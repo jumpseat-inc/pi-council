@@ -823,3 +823,21 @@ not load: … Do NOT use 'pi -ne' — it disables extensions entirely and
 does not repair this missing dependency." (all spec §3 items present);
 diff scope exactly 11 paths, protected files zero changes; both
 deviations real, necessary, documented. Verify cycles used: 1 of ≤3.
+
+### Step 10 — judge PASS (job-19.13; first dispatch job-19.12 settled with no text output and was re-dispatched once per dispatch discipline)
+
+Judge dispatched with exactly the card's `goal` (verbatim) + the step-9
+Skeptic evidence, subject pinned (head `19f0c140…`, head worktree
+`.worktrees/fllwup-23-named-failure`), loop frame stated (step 10 precedes
+step 11's mechanical merge, facilitator-executed). Verdict **PASS** — all
+three goal conjuncts mapped to Skeptic evidence: (1) named diagnostic at
+load instead of silent zero-command — driven test over the dep-less
+scratch returns exactly one `errors` entry containing "pi-council could
+not load", commands 0, non-empty errors; (2) names the missing module —
+assertions on `/@modelcontextprotocol\/sdk/` and
+`/@modelcontextprotocol\/sdk\/client/`, guard-removal collapses to the raw
+jiti error (RED), restore → green — the fix is what names it; (3) names
+the remedy — assertions on `/(bun install|npm install)/` and
+`/directory containing package\.json/`, CLI surface carries restart +
+"Do NOT use 'pi -ne'". No REJECT basis; no goal-text defect. Verify
+cycles used: 1 of ≤3.
