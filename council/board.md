@@ -26,11 +26,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- EV-27 — `/`-triggered search input in the model selection modal
-
 ## Ready
 
 ## In Progress
+
+- EV-27 — `/`-triggered search input in the model selection modal
 
 ## In Review
 
