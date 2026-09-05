@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-21
 title: Restore pi-council extension load on stock pi 0.85.0 and pin the devDependency
-state: Ready
+state: Deliberating
 owner: null
 epic: EPIC-6
 goal: The pi-council package's extensions load and register their commands on stock pi 0.85.0 from a fresh scratch HOME with no council configuration, proven by a driven headless verification asserting command registration succeeds on the installed stock pi, with the root cause of the load failure documented and the devDependency on @earendil-works/pi-coding-agent changed to a deliberate version constraint.
