@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-25
 title: Wiki source page matches AGENTS.md hard-conventions count
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-6
 goal: The vault wiki source page summarizing AGENTS.md's hard conventions matches the current AGENTS.md — counting the conventions exactly as the file lists them, including clause #13 added by FLLWUP-24 — proven by a driven or scripted consistency check between the page and the file, with no behavior change anywhere in the gate set.
@@ -698,3 +698,21 @@ source_commit: 2c5ec3b, captured: 2026-09-06) and the body `## Sources`
 section re-pinned to `AGENTS.md @ 2c5ec3b`. Self-review: no
 placeholders, no scope beyond the card goal, single design per resolved
 point. Card set In Progress; validate clean; owner dispatched next.
+
+### Step 8 — owner delivered (job-23.1), PR #41 open (2026-09-06, resumed container)
+
+Owner implemented in worktree `.worktrees/fllwup-25-agents-page` (branch
+`feat/fllwup-25-agents-page` based at origin/main cc2ce70), pushed, PR
+#41 open (observed: state OPEN, headRefOid `2c1142b1…`, base main; diff
+scope exactly 4 modified vault paths + 2 new files). Plan:
+`docs/superpowers/plans/2026-09-06-FLLWUP-25-plan.md`. TDD order held:
+suite red against the stale page, red on only the index digit after the
+page rewrite, then fully green. Owner gates green at the gated head
+26b2506 (pushed head 2c1142b differs by exactly one plan-doc
+PR-reference line, verified `git diff`): frozen-lockfile exit 0 ("224
+installs, no changes"), tsc clean, `bun test` 577/2/0 (new suite 6/6;
+env-split-contract, theme-* ×9, fllwup23-dep-less, fllwup24-drift
+103/0), validate clean. Notable: the stale page's missing `## Hard
+conventions` heading surfaced as an extra R-1 violation named by the
+test (a red finding, not a workaround). In Review set (sole condition:
+open PR, observed). Skeptic at the branch next.
