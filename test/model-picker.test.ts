@@ -12,9 +12,12 @@ import {
 	HEADER,
 	ModelPicker,
 	NO_MATCH,
+	PRE_SEARCH_HINT,
 	SEARCH_ROW_EMPTY,
 	echoFor,
+	filterModelRows,
 	footerFor,
+	rowsForProvider,
 	seatMarker,
 	type SeatModelSelection,
 } from "../extensions/model-picker.ts";
@@ -220,7 +223,8 @@ test("8.4 keys: windowing erases only beyond maxRows; re-entry after Esc resets 
 	p.handleInput(ENTER); // provider → model (cursor reset to 0)
 	lines = p.render(80).map(strip);
 	expect(lines[1]).toBe("> xai/grok/v1");
-	expect(lines[2]).toBe(FOOTER_MODEL);
+	expect(lines[2]).toBe(PRE_SEARCH_HINT); // BUG-1 R-1: hint between rows and footer
+	expect(lines[lines.length - 1]).toBe(FOOTER_MODEL); // footer stays last, byte-exact
 
 	// re-entry after Esc resets the descended level's cursor to 0
 	p.handleInput(ESC); // model → provider (xai)
@@ -522,16 +526,16 @@ test("EV-27 6: render cache — claude vs claud (equal filtered set, cursor, win
 	expect(strip(second[1])).toBe("▌ claude");
 });
 
-test("EV-27 7: backspace bytes are guard-only no-ops — \x7f and \x1b[127u leave query unchanged", () => {
+test("EV-27 7: backspace deletes — bare \x7f and kitty \x1b[127u both drop one char (BUG-1)", () => {
 	const { p } = picker(CATALOGUE);
 	p.handleInput(ENTER);
 	p.handleInput(ENTER);
 	p.handleInput("/");
 	for (const ch of "claude") p.handleInput(ch);
 	p.handleInput("\x7f");
-	expect(strip(p.render(80)[1])).toBe("▌ claude");
-	p.handleInput("\x1b[127u");
-	expect(strip(p.render(80)[1])).toBe("▌ claude");
+	expect(strip(p.render(80)[1])).toBe("▌ claud");
+	p.handleInput("\x1b[127u"); // kitty DEL — the same key in kitty encoding
+	expect(strip(p.render(80)[1])).toBe("▌ clau");
 });
 
 test("EV-27 10: modelIndex re-clamps after every keystroke; shrink-then-Enter emits the survivor; empty-set Enter no-ops", () => {
@@ -697,4 +701,98 @@ test("8.13 truncation: narrowed rows still end in :<level>; level never clipped"
 	// and the long ds row actually truncated at width 30
 	expect(rows[0].length).toBeLessThan("openrouter/deepseek/deepseek-v4-pro-0813:off".length);
 	expect(rows[0].length).toBeLessThanOrEqual(30);
+});
+
+test("BUG-1 1: \x7f with a non-empty query and focus in the input deletes exactly one trailing char; the filtered list recomputes through filterModelRows; focus stays", () => {
+	const { p } = picker(CATALOGUE);
+	p.handleInput(ENTER); // provider
+	p.handleInput(ENTER); // model
+	p.handleInput("/");
+	for (const ch of "claude") p.handleInput(ch);
+	expect(strip(p.render(80)[1])).toBe("▌ claude");
+	// one backspace → "claud"
+	p.handleInput("\x7f");
+	const lines = p.render(80).map(strip);
+	expect(lines[1]).toBe("▌ claud");
+	// the filtered list recomputed through the filterModelRows seam — the rendered
+	// row list equals a direct filterModelRows call for the post-backspace query
+	const expected = filterModelRows(rowsForProvider(CATALOGUE.providers[0]), "claud").map(
+		(r) => r.model.qualifiedId + (r.level === undefined ? "" : `:${r.level}`),
+	);
+	const rendered = lines
+		.filter((l) => l.startsWith("> ") || l.startsWith("  "))
+		.map((l) => l.slice(2));
+	expect(rendered).toEqual(expected);
+	expect(lines[lines.length - 1]).toBe(FOOTER_MODEL);
+	// focus stayed in the input: the next printable appends to the query
+	p.handleInput("e"); // → "claude"
+	expect(strip(p.render(80)[1])).toBe("▌ claude");
+	// and Esc still means clear-and-stay (focused), never ascend
+	p.handleInput(ESC);
+	expect(strip(p.render(80)[1])).toBe(SEARCH_ROW_EMPTY);
+});
+
+test("BUG-1 3: \x7f on an empty query and \x7f while unfocused stay no-ops; other control bytes keep their behavior", () => {
+	// empty query: backspace does nothing; search mode (and the empty hint) stays
+	const empty = picker(CATALOGUE);
+	empty.p.handleInput(ENTER);
+	empty.p.handleInput(ENTER);
+	empty.p.handleInput("/");
+	empty.p.handleInput("\x7f");
+	expect(strip(empty.p.render(80)[1])).toBe(SEARCH_ROW_EMPTY);
+	// unfocused: Down takes focus out; backspace must not enter the input or touch the query
+	const unfocused = picker(CATALOGUE);
+	unfocused.p.handleInput(ENTER);
+	unfocused.p.handleInput(ENTER);
+	unfocused.p.handleInput("/");
+	for (const ch of "claude") unfocused.p.handleInput(ch);
+	unfocused.p.handleInput(DOWN); // cursor → row 1, focus out
+	unfocused.p.handleInput("\x7f");
+	let lines = unfocused.p.render(80).map(strip);
+	expect(lines[1]).toBe("▌ claude"); // query untouched
+	expect(lines[2]).toBe("  openrouter/alias/claude-sonnet:off"); // cursor still on row 1
+	// the forward Delete key (\x1b[3~) is NOT backspace — stays a no-op
+	unfocused.p.handleInput("\x1b[3~");
+	lines = unfocused.p.render(80).map(strip);
+	expect(lines[1]).toBe("▌ claude");
+	// and per BUG-1 1's focus proof: an Esc while unfocused ascends (unchanged) —
+	// backspace never granted focus
+	unfocused.p.handleInput(ESC);
+	expect(strip(unfocused.p.render(80)[1]).startsWith("> OpenRouter")).toBe(true);
+});
+
+test("BUG-1 2: before any `/` press, the first model-level render of a fresh picker shows the R-2 hint below the rows, above the byte-exact footer", () => {
+	expect(PRE_SEARCH_HINT).toBe("press / to filter models"); // R-2 byte-exact literal
+	const { p } = picker(CATALOGUE);
+	p.handleInput(ENTER); // provider
+	p.handleInput(ENTER); // model — first model-level render of a fresh picker
+	const lines = p.render(80).map(strip);
+	expect(lines[lines.length - 1]).toBe(FOOTER_MODEL); // ruled footer last, byte-exact (not a hint footer)
+	expect(lines[lines.length - 2]).toBe(PRE_SEARCH_HINT); // hint directly below the rows
+	expect(lines[1].startsWith("> ")).toBe(true); // rows still start right under the header
+	expect(lines.join("\n")).not.toContain("\u258C"); // R-1: no ▌ focus signifier in non-search frames
+	// persists across re-renders while search has never been opened
+	expect(p.render(80).map(strip)).toContain(PRE_SEARCH_HINT);
+});
+
+test("BUG-1 4: R-3 dismissal — hint stops at the first `/` press, returns on the next fresh entry to the model level", () => {
+	const { p } = picker(CATALOGUE);
+	p.handleInput(ENTER);
+	p.handleInput(ENTER);
+	expect(p.render(80).map(strip)).toContain(PRE_SEARCH_HINT);
+	p.handleInput("/"); // first `/` press — hint is gone
+	expect(p.render(80).map(strip).join("\n")).not.toContain(PRE_SEARCH_HINT);
+	p.handleInput(ESC); // clear, stay focused — hint does not return mid-entry
+	expect(p.render(80).map(strip).join("\n")).not.toContain(PRE_SEARCH_HINT);
+	p.handleInput(DOWN); // focus out
+	p.handleInput(ESC); // ascend to provider — search state dies with the level
+	p.handleInput(ENTER); // fresh 1→2 entry — hint returns (R-3)
+	const lines = p.render(80).map(strip);
+	expect(lines).toContain(PRE_SEARCH_HINT);
+	expect(lines[lines.length - 1]).toBe(FOOTER_MODEL);
+	// no session-scoped persistence: a brand-new picker starts with the hint armed
+	const q = picker(CATALOGUE);
+	q.p.handleInput(ENTER);
+	q.p.handleInput(ENTER);
+	expect(q.p.render(80).map(strip)).toContain(PRE_SEARCH_HINT);
 });

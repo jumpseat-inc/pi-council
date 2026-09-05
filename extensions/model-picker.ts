@@ -38,6 +38,8 @@ export const SEARCH_HINT = "/ filter · esc clears";
 export const SEARCH_ROW_EMPTY = `\u258C ${SEARCH_HINT}`;
 /** EPIC-6 R-1 ruled no-match copy — byte-exact, interpolated with the live query. */
 export const NO_MATCH = (query: string): string => `No models matching "${query}".`;
+/** BUG-1 R-2 ruled pre-press hint — byte-exact, immutable. */
+export const PRE_SEARCH_HINT = "press / to filter models";
 
 /** R-3 seat-row marker (dim suffix). Pure text; dim styling happens at the
  *  call site. Keyed off SeatState.hasOverride — key presence, so a
@@ -130,6 +132,7 @@ export class ModelPicker implements Component {
 	private searchActive = false;
 	private query = "";
 	private inputFocused = false;
+	private searchHint = true; // BUG-1 R-3: armed while this model-level entry has never seen a `/` press
 	private maxRows: number;
 	private cached?: { w: number; signature: string; lines: string[] };
 
@@ -150,7 +153,7 @@ export class ModelPicker implements Component {
 	 *  even with `/` and `:` in the query (compared by full equality, never
 	 *  parsed). */
 	private signature(): string {
-		return `${this.level}:${this.seatIndex}:${this.providerIndex}:${this.modelIndex}:${this.windowStart()}:${this.searchActive ? 1 : 0}:${this.inputFocused ? 1 : 0}:${this.query}`;
+		return `${this.level}:${this.seatIndex}:${this.providerIndex}:${this.modelIndex}:${this.windowStart()}:${this.searchActive ? 1 : 0}:${this.inputFocused ? 1 : 0}:${this.searchHint ? 1 : 0}:${this.query}`;
 	}
 
 	/** The current level's linear cursor. */
@@ -235,7 +238,12 @@ export class ModelPicker implements Component {
 				}
 				lines.push(this.theme.fg("dim", FOOTER_MODEL));
 			} else {
-				this.pushRows(width, lines, this.currentRows());
+				// BUG-1 R-1: while the current model-level entry has never seen a `/`
+				// press, a dim hint line renders below the rows — never a `▌`, never
+				// a footer; the ruled FOOTER_MODEL stays the last line, byte-exact.
+				this.pushRows(width, lines, this.currentRows(), false);
+				if (this.searchHint) lines.push(this.theme.fg("dim", PRE_SEARCH_HINT));
+				lines.push(this.theme.fg("dim", FOOTER_MODEL));
 			}
 		} else {
 			this.pushRows(width, lines, this.currentRows());
@@ -289,8 +297,20 @@ export class ModelPicker implements Component {
 
 		// EV-27 search-mode interception: only at the model level with search open.
 		if (this.level === 2 && this.searchActive) {
-			// Backspace is a guard-only no-op — Esc-clear is the sole deletion.
-			if (matchesKey(data, Key.backspace)) return;
+			// BUG-1: backspace deletes one trailing query char when the input is
+			// focused on a non-empty query; no-op on an empty query or focus-out.
+			// Guarded BEFORE decodePrintable — kitty DEL (`\x1b[127u`) decodes to
+			// "\x7f" — and matchesKey covers `\x7f`, `\x08` (non-Windows), kitty
+			// `\x1b[127u`, and the modify-other-keys form of 127. Focus is kept
+			// (inputFocused untouched); Esc-clear stays the clear-all path.
+			if (matchesKey(data, Key.backspace)) {
+				if (this.inputFocused && this.query !== "") {
+					this.query = this.query.slice(0, -1);
+					this.modelIndex = clamp(this.modelIndex, 0, this.currentRows().length - 1);
+					this.cached = undefined;
+				}
+				return;
+			}
 			if (matchesKey(data, Key.escape)) {
 				if (this.inputFocused) {
 					// Esc-clear: empty the query, keep focus and search mode.
@@ -346,6 +366,7 @@ export class ModelPicker implements Component {
 				this.searchActive = false;
 				this.query = "";
 				this.inputFocused = false;
+				this.searchHint = true; // BUG-1 R-3: fresh entry re-arms the hint
 			} else {
 				this.picked = this.currentRows()[this.modelIndex] as PickRow;
 				this.level = 3;
@@ -371,6 +392,7 @@ export class ModelPicker implements Component {
 			if (group && group.models.length > 0) {
 				this.searchActive = true;
 				this.inputFocused = true;
+				this.searchHint = false; // BUG-1 R-3: first `/` press dismisses the hint for this entry
 				this.cached = undefined;
 				return;
 			}
