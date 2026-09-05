@@ -31,9 +31,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- FLLWUP-17 — Main-repo immutability constraint in the working seats' own guidance
-
 ## In Review
+
+- FLLWUP-17 — Main-repo immutability constraint in the working seats' own guidance
 
 ## Needs Human
 

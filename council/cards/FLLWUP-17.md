@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-17
 title: Main-repo immutability constraint in the working seats' own guidance
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-6
 goal: The owner, skeptic, and judge seat bodies each carry the main-repo immutability constraint — git checkout, git switch, and git reset forbidden against the main repository path with branch state changes happening only in a dedicated worktree — proven by a driven payload test per seat asserting the constraint phrases on the packaged seat bodies.
@@ -70,3 +70,35 @@ main repo path — repeated per the runner's `<main_repo_immutability>`),
 base-on-`origin/main` (`origin/main` = `39ef42f`; the local `main` carries
 unpushed council record commits — `6c98d76` — that must not appear in the
 PR diff), and branch/PR conventions named.
+
+### Step 8 — In Review (owner implemented, PR #31 open)
+Owner dispatched (job-4.1) at the card, settled in 1.6m. Delivery per its
+report and confirmed observed artifacts: plan
+`docs/superpowers/plans/2026-09-06-FLLWUP-17-seat-immutability.md`
+(committed 2a23f2a, first); a `<main_repo_immutability>` block inserted in
+each of `council/agents/owner.md` (between `</owner_mode>` and
+`<bash_discipline>`), `council/agents/skeptic.md` (after
+`</verification_mode>`), and `council/agents/judge.md` (adjacent to its
+discipline blocks) — body text only, frontmatter untouched, voice adapted
+per seat but carrying FLLWUP-16's substance: the main repository path's
+branch state is immutable; `git checkout`/`git switch`/`git reset` against
+the main repository path are forbidden; a violation is a `HALT` condition;
+any branch state change happens in a dedicated worktree created with `git
+worktree add`, never against the main checkout; the reflog-drill
+consequence for the seat that mutates. Driven payload tests `owner/skeptic/
+judge seat guidance forbids main-repo branch-state mutation (FLLWUP-17)` —
+one per seat, five phrases each (`main repository path`, `git checkout`,
+`git switch`, `git reset`, `dedicated worktree`), FLLWUP-16 runner-body
+test pattern. RED→GREEN proven by the owner: each new test RED against the
+unmodified seat body (first failure names the missing phrase), GREEN after
+the block. No `extensions/` change; no model-picker surface. Owner gates
+green in order in the worktree (`.worktrees/fllwup-17-seat-immutability` at
+head): `bun install --frozen-lockfile` exit 0 ("no changes"); `bunx tsc
+--noEmit` clean; `bun test` 548 pass / 2 skip / 0 fail;
+`python3 council/validate.py` clean.
+Facilitator-observed: PR #31 OPEN, branch `fllwup-17-seat-immutability`,
+head `4da5a6b479923fc97e278258ef357f806b76cc6a`, base `main`; diff scope
+exactly the five planned files (three seat bodies + plan +
+`test/seats.test.ts`); test-file diff purely additive (the FLLWUP-16
+runner-body test byte-identical); worktree verified at the head. Set In
+Review per step 8's observed-artifact rule (branch + open PR).
