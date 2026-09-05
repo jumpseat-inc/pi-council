@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-25
 title: Wiki source page matches AGENTS.md hard-conventions count
-state: Deliberating
+state: In Progress
 owner: null
 epic: EPIC-6
 goal: The vault wiki source page summarizing AGENTS.md's hard conventions matches the current AGENTS.md — counting the conventions exactly as the file lists them, including clause #13 added by FLLWUP-24 — proven by a driven or scripted consistency check between the page and the file, with no behavior change anywhere in the gate set.
@@ -678,3 +678,23 @@ per its own criteria), packet below. Red-flag check: deciding the page
 heading format or the sources-array disposition myself — or extending a
 copy-routing precedent to a choice it never made — would be deciding
 rather than routing.
+
+### Step 7 — spec written, handed to owner (2026-09-06, resumed container)
+
+Rulings R-1/R-2 (product-owner, step-6 escalations) appended verbatim to
+the card face as a `## Phase 1 rulings (product-owner, step-6
+escalations)` section (commit 2f1fc12); both fold into the spec. Spec
+saved to `docs/superpowers/specs/2026-09-06-FLLWUP-25-design.md`
+(full-council path; commit 424c19c). R-1: conventions-section heading
+`## Hard conventions` verbatim — no count word — symmetric parser slice
+anchor between page and file, count-token assertion pinned to the three
+sites (bold body sentence, frontmatter summary word, index.md:72 digit)
+with word→number normalization (Skeptic RED-1 fix; SPEC-2 superseded by
+R-1 for the heading site, which no longer carries a count word). R-2:
+`sources: []` deleted and populated from the body's wiki-internal
+[[wikilink]] targets; the AGENTS.md citation lives in the four REQUIRED
+provenance keys (provenance: repo-doc, source_path: AGENTS.md,
+source_commit: 2c5ec3b, captured: 2026-09-06) and the body `## Sources`
+section re-pinned to `AGENTS.md @ 2c5ec3b`. Self-review: no
+placeholders, no scope beyond the card goal, single design per resolved
+point. Card set In Progress; validate clean; owner dispatched next.
