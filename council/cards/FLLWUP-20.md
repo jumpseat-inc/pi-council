@@ -132,3 +132,20 @@ merge has happened or is the judge's job; P11 defeat injection —
 GREEN; P12 gate set green in order.
 **Verdict: NO-BLOCK, 12/12 closed-green, no open objection.** Verify
 cycles used: 1 of ≤3.
+
+### Step 10 — judge PASS
+
+Judge dispatched (job-7.3) with the card's `goal` and the Skeptic's
+step-9 evidence only, settled in 0.3m. Subject pinned per the FLLWUP-18
+constraint: the input named the exact verification subject (PR head SHA
+`d7bb7084` and the head worktree path
+`.worktrees/fllwup-20-judge-when-invoked`) and the loop frame (step 10
+judging precedes step 11's mechanical merge, facilitator-executed, no
+seat performs; the merge is not a PASS precondition). Verdict **PASS**:
+independently re-verified at the head — driven test green (`bun test
+test/seats.test.ts --test-name-pattern="FLLWUP-20"` → 1 pass / 9
+expect()), the `<when_invoked>` guidance at line 28 names the
+verification subject and loop frame as runner-pinned input elements,
+council-runner.md/owner.md byte-identical to `origin/main`, diff scope
+exactly the three files (+171/−0). No goal-text fix needed; no premise
+error. Verify cycles used: 1 of ≤3.
