@@ -1,7 +1,7 @@
 ---
 id: BUG-1
 title: Backspace deletion in the model search input and a first-use `/` filter hint
-state: In Review
+state: Done
 owner: null
 epic: EPIC-6
 goal: Pressing backspace while the model search input in the `/council-models` modal is focused deletes the last character of the query and recomputes the filtered list, and before any `/` press the model-level view shows a visible hint that `/` filters models, proven by driven handleInput and render tests.
@@ -118,3 +118,36 @@ Owner-reported gates all exit 0 (bun install --frozen-lockfile, bunx
 tsc --noEmit, bun test 541 pass/2 skip, validate.py clean); driven
 tests 5/5. Card set In Review on frontmatter and board per observed
 artifacts (council.md step 8).
+
+### Step 9 — Skeptic verification (job-1.2)
+All four gates re-run at the branch, closed-green with real output: `bun
+install --frozen-lockfile` exit 0, `bunx tsc --noEmit` exit 0, `bun
+test` 541 pass / 2 skip / 0 fail, `python3 council/validate.py` clean.
+11/11 falsifiable probes closed-green (backspace boundary at
+multi/single/empty, unfocused no-op, hint absence after `/`/Esc-clear/
+typing and return on fresh entry, model-level-only placement, Esc-clear
+and four-footer exhaustiveness preserved, byte-identity of hint,
+SEARCH_ROW_EMPTY, FOOTER_MODEL, NO_MATCH, kitty \x1b[127u deletion, two-
+picker no-session-persistence). Verdict: no open objections. (One
+observation about card frontmatter state was a worktree-copy confusion;
+PR diff checked directly — exactly plan + model-picker.ts +
+model-picker.test.ts, no council/ changes.)
+
+### Step 10 — Judge (job-1.3)
+Given the card's goal and the Skeptic's evidence only: PASS. Both goal
+halves evidenced at `5cedc1e` (backspace delete-one + filterModelRows
+seam — BUG-1 1, BUG-1 3, EV-27 7; hint renders between rows and
+FOOTER_MODEL, searchHint armed/disarmed per R-3 — BUG-1 2, BUG-1 4).
+
+### Steps 11–12 — Merge gate (deterministic substitution) and reconcile
+All five criteria met: (1) owner gates green in full (owner + Skeptic
+re-runs, exit 0 ×4); (2) `gates` workflow SUCCESS on PR #28 head
+5cedc1e via `gh pr checks` (workflow field, state SUCCESS); (3) no
+blocking Skeptic objection; (4) judge PASS; (5) no Needs Human state or
+outstanding ruling. Merged `gh pr merge 28 --squash
+--match-head-commit 5cedc1e…` → merge commit `c1406138`. CI on the
+merged SHA green (gates workflow run 33956598226, conclusion success).
+Local main had diverged with the step-8 In Review record commit
+(bd5321e); reconciled by union merge adopting the squash commit and
+keeping local council records (the EPIC-6 run's established pattern).
+Card set Done on frontmatter and board.

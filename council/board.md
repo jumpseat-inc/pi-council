@@ -34,11 +34,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- BUG-1 — Backspace deletion in the model search input and a first-use `/` filter hint
-
 ## Needs Human
 
 ## Done
+
+- BUG-1 — Backspace deletion in the model search input and a first-use `/` filter hint
 
 - FLLWUP-11 — Smoke phase selector for the /council-models Phase 5 falsifier
 - FLLWUP-10 — Writer thinking preservation matches loader resolution for object-form model overrides
