@@ -117,7 +117,7 @@ grep -Fq "$USAGE_LINE" "$OUT/headless.txt" \
 # --- 5. pty TUI session (frames 1-8 + the é falsifier) ---
 echo "search-smoke: driving the pty TUI session"
 env HOME="$SCRATCH_HOME" WORK_DIR="$WORK" PI_BIN="$PI_BIN" OPENROUTER_API_KEY="$OPENROUTER_API_KEY" \
-	TERM=xterm-256color python3 "$REPO_ROOT/smoke/search-smoke/driver.py" "$OUT"
+	TERM=xterm-256color python3 -B "$REPO_ROOT/smoke/search-smoke/driver.py" "$OUT"
 DRIVER_STATUS=$?
 if [ "$DRIVER_STATUS" -ne 0 ]; then
 	fail "driver.py exited $DRIVER_STATUS — frames red (artifacts kept at smoke/.artifacts/search-smoke/$TS)"
