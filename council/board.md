@@ -28,9 +28,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- FLLWUP-9 — Explicit clear-thinking-override affordance for a seat
-
 ## In Review
+
+- FLLWUP-9 — Explicit clear-thinking-override affordance for a seat
 
 ## Needs Human
 

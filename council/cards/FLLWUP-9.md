@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-9
 title: Explicit clear-thinking-override affordance for a seat
-state: In Progress
+state: In Review
 owner: owner
 epic: EPIC-6
 goal: A follow-up affordance removes a seat's thinking override or its whole council.<seat> entry from .council.json explicitly rather than treating absence as preserve, proven by a round-trip test that clears an existing override and byte-asserts the resulting config.
@@ -61,3 +61,34 @@ Card set In Progress on frontmatter and board, `owner: owner`; `validate.py`
 clean. Owner dispatched at the card (mechanical-path handoff: the card's
 Intent, goal, and Acceptance, with R-1 binding) with repo gate and
 branch/PR conventions.
+
+### Step 8 — In Review (owner implemented, PR #26 open)
+Owner dispatched at the card (job-11.1), settled in 3.5m, report recorded:
+plan `docs/superpowers/plans/2026-09-05-FLLWUP-9-clear-thinking-override.md`
+(committed `846dbff`); TDD sequence red→fix→green; implementation
+`7d8d386` (`feat(council-config-writer): explicit clearSeatOverride — remove
+a seat's thinking override or whole council entry (FLLWUP-9)`); gates
+recorded: `bun install --frozen-lockfile` exit 0 (no lockfile diff),
+`bunx tsc --noEmit` exit 0, `bun test` 536 pass / 2 skip / 0 fail (54
+files; +8 new clear tests vs the FLLWUP-10 baseline of 528), `python3
+council/validate.py` → "All council artifacts valid". New writer entry
+`clearSeatOverride({repoRoot, seat, what: "thinking" | "seat"})` — a
+byte-region removal splice reusing the writer's span-scan/atomic-write
+infrastructure; loader untouched; `writeSeatOverride` preservation
+semantics (incl. FLLWUP-10) byte-for-byte unchanged, their tests stayed
+green. Splice decisions (each pinned by a named test in
+`test/council-config-writer.test.ts` `describe("clearSeatOverride")`):
+object-form `what:"thinking"` removes the thinking member's byte span
+(trailing-comma aware) AND strips a known THINKING_LEVELS `:suffix` off the
+model (loader resolves thinking as key > :suffix, so both are "the
+override"); `what:"seat"` removes the whole member; string shorthand
+clear-thinking strips the `:suffix` keeping the shorthand form and model;
+seat/council/file absent → idempotent no-op `{ok:true}` no write; only
+malformed JSON / non-object root-or-council refuse `{ok:false, error}`;
+last-seat clear re-emits `"council": {}` (loadable). PR #26
+(https://github.com/jumpseat-inc/pi-council/pull/26) open against `main`,
+branch `fllwup-9-clear-thinking-override`, head
+`7d8d3864f487315d3aca6d0f538ad40e01158d72` (2 linear commits, no
+rewriting). Observed artifacts confirm: PR OPEN, headRefOid 7d8d386…,
+branch head on origin matches. Set In Review per step 8's
+observed-artifact rule (branch + open PR).
