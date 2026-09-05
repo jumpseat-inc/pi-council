@@ -114,6 +114,9 @@ docs/superpowers/    design spec + implementation plan (read before big changes)
     pruned to the last 15 runs at parent `session_start`, and must not be read
     by engine logic outside `extensions/runs.ts`, `extensions/tree.ts`,
     `extensions/transcript.ts`, and `extensions/navigator.ts`.
+13. **Local gate evidence is trusted only after `council/preflight.sh`
+    passes on the current tree** — prefer rerunning preflight over trusting
+    local-gate evidence to skip it.
 
 ## Commits
 
