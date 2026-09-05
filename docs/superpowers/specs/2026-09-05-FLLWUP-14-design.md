@@ -218,6 +218,15 @@ Contents, all mandatory:
 9. R-2 `node -e` parity holds against the npm-installed 0.84.3 dist.
 10. `SMOKE_PHASE=6` runs the harness through the Docker path; the no-`SMOKE_PHASE` full path is
     byte-identical before/after (diff of `smoke/driver.sh` additive-only within the guard).
+11. **Host exit status is the frame verdict, never the prune's** (step-9 fix-cycle contract, PR
+    head after 48ea5a3): with expired but unremovable run dirs in the artifacts tree
+    (foreign-owned — root-owned from the Docker bind-mount path — or own-but-permission-blocked),
+    a green run still exits 0 and prints `SMOKE PASS`, having pruned everything it could; every
+    unremovable entry is named in a visible `prune:` warning on stderr (foreign-owned vs
+    own-permission branches), and a prune failure never inverts the verdict. Can-fail provable
+    without root: an own `chmod 000` dir (with content) made the oldest prune candidate makes
+    the old `xargs -r rm -rf` pipeline exit 123; the fixed harness exits 0 with the warning
+    visible.
 
 ## 9. Non-goals / out of scope
 
