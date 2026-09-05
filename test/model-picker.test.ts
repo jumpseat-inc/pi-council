@@ -11,6 +11,8 @@ import {
 	FOOTER_SEAT_PROVIDER,
 	HEADER,
 	ModelPicker,
+	NO_MATCH,
+	SEARCH_ROW_EMPTY,
 	echoFor,
 	footerFor,
 	seatMarker,
@@ -406,7 +408,276 @@ test("8.11 empty states: no-providers, no-models, and a [] model row are three d
 	// [] model elsewhere is a *selectable* row, never an empty panel (covered by 8.6).
 });
 
+// ---- EV-27 `/`-triggered search input (spec test surface) ----
+const SLASH_KITTY = "\x1b[47u";
+
+test("EV-27 ruled copy: SEARCH_ROW_EMPTY is the byte-exact R-1 empty-input row", () => {
+	expect(SEARCH_ROW_EMPTY).toBe("▌ / filter · esc clears");
+});
+
+test("EV-27 1: `/` at level 2 opens the input — bare and kitty forms, rows unchanged", () => {
+	const { p } = picker(CATALOGUE);
+	p.handleInput(ENTER); // provider
+	p.handleInput(ENTER); // model
+	expect(strip(p.render(80)[1])).toBe("> openrouter/deepseek/deepseek-v4-pro-0813:off");
+	p.handleInput("/");
+	const lines = p.render(80).map(strip);
+	expect(lines[1]).toBe(SEARCH_ROW_EMPTY);
+	expect(lines[2]).toBe("> openrouter/deepseek/deepseek-v4-pro-0813:off");
+	expect(lines[lines.length - 1]).toBe(FOOTER_MODEL);
+
+	const q = picker(CATALOGUE);
+	q.p.handleInput(ENTER);
+	q.p.handleInput(ENTER);
+	q.p.handleInput(SLASH_KITTY); // kitty CSI-u form "\x1b[47u"
+	expect(strip(q.p.render(80)[1])).toBe(SEARCH_ROW_EMPTY);
+});
+
+test("EV-27 3: search row renders between header and first data row; empty byte-exact; typed byte-exact", () => {
+	const { p } = picker(CATALOGUE);
+	p.handleInput(ENTER);
+	p.handleInput(ENTER);
+	expect(strip(p.render(80)[0])).toBe(HEADER);
+	p.handleInput("/");
+	const empty = p.render(80).map(strip);
+	expect(empty[0]).toBe(HEADER);
+	expect(empty[1]).toBe(SEARCH_ROW_EMPTY);
+	expect(empty[2]).toBe("> openrouter/deepseek/deepseek-v4-pro-0813:off");
+	for (const ch of "claude") p.handleInput(ch);
+	const typed = p.render(80).map(strip);
+	expect(typed[0]).toBe(HEADER);
+	expect(typed[1]).toBe("▌ claude");
+
+	// truncation is from the right and never clips the `▌`; the empty hint
+	// truncates with `/ filter` surviving (design contract, rendering).
+	p.handleInput(ESC);
+	const narrow = p.render(10).map(strip);
+	expect(narrow[1]).toBe("▌ / filter");
+	for (const ch of "anthropic/deepseek-v4-pro") p.handleInput(ch);
+	expect(p.render(10).map(strip)[1]).toBe("▌ anthropi");
+});
+
 // ---- §8.13 truncation never drops the thinking decision ----
+test("EV-27 2: typing claude narrows the rows to qualifiedId substring matches (case-insensitive)", () => {
+	const { p } = picker(CATALOGUE);
+	p.handleInput(ENTER);
+	p.handleInput(ENTER);
+	p.handleInput("/");
+	for (const ch of "claude") p.handleInput(ch);
+	const rows = p
+		.render(80)
+		.map(strip)
+		.filter((l) => l.startsWith("> ") || l.startsWith("  "))
+		.map((l) => l.slice(2));
+	expect(rows).toEqual(["openrouter/alias/claude-sonnet:off", "openrouter/alias/claude-sonnet:high"]);
+
+	const q = picker(CATALOGUE);
+	q.p.handleInput(ENTER);
+	q.p.handleInput(ENTER);
+	q.p.handleInput("/");
+	for (const ch of "CLAUDE") q.p.handleInput(ch); // uppercase — case-insensitive
+	const qRows = q.p
+		.render(80)
+		.map(strip)
+		.filter((l) => l.startsWith("> ") || l.startsWith("  "))
+		.map((l) => l.slice(2));
+	expect(qRows).toEqual(["openrouter/alias/claude-sonnet:off", "openrouter/alias/claude-sonnet:high"]);
+});
+
+test("EV-27 4: FOOTER_MODEL is the last line at every keystroke incl. no-match", () => {
+	const { p } = picker(CATALOGUE);
+	p.handleInput(ENTER);
+	p.handleInput(ENTER);
+	for (const k of ["/", "c", "l", "a", "u", "d", "e", "z", "z"]) {
+		p.handleInput(k);
+		const lines = p.render(80).map(strip);
+		expect(lines[lines.length - 1]).toBe(FOOTER_MODEL);
+	}
+});
+
+test("EV-27 5: `/` inside the input appends as a literal — anthropic/claude typeable (kitty form)", () => {
+	const { p } = picker(CATALOGUE);
+	p.handleInput(ENTER);
+	p.handleInput(ENTER);
+	p.handleInput("/");
+	for (const ch of "anthropic") p.handleInput(ch);
+	p.handleInput(SLASH_KITTY); // kitty CSI-u slash while search is open — appends, never re-triggers
+	for (const ch of "claude") p.handleInput(ch);
+	const lines = p.render(80).map(strip);
+	expect(lines[1]).toBe("▌ anthropic/claude");
+	expect(lines[lines.length - 1]).toBe(FOOTER_MODEL);
+	expect(lines.join("\n")).not.toContain(SEARCH_ROW_EMPTY); // still search mode, hint gone
+});
+
+test("EV-27 6: render cache — claude vs claud (equal filtered set, cursor, window) differ", () => {
+	const { p } = picker(CATALOGUE);
+	p.handleInput(ENTER);
+	p.handleInput(ENTER);
+	p.handleInput("/");
+	for (const ch of "claud") p.handleInput(ch);
+	const first = p.render(80);
+	p.handleInput("e");
+	const second = p.render(80);
+	expect(second).not.toEqual(first);
+	expect(strip(second[1])).toBe("▌ claude");
+});
+
+test("EV-27 7: backspace bytes are guard-only no-ops — \x7f and \x1b[127u leave query unchanged", () => {
+	const { p } = picker(CATALOGUE);
+	p.handleInput(ENTER);
+	p.handleInput(ENTER);
+	p.handleInput("/");
+	for (const ch of "claude") p.handleInput(ch);
+	p.handleInput("\x7f");
+	expect(strip(p.render(80)[1])).toBe("▌ claude");
+	p.handleInput("\x1b[127u");
+	expect(strip(p.render(80)[1])).toBe("▌ claude");
+});
+
+test("EV-27 10: modelIndex re-clamps after every keystroke; shrink-then-Enter emits the survivor; empty-set Enter no-ops", () => {
+	const { p, confirmed } = picker(CATALOGUE);
+	p.handleInput(ENTER);
+	p.handleInput(ENTER);
+	p.handleInput("/");
+	p.handleInput("a"); // 3 rows: alpha:off, alias:off, alias:high
+	p.handleInput(DOWN);
+	p.handleInput(DOWN); // index 2
+	p.handleInput("l"); // still 3 rows
+	p.handleInput("i"); // "ali" → 2 rows; index clamps to 1
+	p.handleInput(ENTER); // picks alias:high — no throw
+	const sel = p.resolveSelection();
+	expect(sel).toEqual({ seat: "owner", model: "openrouter/alias/claude-sonnet", thinking: "high" });
+	p.handleInput(ENTER);
+	expect(confirmed).toEqual([sel]);
+
+	const q = picker(CATALOGUE);
+	q.p.handleInput(ENTER);
+	q.p.handleInput(ENTER);
+	q.p.handleInput("/");
+	for (const ch of "zz") q.p.handleInput(ch); // 0 rows
+	q.p.handleInput(ENTER); // consumed no-op, no throw
+	const lines = q.p.render(80).map(strip);
+	expect(lines[1]).toBe("▌ zz");
+	expect(lines[lines.length - 1]).toBe(FOOTER_MODEL);
+});
+
+test("EV-27 ruled copy: NO_MATCH is the byte-exact EPIC-6 R-1 literal", () => {
+	expect(NO_MATCH("zzzz")).toBe('No models matching "zzzz".');
+});
+
+test("EV-27 9: no-match renders ruled copy byte-exact, FOOTER_MODEL last, distinct from R-4; walk exits", () => {
+	const { p } = picker(CATALOGUE);
+	p.handleInput(ENTER);
+	p.handleInput(ENTER);
+	p.handleInput("/");
+	for (const ch of "zzzz") p.handleInput(ch);
+	const lines = p.render(80).map(strip);
+	expect(lines[1]).toBe("▌ zzzz");
+	expect(lines[2]).toBe(NO_MATCH("zzzz"));
+	expect(lines[lines.length - 1]).toBe(FOOTER_MODEL);
+	expect(lines).not.toContain(EMPTY_NO_PROVIDERS);
+	expect(lines).not.toContain(EMPTY_NO_MODELS("OpenRouter"));
+	// R-4#2 is footer-less — byte-distinct surface
+	const r4 = new ModelPicker({ providers: [{ provider: "p", displayName: "P", models: [] }], seats: CATALOGUE.seats }, FAKE_THEME, () => {}, () => {});
+	r4.handleInput(ENTER);
+	r4.handleInput(ENTER);
+	expect(r4.render(80).map(strip)).not.toContain(FOOTER_MODEL);
+	// no dead-end: Down moves focus out, Esc ascends to level 1
+	p.handleInput(DOWN);
+	p.handleInput(ESC);
+	expect(strip(p.render(80)[1]).startsWith("> OpenRouter")).toBe(true);
+});
+
+test("EV-27 8: Esc in the input clears and keeps focus; Esc again stays; Esc with focus out ascends", () => {
+	const { p } = picker(CATALOGUE);
+	p.handleInput(ENTER);
+	p.handleInput(ENTER);
+	p.handleInput("/");
+	for (const ch of "claude") p.handleInput(ch);
+	p.handleInput(ESC); // focused — clear, keep focus, stay level 2
+	let lines = p.render(80).map(strip);
+	expect(lines[0]).toBe(HEADER);
+	expect(lines[1]).toBe(SEARCH_ROW_EMPTY);
+	p.handleInput(ESC); // still focused — no ascend
+	lines = p.render(80).map(strip);
+	expect(lines[0]).toBe(HEADER);
+	expect(lines[1]).toBe(SEARCH_ROW_EMPTY);
+	p.handleInput(DOWN); // focus out
+	p.handleInput(ESC); // → level 1
+	lines = p.render(80).map(strip);
+	expect(lines[0]).toBe(HEADER);
+	expect(lines[1].startsWith("> OpenRouter")).toBe(true);
+	expect(lines.join("\n")).not.toContain("\u258C");
+});
+
+test("EV-27 11: selection through a filtered set emits the same tuple as the unfiltered path; echo byte-equal", () => {
+	const unfiltered = picker(CATALOGUE);
+	unfiltered.p.handleInput(ENTER);
+	unfiltered.p.handleInput(ENTER);
+	for (let i = 0; i < 5; i++) unfiltered.p.handleInput(DOWN); // alias:high
+	unfiltered.p.handleInput(ENTER);
+	const expected = unfiltered.p.resolveSelection();
+	expect(expected).toEqual({ seat: "owner", model: "openrouter/alias/claude-sonnet", thinking: "high" });
+	const echo = unfiltered.p.render(80).map(strip).find((l) => l.startsWith("Set "))!;
+	expect(echo).toBe(echoFor(expected));
+
+	const filtered = picker(CATALOGUE);
+	filtered.p.handleInput(ENTER);
+	filtered.p.handleInput(ENTER);
+	filtered.p.handleInput("/");
+	for (const ch of "claude") filtered.p.handleInput(ch);
+	filtered.p.handleInput(DOWN); // alias:high
+	filtered.p.handleInput(ENTER);
+	expect(filtered.p.resolveSelection()).toEqual(expected);
+	const filtEcho = filtered.p.render(80).map(strip).find((l) => l.startsWith("Set "))!;
+	expect(filtEcho).toBe(echo);
+	expect(filtEcho).toBe(echoFor(expected));
+});
+
+test("EV-27 12: B-7 round-trip preserves search state; fresh 1→2 re-entry resets it", () => {
+	const { p } = picker(CATALOGUE);
+	p.handleInput(ENTER);
+	p.handleInput(ENTER);
+	p.handleInput("/");
+	for (const ch of "claude") p.handleInput(ch);
+	p.handleInput(DOWN); // index 1, focus out
+	p.handleInput(ENTER); // confirm — search state untouched
+	expect(p.render(80).map(strip).join("\n")).not.toContain("\u258C"); // confirm never renders the search row
+	p.handleInput(ESC); // back to level 2 — preserved
+	let lines = p.render(80).map(strip);
+	expect(lines[1]).toBe("▌ claude");
+	expect(lines[2]).toBe("  openrouter/alias/claude-sonnet:off");
+	expect(lines[3]).toBe("> openrouter/alias/claude-sonnet:high");
+	expect(lines[lines.length - 1]).toBe(FOOTER_MODEL);
+	p.handleInput(ESC); // focus out → level 1; search state dies with the level
+	p.handleInput(ENTER); // fresh 1→2 re-entry — resets search state
+	lines = p.render(80).map(strip);
+	expect(lines[1]).toBe("> openrouter/deepseek/deepseek-v4-pro-0813:off");
+	expect(lines.join("\n")).not.toContain("\u258C");
+});
+
+test("EV-27 13: ▌ renders only in search-mode model-level frames", () => {
+	const { p } = picker(CATALOGUE);
+	// non-search walk: seat, provider, model, confirm — no ▌ anywhere
+	expect(p.render(80).join("\n")).not.toContain("\u258C");
+	p.handleInput(ENTER);
+	expect(p.render(80).join("\n")).not.toContain("\u258C");
+	p.handleInput(ENTER);
+	expect(p.render(80).join("\n")).not.toContain("\u258C");
+	p.handleInput(ENTER);
+	expect(p.render(80).join("\n")).not.toContain("\u258C");
+	p.handleInput(ESC);
+	p.handleInput(ESC);
+	p.handleInput(ENTER); // back to the model level
+	p.handleInput("/");
+	expect(p.render(80).join("\n")).toContain("\u258C");
+	p.handleInput(ESC); // cleared but still focused, level 2
+	expect(p.render(80).join("\n")).toContain("\u258C");
+	p.handleInput(DOWN);
+	p.handleInput(ESC);
+	expect(p.render(80).join("\n")).not.toContain("\u258C");
+});
+
 test("8.13 truncation: narrowed rows still end in :<level>; level never clipped", () => {
 	const { p } = picker(CATALOGUE);
 	p.handleInput(ENTER); // provider
