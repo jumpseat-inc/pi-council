@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-15
 title: Search-mode modal frame fits the terminal at full window height
-state: In Review
+state: Done
 owner: null
 epic: EPIC-6
 goal: With the search row visible at full window height the modal's frame renders without dropping its last line, achieved by shrinking the model window to `maxRows - 1` in search mode, proven by a driven render test at the tightest height asserting the frame's bottom border is present.
@@ -162,3 +162,51 @@ confirmed closed-green: pre-existing, identical pre/post fix, fix
 applies to the model-rows window only; the framed difference is still
 exactly one fewer model row. **Verdict: NO-BLOCK, 4/4 closed-green,
 no open objection.** Verify cycles used: 1 of ≤3.
+
+### Step 11 — deterministic merge check (features-deliver substitution)
+
+All five criteria met, read fresh against PR head
+`cc46e37c56549c16e4bd26c40611affeeb752926`: (1) owner gates green in
+full (owner job-8.1 ran all four gates in the head worktree; skeptic
+job-8.2 re-ran them at the head: `bun install --frozen-lockfile` 224
+packages no changes, `bunx tsc --noEmit` clean, `bun test` 555/2/0,
+`python3 council/validate.py` clean); (2) `gates` workflow SUCCESS on
+the PR head SHA — `gh pr checks 35 --json name,state,workflow` →
+`[{"name":"gates","state":"SUCCESS","workflow":"gates"}]`
+asserted on the `workflow` field per the substitution, headRefOid
+re-read == `cc46e37…` immediately before the merge; (3) no blocking
+Skeptic objection (NO-BLOCK, 4/4 closed-green); (4) judge PASS
+(job-8.3); (5) no Needs Human / outstanding ruling (card In Review,
+zero escalations). Merged `gh pr merge 35 --squash --match-head-commit
+cc46e37…` → PR #35 **MERGED** (mergedAt 2026-09-05T10:29:25Z),
+squash commit `0be0a26e3a16fa4d1cf224c3004881383cae9288` on `main`.
+
+### Step 12 — Done
+
+`gates` workflow on the merged SHA `0be0a26e` (run 33960792805,
+observed via `gh run list --commit 0be0a26e…`, workflowName gates)
+completed success. Board and card set Done; `validate.py` clean;
+reconciliation fast-forwarded cleanly — origin/main adopted the
+squash `0be0a26e` directly on top of this card's record commits
+(3c4abb1/18f4477/9c3a501, pushed as they happened per the record
+discipline), so `git merge origin/main` was a pure fast-forward
+(`git diff origin/main HEAD --stat` empty; conflict-marker sweep
+clean — the lone `<<<<<<< HEAD` in `council/cards/FLLWUP-9.md` is
+pre-existing record text at line 184, untouched by the squash),
+committed and pushed.
+
+Follow-up scan (step 13): no filing proposal. The run verified all
+search-mode render branches at the tightest height — rows-present
+window-binds parity via `maxRows - 1` (acceptance 1/3), zero-match
+branch fits fully with both ruled hint lines (no different treatment
+needed), non-search byte-identity (acceptance 2). A short-list probe
+(scratch `/tmp/fllwup15-shortlist.mjs`) confirmed the BUG-1 hint line
+balances the search row for lists shorter than the window — no
+irreducible +1 residual exists there either. The only residual is
+`withModalFrame`'s designed tail-clip dropping the ruled footer from
+the FRAMED output for both modes at tight heights with a full window
+— pre-existing, pinned by `navigator.test.ts`, identical pre/post
+fix, same frame-fitting class as this card (not a genuinely new
+failure class per the orchestrator's standing rule), and ruled out of
+scope by EV-27 §8 and the card's "model-rows window, not fixed chrome"
+binding — so no follow-up candidate is proposed.
