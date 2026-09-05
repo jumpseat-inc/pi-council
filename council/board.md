@@ -29,9 +29,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- FLLWUP-23 — Named failure for pi-council installs missing node_modules
-
 ## In Review
+
+- FLLWUP-23 — Named failure for pi-council installs missing node_modules
 
 ## Needs Human
 

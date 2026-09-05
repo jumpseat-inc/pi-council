@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-23
 title: Named failure for pi-council installs missing node_modules
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-6
 goal: Installing the pi-council package without its node_modules dependencies produces a named diagnostic at extension load instead of a silent zero-command state, proven by a driven test that loads the extension from a dependency-less install and asserts the diagnostic names the missing module and the remedy.
