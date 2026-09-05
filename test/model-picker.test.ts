@@ -12,6 +12,7 @@ import {
 	HEADER,
 	ModelPicker,
 	NO_MATCH,
+	PRE_SEARCH_HINT,
 	SEARCH_ROW_EMPTY,
 	echoFor,
 	filterModelRows,
@@ -222,7 +223,8 @@ test("8.4 keys: windowing erases only beyond maxRows; re-entry after Esc resets 
 	p.handleInput(ENTER); // provider → model (cursor reset to 0)
 	lines = p.render(80).map(strip);
 	expect(lines[1]).toBe("> xai/grok/v1");
-	expect(lines[2]).toBe(FOOTER_MODEL);
+	expect(lines[2]).toBe(PRE_SEARCH_HINT); // BUG-1 R-1: hint between rows and footer
+	expect(lines[lines.length - 1]).toBe(FOOTER_MODEL); // footer stays last, byte-exact
 
 	// re-entry after Esc resets the descended level's cursor to 0
 	p.handleInput(ESC); // model → provider (xai)
@@ -757,4 +759,40 @@ test("BUG-1 3: \x7f on an empty query and \x7f while unfocused stay no-ops; othe
 	// backspace never granted focus
 	unfocused.p.handleInput(ESC);
 	expect(strip(unfocused.p.render(80)[1]).startsWith("> OpenRouter")).toBe(true);
+});
+
+test("BUG-1 2: before any `/` press, the first model-level render of a fresh picker shows the R-2 hint below the rows, above the byte-exact footer", () => {
+	expect(PRE_SEARCH_HINT).toBe("press / to filter models"); // R-2 byte-exact literal
+	const { p } = picker(CATALOGUE);
+	p.handleInput(ENTER); // provider
+	p.handleInput(ENTER); // model — first model-level render of a fresh picker
+	const lines = p.render(80).map(strip);
+	expect(lines[lines.length - 1]).toBe(FOOTER_MODEL); // ruled footer last, byte-exact (not a hint footer)
+	expect(lines[lines.length - 2]).toBe(PRE_SEARCH_HINT); // hint directly below the rows
+	expect(lines[1].startsWith("> ")).toBe(true); // rows still start right under the header
+	expect(lines.join("\n")).not.toContain("\u258C"); // R-1: no ▌ focus signifier in non-search frames
+	// persists across re-renders while search has never been opened
+	expect(p.render(80).map(strip)).toContain(PRE_SEARCH_HINT);
+});
+
+test("BUG-1 4: R-3 dismissal — hint stops at the first `/` press, returns on the next fresh entry to the model level", () => {
+	const { p } = picker(CATALOGUE);
+	p.handleInput(ENTER);
+	p.handleInput(ENTER);
+	expect(p.render(80).map(strip)).toContain(PRE_SEARCH_HINT);
+	p.handleInput("/"); // first `/` press — hint is gone
+	expect(p.render(80).map(strip).join("\n")).not.toContain(PRE_SEARCH_HINT);
+	p.handleInput(ESC); // clear, stay focused — hint does not return mid-entry
+	expect(p.render(80).map(strip).join("\n")).not.toContain(PRE_SEARCH_HINT);
+	p.handleInput(DOWN); // focus out
+	p.handleInput(ESC); // ascend to provider — search state dies with the level
+	p.handleInput(ENTER); // fresh 1→2 entry — hint returns (R-3)
+	const lines = p.render(80).map(strip);
+	expect(lines).toContain(PRE_SEARCH_HINT);
+	expect(lines[lines.length - 1]).toBe(FOOTER_MODEL);
+	// no session-scoped persistence: a brand-new picker starts with the hint armed
+	const q = picker(CATALOGUE);
+	q.p.handleInput(ENTER);
+	q.p.handleInput(ENTER);
+	expect(q.p.render(80).map(strip)).toContain(PRE_SEARCH_HINT);
 });
