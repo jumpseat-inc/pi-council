@@ -421,6 +421,81 @@ env-keyed mode split is the root cause, not a pi version regression — is
 supported. Two factual inaccuracies in the earlier record (loader.js
 byte-identity partially false; env-split line numbers) documented above,
 neither fatal to the conclusion.
+
+### Step 5 — Consolidator synthesis (job-15.7)
+
+#### Settled
+
+- **No pi 0.84.3→0.85.0 engine delta.** `pi-manifest.js` +
+  `package-manager.js` byte-identical; `loader.js` differs only in the
+  `isBundledNode` refactor (local → import) — Skeptic obj. 1,
+  CLOSED-RED non-fatal: the byte-identity claim is partially false but the
+  no-loader-API-drift conclusion holds.
+- **Root cause = pi-council's own `COUNCIL_SEAT` env-keyed mode split at
+  `extensions/index.ts:117-121`** (corrected from 66-69 — Skeptic obj. 2,
+  CLOSED-RED for 66-69 / CLOSED-GREEN for 117-121), version-independent:
+  child mode registers hub tools + seat MCP but zero slash commands.
+- **Clean-env current main is GREEN on both 0.84.3 and 0.85.0** — all 14
+  commands register (Skeptic obj. 3, CLOSED-GREEN).
+- **`COUNCIL_SEAT` set → zero commands → silent model-dispatch
+  fallthrough**, reproduced on both versions, no `Failed to load
+  extension` diagnostic (factory succeeds, child branch runs) — Skeptic
+  objs. 4 + 5, CLOSED-GREEN.
+- **FLLWUP-14's "stock pi 0.85.0 loads no extension" observation came
+  from a contaminated council-runner seat session** (`COUNCIL_SEAT`
+  inherited), not the kitty harness — Skeptic objs. 6 + 7, CLOSED-GREEN:
+  smoke harness forwards only `OPENROUTER_API_KEY` + `SMOKE_PHASE`,
+  unsets council vars, pins `PI_VERSION=0.84.3`; contamination-proof and
+  never exercises 0.85.0.
+- **Current main reproduces the symptom** via the `COUNCIL_SEAT`-set
+  pole, not a version regression — Skeptic obj. 8, CLOSED-GREEN.
+- **Principal's step-2 jiti/import-stage hypothesis is falsified** —
+  conceded in round 2; the seam is the factory's own env branch, not the
+  loader.
+- **No-node_modules SDK-resolution fragility is version-independent,
+  release-shape safe, out of card scope** — follow-up note, not a fix
+  here (owner tradeoff (b), uncontested).
+
+#### Open judgment — for `product-owner`, escalating to `steward`
+
+1. **Does the card's goal/acceptance text need amendment, or do the agreed
+   deliverables satisfy it as written?** The goal says "restore extension
+   load on stock pi 0.85.0"; acceptance #1 says the verification is "red
+   on the current main state if the defect reproduces." The deliberation
+   found clean-env current main is GREEN on both versions (nothing to
+   restore), and the honest red reproduction is the `COUNCIL_SEAT`-set
+   pole (zero commands) — a version-independent env-split contract, not a
+   0.85.0 fix. Both seats flagged this: owner says the "red on current
+   main" assertion must be scoped to the `COUNCIL_SEAT=owner` variant;
+   principal says "there is no 0.85.0 load failure to restore" and the
+   goal text must not say "restore load on 0.85.0." No test can settle
+   whether the card-as-written is satisfied by the two-pole verification +
+   run-record + pin deliverables, or whether the goal/acceptance text
+   itself must be rewritten. Values/narrative-honesty tradeoff → ruling
+   seat.
+2. **How to characterize the devDependency pin.** Both seats converged on
+   the range `>=0.84.3 <0.86.0`. The disagreement is semantic, not
+   numeric: owner frames it as "consistent with the root cause" (a
+   deliberate constraint expressing the verified interval); principal
+   argues the root cause is version-independent, so `<0.86.0` is
+   "verified-interval housekeeping, not the fix," and framing it as the
+   fix "re-imports the phantom version axis." Same string, different
+   narrative claim. No test adjudicates a framing → ruling seat.
+
+#### Open objections
+
+- **None.** All eight Skeptic objections are closed (six CLOSED-GREEN, two
+  CLOSED-RED non-fatal). The two CLOSED-REDs are factual corrections to
+  the record (loader.js byte-identity partially false; env-split line
+  numbers 66-69 → 117-121) that do not overturn the conclusion. No
+  settling test is pending, failed-on-conclusion, or unverifiable.
+
+#### Ready to hand off?
+
+**No.** Two open judgment calls block: (1) the goal/acceptance-framing
+amendment question, and (2) the devDependency-pin characterization
+question. Both route to `product-owner`, escalating to `steward`. No open
+objections remain to clear first.
 - `package.json`'s `@earendil-works/pi-coding-agent` devDependency is a
   deliberate version constraint consistent with the root cause (pin, range,
   or bump — the deliberation rules which), and the choice is recorded.
