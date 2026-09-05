@@ -27,9 +27,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- FLLWUP-14 — Kitty-protocol terminal smoke for the model search input
-
 ## In Review
+
+- FLLWUP-14 — Kitty-protocol terminal smoke for the model search input
 
 ## Needs Human
 
