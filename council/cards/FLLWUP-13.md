@@ -16,9 +16,20 @@ sees only "nothing matches" and has no visible affordance telling them the
 list (and search) is recoverable without clearing. The ruled no-match copy
 (`No models matching "<query>".`, EPIC-6 R-1) stays byte-exact; this card
 adds a second line naming the focus-out key sequence. Surface is the
-`/council-models` modal's model level, no-match state. State is Backlog
-because the hint's exact copy is a Phase-1 human ruling that has not been
-made — the card ships only with a ruled literal.
+`/council-models` modal's model level, no-match state. The hint's exact copy is a Phase-1 ruling recorded
+on this card face below.
+
+## Phase 1 rulings (features-deliver, binding for this run)
+
+- **R-1 (no-match exit hint copy)**: the no-match region renders a dim
+  second line under the ruled `No models matching "<query>".` literal, with
+  the byte-exact copy `↓ then esc exits search` — naming the real two-key
+  walk (Down moves focus out of the input, Esc then ascends and search
+  state dies with the level). The ruled footer stays byte-exact; the hint
+  lives in the no-match region, never a fifth footer.
+
+Recorded human decision — immutable for the run and binding on every seat,
+`steward` included.
 
 ## Acceptance
 

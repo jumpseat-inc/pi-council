@@ -19,10 +19,9 @@ mechanism), so a one-character typo costs clear-and-retype. This card gives
 `\x7f` its ordinary meaning — delete the last query character and recompute
 the filtered rows — under the same two-bit focus machine EV-27 shipped.
 
-⚠ **Overlap flagged for the human.** FLLWUP-12 (Ready) already carries
-exactly this backspace contract, with a fully ruled acceptance. If BUG-1 is
-approved as written, FLLWUP-12 is redundant — the human should decide
-whether to drop it or narrow this card to the hint half only.
+⚠ **Overlap resolved pre-run.** FLLWUP-12 (Ready) carried exactly this
+backspace contract; per recorded human decision it was dropped before this
+card's dispatch and its pins are folded into this card's acceptance.
 
 **No indicator that `/` filters.** The only `/` affordance on screen lives
 inside the search row itself (`▌ / filter · esc clears`), which renders only
@@ -30,10 +29,24 @@ after `/` is pressed — invisible before the first press. The model-level
 footer (`↑/↓ move · enter select · esc back`) does not mention `/`, and
 EV-27 explicitly ruled no `/ filter` addition to the ruled footers
 (four-footer exhaustiveness), recording this discoverability gap as an
-unauthorized follow-up. Deliberation must settle what the card leaves open —
-hint copy, placement (a first-render line vs. anywhere else the exhaustiveness
-rule permits), and what "first time" means (per modal open, until the first
-`/` press, or persistent).
+unauthorized follow-up. The hint's placement, copy, and dismissal are
+Phase-1 rulings recorded on this card face below.
+
+## Phase 1 rulings (features-deliver, binding for this run)
+
+- **R-1 (pre-press hint placement)**: a first-render hint line below the
+  model rows at the model level, rendered only while search has never been
+  opened in the current modal-open. The line is not the search row, carries
+  no `▌` (U+258C) focus signifier (which appears in no non-search state,
+  per EV-27), and is not a footer — the ruled footer stays byte-exact.
+- **R-2 (pre-press hint copy)**: the hint line renders the byte-exact
+  literal `press / to filter models`.
+- **R-3 (dismissal)**: the hint stops rendering at the first `/` press in
+  the current modal-open and returns on the next fresh entry to the model
+  level. No session-scoped persistence.
+
+Recorded human decisions — immutable for the run and binding on every seat,
+`steward` included.
 
 ## Acceptance
 
@@ -45,5 +58,6 @@ rule permits), and what "first time" means (per modal open, until the first
   here).
 - Driven render test — the first model-level render of a fresh picker shows
   a visible hint naming `/` as the filter trigger, before any `/` press.
-- The hint half's exact copy, placement, and dismissal semantics are
-  deliberately unpinned (Backlog) — deliberation rules them.
+- The hint half's copy, placement, and dismissal semantics are the ruled
+  literals in the Phase 1 rulings above (R-1 placement, R-2 copy,
+  R-3 dismissal).
