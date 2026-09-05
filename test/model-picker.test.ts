@@ -600,6 +600,52 @@ test("EV-27 8: Esc in the input clears and keeps focus; Esc again stays; Esc wit
 	expect(lines.join("\n")).not.toContain("\u258C");
 });
 
+test("EV-27 11: selection through a filtered set emits the same tuple as the unfiltered path; echo byte-equal", () => {
+	const unfiltered = picker(CATALOGUE);
+	unfiltered.p.handleInput(ENTER);
+	unfiltered.p.handleInput(ENTER);
+	for (let i = 0; i < 5; i++) unfiltered.p.handleInput(DOWN); // alias:high
+	unfiltered.p.handleInput(ENTER);
+	const expected = unfiltered.p.resolveSelection();
+	expect(expected).toEqual({ seat: "owner", model: "openrouter/alias/claude-sonnet", thinking: "high" });
+	const echo = unfiltered.p.render(80).map(strip).find((l) => l.startsWith("Set "))!;
+	expect(echo).toBe(echoFor(expected));
+
+	const filtered = picker(CATALOGUE);
+	filtered.p.handleInput(ENTER);
+	filtered.p.handleInput(ENTER);
+	filtered.p.handleInput("/");
+	for (const ch of "claude") filtered.p.handleInput(ch);
+	filtered.p.handleInput(DOWN); // alias:high
+	filtered.p.handleInput(ENTER);
+	expect(filtered.p.resolveSelection()).toEqual(expected);
+	const filtEcho = filtered.p.render(80).map(strip).find((l) => l.startsWith("Set "))!;
+	expect(filtEcho).toBe(echo);
+	expect(filtEcho).toBe(echoFor(expected));
+});
+
+test("EV-27 12: B-7 round-trip preserves search state; fresh 1→2 re-entry resets it", () => {
+	const { p } = picker(CATALOGUE);
+	p.handleInput(ENTER);
+	p.handleInput(ENTER);
+	p.handleInput("/");
+	for (const ch of "claude") p.handleInput(ch);
+	p.handleInput(DOWN); // index 1, focus out
+	p.handleInput(ENTER); // confirm — search state untouched
+	expect(p.render(80).map(strip).join("\n")).not.toContain("\u258C"); // confirm never renders the search row
+	p.handleInput(ESC); // back to level 2 — preserved
+	let lines = p.render(80).map(strip);
+	expect(lines[1]).toBe("▌ claude");
+	expect(lines[2]).toBe("  openrouter/alias/claude-sonnet:off");
+	expect(lines[3]).toBe("> openrouter/alias/claude-sonnet:high");
+	expect(lines[lines.length - 1]).toBe(FOOTER_MODEL);
+	p.handleInput(ESC); // focus out → level 1; search state dies with the level
+	p.handleInput(ENTER); // fresh 1→2 re-entry — resets search state
+	lines = p.render(80).map(strip);
+	expect(lines[1]).toBe("> openrouter/deepseek/deepseek-v4-pro-0813:off");
+	expect(lines.join("\n")).not.toContain("\u258C");
+});
+
 test("EV-27 13: ▌ renders only in search-mode model-level frames", () => {
 	const { p } = picker(CATALOGUE);
 	// non-search walk: seat, provider, model, confirm — no ▌ anywhere
