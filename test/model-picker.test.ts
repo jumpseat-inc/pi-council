@@ -11,6 +11,7 @@ import {
 	FOOTER_SEAT_PROVIDER,
 	HEADER,
 	ModelPicker,
+	NO_MATCH,
 	SEARCH_ROW_EMPTY,
 	echoFor,
 	footerFor,
@@ -548,6 +549,33 @@ test("EV-27 10: modelIndex re-clamps after every keystroke; shrink-then-Enter em
 	const lines = q.p.render(80).map(strip);
 	expect(lines[1]).toBe("▌ zz");
 	expect(lines[lines.length - 1]).toBe(FOOTER_MODEL);
+});
+
+test("EV-27 ruled copy: NO_MATCH is the byte-exact EPIC-6 R-1 literal", () => {
+	expect(NO_MATCH("zzzz")).toBe('No models matching "zzzz".');
+});
+
+test("EV-27 9: no-match renders ruled copy byte-exact, FOOTER_MODEL last, distinct from R-4; walk exits", () => {
+	const { p } = picker(CATALOGUE);
+	p.handleInput(ENTER);
+	p.handleInput(ENTER);
+	p.handleInput("/");
+	for (const ch of "zzzz") p.handleInput(ch);
+	const lines = p.render(80).map(strip);
+	expect(lines[1]).toBe("▌ zzzz");
+	expect(lines[2]).toBe(NO_MATCH("zzzz"));
+	expect(lines[lines.length - 1]).toBe(FOOTER_MODEL);
+	expect(lines).not.toContain(EMPTY_NO_PROVIDERS);
+	expect(lines).not.toContain(EMPTY_NO_MODELS("OpenRouter"));
+	// R-4#2 is footer-less — byte-distinct surface
+	const r4 = new ModelPicker({ providers: [{ provider: "p", displayName: "P", models: [] }], seats: CATALOGUE.seats }, FAKE_THEME, () => {}, () => {});
+	r4.handleInput(ENTER);
+	r4.handleInput(ENTER);
+	expect(r4.render(80).map(strip)).not.toContain(FOOTER_MODEL);
+	// no dead-end: Down moves focus out, Esc ascends to level 1
+	p.handleInput(DOWN);
+	p.handleInput(ESC);
+	expect(strip(p.render(80)[1]).startsWith("> OpenRouter")).toBe(true);
 });
 
 test("EV-27 8: Esc in the input clears and keeps focus; Esc again stays; Esc with focus out ascends", () => {

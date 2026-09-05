@@ -36,6 +36,8 @@ export const EMPTY_NO_MODELS = (displayName: string): string => `No models avail
 export const SEARCH_HINT = "/ filter · esc clears";
 /** EV-27 R-1 byte-exact empty-input row: `▌` (U+258C, one column at 0) + hint. */
 export const SEARCH_ROW_EMPTY = `\u258C ${SEARCH_HINT}`;
+/** EPIC-6 R-1 ruled no-match copy — byte-exact, interpolated with the live query. */
+export const NO_MATCH = (query: string): string => `No models matching "${query}".`;
 
 /** R-3 seat-row marker (dim suffix). Pure text; dim styling happens at the
  *  call site. Keyed off SeatState.hasOverride — key presence, so a
@@ -221,10 +223,16 @@ export class ModelPicker implements Component {
 				// a ProviderGroup with models: [] (spec §4). No footer.
 				lines.push(this.theme.fg("dim", EMPTY_NO_MODELS(group.displayName)));
 			} else if (this.searchActive) {
-				// EV-27 search frame: search row between header and rows; the
-				// footer is FOOTER_MODEL in every search frame (active keys).
+				// EV-27 search frame: search row between header and rows/empty
+				// copy; FOOTER_MODEL is the footer in every search frame (Esc-clear
+				// and Down are active keys here, unlike the keyless R-4 states).
 				lines.push(this.searchRow(width));
-				this.pushRows(width, lines, this.currentRows(), false);
+				const rows = this.currentRows();
+				if (rows.length === 0) {
+					lines.push(this.theme.fg("dim", NO_MATCH(this.query)));
+				} else {
+					this.pushRows(width, lines, rows, false);
+				}
 				lines.push(this.theme.fg("dim", FOOTER_MODEL));
 			} else {
 				this.pushRows(width, lines, this.currentRows());
