@@ -21,7 +21,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EPIC-5 — /council-models provider and model picker for per-seat .council.json overrides
 - EPIC-6 — /council-models model-name search filter in the model selection modal
 - FLLWUP-9 — Explicit clear-thinking-override affordance for a seat
-- FLLWUP-10 — Writer thinking preservation matches loader resolution for object-form model overrides
 - FLLWUP-11 — Smoke phase selector for the /council-models Phase 5 falsifier
 
 ## Deliberating
@@ -29,6 +28,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Ready
 
 ## In Progress
+
+- FLLWUP-10 — Writer thinking preservation matches loader resolution for object-form model overrides
 
 ## In Review
 

@@ -194,9 +194,11 @@ function emitSeatObject(keyIndent: string, unit: string, value: AgentOverride): 
 }
 
 /** Existing thinking of `parsedDoc.council[seat]`: a string-shorthand
- *  `:suffix` or the object's `thinking` key. Only members of THINKING_LEVELS
- *  are preserved — carrying an invalid level along would keep the file
- *  un-loadable, so a broken value is dropped instead of byte-kept. */
+ *  `:suffix`, the object's `thinking` key, or an object-form `model`'s
+ *  `:suffix` — the same parse rule `applySeatOverride` uses (thinking key >
+ *  inline suffix), so preservation matches loader resolution (FLLWUP-10).
+ *  Only members of THINKING_LEVELS are carried — an invalid level would keep
+ *  the file un-loadable, so a broken value is dropped instead of byte-kept. */
 function existingThinking(parsedDoc: unknown, seat: string): string | undefined {
 	const council = (parsedDoc as Record<string, unknown>).council;
 	if (typeof council !== "object" || council === null || Array.isArray(council)) return undefined;
@@ -207,8 +209,17 @@ function existingThinking(parsedDoc: unknown, seat: string): string | undefined 
 		return undefined;
 	}
 	if (typeof raw === "object" && raw !== null && !Array.isArray(raw)) {
-		const t = (raw as Record<string, unknown>).thinking;
+		const rec = raw as Record<string, unknown>;
+		const t = rec.thinking;
 		if (typeof t === "string" && THINKING_LEVELS.has(t)) return t;
+		// FLLWUP-10: object-form `model` may carry the same `:suffix` the string
+		// shorthand does; applySeatOverride parses it. Unknown/trailing suffixes
+		// are dropped (no level) exactly like the string branch and the loader.
+		const m = rec.model;
+		if (typeof m === "string") {
+			const colon = m.lastIndexOf(":");
+			if (colon > 0 && THINKING_LEVELS.has(m.slice(colon + 1))) return m.slice(colon + 1);
+		}
 	}
 	return undefined;
 }
