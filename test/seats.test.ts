@@ -84,6 +84,16 @@ test("council-runner dispatch guidance forbids main-repo branch-state mutation (
 	expect(runner.body).toContain("dedicated worktree");
 });
 
+test("council-runner judge-dispatch guidance pins the verification subject and loop frame (FLLWUP-18)", () => {
+	const runner = loadSeat(tmpRepo(), "council-runner");
+	expect(runner.body).toContain("PR head SHA");
+	expect(runner.body).toContain("head worktree path");
+	expect(runner.body).toContain("step 10 judging precedes step 11");
+	expect(runner.body).toContain("mechanical merge");
+	expect(runner.body).toContain("facilitator executes");
+	expect(runner.body).toContain("no seat performs");
+});
+
 test("owner seat guidance forbids main-repo branch-state mutation (FLLWUP-17)", () => {
 	const owner = loadSeat(tmpRepo(), "owner");
 	expect(owner.body).toContain("main repository path");
