@@ -113,3 +113,49 @@ base `main` (via `gh pr view 29`); diff scope = plan +
 `extensions/model-picker.ts` (+11) + `test/model-picker.test.ts` (+56),
 nothing from `council/` or `vault/` (via `gh pr diff 29 --name-only`). Set
 In Review per step 8's observed-artifact rule (branch + open PR).
+
+⚠ **Disruption note (recovered)**: during step 9 a seat's `git checkout
+acee4a6` ran inside the main repo rather than a worktree, moving main's
+HEAD off `f6f8e32` to the PR head and leaving the working tree at the PR
+state. Detected via the board/card reverting to the pre-run face;
+recovered from the reflog — `git checkout main` restored HEAD to
+`f6f8e32` (both record commits intact, working tree clean, validate
+clean). No verification result was invalidated: the Skeptic (job-2.2)
+and Judge (job-2.3) both verified the PR head `acee4a6` directly, which
+is unchanged. Hazard flagged for the orchestrator/ledger: seats must
+never `git checkout`/`reset` inside the main checkout — same class as the
+stall/contamination lesson already recorded in the EPIC-6 ledger.
+
+### Step 9 — verified (cycle 1 of ≤3)
+Skeptic dispatched at PR #29 head `acee4a6` (job-2.2), settled in 5.3m.
+All four gates re-run at the head, green in order with real output: `bun
+install --frozen-lockfile` exit 0 ("no changes"); `bunx tsc --noEmit`
+clean; `bun test` 544 pass / 2 skip / 0 fail; `python3 council/validate.py`
+clean. 12 falsifiable probes, **all closed-green**: O-1 NO_MATCH_HINT
+byte-identity (codepoint[0] 0x2193, 23 codepoints); O-2 render order at
+zero-match exactly [HEADER, search row, NO_MATCH("<query>."),
+NO_MATCH_HINT, FOOTER_MODEL] at width 80; O-3 footer-last invariance
+(every keystroke ends on one of the four ruled footers, never a fifth);
+O-4 byte-distinct from NO_MATCH(""), EMPTY_NO_PROVIDERS,
+EMPTY_NO_MODELS, SEARCH_ROW_EMPTY, PRE_SEARCH_HINT, FOOTER_MODEL; O-5
+two-key walk Down→Esc ascends to provider level, search state dead, no
+`▌`, no hint, fresh 1→2 re-entry clean with PRE_SEARCH_HINT re-armed;
+O-6 10×Down at zero rows no crash/clamped render, Esc still ascends; O-7
+Esc focused at zero-match remains clear-and-stay (hint does not alter
+that branch); O-8 narrowed-then-cleared (backspace×4 removes the hint,
+rows restored); O-9 PRE_SEARCH_HINT ⇔ NO_MATCH_HINT mutual exclusion;
+O-10 diff scope only plan + model-picker.ts + model-picker.test.ts;
+O-11 gate set green; O-12 gate integrity — defect injection (drifted hint
+copy) turned the FLLWUP-13 byte-copy test RED, restore turned it GREEN
+again. **Verdict: NO-BLOCK, 12/12 closed-green, no open objection.**
+
+### Step 10 — judge PASS
+Judge dispatched with the card's `goal` and the Skeptic's step-9 evidence
+only (job-2.3), settled in 0.7m. Verdict **PASS** (independently checked
+out `acee4a6`): hint present in the zero-match rendering between
+NO_MATCH(query) and FOOTER_MODEL; the hint names the real leave-search
+walk (Down→Esc driven, search state dies, fresh re-entry clean);
+byte-distinct from the ruled literal and both R-4 empty states (0x2193
+lead, 23 codepoints, all six distinctness assertions); proven by driven
+render tests — all three FLLWUP-13 tests green, full suite 544 pass / 0
+fail.
