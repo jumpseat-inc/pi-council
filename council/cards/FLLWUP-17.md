@@ -102,3 +102,22 @@ exactly the five planned files (three seat bodies + plan +
 `test/seats.test.ts`); test-file diff purely additive (the FLLWUP-16
 runner-body test byte-identical); worktree verified at the head. Set In
 Review per step 8's observed-artifact rule (branch + open PR).
+
+### Step 9 — verified (cycle 1 of 3)
+Skeptic dispatched at PR #31 head `4da5a6b` (job-4.2), settled in 3.9m.
+All four gates re-run at the head in order, green with real output: `bun
+install --frozen-lockfile` exit 0 ("no changes"); `bunx tsc --noEmit`
+clean; `bun test` 548 pass / 2 skip / 0 fail; `python3 council/validate.py`
+clean. Ten falsifiable checks, **all closed-green**: C1–C3 the
+`<main_repo_immutability>` block present in each seat body — owner between
+`</owner_mode>` and `<bash_discipline>`, skeptic between
+`</verification_mode>` and `<bash_discipline>`, judge between
+`</when_invoked>` and `<bash_discipline>` — each with the five required
+phrases verbatim (driven tests green, 5 expects each); C4 the three driven
+FLLWUP-17 payload tests (file run 36 pass / 0 fail / 86 expects); C5 plan
+file exists; C6 `extensions/` diff empty; C7 frontmatter untouched (only
+body blocks added); C8 FLLWUP-16 runner-body test byte-identical; C9 full
+gate set green at the head; C10 gate integrity — defeat injection per
+seat (block removed in the worktree, test RED naming the missing phrase,
+restore GREEN) ×3. **Verdict: NO-BLOCK, 10/10 closed-green, no open
+objection.** Verify cycles used: 1 of ≤3.
