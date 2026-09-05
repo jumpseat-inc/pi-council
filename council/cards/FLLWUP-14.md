@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-14
 title: Kitty-protocol terminal smoke for the model search input
-state: In Progress
+state: Done
 owner: owner
 epic: EPIC-6
 goal: A documented smoke procedure drives `/council-models` in a live terminal by delivering `/` and printable keystrokes as CSI-u kitty-protocol sequences, and the observed frames show the search input opening, filtering, and Esc-clearing per the ruled copy set, with the procedure and expected frames recorded for re-execution.
@@ -514,6 +514,9 @@ Cycle-2 Skeptic at `4b470ec`: **NO-BLOCK, 7/7 closed-green** — mutation probe 
 
 ### Step 11 — deterministic merge gate: all five criteria met at `4b470ec`
 Executed mechanically, no discretion: (1) owner gates green in full at the head — tsc exit 0, bun test 557/0 fail, validate.py clean, host harness `bash smoke/search-smoke/run.sh` **exit 0 + SMOKE PASS** (runner's own re-run, root-owned dir in tree, keep-window steady-state), `SMOKE_PHASE=6` Docker exit 0; (2) GitHub Actions green on the head SHA — `gh pr checks 36` shows `gates` workflow `SUCCESS` keyed on `workflow`; (3) no blocking Skeptic objection — NO-BLOCK at cycles 1 and 2; the single cycle-1 closed-red was a main-side spec claim (c) already amended, no product red stands; (4) judge verdict PASS at the merge candidate `4b470ec` (job-13.8); (5) no `Needs Human` and no outstanding ruling. Merging pinned to the checked SHA: `gh pr merge 36 --squash --match-head-commit 4b470ec…`.
+
+### Step 12 — merged and green on the merged SHA, card Done
+Merge executed: `gh pr merge 36 --squash --match-head-commit 4b470ecf6df0d6cc29184010f8d1911bd2574711` exit 0 → squash merge **`ba84719`** `feat(smoke): FLLWUP-14 — kitty-protocol terminal smoke for the model search input (#36)` (6 files, +1335/−7: the plan, `smoke/driver.sh`, `smoke/run.sh`, `smoke/search-smoke/{run.sh,driver.py,README.md}`). Local main fast-forwarded cleanly (`5628582..ba84719`; the push-records-as-you-go discipline kept the sync a pure FF — no union-merge reconcile needed). Observed artifact: `gates` workflow **success** on `ba84719` (the merged SHA) via `gh run list --workflow gates --branch main`. Done set per council.md's observed-artifact rule (merged + CI green on the merged SHA). Follow-up candidates listed in the run report (the orchestrator owns writing them).
 
 ### Step 10 — judge PASS (job-13.3)
 Judge dispatched with exactly the card's `goal` and the step-9 Skeptic evidence (FLLWUP-18/20 subject pin: head `48ea5a3`, worktree `.worktrees/fllwup-14-search-smoke`, loop frame stated). Verdict **PASS**. Basis: all three goal conjuncts satisfied at `48ea5a3` — (1) documented smoke procedure: `smoke/search-smoke/README.md` (byte table, nine expected frames, assertion rules, human-replay path; Skeptic confirmed all 5 mandatory statements); (2) live-terminal CSI-u drive: `bash smoke/search-smoke/run.sh` 9 green frames in a pty; artifacts `03-search-open.txt` (`▌ / filter · esc clears`), `06-cla.txt` (`▌ cla`), `07-cl.txt` (`▌ cl` after backspace), `08-cleared.txt`/`10-esc-esc.txt` (Esc-clearing restored); (3) ruled copy byte-exact across driver/README/TS + recorded frames for re-execution. The single closed-red (spec claim-c) is documentation-only, product-side pinned by the unit suite. No REJECT basis raised. Step 11 (deterministic merge check) next.

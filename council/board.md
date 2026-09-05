@@ -27,13 +27,13 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- FLLWUP-14 — Kitty-protocol terminal smoke for the model search input
-
 ## In Review
 
 ## Needs Human
 
 ## Done
+
+- FLLWUP-14 — Kitty-protocol terminal smoke for the model search input
 
 - FLLWUP-15 — Search-mode modal frame fits the terminal at full window height
 - FLLWUP-18 — Judge dispatch inputs pin the verification subject and loop frame
