@@ -180,12 +180,26 @@ export class ModelPicker implements Component {
 		return group ? (this.searchActive ? filterModelRows(rowsForProvider(group), this.query) : rowsForProvider(group)) : [];
 	}
 
-	/** §2 windowed scrolling: start = max(0, min(sel - floor((maxRows-1)/2), len - maxRows)). */
+	/** §2 windowed scrolling: start = max(0, min(sel - floor((maxRows-1)/2), len - maxRows)).
+	 *  FLLWUP-15: the window is the search-shrunk effectiveMaxRows, so scroll
+	 *  centering and the row slice share one budget. */
 	private windowStart(): number {
 		const len = this.currentRows().length;
-		if (len <= this.maxRows) return 0;
+		const window = this.effectiveMaxRows();
+		if (len <= window) return 0;
 		const selected = this.currentIndex();
-		return Math.max(0, Math.min(selected - Math.floor((this.maxRows - 1) / 2), len - this.maxRows));
+		return Math.max(0, Math.min(selected - Math.floor((window - 1) / 2), len - window));
+	}
+
+	/** FLLWUP-15: the model-rows window is one row smaller while the search
+	 *  input is open at the model level (maxRows - 1), so the search row +
+	 *  the ruled footer keep the same content-height budget as the non-search
+	 *  frame — with a full window, search renders exactly one fewer model row
+	 *  than non-search. The shrink applies to the model-rows window only,
+	 *  never to fixed chrome (header/search row/footer), and never outside
+	 *  level 2 with search active. */
+	private effectiveMaxRows(): number {
+		return this.level === 2 && this.searchActive ? Math.max(1, this.maxRows - 1) : this.maxRows;
 	}
 
 	/** EV-27 search row: `▌ ` (U+258C at column 0) + the R-1 empty hint or the
@@ -266,7 +280,7 @@ export class ModelPicker implements Component {
 
 	private pushRows(width: number, lines: string[], rows: Array<SeatState | ProviderGroup | PickRow>, footer = true): void {
 		const start = this.windowStart();
-		const windowed = rows.slice(start, start + Math.min(this.maxRows, rows.length));
+		const windowed = rows.slice(start, start + Math.min(this.effectiveMaxRows(), rows.length));
 		const selected = this.currentIndex();
 		windowed.forEach((row, i) => {
 			const isSel = start + i === selected;

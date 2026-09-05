@@ -22,6 +22,7 @@ import {
 	seatMarker,
 	type SeatModelSelection,
 } from "../extensions/model-picker.ts";
+import { withModalFrame } from "../extensions/navigator.ts";
 
 // ---- key simulation: raw bytes pi-tui matches (same as navigator.test.ts) ----
 const UP = "\x1b[A";
@@ -851,4 +852,110 @@ test("BUG-1 4: R-3 dismissal — hint stops at the first `/` press, returns on t
 	q.p.handleInput(ENTER);
 	q.p.handleInput(ENTER);
 	expect(q.p.render(80).map(strip)).toContain(PRE_SEARCH_HINT);
+});
+
+// ---- FLLWUP-15 search-mode model-window shrink (EPIC-6 mechanical path) ----
+// Driven at the tightest height with openModelPicker's exact wiring: picker
+// maxRows = termRows - 2, withModalFrame maxPanelHeight = termRows - 2
+// (extensions/council-models.ts openModelPicker).
+
+function wiredPicker(nModels: number, termRows: number) {
+	const models: ModelEntry[] = [];
+	for (let i = 0; i < nModels; i++) {
+		const id = `p/m${String(i).padStart(2, "0")}`;
+		models.push(entry(id, ["low", "high"])); // qualifiedId = id
+	}
+	const catalogue: ResolverResult = {
+		seats: [{ name: "owner", hasOverride: false, currentModel: "a/x" }],
+		providers: [{ provider: "p", displayName: "Provider P", models }],
+	};
+	return { catalogue, ...picker(catalogue, termRows - 2) };
+}
+
+test("FLLWUP-15 1: at the tightest height search owns exactly one fewer model window row than non-search; content is the ruled chrome + (maxRows-1) rows", () => {
+	const termRows = 10; // Math.max(10, rows) — the tightest height
+	const { p } = wiredPicker(50, termRows);
+	p.handleInput(ENTER); // seat → provider
+	p.handleInput(ENTER); // provider → model (non-search, hint armed)
+	const nonSearch = p.render(80).map(strip);
+	// non-search window is exactly maxRows = termRows - 2 — the shrink never leaks
+	expect(nonSearch.filter((l) => l.startsWith("> ") || l.startsWith("  "))).toHaveLength(termRows - 2);
+	expect(nonSearch[0]).toBe(HEADER);
+	expect(nonSearch[nonSearch.length - 2]).toBe(PRE_SEARCH_HINT);
+	expect(nonSearch[nonSearch.length - 1]).toBe(FOOTER_MODEL);
+
+	p.handleInput("/");
+	for (const ch of "m0") p.handleInput(ch); // 20 filtered rows — window full
+	const search = p.render(80).map(strip);
+	const searchRows = search.filter((l) => l.startsWith("> ") || l.startsWith("  "));
+	// RED pre-fix: 8 windowed rows / 11 content lines → GREEN post-fix: 7 / 10
+	expect(searchRows).toHaveLength(termRows - 3); // exactly one fewer than non-search's maxRows
+	expect(search).toHaveLength(searchRows.length + 3); // header + search row + rows + footer
+	expect(search[0]).toBe(HEADER);
+	expect(search[1]).toBe("▌ m0");
+	expect(search[search.length - 1]).toBe(FOOTER_MODEL);
+
+	// card acceptance (letter): the frame's bottom border line is present at the
+	// tightest height with search active. Green on both sides — the teeth are the
+	// windowed-row count above (per the EPIC-6 facilitator probe).
+	const framed = withModalFrame(FAKE_THEME, 80, termRows, search, { maxPanelHeight: termRows - 2 }).map(strip);
+	expect(framed).toHaveLength(termRows);
+	expect(framed.filter((l) => l.includes("└") || l.includes("┘"))).toHaveLength(1);
+});
+
+test("FLLWUP-15 2: zero-match branch at the tightest height fits fully in the frame — both ruled hint lines, the ruled footer, and the bottom border are present", () => {
+	const termRows = 10;
+	const { p } = wiredPicker(50, termRows);
+	p.handleInput(ENTER);
+	p.handleInput(ENTER);
+	p.handleInput("/");
+	for (const ch of "zzzz") p.handleInput(ch);
+	const content = p.render(80).map(strip);
+	expect(content).toEqual([HEADER, "▌ zzzz", NO_MATCH("zzzz"), NO_MATCH_HINT, FOOTER_MODEL]); // 5 fixed lines
+	const framed = withModalFrame(FAKE_THEME, 80, termRows, content, { maxPanelHeight: termRows - 2 }).map(strip);
+	const joined = framed.join("\n");
+	expect(joined).toContain(NO_MATCH("zzzz")); // no tail-clip — content fits
+	expect(joined).toContain(NO_MATCH_HINT); // the FLLWUP-13 ruled exit hint fits
+	expect(joined).toContain(FOOTER_MODEL); // the ruled footer fits
+	expect(framed.filter((l) => l.includes("└") || l.includes("┘"))).toHaveLength(1); // bottom border present
+});
+
+test("FLLWUP-15 3: with the shrunk search window, Down still reaches every filtered row by scrolling and Enter picks the last one", () => {
+	const termRows = 10;
+	const { p, confirmed } = wiredPicker(50, termRows);
+	p.handleInput(ENTER);
+	p.handleInput(ENTER);
+	p.handleInput("/");
+	for (const ch of "m") p.handleInput(ch); // 100 filtered rows — far past the 7-row window
+	for (let i = 0; i < 200; i++) p.handleInput(DOWN); // past the tail — clamps
+	const lines = p.render(80).map(strip);
+	const windowed = lines.filter((l) => l.startsWith("> ") || l.startsWith("  "));
+	expect(windowed).toHaveLength(termRows - 3); // the shrunk 7-row window
+	expect(windowed).toContain("> p/m49:high"); // the tail row is reachable and visible after scrolling
+	p.handleInput(ENTER); // confirm
+	expect(p.resolveSelection()).toEqual({ seat: "owner", model: "p/m49", thinking: "high" });
+	p.handleInput(ENTER);
+	expect(confirmed).toEqual([{ seat: "owner", model: "p/m49", thinking: "high" }]);
+});
+
+test("FLLWUP-15 4: non-search rendering is byte-identical at every height — the window shrink touches search only", () => {
+	for (const termRows of [10, 12, 16, 24, 40]) {
+		const { p, catalogue } = wiredPicker(50, termRows);
+		p.handleInput(ENTER);
+		p.handleInput(ENTER);
+		const lines = p.render(80).map(strip);
+		const window = Math.min(termRows - 2, 100);
+		const expectedRows = rowsForProvider(catalogue.providers[0]!)
+			.slice(0, window)
+			.map((r, i) => (i === 0 ? "> " : "  ") + r.model.qualifiedId + (r.level === undefined ? "" : `:${r.level}`));
+		expect(lines).toEqual([HEADER, ...expectedRows, PRE_SEARCH_HINT, FOOTER_MODEL]); // pre-change bytes, untouched
+
+		const q = wiredPicker(50, termRows);
+		q.p.handleInput(ENTER);
+		q.p.handleInput(ENTER);
+		q.p.handleInput("/");
+		for (const ch of "m") q.p.handleInput(ch); // 100 filtered rows
+		const sRows = q.p.render(80).map(strip).filter((l) => l.startsWith("> ") || l.startsWith("  "));
+		expect(sRows).toHaveLength(Math.min(termRows - 3, 100)); // RED pre-fix: termRows - 2
+	}
 });
