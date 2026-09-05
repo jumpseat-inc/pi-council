@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-16
 title: Seat dispatch inputs forbid main-repo branch-state mutation
-state: In Review
+state: Done
 owner: null
 epic: EPIC-6
 goal: Working seats dispatched by council-runner receive dispatch inputs that forbid git checkout, git switch, and git reset against the main repository path and require any branch state change to happen in a dedicated worktree, proven by a driven test asserting the constraint is present in the packaged council-runner seat's dispatch discipline plus a documented reflog recovery drill executable against a simulated board reversion.
@@ -193,3 +193,30 @@ goal-text fix needed — the alleged `receive` ambiguity was the premise
 error, not a textual defect. No verify cycle consumed: no fix round or
 step-9 reverify followed the REJECT; the step-10 evaluation was re-run on
 the same verified evidence (verify cycles used: 1 of ≤3).
+
+### Step 11 — deterministic merge check (features-deliver substitution)
+All five criteria met, read fresh against PR head
+`dacf6be422346a868538b987ffe6e211652d4fcb`: (1) owner gates green in full
+(owner job-3.1 ran all four gates at the head; Skeptic job-3.2 re-ran them
+at the head: frozen-lockfile install exit 0, `bunx tsc --noEmit` clean,
+`bun test` 545/2/0, `python3 council/validate.py` clean); (2) `gates`
+workflow SUCCESS on the PR head SHA — `gh pr checks 30 --json
+name,state,workflow` → `[{"name":"gates","state":"SUCCESS","workflow":"gates"}]`
+asserted on the `workflow` field per the substitution, run 33957611027
+completed success at headSha dacf6be4 (the exact PR head, verified via
+`gh run list --branch fllwup-16-main-repo-immutability`); (3) no blocking
+Skeptic objection (NO-BLOCK, 6/6 closed-green); (4) judge PASS (job-3.4);
+(5) no Needs Human / outstanding ruling (card In Review, zero
+escalations). Merged `gh pr merge 30 --squash --match-head-commit
+dacf6be4…` → PR #30 **MERGED** (mergedAt 2026-09-05T09:24:58Z), squash
+commit `68e728ddab9d1ccfc14aa134a5008f9840304035` on `main`. `gates`
+workflow re-ran on the merged SHA: run 33957919145 → completed/success
+(observed via `gh run list --commit 68e728d…`, conclusion success).
+
+### Step 12 — Done
+Local `main` reconciled by union merge adopting the squash (68e728d)
+while keeping this card's record commits (d3816fe, f4b3628, 540ff78,
+15e1f6a, 0639639) — the squash touches only `council/agents/
+council-runner.md`, the plan, and `test/seats.test.ts`, no `council/`
+record overlap; merge clean via ort, conflict-marker sweep empty. Board and
+card set Done; `validate.py` clean; reconciliation committed and pushed.

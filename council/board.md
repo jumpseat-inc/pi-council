@@ -32,11 +32,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- FLLWUP-16 — Seat dispatch inputs forbid main-repo branch-state mutation
-
 ## Needs Human
 
 ## Done
+
+- FLLWUP-16 — Seat dispatch inputs forbid main-repo branch-state mutation
 
 - FLLWUP-13 — No-match state names how to leave search mode
 
