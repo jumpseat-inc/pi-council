@@ -19,7 +19,7 @@ CID="smoke-$TS"
 mkdir -p "$OUT"
 
 set +e
-docker run --name "$CID" -e OPENROUTER_API_KEY -v "$REPO_ROOT:/pkg" "$IMAGE" \
+docker run --name "$CID" -e OPENROUTER_API_KEY -e SMOKE_PHASE=${SMOKE_PHASE:-} -v "$REPO_ROOT:/pkg" "$IMAGE" \
 	bash /pkg/smoke/driver.sh
 STATUS=$?
 set -e

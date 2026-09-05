@@ -33,6 +33,16 @@ const MODELS: CatalogueModel[] = [
 ];
 const DISPLAY = { openrouter: "OpenRouter", xai: "xAI" };
 
+// EV-25 Phase-1 ruling R-2/R-3 byte literals — the authority. FLLWUP-11 R-1:
+// H1/H2/H3 assert the emitted output against THESE ruled bytes, not the module's
+// own exports (no self-reference); the source-audit test below also byte-locks
+// the module constants/function output to them, so a drift between the ruling
+// and the code is a red test.
+const RULED_USAGE_LINE = "[council-models] usage: /council-models [<seat> [<provider>/<model>[:thinking]]]";
+const RULED_LISTING_HEADER = "Current per-seat models:";
+const RULED_NOTIFY_FLASH_HIGH =
+	"council-models: wrote owner → openrouter/deepseek/deepseek-v4-flash-0731:high in .council.json — takes effect at the next dispatch.";
+
 const FLASH = "openrouter/deepseek/deepseek-v4-flash-0731";
 const QWEN = "openrouter/qwen/qwen3.6-35b-a3b";
 
@@ -68,7 +78,7 @@ test("H1: no args → R-2 usage block + full per-seat listing (all frontmatter-d
 	const repo = makeRepo();
 	const text = run("", repo);
 	const lines = text.split("\n");
-	expect(lines.slice(0, 3)).toEqual([USAGE_LINE, "", LISTING_HEADER]);
+	expect(lines.slice(0, 3)).toEqual([RULED_USAGE_LINE, "", RULED_LISTING_HEADER]);
 	for (const l of lines.slice(3)) {
 		expect(l).toMatch(/^[a-z0-9-]+: frontmatter default$/);
 	}
@@ -93,15 +103,15 @@ test("H2: <seat> → that seat's current line plus the usage line", () => {
 		[COUNCIL_CONFIG_FILE]: JSON.stringify({ council: { owner: { model: FLASH, thinking: "low" } } }),
 	});
 	const text = run("owner", repo);
-	expect(text).toBe([USAGE_LINE, "", LISTING_HEADER, "owner: openrouter/deepseek/deepseek-v4-flash-0731:low (override)"].join("\n"));
+	expect(text).toBe(
+		[RULED_USAGE_LINE, "", RULED_LISTING_HEADER, "owner: openrouter/deepseek/deepseek-v4-flash-0731:low (override)"].join("\n"),
+	);
 });
 
 test("H3: <seat> <provider>/<model>[:thinking] → validates, writes, R-3 notify byte-exact", () => {
 	const repo = makeRepo();
 	const text = run(`owner ${FLASH}:high`, repo);
-	expect(text).toBe(
-		"council-models: wrote owner → openrouter/deepseek/deepseek-v4-flash-0731:high in .council.json — takes effect at the next dispatch.",
-	);
+	expect(text).toBe(RULED_NOTIFY_FLASH_HIGH);
 	expect(JSON.parse(cfg(repo)).council.owner).toEqual({ model: FLASH, thinking: "high" });
 });
 
@@ -248,4 +258,13 @@ test("source audit: council-models.ts emits plain text — no ANSI, no literal #
 	expect(USAGE_LINE).not.toMatch(NO_ANSI);
 	expect(notify).not.toMatch(NO_ANSI);
 	expect(notify).not.toMatch(NO_HEX);
+});
+
+test("source audit: module R-2/R-3 bytes match the EV-25 ruling literals (FLLWUP-11)", () => {
+	// The ruled bytes are the authority; these assertions make a module drift
+	// from the ruling visible even though H1/H2/H3 now assert the ruled literal
+	// directly (no self-reference).
+	expect(USAGE_LINE).toBe(RULED_USAGE_LINE);
+	expect(LISTING_HEADER).toBe(RULED_LISTING_HEADER);
+	expect(modelsNotifyLine("owner", { model: FLASH, thinkingLevel: "high" })).toBe(RULED_NOTIFY_FLASH_HIGH);
 });
