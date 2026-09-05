@@ -4,7 +4,7 @@ title: Restore pi-council extension load on stock pi 0.85.0 and pin the devDepen
 state: Deliberating
 owner: null
 epic: EPIC-6
-goal: The pi-council package's extensions load and register their commands on stock pi 0.85.0 from a fresh scratch HOME with no council configuration, proven by a driven headless verification asserting command registration succeeds on the installed stock pi, with the root cause of the load failure documented and the devDependency on @earendil-works/pi-coding-agent changed to a deliberate version constraint.
+goal: The pi-council package's env-keyed parent/child mode split at `extensions/index.ts` registers all parent-mode slash commands on stock pi in a fresh scratch HOME and registers zero slash commands when `COUNCIL_SEAT` is set, proven by a driven headless verification asserting both poles via the installed pi binary, with the root cause of the env-split fallthrough documented and the devDependency on `@earendil-works/pi-coding-agent` changed to a deliberate version constraint consistent with the verified interval.
 ---
 
 ## Intent
@@ -30,12 +30,21 @@ discovery is the smoke's, the defect is the package's.
 ## Acceptance
 
 - A driven headless verification (test-side, in the repo's gate set) that
-  loads the packaged extension the way stock pi does and asserts command
-  registration succeeds on the installed stock pi — red on the current
-  `main` state if the defect reproduces, green after the fix.
-- The root cause of the 0.84.3 → 0.85.0 load failure is documented on the
-  card's run record (the concrete API/manifest delta, with evidence), not
-  guessed.
+  loads the packaged extension through the installed pi binary and
+  asserts both poles of the env-split contract end-to-end: a clean
+  scratch HOME with no council configuration registers all parent-mode
+  slash commands; the same scratch HOME with `COUNCIL_SEAT` set
+  registers zero slash commands. The `COUNCIL_SEAT`-set pole is the red
+  reproduction of the env-split fallthrough on the current `main` state
+  and stays red on every version the verification targets; the clean-env
+  pole is already green on the current `main` state and stays green.
+- The root cause of the env-split fallthrough (the silent
+  `COUNCIL_SEAT`-keyed mode split in `extensions/index.ts` and the
+  downstream unregistered-command → model-dispatch path) is documented
+  on the card's run record with evidence, not guessed.
+- `package.json`'s `@earendil-works/pi-coding-agent` devDependency is
+  changed to a deliberate version constraint consistent with the verified
+  interval, and the choice is recorded on the card's run record.
 
 ## Execution (run record)
 
@@ -502,3 +511,51 @@ objections remain to clear first.
 - Full gate set stays green (`bun test`, `bunx tsc --noEmit`,
   `python3 council/validate.py`), and the kitty smoke harness still passes
   against its pinned 0.84.3 (unchanged contract).
+
+### Step 6 — route what does not close (product-owner rulings returned, applied)
+
+Both step-5 open-judgment items were escalated per the
+`<escalation_contract>`; `product-owner` ruled on them (no steward
+escalation — neither ruling changes the portfolio, reverses a recorded
+human decision, or implicates the card's `goal` as a defect). The rulings
+are appended verbatim below as the card's Phase 1 ruling record and are
+binding on every seat, `steward` included. R-1's amendment is applied
+above: the `goal` frontmatter line and the `## Acceptance` section are
+replaced in full with the byte-exact ruling text (the goal's no-colon-space
+property is re-verified on disk via `validate.py`). R-2's framing governs
+how the devDependency pin is written up in the run record (step 7 spec,
+step 8 delivery, step 12 reconciliation).
+
+Note on title: the card's historical title ("Restore pi-council extension
+load on stock pi 0.85.0 and pin the devDependency") predates the
+amendment and was **not** covered by the ruling — no title change was
+ruled. The title stays as filed; the judge never sees it (step 10
+dispatches the judge with the card's `goal` and the Skeptic's evidence
+only — nothing else), and the board line is unchanged.
+
+## Phase 1 rulings (product-owner, step-6 escalations)
+
+**R-1 (card goal/acceptance amendment — ADOPTED).** The mechanism test proves no 0.85.0-specific load failure exists to "restore" — clean-env current `main` registers all 14 commands on both 0.84.3 and 0.85.0, and the honest reproduction is the `COUNCIL_SEAT`-set pole (zero commands, silent fallthrough to model dispatch), a version-independent env-split contract. The card is Deliberating, so the text is editable; the deliverables (two-pole driven verification, root-cause run record, deliberate devDependency constraint) stand unchanged — this is a wording fix to make the face say what the work proves. The goal and acceptance are replaced in full with:
+
+goal: The pi-council package's env-keyed parent/child mode split at `extensions/index.ts` registers all parent-mode slash commands on stock pi in a fresh scratch HOME and registers zero slash commands when `COUNCIL_SEAT` is set, proven by a driven headless verification asserting both poles via the installed pi binary, with the root cause of the env-split fallthrough documented and the devDependency on `@earendil-works/pi-coding-agent` changed to a deliberate version constraint consistent with the verified interval.
+
+## Acceptance
+
+- A driven headless verification (test-side, in the repo's gate set) that
+  loads the packaged extension through the installed pi binary and
+  asserts both poles of the env-split contract end-to-end: a clean
+  scratch HOME with no council configuration registers all parent-mode
+  slash commands; the same scratch HOME with `COUNCIL_SEAT` set
+  registers zero slash commands. The `COUNCIL_SEAT`-set pole is the red
+  reproduction of the env-split fallthrough on the current `main` state
+  and stays red on every version the verification targets; the clean-env
+  pole is already green on the current `main` state and stays green.
+- The root cause of the env-split fallthrough (the silent
+  `COUNCIL_SEAT`-keyed mode split in `extensions/index.ts` and the
+  downstream unregistered-command → model-dispatch path) is documented
+  on the card's run record with evidence, not guessed.
+- `package.json`'s `@earendil-works/pi-coding-agent` devDependency is
+  changed to a deliberate version constraint consistent with the verified
+  interval, and the choice is recorded on the card's run record.
+
+**R-2 (devDependency pin framing — VERIFIED-INTERVAL HOUSEKEEPING).** The `">=0.84.3 <0.86.0"` constraint on `@earendil-works/pi-coding-agent` is verified-interval housekeeping, not the fix. The root cause — the env-keyed parent/child mode split at `extensions/index.ts:117-121` — is version-independent (Skeptic objections closed-green). The pin bounds the dev environment, which was silently riding `"*"` and had no end-to-end registration falsifier. The constraint string says "we have tested this range; we have not verified beyond the upper bound," not "this range restores the fix." The run record MUST record (a) the constraint string chosen, (b) the version(s) it was empirically verified against, and (c) the version(s) it was empirically verified to fail against outside the interval, so a future reader can see what the upper bound actually means. Reversibility is trivial — one line in `package.json`.
