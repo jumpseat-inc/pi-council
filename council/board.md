@@ -31,12 +31,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- FLLWUP-10 — Writer thinking preservation matches loader resolution for object-form model overrides
-
 ## Needs Human
 
 ## Done
 
+- FLLWUP-10 — Writer thinking preservation matches loader resolution for object-form model overrides
 - EV-27 — `/`-triggered search input in the model selection modal
 - EV-26 — Pure model-name filter over the thinking-level cross-product
 - EV-25 — Register the /council-models command and wire picker to writer

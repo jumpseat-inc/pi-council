@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-10
 title: Writer thinking preservation matches loader resolution for object-form model overrides
-state: In Review
+state: Done
 owner: owner
 epic: EPIC-6
 goal: existingThinking in extensions/council-config-writer.ts parses the object-form model :suffix via the same lastIndexOf(':') plus THINKING_LEVELS membership rule applySeatOverride already uses, so writer preservation matches loader resolution, proven by a test against an object-form override that today silently drops the level to frontmatter on any model change.
@@ -92,3 +92,32 @@ parse-rule match confirmed against `applySeatOverride`'s exact
 matches post-fix on-disk truth with notify-wiring intent preserved; O13
 both FLLWUP-10 tests + W3 run in the full suite). **Verdict: NO-BLOCK, no
 open objection.**
+
+### Step 10 — judge PASS
+Judge dispatched with the card's `goal` and the Skeptic's step-9 evidence
+only (job-10.3), settled in 1.2m. Verdict **PASS**: independently re-ran the
+FLLWUP-10 tests (15 pass in `council-config-writer.test.ts`, 16 pass in
+`council-models.test.ts`), the full suite (528 pass / 2 skip / 0 fail), and
+typecheck clean; code audit confirms `existingThinking` uses the identical
+`lastIndexOf(':')` + `THINKING_LEVELS.has(...)` rule as `applySeatOverride`
+with the same precedence (`.thinking` key first). Every goal clause
+verified.
+
+### Step 11 — deterministic merge check (features-deliver substitution)
+All five criteria met, read fresh against PR head
+`2175b73839606138c75d4a7d84a21ea11f71c8d1`: (1) owner gates green in full
+(Skeptic re-ran at the head); (2) `gates` workflow SUCCESS on the PR head
+SHA — `gh pr checks 25` → `[{"name":"gates","state":"SUCCESS","workflow":"gates"}]`,
+asserted by `workflow` key per the substitution; (3) no blocking Skeptic
+objection (NO-BLOCK, 14/14 closed-green); (4) judge PASS; (5) no Needs
+Human / outstanding ruling. Merged `gh pr merge 25 --squash
+--match-head-commit 2175b73…` → PR #25 **MERGED** (mergedAt
+2026-09-05T06:03:18Z), merge SHA `948d111318625ffe512376f94ef4fba8fb5ac7b5`
+on `main`. `gates` workflow re-ran on the merged SHA: run 33948780090 →
+**completed/success**.
+
+### Step 12 — Done
+Local `main` reconciled to the squash via union merge (adopts 948d111's
+code/plan/test changes, keeps this card's In-Review + step-8/9 records —
+the established epic pattern, cf. EV-27's f8f70e4). Board and card set
+Done; `validate.py` clean; reconciliation committed and pushed.
