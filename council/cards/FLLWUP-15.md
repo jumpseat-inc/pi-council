@@ -136,3 +136,29 @@ exactly the three planned files (plan, `extensions/model-picker.ts`,
 `test/model-picker.test.ts`), worktree
 `.worktrees/fllwup-15-modal-frame-fit` clean at the head. Set In
 Review per step 8's observed-artifact rule (branch + open PR).
+
+### Step 9 — verified (cycle 1 of 3)
+
+Skeptic dispatched at PR #35 head `cc46e37` (job-8.2), settled in 8.4m
+— input named the exact verification subject (PR head SHA `cc46e37` +
+head worktree path `.worktrees/fllwup-15-modal-frame-fit`) and the loop
+frame (step 9 verification precedes step 10 judging and step 11's
+mechanical merge, facilitator-executed, no seat performs). All four
+gates re-run at the head in order, green with real output: `bun
+install --frozen-lockfile` 224 packages no changes; `bunx tsc
+--noEmit` clean; `bun test` 555 pass / 2 skip / 0 fail (2592
+expect()); `python3 council/validate.py` clean. Four objections, all
+**closed-green**: O1 driven-test non-vacuity (defeat injection: fix
+commit reverted → 3 fail expected-7-received-8 / 1 pass zero-match;
+restored → 4/4 green — the discriminating assertion is the windowed
+row count, not the always-present border); O2 acceptance-3 holds even
+in the FRAMED output at the tightest height (framed model rows:
+non-search 5, search 4, difference 1); O3 gate integrity — driven test
+provably RED pre-fix / GREEN post-fix; O4 non-search byte-identity
+sweep 10/12/16/24/40 with the `effectiveMaxRows()` guard. Diff-scope
+check: `git diff origin/main...HEAD -- council/` → 0 lines (no record
+commits ride the PR); 3 files. Owner's tail-clip scoping note
+confirmed closed-green: pre-existing, identical pre/post fix, fix
+applies to the model-rows window only; the framed difference is still
+exactly one fewer model row. **Verdict: NO-BLOCK, 4/4 closed-green,
+no open objection.** Verify cycles used: 1 of ≤3.
