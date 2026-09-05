@@ -367,6 +367,60 @@ Read the card, the FLLWUP-14 run record, `extensions/index.ts`,
      installed pi's `discoverAndLoadExtensions`, both versions. The claim
      this test encodes is an env-split contract, not a version fix, so the
      goal text must not say "restore load on 0.85.0."
+
+### Step 4 — Skeptic attack (job-15.6): no open objections
+
+Objections filed and settled on the installed 0.85.0 binary + scratch
+consumer install (git-install shape, fresh HOME under /tmp):
+
+1. **loader.js byte-identity — CLOSED-RED (non-fatal scope).** `cmp` of
+   `dist/core/extensions/loader.js` 0.84.3 vs 0.85.0 reports `differ: byte
+   1018, line 21`. The `isBundledNode` variable was refactored from a local
+   definition (0.84.3 line 60) to an import from `config.js` (0.85.0 line
+   21). `pi-manifest.js` and `package-manager.js` ARE byte-identical
+   (exit 0). The jiti config block is functionally identical for the
+   npm-global path — the no-loader-API-drift conclusion holds despite the
+   byte-identity claim being partially false.
+2. **Env-split line numbers — CLOSED-RED for 66-69, CLOSED-GREEN for
+   117-121.** `grep -n COUNCIL_SEAT extensions/index.ts` → line 117
+   (`const seatName = process.env.COUNCIL_SEAT;`), 118-121 the branch +
+   `runChildMode(...)`. Lines 66-69 are the `registerMaxTokensFix` body.
+   Owner round 1 + both principal rounds cited the wrong location; owner
+   round 2's 117-121 is correct.
+3. **Clean-env 0.85.0 registers all commands — CLOSED-GREEN.** Scratch
+   consumer install via `pi install -l git:...`, fresh HOME, `env -u
+   COUNCIL_SEAT -u COUNCIL_JOB_ID -u COUNCIL_RUN_ID -u PI_SESSION_FILE pi
+   --approve -p "/council-eval"` → exit 0, prints `[council-eval] usage:`
+   with the full 17-entry fixture task list, no stderr.
+4. **COUNCIL_SEAT set → zero commands → model fallthrough —
+   CLOSED-GREEN.** Same install, `env COUNCIL_SEAT=owner ... "/council-eval"`
+   → exit 124 (timeout on a hung model dispatch), no stdout, no stderr.
+5. **Silence discriminator — CLOSED-GREEN.** `main.js:755-758` maps
+   extension load errors to a "Failed to load extension" diagnostic;
+   `reportDiagnostics` (73-78) prints stderr; `hasRuntimeErrors` (845) →
+   `process.exit(1)` (852). Objection 4's zero stderr on an 8s run proves
+   the factory did not throw — child mode ran.
+6. **Smoke harness env shape — CLOSED-GREEN.** `smoke/run.sh` forwards
+   only `-e OPENROUTER_API_KEY -e SMOKE_PHASE=${SMOKE_PHASE:-}` into the
+   container; `search-smoke/run.sh` line 36 unsets
+   `COUNCIL_SEAT COUNCIL_JOB_ID COUNCIL_RUN_ID PI_SESSION_FILE`; line 14
+   pins `PI_VERSION="0.84.3"`. Contamination-proof for child mode by
+   construction; never exercises 0.85.0.
+7. **FLLWUP-14 deviation record quote — CLOSED-GREEN.** Step 8 contains
+   the verbatim text: "the COUNCIL_SEAT/COUNCIL_JOB_ID/COUNCIL_RUN_ID env
+   of this runner's session makes the extension enter child mode and
+   register nothing — run.sh unsets them; found at bring-up, not assumed".
+8. **Current main reproduces the symptom — CLOSED-GREEN.** HEAD worktree
+   extension identical to main (same line numbers, same COUNCIL_SEAT
+   check); Objection 4 proved the reproduction: COUNCIL_SEAT inherited →
+   child mode → zero commands → model dispatch fallthrough. The fix is in
+   the package code, not the pi version.
+
+Verdict: **no open objections.** The core claim — the `COUNCIL_SEAT`
+env-keyed mode split is the root cause, not a pi version regression — is
+supported. Two factual inaccuracies in the earlier record (loader.js
+byte-identity partially false; env-split line numbers) documented above,
+neither fatal to the conclusion.
 - `package.json`'s `@earendil-works/pi-coding-agent` devDependency is a
   deliberate version constraint consistent with the root cause (pin, range,
   or bump — the deliberation rules which), and the choice is recorded.
