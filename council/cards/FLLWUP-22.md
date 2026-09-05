@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-22
 title: Theme token drift vs pi 0.85.x grounds the devDependency upper bound
-state: In Review
+state: Done
 owner: null
 epic: EPIC-6
 goal: The scrollbar theme token drift between pi 0.84.x and 0.85.x is characterized by driven tests that are green on the version range the repo declares supported, and the run record states whether council themes are 0.85.x-compatible with the specific token deltas named, grounding the devDependency upper bound in evidence rather than an untested bound.
@@ -500,3 +500,37 @@ clean (0.84.3 floor claim consistent with regime-aware test design);
 specific deltas enumerated, R-2(b)(i) superseded; (4) upper bound grounded in
 evidence — lock resolves 0.85.1, full suite green at the resolved version. No
 REJECT basis; no goal-text defect. Verify cycles used: 1 of ≤3.
+
+### Step 11 — deterministic merge check, merged
+
+Five criteria executed mechanically at PR head `70139f6`: (1) owner gates
+green in full (owner job-18.15 ran all four in the head worktree on
+lock-resolved 0.85.1 — frozen-lockfile exit 0, tsc clean, `bun test`
+560/2/0, validate clean — plus the 0.84.3 floor run; Skeptic job-18.16
+re-ran all four at the head with identical results); (2) `gates` workflow
+SUCCESS on the PR head SHA — `gh pr checks 38 --json name,state,workflow`
+→ `[{"name":"gates","state":"SUCCESS","workflow":"gates"}]` asserted on
+the `workflow` field per the substitution, run 33976256515 completed
+success at headSha 70139f6 (exact PR head, verified via `gh run list
+--branch feat/fllwup-22-scrollbar-token-drift`); (3) no blocking Skeptic
+objection (NO-BLOCK, all closed-green); (4) judge PASS (job-18.17); (5) no
+Needs Human / outstanding ruling (card In Review, zero escalations).
+Merged `gh pr merge 38 --squash --match-head-commit 70139f6…` → PR #38
+**MERGED** (mergedAt 2026-09-05T16:02:35Z), squash commit `f5975c8` on
+`main`.
+
+### Step 12 — Done
+
+`gates` workflow on the merged SHA `f5975c8` (run 33976624921, observed via
+`gh run list --commit f5975c8…`, workflowName gates) completed success.
+Local `main` rebased onto `origin/main` (the 9 council-record commits
+replayed cleanly — the spec file is byte-identical on both sides, no other
+path overlaps the squash); `validate.py` clean; board and card set Done;
+reconciliation committed and pushed (origin/main == main at the
+reconciliation commit). Card closes with no open-untested residual — the
+verify cycle ran once (NO-BLOCK at cycle 1), within the ≤3 cap. The
+recorded decision the card's contract demanded is on the record:
+"0.85.x-compatible as shipped (deltas named)", sustained by the
+two-extreme gate evidence (0.85.1 lock + 0.84.3 floor, identical 560/2/0),
+with the deltas named and FLLWUP-21 R-2(b)(i) superseded; designer's
+conditional settled by the Skeptic-verified green run.
