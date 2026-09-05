@@ -1,3 +1,14 @@
+## [2026-09-06] ingest | AGENTS.md re-ingest — conventions summary 12→13
+
+(a) Pin re-pinned df1949e → 2c5ec3b (last AGENTS.md touch, content == HEAD) and the count re-derived: the file now lists 13 hard conventions (13 top-level items + the 9.5/9.6 sub-entries of #9); the page mirrors it verbatim.
+(b) Item-1 inversion corrected on the page: "Seats are opinionated on purpose" → "Seats are domain-neutral by design" (the v0.14.0 change, now reflected in the summary page).
+(c) Clause #13 added: local gate evidence is trusted only after `council/preflight.sh` passes on the current tree (source: FLLWUP-24 / 2c5ec3b).
+(d) Human-loop waiver: **card = steer** — card FLLWUP-25 substitutes the schema's discuss-with-me-first step (the human filed the card for exactly this refresh); flag-not-overwrite discipline observed, nothing silently overwritten.
+(e) Provenance-frontmatter conformance: first page carrying the REQUIRED four keys (provenance/source_path/source_commit/captured); no vault tooling rejects them (validate.py has zero vault surface).
+(f) Lint observation: AGENTS.md markers ` 9.6.`/` 10.` carry a leading-space marker (AGENTS.md:95/103); the wiki copy normalizes to `9.6.`/`10.`. Source-side whitespace fix deferred as a follow-up candidate — the consistency-check parser tolerates both.
+
+- **Pages touched:** sources/2026-08-23-agents (refresh), [[index]] (12→13), .repo-docs.tsv (pin). Historical "12th convention" / "(twelve conventions)" entries (log.md:331/337) remain append-only history.
+
 ## [2026-09-05] ingest | EPIC-6 Run Ledger — model search filter, first fully-autonomous epic closure
 Filed `vault/raw/2026-09-05-epic6-run-ledger.md` (the run: EV-26/EV-27 search input + FLLWUP-9/10/11 closed,
 five deterministic-gate merges, 507→537 tests, ZERO escalations) and ingested it. Created
