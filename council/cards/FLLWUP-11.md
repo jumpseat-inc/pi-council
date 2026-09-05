@@ -123,3 +123,14 @@ real-session scaffold — required because the fixture ships no
 record (the Intent's binding property is bounded-window feasibility —
 phases 1–4 never run under the selector; the whole isolation run settles
 in minutes). **Verdict: NO-BLOCK, no open objection.**
+
+### Step 10 — judge PASS
+Judge dispatched with the card's `goal` and the Skeptic's step-9 evidence
+only (job-12.3), settled in 0.3m. Verdict **PASS**: all three conjunctive
+goal clauses verified — (1) `SMOKE_PHASE` env gate present in
+`smoke/driver.sh` (line 21) and forwarded by `run.sh`; (2) isolation path
+runs `phase0_prepare 0` (verdict suppressed) + `phase5_run` then exits —
+phases 1–4 live after the branch and are unreachable under the selector;
+(3) the single `SMOKE PASS — phase 5 … verified in isolation` line is the
+only report in the isolation path, observed with all Phase 5 assertions
+green and host exit 0.
