@@ -188,7 +188,7 @@ test("dispatch primitive: cell spawned with cwd=scratch carries the override (B2
 		return real({ ...o, command: "bun", args: [STUB] } as Parameters<typeof real>[0]);
 	};
 	const seat = loadSeat(root, "agent-s");
-	const res = spawnSeatJob({
+	const res = await spawnSeatJob({
 		repoRoot: root, hub, seat, input: "task", cwd: scratch,
 		timeoutMs: 60_000, stallMs: 60_000,
 		model: "openrouter/ovr/model", isModelAvailable: (m) => m === "openrouter/ovr/model",
@@ -205,7 +205,7 @@ test("dispatch primitive: cell spawned with cwd=scratch carries the override (B2
 	shutdownHub();
 });
 
-test("dispatch primitive: unknown effective model refuses loudly, naming it (B3)", () => {
+test("dispatch primitive: unknown effective model refuses loudly, naming it (B3)", async () => {
 	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-dispb-"));
 	const dir = path.join(root, CONFIG_DIR_NAME, "agents");
 	fs.mkdirSync(dir, { recursive: true });
@@ -213,13 +213,13 @@ test("dispatch primitive: unknown effective model refuses loudly, naming it (B3)
 	initHubIdentity("run-dispb", "cellA");
 	const hub = getHub(root);
 	const seat = loadSeat(root, "agent-s");
-	expect(() =>
+	await expect(
 		spawnSeatJob({
 			repoRoot: root, hub, seat, input: "task", cwd: root,
 			timeoutMs: 60_000, stallMs: 60_000,
 			model: "openrouter/unknown/model9", isModelAvailable: () => false,
 		}),
-	).toThrow(/openrouter\/unknown\/model9/);
+	).rejects.toThrow(/openrouter\/unknown\/model9/);
 	shutdownHub();
 });
 

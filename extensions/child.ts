@@ -1,7 +1,7 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { builtinToolsFor, grantsFor, loadSeat, type Seat } from "./seats.ts";
 import { initHubIdentity, registerHubTools } from "./hub-tools.ts";
-import { startSeatMcp } from "./mcp/index.ts";
+import { getMcp } from "./mcp-load.ts";
 import { mintRunId } from "./runs.ts";
 
 export function isCallAllowed(seat: Seat, toolName: string): boolean {
@@ -28,7 +28,7 @@ export function runChildMode(pi: ExtensionAPI, repoRoot: string, seatName: strin
 	}
 	// Eager: MCP tools must be registered (and thus advertised) for the seat to
 	// ever call them. Registration happens async; names are already in --tools.
-	void startSeatMcp(pi, repoRoot, seat);
+	void getMcp().then((m) => m.startSeatMcp(pi, repoRoot, seat));
 	pi.on("tool_call", (event) => {
 		if (!isCallAllowed(seat, event.toolName)) {
 			return {

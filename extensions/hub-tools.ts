@@ -6,7 +6,7 @@ import { Type } from "typebox";
 import { Hub, type JobReport } from "./hub.ts";
 import { buildChildArgv, buildSystemPrompt, loadSeat, proceduresDir, resolveEffectiveModel } from "./seats.ts";
 import { childEnv, ensureRunDir, mintRunId } from "./runs.ts";
-import { getMcpManager } from "./mcp/index.ts";
+import { getMcp } from "./mcp-load.ts";
 
 export interface HubToolOptions {
 	allowedSeats?: string[];
@@ -124,10 +124,11 @@ export function registerHubTools(pi: ExtensionAPI, repoRoot: string, opts: HubTo
 			}
 			// --tools is an exact-name allowlist: enumerate granted MCP tools here.
 			// Servers the parent could not connect contribute nothing → warn.
+			const mcp = await getMcp();
 			const mcpToolNames: string[] = [];
 			const mcpWarnings: string[] = [];
 			for (const server of seat.mcp ?? []) {
-				const names = getMcpManager(repoRoot).listToolNames(server);
+				const names = mcp.getMcpManager(repoRoot).listToolNames(server);
 				if (names.length === 0) {
 					mcpWarnings.push(
 						`seat grants MCP server "${server}" but it is not connected — its tools are unavailable for this dispatch`,
