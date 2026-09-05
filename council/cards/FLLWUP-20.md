@@ -105,3 +105,30 @@ extracted for `origin/main` vs PR head — byte-identical; runner body and
 `extensions/` untouched by the PR; worktree
 `.worktrees/fllwup-20-judge-when-invoked` verified at the head. Set In
 Review per step 8's observed-artifact rule (branch + open PR).
+
+### Step 9 — verified (cycle 1 of 3)
+
+Skeptic dispatched at PR #34 head `d7bb7084` (job-7.2), settled in 2.6m
+— input named the exact verification subject (PR head SHA `d7bb7084` +
+head worktree path `.worktrees/fllwup-20-judge-when-invoked`) and the
+loop frame (step 9 verification precedes step 10 judging and step 11's
+mechanical merge, facilitator-executed, no seat performs). All four
+gates re-run at the head in order, green with real output: `bun install
+--frozen-lockfile` 224 packages no changes; `bunx tsc --noEmit` clean;
+`bun test` 551 pass / 2 skip / 0 fail; `python3 council/validate.py`
+clean. Twelve falsifiable probes, all **closed-green**: P1 driven test
+green (`bun test test/seats.test.ts -t "FLLWUP-20"` → 1 pass / 9
+expect()); P2 full FLLWUP suite 7 pass (FLLWUP-16/17/18/19/20, 44
+expect()); P3 FLLWUP-17 judge `<main_repo_immutability>` block
+byte-identical to `origin/main` (sed-extracted diff: none); P4 judge
+frontmatter byte-identical; P5 `council/agents/council-runner.md`
+byte-identical (FLLWUP-16/18/19 blocks intact); P6 no `extensions/`
+change; P7 diff scope exactly the three files; P8 zero deleted content
+lines (+171/−0); P9 every asserted phrase contiguous on a single line
+(lines 33, 35, 38, 39); P10 guidance explicitly forbids implying the
+merge has happened or is the judge's job; P11 defeat injection —
+9-line prose block stripped from a /tmp scratch copy → driven test RED
+(`expect(received).toContain("verification subject")`), head body
+GREEN; P12 gate set green in order.
+**Verdict: NO-BLOCK, 12/12 closed-green, no open objection.** Verify
+cycles used: 1 of ≤3.
