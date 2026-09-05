@@ -4,9 +4,9 @@ type: entity
 summary: The per-card autonomous execution container — dispatched by /features-deliver to run the full /council loop for one card in an isolated context; routes, counts, and writes the board but never decides.
 aliases: [council-runner, runner]
 tags: [pi-council/seat]
-sources: ["[[2026-08-24-bugfix-seat-prose]]"]
+sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-04
+updated: 2026-09-05
 ---
 
 > ⚠️ Derived from `council/agents/council-runner.md` (captured 2026-08-23). Verify against the seat file.
@@ -54,6 +54,10 @@ reserved powers are re-homed per the authority map in `features-deliver.md`.
   above: the orchestrator dispatching *runners* must also set its stall
   window above the runner's longest legitimate silent wait (55 min
   covers the 45-min owner ceiling) — see [[2026-09-04-epic5-run-ledger]].
+  **EPIC-6 recurrence:** two containers died anyway because the fix
+  lived in run memory, not in the dispatching procedure — the stall
+  window belongs on *every* runner dispatch (see [[hub-job-supervision]]
+  and [[2026-09-05-epic6-run-ledger]]).
 - **Seat resolution check** — verifies each needed seat resolves by name; seats
   resolve from disk at dispatch time, so a gap is a missing seat file → `HALT`,
   never a registry restart.
@@ -78,12 +82,33 @@ reserved powers are re-homed per the authority map in `features-deliver.md`.
   artifacts) with zero work lost. The board discipline is what makes a
   crashed container cheap.
 
+## Lessons from the EPIC-6 run
+
+- **Verify the staged set before every commit; check the tree after
+  every foreign dispatch.** A judge dispatch left implementation files
+  staged in the shared checkout; a scoped record commit swept them onto
+  `main`, forcing a forward revert (`d4f7e2f`) so the feature landed
+  only via the gated PR. Record commits must be scope-pure, and the
+  shared checkout is contaminated by every dispatch that touches it.
+- **Mechanical path is the default, full council the exception** — 4 of
+  5 EPIC-6 cards gated mechanical and skipped steps 2–6; only the
+  surface-touching EV-27 ran the 3-round exchange with the designer
+  seated. Phase-1 rulings + landed module contracts settle most cards.
+- **A stalled container forfeits its in-flight sub-dispatches** — the
+  skeptic verification lost with job-7 had to be re-run by the successor
+  container; nothing about a sub-job outlives its parent.
+- **Zero escalations is achievable** — all five cards closed without a
+  single `ESCALATION` because the Phase-1 rulings preflight had
+  front-loaded every foreseeable dispute; the two flagged EV-27
+  disputes closed by citing rulings with Skeptic settling probes.
+
 ## Related
 
 - [[seats]], [[council-loop]]
 - [[engineering-board]], [[hub-job-supervision]], [[preflight]]
 - [[council-config]] — default model/thinking override
 - [[council models picker]] — the EPIC-5 epic this seat delivered
+- [[union-merge reconcile]] — the diverged-main repair pattern this seat hit twice in EPIC-6
 
 ## Sources
 
@@ -92,3 +117,5 @@ reserved powers are re-homed per the authority map in `features-deliver.md`.
 - [[2026-08-24-bugfix-seat-prose]]
 - [[2026-09-04-epic5-run-ledger]] — mechanical path, green-light
   conditionals, recovery-from-committed-state
+- [[2026-09-05-epic6-run-ledger]] — staged-set hygiene, mechanical-path
+  default, zero-escalation run

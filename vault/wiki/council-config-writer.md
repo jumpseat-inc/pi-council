@@ -1,12 +1,12 @@
 ---
 title: Council Config Writer
 type: entity
-summary: The first .council.json write path (EV-24) — a byte-region patcher with three regimes (replace/insert/greenfield) that field-level merges one seat's council.<seat> object, validating model-presence and thinking grammar and preserving every other byte, theme included.
-aliases: [council config writer, council-config-writer, writeSeatOverride, config writer, .council.json writer]
-tags: [pi-council/entity, pi-council/epic5]
-sources: ["[[2026-09-04-epic5-run-ledger]]"]
+summary: The .council.json write path (EV-24) — a byte-region patcher with three regimes (replace/insert/greenfield) that field-level merges one seat's council.<seat> object, validating model-presence and thinking grammar and preserving every other byte; FLLWUP-10 fixed the object-form :suffix preservation seam, FLLWUP-9 added clearSeatOverride.
+aliases: [council config writer, council-config-writer, writeSeatOverride, clearSeatOverride, config writer, .council.json writer]
+tags: [pi-council/entity, pi-council/epic5, pi-council/epic6]
+sources: ["[[2026-09-04-epic5-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]"]
 created: 2026-09-04
-updated: 2026-09-04
+updated: 2026-09-05
 ---
 
 # Council Config Writer
@@ -59,12 +59,27 @@ never misclassify a model-only edit. The write is atomic (tmp + rename,
 mode preserved via stat+chmod on the tmp; `.council.json` is a committed
 shared file — never the 0600 secrets pattern).
 
-## Known seam
+## Known seam — FIXED by FLLWUP-10 (EPIC-6 run)
 
-`existingThinking` (the preservation lookup) misses a `:suffix` on an
-object-form `model` — Skeptic closed-red, reproduced; tracked as
-**FLLWUP-10** (`lastIndexOf(':')` + `THINKING_LEVELS.has(...)`, matching
-`applySeatOverride`).
+⚠️ **Superseded 2026-09-05:** the seam below is **closed**. FLLWUP-10
+(PR #25 `948d111`) made `existingThinking` parse an object-form `model`
+`:suffix` via the same rule `applySeatOverride` uses
+(`lastIndexOf(':')` + `THINKING_LEVELS.has(...)`), so writer
+preservation matches loader resolution; the W3 track test now asserts
+the post-fix on-disk truth. Historical text: `existingThinking` (the
+preservation lookup) missed a `:suffix` on an object-form `model` —
+Skeptic closed-red, reproduced; tracked as **FLLWUP-10**.
+
+## clearSeatOverride (FLLWUP-9, PR #26 `08438bd`)
+
+Absence still means preserve everywhere — but deletion is no longer
+hand-edit-only. `clearSeatOverride` removes a seat's `thinking` member,
+or the whole `council.<seat>` object when asked, through the same
+byte-region splicer: the `theme` section, every other seat, and unknown
+top-level keys stay byte-identical (round-trip byte-asserted). The
+explicit-clear affordance EV-24 deliberately deferred exists as a writer
+option only — no modal UI and no user-visible copy (Phase-1 ruling
+FLLWUP-9 R-1, writer-surface scope per the decomposition's S-2).
 
 ## Related
 
@@ -73,8 +88,10 @@ object-form `model` — Skeptic closed-red, reproduced; tracked as
 - [[council models picker]] — the surface that calls it
 - [[non-clobbering-scaffold]] — the file's seeding discipline
 - [[2026-09-04-epic5-run-ledger]]
+- [[2026-09-05-epic6-run-ledger]] — FLLWUP-10 fix + FLLWUP-9 clear
 
 ## Sources
 
 - [[2026-09-04-epic5-run-ledger]]
+- [[2026-09-05-epic6-run-ledger]]
 - `extensions/council-config-writer.ts`, `council/cards/EV-24.md`

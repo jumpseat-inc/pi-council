@@ -4,9 +4,9 @@ type: concept
 summary: The definitive, unattended end-to-end test — Phases 0–5 drive a real /council loop, a /features-deliver epic, the /council-eval matrix, /council-leaderboard, and /council-models in an isolated container, re-running gates itself; standing discipline: the first Council command without an end-to-end falsifier is a defect.
 aliases: [smoke, unattended smoke test, smoke test]
 tags: [pi-council/smoke-test]
-sources: ["[[2026-08-24-unattended-smoke-test-design]]", "[[2026-08-24-unattended-smoke-test-plan]]", "[[2026-08-25-smoke-test-bugfixes]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-04-epic5-run-ledger]]"]
+sources: ["[[2026-08-24-unattended-smoke-test-design]]", "[[2026-08-24-unattended-smoke-test-plan]]", "[[2026-08-25-smoke-test-bugfixes]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-04-epic5-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]"]
 created: 2026-08-25
-updated: 2026-09-04
+updated: 2026-09-05
 ---
 
 # Smoke Test
@@ -66,8 +66,17 @@ check, replacing a human manually installing and driving a council run. It is
    falsifier, a different phase. Known gap
    ([[2026-09-04-epic5-run-ledger]]): Phase 5 only executes inside the
    full multi-phase harness whose real-model ceilings cannot fit a
-   bounded runner window — the **FLLWUP-11** phase selector
-   (`SMOKE_PHASE=5`) is the planned fix.
+   bounded runner window — **fixed in the EPIC-6 run** (FLLWUP-11,
+   PR #27 `73b3150`): the `SMOKE_PHASE=<n>` selector in
+   `smoke/driver.sh` + `run.sh` runs Phase 5 in isolation (phases 1–4
+   unreachable; an invalid phase hard-fails exit 1; no selector →
+   byte-identical full-harness behavior). The isolation path re-runs
+   phase 0's deterministic `/council-init` scaffold because the fixture
+   ships no `validate.py`. Phase 5 assertions also source the R-2 usage
+   line and R-3 notify copy from the ruled literals rather than in-repo
+   constants — the self-referential `USAGE_LINE` test gap closed.
+   ⚠️ Supersedes the "planned fix" wording this page carried since
+   EPIC-5.
 
 ## The philosophy: never trust a claim, re-run reality
 
@@ -106,6 +115,8 @@ mid-aggregation — the ceiling was the bug, not the run.
 
 - [[headless-pi]] — the operating-mode rules the driver depends on
 - [[procedure-commands]], [[seats]], [[hub-job-supervision]], [[preflight]]
+- [[council models picker]] — the Phase 5 subject since EPIC-5
+- [[2026-09-05-epic6-run-ledger]] — the SMOKE_PHASE selector
 - [[2026-08-24-unattended-smoke-test-design]], [[2026-08-24-unattended-smoke-test-plan]]
 
 ## Sources

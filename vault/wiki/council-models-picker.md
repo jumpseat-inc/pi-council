@@ -1,12 +1,12 @@
 ---
 title: Council Models Picker
 type: entity
-summary: The EPIC-5 surface — the /council-models command wiring resolver, token-only modal, and .council.json writer so a person picks a provider/model per seat in a themed modal and the override lands as a field-level merge.
-aliases: [council models picker, council-models, model picker, /council-models, model-picker, catalogue resolver]
-tags: [pi-council/entity, pi-council/epic5]
-sources: ["[[2026-09-04-epic5-run-ledger]]"]
+summary: The /council-models surface — command wiring, resolver, token-only modal with the EV-27 `/`-triggered model-name search input (two-bit focus machine, ruled search copy), and .council.json writer so a person picks a provider/model per seat in a themed modal.
+aliases: [council models picker, council-models, model picker, /council-models, model-picker, catalogue resolver, model search]
+tags: [pi-council/entity, pi-council/epic5, pi-council/epic6]
+sources: ["[[2026-09-04-epic5-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]"]
 created: 2026-09-04
-updated: 2026-09-04
+updated: 2026-09-05
 ---
 
 # Council Models Picker
@@ -66,11 +66,46 @@ authenticate a provider in pi, then reopen /council-models.` and
 `council-models: wrote <seat> → <provider>/<model>[:thinking] in
 .council.json — takes effect at the next dispatch.`
 
-## Known seam
+**EPIC-6 additions** (recorded human decisions on the EPIC-6 and EV-27
+card faces): the empty search-input row renders `▌ / filter · esc clears`
+(the `▌` signifier at column 0, then the hint byte-exact, middot idiom
+matching the ruled footer); the zero-match state renders
+`No models matching "<query>".` interpolated with the live query,
+byte-distinct from both R-4 empty states.
 
-The writer's `existingThinking` misses a `:suffix` on an object-form
-`model` (Skeptic closed-red) — tracked as **FLLWUP-10**, the condition
-under which EV-23 was ruled shippable; not a permanent residual.
+## Model search input (EV-27, PR #24 `3452abb`)
+
+EPIC-6's addition to the model level: pressing `/` opens a focused search
+input **below the top row** (the R-1 header stays byte-exact) that
+filters the visible rows through `filterModelRows` (EV-26, PR #23
+`b89a93b`) — case-insensitive substring on `qualifiedId` only,
+suffix-safe, reference-preserving so `resolveSelection()` stays
+byte-verbatim. Key handling is the [[two-bit-focus-machine]]
+(`searchActive` × `inputFocused`): Esc in the input clears the text and
+stays focused; Esc elsewhere ascends unchanged; Down transitions focus
+out; `/` is typeable inside the input by capture-by-construction. The
+filter is interposed at `currentRows()` — one row source for windowing,
+cursor clamps, and selection — and the render-cache signature includes
+the query. The four-footer rule is intact — the search row carries its
+own hint, never a fifth footer. Open follow-ups: FLLWUP-12 (backspace
+deletion), FLLWUP-13 (no-match focus-out hint), FLLWUP-14 (kitty
+live-path smoke), FLLWUP-15 (search-mode frame height).
+
+## Known seam — CLOSED (was FLLWUP-10)
+
+⚠️ **Superseded 2026-09-05:** the seam below is **fixed** — FLLWUP-10
+(PR #25 `948d111`, EPIC-6 run) made `existingThinking` parse an
+object-form `model` `:suffix` via `lastIndexOf(':')` +
+`THINKING_LEVELS.has(...)`, matching `applySeatOverride`. Preserved
+because the EPIC-5 conditional-shipping ruling (EV-23 J-1) referenced it
+as the green-light condition; the condition is now discharged. The same
+run also added `clearSeatOverride` to the writer (FLLWUP-9, PR #26
+`08438bd`) — see [[council config writer]].
+
+Historical text: the writer's `existingThinking` missed a `:suffix` on
+an object-form `model` (Skeptic closed-red) — tracked as **FLLWUP-10**,
+the condition under which EV-23 was ruled shippable; not a permanent
+residual.
 
 ## Related
 
@@ -79,10 +114,13 @@ under which EV-23 was ruled shippable; not a permanent residual.
 - [[echo-then-run]] — the confirm pattern
 - [[council config]] — the file being edited
 - [[council theme]], [[council job tree inline]] — sibling surfaces
-- [[2026-09-04-epic5-run-ledger]] — the run record
+- [[two-bit-focus-machine]] — the search input's key-handling pattern
+- [[2026-09-04-epic5-run-ledger]] — the run that built this surface
+- [[2026-09-05-epic6-run-ledger]] — the run that added the search filter
 
 ## Sources
 
 - [[2026-09-04-epic5-run-ledger]]
+- [[2026-09-05-epic6-run-ledger]]
 - `extensions/catalogue.ts`, `extensions/council-config-writer.ts`,
   `extensions/model-picker.ts`, `extensions/index.ts`

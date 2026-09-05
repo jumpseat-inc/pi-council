@@ -1,3 +1,15 @@
+## [2026-09-05] ingest | EPIC-6 Run Ledger — model search filter, first fully-autonomous epic closure
+Filed `vault/raw/2026-09-05-epic6-run-ledger.md` (the run: EV-26/EV-27 search input + FLLWUP-9/10/11 closed,
+five deterministic-gate merges, 507→537 tests, ZERO escalations) and ingested it. Created
+[[two-bit focus machine]], [[union-merge reconcile]] + the source page. Updated [[council models picker]]
+(search input + EPIC-6 ruled copy), [[council config writer]] (⚠️ known seam FIXED by FLLWUP-10; clearSeatOverride
+added by FLLWUP-9), [[smoke-test]] (⚠️ "planned fix" superseded — SMOKE_PHASE shipped), [[hub-job-supervision]]
+(⚠️ stall invariant recurred — record ≠ institutionalization; sub-dispatch lifecycle), [[council-runner]]
+(staged-set hygiene, mechanical-path default, zero-escalation run), [[deterministic-merge-check]] (five more
+merges, first fully-autonomous closure), [[engineering-board]], [[index]]. Key takeaways: Phase-1 front-loading
+is the escalation-killer; the stall-window fix must live in the dispatching procedure, not run memory; verify the
+staged set before every commit.
+
 ## [2026-09-04] ingest | EPIC-5 Run Ledger — /council-models shipped
 Filed `vault/raw/2026-09-04-epic5-run-ledger.md` (the autonomous run: EV-22..25,
 four deterministic-gate merges, 460→507 tests) and ingested it. Created

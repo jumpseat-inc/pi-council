@@ -4,9 +4,9 @@ type: concept
 summary: The battle-tested engine that spawns, monitors, stalls, times out, and sweeps seat subprocesses — the hub table, pid file, anti-stall kill, and the dispatch/wait/cancel tools.
 aliases: [hub, job table, council_dispatch]
 tags: [pi-council/concept]
-sources: ["[[2026-08-24-bugfix-seat-prose]]"]
+sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-04
+updated: 2026-09-05
 ---
 
 # Hub Job Supervision
@@ -76,16 +76,30 @@ containers died exactly this way. The caller-side fix: **poll in
 the caller's move, and cancelling mid-gate forfeits every gate already run.
 See [[council-runner]], [[2026-09-04-epic3-run-ledger]].
 
-**The invariant, generalized (EPIC-5):** at *every* dispatch layer, the
-no-activity window must exceed the longest legitimate silent wait below
-it. EPIC-5 killed two runner containers from the orchestrator side — one
-legitimately blocked on a 45-min owner dispatch under a 15-min
-orchestrator stall window (poll-slicing is the runner's choice, not the
-orchestrator's). The orchestrator-side fix: set the dispatch's stall
-window above the runner's longest child ceiling (55 min covers the
-45-min owner ceiling). Both dead containers were recovered from
-committed board state with zero work lost — the durable-state discipline
-is what makes an anti-stall kill survivable.
+**The invariant, generalized (EPIC-5) — and its failure mode (EPIC-6):**
+at *every* dispatch layer, the no-activity window must exceed the longest
+legitimate silent wait below it. EPIC-5 killed two runner containers from
+the orchestrator side — one legitimately blocked on a 45-min owner
+dispatch under a 15-min orchestrator stall window (poll-slicing is the
+runner's choice, not the orchestrator's). The orchestrator-side fix: set
+the dispatch's stall window above the runner's longest child ceiling (55
+min covers the 45-min owner ceiling). **EPIC-6 then killed two more**
+(jobs 6, 7) the same way: the fix was recorded here but not
+institutionalized in the dispatching procedure, so the run's first
+dispatches used the default 4-minute window and re-learned the lesson
+from scratch. The lesson has moved from knowledge to procedure: the
+orchestrator must set the stall window on *every* runner dispatch
+(50–55 min), never rely on run memory. Both dead containers were
+recovered from committed board state with zero work lost — the
+durable-state discipline is what makes an anti-stall kill survivable.
+
+**Sub-dispatches die with their parent (EPIC-6):** a container's
+in-flight child dispatch (a skeptic verification) is unrecoverable after
+the parent is killed — hub children are not addressable across
+containers, and their hub session dies with the parent. The only
+recovery is a fresh container resuming from committed board state and
+re-running the step. Budget for it: a stall kill forfeits not just the
+container's turn but every sub-dispatch it was babysitting.
 
 ## Related
 
@@ -101,3 +115,5 @@ is what makes an anti-stall kill survivable.
 - [[2026-09-04-epic3-run-ledger]] — the stall-window vs blocking-wait lesson
 - [[2026-09-04-epic5-run-ledger]] — the orchestrator-side stall-window
   corroboration and the committed-state recovery proof
+- [[2026-09-05-epic6-run-ledger]] — the recurrence (invariant not
+  institutionalized) + the sub-dispatch lifecycle lesson

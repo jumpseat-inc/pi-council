@@ -4,9 +4,9 @@ type: concept
 summary: Under /features-deliver the human merge gate is replaced by five mechanical criteria — owner gates, gates-SUCCESS on the PR head SHA, no blocking skeptic objection, judge PASS, no open ruling — executed with no discretion, merged with --match-head-commit.
 aliases: [merge gate, deterministic merge, five criteria merge]
 tags: [pi-council/features-deliver, pi-council/process]
-sources: ["[[2026-09-04-epic4-run-ledger]]"]
+sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]"]
 created: 2026-09-04
-updated: 2026-09-04
+updated: 2026-09-05
 ---
 
 # Deterministic Merge Check
@@ -72,9 +72,17 @@ silently. A mismatch is a **HALT, not a retry**.
 - [[card id allocation]] — the diverged-main discipline merges interact
   with.
 - [[council models picker]] — the EPIC-5 surface merged under this gate.
+- [[council config writer]] — the EPIC-6-era writer fixes merged under it.
+- [[union-merge reconcile]] — what squash merges do to local main.
 - [[2026-09-04-epic4-run-ledger]] — eight merges executed under this gate.
 - [[2026-09-04-epic5-run-ledger]] — four more, squash-method, conditional
   green-light.
+- [[2026-09-05-epic6-run-ledger]] — five more (EV-26 `b89a93b`, EV-27
+  `3452abb`, FLLWUP-10 `948d111`, FLLWUP-9 `08438bd`, FLLWUP-11
+  `73b3150`): **zero escalations across the whole epic**, the first
+  fully-autonomous epic closure; SHA pins held on every merge (re-read
+  fallback still never needed); the squash method's board-commit folding
+  made [[union-merge reconcile]] a twice-per-run pattern.
 
 ## Sources
 
