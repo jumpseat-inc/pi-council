@@ -29,11 +29,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- FLLWUP-24 — Local gates refuse to run when installed deps drift from bun.lock
-
 ## Needs Human
 
 ## Done
+
+- FLLWUP-24 — Local gates refuse to run when installed deps drift from bun.lock
 
 - FLLWUP-23 — Named failure for pi-council installs missing node_modules
 - FLLWUP-22 — Theme token drift vs pi 0.85.x grounds the devDependency upper bound

@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-24
 title: Local gates refuse to run when installed deps drift from bun.lock
-state: In Review
+state: Done
 owner: null
 epic: EPIC-6
 goal: Running the repo's local gate commands against an installed node_modules that disagrees with bun.lock produces a named failure before any gate result is trusted, proven by a drift-detection assertion that names the stale dependency and the remedy, with the owner instruction set carrying the requirement.
@@ -679,3 +679,55 @@ preflight history gate (`merge-base --is-ancestor origin/main HEAD`) fails
 because origin/main advanced past the branch base (00a5899) — a
 pre-existing invariant for any unmerged branch, unrelated to the tripwire.
 Verify cycles used: 1 of ≤3.
+
+### Step 10 — judge PASS (job-20.11)
+
+Judge dispatched with exactly the card's `goal` (verbatim) + the step-9
+Skeptic evidence, subject pinned (head `7d93fab…`, head worktree
+`.worktrees/fllwup-24-drift-tripwire`), loop frame stated (step 10 precedes
+step 11's mechanical merge, facilitator-executed). Verdict **PASS** — all
+five goal conjuncts mapped to evidence, with its own direct artifact runs:
+(1) "produces a named failure" — artifact on drifted 0.84.2-vs-locked-0.85.1
+scratch exits 1 with the one FAIL line (7/7 drift tests); (2) "names the
+stale dependency" — FAIL names the package and both versions; (3) "and the
+remedy" — verbatim `bun install --frozen-lockfile` + re-run preflight; (4)
+"before any gate result is trusted" — preflight ordering lines 51/60/63
+(tripwire `|| exit 1` before the self-heal install) + structural test 7;
+(5) "owner instruction set carrying the requirement" — AGENTS.md hard
+convention clause #13, re-run-over-skip formulation, path referenced. No
+REJECT basis; no goal-text defect. Verify cycles used: 1 of ≤3.
+
+### Step 11 — deterministic merge check, merged
+
+Five criteria executed mechanically at PR head `7d93fab…`: (1) owner gates
+green in full (owner job-20.9 ran all four in the head worktree on the
+lock-synced tree — frozen-lockfile exit 0 "224 installs no changes", tsc
+clean, `bun test` 571/2/0 incl. drift suite 7/7, validate clean — and
+Skeptic job-20.10 re-ran all four at the head with identical results plus
+gate-integrity mutations); (2) `gates` workflow SUCCESS on the PR head
+SHA — `gh pr checks 40 --json name,state,workflow` →
+`[{"name":"gates","state":"SUCCESS","workflow":"gates"}]` asserted on the
+`workflow` field; headRefOid re-read as 7d93fab… immediately before the
+merge; (3) no blocking Skeptic objection — NO-BLOCK, all objections
+closed-green; (4) judge PASS (job-20.11); (5) no Needs Human / outstanding
+ruling (card In Review, zero escalations). Merged
+`gh pr merge 40 --squash --match-head-commit 7d93fab…` → PR #40
+**MERGED** (mergedAt 2026-09-05T17:44:58Z), squash commit **2c5ec3b**
+on main.
+
+### Step 12 — Done
+
+`gates` workflow on the merged SHA `2c5ec3b` (observed via
+`gh run list --commit 2c5ec3b…`, workflowName gates, event push) completed
+**success**. Local `main` fast-forwarded from `origin/main` (`c303e48..2c5ec3b`)
+— no forced resolution, clean FF (all prior record commits remain in
+history; the squash folded only PR #40's five files). `validate.py` clean;
+board and card set Done; reconciliation committed and pushed. Card closes
+with **no open-untested residual** — the verify loop ran once (NO-BLOCK at
+cycle 1), within the ≤3 cap. Follow-up candidates recorded for the
+orchestrator: (1) wiki source page [[2026-08-23-agents]] ("12 hard
+conventions") goes stale with the new AGENTS.md clause — a doc-refresh via
+ingesting-repo-docs; (2) none other — no new failure class beyond the
+already-filed FLLWUP-16..24 subject-pinning family; the preflight history
+gate failing on unmerged PR branches is a pre-existing invariant, noted
+for the record, not a new card.
