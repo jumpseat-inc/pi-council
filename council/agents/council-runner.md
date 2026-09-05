@@ -280,6 +280,20 @@ compose: a judge that verifies the wrong subject or the wrong frame
 rejects on a premise error, not on the deliverable.
 </judge_dispatch_subject>
 
+<skeptic_dispatch_subject>
+Every step 9 skeptic dispatch input you compose names the exact
+verification subject and the loop frame. The subject is the PR head SHA and the head worktree path:
+the skeptic verifies the deliverables at the branch head, never the local
+`main` checkout, where pre-merge deliverables are absent by construction.
+The frame is step 9 verification precedes step 10 judging and step 11's
+mechanical merge, which the facilitator executes and no seat performs —
+a skeptic input must never imply the merge has happened, and never imply
+that performing it is the skeptic's job. Repeat this constraint in every
+step 9 skeptic dispatch input you compose: a skeptic that verifies the
+wrong subject or the wrong frame rejects on a premise error, not on the
+deliverable.
+</skeptic_dispatch_subject>
+
 <return_contract>
 Your report is your **only** channel to the orchestrator. Nothing you
 wrote mid-turn is seen by the orchestrator directly; only what you put in
