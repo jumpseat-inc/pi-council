@@ -460,3 +460,43 @@ bg`??selectedBg`→fg`??text`; scrollbarTrack added (fg, `??muted`); bgColorKeys
 In Review set (sole condition: open PR, observed). Skeptic at the branch next —
 the 0.85.1 lock move, the trim-vs-full-deletion sub-dispute, the scrollbarTrack
 allowlist addition, and the regime-aware corpus are its prime attack surface.
+
+### Step 9 — Skeptic NO-BLOCK at head 70139f6 (cycle 1 of 3)
+
+Skeptic (job-18.16) verified at pinned subject: head SHA `70139f60`, head
+worktree `.worktrees/fllwup-22-scrollbar-token-drift`, loop frame stated (step
+9 precedes step 10 judging and step 11's mechanical merge,
+facilitator-executed). Verdict **NO-BLOCK**, all objections closed-green with
+real output: all four gates re-run at head on lock-resolved 0.85.1
+(frozen-lockfile exit 0 "224 installs no changes"; tsc exit 0 clean;
+`bun test` 560/2/0/2660 expect; validate clean); 0.84.3 floor verified at
+`/tmp/fllwup22-floor-0843` (tsc clean, 560/2/0, validate clean — identical
+counts both extremes); material probes all PASS (drift table both bands; T5
+count 56/55; T6 equality; T7 band-stable three; allowlist acceptance incl.
+scrollbarTrack; 256-identity oracle `as never`; shipped provenance);
+defeat-injection mutation (remove scrollbarTrack from OPTIONAL_TOKENS → drift
+test FAILS naming the exact defect, restore → green) proving the gate fails
+loudly; binding exclusions zero-diff (package.json, smoke/, themes/,
+agents/, procedures/, fixtures/); recorded decision sustained by two-extreme
+evidence. Sub-disputes settled: trim-only implemented (record names principal's
+full-deletion WITHDRAWN); scrollbarTrack allowlist addition consistent with
+the keep-allowlist rationale. No open objection; no fix loop required. Verify
+cycles used: 1 of ≤3.
+
+### Step 10 — judge PASS (job-18.17)
+
+Judge dispatched with exactly the card's `goal` (verbatim) + the step-9
+Skeptic evidence, subject pinned (head `70139f6`, head worktree
+`.worktrees/fllwup-22-scrollbar-token-drift`), loop frame stated (step 10
+precedes step 11's mechanical merge, facilitator-executed). Verdict **PASS** —
+all four goal conjuncts met: (1) drift characterized by regime-aware tests
+(both bands' fallback tables asserted; deltas named: scrollbarThumb
+bg??selectedBg→fg??text, scrollbarTrack added fg??muted, bgColorKeys 8→7,
+resolved count 55→56; defect-injection capability confirmed); (2) driven tests
+green on the declared range — judge independently re-ran the full gate suite
+at head: frozen-lockfile exit 0, tsc clean, `bun test` 560/2/0/2660, validate
+clean (0.84.3 floor claim consistent with regime-aware test design);
+(3) run record states "0.85.x-compatible as shipped (deltas named)" with the
+specific deltas enumerated, R-2(b)(i) superseded; (4) upper bound grounded in
+evidence — lock resolves 0.85.1, full suite green at the resolved version. No
+REJECT basis; no goal-text defect. Verify cycles used: 1 of ≤3.
