@@ -49,6 +49,7 @@ Card set In Progress on frontmatter and board; `validate.py` clean.
 Owner dispatched at the card (mechanical-path handoff: the card's Intent
 and goal) with repo gate and branch/PR conventions.
 
+<<<<<<< HEAD
 
 ### Step 8 — In Review (owner implemented, PR #25 open)
 Owner dispatched at the card (job-10.1), settled in 2.4m, report recorded:
