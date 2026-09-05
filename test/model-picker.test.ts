@@ -447,6 +447,14 @@ test("EV-27 3: search row renders between header and first data row; empty byte-
 	const typed = p.render(80).map(strip);
 	expect(typed[0]).toBe(HEADER);
 	expect(typed[1]).toBe("▌ claude");
+
+	// truncation is from the right and never clips the `▌`; the empty hint
+	// truncates with `/ filter` surviving (design contract, rendering).
+	p.handleInput(ESC);
+	const narrow = p.render(10).map(strip);
+	expect(narrow[1]).toBe("▌ / filter");
+	for (const ch of "anthropic/deepseek-v4-pro") p.handleInput(ch);
+	expect(p.render(10).map(strip)[1]).toBe("▌ anthropi");
 });
 
 // ---- §8.13 truncation never drops the thinking decision ----
@@ -487,12 +495,14 @@ test("EV-27 4: FOOTER_MODEL is the last line at every keystroke incl. no-match",
 	}
 });
 
-test("EV-27 5: `/` inside the input appends as a literal — anthropic/claude typeable", () => {
+test("EV-27 5: `/` inside the input appends as a literal — anthropic/claude typeable (kitty form)", () => {
 	const { p } = picker(CATALOGUE);
 	p.handleInput(ENTER);
 	p.handleInput(ENTER);
 	p.handleInput("/");
-	for (const ch of "anthropic/claude") p.handleInput(ch);
+	for (const ch of "anthropic") p.handleInput(ch);
+	p.handleInput(SLASH_KITTY); // kitty CSI-u slash while search is open — appends, never re-triggers
+	for (const ch of "claude") p.handleInput(ch);
 	const lines = p.render(80).map(strip);
 	expect(lines[1]).toBe("▌ anthropic/claude");
 	expect(lines[lines.length - 1]).toBe(FOOTER_MODEL);
