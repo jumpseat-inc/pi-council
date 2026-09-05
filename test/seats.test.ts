@@ -75,6 +75,15 @@ test("parses council-runner spawns list", () => {
 	expect(grantsFor(runner).hub).toBe(true);
 });
 
+test("council-runner dispatch guidance forbids main-repo branch-state mutation (FLLWUP-16)", () => {
+	const runner = loadSeat(tmpRepo(), "council-runner");
+	expect(runner.body).toContain("main repository path");
+	expect(runner.body).toContain("git checkout");
+	expect(runner.body).toContain("git switch");
+	expect(runner.body).toContain("git reset");
+	expect(runner.body).toContain("dedicated worktree");
+});
+
 test("consolidator is read-only", () => {
 	const c = loadSeat(tmpRepo(), "consolidator");
 	expect(builtinToolsFor(c)).toEqual(["read"]);
