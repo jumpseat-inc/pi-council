@@ -283,6 +283,22 @@ export class ModelPicker implements Component {
 		if (this.level === 2 && this.searchActive) {
 			// Backspace is a guard-only no-op — Esc-clear is the sole deletion.
 			if (matchesKey(data, Key.backspace)) return;
+			if (matchesKey(data, Key.escape)) {
+				if (this.inputFocused) {
+					// Esc-clear: empty the query, keep focus and search mode.
+					this.query = "";
+					this.modelIndex = clamp(this.modelIndex, 0, this.currentRows().length - 1);
+					this.cached = undefined;
+					return;
+				}
+				// Focus out — ascend exactly like the plain level-2 Esc; search state dies with the level.
+				this.level = 1;
+				this.searchActive = false;
+				this.query = "";
+				this.inputFocused = false;
+				this.cached = undefined;
+				return;
+			}
 			const printable = decodePrintable(data);
 			if (printable !== undefined) {
 				this.query += printable;
@@ -297,6 +313,7 @@ export class ModelPicker implements Component {
 			if (this.level === 0) this.seatIndex = clamp(this.seatIndex - 1, 0, this.catalogue.seats.length - 1);
 			else if (this.level === 1) this.providerIndex = clamp(this.providerIndex - 1, 0, this.catalogue.providers.length - 1);
 			else this.modelIndex = clamp(this.modelIndex - 1, 0, this.currentRows().length - 1);
+			if (this.level === 2 && this.searchActive) this.inputFocused = false;
 			this.cached = undefined;
 			return;
 		}
@@ -304,18 +321,23 @@ export class ModelPicker implements Component {
 			if (this.level === 0) this.seatIndex = clamp(this.seatIndex + 1, 0, this.catalogue.seats.length - 1);
 			else if (this.level === 1) this.providerIndex = clamp(this.providerIndex + 1, 0, this.catalogue.providers.length - 1);
 			else this.modelIndex = clamp(this.modelIndex + 1, 0, this.currentRows().length - 1);
+			if (this.level === 2 && this.searchActive) this.inputFocused = false;
 			this.cached = undefined;
 			return;
 		}
 		if (matchesKey(data, Key.enter)) {
 			if (this.currentRows().length === 0) return; // no row under the cursor
-			// Entering a level resets that level's cursor to 0 (§2).
+			// Entering a level resets that level's cursor to 0 (§2); EV-27: a
+			// fresh 1→2 re-entry also resets search state.
 			if (this.level === 0) {
 				this.providerIndex = 0;
 				this.level = 1;
 			} else if (this.level === 1) {
 				this.modelIndex = 0;
 				this.level = 2;
+				this.searchActive = false;
+				this.query = "";
+				this.inputFocused = false;
 			} else {
 				this.picked = this.currentRows()[this.modelIndex] as PickRow;
 				this.level = 3;

@@ -550,6 +550,50 @@ test("EV-27 10: modelIndex re-clamps after every keystroke; shrink-then-Enter em
 	expect(lines[lines.length - 1]).toBe(FOOTER_MODEL);
 });
 
+test("EV-27 8: Esc in the input clears and keeps focus; Esc again stays; Esc with focus out ascends", () => {
+	const { p } = picker(CATALOGUE);
+	p.handleInput(ENTER);
+	p.handleInput(ENTER);
+	p.handleInput("/");
+	for (const ch of "claude") p.handleInput(ch);
+	p.handleInput(ESC); // focused — clear, keep focus, stay level 2
+	let lines = p.render(80).map(strip);
+	expect(lines[0]).toBe(HEADER);
+	expect(lines[1]).toBe(SEARCH_ROW_EMPTY);
+	p.handleInput(ESC); // still focused — no ascend
+	lines = p.render(80).map(strip);
+	expect(lines[0]).toBe(HEADER);
+	expect(lines[1]).toBe(SEARCH_ROW_EMPTY);
+	p.handleInput(DOWN); // focus out
+	p.handleInput(ESC); // → level 1
+	lines = p.render(80).map(strip);
+	expect(lines[0]).toBe(HEADER);
+	expect(lines[1].startsWith("> OpenRouter")).toBe(true);
+	expect(lines.join("\n")).not.toContain("\u258C");
+});
+
+test("EV-27 13: ▌ renders only in search-mode model-level frames", () => {
+	const { p } = picker(CATALOGUE);
+	// non-search walk: seat, provider, model, confirm — no ▌ anywhere
+	expect(p.render(80).join("\n")).not.toContain("\u258C");
+	p.handleInput(ENTER);
+	expect(p.render(80).join("\n")).not.toContain("\u258C");
+	p.handleInput(ENTER);
+	expect(p.render(80).join("\n")).not.toContain("\u258C");
+	p.handleInput(ENTER);
+	expect(p.render(80).join("\n")).not.toContain("\u258C");
+	p.handleInput(ESC);
+	p.handleInput(ESC);
+	p.handleInput(ENTER); // back to the model level
+	p.handleInput("/");
+	expect(p.render(80).join("\n")).toContain("\u258C");
+	p.handleInput(ESC); // cleared but still focused, level 2
+	expect(p.render(80).join("\n")).toContain("\u258C");
+	p.handleInput(DOWN);
+	p.handleInput(ESC);
+	expect(p.render(80).join("\n")).not.toContain("\u258C");
+});
+
 test("8.13 truncation: narrowed rows still end in :<level>; level never clipped", () => {
 	const { p } = picker(CATALOGUE);
 	p.handleInput(ENTER); // provider
