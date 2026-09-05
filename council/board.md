@@ -26,9 +26,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-## Ready
-
 - EV-27 — `/`-triggered search input in the model selection modal
+
+## Ready
 
 ## In Progress
 
