@@ -265,3 +265,66 @@ smoke 0.84.3 floor; designer: stays 0.84.3) and the recorded label
 0.84.3-only"). Designer's conditional makes the label contest EMPIRICAL — the
 Skeptic's step-4 gate-3 run on a 0.85.1 lock with the agreed deletion is the
 settling test it itself named.
+
+### Step 4 — Skeptic attack (job-18.13): BLOCKS (2 red, require the step-8 rewrite)
+
+Scratch trees `/tmp/fllwup22-skeptic-0851` (0.85.1, routing-only deletion applied)
+and `/tmp/fllwup22-skeptic-0843` (0.84.3, no deletion); main repo unmodified.
+Seven objections, all with real runs:
+
+1. **Deletion alone does not green the current corpus at 0.85.1 — CLOSED-RED
+   (designer's prediction confirmed).** `bun test test/theme.test.ts
+test/theme-activation.test.ts` → 7 fail / 25 pass: T5/T6 `toHaveLength(55)`→56;
+T7 thumb `#e5e5e7 ≠ #31363f`; withThemeColorFallbacks unit `w.scrollbarThumb →
+undefined`; splitThemeColors 8→7; both construction-identity
+`getBgAnsi("scrollbarThumb")` throws. The agreed design always INCLUDED the
+regime-aware test rewrite as a step-8 deliverable — this red run does not
+contradict the design; it proves the rewrite is mandatory, not optional.
+2. **Gate-2 type break — CLOSED-GREEN.** `bunx tsc --noEmit` at 0.85.1: 3 ×
+TS2345 at test/theme-activation.test.ts:100,144,144 (getBgAnsi("scrollbarThumb")
+not assignable to ThemeBg); extensions/ clean. 0.84.3 baseline: clean. The
+deletion alone does not fix gate 2 — the test rewrite does (`as never` probe /
+drop thumb from the 256-mode bg loop).
+3. **Delta completeness — CLOSED-GREEN.** Only scrollbarThumb/scrollbarTrack
+differ in dark/light.json; 0.85.0 ≡ 0.85.1 byte-identical; theme.js moves thumb
+bg??selectedBg → fg??text, adds scrollbarTrack ?? muted, bgColorKeys 8→7;
+new theme-json.js validation module; schema updated.
+4. **Band-stable three — CLOSED-GREEN.** searchMatchBg===selectedBg,
+searchMatchText===text, thinkingMax===thinkingXhigh hold on BOTH bands,
+both variants. Probe table: count 55/56; scrollbarTrack abs/present;
+thumb #31363f/#e5e5e7; getBgAnsi(thumb) works/throws;
+getFgAnsi(thumb) throws/works.
+5. **Allowlist swallow — CLOSED-GREEN.** seats.ts:102 parseOverrideMap throws
+on unlisted key → activateTheme try/catch → warning notify, setTheme never
+called — consumer recolor silently deactivates the theme. KEEP
+OPTIONAL_TOKENS/VALID_COLOR_KEYS is correct.
+6. **resolvedPalette has zero production consumers — CLOSED-GREEN.**
+`grep -rn resolvedPalette extensions/` → definition only;
+test/theme-resolved-palette.test.ts is its only caller. Dead-code candidate if
+its test is removed.
+7a. **"Green after deletion" must not be claimed for the current corpus —
+BLOCKS.** The regime-aware corpus does not exist yet; acceptance demands
+tests green on the declared side. The step-8 implementation must write and
+verify the rewrite on both 0.84.3 and 0.85.1.
+7b. **Lock version — factual correction by facilitator.** The Skeptic read the
+installed node_modules (0.84.2) as the lock. Verified from bun.lock: the
+LOCK resolves `@earendil-works/pi-coding-agent@0.84.3` (single entry);
+node_modules is simply stale at 0.84.2. Gates run `bun install
+--frozen-lockfile` → sync to 0.84.3. Record must note node_modules must be
+synced (bun install) in the owner worktree before local gates.
+7c. **Failure count at 0.85.1 with deletion is 7, not 4** — the original 4 plus
+the withThemeColorFallbacks unit, splitThemeColors count, and truecolor
+construction identity. The record's "4 committed theme tests" refers to the
+pre-deletion drift surface (FLLWUP-21); accurate count depends on the corpus.
+7d. **T6 equality holds both bands** — only the hardcoded count assertion
+needs regime-awareness.
+
+Verdict: **BLOCKS** on three items — (1) gate 3 red at 0.85.1 until the
+regime-aware corpus is written and verified on both bands; (2) gate 2 red at
+0.85.1 until the test rewrite clears the `as never`/256-mode sites; (3) the
+regime-aware rewrite does not exist and acceptance needs tests green on the
+declared side. All three are step-8 implementation deliverables, not design
+flaws — the probe table (obj. 4) confirms the regime-aware design is feasible
+exactly as specified. Non-blocking findings to record: lock 0.84.3 (node_modules
+stale at 0.84.2); count is 7 not 4 with the deletion; resolvedPalette is
+dead code.
