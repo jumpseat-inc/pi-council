@@ -592,3 +592,90 @@ tree. The design must switch to `bun pm ls --all` (probe-verified exactly
 implementation. This is a test-settled correction (council.md step 4:
 closed by the red result, not by whichever seat argued more persuasively);
 the consolidator carries it into the spec as binding on the owner.
+
+### Step 5 — Consolidator synthesis (job-20.8): READY TO HAND OFF
+
+Sorted the record into settled / open judgment / open objections. No open
+judgment dispute and no open objection survive. The closed-red fix
+(Skeptic objection 1) is binding on the owner: adopt `bun pm ls --all`
+(probe-verified exactly 1) or a `count >= 1` cross-match consistency rule;
+never `head -1`. The goal tail clause ("owner instruction set carries the
+requirement") is settled, not open: the repo-root AGENTS.md hard-convention
+line IS the owner-instruction referent (not the binding-forbidden packaged
+owner seat); the procedure wiring already runs preflight at every run's
+step 0 / Phase 0; a supersession note lives on the run record and in the
+spec per acceptance bullet 2's "recorded on the run record" mechanism. The
+goal text is not edited. Artifact interface pinned: single project-root
+argument (`bun pm ls --all` is cwd-dependent; a two-path-args interface
+would re-introduce the ruled-out lock-text parser). Driven-test assertions
+(1–8) and diff-scope guard fixed. Residual (not a gate): the wiki source
+page [[2026-08-23-agents]] ("12 hard conventions") goes stale with the
+AGENTS.md line — follow-up via ingesting-repo-docs.
+
+### Step 6 — route what does not close: nothing to route
+
+No open judgment items; no open objections (all six Skeptic objections
+closed: 1 closed-red with probe-verified fix, 5 closed-green). No Phase-1
+ruling needed; no escalation. Card proceeds to step 7.
+
+### Step 7 — spec written, handed to owner
+
+Spec saved to `docs/superpowers/specs/2026-09-06-FLLWUP-24-design.md`
+(full-council path; committed with the In Progress transition, 88b7944).
+Self-review: no placeholders, no scope beyond the card goal, single design
+per resolved point (interface = single project-root arg; closed-red fix
+binding; ordering structural; diagnostic prose contract; AGENTS.md clause
+wording with re-run-over-skip meaning; driven-test assertions 1–8;
+diff-scope guard; four-gate set; worktree/PR conventions). Card set In
+Progress; validate clean; owner dispatched.
+
+### Step 8 — owner delivered (job-20.9), PR #40 open
+
+Owner implemented in worktree `.worktrees/fllwup-24-drift-tripwire`
+(branch `feat/fllwup-24-drift-tripwire` based at origin/main 88b7944),
+pushed, PR #40 open (observed: state OPEN, headRefOid `7d93fab…`, base
+main; diff scope exactly 5 paths — AGENTS.md +3, council/check-pi-drift.sh
++63, council/preflight.sh +9, plan doc +449, test/fllwup24-drift.test.ts
++202). Owner gates green at head in the lock-synced worktree: frozen-lockfile
+exit 0 ("224 installs, no changes"), tsc clean, `bun test` 571 pass / 2
+skip / 0 fail (deliverable suites verbatim: env-split-contract, theme-* ×9,
+fllwup23-dep-less all green; new drift suite 7/7), validate clean;
+`bash council/preflight.sh FLLWUP-24` PASS with the tripwire OK line.
+Deviations recorded on the plan doc: (1) ambiguity fixture uses a bun
+shim on PATH to shape two distinct versions (real bun rejects
+hand-written dual-entry locks `InvalidLockfile`; same class as a lock
+fixture; artifact under test is the real script; identical duplicate lines
+tolerated via `sort -u` — the `count >= 1`-with-consistency alternative);
+(2) preflight wiring `bash council/check-pi-drift.sh "$PWD" || exit 1`
+keeps exactly one named FAIL line while halting the run; (3) test 7's
+first textual `bun install --frozen-lockfile` hit was in a preflight
+comment — the comment stays free of the magic string; ordering holds.
+In Review set (sole condition: open PR, observed); verified local main
+untouched. Skeptic at the branch next.
+
+### Step 9 — Skeptic NO-BLOCK at head 7d93fab (cycle 1 of 3)
+
+Skeptic (job-20.10) verified at pinned subject: head SHA `7d93fab…`,
+worktree `.worktrees/fllwup-24-drift-tripwire`, loop frame stated (step 9
+precedes step 10 judging and step 11's mechanical merge,
+facilitator-executed). Verdict **NO-BLOCK**, all objections closed-green
+with real output: four gates re-run at head (frozen-lockfile exit 0 "224
+installs no changes", tsc clean, `bun test` 571/2/0 incl. drift suite 7/7
+and untouched deliverable suites, validate clean); tripwire probes on
+scratch trees — drifted 0.84.2-vs-lock-0.85.1 → exit 1, one named FAIL
+with both versions + verbatim remedy, node_modules still 0.84.2 after
+(named, not healed); matching → exit 0 one OK; 9.9.9/9.9.9 → exit 0
+(version-agnostic); fresh-clone and missing-version-field → exit 0 with
+distinct OK lines (set -u safe); ordering lines 51/60/63 (project files
+present < tripwire < install); `bun pm ls --all` anchored leaf count == 1,
+no /typebox leakage (closed-red fix holds); ambiguity via shim → exit 1
+"format changed / ambiguous" + both versions + remedy; gate-integrity
+mutations (tripwire removed → test 7 RED; artifact stomped to always-OK →
+test 1 RED); diff-scope byte-identity for scaffold template, 6+1 fixture
+preflight copies, all 9 seat and 7 procedure files, package.json, bun.lock,
+gates.yml. The three recorded deviations assessed consistent with the
+spec. One contextual note, not an objection: on the unmerged PR branch the
+preflight history gate (`merge-base --is-ancestor origin/main HEAD`) fails
+because origin/main advanced past the branch base (00a5899) — a
+pre-existing invariant for any unmerged branch, unrelated to the tripwire.
+Verify cycles used: 1 of ≤3.
