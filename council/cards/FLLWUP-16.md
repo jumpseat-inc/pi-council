@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-16
 title: Seat dispatch inputs forbid main-repo branch-state mutation
-state: Ready
+state: In Progress
 owner: null
 epic: EPIC-6
 goal: Working seats dispatched by council-runner receive dispatch inputs that forbid git checkout, git switch, and git reset against the main repository path and require any branch state change to happen in a dedicated worktree, proven by a driven test asserting the constraint is present in the packaged council-runner seat's dispatch discipline plus a documented reflog recovery drill executable against a simulated board reversion.
@@ -45,3 +45,40 @@ though the surface is run mechanics rather than the model picker.
   record, executable by a runner that hits the failure class.
 - Full gate set stays green (`bun test`, `bunx tsc --noEmit`,
   `python3 council/validate.py`).
+
+## Execution
+
+### Step 1 gate — mechanical, not surface-touching
+
+Mechanical: narrowly-scoped, unambiguous, confined to one area — the
+council payload/test surface (packaged `council-runner` seat at
+`council/agents/council-runner.md` plus a driven payload test in
+`test/seats.test.ts`), with no cross-seam reach into the engine
+(`extensions/` untouched; the orchestrator's scope note binds: do not
+touch `extensions/hub.ts` semantics), no spec-ambiguity, no design
+tradeoff — the constraint's placement is fixed by the orchestrator scope
+note (the runner's `<dispatch_discipline>` or an adjacent block). Not
+surface-touching: nothing a person sees, reads, or does changes; the
+constraint addresses working seats (agents), not persons, and no
+user-visible copy, empty state, or error state is touched. Mechanical path
+skips steps 2–6 and proceeds directly to step 7 with the card itself as
+the owner handoff (no spec file under `docs/superpowers/specs/`).
+
+Mapping finding (recorded per the orchestrator scope note, not escalated):
+the card face's "dispatch input builder" wording maps to `council-runner`
+composing each dispatch input itself per its procedure, with its seat body
+as the standing guidance it always holds while composing — so the
+enforceable, testable artifact is the packaged `council-runner` seat's
+dispatch discipline block (plus the driven payload test), exactly as the
+scope note concluded.
+
+### Step 7 — In Progress, handed to owner
+Card set In Progress on frontmatter and board; `validate.py` clean (below).
+Owner dispatched (job-3.1) at the card only — `Intent`/`goal`/`Acceptance`
+verbatim plus the scope note's binding mapping — with this repo's gate set
+(`.github/workflows/gates.yml` is the authoritative record — this repo has
+no `docs/gates/GATE-EVIDENCE.md`, purged in the domain-neutralization
+commit), the worktree-only binding (never `git checkout`/`switch`/`reset`
+in the main repo path), base-on-`origin/main` (the local `main` carries
+unpushed council record commits that must not appear in the PR diff), and
+branch/PR conventions named.
