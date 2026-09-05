@@ -11,6 +11,7 @@ import {
 	FOOTER_SEAT_PROVIDER,
 	HEADER,
 	ModelPicker,
+	SEARCH_ROW_EMPTY,
 	echoFor,
 	footerFor,
 	seatMarker,
@@ -404,6 +405,47 @@ test("8.11 empty states: no-providers, no-models, and a [] model row are three d
 	expect(noMod).not.toContain(FOOTER_MODEL); // no footer — no active keys
 
 	// [] model elsewhere is a *selectable* row, never an empty panel (covered by 8.6).
+});
+
+// ---- EV-27 `/`-triggered search input (spec test surface) ----
+const SLASH_KITTY = "\x1b[47u";
+
+test("EV-27 ruled copy: SEARCH_ROW_EMPTY is the byte-exact R-1 empty-input row", () => {
+	expect(SEARCH_ROW_EMPTY).toBe("▌ / filter · esc clears");
+});
+
+test("EV-27 1: `/` at level 2 opens the input — bare and kitty forms, rows unchanged", () => {
+	const { p } = picker(CATALOGUE);
+	p.handleInput(ENTER); // provider
+	p.handleInput(ENTER); // model
+	expect(strip(p.render(80)[1])).toBe("> openrouter/deepseek/deepseek-v4-pro-0813:off");
+	p.handleInput("/");
+	const lines = p.render(80).map(strip);
+	expect(lines[1]).toBe(SEARCH_ROW_EMPTY);
+	expect(lines[2]).toBe("> openrouter/deepseek/deepseek-v4-pro-0813:off");
+	expect(lines[lines.length - 1]).toBe(FOOTER_MODEL);
+
+	const q = picker(CATALOGUE);
+	q.p.handleInput(ENTER);
+	q.p.handleInput(ENTER);
+	q.p.handleInput(SLASH_KITTY); // kitty CSI-u form "\x1b[47u"
+	expect(strip(q.p.render(80)[1])).toBe(SEARCH_ROW_EMPTY);
+});
+
+test("EV-27 3: search row renders between header and first data row; empty byte-exact; typed byte-exact", () => {
+	const { p } = picker(CATALOGUE);
+	p.handleInput(ENTER);
+	p.handleInput(ENTER);
+	expect(strip(p.render(80)[0])).toBe(HEADER);
+	p.handleInput("/");
+	const empty = p.render(80).map(strip);
+	expect(empty[0]).toBe(HEADER);
+	expect(empty[1]).toBe(SEARCH_ROW_EMPTY);
+	expect(empty[2]).toBe("> openrouter/deepseek/deepseek-v4-pro-0813:off");
+	for (const ch of "claude") p.handleInput(ch);
+	const typed = p.render(80).map(strip);
+	expect(typed[0]).toBe(HEADER);
+	expect(typed[1]).toBe("▌ claude");
 });
 
 // ---- §8.13 truncation never drops the thinking decision ----
