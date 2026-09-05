@@ -33,7 +33,28 @@ fi
 docker rm -f "$CID" >/dev/null 2>&1 || true
 
 # Prune to the last $KEEP runs.
-ls -1dt "$REPO_ROOT"/smoke/.artifacts/2* 2>/dev/null | tail -n +$((KEEP + 1)) | xargs -r rm -rf
+#
+# Best-effort housekeeping — an unremovable artifact dir (foreign-owned, e.g.
+# root-owned from a bind-mount container run, or own-but-permission-blocked)
+# must never invert a green verdict, but a failed removal is never silent:
+# every entry that cannot be deleted is named in a visible warning on stderr.
+pruned=0
+unremovable=0
+while IFS= read -r d; do
+	if rm -rf -- "$d" 2>/dev/null; then
+		pruned=$((pruned + 1))
+	else
+		unremovable=$((unremovable + 1))
+		if [ -O "$d" ]; then
+			echo "run.sh: prune: cannot remove own artifact dir $d (permissions) — restore access and remove by hand" >&2
+		else
+			echo "run.sh: prune: cannot remove foreign-owned artifact dir $d (e.g. root-owned from a bind-mount container run) — left in place" >&2
+		fi
+	fi
+done < <(ls -1dt "$REPO_ROOT"/smoke/.artifacts/2* 2>/dev/null | tail -n +$((KEEP + 1)))
+if [ "$unremovable" -gt 0 ]; then
+	echo "run.sh: prune: pruned $pruned, left $unremovable in place — verdict unaffected; remove by hand if you own them" >&2
+fi
 
 if [ "$STATUS" -eq 0 ]; then
 	echo "SMOKE PASS (artifacts: smoke/.artifacts/$TS)"

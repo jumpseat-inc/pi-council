@@ -115,18 +115,34 @@ rm -f "$WORK/.council.json.cm-before"
 rm -f "$CM_OUT" "$CM_SEAT" "$CM_WRITE" "$CM_FAIL"
 }
 
+# Phase 6 — kitty-protocol search-smoke (FLLWUP-14). The pty harness is fully
+# self-provisioning (scratch HOME, npm prefix pin of 0.84.3, fixture worktree
+# with the repo pinned project-local) and imports nothing from this container's
+# pi, so this phase just runs it inside the /pkg checkout.
+phase6_run() {
+phase "6 kitty search-smoke (FLLWUP-14)"
+bash "$PKG/smoke/search-smoke/run.sh" \
+	|| fatal "phase 6: search-smoke run.sh failed"
+}
+
 # FLLWUP-11 isolation path: SMOKE_PHASE set → phase-0 prep (no verdict) plus
 # ONLY the named phase's real work; one PASS/FAIL report at the end. Values
-# other than 5 are a hard fail — nothing partial executes.
+# other than 5 (or 6, FLLWUP-14) are a hard fail — nothing partial executes.
 if [ -n "$SMOKE_PHASE" ]; then
-	if [ "$SMOKE_PHASE" != "5" ]; then
-		fatal "unsupported SMOKE_PHASE='$SMOKE_PHASE' (only 5 is supported)"
+	if [ "$SMOKE_PHASE" != "5" ] && [ "$SMOKE_PHASE" != "6" ]; then
+		fatal "unsupported SMOKE_PHASE='$SMOKE_PHASE' (only 5 and 6 are supported)"
 	fi
 	phase "FLLWUP-11 isolated run — SMOKE_PHASE=$SMOKE_PHASE (phases 1-4 real-model work skipped)"
 	phase0_prepare 0
-	phase5_run
-	echo
-	echo "SMOKE PASS — phase 5 (council-models) verified in isolation (SMOKE_PHASE=$SMOKE_PHASE)"
+	if [ "$SMOKE_PHASE" = "5" ]; then
+		phase5_run
+		echo
+		echo "SMOKE PASS — phase 5 (council-models) verified in isolation (SMOKE_PHASE=$SMOKE_PHASE)"
+	else
+		phase6_run
+		echo
+		echo "SMOKE PASS — phase 6 (kitty search-smoke) verified in isolation (SMOKE_PHASE=$SMOKE_PHASE)"
+	fi
 	exit 0
 fi
 
