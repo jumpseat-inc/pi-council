@@ -25,6 +25,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Ready
 
+- FLLWUP-25 — Wiki source page matches AGENTS.md hard-conventions count
+
 ## In Progress
 
 ## In Review
