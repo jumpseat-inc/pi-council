@@ -197,6 +197,23 @@ Notes on the frame table:
   kept artifacts at `smoke/.artifacts/search-smoke/<ts>/` — the captured
   stream, the frames, and the derived row sets. Re-run is the same command.
 
+## Artifact pruning (foreign-entry tolerance)
+
+Runs are kept to the last 5 (`KEEP=5`) under `smoke/.artifacts/search-smoke/`.
+The artifacts tree is bind-mounted into the Docker smoke path
+(`SMOKE_PHASE=6 bash smoke/run.sh`), whose container runs as **root**, so a
+container run leaves **root-owned** run dirs that a later host run cannot
+remove. Pruning is best-effort housekeeping and is **decoupled from the
+verdict**: a run whose nine frames are green exits 0 and prints
+`SMOKE PASS` even when expired dirs cannot be deleted. Everything that can
+be pruned is pruned; every entry that cannot be removed is named in a
+visible `prune:` warning on stderr, distinguishing foreign-owned entries
+(root-owned from a container run — inert history, leave in place) from
+own-permission ones (e.g. a `chmod 000` run dir you own — restore access
+and remove it by hand). A prune failure is never silent and never inverts a
+green verdict. The same tolerance applies to the top-level Docker
+entrypoint's prune in `smoke/run.sh`.
+
 ## Human-replay path
 
 At a kitty-protocol terminal (or any xterm-compatible terminal; the only
