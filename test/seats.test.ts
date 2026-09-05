@@ -84,6 +84,33 @@ test("council-runner dispatch guidance forbids main-repo branch-state mutation (
 	expect(runner.body).toContain("dedicated worktree");
 });
 
+test("owner seat guidance forbids main-repo branch-state mutation (FLLWUP-17)", () => {
+	const owner = loadSeat(tmpRepo(), "owner");
+	expect(owner.body).toContain("main repository path");
+	expect(owner.body).toContain("git checkout");
+	expect(owner.body).toContain("git switch");
+	expect(owner.body).toContain("git reset");
+	expect(owner.body).toContain("dedicated worktree");
+});
+
+test("skeptic seat guidance forbids main-repo branch-state mutation (FLLWUP-17)", () => {
+	const skeptic = loadSeat(tmpRepo(), "skeptic");
+	expect(skeptic.body).toContain("main repository path");
+	expect(skeptic.body).toContain("git checkout");
+	expect(skeptic.body).toContain("git switch");
+	expect(skeptic.body).toContain("git reset");
+	expect(skeptic.body).toContain("dedicated worktree");
+});
+
+test("judge seat guidance forbids main-repo branch-state mutation (FLLWUP-17)", () => {
+	const judge = loadSeat(tmpRepo(), "judge");
+	expect(judge.body).toContain("main repository path");
+	expect(judge.body).toContain("git checkout");
+	expect(judge.body).toContain("git switch");
+	expect(judge.body).toContain("git reset");
+	expect(judge.body).toContain("dedicated worktree");
+});
+
 test("consolidator is read-only", () => {
 	const c = loadSeat(tmpRepo(), "consolidator");
 	expect(builtinToolsFor(c)).toEqual(["read"]);

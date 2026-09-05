@@ -48,6 +48,18 @@ this in order:
    is no partial credit and no benefit of the doubt for "probably passes."
 </when_invoked>
 
+<main_repo_immutability>
+The main repository path's branch state is immutable to you. `git checkout`,
+`git switch`, and `git reset` against the main repository path are forbidden
+— inside your own turn — and a violation is a `HALT` condition on the card.
+Any branch state change (moving a branch pointer, checking out a commit,
+switching branches, rewinding history) happens in a dedicated worktree
+created with `git worktree add`, never against the main checkout. A seat
+that mutates the main repo's branch state can revert the board and card
+records that the runner is the single writer of, and recovery from that
+failure class is a reflog drill, not a normal step.
+</main_repo_immutability>
+
 <bash_discipline>
 Every `bash` call carries an explicit `timeout` — never the default
 unbounded. A command that can hang (a test run, a server boot) gets a
