@@ -121,3 +121,22 @@ Local `main` reconciled to the squash via union merge (adopts 948d111's
 code/plan/test changes, keeps this card's In-Review + step-8/9 records —
 the established epic pattern, cf. EV-27's f8f70e4). Board and card set
 Done; `validate.py` clean; reconciliation committed and pushed.
+
+### Step 13/14 — follow-up candidates and persistence (for the orchestrator)
+No new FLLWUP card written — step 13's draft-then-confirm gate is the
+orchestrator's. Candidates surfaced by this run: **none rise to a card.**
+Every Skeptic objection closed-green; no deferred idea or out-of-scope
+objection survives; the owner's named tradeoff (unknown/trailing `:suffix`
+values on object-form models are dropped, not preserved) deliberately
+matches the loader's own drop-vs-throw boundary and the string-branch
+behavior — closed by design, not deferred. W3 in `test/council-models.test.ts`
+was folded into this card. FLLWUP-9 (the next scheduled card) is unaffected
+by this seam fix.
+Persistence offer (step 14): (1) `vault/wiki/council-config-writer.md`'s
+"Known seam" section now describes a fixed defect — the FLLWUP-10 fix
+landed in `948d111`; a wiki-ingest round should reword it to record the
+resolved seam (writer preservation now matches loader resolution). (2) This
+run's step-12 union-merge reconcile is the second occurrence of the pattern
+EV-27's ledger already documented (squash folds board commits → runner
+union-merges to keep later records) — worth canonizing in the wiki as the
+established features-deliver reconcile. No vault edits made by this runner.
