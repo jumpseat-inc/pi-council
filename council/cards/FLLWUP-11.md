@@ -26,3 +26,13 @@ noted in `test/council-models.test.ts` H1.
 - Phase assertions source the R-2 usage line and R-3 notify copy from the
   ruled literals rather than in-repo constants (no self-reference).
 - Phases 0–4 behavior unchanged when no selector is set.
+
+## Phase 1 rulings (features-deliver, binding for this run)
+
+- **R-1 (optional fold-in is in scope)**: the card's optional item is
+  included — Phase 5 assertions source the R-2 usage line and R-3 notify
+  copy from the ruled literals rather than in-repo constants, closing
+  the self-referential `USAGE_LINE` test gap.
+
+Recorded human decision — immutable for the run and binding on every seat,
+`steward` included.

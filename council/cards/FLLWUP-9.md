@@ -25,3 +25,14 @@ correctly excluded (spec §8).
   preserving the `theme` section, every other seat, and unknown top-level
   keys, byte-asserted by a round-trip test.
 - Absence continues to mean preserve everywhere else; no loader change.
+
+## Phase 1 rulings (features-deliver, binding for this run)
+
+- **R-1 (scope)**: delivered as a writer-level clear operation only — a
+  writer option on `extensions/council-config-writer.ts` plus the
+  round-trip test. No modal UI change and no new user-visible copy in
+  this run, consistent with the EPIC-6 decomposition ruling (S-2) that
+  this is a writer-surface follow-up, not a modal fold-in.
+
+Recorded human decision — immutable for the run and binding on every seat,
+`steward` included.
