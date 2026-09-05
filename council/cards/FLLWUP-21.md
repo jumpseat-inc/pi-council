@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-21
 title: Restore pi-council extension load on stock pi 0.85.0 and pin the devDependency
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-6
 goal: The pi-council package's env-keyed parent/child mode split at `extensions/index.ts` registers all parent-mode slash commands on stock pi in a fresh scratch HOME and registers zero slash commands when `COUNCIL_SEAT` is set, proven by a driven headless verification asserting both poles via the installed pi binary, with the root cause of the env-split fallthrough documented and the devDependency on `@earendil-works/pi-coding-agent` changed to a deliberate version constraint consistent with the verified interval.
@@ -511,6 +511,58 @@ objections remain to clear first.
 - Full gate set stays green (`bun test`, `bunx tsc --noEmit`,
   `python3 council/validate.py`), and the kitty smoke harness still passes
   against its pinned 0.84.3 (unchanged contract).
+
+### Step 7 — spec written, handed to owner
+
+Spec saved to `docs/superpowers/specs/2026-09-05-FLLWUP-21-design.md`
+(full-council path; commit e5b048b). Contents: settled-context section
+(no 0.84.3→0.85.0 engine delta; root cause = env split at
+`extensions/index.ts:117-121`; FLLWUP-14 probe contamination; clean-env
+14 commands both versions), the three deliverables per R-1/R-2, the
+two-pole test's mechanism set (M1 driver-loader count assertions 14/0;
+M2 real-binary `--approve -p "/council-eval"` tripwire; M3 bounded red
+pole with silence discriminator), explicit-env construction discipline,
+the plan doc's root-cause content contract, the devDependency pin
+(`">=0.84.3 <0.86.0"` devDependencies line only, lock regeneration
+in-range) with the R-2 (a)/(b)/(c) record, binding exclusions (no
+mode-split behavior change; smoke/ and packaged seats/procedures
+untouched), the four-gate set per `.github/workflows/gates.yml`, and
+branch/PR conventions. Self-review: no placeholders, no scope beyond
+the card's goal, single design per resolved point (spec §3 states the
+M3 fallback explicitly). Spec committed; card set `In Progress` (commit
+e5b048b, validate clean); owner dispatched.
+
+### Step 8 — owner delivered (job-17.1), PR #37 open
+
+Owner implemented in worktree
+`.worktrees/fllwup-21-env-split-contract` (branch
+`feat/fllwup-21-env-split-contract` at origin/main = 36c3c3f), pushed,
+PR #37 open (observed: state OPEN, headRefOid `7f8bd6dd`, base main;
+diff scope exactly bun.lock, the plan doc, package.json, the test, the
+driver fixture). Deliverables: `test/env-split-contract.test.ts` +
+`test/fixtures/env-split-driver.ts` (M1 counts 14/0 through the
+installed pi's loader; M2 scratch-consumer `pi --approve -p
+"/council-eval"` usage tripwire; M3 COUNCIL_SEAT-set red pole, ~1s
+exit 1, no usage, no `Failed to load extension` — spec fallback NOT
+needed), `docs/superpowers/plans/2026-09-05-FLLWUP-21-plan.md` (plan +
+root-cause write-up with evidence), package.json devDependencies
+`">=0.84.3 <0.86.0"` + regenerated bun.lock. Owner gates green at head:
+`bun install --frozen-lockfile` exit 0 (no changes); `bunx tsc
+--noEmit` exit 0; `bun test` 559 pass / 2 skip / 0 fail (561 ran, 55
+files, 4 new); `python3 council/validate.py` clean. Owner deviations
+recorded on the plan doc: (1) lock resolved to **0.84.3**, not the
+spec's predicted 0.85.1 — owner evidence: the 0.85.0/0.85.1 band shares
+byte-identical theme machinery whose bundled dark/light.json delta
+breaks 4 committed theme tests, so the in-range gate-safe floor 0.84.3
+(smoke's own pin) is locked with the constraint string unchanged; (2)
+M2/M3 use the smoke's scratch-consumer + local-pin cwd shape instead of
+literal `cwd = <repoRoot>` (a probe showed cwd=<repoRoot> clones
+superpowers over the network and fails to register the extension); (3)
+usage line asserted on merged streams (0.84.3 print mode emits it on
+stderr; the smoke greps merged). In Review set (sole condition: open
+PR, observed). Skeptic dispatch at the branch next — the 0.85.x
+theme-break claim and the lock-resolution deviation are its prime
+attack surface.
 
 ### Step 6 — route what does not close (product-owner rulings returned, applied)
 
