@@ -126,3 +126,22 @@ trailing comma (last member re-emits `{}`); absence = idempotent
 and assert `loadCouncilConfig` no longer returns it; byte assertions on
 prefix/suffix spans, theme SHA, other seats, unknown top-level keys (111
 expect calls, 0 fail).
+
+### Step 10 addendum — contamination incident + remediation (recorded before the merge gate)
+The step-10 record commit `5abd03c` accidentally swept in the FLLWUP-9
+implementation files (`extensions/council-config-writer.ts` +125,
+`test/council-config-writer.test.ts` +196) alongside the card record. A
+foreign agent job (the judge, inspecting the branch head between the step-9
+push and the step-10 commit) left those paths staged in the shared
+checkout; the scoped `git add council/cards/FLLWUP-9.md` + `git commit`
+carried the staged set. Verified: the swept content is byte-identical to
+the PR head (`git diff 5abd03c 7d8d386` empty) and was NOT in main before
+(`41e3d87` holds the 390-line pre-implementation writer). Remediated with
+a forward revert commit `d4f7e2f` restoring both files to the `41e3d87`
+state; origin/main no longer carries any implementation, so the feature
+lands only via PR #26's gated squash. Post-remediation state verified:
+tree clean, `validate.py` clean, PR diff vs corrected main =
+implementation only (plan `2026-09-05-FLLWUP-9-…md` 422 + writer 125 +
+tests 196), head unchanged `7d8d386`. Discipline hardened for the rest of
+the run: `git diff --cached --name-only` before every commit;
+`git status --porcelain` after every foreign dispatch.
