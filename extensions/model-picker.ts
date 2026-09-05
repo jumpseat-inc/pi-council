@@ -1,5 +1,5 @@
 import type { Theme } from "@earendil-works/pi-coding-agent";
-import { Key, matchesKey, truncateToWidth, visibleWidth, type Component } from "@earendil-works/pi-tui";
+import { Key, decodeKittyPrintable, matchesKey, truncateToWidth, visibleWidth, type Component } from "@earendil-works/pi-tui";
 import type { ModelEntry, ProviderGroup, ResolverResult, SeatState } from "./catalogue.ts";
 import { COUNCIL_CONFIG_FILE } from "./seats.ts";
 
@@ -31,6 +31,13 @@ export const EMPTY_NO_PROVIDERS =
 	"No providers configured — authenticate a provider in pi, then reopen /council-models.";
 /** R-4#2 — displayName is ProviderGroup.displayName (render copy, never a write key). */
 export const EMPTY_NO_MODELS = (displayName: string): string => `No models available for ${displayName}.`;
+
+/** EV-27 R-1 ruled hint — byte-exact, immutable. */
+export const SEARCH_HINT = "/ filter · esc clears";
+/** EV-27 R-1 byte-exact empty-input row: `▌` (U+258C, one column at 0) + hint. */
+export const SEARCH_ROW_EMPTY = `\u258C ${SEARCH_HINT}`;
+/** EPIC-6 R-1 ruled no-match copy — byte-exact, interpolated with the live query. */
+export const NO_MATCH = (query: string): string => `No models matching "${query}".`;
 
 /** R-3 seat-row marker (dim suffix). Pure text; dim styling happens at the
  *  call site. Keyed off SeatState.hasOverride — key presence, so a
@@ -99,6 +106,14 @@ function clamp(v: number, lo: number, hi: number): number {
 	return Math.max(lo, Math.min(hi, v));
 }
 
+/** EV-27 shared printable decode: kitty CSI-u arm plus the legacy bare-byte
+ *  fallback. Callers MUST guard backspace BEFORE decoding — kitty DEL
+ *  (`\x1b[127u`) decodes to "\x7f" — and the 126 upper bound is the
+ *  belt-and-suspenders exclusion of the same byte. */
+function decodePrintable(data: string): string | undefined {
+	return decodeKittyPrintable(data) ?? (data.length === 1 && data.charCodeAt(0) >= 32 && data.charCodeAt(0) <= 126 ? data : undefined);
+}
+
 /**
  * The token-only modal picker (EV-23). Pure content component: no repoRoot,
  * no filesystem, no writer — "confirm commits" means onConfirm(sel) fires
@@ -112,6 +127,9 @@ export class ModelPicker implements Component {
 	private level: 0 | 1 | 2 | 3 = 0; // seat → provider → model → confirm
 	private picked: PickRow | null = null;
 	private settled = false;
+	private searchActive = false;
+	private query = "";
+	private inputFocused = false;
 	private maxRows: number;
 	private cached?: { w: number; signature: string; lines: string[] };
 
@@ -126,9 +144,13 @@ export class ModelPicker implements Component {
 	}
 
 	/** §7 render cache — a (width, signature) pair; invalidated on every
-	 *  mutation. `signature = level:cursors:top`. */
+	 *  mutation. `signature = level:cursors:top:search:focus:query` — the
+	 *  query renders on the search row itself, so a query-blind signature
+	 *  would serve a stale frame; query last keeps it unique by construction
+	 *  even with `/` and `:` in the query (compared by full equality, never
+	 *  parsed). */
 	private signature(): string {
-		return `${this.level}:${this.seatIndex}:${this.providerIndex}:${this.modelIndex}:${this.windowStart()}`;
+		return `${this.level}:${this.seatIndex}:${this.providerIndex}:${this.modelIndex}:${this.windowStart()}:${this.searchActive ? 1 : 0}:${this.inputFocused ? 1 : 0}:${this.query}`;
 	}
 
 	/** The current level's linear cursor. */
@@ -138,12 +160,16 @@ export class ModelPicker implements Component {
 		return this.modelIndex;
 	}
 
-	/** The current level's row list: seats / providers / model cross-product. */
+	/** The current level's row list: seats / providers / model cross-product.
+	 *  EV-27: at level 2 this is the SINGLE row source — search mode filters
+	 *  here so windowing, the Up/Down clamps, pushRows, the Enter guard and
+	 *  the Enter-pick all read one list and resolveSelection() stays
+	 *  byte-verbatim by PickRow reference identity. */
 	private currentRows(): Array<SeatState | ProviderGroup | PickRow> {
 		if (this.level === 0) return this.catalogue.seats;
 		if (this.level === 1) return this.catalogue.providers;
 		const group = this.catalogue.providers[this.providerIndex];
-		return group ? rowsForProvider(group) : [];
+		return group ? (this.searchActive ? filterModelRows(rowsForProvider(group), this.query) : rowsForProvider(group)) : [];
 	}
 
 	/** §2 windowed scrolling: start = max(0, min(sel - floor((maxRows-1)/2), len - maxRows)). */
@@ -152,6 +178,16 @@ export class ModelPicker implements Component {
 		if (len <= this.maxRows) return 0;
 		const selected = this.currentIndex();
 		return Math.max(0, Math.min(selected - Math.floor((this.maxRows - 1) / 2), len - this.maxRows));
+	}
+
+	/** EV-27 search row: `▌ ` (U+258C at column 0) + the R-1 empty hint or the
+	 *  live query. Truncation is from the right and never clips the `▌`; the
+	 *  row is byte-identical in both focus states (R-1 unconditional on focus). */
+	private searchRow(width: number): string {
+		const cell = "\u258C ";
+		const text = this.query === "" ? SEARCH_HINT : this.query;
+		if (visibleWidth(cell + text) <= width) return cell + text;
+		return cell + truncateToWidth(text, Math.max(1, width - visibleWidth(cell)), "");
 	}
 
 	/** Model rows: truncation must never clip the `:level` decision (§8.13) —
@@ -186,6 +222,18 @@ export class ModelPicker implements Component {
 				// R-4#2 — render-contract-only input; the resolver never produces
 				// a ProviderGroup with models: [] (spec §4). No footer.
 				lines.push(this.theme.fg("dim", EMPTY_NO_MODELS(group.displayName)));
+			} else if (this.searchActive) {
+				// EV-27 search frame: search row between header and rows/empty
+				// copy; FOOTER_MODEL is the footer in every search frame (Esc-clear
+				// and Down are active keys here, unlike the keyless R-4 states).
+				lines.push(this.searchRow(width));
+				const rows = this.currentRows();
+				if (rows.length === 0) {
+					lines.push(this.theme.fg("dim", NO_MATCH(this.query)));
+				} else {
+					this.pushRows(width, lines, rows, false);
+				}
+				lines.push(this.theme.fg("dim", FOOTER_MODEL));
 			} else {
 				this.pushRows(width, lines, this.currentRows());
 			}
@@ -197,7 +245,7 @@ export class ModelPicker implements Component {
 		return lines;
 	}
 
-	private pushRows(width: number, lines: string[], rows: Array<SeatState | ProviderGroup | PickRow>): void {
+	private pushRows(width: number, lines: string[], rows: Array<SeatState | ProviderGroup | PickRow>, footer = true): void {
 		const start = this.windowStart();
 		const windowed = rows.slice(start, start + Math.min(this.maxRows, rows.length));
 		const selected = this.currentIndex();
@@ -217,7 +265,7 @@ export class ModelPicker implements Component {
 			}
 			lines.push(line);
 		});
-		lines.push(this.theme.fg("dim", footerFor(this.level)));
+		if (footer) lines.push(this.theme.fg("dim", footerFor(this.level)));
 	}
 
 	handleInput(data: string): void {
@@ -239,10 +287,41 @@ export class ModelPicker implements Component {
 			return;
 		}
 
+		// EV-27 search-mode interception: only at the model level with search open.
+		if (this.level === 2 && this.searchActive) {
+			// Backspace is a guard-only no-op — Esc-clear is the sole deletion.
+			if (matchesKey(data, Key.backspace)) return;
+			if (matchesKey(data, Key.escape)) {
+				if (this.inputFocused) {
+					// Esc-clear: empty the query, keep focus and search mode.
+					this.query = "";
+					this.modelIndex = clamp(this.modelIndex, 0, this.currentRows().length - 1);
+					this.cached = undefined;
+					return;
+				}
+				// Focus out — ascend exactly like the plain level-2 Esc; search state dies with the level.
+				this.level = 1;
+				this.searchActive = false;
+				this.query = "";
+				this.inputFocused = false;
+				this.cached = undefined;
+				return;
+			}
+			const printable = decodePrintable(data);
+			if (printable !== undefined) {
+				this.query += printable;
+				this.inputFocused = true;
+				this.modelIndex = clamp(this.modelIndex, 0, this.currentRows().length - 1);
+				this.cached = undefined;
+				return;
+			}
+		}
+
 		if (matchesKey(data, Key.up)) {
 			if (this.level === 0) this.seatIndex = clamp(this.seatIndex - 1, 0, this.catalogue.seats.length - 1);
 			else if (this.level === 1) this.providerIndex = clamp(this.providerIndex - 1, 0, this.catalogue.providers.length - 1);
 			else this.modelIndex = clamp(this.modelIndex - 1, 0, this.currentRows().length - 1);
+			if (this.level === 2 && this.searchActive) this.inputFocused = false;
 			this.cached = undefined;
 			return;
 		}
@@ -250,18 +329,23 @@ export class ModelPicker implements Component {
 			if (this.level === 0) this.seatIndex = clamp(this.seatIndex + 1, 0, this.catalogue.seats.length - 1);
 			else if (this.level === 1) this.providerIndex = clamp(this.providerIndex + 1, 0, this.catalogue.providers.length - 1);
 			else this.modelIndex = clamp(this.modelIndex + 1, 0, this.currentRows().length - 1);
+			if (this.level === 2 && this.searchActive) this.inputFocused = false;
 			this.cached = undefined;
 			return;
 		}
 		if (matchesKey(data, Key.enter)) {
 			if (this.currentRows().length === 0) return; // no row under the cursor
-			// Entering a level resets that level's cursor to 0 (§2).
+			// Entering a level resets that level's cursor to 0 (§2); EV-27: a
+			// fresh 1→2 re-entry also resets search state.
 			if (this.level === 0) {
 				this.providerIndex = 0;
 				this.level = 1;
 			} else if (this.level === 1) {
 				this.modelIndex = 0;
 				this.level = 2;
+				this.searchActive = false;
+				this.query = "";
+				this.inputFocused = false;
 			} else {
 				this.picked = this.currentRows()[this.modelIndex] as PickRow;
 				this.level = 3;
@@ -277,6 +361,19 @@ export class ModelPicker implements Component {
 			this.level = (this.level - 1) as 0 | 1 | 2; // ascend one level
 			this.cached = undefined;
 			return;
+		}
+
+		// EV-27 fall-through trigger: a decoded `/` at the model level with no
+		// search open opens it — gated on a non-empty model list so `/` never
+		// injects active keys into the keyless R-4#2 state.
+		if (this.level === 2 && !this.searchActive && decodePrintable(data) === "/") {
+			const group = this.catalogue.providers[this.providerIndex];
+			if (group && group.models.length > 0) {
+				this.searchActive = true;
+				this.inputFocused = true;
+				this.cached = undefined;
+				return;
+			}
 		}
 	}
 
