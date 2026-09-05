@@ -527,3 +527,105 @@ its own prediction 3) and against the **diagnostic-command variant**
   the subpath; `-ne` counter phrased as "Do NOT use `pi -ne` — it disables
   extensions entirely; this is a missing dependency, not an extension
   configuration error".
+
+#### Owner round-1 response (job-19.7 — re-dispatch of stalled job-19.4)
+
+**(a) Named-load-error verdict — conceded, on evidence.** Consumer-facing
+channel probe in this container (dep-less scratch pinned via `.pi/settings.json`,
+real CLI `node dist/cli.js --approve -p /council-eval`): exit **1**, stderr:
+`Error: Failed to load extension "<scratch>/extensions/index.ts": Failed to
+load extension: Cannot find module '@modelcontextprotocol/sdk/client'` /
+`Require stack:` / `- <scratch>/extensions/mcp/client.ts` / `Hint: Start
+without extensions using "pi -ne".` — the designer is right that a person
+reads this first; a `/mcp` palette string and a console.error are weaker
+channels, and "diagnostic **at extension load**" favors the loader-error
+payload. The partial-load variant is abandoned entirely; the named-load-error
+design needs **zero** of the five sentinel branches. Honest correction to
+step 2: the raw `TypeError: "paths[0]"...` belongs to a different channel
+(Bun-native `import()` outside jiti's resolver); under the driven/CLI
+channels jiti's throw **names** the SDK exactly.
+
+**(b) Mechanism — the guarded-lazy import serves the named-load-error
+contract; async factory proven safe.** `extensions/mcp-load.ts`: memoized
+`getMcp()`; `try { return await import("./mcp/index.ts") } catch (e) { try {
+await import("@modelcontextprotocol/sdk/client") } catch { throw new
+Error(NAMED_PROSE) } throw e }`. The four `./mcp/index.ts` sites
+(`index.ts:13`, `child.ts:4`, `hub-tools.ts:9`, `dispatch.ts:16` —
+grep-verified) become `import type` + runtime access through `getMcp()`; the
+factory's **first statement is `await getMcp()`**, before the `seatName`
+split, so children get the same prose. The secondary probe runs only after
+the primary failed — a real `mcp/*` bug with the SDK present rethrows
+honestly (C3 retained). Async tolerance evidence: `loader.js:409` and
+`:425` are both `await factory(api)`; `resource-loader.js`
+`loadExtensionFactories` routes through awaited `loadExtensionFromFactory`;
+grep of all of `dist/` found no synchronous extension-factory caller. Direct
+probe: a scratch extension whose default export awaits 10 ms registers its
+command through the real loader (`{"errors":[],"commands":["async-ok"]}`).
+`runChildMode` stays sync; the child's `startSeatMcp` call becomes `void
+getMcp().then((m) => m.startSeatMcp(pi, repoRoot, seat))`;
+`session_start`/`session_shutdown`/hub-tools/dispatch handlers are already
+async and can `await getMcp()`.
+
+**(c) Principal's two technical items settled by probe.** (1) Async
+factory: **yes, empirically** — both loader call sites await, no sync caller
+in `dist/`. (2) First-unresolved-entry: **by construction, not extraction**
+— reproduced in the driven shape, `errors[0].error` is `Failed to load
+Extension: Cannot find module '@modelcontextprotocol/sdk/client' ... -
+<scratch>/extensions/mcp/client.ts`; the SDK and subpath are named. The
+prose hardcodes `@modelcontextprotocol/sdk` + first entry
+`@modelcontextprotocol/sdk/client` (client.ts:1 — the first value-import of
+the first-loaded mcp file, deterministic across runtimes, immune to the
+Bun-native `paths[0]` TypeError). The SDK-only-unresolvable classification
+confirmed on both versions: pi 0.84.2's installed deps and the 0.85.1 lock
+entry both carry `pi-ai`/`pi-tui`/`typebox`; neither carries the MCP SDK.
+
+**(d) What remains open (narrow).** (1) Prose copy — designer's seat, fully
+released; owner constraints it to name both `@modelcontextprotocol/sdk` and
+the `/client` subpath, use a portable package-root phrase, counter `-ne`.
+(2) Fixture variant — owner's "node_modules minus SDK" (274 MB hardlink
+copy, verified working) vs principal's "committed tree minus node_modules,
+driver in the repo" (cheaper, closer to the vendored-clone shape, theme
+ENOENT avoided by shipping `themes/`+`council/`); both produced the
+identical `errors[0]` in owner's probes; owner releases the choice to the
+driven-test design with a recommendation for the principal's variant,
+pending a gate-time check that dir→index discovery holds under lock-resolved
+pi. (3) One last lock-sync-dependent verification (0.85.1's loader still
+`await`s and still wraps) — C4, run at gate time per FLLWUP-24, not assumed
+now.
+
+- **Tradeoffs accepted:** healthy install — mcp module evaluation moves from
+graph-top to factory-top (timing-only; env-split M1/M3 and M2 are the
+tripwires); dep-less install — `mcp/*` internals with non-SDK bugs are
+masked by the prose until deps restore (one-sided, accepted); the loader
+still prints pi's wrong `-ne` hint AFTER the prose (main.js:721,
+unsuppressible; the prose counters it; probe confirms the Error line
+precedes the hint).
+- **Testable claims:** T1 (red today, acceptance): driven dep-less test
+asserts `errors.length === 1`, `errors[0].error` matches
+`/Failed to load extension: pi-council could not load.*@modelcontextprotocol\/sdk.*(bun install|npm install).*package.json/` — RED on current
+code, GREEN post-guard. T2 (healthy tripwire): `bun test
+test/env-split-contract.test.ts` stays green on the synced worktree. T3
+(discriminator honesty): corrupt `extensions/mcp/oauth.ts` top-level throw,
+SDK present → `errors[0].error` is the real failure, no prose. T4 (async):
+async-factory probe as a suite control. T5 (C4): suite green after
+frozen-lockfile sync to 0.85.1, asserting the loader still wraps and awaits.
+
+### Step 3 close — exchange stopped early (positions stabilized)
+
+Exchange rounds used: 1 of ≤3. Owner, principal, and designer all converged
+on the same design: guarded-lazy `getMcp()` (extensions/mcp-load.ts, the
+four `./mcp/index.ts` sites type-only), factory-first-statement `await
+getMcp()` before the `seatName` split, missing-SDK ⇒ `throw new
+Error(NAMED_PROSE)` ⇒ extension:null + exit-1 + prose in
+`discoverAndLoadExtensions.errors` and stderr before the `-ne` hint;
+named-load-error surface beats partial-load-with-diagnostic-command (owner
+conceded on the real-CLI channel probe; designer P4 stands); async factory
+proven safe; first-unresolved-entry sourced by construction. Residual
+decisions are all testable or copy-level: fixture variant (owner
+recommends the cheaper committed-tree-minus-node_modules, principal's;
+the fidelity question — whether the loader's stage-2 walk can still
+resolve the SDK from the repo tree in the cheap shape — is a settling test
+for step 4's Skeptic), prose copy (designer's), lock-sync-dependent C4 at
+gate time. No open judgment dispute survives to step 6: the load-error vs
+partial-load fork the principal flagged as "needs a ruling" was resolved by
+convergence (owner conceded on evidence), not left open.
