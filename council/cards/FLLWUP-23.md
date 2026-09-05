@@ -629,3 +629,55 @@ for step 4's Skeptic), prose copy (designer's), lock-sync-dependent C4 at
 gate time. No open judgment dispute survives to step 6: the load-error vs
 partial-load fork the principal flagged as "needs a ruling" was resolved by
 convergence (owner conceded on evidence), not left open.
+
+### Step 4 — Skeptic attack (job-19.8): NO BLOCK, 7 green / 1 red
+
+Eight objections, all with real runs in this container:
+
+1. **Fixture fidelity (green-and-broken trap) — CLOSED-RED.** Settling test:
+   `FLLWUP21_REPO_ROOT=<dep-less-scratch> bun run
+   test/fixtures/env-split-driver.ts` → `{"commands":14}` — the dep-less
+   scratch (extensions/+themes/+council, no node_modules) loads 14 commands
+   with zero errors: pi 0.84.2's loader sits inside this repo's
+   node_modules; jiti's stage-2 nativeRequire bound to the loader location
+   finds the SDK through the repo tree. The field shape (pi installed
+   globally, clone without node_modules) does NOT reproduce under drift.
+   This is a documented testability constraint, not a design flaw: the
+   driven fixture must be self-contained (its own node_modules minus
+   `@modelcontextprotocol`, driver inside the scratch — owner's verified
+   shape) so neither jiti stage can reach an SDK; the card's acceptance
+   explicitly delegates the shape ("or an equivalent the deliberation
+   rules"). Must be re-verified after frozen-lockfile sync to 0.85.1.
+2. **Themes-mask trap — CLOSED-RED (drift-independent, fixture-shape
+   fact).** Extensions/-only scratch errors `ENOENT:
+   themes/pi-council-dark.json` (seats.ts:63-64 module-eval before the SDK
+   edge). Honest shape = extensions/+themes/+council/.
+3. **Named-prose channel contract — CLOSED-GREEN.** Driver-level error
+   shape with SDK hidden: `Failed to load extension: Cannot find module
+   '@modelcontextprotocol/sdk/client'` + require stack naming client.ts;
+   loader wraps thrown Error.message (loader.js:415); main.js:706-710
+   reports diagnostics THEN prints `-ne` hint THEN exit(1) — prose reaches
+   both channels and precedes the hint.
+4. **Discriminator honesty — CLOSED-GREEN.** SDK present, corrupted
+   `oauth.ts` top-level throw ("BOOM") → `errors[0]` = the real failure
+   (BOOM), not prose — the secondary probe-import succeeds, original error
+   rethrows.
+5. **Healthy-install byte-identity — CLOSED-GREEN.** `bun test
+   test/env-split-contract.test.ts` 4/4 pass, 10 expects.
+6. **Four static sites, type-only conversion — CLOSED-GREEN.** Exactly four
+   direct `from "./mcp/index"` sites (index.ts:13, child.ts:4,
+   hub-tools.ts:9, dispatch.ts:16); plus one indirect edge — eval-runner.ts
+   imports dispatch.ts statically, so dispatch.ts must be type-only on
+   `./mcp/index.ts` (five caller sites total become type-only + runtime
+   `getMcp()`).
+7. **Async factory tolerance — CLOSED-GREEN.** loader.js:409 and :425 both
+   `await factory(api)`; no sync caller in dist/.
+8. **SDK-only-unresolvable classification — CLOSED-GREEN.** pi 0.84.2
+   deps carry pi-ai/pi-tui/typebox, no @modelcontextprotocol/sdk; lock
+   resolves the SDK only for this repo.
+
+Verdict: **NO BLOCK.** The design's mechanism is sound; objection 1 is a
+testability constraint under drift (fixture must be self-contained SDK-free,
+per the card's own "equivalent the deliberation rules" latitude), to be
+re-verified at 0.85.1 post-sync. Also run: `bunx tsc --noEmit` clean;
+driver probes with/without themes, with/without SDK, with corrupted oauth.ts.
