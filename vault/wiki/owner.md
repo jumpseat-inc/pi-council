@@ -4,9 +4,9 @@ type: entity
 summary: The Council's engineering voice and the single implementing seat — turns agreed specs into plans, implements in a worktree, clears all four gates to a PR.
 aliases: [owner seat]
 tags: [pi-council/seat]
-sources: ["[[2026-08-23-pi-council-design-spec]]"]
+sources: ["[[2026-08-23-pi-council-design-spec]]", "[[2026-09-06-epic6-close-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-03
+updated: 2026-09-06
 ---
 
 > ⚠️ Derived from `council/agents/owner.md` @ `df3...` (captured 2026-08-23). Verify against the seat file.
@@ -41,11 +41,19 @@ stub-tests, and suppression-comment dodges are the same move as `# nosec`.
 Gate status is written **only from observed artifacts**. "Done" is true only
 once all four gates are green.
 
+Since v0.18.0 the seat body carries a `<main_repo_immutability>` block —
+no `git checkout`/`switch`/`reset` against the main repository path;
+branch state changes happen only in a dedicated worktree
+([[main-repo immutability]]). Local gates are trusted only on a
+lock-synced tree ([[lock-drift tripwire]]; AGENTS.md clause #13).
+
 ## Related
 
 - [[seats]], [[council-loop]], [[hub-job-supervision]]
 - [[skeptic]] — the adversary who attacks the owner's branch
 - [[council-config]] — default model/thinking override
+- [[main-repo immutability]] — the worktree-only rule the seat body carries
+- [[2026-09-06-epic6-close-run-ledger]] — the immutability + lock-drift additions
 
 ## Sources
 

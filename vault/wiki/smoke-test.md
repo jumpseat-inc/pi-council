@@ -4,9 +4,9 @@ type: concept
 summary: The definitive, unattended end-to-end test — Phases 0–5 drive a real /council loop, a /features-deliver epic, the /council-eval matrix, /council-leaderboard, and /council-models in an isolated container, re-running gates itself; standing discipline: the first Council command without an end-to-end falsifier is a defect.
 aliases: [smoke, unattended smoke test, smoke test]
 tags: [pi-council/smoke-test]
-sources: ["[[2026-08-24-unattended-smoke-test-design]]", "[[2026-08-24-unattended-smoke-test-plan]]", "[[2026-08-25-smoke-test-bugfixes]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-04-epic5-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]"]
+sources: ["[[2026-08-24-unattended-smoke-test-design]]", "[[2026-08-24-unattended-smoke-test-plan]]", "[[2026-08-25-smoke-test-bugfixes]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-04-epic5-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]"]
 created: 2026-08-25
-updated: 2026-09-05
+updated: 2026-09-06
 ---
 
 # Smoke Test
@@ -100,7 +100,6 @@ seat children — which meant `/features-deliver` was broken end-to-end). See
 [[2026-08-25-smoke-test-bugfixes]].
 
 ## The lighter sibling: the SMOKE-1 scratch run (v0.15.0)
-
 The EPIC-3 run added a second, lighter smoke pattern for **in-run procedure
 verification** (the SMOKE-1 ruling): a scratch copy of `council/` in a temp
 dir with the rewrite at the [[override-resolution|override path]], headless
@@ -111,12 +110,38 @@ mid-epic on a single procedure change. Its record: it caught the
 design bug). And its cap lesson: a 20-minute ceiling killed a healthy run
 mid-aggregation — the ceiling was the bug, not the run.
 
+## The live-path sibling: the kitty search-smoke (v0.18.0, FLLWUP-14)
+
+A third pattern — `smoke/search-smoke/` — a **pty-driven CSI-u live-path
+falsifier** for the model search input: it drives `/council-models` in a
+real pi session inside the container, delivering `/` and printable
+keystrokes as kitty-protocol sequences (`\x1b[47u` etc.) that the unit
+suite's byte-level decode tests cannot exercise end-to-end, and compares
+9 observed frames against the ruled copy set byte-exact. Runs **in the
+gate set** (the unit decode tests remain the CI gate; the smoke is the
+live-path falsifier). PO-ruled contract: the harness exports
+`OPENROUTER_API_KEY="${OPENROUTER_API_KEY:-sk-dummy}"` (presence-only
+auth, zero network — the modal never dispatches; the headless preflight
+is the misroute tripwire; the README states that the scratch HOME is not
+credential-less), and a `node -e` decode-parity preflight against the
+pinned 0.84.3 dist reds "0.84.3 decode parity failed" before any TUI
+session. Its record: the step-11 merge-gate re-run caught a real defect
+the Skeptic had dismissed (host prune exiting 123 on root-owned
+container artifacts), fixed by decoupling the prune's exit from the
+verdict. Its discovery (a zero-command state on 0.85.0) seeded the
+[[env-split contract]] — the harness itself forwards only
+`OPENROUTER_API_KEY`/`SMOKE_PHASE` and unsets council vars, so it is
+contamination-proof by construction; the probe that ran outside it was
+not.
+
 ## Related
 
 - [[headless-pi]] — the operating-mode rules the driver depends on
 - [[procedure-commands]], [[seats]], [[hub-job-supervision]], [[preflight]]
 - [[council models picker]] — the Phase 5 subject since EPIC-5
+- [[env-split contract]] — the contamination discipline the harnesses follow
 - [[2026-09-05-epic6-run-ledger]] — the SMOKE_PHASE selector
+- [[2026-09-06-epic6-close-run-ledger]] — the kitty search-smoke sibling
 - [[2026-08-24-unattended-smoke-test-design]], [[2026-08-24-unattended-smoke-test-plan]]
 
 ## Sources

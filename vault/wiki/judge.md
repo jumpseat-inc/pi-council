@@ -4,9 +4,9 @@ type: entity
 summary: The fresh-context stop-condition evaluator — returns PASS/REJECT against a card's stated goal, deliberately sharing no context with the seats that produced the work.
 aliases: [judge seat]
 tags: [pi-council/seat]
-sources: []
+sources: ["[[2026-09-06-epic6-close-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-04
+updated: 2026-09-06
 ---
 
 > ⚠️ Derived from `council/agents/judge.md` (captured 2026-08-23). Verify against the seat file.
@@ -45,12 +45,23 @@ else** — its value is that it owes no deference to the design.
   **facts**, never the desired verdict. See [[council-runner]],
   [[2026-09-04-epic3-run-ledger]].
 
+Since v0.18.0 the seat body also carries two additions from the close
+run: a `<main_repo_immutability>` block (no checkout/switch/reset
+against the main repository path — [[main-repo immutability]]) and a
+`<when_invoked>` description naming the runner-pinned verification
+subject (PR head SHA + head worktree path) and loop frame (FLLWUP-20 —
+see [[verification-subject pinning]]). The premise-error rejection class
+(judging the wrong tree, or reading "receive" as requiring the merge)
+has not recurred since the pinning landed.
+
 ## Related
 
 - [[seats]], [[council-loop]], [[skeptic]]
 - [[owner]] — the implementer it evaluates
 - [[council-config]] — default model/thinking override
+- [[verification-subject pinning]] — the dispatch-input contract naming what it verifies
 - [[2026-09-04-epic3-run-ledger]] — the confabulated-REJECT re-dispatch precedent
+- [[2026-09-06-epic6-close-run-ledger]] — the subject pinning + immutability block
 
 ## Sources
 

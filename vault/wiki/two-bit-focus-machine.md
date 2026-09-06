@@ -4,9 +4,9 @@ type: concept
 summary: The modal key-handling pattern from EV-27 — a level carries two bits (searchActive × inputFocused), Esc routes on inputFocused (clear-and-stay in the input, level-ascend elsewhere), and an unstated third key (Down) transitions focus out to make the Esc-elsewhere branch reachable.
 aliases: [focus machine, two-bit state machine, search focus]
 tags: [pi-council/concept, pi-council/surface]
-sources: ["[[2026-09-05-epic6-run-ledger]]", "[[2026-08-26-po-ev8-ruling]]"]
+sources: ["[[2026-09-05-epic6-run-ledger]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-09-06-epic6-close-run-ledger]]"]
 created: 2026-09-05
-updated: 2026-09-05
+updated: 2026-09-06
 ---
 
 # Two-Bit Focus Machine
@@ -29,9 +29,19 @@ Routing table at the model level:
 | Key | `inputFocused` true | `inputFocused` false |
 |---|---|---|
 | printable (incl. `/`) | append to query | — |
+| Backspace | delete one trailing character (BUG-1; no-op on empty query) | no-op |
 | Down/Up | move list cursor **and** clear `inputFocused` | move cursor |
 | Esc | clear query, **stay focused** | ascend to provider level (pre-existing) |
 | Enter | confirm selection; search state never zeroed | confirm selection |
+
+⚠️ **Superseded 2026-09-06:** EV-27 pinned backspace as a guard-only
+no-op with "Esc-clear is the sole deletion mechanism". BUG-1 (PR #28
+`c1406138`) superseded that: backspace now has its ordinary meaning on
+the focused, non-empty row of the table above — same two-bit machine,
+same guard ordering (`matchesKey(data, Key.backspace)` before the
+printable decode), one more consequence per press. The original EV-27
+ruling text is preserved in the EPIC-6 card records; this table is the
+current contract.
 
 The **Down-clears-focus** transition is the pattern's crux: it is the
 unstated key that makes the "Esc elsewhere" branch reachable while the
@@ -66,6 +76,13 @@ deliberation, not in the intake.
   the same list; the render-cache signature must include both bits and
   the query, or equal-shaped results (`claude` → `claud`) serve stale
   frames.
+- **The not-yet-searched state is an affordance too.** The pre-press hint
+  line (`press / to filter models`, BUG-1) renders below the model rows
+  while search has never been opened in the current modal-open — the
+  machine's third render state, invisible in the routing table because it
+  is the state before any bit is set — and dismisses at the first `/`
+  press, returning on the next fresh entry (no session persistence).
+  It carries no `▌`: the signifier appears in no non-search state.
 
 ## Related
 
@@ -73,8 +90,10 @@ deliberation, not in the intake.
 - [[echo-then-run]] — why selection stays byte-verbatim through the filter
 - [[2026-08-26-po-ev8-ruling]] — the ▌ signifier precedent
 - [[2026-09-05-epic6-run-ledger]] — the run that shipped it
+- [[2026-09-06-epic6-close-run-ledger]] — the run that completed it
 
 ## Sources
 
 - [[2026-09-05-epic6-run-ledger]]
-- `extensions/model-picker.ts` (EV-27 implementation)
+- [[2026-09-06-epic6-close-run-ledger]]
+- `extensions/model-picker.ts` (EV-27 + BUG-1 implementation)

@@ -4,9 +4,9 @@ type: concept
 summary: The oh-my-pi-palette theme subsystem for pi-council — a pinned dark/light theme pair, a repo-level .council.json recolor surface, session-start activation with a strict name namespace, and a token-only drawing rule for all council-drawn UI.
 aliases: [theme, pi-council theme, council theme system, theme-section]
 tags: [pi-council/concept]
-sources: ["[[2026-08-25-design-ev1-round2]]", "[[2026-08-25-po-ev1-escalation]]", "[[2026-08-25-design-ev3]]", "[[2026-08-25-design-ev3-round2]]", "[[2026-08-25-design-ev4-round1]]", "[[2026-08-26-smoke-v0.12.0]]", "[[2026-08-26-theme-module-resolution-fix]]"]
+sources: ["[[2026-08-25-design-ev1-round2]]", "[[2026-08-25-po-ev1-escalation]]", "[[2026-08-25-design-ev3]]", "[[2026-08-25-design-ev3-round2]]", "[[2026-08-25-design-ev4-round1]]", "[[2026-08-26-smoke-v0.12.0]]", "[[2026-08-26-theme-module-resolution-fix]]", "[[2026-09-06-epic6-close-run-ledger]]"]
 created: 2026-08-25
-updated: 2026-09-03
+updated: 2026-09-06
 ---
 
 # Council Theme
@@ -156,6 +156,20 @@ These are not bugs — they are the normal tightening of designer proposals into
 binding decisions during deliberation. A reader following the raw docs alone
 would misattribute the shipped behavior.
 
+## Token contract across pi versions (v0.18.0, FLLWUP-22)
+
+The theme draws only from pi theme tokens, so pi's own token machinery is
+part of this contract. pi 0.85.x changed the scrollbar tokens
+(`scrollbarThumb` `bg??selectedBg` → `fg??text`; `scrollbarTrack` gains
+`fg??muted`; `bgColorKeys` 8→7; resolved token count 55→56; 0.85.0 ≡ 0.85.1
+byte-identical). Characterized by driven tests green at **both extremes of
+the declared range** (0.84.3 and 0.85.1): **0.85.x-compatible as shipped** —
+the shipped themes adapt via the token lookup, no adaptation needed. This
+record is the evidence grounding the devDependency's
+`">=0.84.3 <0.86.0"` upper bound (FLLWUP-21 R-2 verified-interval
+housekeeping) — the bound means "tested through 0.85.1", not "untested
+beyond it".
+
 ## Related
 
 - [[council-config]] — the `.council.json` host of the `theme` section
@@ -164,6 +178,8 @@ would misattribute the shipped behavior.
 - [[seats]], [[product-owner]] — designer (position) + PO (rulings) seats
 - [[smoke-test]] — receives the `/settings` prefix prediction; shipped and **clean-green** in the v0.12.0 smoke run ([[2026-08-26-smoke-v0.12.0]])
 - Source pages: [[2026-08-25-design-ev1-round2]], [[2026-08-25-po-ev1-escalation]], [[2026-08-25-design-ev3]], [[2026-08-25-design-ev3-round2]], [[2026-08-25-design-ev4-round1]], [[2026-08-26-theme-module-resolution-fix]]
+- [[lock-drift tripwire]] — why the theme tests are trusted only on a lock-synced tree
+- [[2026-09-06-epic6-close-run-ledger]] — the token-drift characterization
 
 ## Sources
 

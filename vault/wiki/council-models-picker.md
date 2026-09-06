@@ -4,9 +4,9 @@ type: entity
 summary: The /council-models surface — command wiring, resolver, token-only modal with the EV-27 `/`-triggered model-name search input (two-bit focus machine, ruled search copy), and .council.json writer so a person picks a provider/model per seat in a themed modal.
 aliases: [council models picker, council-models, model picker, /council-models, model-picker, catalogue resolver, model search]
 tags: [pi-council/entity, pi-council/epic5, pi-council/epic6]
-sources: ["[[2026-09-04-epic5-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]"]
+sources: ["[[2026-09-04-epic5-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]"]
 created: 2026-09-04
-updated: 2026-09-05
+updated: 2026-09-06
 ---
 
 # Council Models Picker
@@ -73,6 +73,16 @@ matching the ruled footer); the zero-match state renders
 `No models matching "<query>".` interpolated with the live query,
 byte-distinct from both R-4 empty states.
 
+**Close-run additions** (recorded human decisions on the BUG-1 and
+FLLWUP-13 card faces, binding): the model level renders a **pre-press
+hint line** below the model rows — byte-exact `press / to filter models`
+— only while search has never been opened in the current modal-open (no
+`▌`, not a footer, dismissed at the first `/` press, returning on the
+next fresh entry to the model level); the no-match region adds a dim
+second line `↓ then esc exits search` under the ruled no-match literal,
+naming the real two-key walk (Down moves focus out, Esc ascends and
+search state dies with the level).
+
 ## Model search input (EV-27, PR #24 `3452abb`)
 
 EPIC-6's addition to the model level: pressing `/` opens a focused search
@@ -87,9 +97,34 @@ out; `/` is typeable inside the input by capture-by-construction. The
 filter is interposed at `currentRows()` — one row source for windowing,
 cursor clamps, and selection — and the render-cache signature includes
 the query. The four-footer rule is intact — the search row carries its
-own hint, never a fifth footer. Open follow-ups: FLLWUP-12 (backspace
-deletion), FLLWUP-13 (no-match focus-out hint), FLLWUP-14 (kitty
-live-path smoke), FLLWUP-15 (search-mode frame height).
+own hint, never a fifth footer.
+
+⚠️ **Superseded 2026-09-06:** the paragraph below replaces the former
+"Open follow-ups" line, which listed FLLWUP-12 (backspace), FLLWUP-13
+(no-match hint), FLLWUP-14 (kitty smoke), and FLLWUP-15 (frame height)
+as open — all now closed.
+
+## Close-run completion (BUG-1, FLLWUP-13/14/15 — surface complete)
+
+- **Backspace deletion** (BUG-1, PR #28 `c1406138`): `\x7f` with a
+  non-empty query and focus in the input deletes exactly one trailing
+  character and recomputes through `filterModelRows`; empty-query and
+  unfocused `\x7f` stay no-ops; other control bytes unchanged (the
+  FLLWUP-12 contract, folded in when FLLWUP-12 was dropped as redundant).
+  Supersedes EV-27's "Esc-clear is the sole deletion mechanism" ruling.
+- **No-match exit hint** (FLLWUP-13, PR #29 `b66bc8f`) — the ruled copy
+  above.
+- **Search-mode frame fit** (FLLWUP-15, PR #35 `0be0a26`): the model
+  window shrinks to `maxRows - 1` when the search row is visible, so the
+  framed modal fits full window height; RED-first tests proven
+  non-vacuous; the zero-match branch (5 fixed lines) verified to fit;
+  `withModalFrame`'s designed tail-clip at tight heights is a pre-existing
+  invariant, out of scope.
+- **Kitty live-path smoke** (FLLWUP-14, PR #36 `ba84719`): the CSI-u
+  falsifier — see [[smoke test]].
+- Surface-complete as of v0.18.0; the env-split hazard and the
+  `withModalFrame` tail-clip are the two recorded, deliberately-open
+  items adjacent to this surface (see [[env-split contract]]).
 
 ## Known seam — CLOSED (was FLLWUP-10)
 
@@ -117,10 +152,12 @@ residual.
 - [[two-bit-focus-machine]] — the search input's key-handling pattern
 - [[2026-09-04-epic5-run-ledger]] — the run that built this surface
 - [[2026-09-05-epic6-run-ledger]] — the run that added the search filter
+- [[2026-09-06-epic6-close-run-ledger]] — the run that completed it
 
 ## Sources
 
 - [[2026-09-04-epic5-run-ledger]]
 - [[2026-09-05-epic6-run-ledger]]
+- [[2026-09-06-epic6-close-run-ledger]]
 - `extensions/catalogue.ts`, `extensions/council-config-writer.ts`,
   `extensions/model-picker.ts`, `extensions/index.ts`

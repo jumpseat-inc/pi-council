@@ -118,7 +118,16 @@ redirect-URI mismatch: the advertised URI derives from the client's
 registered `redirect_uris`, and stale loopback clients are re-registered
 instead of rejected with `invalid_request`. **v0.11.2** makes login/auth
 refresh the live runtime so `/mcp list` reflects credentials (previously
-stale `unauthenticated` until /reload).
+stale `unauthenticated` until /reload). **v0.18.0** (FLLWUP-23) made a
+dep-less install fail **named** instead of silent: a guarded-lazy
+`getMcp()` (`extensions/mcp-load.ts`) throws prose naming the missing
+module (`@modelcontextprotocol/sdk`/`/client`), the remedy
+(`bun install`/`npm install` at the package root), and an explicit
+counter to pi's wrong `-ne` hint — previously the loader died with a
+generic `Cannot find module` and the consumer saw a zero-command state.
+Healthy installs are byte-identical (proven by the env-split suite); the
+test fixture keeps dummy exports because jiti reports a bare top-level
+throw as `Export named … not found`.
 
 ## Related
 
@@ -128,9 +137,13 @@ stale `unauthenticated` until /reload).
 - [[2026-08-23-mcp-implementation-plan]], [[2026-08-23-mcp-support-design-spec]],
   [[2026-08-25-remote-mcp-oauth]], [[2026-08-25-remote-mcp-oauth-fix]],
   [[2026-08-25-mcp-login-refresh]]
+- [[env-split contract]] — the zero-command symptom class the named
+  diagnostic demystifies
+- [[2026-09-06-epic6-close-run-ledger]] — the v0.18.0 named-load-failure guard
 
 ## Sources
 
-- `extensions/mcp/*`
+- `extensions/mcp/*`, `extensions/mcp-load.ts`
+- [[2026-09-06-epic6-close-run-ledger]]
 - `README.md` (MCP Server section)
 - `AGENTS.md` (convention 10-11)

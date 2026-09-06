@@ -1,12 +1,12 @@
 ---
 title: Preflight
 type: concept
-summary: The shell+script standard fixture that gates every council run — card-aware checks, MCP registration/auth, superpowers + ask-user-question pins, openrouter auth; any FAIL: line halts startup.
+summary: The shell+script standard fixture that gates every council run — card-aware checks, MCP registration/auth, superpowers + ask-user-question pins, openrouter auth, and the lock-drift tripwire; any FAIL: line halts startup.
 aliases: [preflight gate]
 tags: [pi-council/concept]
-sources: ["[[2026-08-24-ask-user-question]]"]
+sources: ["[[2026-08-24-ask-user-question]]", "[[2026-09-06-epic6-close-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-03
+updated: 2026-09-06
 ---
 
 # Preflight
@@ -34,6 +34,14 @@ Phase 0 runs it once for an epic.
 - **MCP gate** (context7 + tavily): registration present + stored credentials
   present. Structural only, not a live OAuth probe.
 - **OpenRouter provider authorized** (v0.5.0) — API key source or stored auth.
+- **Lock-drift tripwire** (v0.18.0, FLLWUP-24) — `council/check-pi-drift.sh`
+  compares the installed `@earendil-works/pi-coding-agent` version against
+  `bun.lock`'s resolution (`bun pm ls --all` — the default `bun pm ls`
+  returns two identical leaves on a green tree, a fail-open trap) and
+  fails naming both versions plus the remedy — **before** the
+  frozen-lockfile self-heal line, so a drifted tree names itself instead
+  of silently blessing wrong-version gate runs. See
+  [[lock-drift tripwire]].
 
 The MCP + OpenRouter gates were added incrementally: the context7 structural
 assertion in v0.3.0, expanded to cover tavily in v0.4.0, and the OpenRouter
@@ -50,8 +58,12 @@ project-specific extensions, but the shipped check is presence-only).
 ## Related
 
 - [[council-dependencies]], [[ask-user-question]], [[mcp-support]], [[council-loop]]
+- [[lock-drift tripwire]] — the v0.18.0 tripwire this script hosts
 - [[2026-08-23-context7-preflight-plan]]
+- [[2026-09-06-epic6-close-run-ledger]] — the tripwire's motivation (three
+  consecutive runs of silently lock-drifted local gates)
 
 ## Sources
 
-- `council/scaffold/council/preflight.sh`
+- `council/scaffold/council/preflight.sh`, `council/check-pi-drift.sh`
+- [[2026-09-06-epic6-close-run-ledger]]

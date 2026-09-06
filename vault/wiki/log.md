@@ -1,3 +1,37 @@
+# Wiki Log
+
+## [2026-09-06] ingest | EPIC-6 close-run ledger — BUG-1..FLLWUP-25, first epic-card closure
+
+Filed `vault/raw/2026-09-06-epic6-close-run-ledger.md` (the second
+`/features-deliver EPIC-6` run: 14 gated merges PRs #28–#41, three
+escalations — all narrow, all resolved in one ruling round — and the epic
+card itself marked Done at v0.18.0) and ingested it. Created
+[[env-split contract]] (the "0.85.0 regression" was `COUNCIL_SEAT` probe
+contamination — no version delta exists; two-pole verified),
+[[main-repo immutability]] (three enforcement layers after two
+record-corruption incidents), [[verification-subject pinning]] (judge/
+skeptic dispatch inputs name PR head SHA + head worktree path + loop
+frame), [[lock-drift tripwire]] (installed-vs-locked pi check fires
+before preflight's self-heal; `bun pm ls --all` trap). Updated
+[[council models picker]] (⚠️ "Open follow-ups" superseded — FLLWUP-12/13/
+14/15 all closed; surface complete), [[two-bit focus machine]] (⚠️
+"Esc-clear is the sole deletion mechanism" superseded — backspace-as-
+delete added by BUG-1), [[council runner]] (immutability + subject pins;
+the re-statement lesson), [[hub job supervision]] (⚠️ stall recurrence —
+seat-body lesson insufficient, dispatch input is where constraints are
+consumed), [[smoke test]] (kitty search-smoke sibling; step-11 re-run is
+load-bearing), [[preflight]] (drift tripwire + pre-heal ordering),
+[[deterministic merge check]] (14 more merges), [[engineering board]]
+(first `BUG-` card, first epic-card closure), [[union-merge reconcile]]
+(the avoidance recipe proved out), [[mcp support]] (named load failure),
+[[council theme]] (0.85.x token drift compatible-as-shipped),
+[[pi-council overview]] (v0.18.0), [[card id allocation]] (BUG- prefix
+first use), [[judge]]/[[owner]]/[[skeptic]] (v0.18.0 seat additions),
+[[index]]. Key takeaway: seat-body guidance is necessary but not
+sufficient — operative constraints must be re-stated in every dispatch
+input; and front-loading kills copy disputes, not discovered-mechanism
+consequences (route those early, facts only).
+
 ## [2026-09-06] ingest | AGENTS.md re-ingest — conventions summary 12→13
 
 (a) Pin re-pinned df1949e → 2c5ec3b (last AGENTS.md touch, content == HEAD) and the count re-derived: the file now lists 13 hard conventions (13 top-level items + the 9.5/9.6 sub-entries of #9); the page mirrors it verbatim.

@@ -4,9 +4,9 @@ type: entity
 summary: The per-card autonomous execution container — dispatched by /features-deliver to run the full /council loop for one card in an isolated context; routes, counts, and writes the board but never decides.
 aliases: [council-runner, runner]
 tags: [pi-council/seat]
-sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]"]
+sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-05
+updated: 2026-09-06
 ---
 
 > ⚠️ Derived from `council/agents/council-runner.md` (captured 2026-08-23). Verify against the seat file.
@@ -63,6 +63,18 @@ reserved powers are re-homed per the authority map in `features-deliver.md`.
   never a registry restart.
 - **Return contract** — report tags `ESCALATION`, `DONE`, `RETIRED`, `HALT`;
   the orchestrator sees only the report.
+- **Main-repo immutability** (`<main_repo_immutability>`, FLLWUP-16) —
+  `git checkout`/`switch`/`reset` against the main repository path are
+  forbidden (violation = HALT); branch state changes happen only in a
+  dedicated worktree under the repo's `.worktrees/`; the constraint is
+  re-stated in every dispatch input the runner composes. See
+  [[main-repo immutability]].
+- **Pinned verification subjects** (`<judge_dispatch_subject>`/
+  `<skeptic_dispatch_subject>`, FLLWUP-18/19) — every judge and step-9
+  skeptic dispatch input names the PR head SHA + head worktree path as the
+  verification subject and the loop frame (steps 9/10 precede step 11's
+  mechanical merge, facilitator-executed). See
+  [[verification-subject pinning]].
 
 ## Lessons from the EPIC-5 run
 
@@ -102,6 +114,29 @@ reserved powers are re-homed per the authority map in `features-deliver.md`.
   front-loaded every foreseeable dispute; the two flagged EV-27
   disputes closed by citing rulings with Skeptic settling probes.
 
+## Lessons from the EPIC-6 close run (v0.18.0)
+
+- **Seat-body lessons are necessary but not sufficient** — the poll-slice
+  lesson lived in this body since EPIC-3, and two containers still died in
+  long silent waits; the constraint held only once the orchestrator's
+  dispatch input also re-stated it. Hence the re-statement requirement now
+  written into `<main_repo_immutability>` and the subject-pinning blocks:
+  the dispatch input is where a constraint is actually consumed.
+- **Escalations return when mechanisms are discovered** — three ESCALATION
+  round-trips this run (vs zero in the first), all for trade-offs no
+  Phase-1 preflight could have named (a safety property to trade away, a
+  card premise that proved false, wiki field semantics). Facts-only
+  packets resolved each in one ruling round; the zero-escalation goal is
+  for foreseeable disputes, not a virtue in itself.
+- **The step-11 merge-gate re-run is load-bearing** — it caught a real
+  defect (prune exiting 123 on root-owned artifacts) the Skeptic had
+  dismissed as irrelevant. The mechanical re-run is not ceremony.
+- **An empty judge output is not a verdict** — one dispatch settled with no
+  text; re-dispatched once per the dispatch discipline.
+- **Base PRs at `origin/main`, push records as they happen** — the later
+  cards of the run reconciled by clean rebase or fast-forward; the
+  [[union-merge reconcile]] repair became avoidable, not just survivable.
+
 ## Related
 
 - [[seats]], [[council-loop]]
@@ -109,6 +144,9 @@ reserved powers are re-homed per the authority map in `features-deliver.md`.
 - [[council-config]] — default model/thinking override
 - [[council models picker]] — the EPIC-5 epic this seat delivered
 - [[union-merge reconcile]] — the diverged-main repair pattern this seat hit twice in EPIC-6
+- [[main-repo immutability]], [[verification-subject pinning]] — the hardening chain this seat now carries
+- [[env-split contract]] — why dispatch inputs must control the seat environment
+- [[2026-09-06-epic6-close-run-ledger]] — the close run's lessons
 
 ## Sources
 
@@ -119,3 +157,5 @@ reserved powers are re-homed per the authority map in `features-deliver.md`.
   conditionals, recovery-from-committed-state
 - [[2026-09-05-epic6-run-ledger]] — staged-set hygiene, mechanical-path
   default, zero-escalation run
+- [[2026-09-06-epic6-close-run-ledger]] — immutability + subject pinning,
+  the re-statement lesson, the return of escalations

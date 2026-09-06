@@ -4,9 +4,9 @@ type: entity
 summary: The Council's formal adversary and sole evaluator — assumes every claim is broken until a test demonstrates otherwise, and has standing to block a card.
 aliases: [skeptic seat]
 tags: [pi-council/seat]
-sources: ["[[2026-08-23-pi-council-design-spec]]"]
+sources: ["[[2026-08-23-pi-council-design-spec]]", "[[2026-09-06-epic6-close-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-04
+updated: 2026-09-06
 ---
 
 > ⚠️ Derived from `council/agents/skeptic.md` (captured 2026-08-23). Verify against the seat file.
@@ -50,12 +50,20 @@ all falsifiable, zero observational (see [[2026-09-04-epic3-run-ledger]]).
 The scoping keeps the skeptic's attack runnable without stretching its
 charter into the other seats' observational territory.
 
+Since v0.18.0 the seat body carries a `<main_repo_immutability>` block
+([[main-repo immutability]]), and step-9 skeptic dispatch inputs are
+pinned to the verification subject — PR head SHA + head worktree path —
+plus the loop frame ([[verification-subject pinning]]); FLLWUP-19's own
+skeptic dispatch was the pattern's first live demonstration.
+
 ## Related
 
 - [[seats]], [[council-loop]], [[consolidator]]
 - [[owner]] — the opposite pole the Skeptic acts on
 - [[engineering-board]] — the verification gate it powers
 - [[council-config]] — default model/thinking override
+- [[verification-subject pinning]] — the step-9 dispatch-input contract
+- [[2026-09-06-epic6-close-run-ledger]] — the immutability + subject pinning
 
 ## Sources
 

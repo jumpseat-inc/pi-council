@@ -4,12 +4,12 @@ type: overview
 summary: pi-council is an installable pi package pairing a multi-agent Council deliberation/implementation loop with an LLM-maintained wiki — the workflow's opinions are the product.
 aliases: [pi-council, council, the Council]
 tags: [pi-council/overview]
-sources: ["[[2026-08-23-readme]]", "[[2026-08-23-pi-council-design-spec]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]", "[[2026-09-03-v0.14.0-domain-neutral-stack-agnostic]]", "[[2026-09-04-epic4-run-ledger]]"]
+sources: ["[[2026-08-23-readme]]", "[[2026-08-23-pi-council-design-spec]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]", "[[2026-09-03-v0.14.0-domain-neutral-stack-agnostic]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-04
+updated: 2026-09-06
 ---
 
-`pi-council` (v0.16.0) is an installable [pi](https://pi.dev) package, distributed
+`pi-council` (v0.18.0) is an installable [pi](https://pi.dev) package, distributed
 as `pi install git:github.com/tistaharahap/pi-council`. Installing it once and
 running `/council-init` gives **any** repository the same opinionated workflow:
 a facilitator-driven Council of specialized seats that deliberates, implements,
@@ -105,6 +105,12 @@ git log; this table is a secondary summary that can drift.
 - [[2026-08-25-mcp-login-refresh]] — the v0.11.2 live-runtime-refresh fix
 - [[2026-08-25-council-init-approve]] — the v0.11.3 /council-init --approve fix
 - [[2026-08-25-council-tree-modal]] — the v0.11.4 /council-tree modal fix
+- [[council models picker]] — the EPIC-5/6 surface, complete as of v0.18.0
+- [[env-split contract]], [[main-repo immutability]],
+  [[verification-subject pinning]], [[lock-drift tripwire]] — the v0.18.0
+  close-run concepts
+- [[2026-09-06-epic6-close-run-ledger]] — the run that closed EPIC-6 and
+  shipped v0.18.0
 
 ## Sources
 

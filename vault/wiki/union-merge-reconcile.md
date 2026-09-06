@@ -4,9 +4,9 @@ type: concept
 summary: When a squash-merged PR folds a runner's board commits, a local main carrying later record commits diverges — reconcile by union merge keeping both record sides, then verify (validate.py + a conflict-marker sweep); or avoid it by pushing records as they happen.
 aliases: [union merge, diverged main, union-merge reconcile]
 tags: [pi-council/process]
-sources: ["[[2026-09-05-epic6-run-ledger]]", "[[2026-09-04-epic4-run-ledger]]"]
+sources: ["[[2026-09-05-epic6-run-ledger]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]"]
 created: 2026-09-05
-updated: 2026-09-05
+updated: 2026-09-06
 ---
 
 # Union-Merge Reconcile
@@ -42,6 +42,12 @@ then let `validate.py` be the net.
   entirely by **pushing record commits as they happened** instead of
   batching them locally — the runner's own board discipline, followed
   literally, prevents the divergence.
+- **The close run proved the avoidance recipe** (v0.18.0): base PRs at
+  `origin/main` and push record commits as they happen, and the later
+  cards (FLLWUP-22/23/25) reconciled by clean rebase or fast-forward —
+  zero union merges. Early close-run cards (BUG-1, FLLWUP-13/16/18) still
+  hit union merges before the recipe was applied to every runner's
+  dispatch input. The repair remains the net; the recipe makes it rare.
 
 ## Failure mode
 

@@ -4,9 +4,9 @@ type: concept
 summary: The durable, locally-stored kanban state — council/board.md plus one card file per id, validated by validate.py, and the discipline that everything the Council does starts and records there.
 aliases: [board, card, kanban]
 tags: [pi-council/concept]
-sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]"]
+sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-04
+updated: 2026-09-06
 ---
 
 > ⚠️ Derived from `council/procedures/board-create-card.md`, `features-new.md` and `council/scaffold/council/board.md` @ `8913c6b`/`8f1882b` (captured 2026-08-23). Verify against the procedure files.
@@ -58,8 +58,17 @@ set of markdown files under `council/`:
 - [[2026-08-23-pi-council-design-spec]]
 - [[2026-09-05-epic6-run-ledger]] — the board carried a five-card epic to
   fully-Done autonomously; durable state validated again
+- [[2026-09-06-epic6-close-run-ledger]] — the close run: first `BUG-` card
+  (BUG-1, filed through the human-approved draft gate; FLLWUP-12 dropped as
+  redundant), FLLWUP-16..25 filed mid-run under the human's standing
+  no-consent follow-up directive (epic: EPIC-6, each completed in-run),
+  and **EPIC-6 itself marked Done** — the board's first epic-card closure
+  — at v0.18.0. A seat's mid-run `git checkout` briefly reverted board
+  records; reflog recovery + the hardening chain (FLLWUP-16..20) closed
+  the class.
 
 ## Sources
 
 - `council/procedures/board-create-card.md`, `council/procedures/features-new.md`
 - `council/scaffold/council/board.md`, `council/scaffold/council/cards/_template.md`
+- [[2026-09-06-epic6-close-run-ledger]]

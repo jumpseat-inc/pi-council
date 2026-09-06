@@ -4,9 +4,9 @@ type: concept
 summary: Under /features-deliver the human merge gate is replaced by five mechanical criteria — owner gates, gates-SUCCESS on the PR head SHA, no blocking skeptic objection, judge PASS, no open ruling — executed with no discretion, merged with --match-head-commit.
 aliases: [merge gate, deterministic merge, five criteria merge]
 tags: [pi-council/features-deliver, pi-council/process]
-sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]"]
+sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]"]
 created: 2026-09-04
-updated: 2026-09-05
+updated: 2026-09-06
 ---
 
 # Deterministic Merge Check
@@ -88,3 +88,13 @@ silently. A mismatch is a **HALT, not a retry**.
 
 - [[2026-09-04-epic4-run-ledger]]
 - [[2026-09-04-epic5-run-ledger]]
+- [[2026-09-06-epic6-close-run-ledger]] — fourteen more (PRs #28–#41:
+  BUG-1 `c1406138`, FLLWUP-13 `b66bc8f`, FLLWUP-16 `68e728d`,
+  FLLWUP-17 `f35d082`, FLLWUP-18 `21a95a8`, FLLWUP-19 `e3d3c88`,
+  FLLWUP-20 `48f60cc`, FLLWUP-15 `0be0a26`, FLLWUP-14 `ba84719`,
+  FLLWUP-21 `48f8ada`, FLLWUP-22 `f5975c8`, FLLWUP-23 `2dd698f`,
+  FLLWUP-24 `2c5ec3b`, FLLWUP-25 `cb36a15`): SHA pins held on every
+  merge; the step-11 re-run caught a real defect the Skeptic had
+  dismissed (FLLWUP-14's prune exit 123) — the re-run is load-bearing;
+  one empty judge output was re-dispatched (an empty output is not a
+  verdict); the run closed with the epic card itself marked Done.

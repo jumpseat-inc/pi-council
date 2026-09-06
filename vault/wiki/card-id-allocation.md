@@ -4,9 +4,9 @@ type: concept
 summary: Board ids (EV-/FLLWUP-/BUG-/EPIC-) are allocated at fetched HEAD, never from a stale clone's memory — the EPIC-3/EPIC-4 collision lesson, with union-merge reconciliation and validate.py as the net.
 aliases: [id allocation, id collision, numbering discipline]
 tags: [pi-council/concept, pi-council/board]
-sources: ["[[2026-09-04-epic3-run-ledger]]", "[[2026-09-04-epic4-run-ledger]]"]
+sources: ["[[2026-09-04-epic3-run-ledger]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]"]
 created: 2026-09-04
-updated: 2026-09-04
+updated: 2026-09-06
 ---
 
 # Card ID Allocation
@@ -60,6 +60,9 @@ consistent.
 - [[engineering-board]] — the id schema and board discipline
 - [[three-wave-decomposition]] — the run that collided
 - [[2026-09-04-epic3-run-ledger]] — the full incident record
+- [[2026-09-06-epic6-close-run-ledger]] — the `BUG-` prefix's first use
+  (BUG-1), validating the schema's defect kind through the human-approved
+  draft gate
 
 ## Sources
 

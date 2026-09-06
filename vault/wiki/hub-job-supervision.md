@@ -4,9 +4,9 @@ type: concept
 summary: The battle-tested engine that spawns, monitors, stalls, times out, and sweeps seat subprocesses — the hub table, pid file, anti-stall kill, and the dispatch/wait/cancel tools.
 aliases: [hub, job table, council_dispatch]
 tags: [pi-council/concept]
-sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]"]
+sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-05
+updated: 2026-09-06
 ---
 
 # Hub Job Supervision
@@ -101,6 +101,18 @@ recovery is a fresh container resuming from committed board state and
 re-running the step. Budget for it: a stall kill forfeits not just the
 container's turn but every sub-dispatch it was babysitting.
 
+**Close-run recurrence and the dual-layer fix (v0.18.0):** two more
+containers died the same way (FLLWUP-14's first two) — one *despite* the
+poll-slice lesson living in the runner's seat body since EPIC-3. The fix
+that held was dual-layer: the orchestrator re-states the poll-slice
+protocol in every dispatch input (8-minute waits, looping), and the
+runner body carries it too — but the dispatch input is where the
+constraint is actually consumed, so seat-body guidance alone was proven
+insufficient. See [[main-repo immutability]] and
+[[verification-subject pinning]] for the same re-statement pattern
+applied to content constraints; both dead containers again recovered
+from committed board state with zero work lost.
+
 ## Related
 
 - [[seats]], [[council-loop]], [[model-output-floors]]
@@ -117,3 +129,5 @@ container's turn but every sub-dispatch it was babysitting.
   corroboration and the committed-state recovery proof
 - [[2026-09-05-epic6-run-ledger]] — the recurrence (invariant not
   institutionalized) + the sub-dispatch lifecycle lesson
+- [[2026-09-06-epic6-close-run-ledger]] — the close-run recurrence and
+  the dual-layer (seat body + dispatch input) fix
