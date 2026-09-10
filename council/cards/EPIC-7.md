@@ -32,3 +32,24 @@ every autonomous exit), EV-29 (provider-reported actual cost). FLLWUP-26
   EV-28 → EV-30 → EV-31 → EV-32 is green and EV-29's provider-reported path
   is in place.
 - `python3 council/validate.py` prints `All council artifacts valid`.
+
+## Phase 1 rulings (features-deliver, binding for this run)
+
+Recorded human decisions — immutable for the run and binding on every seat,
+`steward` included. A runner that hits a dispute covered here applies the
+ruling and cites which one.
+
+- **R-SCOPE** — this run delivers EV-28, EV-30, EV-31, EV-32 and EV-29 in
+  dependency order; FLLWUP-26 stays `Backlog`.
+- **R-ORDER** — build order is EV-28 → EV-30 → EV-31 → EV-32 → EV-29; a
+  card starts only after its predecessor's merge SHA is on local `main`.
+- **R-PROMOTE** — chain promotion is bound once: the orchestrator promotes
+  each `Backlog` child (EV-31, EV-32, EV-29) the moment its predecessor's
+  merge SHA is on local `main` and `python3 council/validate.py` is clean,
+  without re-asking.
+- **R-GATES** — owner gates are `bash council/preflight.sh`,
+  `bunx tsc --noEmit`, `bun test`, `python3 council/validate.py`; the
+  network integration test stays gated behind `COUNCIL_INTEGRATION=1`.
+- **R-MERGE** — the deterministic five-criteria check replaces the human
+  merge gate; merge with `gh pr merge <PR> --squash --match-head-commit
+  <SHA>`; the first merge is announced in-line and watched.
