@@ -3,8 +3,8 @@ import * as os from "node:os";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { CONFIG_DIR_NAME } from "@earendil-works/pi-coding-agent";
-import { Hub } from "../extensions/hub.ts";
-import { ensureRunDir } from "../extensions/runs.ts";
+import { Hub, type Job } from "../extensions/hub.ts";
+import { ensureRunDir, readManifests } from "../extensions/runs.ts";
 
 const STUB = path.join(import.meta.dir, "stub-child.ts");
 const pidFile = path.join(os.tmpdir(), `council-hub-test-${process.pid}.json`);
@@ -172,4 +172,108 @@ test("shutdown kills running jobs", async () => {
 	hub.shutdown();
 	await Bun.sleep(200);
 	expect(() => process.kill(job.pid!, 0)).toThrow(); // process gone
+});
+
+// ---- EV-28: full usage tuple ----
+
+const ACC_FIXTURE = {
+	type: "message_end",
+	message: {
+		role: "assistant",
+		content: [{ type: "text", text: "out" }],
+		stopReason: "stop",
+		usage: {
+			input: 100, output: 10, cacheRead: 900, cacheWrite: 0, reasoning: 7, totalTokens: 1010,
+			cost: { input: 0.0003, output: 0.0001, cacheRead: 0.0009, cacheWrite: 0, total: 0.0013 },
+		},
+	},
+};
+
+function freshJob(): Job {
+	return {
+		id: "job-t", seat: "stub", pid: undefined, state: "running", startedAt: Date.now(), lastActivityAt: Date.now(),
+		timeoutMs: 60_000, stallMs: 60_000, events: [], output: "", stderrTail: "",
+		usage: {
+			input: 0, output: 0, cacheRead: 0, cacheWrite: 0, reasoning: 0, totalTokens: 0,
+			cost: 0, costInput: 0, costOutput: 0, costCacheRead: 0, costCacheWrite: 0,
+			turns: 0, costBasis: "catalogue-estimate", usageSource: "stream-assistant",
+		},
+		exitCode: null,
+	};
+}
+
+function ingest(job: Job, event: unknown): void {
+	(hub as unknown as { processLine: (j: Job, line: string) => void }).processLine(job, JSON.stringify(event));
+}
+
+// T1 — the card's core red today: cacheRead (and every other new field) is dropped.
+test("T1: ingestion accumulates the full tuple, fields separately", () => {
+	hub = new Hub({ monitorIntervalMs: 60_000 });
+	const job = freshJob();
+	ingest(job, ACC_FIXTURE);
+	const u = job.usage;
+	expect(u.input).toBe(100);
+	expect(u.cacheRead).toBe(900); // the card's core red today
+	expect(u.cacheWrite).toBe(0);
+	expect(u.output).toBe(10);
+	expect(u.reasoning).toBe(7);
+	expect(u.totalTokens).toBe(1010); // never derived from the component sum
+	expect(u.costInput).toBe(0.0003);
+	expect(u.costOutput).toBe(0.0001);
+	expect(u.costCacheRead).toBe(0.0009);
+	expect(u.costCacheWrite).toBe(0);
+	expect(u.cost).toBe(0.0013);
+	expect(u.turns).toBe(1);
+	// reasoning ⊆ output: never re-added into output
+	expect(u.output).toBe(10);
+	// two sequential message_ends accumulate
+	ingest(job, ACC_FIXTURE);
+	expect(u.input).toBe(200);
+	expect(u.cacheRead).toBe(1800);
+	expect(u.output).toBe(20);
+	expect(u.reasoning).toBe(14);
+	expect(u.totalTokens).toBe(2020);
+	expect(u.cost).toBe(0.0026);
+	expect(u.turns).toBe(2);
+});
+
+// T2 — cost post-condition (pi-ai invariant, accumulated form)
+test("T2: accumulated cost equals the sum of the four accumulated components", () => {
+	hub = new Hub({ monitorIntervalMs: 60_000 });
+	const job = freshJob();
+	ingest(job, ACC_FIXTURE);
+	const u = job.usage;
+	const componentSum = u.costInput + u.costOutput + u.costCacheRead + u.costCacheWrite;
+	expect(Math.abs(u.cost - componentSum)).toBeLessThan(1e-12);
+});
+
+// T3 — partial cost object: components coerce to 0, never NaN
+test("T3: partial wire cost object yields zero components, never NaN", () => {
+	hub = new Hub({ monitorIntervalMs: 60_000 });
+	const job = freshJob();
+	ingest(job, {
+		type: "message_end",
+		message: { role: "assistant", content: [{ type: "text", text: "x" }], usage: { input: 10, output: 5, cost: { total: 0.001 }, totalTokens: 15 } },
+	});
+	const u = job.usage;
+	expect(u.costInput).toBe(0);
+	expect(u.costOutput).toBe(0);
+	expect(u.costCacheRead).toBe(0);
+	expect(u.costCacheWrite).toBe(0);
+	expect(u.cost).toBe(0.001);
+	expect(Number.isNaN(u.costInput)).toBe(false);
+});
+
+// T4 — manifest/report agreement by construction
+test("T4: settled manifest usage deep-equals report usage with provenance stamps", async () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-ev28-"));
+	ensureRunDir(root, "runE28");
+	hub = new Hub({ monitorIntervalMs: 50, pidFile, run: { repoRoot: root, runId: "runE28" } });
+	const job = spawnStub(hub, "emit");
+	const [r] = await hub.wait([job.id], 10_000);
+	const ms = readManifests(root, "runE28");
+	const m = ms.find((x) => x.id === job.id)!;
+	expect(m.usage).toEqual(r.usage);
+	expect(m.usage!.costBasis).toBe("catalogue-estimate");
+	expect(m.usage!.usageSource).toBe("stream-assistant");
 });
