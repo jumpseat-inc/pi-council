@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
 import * as fs from "node:fs";
-import { writeManifest } from "./runs.ts";
+import { type Usage, writeManifest } from "./runs.ts";
 
 export type JobState = "running" | "done" | "failed" | "cancelled" | "stalled" | "timeout";
 
@@ -16,7 +16,7 @@ export interface Job {
 	events: string[];
 	output: string;
 	stderrTail: string;
-	usage: { input: number; output: number; cost: number; turns: number };
+	usage: Usage;
 	stopReason?: string;
 	errorMessage?: string;
 	exitCode: number | null;
@@ -31,7 +31,7 @@ export interface JobReport {
 	state: JobState;
 	output: string;
 	elapsedMs: number;
-	usage: Job["usage"];
+	usage: Usage;
 	stderrTail: string;
 	stopReason?: string;
 	errorMessage?: string;
@@ -130,7 +130,13 @@ export class Hub {
 			events: [],
 			output: "",
 			stderrTail: "",
-			usage: { input: 0, output: 0, cost: 0, turns: 0 },
+			usage: {
+				input: 0, output: 0, cacheRead: 0, cacheWrite: 0, reasoning: 0, totalTokens: 0,
+				cost: 0, costInput: 0, costOutput: 0, costCacheRead: 0, costCacheWrite: 0,
+				turns: 0,
+				costBasis: "catalogue-estimate",
+				usageSource: "stream-assistant",
+			},
 			exitCode: null,
 			cleanup: opts.cleanup,
 		};
@@ -195,7 +201,18 @@ export class Hub {
 			if (u) {
 				job.usage.input += u.input || 0;
 				job.usage.output += u.output || 0;
+				job.usage.cacheRead += u.cacheRead || 0; // accumulated, never folded into input
+				job.usage.cacheWrite += u.cacheWrite || 0;
+				// reasoning is a subset of output (pi-ai types.d.ts) — accumulate
+				// independently, never re-add into output or any total.
+				job.usage.reasoning += u.reasoning || 0;
+				// provider-reported; never derived from the component sum
+				job.usage.totalTokens += u.totalTokens || 0;
 				job.usage.cost += u.cost?.total || 0;
+				job.usage.costInput += u.cost?.input || 0;
+				job.usage.costOutput += u.cost?.output || 0;
+				job.usage.costCacheRead += u.cost?.cacheRead || 0;
+				job.usage.costCacheWrite += u.cost?.cacheWrite || 0;
 			}
 			for (const part of msg.content ?? []) {
 				if (part.type === "text" && part.text) job.output = part.text;

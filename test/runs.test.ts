@@ -12,7 +12,9 @@ import {
 	findSessionFile,
 	listRunIds,
 	pruneRuns,
+	sumSubtree,
 	type RunManifest,
+	type Usage,
 } from "../extensions/runs.ts";
 
 function tmpRepo(): string {
@@ -31,7 +33,7 @@ function manifest(id: string, over: Partial<RunManifest> = {}): RunManifest {
 		startedAt: Date.now(),
 		settledAt: null,
 		exitCode: null,
-		usage: { input: 0, output: 0, cost: 0, turns: 0 },
+		usage: fullUsage(),
 		...over,
 	};
 }
@@ -153,4 +155,40 @@ test("pruneRuns deletes a run whose pid is dead", () => {
 	const pruned = pruneRuns(root, 2, () => false);
 	expect(pruned).toBe(1);
 	expect(listRunIds(root)).not.toContain("dead");
+});
+
+// ---- EV-28: full usage tuple ----
+
+function fullUsage(over: Partial<Usage> = {}): Usage {
+	return {
+		input: 0, output: 0, cacheRead: 0, cacheWrite: 0, reasoning: 0, totalTokens: 0,
+		cost: 0, costInput: 0, costOutput: 0, costCacheRead: 0, costCacheWrite: 0,
+		turns: 0, costBasis: "catalogue-estimate", usageSource: "stream-assistant",
+		...over,
+	};
+}
+
+// T9 — legacy manifest tolerance: a manifest whose usage lacks the new fields
+// sums as 0 through sumSubtree (the unvalidated readManifests cast makes the
+// legacy on-disk shape legal disk data); costBasis is not a sumable metric.
+test("T9: legacy manifest usage sums as 0 through sumSubtree; costBasis is not a metric", () => {
+	const root = tmpRepo();
+	const runId = "runT9";
+	ensureRunDir(root, runId);
+	const legacy = manifest("job-1", {});
+	legacy.usage = { input: 1, output: 2, cost: 0.5, turns: 1 } as unknown as Usage;
+	writeManifest(root, runId, legacy);
+	const ms = readManifests(root, runId);
+	expect(sumSubtree(ms, "job-1")).toBe(0.5);
+	expect(sumSubtree(ms, "job-1", "cacheRead")).toBe(0);
+	expect(sumSubtree(ms, "job-1", "totalTokens")).toBe(0);
+	// @ts-expect-error — costBasis is excluded from UsageMetric (T9 type assertion)
+	expect(sumSubtree(ms, "job-1", "costBasis")).toBe(0);
+	fs.rmSync(path.join(root, CONFIG_DIR_NAME), { recursive: true, force: true });
+});
+
+// T10 — the usageSource union member "session-reconciled" is accepted by the type.
+test("T10: usageSource accepts the session-reconciled union member", () => {
+	const u = fullUsage({ usageSource: "session-reconciled" });
+	expect(u.usageSource).toBe("session-reconciled");
 });

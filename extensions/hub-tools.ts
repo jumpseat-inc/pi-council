@@ -4,6 +4,7 @@ import * as path from "node:path";
 import { CONFIG_DIR_NAME, type ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
 import { Hub, type JobReport } from "./hub.ts";
+import { type Usage } from "./runs.ts";
 import { buildChildArgv, buildSystemPrompt, loadSeat, proceduresDir, resolveEffectiveModel } from "./seats.ts";
 import { childEnv, ensureRunDir, mintRunId } from "./runs.ts";
 import { getMcp } from "./mcp-load.ts";
@@ -41,10 +42,28 @@ export function shutdownHub(): void {
 	hubSingleton = null;
 }
 
-function formatReport(r: JobReport): string {
+/** The usage segment of the council_wait head line (EV-28 spec §2.5 / step-6
+ * ruling Q5 + R-1): fixed token order in/out/cR/cW/reason/total (persisted
+ * fields stay cacheRead/cacheWrite/reasoning; only the labels collapse, and
+ * `reason` avoids colliding with stopReason), no thousands separators, `turns`
+ * first, labelled money rightmost; `≈` is U+2248 for the catalogue estimate,
+ * `$` for a reported charge. */
+export function formatUsageSegment(u: Usage): string {
+	const money =
+		u.costBasis === "reported"
+			? `cost=$${u.cost.toFixed(4)} (reported)`
+			: `cost≈$${u.cost.toFixed(4)} (catalogue)`; // ≈ is U+2248
+	return `turns=${u.turns} tokens=in ${u.input}/out ${u.output}/cR ${u.cacheRead}/cW ${u.cacheWrite}/reason ${u.reasoning}/total ${u.totalTokens} ${money}`;
+}
+
+export function formatReport(r: JobReport): string {
 	const mins = (r.elapsedMs / 60_000).toFixed(1);
 	const stop = r.stopReason ? ` stopReason=${r.stopReason}` : "";
-	const head = `[${r.id}] seat=${r.seat} state=${r.state}${stop} elapsed=${mins}m turns=${r.usage.turns} cost=$${r.usage.cost.toFixed(4)}`;
+	const identity = `[${r.id}] seat=${r.seat} state=${r.state}${stop} elapsed=${mins}m`;
+	// Suppression (EV-28 Q2): only the usage segment is omitted when no assistant
+	// message was produced; the identity prefix survives in every terminal state.
+	const suppressed = r.usage.turns === 0 && r.output === "";
+	const head = suppressed ? identity : `${identity} ${formatUsageSegment(r.usage)}`;
 	const body = r.output ? `\n--- output ---\n${r.output}` : "";
 	const provErr = r.errorMessage ? `\n--- provider error ---\n${r.errorMessage}` : "";
 	const emptyWarn =

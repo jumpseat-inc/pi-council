@@ -22,6 +22,7 @@ import {
 	ensureRunDir,
 	mintRunId,
 	type RunManifest,
+	type Usage,
 	type RunInfo,
 } from "../extensions/runs.ts";
 import { buildTree } from "../extensions/tree.ts";
@@ -31,6 +32,16 @@ const REPO_ROOT = fs.realpathSync(".");
 function tmpRepo(): string {
 	return fs.mkdtempSync(path.join(os.tmpdir(), "ev16-verify-"));
 }
+
+function usageOf(over: Partial<Usage> = {}): Usage {
+	return {
+		input: 0, output: 0, cacheRead: 0, cacheWrite: 0, reasoning: 0, totalTokens: 0,
+		cost: 0, costInput: 0, costOutput: 0, costCacheRead: 0, costCacheWrite: 0,
+		turns: 0, costBasis: "catalogue-estimate", usageSource: "stream-assistant",
+		...over,
+	};
+}
+
 
 // ========== CLAIM 1: buildChildArgv emits --model/--thinking at depth 1 only ==========
 test("C1a: buildChildArgv emits --model and --thinking from resolved seat", () => {
@@ -65,8 +76,8 @@ test("C2a: childEnv copies base + injects COUNCIL_RUN_ID/COUNCIL_JOB_ID", () => 
 
 test("C2b: tree.ts builds parent-child from parentJobId", () => {
 	const manifests: RunManifest[] = [
-		{ id: "job-1", seat: "runner", model: "m1", parentJobId: null, pid: 1, sessionId: "s1", state: "done", startedAt: 100, settledAt: 200, exitCode: 0, usage: { input: 0, output: 0, cost: 0, turns: 0 } },
-		{ id: "job-1.1", seat: "owner", model: "m2", parentJobId: "job-1", pid: 2, sessionId: "s1", state: "done", startedAt: 110, settledAt: 190, exitCode: 0, usage: { input: 0, output: 0, cost: 0, turns: 0 } },
+		{ id: "job-1", seat: "runner", model: "m1", parentJobId: null, pid: 1, sessionId: "s1", state: "done", startedAt: 100, settledAt: 200, exitCode: 0, usage: usageOf() },
+		{ id: "job-1.1", seat: "owner", model: "m2", parentJobId: "job-1", pid: 2, sessionId: "s1", state: "done", startedAt: 110, settledAt: 190, exitCode: 0, usage: usageOf() },
 	];
 	const tree = buildTree(manifests);
 	expect(tree[0].children[0].manifest.parentJobId).toBe("job-1");
@@ -81,12 +92,12 @@ test("C3a: writeManifest round-trips usage and stopReason (RunManifest §7 exten
 		id: "job-test", seat: "owner", model: "test/model", parentJobId: null,
 		pid: 12345, sessionId: "session-1", state: "done",
 		startedAt: Date.now(), settledAt: Date.now(), exitCode: 0,
-		usage: { input: 10, output: 5, cost: 0.001, turns: 1 },
+		usage: usageOf({ input: 10, output: 5, cost: 0.001, turns: 1 }),
 		stopReason: "stop",
 	});
 	const loaded = readManifests(root, runId);
 	expect(loaded[0].pid).toBe(12345);
-	expect(loaded[0].usage).toEqual({ input: 10, output: 5, cost: 0.001, turns: 1 });
+	expect(loaded[0].usage).toEqual(usageOf({ input: 10, output: 5, cost: 0.001, turns: 1 }));
 	expect(loaded[0].stopReason).toBe("stop");
 	expect((loaded[0] as unknown as Record<string, unknown>).elapsedMs).toBeUndefined(); // still derived from startedAt/settledAt, not persisted
 	fs.rmSync(path.join(root, CONFIG_DIR_NAME), { recursive: true, force: true });

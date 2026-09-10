@@ -3,12 +3,40 @@ import * as path from "node:path";
 import { CONFIG_DIR_NAME } from "@earendil-works/pi-coding-agent";
 import type { JobState } from "./hub.ts";
 
+/** Wire→record clause (EV-28 step-6 ruling Q1): on ingestion, `u.cost.input →
+ * usage.costInput`, `u.cost.output → usage.costOutput`, `u.cost.cacheRead →
+ * usage.costCacheRead`, `u.cost.cacheWrite → usage.costCacheWrite`, and
+ * `u.cost.total → usage.cost`; partial cost objects (e.g. `{total:0.001}`)
+ * coerce the missing components to 0, never `NaN`; the card goal's dotted
+ * `cost.input|…` refer to the wire components that ingestion flattens, not to
+ * a nested record shape.
+ *
+ * Capture-scope clause (EV-28 step-6 ruling Q4): capture is a stream projection
+ * of assistant `message_end` events on the child's stdout only — tool-result
+ * and compaction usage are absent. The persisted `usageSource` field is the
+ * machine-readable statement of that scope. */
+export type CostBasis = "catalogue-estimate" | "reported";
+export type UsageSource = "stream-assistant" | "session-reconciled";
+
 export interface Usage {
 	input: number;
 	output: number;
-	cost: number;
+	cacheRead: number; // accumulated, never folded into input
+	cacheWrite: number;
+	reasoning: number; // subset of output — accumulate independently, never re-add
+	totalTokens: number;
+	cost: number; // scalar aggregate; the compatibility anchor
+	costInput: number;
+	costOutput: number;
+	costCacheRead: number;
+	costCacheWrite: number;
 	turns: number;
+	costBasis: CostBasis; // R-3
+	usageSource: UsageSource; // step-6 ruling Q4
 }
+
+/** Numeric metrics only — the two string-valued fields cannot be summed. */
+export type UsageMetric = Exclude<keyof Usage, "costBasis" | "usageSource">;
 
 export interface RunManifest {
 	id: string;
@@ -157,7 +185,7 @@ export function childEnv(base: Record<string, string | undefined>, runId: string
  * extension carry no `usage` — treated as 0 (a missing usage is a no-op, never
  * a crash). EV-16 §7: command-level cost = Σ over the subtree.
  */
-export function sumSubtree(manifests: RunManifest[], rootId: string, metric: keyof Usage = "cost"): number {
+export function sumSubtree(manifests: RunManifest[], rootId: string, metric: UsageMetric = "cost"): number {
 	const children = (id: string): RunManifest[] => manifests.filter((m) => m.parentJobId === id);
 	let sum = 0;
 	const walk = (id: string): void => {
