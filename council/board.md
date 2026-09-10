@@ -19,10 +19,18 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-7 — eval-results retention policy
 - FLLWUP-8 — council-leaderboard task drill-down filter
 - EPIC-5 — /council-models provider and model picker for per-seat .council.json overrides
+- EPIC-7 — Token and cost usage accounting for autonomous council invocations
+- EV-29 — Provider-reported actual cost and per-component divergence from the estimate
+- EV-31 — Durable usage store outside the pruned run directory, with session provenance
+- EV-32 — Usage reported at every autonomous entry point
+- FLLWUP-26 — Per-run cumulative token ceiling guard in /council
 
 ## Deliberating
 
 ## Ready
+
+- EV-28 — Full usage tuple and cost provenance in the hub usage record
+- EV-30 — Invocation-scoped spend record from the invoking session plus its job subtree
 
 ## In Progress
 
