@@ -27,9 +27,10 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
+- EV-28 — Full usage tuple and cost provenance in the hub usage record
+
 ## Ready
 
-- EV-28 — Full usage tuple and cost provenance in the hub usage record
 - EV-30 — Invocation-scoped spend record from the invoking session plus its job subtree
 
 ## In Progress
