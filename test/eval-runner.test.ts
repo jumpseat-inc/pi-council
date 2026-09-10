@@ -10,6 +10,15 @@ import { aggregateCell, compareCellTriage } from "../extensions/eval-stats.ts";
 
 const REPO = "sha256:" + "a".repeat(64);
 
+function usageOf(over: Partial<Usage> = {}): Usage {
+	return {
+		input: 0, output: 0, cacheRead: 0, cacheWrite: 0, reasoning: 0, totalTokens: 0,
+		cost: 0, costInput: 0, costOutput: 0, costCacheRead: 0, costCacheWrite: 0,
+		turns: 0, costBasis: "catalogue-estimate", usageSource: "stream-assistant",
+		...over,
+	};
+}
+
 function scope(over: Partial<CellScope> = {}): CellScope {
 	return {
 		state: "done",
@@ -123,7 +132,7 @@ function manifest(id: string, over: Partial<RunManifest> = {}): RunManifest {
 		startedAt: 1,
 		settledAt: 2,
 		exitCode: 0,
-		usage: { input: 10, output: 5, cost: 1.5, turns: 2 },
+		usage: usageOf({ input: 10, output: 5, cost: 1.5, turns: 2 }),
 		...over,
 	};
 }
@@ -131,10 +140,10 @@ function manifest(id: string, over: Partial<RunManifest> = {}): RunManifest {
 test("F1: sumSubtree over a 3-deep parentJobId chain equals the hand-computed cost", () => {
 	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-sub-"));
 	ensureRunDir(root, "runS");
-	writeManifest(root, "runS", manifest("job-1", { usage: { input: 10, output: 5, cost: 1.5, turns: 2 } }));
-	writeManifest(root, "runS", manifest("job-1.1", { parentJobId: "job-1", usage: { input: 10, output: 5, cost: 2.0, turns: 1 } }));
-	writeManifest(root, "runS", manifest("job-1.1.1", { parentJobId: "job-1.1", usage: { input: 10, output: 5, cost: 0.5, turns: 3 } }));
-	writeManifest(root, "runS", manifest("job-2", { usage: { input: 10, output: 5, cost: 9.0, turns: 9 } }));
+	writeManifest(root, "runS", manifest("job-1", { usage: usageOf({ input: 10, output: 5, cost: 1.5, turns: 2 }) }));
+	writeManifest(root, "runS", manifest("job-1.1", { parentJobId: "job-1", usage: usageOf({ input: 10, output: 5, cost: 2.0, turns: 1 }) }));
+	writeManifest(root, "runS", manifest("job-1.1.1", { parentJobId: "job-1.1", usage: usageOf({ input: 10, output: 5, cost: 0.5, turns: 3 }) }));
+	writeManifest(root, "runS", manifest("job-2", { usage: usageOf({ input: 10, output: 5, cost: 9.0, turns: 9 }) }));
 	const ms = readManifests(root, "runS");
 	expect(sumSubtree(ms, "job-1")).toBeCloseTo(1.5 + 2.0 + 0.5, 10);
 	expect(sumSubtree(ms, "job-1", "turns")).toBe(2 + 1 + 3);
@@ -440,7 +449,7 @@ function recordingIO(): GradeIO & { files: Map<string, string> } {
 const TERM: TerminalTelemetry = {
 	state: "done",
 	elapsedMs: 5,
-	usage: { input: 10, output: 5, cost: 0.001, turns: 1 },
+	usage: usageOf({ input: 10, output: 5, cost: 0.001, turns: 1 }),
 	repoState: "sha256:" + "e".repeat(64),
 };
 

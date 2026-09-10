@@ -4,7 +4,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { CONFIG_DIR_NAME } from "@earendil-works/pi-coding-agent";
 import { Hub, type Job } from "../extensions/hub.ts";
-import { ensureRunDir, readManifests } from "../extensions/runs.ts";
+import { ensureRunDir, readManifests, type Usage } from "../extensions/runs.ts";
 
 const STUB = path.join(import.meta.dir, "stub-child.ts");
 const pidFile = path.join(os.tmpdir(), `council-hub-test-${process.pid}.json`);

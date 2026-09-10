@@ -3,7 +3,16 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { buildTree, flattenTree, textTree } from "../extensions/tree.ts";
-import { ensureRunDir, writeManifest, type RunManifest } from "../extensions/runs.ts";
+import { ensureRunDir, writeManifest, type RunManifest, type Usage } from "../extensions/runs.ts";
+
+function usageOf(over: Partial<Usage> = {}): Usage {
+	return {
+		input: 0, output: 0, cacheRead: 0, cacheWrite: 0, reasoning: 0, totalTokens: 0,
+		cost: 0, costInput: 0, costOutput: 0, costCacheRead: 0, costCacheWrite: 0,
+		turns: 0, costBasis: "catalogue-estimate", usageSource: "stream-assistant",
+		...over,
+	};
+}
 
 function m(id: string, over: Partial<RunManifest> = {}): RunManifest {
 	return {
@@ -17,7 +26,7 @@ function m(id: string, over: Partial<RunManifest> = {}): RunManifest {
 		startedAt: 1,
 		settledAt: 2,
 		exitCode: 0,
-		usage: { input: 0, output: 0, cost: 0, turns: 0 },
+		usage: usageOf(),
 		...over,
 	};
 }
