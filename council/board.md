@@ -33,9 +33,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-28 — Full usage tuple and cost provenance in the hub usage record
-
 ## In Review
+
+- EV-28 — Full usage tuple and cost provenance in the hub usage record
 
 ## Needs Human
 
