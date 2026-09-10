@@ -35,12 +35,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-28 — Full usage tuple and cost provenance in the hub usage record
-
 ## Needs Human
 
 ## Done
 
+- EV-28 — Full usage tuple and cost provenance in the hub usage record
 - FLLWUP-25 — Wiki source page matches AGENTS.md hard-conventions count
 
 - FLLWUP-24 — Local gates refuse to run when installed deps drift from bun.lock
