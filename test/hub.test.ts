@@ -277,3 +277,51 @@ test("T4: settled manifest usage deep-equals report usage with provenance stamps
 	expect(m.usage!.costBasis).toBe("catalogue-estimate");
 	expect(m.usage!.usageSource).toBe("stream-assistant");
 });
+
+// ---- EV-28: head line (T5/T6/T7) ----
+
+import { formatReport, formatUsageSegment } from "../extensions/hub-tools.ts";
+
+function usageOf(over: Partial<Usage> = {}): Usage {
+	return {
+		input: 0, output: 0, cacheRead: 0, cacheWrite: 0, reasoning: 0, totalTokens: 0,
+		cost: 0, costInput: 0, costOutput: 0, costCacheRead: 0, costCacheWrite: 0,
+		turns: 0, costBasis: "catalogue-estimate", usageSource: "stream-assistant",
+		...over,
+	};
+}
+
+// T5 — head-line bytes and the ≤160 threshold at both fixtures
+test("T5: head line renders the token split with the basis, ≤160 cols at both fixtures", () => {
+	const base = usageOf({ input: 100, output: 10, cacheRead: 900, cacheWrite: 0, reasoning: 7, totalTokens: 1010, cost: 0.0013, turns: 1 });
+	const seg = formatUsageSegment(base);
+	expect(seg).toBe("turns=1 tokens=in 100/out 10/cR 900/cW 0/reason 7/total 1010 cost≈$0.0013 (catalogue)");
+	expect((seg.match(/≈/g) ?? [])[0]).toBe("\u2248");
+	const line = `[job-1] seat=owner state=done stopReason=stop elapsed=2.3m ${seg}`;
+	expect([...line].length).toBeLessThanOrEqual(160);
+	const wide = formatUsageSegment(usageOf({ ...base, cacheRead: 9000 }));
+	const wideLine = `[job-1] seat=owner state=done stopReason=stop elapsed=2.3m ${wide}`;
+	expect([...wideLine].length).toBeLessThanOrEqual(160);
+	const reported = formatUsageSegment(usageOf({ ...base, costBasis: "reported" }));
+	expect(reported).toContain("cost=$0.0013 (reported)");
+	expect(reported).not.toContain("≈");
+	const rep = formatReport({ id: "job-1", seat: "owner", state: "done", output: "out", elapsedMs: 138_000, usage: base, stderrTail: "", stopReason: "stop" });
+	expect(rep.split("\n")[0]).toBe(line);
+});
+
+// T6 — zero usage renders zeros, never suppressed
+test("T6: zero usage with an emitted assistant message renders all-zero fields", () => {
+	const seg = formatUsageSegment(usageOf({ turns: 1 }));
+	expect(seg).toBe("turns=1 tokens=in 0/out 0/cR 0/cW 0/reason 0/total 0 cost≈$0.0000 (catalogue)");
+});
+
+// T7 — suppression: identity prefix survives, no usage segment, state-independent
+test("T7: no assistant message suppresses only the usage segment, across states", () => {
+	const zero = usageOf(); // turns 0
+	for (const state of ["done", "failed", "stalled", "timeout", "cancelled"] as const) {
+		const rep = formatReport({ id: "job-9", seat: "owner", state, output: "", elapsedMs: 5_000, usage: zero, stderrTail: "stub exploded", stopReason: state === "done" ? undefined : "stop" });
+		expect(rep.startsWith("[job-9] seat=owner")).toBe(true);
+		expect(rep).not.toMatch(/cost≈|cost=\$/);
+		expect(rep).not.toContain("tokens=");
+	}
+});
