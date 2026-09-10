@@ -16,7 +16,7 @@ import * as os from "node:os";
 import * as path from "node:path";
 import { execFile } from "node:child_process";
 import { CONFIG_DIR_NAME } from "@earendil-works/pi-coding-agent";
-import { writeAtomic, sumSubtree, readManifests, type RunManifest } from "./runs.ts";
+import { writeAtomic, sumSubtree, readManifests, type RunManifest, type Usage } from "./runs.ts";
 import { loadFixture, sha256Tree, type LoadedFixture, type Rubric } from "./eval-fixtures.ts";
 import {
 	gradeCell,
@@ -269,7 +269,7 @@ export interface TerminalTelemetry {
 	state: "done" | "stalled" | "timeout" | "failed";
 	elapsedMs: number;
 	stopReason?: string;
-	usage: { input: number; output: number; cost: number; turns: number };
+	usage: Usage;
 	repoState: string;
 }
 
@@ -308,9 +308,19 @@ export interface GradePersistInput {
  */
 export async function gradeAndPersist(input: GradePersistInput): Promise<{ result: StoredResultRecord; verdictWritten: boolean }> {
 	const result = await gradeCell({ rubric: input.rubric, io: input.io, judgeVerdicts: input.judgeVerdicts, meta: input.meta });
+	// EV-28 Q3 whitelist: the persisted cellScope.usage keeps the recorded store
+	// shape {input, output, cost, turns} — the full hub Usage tuple (cacheRead,
+	// cacheWrite, reasoning, totalTokens, the four cost* components, costBasis,
+	// usageSource) does NOT enter the append-only eval store; widening it is a
+	// follow-up card that amends vault/wiki/eval-store-contract.md.
 	const cellScope: CellScope = {
 		state: input.terminal.state,
-		usage: input.terminal.usage,
+		usage: {
+			input: input.terminal.usage.input,
+			output: input.terminal.usage.output,
+			cost: input.terminal.usage.cost,
+			turns: input.terminal.usage.turns,
+		},
 		elapsedMs: input.terminal.elapsedMs,
 		repoState: input.terminal.repoState,
 	};

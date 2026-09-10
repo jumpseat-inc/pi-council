@@ -393,6 +393,39 @@ test("snapshot: persist copies the scratch tree; --no-persist-snapshot skips the
 
 import { gradeAndPersist, extractJudgeVerdicts, summaryLines, bindGradeIO, readAllVerdicts, type TerminalTelemetry } from "../extensions/eval-runner.ts";
 import type { GradeIO, JudgeVerdicts } from "../extensions/eval-rubric.ts";
+import type { Usage } from "../extensions/runs.ts";
+
+// T8 — the eval store's recorded cellScope.usage shape is whitelisted at the
+// assignment site: even with a FULL hub usage tuple on the terminal telemetry,
+// the persisted record carries exactly {input, output, cost, turns}.
+test("T8: cellScope.usage is whitelisted to {input,output,cost,turns}", async () => {
+	const store = ensureEvalDir(fs.mkdtempSync(path.join(os.tmpdir(), "council-t8-")));
+	const rubric = validateRubric(
+		{ schemaVersion: 1, rubricVersion: "1.0.0", criteria: [{ id: "c1", type: "gate", check: { kind: "artifact-present", path: "out.txt" } }] },
+		"f",
+	);
+	const io = recordingIO();
+	io.files.set("out.txt", "x");
+	const fullUsage: Usage = {
+		input: 100, output: 10, cacheRead: 900, cacheWrite: 0, reasoning: 7, totalTokens: 1010,
+		cost: 0.0013, costInput: 0.0003, costOutput: 0.0001, costCacheRead: 0.0009, costCacheWrite: 0,
+		turns: 1, costBasis: "catalogue-estimate", usageSource: "stream-assistant",
+	};
+	const terminal: TerminalTelemetry = { state: "done", elapsedMs: 5, usage: fullUsage, repoState: "sha256:" + "h".repeat(64) };
+	const { result } = await gradeAndPersist({
+		store,
+		rubric,
+		io,
+		judgeVerdicts: {},
+		meta: { cellId: "t8|m/x", taskId: "t8", model: "m/x", repeat: 1, scoredUnder: SCORED_UNDER_SELF, fixtureVersion: "1.0.0", rubricVersion: "1.0.0", gradedAt: 1 },
+		terminal,
+		judge: undefined,
+	});
+	const [rec] = readAllResults(store);
+	expect(rec.cellId).toBe(result.cellId);
+	// The PARSED record keys are the on-disk truth — exactly the recorded shape.
+	expect(Object.keys(rec.cellScope.usage as unknown as Record<string, unknown>).sort()).toEqual(["cost", "input", "output", "turns"]);
+});
 
 function recordingIO(): GradeIO & { files: Map<string, string> } {
 	const files = new Map<string, string>();
