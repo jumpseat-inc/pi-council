@@ -9,6 +9,11 @@ import { activateTheme } from "./theme-activation.ts";
 import { watchCouncilConfig, type CouncilConfigWatcher } from "./theme-watcher.ts";
 import { mintRunId, pruneRuns } from "./runs.ts";
 import { recordInvocationBoundary } from "./spend.ts";
+import {
+	flushPendingInvocations,
+	type PendingInvocation,
+	type UsageTrigger,
+} from "./usage-store.ts";
 import { scaffoldInto } from "./scaffold.ts";
 import { installArgsFor, resolveCouncilDependencies } from "./dependencies.ts";
 import { getMcp } from "./mcp-load.ts";
@@ -129,6 +134,37 @@ export default async function (pi: ExtensionAPI) {
 	registerHubTools(pi, repoRoot);
 	registerNavigator(pi, repoRoot, () => getHub(repoRoot).runId);
 
+	// EV-31: per-session pending-invocation ledger. Entries are appended where
+	// the invocation marker is stamped (procedure handler below) and drained by
+	// the ONE gated write path (flushPendingInvocations in usage-store.ts:
+	// marker on-chain && forestFullySettled && no file for the key), driven from
+	// hub onChange (forest-settle), agent_settled, and the session_shutdown
+	// sweep. Choose-once lives in the store key (marker `at`): an existing
+	// record is a byte-identical no-op — never overwritten, never recomputed.
+	const pendingInvocations: PendingInvocation[] = [];
+	const flushUsage = (trigger: UsageTrigger, ctx: ExtensionContext): void => {
+		try {
+			const sm = ctx.sessionManager;
+			const res = flushPendingInvocations({
+				repoRoot,
+				entries: sm.getEntries(),
+				leafId: sm.getLeafId(),
+				sessionId: sm.getSessionId(),
+				pending: pendingInvocations,
+				trigger,
+				notify: (message, kind) => {
+					if (ctx.hasUI) ctx.ui.notify(message, kind);
+					else console.log(message);
+				},
+			});
+			pendingInvocations.length = 0;
+			pendingInvocations.push(...res.remaining);
+		} catch {
+			// The flush must never crash the session (or the shutdown sweep); a
+			// per-record error is already caught inside flushPendingInvocations.
+		}
+	};
+
 	const renderWidget = () => {
 		if (!uiCtx?.hasUI) return;
 		const active = getHub(repoRoot)
@@ -161,7 +197,13 @@ export default async function (pi: ExtensionAPI) {
 		}
 		initHubIdentity(mintRunId());
 		pruneRuns(repoRoot);
-		getHub(repoRoot, renderWidget); // create hub with onChange → widget refresh
+		// Composed hub onChange: widget refresh + the EV-31 gated usage write
+		// (forest-settle trigger). The gate decides, not the event — a mid-turn
+		// onChange with an unsettled forest is a no-op.
+		getHub(repoRoot, () => {
+			renderWidget();
+			if (uiCtx) flushUsage("forest-settle", uiCtx);
+		}); // create hub with onChange → widget refresh + gated usage write
 		const mcp = await getMcp();
 		void mcp.connectParentServers(pi, repoRoot)
 			.then((notes) => {
@@ -184,6 +226,11 @@ export default async function (pi: ExtensionAPI) {
 		}
 	});
 	pi.on("turn_end", () => renderWidget());
+	pi.on("agent_settled", (_event, ctx) => {
+		// EV-31: awaited per-prompt-run settle — a last-chance flush for pending
+		// invocations whose forest has settled (the gate still decides).
+		flushUsage("agent-settled", ctx);
+	});
 	pi.on("session_shutdown", async (_event, ctx) => {
 		if (widgetTimer) {
 			clearInterval(widgetTimer);
@@ -191,6 +238,7 @@ export default async function (pi: ExtensionAPI) {
 		}
 		clearTreeWidget(ctx); // EV-7: inline tree widget lives in ctx.ui; remove it here
 		shutdownTreeFocus(ctx); // EV-8: reset focus surface + restore the composed-over editor
+		flushUsage("session-shutdown", ctx); // EV-31: backstop sweep for still-pending invocations
 		themeWatcher?.close();
 		themeWatcher = null;
 		const mcp = await getMcp();
@@ -224,7 +272,24 @@ export default async function (pi: ExtensionAPI) {
 						// as an unresolved boundary). The send calls below are untouched, so
 						// the TUI fire-and-forget contract and the headless waitForIdle
 						// teardown hazard are unchanged.
-						recordInvocationBoundary(pi, ctx, name, getHub(repoRoot).runId ?? "");
+						const markerId = recordInvocationBoundary(pi, ctx, name, getHub(repoRoot).runId ?? "");
+						if (markerId) {
+							// EV-31: ledger entry for the gated usage write. The marker's `at`
+							// is read back off the on-chain entry; a null markerAt is never
+							// fabricated (the record is skipped, with a warning, at flush).
+							const entry = ctx.sessionManager.getEntry(markerId);
+							const data =
+								entry && entry.type === "custom"
+									? (entry.data as { at?: number } | undefined)
+									: undefined;
+							pendingInvocations.push({
+								command: name,
+								markerId,
+								runId: getHub(repoRoot).runId ?? "",
+								markerAt: typeof data?.at === "number" ? data.at : null,
+								sessionFile: ctx.sessionManager.getSessionFile() ?? null,
+							});
+						}
 						const routed = renderProcedure(body, procDir, args);
 						if (ctx.mode === "tui") {
 							// Interactive: fire-and-forget — the turn streams to the UI and the
