@@ -21,17 +21,21 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EPIC-5 — /council-models provider and model picker for per-seat .council.json overrides
 - EPIC-7 — Token and cost usage accounting for autonomous council invocations
 - EV-29 — Provider-reported actual cost and per-component divergence from the estimate
-- EV-32 — Usage reported at every autonomous entry point
 - FLLWUP-26 — Per-run cumulative token ceiling guard in /council
 - FLLWUP-27 — Preflight branch-freshness clause vs mid-card record pushes
 - FLLWUP-28 — Widen cellScope.usage to the full tuple and amend the eval-store contract
 - FLLWUP-29 — Persist Anthropic cacheWrite1h write-premium tokens
 - FLLWUP-30 — Live end-to-end falsifier for the invocation boundary under pre-prompt compaction
 - FLLWUP-31 — Per-node subtree reconciliation against seat session files
+- FLLWUP-32 — Usage-store retention and compaction policy
+- FLLWUP-33 — Live end-to-end falsifier for the EV-31 gated write path
+- FLLWUP-34 — Bounded retry policy for a failed usage-store write
 
 ## Deliberating
 
 ## Ready
+
+- EV-32 — Usage reported at every autonomous entry point
 
 ## In Progress
 
