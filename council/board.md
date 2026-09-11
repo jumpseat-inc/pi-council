@@ -33,11 +33,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- EV-29 — Provider-reported actual cost and per-component divergence from the estimate
-
 ## Ready
 
 ## In Progress
+
+- EV-29 — Provider-reported actual cost and per-component divergence from the estimate
 
 ## In Review
 
