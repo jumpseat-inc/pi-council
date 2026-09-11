@@ -1,6 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { CONFIG_DIR_NAME, getAgentDir, type ExtensionAPI, type ExtensionContext } from "@earendil-works/pi-coding-agent";
+import { CONFIG_DIR_NAME, getAgentDir, type ExtensionAPI, type ExtensionContext, type SessionEntry } from "@earendil-works/pi-coding-agent";
 import { runChildMode } from "./child.ts";
 import { Hub } from "./hub.ts";
 import { getHub, initHubIdentity, pidFilePath, registerHubTools, shutdownHub } from "./hub-tools.ts";
@@ -9,6 +9,7 @@ import { activateTheme } from "./theme-activation.ts";
 import { watchCouncilConfig, type CouncilConfigWatcher } from "./theme-watcher.ts";
 import { mintRunId, pruneRuns } from "./runs.ts";
 import { recordInvocationBoundary } from "./spend.ts";
+import { formatUsageBlock } from "./usage-block.ts";
 import {
 	flushPendingInvocations,
 	type PendingInvocation,
@@ -115,6 +116,35 @@ export function renderProcedure(strippedBody: string, procDir: string, args?: st
 	return strippedBody
 		.replace(/\$COUNCIL_PROCEDURES/g, procDir)
 		.replace(/\$ARGUMENTS/g, (args ?? "").trim());
+}
+
+/** EV-32 (spec §2.5 item 6 / PO effect 6): stamp the invocation boundary for a
+ * scanned procedure and push its pending-ledger entry. On a null marker (a
+ * stale or replaced session — wiki `headless-pi`), emit the R-5 failure state
+ * synchronously: the today-silent fail-closed path is never blank. No pending
+ * entry is pushed (an unresolvable boundary is never keyed). */
+export function stampProcedureInvocation(
+	pi: { appendEntry<T = unknown>(customType: string, data?: T): void },
+	ctx: { sessionManager: { getEntry(id: string): SessionEntry | undefined; getLeafId(): string | null; getSessionFile(): string | null | undefined } },
+	command: string,
+	runId: string,
+	pending: PendingInvocation[],
+	emit: (message: string, kind: "info" | "warning") => void,
+): void {
+	const markerId = recordInvocationBoundary(pi, ctx, command, runId);
+	if (!markerId) {
+		emit(formatUsageBlock({ failed: "invocation boundary unresolvable" }), "warning");
+		return;
+	}
+	const entry = ctx.sessionManager.getEntry(markerId);
+	const data = entry && entry.type === "custom" ? (entry.data as { at?: number } | undefined) : undefined;
+	pending.push({
+		command,
+		markerId,
+		runId,
+		markerAt: typeof data?.at === "number" ? data.at : null,
+		sessionFile: ctx.sessionManager.getSessionFile() ?? null,
+	});
 }
 
 export default async function (pi: ExtensionAPI) {
@@ -264,32 +294,23 @@ export default async function (pi: ExtensionAPI) {
 			pi.registerCommand(name, {
 				description: argumentHint ? `${description} (${argumentHint})` : description,
 					handler: async (args, ctx) => {
-						// EV-30: make the invocation boundary durable before the send, in both
-						// the TUI and headless branches. pi.appendEntry is synchronous
-						// (agent-session.js:2029 → appendCustomEntry) and the marker does not
-						// participate in LLM context; fail-closed on a stale/replaced session
-						// (recordInvocationBoundary returns null, which EV-31/EV-32 must treat
-						// as an unresolved boundary). The send calls below are untouched, so
-						// the TUI fire-and-forget contract and the headless waitForIdle
-						// teardown hazard are unchanged.
-						const markerId = recordInvocationBoundary(pi, ctx, name, getHub(repoRoot).runId ?? "");
-						if (markerId) {
-							// EV-31: ledger entry for the gated usage write. The marker's `at`
-							// is read back off the on-chain entry; a null markerAt is never
-							// fabricated (the record is skipped, with a warning, at flush).
-							const entry = ctx.sessionManager.getEntry(markerId);
-							const data =
-								entry && entry.type === "custom"
-									? (entry.data as { at?: number } | undefined)
-									: undefined;
-							pendingInvocations.push({
-								command: name,
-								markerId,
-								runId: getHub(repoRoot).runId ?? "",
-								markerAt: typeof data?.at === "number" ? data.at : null,
-								sessionFile: ctx.sessionManager.getSessionFile() ?? null,
-							});
-						}
+						// EV-30/31/32: make the invocation boundary durable before the send, in
+						// both the TUI and headless branches, then push the pending-ledger entry.
+						// A null marker (stale/replaced session) emits the EV-32 R-5 failure
+						// state synchronously — the fail-closed path is never blank. The send
+						// calls below are untouched, so the TUI fire-and-forget contract and the
+						// headless waitForIdle teardown hazard are unchanged.
+						stampProcedureInvocation(
+							pi,
+							ctx,
+							name,
+							getHub(repoRoot).runId ?? "",
+							pendingInvocations,
+							(message, kind) => {
+								if (ctx.hasUI) ctx.ui.notify(message, kind);
+								else console.log(message);
+							},
+						);
 						const routed = renderProcedure(body, procDir, args);
 						if (ctx.mode === "tui") {
 							// Interactive: fire-and-forget — the turn streams to the UI and the

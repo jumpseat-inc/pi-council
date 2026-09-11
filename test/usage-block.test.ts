@@ -232,3 +232,60 @@ test("T16: every line of every fixture render is ≤160 columns", () => {
 		}
 	}
 });
+
+// ---------------------------------------------------------------------------
+// Task 5 (EV-32): the scanned-procedure stamp seam — spec §2.5 item 6 / PO
+// effect 6: a null marker (stale/replaced session) emits the R-5 failure state
+// synchronously and is never blank.
+// ---------------------------------------------------------------------------
+
+import * as fs from "node:fs";
+import * as os from "node:os";
+import * as path from "node:path";
+import { stampProcedureInvocation } from "../extensions/index.ts";
+import { SessionManager, type SessionEntry } from "@earendil-works/pi-coding-agent";
+import type { PendingInvocation } from "../extensions/usage-store.ts";
+
+const evSeed = () => ({
+	role: "assistant",
+	provider: "p",
+	model: "m",
+	api: "openai-completions",
+	content: [{ type: "text", text: "seed" }],
+	stopReason: "stop",
+	timestamp: Date.now(),
+	usage: { input: 1, output: 1, totalTokens: 2, cost: { total: 1 } },
+});
+const evShim = (sm: SessionManager) => ({ appendEntry: (customType: string, data?: unknown): void => { sm.appendCustomEntry(customType, data); } });
+const evCtx = (sm: SessionManager) => ({ sessionManager: sm }) as never;
+
+test("point-6: recordInvocationBoundary → null → synchronous 'usage  accounting failed — invocation boundary unresolvable', no pending push", () => {
+	const sm = SessionManager.inMemory(fs.mkdtempSync(path.join(os.tmpdir(), "ev32-stamp-")));
+	sm.appendMessage(evSeed() as never);
+	const notes: Array<{ m: string; k: string }> = [];
+	const pending: PendingInvocation[] = [];
+	// no-op appendEntry → the post-append leaf is not the marker → fail closed
+	stampProcedureInvocation({ appendEntry: () => {} }, evCtx(sm), "council", "run-X", pending, (m, k) => notes.push({ m, k }));
+	expect(notes).toHaveLength(1);
+	expect(notes[0]!.m).toBe("usage  accounting failed \u2014 invocation boundary unresolvable");
+	expect(notes[0]!.k).toBe("warning");
+	expect(pending).toHaveLength(0);
+	// nothing observable landed in the session
+	const markers = sm.getEntries().filter((e: SessionEntry) => (e as { customType?: string }).customType === "council-invocation");
+	expect(markers).toHaveLength(0);
+});
+
+test("point-6: marker stamped → pending push carries the marker id and the marker's own `at` read back off the on-chain entry", () => {
+	const sm = SessionManager.inMemory(fs.mkdtempSync(path.join(os.tmpdir(), "ev32-stamp-")));
+	sm.appendMessage(evSeed() as never);
+	const notes: string[] = [];
+	const pending: PendingInvocation[] = [];
+	stampProcedureInvocation(evShim(sm), evCtx(sm), "features-deliver", "run-X", pending, (m) => notes.push(m));
+	expect(notes).toHaveLength(0); // no emission on the happy path
+	expect(pending).toHaveLength(1);
+	expect(pending[0]!.command).toBe("features-deliver");
+	expect(pending[0]!.markerId === sm.getLeafId()).toBe(true);
+	expect(pending[0]!.runId).toBe("run-X");
+	expect(typeof pending[0]!.markerAt).toBe("number");
+	expect(pending[0]!.sessionFile !== null && pending[0]!.sessionFile !== undefined).toBe(true);
+});
