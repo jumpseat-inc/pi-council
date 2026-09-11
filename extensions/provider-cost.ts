@@ -16,6 +16,7 @@
 // this generation", never as the user's bill (BYOK is credit accounting).
 import * as fs from "node:fs";
 import {
+	type FileEntry,
 	parseSessionEntries,
 	readStoredCredential,
 	type SessionEntry,
@@ -214,6 +215,12 @@ function worstReason(observed: string[]): string | undefined {
 	return best;
 }
 
+/** `parseSessionEntries` returns `FileEntry[]` (`SessionHeader | SessionEntry`);
+ * the header carries no messages — narrow it away before harvesting ids. */
+function isSessionEntry(e: FileEntry): e is SessionEntry {
+	return e.type !== "session";
+}
+
 function num(v: unknown): number | null {
 	return typeof v === "number" && Number.isFinite(v) ? v : null;
 }
@@ -271,7 +278,9 @@ export async function fetchProviderReport(input: FetchProviderReportInput): Prom
 		}
 		let ids: string[] = [];
 		try {
-			ids = collectGenerationIds(parseSessionEntries(fs.readFileSync(job.sessionPath, "utf-8")));
+			ids = collectGenerationIds(
+				parseSessionEntries(fs.readFileSync(job.sessionPath, "utf-8")).filter(isSessionEntry),
+			);
 		} catch {
 			ids = []; // missing, unreadable, or unparseable → treated as no ids (C3)
 		}

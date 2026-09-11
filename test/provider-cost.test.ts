@@ -471,7 +471,7 @@ test("T-P8d: openRouterGenerationTransport — envelope unwrap, header, id encod
 		globalThis.fetch = origFetch;
 	}
 	// non-ok → HTTP <status> (reason becomes fetch-failed:HTTP 401)
-	globalThis.fetch = (async () => ({ ok: false, status: 401, json: async () => ({}) })) as typeof fetch;
+	globalThis.fetch = (async () => ({ ok: false, status: 401, json: async () => ({}) })) as unknown as typeof fetch;
 	try {
 		let message = "";
 		try {

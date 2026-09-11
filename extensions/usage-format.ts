@@ -14,9 +14,14 @@ export function formatTokensFragment(u: Usage): string {
 }
 
 export function formatMoney(u: Usage): string {
-	return u.costBasis === "reported"
-		? `cost=$${u.cost.toFixed(4)} (reported)`
-		: `cost≈$${u.cost.toFixed(4)} (catalogue)`; // ≈ is U+2248
+	return u.costBasis === "reported" ? formatReportedMoney(u.cost) : `cost≈$${u.cost.toFixed(4)} (catalogue)`; // ≈ is U+2248
+}
+
+/** R-1's reported literal, composed (never forked): the money fragment for a
+ * provider-reported generation-level figure. The catalogue side stays the
+ * `cost≈$… (catalogue)` literal above. */
+export function formatReportedMoney(total: number): string {
+	return `cost=$${total.toFixed(4)} (reported)`;
 }
 
 export function formatUsageSegment(u: Usage): string {

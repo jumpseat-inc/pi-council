@@ -159,8 +159,9 @@ export interface CouncilEvalDeps {
 	runMatrix: (o: RunMatrixOpts) => Promise<MatrixOutcome>;
 	/** The per-session pending-invocation ledger (the default export owns it). */
 	pending: PendingInvocation[];
-	/** The gated flush drain (the default export owns the closure). */
-	flushUsage: (trigger: UsageTrigger, ctx: ExtensionContext) => void;
+	/** The gated flush drain (the default export owns the closure). Async and
+	 * awaited — the eval tail drains the flush BEFORE the summary (O-6). */
+	flushUsage: (trigger: UsageTrigger, ctx: ExtensionContext) => Promise<void>;
 	/** Test seam for the dual-routed emit (default: ctx.ui.notify / console.log). */
 	sink?: (line: string) => void;
 }
@@ -243,8 +244,10 @@ export function registerCouncilEvalCommand(pi: ExtensionAPI, repoRoot: string, d
 				});
 				// EV-32 point 4: the awaited tail — idempotent flush drain before the
 				// summary. `existing` → silent (already written at the settle trigger);
-				// otherwise the tail writes and emits exactly one block.
-				deps.flushUsage("agent-settled", ctx);
+				// otherwise the tail writes and emits exactly one block. EV-29 (O-6):
+				// the tail AWAITS the async flush so the provider fetch lands inside
+				// the drain, never after the summary.
+				await deps.flushUsage("agent-settled", ctx);
 				emit(summaryLines(out.summaries).join("\n"));
 			} catch (e) {
 				emit(`[council-eval] error: ${e instanceof Error ? e.message : String(e)}`);
@@ -277,28 +280,37 @@ export default async function (pi: ExtensionAPI) {
 	// hub onChange (forest-settle), agent_settled, and the session_shutdown
 	// sweep. Choose-once lives in the store key (marker `at`): an existing
 	// record is a byte-identical no-op — never overwritten, never recomputed.
-	const pendingInvocations: PendingInvocation[] = [];
-	const flushUsage = (trigger: UsageTrigger, ctx: ExtensionContext): void => {
-		try {
-			const sm = ctx.sessionManager;
-			const res = flushPendingInvocations({
-				repoRoot,
-				entries: sm.getEntries(),
-				leafId: sm.getLeafId(),
-				sessionId: sm.getSessionId(),
-				pending: pendingInvocations,
-				trigger,
-				notify: (message, kind) => {
-					if (ctx.hasUI) ctx.ui.notify(message, kind);
-					else console.log(message);
-				},
-			});
-			pendingInvocations.length = 0;
-			pendingInvocations.push(...res.remaining);
-		} catch {
-			// The flush must never crash the session (or the shutdown sweep); a
-			// per-record error is already caught inside flushPendingInvocations.
-		}
+		const pendingInvocations: PendingInvocation[] = [];
+	// EV-29: the flush is async (the provider fetch is bounded but real) and
+	// SERIALIZED on a closure chain — an awaited drain observes a prior
+	// fire-and-forget forest-settle write and never double-fetches; the pending
+	// ledger mutation stays inside the serialized step.
+	let flushChain: Promise<void> = Promise.resolve();
+	const flushUsage = (trigger: UsageTrigger, ctx: ExtensionContext): Promise<void> => {
+		const run = async (): Promise<void> => {
+			try {
+				const sm = ctx.sessionManager;
+				const res = await flushPendingInvocations({
+					repoRoot,
+					entries: sm.getEntries(),
+					leafId: sm.getLeafId(),
+					sessionId: sm.getSessionId(),
+					pending: pendingInvocations,
+					trigger,
+					notify: (message, kind) => {
+						if (ctx.hasUI) ctx.ui.notify(message, kind);
+						else console.log(message);
+					},
+				});
+				pendingInvocations.length = 0;
+				pendingInvocations.push(...res.remaining);
+			} catch {
+				// The flush must never crash the session (or the shutdown sweep); a
+				// per-record error is already caught inside flushPendingInvocations.
+			}
+		};
+		flushChain = flushChain.then(run, run);
+		return flushChain;
 	};
 
 	const renderWidget = () => {
@@ -338,7 +350,9 @@ export default async function (pi: ExtensionAPI) {
 		// onChange with an unsettled forest is a no-op.
 		getHub(repoRoot, () => {
 			renderWidget();
-			if (uiCtx) flushUsage("forest-settle", uiCtx);
+			// EV-29: fire-and-forget — the hub onChange callback is synchronous; the
+			// awaited agent_settled / eval-tail drains are the completion guarantee.
+			if (uiCtx) void flushUsage("forest-settle", uiCtx).catch(() => {});
 		}); // create hub with onChange → widget refresh + gated usage write
 		const mcp = await getMcp();
 		void mcp.connectParentServers(pi, repoRoot)
@@ -362,10 +376,12 @@ export default async function (pi: ExtensionAPI) {
 		}
 	});
 	pi.on("turn_end", () => renderWidget());
-	pi.on("agent_settled", (_event, ctx) => {
+	pi.on("agent_settled", async (_event, ctx) => {
 		// EV-31: awaited per-prompt-run settle — a last-chance flush for pending
-		// invocations whose forest has settled (the gate still decides).
-		flushUsage("agent-settled", ctx);
+		// invocations whose forest has settled (the gate still decides). EV-29:
+		// the handler awaits the async flush so the fetch-before-persist phase is
+		// guaranteed to complete before idle resolves.
+		await flushUsage("agent-settled", ctx);
 	});
 	pi.on("session_shutdown", async (_event, ctx) => {
 		if (widgetTimer) {
@@ -374,7 +390,9 @@ export default async function (pi: ExtensionAPI) {
 		}
 		clearTreeWidget(ctx); // EV-7: inline tree widget lives in ctx.ui; remove it here
 		shutdownTreeFocus(ctx); // EV-8: reset focus surface + restore the composed-over editor
-		flushUsage("session-shutdown", ctx); // EV-31: backstop sweep for still-pending invocations
+		// EV-31 backstop sweep for still-pending invocations; EV-29: awaited — the
+		// fetch phase must land before teardown.
+		await flushUsage("session-shutdown", ctx);
 		themeWatcher?.close();
 		themeWatcher = null;
 		const mcp = await getMcp();
