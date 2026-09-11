@@ -36,11 +36,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-30 — Invocation-scoped spend record from the invoking session plus its job subtree
-
 ## Needs Human
 
 ## Done
+
+- EV-30 — Invocation-scoped spend record from the invoking session plus its job subtree
 
 - EV-28 — Full usage tuple and cost provenance in the hub usage record
 - FLLWUP-25 — Wiki source page matches AGENTS.md hard-conventions count
