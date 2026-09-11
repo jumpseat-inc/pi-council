@@ -290,3 +290,156 @@ test("point-6: marker stamped → pending push carries the marker id and the mar
 	// sessionFile is getSessionFile() ?? null — an in-memory session legitimately has none
 	expect(pending[0]!.sessionFile).toBe(sm.getSessionFile() ?? null);
 });
+
+// ---------------------------------------------------------------------------
+// Task 6 (EV-32): the /council-eval run path — steward A(c) marker mode, PO
+// effect 3/7. Driven through the deps-injected runMatrix seam (no network).
+// ---------------------------------------------------------------------------
+
+import { registerCouncilEvalCommand } from "../extensions/index.ts";
+import { initHubIdentity, getHub, shutdownHub } from "../extensions/hub-tools.ts";
+import { flushPendingInvocations, readUsageRecords } from "../extensions/usage-store.ts";
+import { ensureRunDir, writeManifest } from "../extensions/runs.ts";
+import { listFixtureTasks } from "../extensions/eval-fixtures.ts";
+import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
+
+interface EvalHarness {
+	repoRoot: string;
+	pending: PendingInvocation[];
+	emitted: string[];
+	notes: Array<{ m: string; k: string }>;
+	sent: string[];
+	handler: (args: string, ctx: ExtensionContext) => Promise<void>;
+	sm: SessionManager;
+}
+
+function evalHarness(): EvalHarness {
+	const repoRoot = fs.mkdtempSync(path.join(os.tmpdir(), "ev32-eval-"));
+	initHubIdentity("run-ev32");
+	getHub(repoRoot);
+	const sm = SessionManager.inMemory(fs.mkdtempSync(path.join(os.tmpdir(), "ev32-eval-sess-")));
+	sm.appendMessage(evSeed() as never);
+	let handler: (args: string, ctx: ExtensionContext) => Promise<void> = async () => {};
+	const pi = {
+		registerCommand: (name: string, def: { handler: (args: string, ctx: ExtensionContext) => Promise<void> }) => {
+			if (name === "council-eval") handler = def.handler;
+		},
+		sendUserMessage: (text: string) => {
+			sentRef.sent.push(text);
+		},
+		// the real appendEntry is synchronous (agent-session.js → appendCustomEntry)
+		appendEntry: (customType: string, data?: unknown) => {
+			sm.appendCustomEntry(customType, data);
+		},
+	} as unknown as ExtensionAPI;
+	const sentRef: { sent: string[] } = { sent: [] };
+	const pending: PendingInvocation[] = [];
+	const emitted: string[] = [];
+	const notes: Array<{ m: string; k: string }> = [];
+	registerCouncilEvalCommand(pi, repoRoot, {
+		runMatrix: async () => {
+			// the double simulates the real run: cells settle with manifests
+			ensureRunDir(repoRoot, "run-ev32");
+			writeManifest(repoRoot, "run-ev32", {
+				id: "job-eval-1", seat: "owner", model: "p/m", parentJobId: null, pid: null,
+				sessionId: "job-eval-1", state: "done", startedAt: Date.now(), settledAt: null,
+				exitCode: 0,
+				usage: usageOf({ input: 30, output: 12, totalTokens: 42, cost: 0.42, turns: 2 }),
+			});
+			return { store: "", fixtureVersion: "1.0.0", rubricVersion: "1.0.0", summaries: [] };
+		},
+		pending,
+		flushUsage: (trigger, ctx) => {
+			const smm = ctx.sessionManager;
+			const res = flushPendingInvocations({
+				repoRoot,
+				entries: smm.getEntries(),
+				leafId: smm.getLeafId(),
+				sessionId: smm.getSessionId(),
+				pending,
+				trigger,
+				notify: (m, k) => notes.push({ m, k }),
+				storeRoot: evalStoreRoot,
+			});
+			pending.length = 0;
+			pending.push(...res.remaining);
+		},
+		sink: (line) => emitted.push(line),
+	});
+	const sent = sentRef.sent;
+	const ctx = {
+		hasUI: false,
+		sessionManager: sm,
+		modelRegistry: { getAvailable: () => [{ provider: "p", id: "m" }] },
+		mode: "headless",
+	} as unknown as ExtensionContext;
+	return { repoRoot, pending, emitted, notes, sent, handler, sm };
+}
+
+let evalStoreRoot = "";
+
+// hoisted store root shared by the harness closure above (set before handler runs)
+function setEvalStoreRoot(dir: string): void {
+	evalStoreRoot = dir;
+}
+
+test("T15: the eval run path stamps a marker, pushes boundaryMode:'marker', and emits exactly one block after the awaited matrix", async () => {
+	const storeRoot = fs.mkdtempSync(path.join(os.tmpdir(), "ev32-eval-store-"));
+	setEvalStoreRoot(storeRoot);
+	const h = evalHarness();
+	try {
+		const task = listFixtureTasks(h.repoRoot)[0];
+		expect(task).toBeTruthy();
+		const messageEntriesBefore = h.sm.getEntries().filter((e: SessionEntry) => e.type === "message").length;
+		await h.handler(`${task} p/m`, {
+			hasUI: false,
+			sessionManager: h.sm,
+			modelRegistry: { getAvailable: () => [{ provider: "p", id: "m" }] },
+			mode: "headless",
+		} as unknown as ExtensionContext);
+
+		// marker stamped on-chain, pending pushed with boundaryMode "marker"
+		const markers = h.sm.getEntries().filter((e: SessionEntry) => (e as { customType?: string }).customType === "council-invocation");
+		expect(markers).toHaveLength(1);
+		expect((markers[0] as unknown as { data: { command: string } }).data.command).toBe("council-eval");
+		expect(h.pending).toHaveLength(0); // written at the tail drain — no entry stays pending
+		// exactly one emission per invocation, and it is the block
+		expect(h.notes).toHaveLength(1);
+		expect(h.notes[0]!.k).toBe("info");
+		const [record] = readUsageRecords(evalStoreRoot);
+		expect(h.notes[0]!.m).toBe(formatUsageBlock({ record: record!.spend }));
+		// steward I: non-empty matrix → resolved boundary + real subtree
+		expect(record!.spend.boundary.resolved).toBe(true);
+		expect(record!.spend.boundary.firstEntryId).not.toBeNull();
+		expect(record!.spend.boundary.jobCount).toBeGreaterThanOrEqual(1);
+		expect(record!.spend.subtree.totalTokens).toBeGreaterThan(0);
+		// the block landed BEFORE the summary in the concluding output
+		expect(h.emitted.filter((l) => l.startsWith("[council-eval] confirmed")).length).toBe(1);
+		// never sendUserMessage; the block is not in the session prose
+		expect(h.sent).toHaveLength(0);
+		expect(h.sm.getEntries().filter((e: SessionEntry) => e.type === "message").length).toBe(messageEntriesBefore);
+		// the block text never appears in the sink (deterministic engine sinks only)
+		expect(h.emitted.some((l) => l.startsWith("usage  "))).toBe(false);
+	} finally {
+		shutdownHub();
+	}
+});
+
+test("T15: the no-arg listing form stamps no marker and pushes nothing", async () => {
+	const h = evalHarness();
+	try {
+		await h.handler("", {
+			hasUI: false,
+			sessionManager: h.sm,
+			modelRegistry: { getAvailable: () => [] },
+			mode: "headless",
+		} as unknown as ExtensionContext);
+		const markers = h.sm.getEntries().filter((e: SessionEntry) => (e as { customType?: string }).customType === "council-invocation");
+		expect(markers).toHaveLength(0);
+		expect(h.pending).toHaveLength(0);
+		expect(h.notes).toHaveLength(0);
+		expect(h.emitted.some((l) => l.includes("Available fixture tasks"))).toBe(true);
+	} finally {
+		shutdownHub();
+	}
+});

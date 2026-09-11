@@ -26,6 +26,8 @@ import {
 	runMatrix,
 	summaryLines,
 	evalResultsDir,
+	type RunMatrixOpts,
+	type MatrixOutcome,
 } from "./eval-runner.ts";
 import { listFixtureTasks, loadFixture } from "./eval-fixtures.ts";
 import { renderLeaderboard } from "./eval-leaderboard.ts";
@@ -122,7 +124,9 @@ export function renderProcedure(strippedBody: string, procDir: string, args?: st
  * scanned procedure and push its pending-ledger entry. On a null marker (a
  * stale or replaced session — wiki `headless-pi`), emit the R-5 failure state
  * synchronously: the today-silent fail-closed path is never blank. No pending
- * entry is pushed (an unresolvable boundary is never keyed). */
+ * entry is pushed (an unresolvable boundary is never keyed). `boundaryMode`
+ * rides the push (steward A(c)): the scanned procedures omit it (default
+ * "user-message"); /council-eval passes "marker". */
 export function stampProcedureInvocation(
 	pi: { appendEntry<T = unknown>(customType: string, data?: T): void },
 	ctx: { sessionManager: { getEntry(id: string): SessionEntry | undefined; getLeafId(): string | null; getSessionFile(): string | null | undefined } },
@@ -130,6 +134,7 @@ export function stampProcedureInvocation(
 	runId: string,
 	pending: PendingInvocation[],
 	emit: (message: string, kind: "info" | "warning") => void,
+	boundaryMode?: PendingInvocation["boundaryMode"],
 ): void {
 	const markerId = recordInvocationBoundary(pi, ctx, command, runId);
 	if (!markerId) {
@@ -144,6 +149,107 @@ export function stampProcedureInvocation(
 		runId,
 		markerAt: typeof data?.at === "number" ? data.at : null,
 		sessionFile: ctx.sessionManager.getSessionFile() ?? null,
+		...(boundaryMode !== undefined ? { boundaryMode } : {}),
+	});
+}
+
+export interface CouncilEvalDeps {
+	/** The matrix runner — the real runMatrix in production; a double in tests
+	 * so the run path is exercisable with no network (PO effect 7). */
+	runMatrix: (o: RunMatrixOpts) => Promise<MatrixOutcome>;
+	/** The per-session pending-invocation ledger (the default export owns it). */
+	pending: PendingInvocation[];
+	/** The gated flush drain (the default export owns the closure). */
+	flushUsage: (trigger: UsageTrigger, ctx: ExtensionContext) => void;
+	/** Test seam for the dual-routed emit (default: ctx.ui.notify / console.log). */
+	sink?: (line: string) => void;
+}
+
+/** EV-32 point 4 (steward A(c) + PO G/H): the /council-eval run path stamps a
+ * marker after the no-arg early-return and arg/model validation, pushes the
+ * pending invocation with boundaryMode "marker", and — at the awaited
+ * post-runMatrix tail — drains the flush BEFORE the summary. Idempotent: if
+ * the forest-settle flush already wrote the record the tail observes
+ * "existing" and emits nothing; exactly one block per invocation. A null
+ * marker emits the same state-2 failure as the scanned handler. */
+export function registerCouncilEvalCommand(pi: ExtensionAPI, repoRoot: string, deps: CouncilEvalDeps): void {
+	pi.registerCommand("council-eval", {
+		description: "Run a council eval matrix: [task] [model...] [--repeat N] [--no-persist-snapshot]. No args lists available fixture tasks.",
+		handler: async (args, ctx) => {
+			const emit = deps.sink ?? ((line: string) => {
+				if (ctx.hasUI) ctx.ui.notify(line, "info");
+				else console.log(line);
+			});
+			const notify = (message: string, kind: "info" | "warning") => {
+				if (ctx.hasUI) ctx.ui.notify(message, kind);
+				else console.log(message);
+			};
+			try {
+				// No-arg form: list fixture tasks + usage, then return (spec §1).
+				const parsed = parseEvalArgs(args.trim() ? args.trim().split(/\s+/) : []);
+				if (parsed.task === undefined) {
+					const tasks = listFixtureTasks(repoRoot);
+					emit(
+						[
+							"[council-eval] usage: /council-eval <task> <model...> [--repeat N] [--no-persist-snapshot]",
+						"",
+							"Available fixture tasks:",
+							...tasks.map((t) => `  ${t}`),
+						].join("\n"),
+					);
+					return;
+				}
+
+				// Resolve the fixture (throws loudly naming the available list on unknown).
+				const holder = loadFixture(repoRoot, parsed.task);
+				if (parsed.models.length === 0) {
+					throw new Error(`no model given — usage: /council-eval <task> <model...> [--repeat N]`);
+				}
+
+				// Pre-validate each model: shared parseQualifiedModel + catalogue availability (R-4).
+				const known = new Set(
+					ctx.modelRegistry.getAvailable().map((m: { provider: string; id: string }) => `${m.provider}/${m.id}`),
+				);
+				for (const raw of parsed.models) {
+					const p = parseQualifiedModel(raw, "council-eval model");
+					if (!known.has(p.model)) {
+						throw new Error(`model "${raw}" resolves to "${p.model}", which is not in pi's catalogue — no fallback; pass provider/id exactly`);
+					}
+				}
+
+				// EV-32 point 4: after validation, before the first cell spawns.
+				stampProcedureInvocation(pi, ctx, "council-eval", getHub(repoRoot).runId ?? "", deps.pending, notify, "marker");
+
+				// Echo-then-run (spec §3): confirm the resolved matrix before any cell spawns.
+				const total = parsed.models.length * parsed.repeat;
+				emit(
+					`[council-eval] confirmed: task=${parsed.task} fixtureVersion=${holder.fixture.fixtureVersion} models=[${parsed.models.join(", ")}] repeat=${parsed.repeat} dispatch=${total}`,
+				);
+
+				const taskDir = fixtureTaskDir(repoRoot, parsed.task, holder.source);
+				const { driverSeat, input, seedDir } = resolveDriver(taskDir, holder);
+				const out = await deps.runMatrix({
+					repoRoot,
+					hub: getHub(repoRoot),
+					taskId: parsed.task,
+					driverSeat,
+					input,
+					seedDir,
+					models: parsed.models,
+					repeat: parsed.repeat,
+					persist: parsed.persistSnapshot,
+					isModelAvailable: (m) => known.has(m),
+					echo: emit,
+				});
+				// EV-32 point 4: the awaited tail — idempotent flush drain before the
+				// summary. `existing` → silent (already written at the settle trigger);
+				// otherwise the tail writes and emits exactly one block.
+				deps.flushUsage("agent-settled", ctx);
+				emit(summaryLines(out.summaries).join("\n"));
+			} catch (e) {
+				emit(`[council-eval] error: ${e instanceof Error ? e.message : String(e)}`);
+			}
+		},
 	});
 }
 
@@ -455,71 +561,5 @@ export default async function (pi: ExtensionAPI) {
 		},
 	});
 
-	pi.registerCommand("council-eval", {
-		description: "Run a council eval matrix: [task] [model...] [--repeat N] [--no-persist-snapshot]. No args lists available fixture tasks.",
-		handler: async (args, ctx) => {
-			const emit = (line: string) => {
-				if (ctx.hasUI) ctx.ui.notify(line, "info");
-				else console.log(line);
-			};
-			try {
-				// No-arg form: list fixture tasks + usage, then return (spec §1).
-				const parsed = parseEvalArgs(args.trim() ? args.trim().split(/\s+/) : []);
-				if (parsed.task === undefined) {
-					const tasks = listFixtureTasks(repoRoot);
-					emit(
-						[
-							"[council-eval] usage: /council-eval <task> <model...> [--repeat N] [--no-persist-snapshot]",
-						"",
-						"Available fixture tasks:",
-						...tasks.map((t) => `  ${t}`),
-					].join("\n"),
-				);
-				return;
-			}
-
-			// Resolve the fixture (throws loudly naming the available list on unknown).
-			const holder = loadFixture(repoRoot, parsed.task);
-			if (parsed.models.length === 0) {
-				throw new Error(`no model given — usage: /council-eval <task> <model...> [--repeat N]`);
-			}
-
-			// Pre-validate each model: shared parseQualifiedModel + catalogue availability (R-4).
-			const known = new Set(
-				ctx.modelRegistry.getAvailable().map((m: { provider: string; id: string }) => `${m.provider}/${m.id}`),
-			);
-			for (const raw of parsed.models) {
-				const p = parseQualifiedModel(raw, "council-eval model");
-				if (!known.has(p.model)) {
-					throw new Error(`model "${raw}" resolves to "${p.model}", which is not in pi's catalogue — no fallback; pass provider/id exactly`);
-				}
-			}
-
-			// Echo-then-run (spec §3): confirm the resolved matrix before any cell spawns.
-			const total = parsed.models.length * parsed.repeat;
-			emit(
-				`[council-eval] confirmed: task=${parsed.task} fixtureVersion=${holder.fixture.fixtureVersion} models=[${parsed.models.join(", ")}] repeat=${parsed.repeat} dispatch=${total}`,
-			);
-
-			const taskDir = fixtureTaskDir(repoRoot, parsed.task, holder.source);
-			const { driverSeat, input, seedDir } = resolveDriver(taskDir, holder);
-			const out = await runMatrix({
-				repoRoot,
-				hub: getHub(repoRoot),
-				taskId: parsed.task,
-				driverSeat,
-				input,
-				seedDir,
-				models: parsed.models,
-				repeat: parsed.repeat,
-				persist: parsed.persistSnapshot,
-				isModelAvailable: (m) => known.has(m),
-				echo: emit,
-			});
-			emit(summaryLines(out.summaries).join("\n"));
-		} catch (e) {
-			emit(`[council-eval] error: ${e instanceof Error ? e.message : String(e)}`);
-		}
-		},
-	});
+	registerCouncilEvalCommand(pi, repoRoot, { runMatrix, pending: pendingInvocations, flushUsage });
 }
