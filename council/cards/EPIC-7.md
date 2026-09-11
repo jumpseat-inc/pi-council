@@ -1,7 +1,7 @@
 ---
 id: EPIC-7
 title: Token and cost usage accounting for autonomous council invocations
-state: Backlog
+state: Done
 owner: null
 epic: null
 goal: Every autonomous council invocation reports and durably records what it spent in input, output and cached tokens plus a provenance-labelled dollar value, at a granularity traceable back to the session JSONL that produced it.
@@ -53,3 +53,14 @@ ruling and cites which one.
 - **R-MERGE** — the deterministic five-criteria check replaces the human
   merge gate; merge with `gh pr merge <PR> --squash --match-head-commit
   <SHA>`; the first merge is announced in-line and watched.
+
+## Run closure (features-deliver)
+
+All five children merged to `main` with `gates` SUCCESS on each merged SHA:
+EV-28 `6768d25` (#42), EV-30 `f33cbdf` (#43), EV-31 `f3bcd8a` (#44),
+EV-32 `32a67a3` (#45), EV-29 `ec33fc0` (#46) — EV-29's goal amended by the
+step-6 steward ruling (the provider has no per-component dollar source).
+`steward` ruled epic closure on observed acceptance and ended the run; the
+FLLWUP-26 through FLLWUP-35 follow-ups ride as `Backlog` residuals under
+this `Done` epic. No `HALT`, no `RETIRED`; four ESCALATION round-trips, all
+resolved by `product-owner`/`steward`.
