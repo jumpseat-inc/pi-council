@@ -39,12 +39,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-29 — Provider-reported actual cost and per-component divergence from the estimate
-
 ## Needs Human
 
 ## Done
 
+- EV-29 — Provider-reported actual cost and per-component divergence from the estimate
 - EV-32 — Usage reported at every autonomous entry point
 
 - EV-31 — Durable usage store outside the pruned run directory, with session provenance
