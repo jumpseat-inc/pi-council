@@ -34,9 +34,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-30 — Invocation-scoped spend record from the invoking session plus its job subtree
-
 ## In Review
+
+- EV-30 — Invocation-scoped spend record from the invoking session plus its job subtree
 
 ## Needs Human
 
