@@ -42,19 +42,11 @@ export function shutdownHub(): void {
 	hubSingleton = null;
 }
 
-/** The usage segment of the council_wait head line (EV-28 spec §2.5 / step-6
- * ruling Q5 + R-1): fixed token order in/out/cR/cW/reason/total (persisted
- * fields stay cacheRead/cacheWrite/reasoning; only the labels collapse, and
- * `reason` avoids colliding with stopReason), no thousands separators, `turns`
- * first, labelled money rightmost; `≈` is U+2248 for the catalogue estimate,
- * `$` for a reported charge. */
-export function formatUsageSegment(u: Usage): string {
-	const money =
-		u.costBasis === "reported"
-			? `cost=$${u.cost.toFixed(4)} (reported)`
-			: `cost≈$${u.cost.toFixed(4)} (catalogue)`; // ≈ is U+2248
-	return `turns=${u.turns} tokens=in ${u.input}/out ${u.output}/cR ${u.cacheRead}/cW ${u.cacheWrite}/reason ${u.reasoning}/total ${u.totalTokens} ${money}`;
-}
+// EV-32: the segment lives in usage-format.ts (with the extracted
+// formatTokensFragment/formatMoney fragments); imported + re-exported here so
+// EV-28's landed import and byte test are untouched.
+import { formatUsageSegment } from "./usage-format.ts";
+export { formatUsageSegment };
 
 export function formatReport(r: JobReport): string {
 	const mins = (r.elapsedMs / 60_000).toFixed(1);
