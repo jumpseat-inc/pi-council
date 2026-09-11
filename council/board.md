@@ -33,9 +33,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-## Ready
-
 - EV-32 — Usage reported at every autonomous entry point
+
+## Ready
 
 ## In Progress
 
