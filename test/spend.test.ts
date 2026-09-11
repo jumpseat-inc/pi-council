@@ -522,3 +522,98 @@ test("T14 ruling item 7: lastId is the active-chain end (leafId), never the last
 	expect(rec.boundary.lastEntryId).toBe(leafId);
 	expect(rec.boundary.lastEntryId).not.toBe("off");
 });
+
+// ---------------------------------------------------------------------------
+// T14 (EV-32): boundaryMode "marker" — steward A(c). The anchor IS the marker,
+// required present and on-chain; resolved → firstEntryId = markerId,
+// lastEntryId = leafId, forest gate at the marker entry's own timestamp.
+// Default ("user-message") behavior is byte-preserving on the same fixtures.
+// ---------------------------------------------------------------------------
+
+/** A chain with a marker and NO user message after it (the /council-eval
+ * shape: the handler awaits and never injects a user turn). */
+function markerOnlyFixture(dir: string): { entries: SessionEntry[]; leafId: string; markerId: string } {
+	const entries = writeAndParse(dir, `${SID}-eval`, [
+		assistantEntry("ev_pre", null, T0 - 500, { input: 100, totalTokens: 100, cost: { total: 100 } }),
+		markerEntry("ev_m1", "ev_pre", T0 - 100),
+		assistantEntry("ev_a2", "ev_m1", T0 + 2000, { input: 6, totalTokens: 6, cost: { total: 6 } }),
+	]);
+	return { entries, leafId: "ev_a2", markerId: "ev_m1" };
+}
+
+function evalManifests(): RunManifest[] {
+	const root = tmpDir();
+	const runId = "run-E";
+	ensureRunDir(root, runId);
+	writeManifest(root, runId, manifest("job-e1", {
+		startedAt: T0 + 2000,
+		usage: flatUsage({ input: 30, output: 40, totalTokens: 70, cost: 50, turns: 1 }),
+	}));
+	writeManifest(root, runId, manifest("job-e1.1", {
+		parentJobId: "job-e1",
+		startedAt: T0 + 2100,
+		usage: flatUsage({ input: 5, output: 6, totalTokens: 11, cost: 7, turns: 1 }),
+	}));
+	return readManifests(root, runId);
+}
+
+test("T14: marker mode on a non-empty matrix fixture — resolved, first=markerId, last=leafId, jobs>=1, subtree.totalTokens>0", () => {
+	const dir = tmpDir();
+	const { entries, leafId, markerId } = markerOnlyFixture(dir);
+	const manifests = evalManifests();
+	const rec = spendRecord({ entries, leafId, sessionId: SID, markerId, manifests, boundaryMode: "marker" });
+	// steward I's joined assertions
+	expect(rec.boundary.resolved).toBe(true);
+	expect(rec.boundary.firstEntryId).toBe("ev_m1");
+	expect(rec.boundary.lastEntryId).toBe("ev_a2");
+	expect(rec.boundary.lastEntryId).toBe(leafId);
+	expect(rec.boundary.jobCount).toBe(2);
+	expect(rec.subtree.totalTokens).toBe(81);
+	expect(rec.subtree.cost).toBe(57);
+	// own half covers the post-marker assistant (the marker IS the boundary)
+	expect(rec.ownSession.input).toBe(6);
+	// R-4 shape preserved: resolved label with firstEntryId = markerId, no new token
+	expect(formatBoundaryLabel(rec)).toBe(`boundary=session=${SID} entries=ev_m1..ev_a2 jobs=2`);
+});
+
+test("T14: marker mode, marker absent/off-chain → the identical unresolved zero-both record as the default mode", () => {
+	const dir = tmpDir();
+	const { entries, leafId } = markerOnlyFixture(dir);
+	const manifests = evalManifests();
+	const offChain = writeAndParse(dir, `${SID}-off`, [
+		assistantEntry("o_pre", null, T0 - 500, { input: 1, totalTokens: 1, cost: { total: 1 } }),
+		assistantEntry("o_off", "o_pre", T0 - 400, { input: 50, totalTokens: 50, cost: { total: 50 } }),
+		markerEntry("o_m", "o_off", T0 - 300), // off-chain marker
+		assistantEntry("o_a", "o_pre", T0 + 2000, { input: 9, totalTokens: 9, cost: { total: 9 } }),
+	]);
+	const baseline = spendRecord({ entries, leafId, sessionId: SID, markerId: null, manifests });
+	for (const [label, markerIdArg, es, leaf] of [
+		["null marker", null, entries, leafId],
+		["ghost marker", "ghost", entries, leafId],
+		["off-chain marker", "o_m", offChain, "o_a"],
+	] as Array<[string, string | null, SessionEntry[], string]>) {
+		const rec = spendRecord({ entries: es, leafId: leaf, sessionId: SID, markerId: markerIdArg, manifests, boundaryMode: "marker" });
+		expect(rec, label).toEqual(baseline);
+		expect(rec.boundary.resolved).toBe(false);
+		expect(rec.boundary.firstEntryId).toBeNull();
+		expect(rec.boundary.jobCount).toBe(0);
+	}
+	// EV-30 zero-both stands: the unresolved marker-mode record is NOT a small
+	// plausible number over a non-empty matrix.
+	expect(baseline.subtree.totalTokens).toBe(0);
+	expect(baseline.ownSession.totalTokens).toBe(0);
+});
+
+test("T14: default mode unchanged on the same marker-only fixture — byte-preserving, still unresolved zero-both", () => {
+	const dir = tmpDir();
+	const { entries, leafId, markerId } = markerOnlyFixture(dir);
+	const manifests = evalManifests();
+	const rec = spendRecord({ entries, leafId, sessionId: SID, markerId, manifests });
+	expect(rec.boundary.resolved).toBe(false);
+	expect(rec.boundary.firstEntryId).toBeNull();
+	expect(rec.boundary.jobCount).toBe(0);
+	// identical to an explicit "user-message" call
+	expect(rec).toEqual(spendRecord({ entries, leafId, sessionId: SID, markerId, manifests, boundaryMode: "user-message" }));
+	// zero-both despite the non-empty matrix (fail-closed default; O1 stays red by design)
+	expect(rec.subtree.totalTokens).toBe(0);
+});
