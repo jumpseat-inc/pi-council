@@ -88,7 +88,10 @@ function accumulateWire(into: Usage, u: WireUsage | undefined): void {
 
 /** Flat RunManifest.usage summation — the manifest tuple is already EV-28-shaped
  * (scalar cost + cost* components), not the nested wire shape. */
-const NUMERIC_METRICS: UsageMetric[] = [
+/** The numeric metrics a manifest/half Usage can be summed over (the two
+ * string-valued fields cannot be). Exported for EV-32's additive
+ * sumSubtreeUsage in usage-block.ts. */
+export const NUMERIC_METRICS: UsageMetric[] = [
 	"input",
 	"output",
 	"cacheRead",
@@ -103,7 +106,9 @@ const NUMERIC_METRICS: UsageMetric[] = [
 	"turns",
 ];
 
-function accumulateFlat(into: Usage, u: Usage | undefined): void {
+/** Flat Usage summation over every numeric metric. Exported for EV-32's
+ * additive sumSubtreeUsage in usage-block.ts. */
+export function accumulateFlat(into: Usage, u: Usage | undefined): void {
 	if (!u) return; // legacy/partial manifest: counts in jobCount, adds 0
 	for (const k of NUMERIC_METRICS) into[k] += u[k] || 0;
 }
