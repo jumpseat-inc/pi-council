@@ -2,9 +2,13 @@ import { test, expect } from "bun:test";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import { parseSessionEntries, type SessionEntry } from "@earendil-works/pi-coding-agent";
+import {
+	parseSessionEntries,
+	SessionManager,
+	type SessionEntry,
+} from "@earendil-works/pi-coding-agent";
 import { ensureRunDir, readManifests, writeManifest, type RunManifest, type Usage } from "../extensions/runs.ts";
-import { spendRecord, formatBoundaryLabel } from "../extensions/spend.ts";
+import { spendRecord, formatBoundaryLabel, recordInvocationBoundary, findLatestInvocationMarker } from "../extensions/spend.ts";
 
 // ---------------------------------------------------------------------------
 // Fixture substrate: a real session JSONL written to a tmpdir and parsed with
@@ -397,6 +401,115 @@ test("T13 four-kind enumeration: branch_summary usage yields the 4-kind sum, not
 	// with branch_summary: input 24, cost 108; a 3-kind sum would be input 23, cost 103
 	expect(rec.ownSession.input).toBe(24);
 	expect(rec.ownSession.cost).toBe(108);
+});
+
+// ---------------------------------------------------------------------------
+// T11/T12 substrate: a real SessionManager (in memory) driven through the
+// faithful pi.appendEntry shim (mirrors agent-session.js:2029-2033 →
+// appendCustomEntry) — O7: seed an assistant first so _persist has written.
+// ---------------------------------------------------------------------------
+
+const seedAssistant = (text = "seed") => ({
+	role: "assistant",
+	provider: "p",
+	model: "m",
+	api: "openai-completions",
+	content: [{ type: "text", text }],
+	stopReason: "stop",
+	timestamp: Date.now(),
+	usage: { input: 1, output: 1, totalTokens: 2, cost: { total: 1 } },
+});
+const injectUser = (text = "/council go") => ({
+	role: "user",
+	content: [{ type: "text", text }],
+	timestamp: Date.now(),
+});
+
+/** Faithful pi.appendEntry shim — sync wiring to appendCustomEntry (O2). */
+const piShim = (sm: SessionManager) => ({
+	appendEntry: (customType: string, data?: unknown): void => {
+		sm.appendCustomEntry(customType, data);
+	},
+});
+
+const ctxOf = (sm: SessionManager) => ({ sessionManager: sm });
+
+function newT11Session(): SessionManager {
+	const sm = SessionManager.inMemory(tmpDir());
+	sm.appendMessage(seedAssistant() as never); // O7: assistant first so the file is persisted
+	return sm;
+}
+
+test("T11 stamp round-trip: marker id = post-append leaf id; append-order resolution survives an intervening compaction; fail-closed returns null", () => {
+	const sm = newT11Session();
+	const markerId = recordInvocationBoundary(piShim(sm), ctxOf(sm), "council", "run-X");
+	expect(markerId).not.toBeNull();
+	// O2: the id is observable only via the leaf read-back — the marker IS the leaf
+	expect(markerId).toBe(sm.getLeafId());
+	const markerEntry = sm.getEntry(markerId!)!;
+	expect(markerEntry.type).toBe("custom");
+	expect((markerEntry as { customType: string }).customType).toBe("council-invocation");
+	expect((markerEntry as { data: { command: string; runId: string; at: number } }).data).toEqual({
+		command: "council",
+		runId: "run-X",
+		at: expect.any(Number),
+	});
+
+	// the real pre-prompt path: compaction check fires AFTER the marker advanced
+	// the leaf (appendCompaction parents on the then-leaf = the marker), then the
+	// injected user message is persisted on the compaction (O1) — the marker is
+	// still on-chain, and the boundary is the USER MESSAGE, not the compaction.
+	sm.appendCompaction("summary", markerId!, 0, undefined, false, {
+		input: 3, output: 3, totalTokens: 6, cost: { total: 1 },
+	} as never);
+	const userId = sm.appendMessage(injectUser() as never);
+	const rec = spendRecord({
+		entries: sm.getEntries(),
+		leafId: sm.getLeafId(),
+		sessionId: sm.getSessionId(),
+		markerId,
+		manifests: [],
+	});
+	expect(rec.boundary.resolved).toBe(true);
+	expect(rec.boundary.firstEntryId).toBe(userId); // append-order rule, not parentId === markerId
+	// Own half: the slice starts AT the boundary user message; the seed assistant
+	// is pre-boundary and the compaction/compaction usage sits before the user
+	// message too, and nothing after the boundary carries usage yet → all zeros.
+	expect(rec.ownSession.input).toBe(0);
+	expect(rec.ownSession.turns).toBe(0);
+	expect(rec.boundary.lastEntryId).toBe(sm.getLeafId());
+});
+
+test("T11 fail-closed: when the post-append leaf is not the marker, recordInvocationBoundary returns null", () => {
+	const sm = newT11Session();
+	// appendEntry no-op: the leaf stays the seed assistant, not a council-invocation marker
+	expect(recordInvocationBoundary({ appendEntry: () => {} }, ctxOf(sm), "council", "run-X")).toBeNull();
+	// and no marker entry was written
+	const markers = sm.getEntries().filter((e) => e.type === "custom" && e.customType === "council-invocation");
+	expect(markers.length).toBe(0);
+});
+
+test("T12 identical $ARGUMENTS, two invocations: each marker resolves its own boundary by append order, never content", () => {
+	const sm = newT11Session();
+	const m1 = recordInvocationBoundary(piShim(sm), ctxOf(sm), "council", "run-X");
+	expect(m1).not.toBeNull();
+	sm.appendCompaction("sum1", m1!, 0); // intervening compaction, as on the real path
+	const u1 = sm.appendMessage(injectUser("/council deploy the same args") as never);
+	sm.appendMessage(seedAssistant("mid") as never);
+	const m2 = recordInvocationBoundary(piShim(sm), ctxOf(sm), "council", "run-X");
+	expect(m2).not.toBeNull();
+	sm.appendCompaction("sum2", m2!, 0);
+	const u2 = sm.appendMessage(injectUser("/council deploy the same args") as never); // IDENTICAL text
+
+	const entries = sm.getEntries();
+	const leafId = sm.getLeafId();
+	const r1 = spendRecord({ entries, leafId, sessionId: "sess", markerId: m1, manifests: [] });
+	const r2 = spendRecord({ entries, leafId, sessionId: "sess", markerId: m2, manifests: [] });
+	expect(r1.boundary.resolved).toBe(true);
+	expect(r2.boundary.resolved).toBe(true);
+	expect(r1.boundary.firstEntryId).toBe(u1); // not u2 — its own injected message
+	expect(r2.boundary.firstEntryId).toBe(u2); // not u1 — identical text, resolved structurally
+	expect(findLatestInvocationMarker(entries, leafId)).toBe(m2); // recovery helper agrees
 });
 
 test("T14 ruling item 7: lastId is the active-chain end (leafId), never the last file entry on an abandoned branch", () => {

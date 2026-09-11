@@ -243,6 +243,29 @@ export function spendRecord(opts: {
 	};
 }
 
+/** Stamp the invocation boundary (spec §2.4): a synchronous, durable
+ * `council-invocation` custom entry appended BEFORE the procedure handler's
+ * sendUserMessage, in both TUI and headless branches. `pi.appendEntry` returns
+ * void (O2), so the marker id is observable only via the leaf read-back.
+ * Fail closed (Held #7): if the post-append leaf is not the marker (stale or
+ * replaced session — wiki `headless-pi`), return null and write no further
+ * state; an unresolved boundary is always preferable to a wrong one.
+ * Parent-mode only: seats never stamp (index.ts returns into runChildMode
+ * before procedure registration). */
+export function recordInvocationBoundary(
+	pi: { appendEntry<T = unknown>(customType: string, data?: T): void },
+	ctx: { sessionManager: { getLeafId(): string | null; getEntry(id: string): SessionEntry | undefined } },
+	command: string,
+	runId: string,
+): string | null {
+	pi.appendEntry("council-invocation", { command, runId, at: Date.now() });
+	const leafId = ctx.sessionManager.getLeafId();
+	if (leafId === null) return null;
+	const entry = ctx.sessionManager.getEntry(leafId);
+	if (!entry || entry.type !== "custom" || entry.customType !== "council-invocation") return null;
+	return leafId;
+}
+
 /** R-4 resolved label byte-exact; unresolved form per ruling item 3. */
 export function formatBoundaryLabel(record: SpendRecord): string {
 	const b = record.boundary;
