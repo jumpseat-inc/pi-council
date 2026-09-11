@@ -4,9 +4,9 @@ type: concept
 summary: The on-disk substrate that makes every council run navigable — per-job manifests and seat session JSONL under .pi/council/runs/, a job forest built from manifests, and the /council-tree + ctrl+shift+t live surface that reads it (inline below-editor as of EPIC-2).
 aliases: [runs, run manifests, transcript viewer, council-tree, session jsonl]
 tags: [pi-council/concept]
-sources: ["[[2026-08-25-smoke-test-bugfixes]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]"]
+sources: ["[[2026-08-25-smoke-test-bugfixes]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]", "[[2026-09-11-epic7-run-ledger]]"]
 created: 2026-08-25
-updated: 2026-09-03
+updated: 2026-09-11
 ---
 
 # Run Transcripts
@@ -22,8 +22,9 @@ of every seat at any nesting depth, live or after the fact.
 - **`runs/<runId>/run.json`** — run info (runId, startedAt, repoRoot, hostPid),
   written idempotently, never clobbered.
 - **`runs/<runId>/<jobId>.json`** — one `RunManifest` per job: id, seat, model,
-  parentJobId (nesting!), pid, sessionId, state, startedAt/settledAt, exitCode.
-  Written atomically (temp+rename).
+  parentJobId (nesting!), pid, sessionId, state, startedAt/settledAt, exitCode,
+  and the full flat **`usage`** tuple persisted at settle (EV-28,
+  [[usage-accounting]]). Written atomically (temp+rename).
 - **`runs/<runId>/<timestamp>_<jobId>.jsonl`** — the seat's full session
   transcript (pi session JSONL: thinking, toolCall args, toolResult outputs).
   `findSessionFile` locates one by reading each file's first line for its
@@ -32,7 +33,11 @@ of every seat at any nesting depth, live or after the fact.
   are never committed (see [[smoke-test]] — the harness reads them as dispatch
   evidence).
 - **Retention** — `pruneRuns` keeps the last **15** runs, dropping dead-PID ones
-  at parent `session_start`. Ephemeral telemetry, not durable state.
+  at parent `session_start`. Ephemeral telemetry, not durable state. **The
+  durable [[usage-store]] is the deliberate exception** — its records live at
+  `getAgentDir()/council/usage/`, survive pruning, and name the invoking
+  session JSONL path + entry range so a spend stays traceable after the run
+  directory is gone.
 
 ## The job forest (`extensions/tree.ts`)
 
@@ -99,6 +104,7 @@ activated palette and **repaints live on mid-session theme change** via
 - [[2026-08-25-council-tree-modal]] — the v0.11.4 full-screen modal fix (now superseded by [[council-job-tree-inline]])
 - [[2026-08-25-design-ev4-round1]] — the EV-4 audit/source
 - [[2026-08-26-po-ev8-ruling]], [[2026-08-26-po-ev9-tiny-regime-floor]] — binding rulings shaping the inline surface
+- [[usage-accounting]], [[usage-store]] — the EV-28 tuple on the manifest and the durable store that outlives the run dir
 
 ## Sources
 

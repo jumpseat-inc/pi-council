@@ -4,9 +4,9 @@ type: entity
 summary: The Council's product-judgment seat — rules open-judgment disputes, fold-in rulings, and mid-flow product decisions; card-level rulings are final among agents; portfolio matters escalate.
 aliases: [product-owner seat]
 tags: [pi-council/seat]
-sources: []
+sources: ["[[2026-09-11-epic7-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-04
+updated: 2026-09-11
 ---
 
 > ⚠️ Derived from `council/agents/product-owner.md` (captured 2026-08-23). Verify against the seat file.
@@ -42,6 +42,17 @@ operative pair; a ruling that satisfies the mechanism but not the value failed.
    gate cannot see — the structural expression of "decide the what, never
    design the how". Ruled EPIC-3's three mid-run escalations this way.
 
+### EPIC-7 (v0.18.0) — the goal-as-defect precedent
+
+EV-29's goal asked for "per-component cost figures reported by the provider";
+the provider has **no per-component dollar source at all** (see
+[[cost-provenance]]). Product-owner ruled the copy and record-shape items and
+escalated the goal wording to [[steward]], which amended the card goal in
+place. The general lesson: **a goal that must be reinterpreted against its own
+words to be satisfiable is the defect**, and goal-wording authority is the
+steward's. Product-owner also ruled EV-30's record shape (no `total`, per-half
+basis) and EV-31's read-back semantics in the same run.
+
 ## Grounding and escalation
 
 Rules from the vault wiki + board history; a ruling citing nothing is a "coin
@@ -60,3 +71,4 @@ to be the real defect).
 - `council/agents/product-owner.md`
 - [[2026-08-23-pi-council-design-spec]]
 - [[2026-09-04-epic3-run-ledger]] — the wave-3 ruling-only precedent + three rulings
+- [[2026-09-11-epic7-run-ledger]] — the goal-as-defect escalation (EV-29) + seven ruling dispatches

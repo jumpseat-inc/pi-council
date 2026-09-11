@@ -4,9 +4,9 @@ type: concept
 summary: The durable, locally-stored kanban state — council/board.md plus one card file per id, validated by validate.py, and the discipline that everything the Council does starts and records there.
 aliases: [board, card, kanban]
 tags: [pi-council/concept]
-sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]"]
+sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-06
+updated: 2026-09-11
 ---
 
 > ⚠️ Derived from `council/procedures/board-create-card.md`, `features-new.md` and `council/scaffold/council/board.md` @ `8913c6b`/`8f1882b` (captured 2026-08-23). Verify against the procedure files.
@@ -39,6 +39,9 @@ set of markdown files under `council/`:
   with its cards is the inconsistency `validate.py` exists to catch).
 - Card **goal text is immutable** once a card is `In Progress` — any work needing
   a goal edit is, by definition, a new card (not a fold-in, per the product-owner).
+  While a card is still `Deliberating`, an **amended goal is legal**, and
+  goal-wording authority is [[steward]]'s: EV-29's goal named a provider data
+  granularity that does not exist, and steward amended it in place (EPIC-7).
 - **Id allocation is a HEAD operation** (EPIC-3 collision lesson): a parallel
   session on a stale clone allocated `EPIC-3`/`EV-10..15` to itself and the
   mains diverged; reconciled by union merge, never rewrite. See
@@ -66,6 +69,10 @@ set of markdown files under `council/`:
   — at v0.18.0. A seat's mid-run `git checkout` briefly reverted board
   records; reflog recovery + the hardening chain (FLLWUP-16..20) closed
   the class.
+- [[2026-09-11-epic7-run-ledger]] — the board's **second epic-card closure**
+  (EPIC-7, five chain-promoted children, all Done); FLLWUP-27..35 filed as
+  `Backlog` residuals under the Done epic (and FLLWUP-36 dropped by the
+  human at the follow-up gate).
 
 ## Sources
 

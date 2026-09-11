@@ -4,9 +4,9 @@ type: concept
 summary: Backlog→Ready promotion for a dependent card chain is bound once as an automated cadence — the orchestrator promotes each card the moment its predecessor's merge SHA is on local main and validate.py is clean, without re-asking.
 aliases: [promotion cadence, automated promotion, P1-P5]
 tags: [pi-council/features-deliver, pi-council/process]
-sources: ["[[2026-09-03-po-epic4-promotion-cadence]]"]
+sources: ["[[2026-09-03-po-epic4-promotion-cadence]]", "[[2026-09-11-epic7-run-ledger]]"]
 created: 2026-09-04
-updated: 2026-09-04
+updated: 2026-09-11
 ---
 
 # Chain Promotion
@@ -36,6 +36,15 @@ executes it without re-asking.**
 
 Applied at every EPIC-4 link (EV-18→EV-19→EV-20→EV-21), including across
 session boundaries.
+
+## Applied at EPIC-7 — the first full five-link chain (2026-09-11)
+
+EV-28 → EV-30 → EV-31 → EV-32 → EV-29 promoted one at a time as each
+predecessor's merge SHA landed on local `main` with `validate.py` clean — no
+re-asking, and never a promotion to a card whose dependencies did not yet
+exist. The cadence held across all five cards (the longest chain it has
+carried), and the run closed EPIC-7 `Done`. See
+[[2026-09-11-epic7-run-ledger]].
 
 ## Related
 

@@ -1,5 +1,32 @@
 # Wiki Log
 
+## [2026-09-11] ingest | EPIC-7 run ledger — honest usage accounting, second epic closure
+
+Filed `vault/raw/2026-09-11-epic7-run-ledger.md` (the `/features-new` +
+`/features-deliver EPIC-7` run: five gated merges PRs #42–#46, 587→668 tests,
+EPIC-7 closed `Done`) and ingested it. Created [[usage-accounting]],
+[[spend-record]], [[usage-store]], [[usage-block]], [[cost-provenance]] + the
+source page. Updated [[pi-council-overview]] (EPIC-7 row; version stays
+v0.18.0), [[hub-job-supervision]] (⚠️ the `usage (input/output/cost/turns)`
+shape superseded by the full flat tuple; stall recurrence #3; the
+package-root/child-load failure class), [[run-transcripts]] (manifests carry
+usage; the durable store is the exception to pruning), [[council-runner]]
+(goal-as-defect, every-child-escalated, stall recurrence, Phase-0 should assert
+dispatch tools), [[deterministic-merge-check]] (five more merges; the
+branch-freshness artifact), [[chain-promotion]] (first full five-link chain),
+[[preflight]] (⚠️ branch-freshness artifact FLLWUP-27), [[eval-store-contract]]
+(⚠️ `cellScope.usage` widening pending FLLWUP-28; EV-28 whitelist),
+[[engineering-board]] (second epic closure; goal amendment while
+`Deliberating`), [[council-loop]] (usage block at exits), [[product-owner]]
+(the goal-as-defect escalation), [[steward]] (goal-wording authority,
+eval-boundary mechanism, epic closure), [[index]]. Key takeaways: a card's
+premise can be the defect (EV-29); Phase-1 literals settle copy, not
+placement/trigger/multiplicity/durable carrier; and the stall invariant needs
+a tool-level guard, not a third re-learning — plus the pricing finding that
+pi's catalogue was current and the 2–5x inflation is upstream routing. Lint
+fix: backfilled the [[pi-council-overview]] version table with the missing
+v0.17.0/v0.17.1/v0.18.0 rows (their own ingests never added them).
+
 ## [2026-09-06] ingest | EPIC-6 close-run ledger — BUG-1..FLLWUP-25, first epic-card closure
 
 Filed `vault/raw/2026-09-06-epic6-close-run-ledger.md` (the second

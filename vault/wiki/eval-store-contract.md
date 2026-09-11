@@ -4,9 +4,9 @@ type: concept
 summary: The on-disk eval results contract — ResultRecord and VerdictRecord keyed on full tuples (cellId, repeat, scoredUnder/gradedBy, fixtureVersion, rubricVersion), append-only, first-write-wins per tuple, scoredUnder "self" for gate-only, divergent payload throws.
 aliases: [eval results store, resultrecord, verdictrecord, eval store]
 tags: [pi-council/epic4]
-sources: ["[[2026-09-03-po-ev19-resultrecord-key]]", "[[2026-09-03-po-ev16-grader-topology]]", "[[2026-09-04-epic4-run-ledger]]"]
+sources: ["[[2026-09-03-po-ev19-resultrecord-key]]", "[[2026-09-03-po-ev16-grader-topology]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]"]
 created: 2026-09-04
-updated: 2026-09-04
+updated: 2026-09-11
 ---
 
 # Eval Store Contract
@@ -30,6 +30,15 @@ session start).
   `{usage{input,output,cost,turns}, elapsedMs, stopReason?, repoState:
   sha256:<64hex>}` — telemetry lives on the durable record because the
   job forest in `runs/` is pruned.
+
+> ⚠️ **`cellScope.usage` widening is pending (EPIC-7).** EV-28 widened the
+> **hub** `Usage` to the full flat tuple ([[usage-accounting]]) and
+> deliberately **whitelisted** `cellScope.usage` back to the recorded
+> `{input,output,cost,turns}` shape so this contract stayed intact — the
+> generic `usage: input.terminal.usage` assignment would otherwise have
+> silently widened the append-only store with no eval-layer code change.
+> Widening the durable record to the full tuple **and** amending this page
+> is FLLWUP-28 (Backlog); the whitelist is not a permanent shape.
 
 ## The key evolution (symmetric-mirror principle)
 
@@ -67,6 +76,7 @@ happened; silent loss is dishonesty.**
 - [[grader topology]] — why the verdict links by cellId.
 - [[2026-09-03-po-ev19-resultrecord-key]] — O1, the key ruling.
 - [[2026-09-03-po-ev16-grader-topology]] — the verdict schema origin.
+- [[usage-accounting]] — the EPIC-7 tuple whose widening is FLLWUP-28.
 
 ## Sources
 

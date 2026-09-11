@@ -7,7 +7,8 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 
 - [[pi-council-overview]] — Pi-council as an installable package: the Council
   + wiki workflow, two engine halves, the loop, and the release version arc
-  (through v0.18.0, where EPIC-6 closed).
+  (through v0.18.0: EPIC-6 closed, and EPIC-7's honest usage accounting landed
+  on main).
 
 ## Entities
 
@@ -65,6 +66,11 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[echo-then-run]] — The house confirm pattern: quote the exact resolved selection via the same function the write uses; echo == write by construction; never assert state the screen cannot compute.
 - [[chain-promotion]] — Dependent child chains promote Backlog→Ready automatically as each predecessor's merge lands; ruled once, executed without re-asking.
 - [[procedures-vs-commands]] — Markdown procedures (LLM judgment is the feature) vs TS commands (LLM obedience is required); the rule of thumb from EPIC-4.
+- [[usage-accounting]] — The EPIC-7 subsystem: the full flat token/cost tuple with `costBasis`/`usageSource` provenance, captured at the hub, recorded, stored, and reported.
+- [[spend-record]] — Invocation-scoped two halves (`ownSession` session-enumeration + `subtree` stream projection), each with its own basis; unresolvable boundary zeroes both.
+- [[usage-store]] — The durable store at `getAgentDir()/council/usage/`: one record per invocation, schema v2, `pointerSurvivable` + `ResolveOutcome`, surviving run pruning.
+- [[usage-block]] — The deterministic block at five autonomous exits: grammar identity across forms, three whole-block states (failed > unresolved > empty), the conditional `n/a` legend.
+- [[cost-provenance]] — pi computes cost from the static catalogue and never reads a provider charge; OpenRouter reports generation-level dollars + a BYOK-only split — no per-component dollars exist.
 
 ## Comparisons
 
@@ -108,6 +114,7 @@ _(none yet)_
 - [[2026-09-04-epic5-run-ledger]] — The EPIC-5 run: /council-models shipped end to end (resolver, first .council.json writer, modal, wiring); gate parity, echo-then-run, Phase 1 rulings preflight, stall recoveries.
 - [[2026-09-05-epic6-run-ledger]] — The EPIC-6 run: the model-name search filter (EV-26/EV-27) plus FLLWUP-9/10/11 closed; five gated merges, zero escalations, first fully-autonomous epic closure; stall recurrence, sub-dispatch loss, staged-set contamination lessons.
 - [[2026-09-06-epic6-close-run-ledger]] — The EPIC-6 close run: BUG-1 + FLLWUP-13..25 delivered (14 gated merges), the env-split contract proven (no 0.85.0 regression), the single-writer discipline hardened three layers deep, first epic-card closure, v0.18.0.
+- [[2026-09-11-epic7-run-ledger]] — The EPIC-7 run: honest token/cost usage accounting (EV-28/30/31/32/29, five gated merges) — every child escalated, the provider has no per-component dollar source, the stalled runner re-learned the window invariant, second epic-card closure at v0.18.0.
 - [[2026-09-03-po-ev16-grader-topology]] — Grader = harness-dispatched sibling, cellId linkage, three cost columns, no exclusion rule; Q1's repeat dimension superseded its first-write-wins clause.
 - [[2026-09-03-po-ev19-resultrecord-key]] — O1: ResultRecord key (cellId, repeat, scoredUnder) by symmetric mirroring; silent loss of a re-grade rejected.
 - [[2026-09-03-po-epic4-promotion-cadence]] — P1–P5: the automated Backlog→Ready chain for EPIC-4's children.

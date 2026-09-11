@@ -4,9 +4,9 @@ type: concept
 summary: The shell+script standard fixture that gates every council run — card-aware checks, MCP registration/auth, superpowers + ask-user-question pins, openrouter auth, and the lock-drift tripwire; any FAIL: line halts startup.
 aliases: [preflight gate]
 tags: [pi-council/concept]
-sources: ["[[2026-08-24-ask-user-question]]", "[[2026-09-06-epic6-close-run-ledger]]"]
+sources: ["[[2026-08-24-ask-user-question]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-06
+updated: 2026-09-11
 ---
 
 # Preflight
@@ -48,6 +48,16 @@ assertion in v0.3.0, expanded to cover tavily in v0.4.0, and the OpenRouter
 authorization assertion in v0.5.0. The ask-user-question gate landed with the
 second council dependency (see [[council-dependencies]]).
 
+⚠️ **Branch-freshness artifact (FLLWUP-27, EPIC-7).** The main-fast-forward
+check assumes the branch is based at `origin/main`. In an autonomous run the
+runner pushes its **board/card record commits to `main` mid-card**, so
+`origin/main` legitimately advances past the card branch's base and preflight
+reports `FAIL: local history does not descend from origin/main` at merge time
+on a *correctly-based* branch. The recording practice (not a criterion
+weakening): preflight is the run-start/owner-time gate; the step-11 re-run set
+is `tsc`/`bun test`/`validate.py` ([[deterministic-merge-check]]). FLLWUP-27
+proposes scoping the check to the branch merge-base.
+
 ## Contract
 
 `FAIL:` **halts the run** verbatim; the script prints no install steps (the
@@ -62,6 +72,7 @@ project-specific extensions, but the shipped check is presence-only).
 - [[2026-08-23-context7-preflight-plan]]
 - [[2026-09-06-epic6-close-run-ledger]] — the tripwire's motivation (three
   consecutive runs of silently lock-drifted local gates)
+- [[2026-09-11-epic7-run-ledger]] — the branch-freshness artifact (FLLWUP-27)
 
 ## Sources
 

@@ -4,9 +4,9 @@ type: concept
 summary: The facilitator-run deliberation → implement → verify → judge loop over a board card, bounded by round caps, token ceilings, gate discipline, and a human merge gate.
 aliases: [council run, deliberation loop]
 tags: [pi-council/concept]
-sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-04-epic5-run-ledger]]"]
+sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-04-epic5-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-04
+updated: 2026-09-11
 ---
 
 > ⚠️ Derived from `council/procedures/council.md` + `council-runner.md` (captured 2026-08-23). Verify against the procedure files.
@@ -56,6 +56,20 @@ disputes; ruling seats decide judgment; the human decides the rest.
   the EPIC-5 human waived per-card confirmation mid-run ("just file
   them"), which the orchestrator applied to the remaining follow-ups —
   the human may narrow their own gates, explicitly, for the run.
+
+## Autonomous-run refinements (EPIC-7)
+
+- **Usage reporting is now part of every exit** — /features-new,
+  /features-deliver Phase 3, /council, /council-eval, and a council-runner's
+  report each render a deterministic [[usage-block]]: the invocation's token
+  split, provenance-labelled dollar value, and accounting boundary.
+- **Every child can escalate** — EPIC-7's five cards produced seven ruling
+  dispatches because the feature's premise collided with the provider's real
+  granularity. The two-seat chain ([[product-owner]] → [[steward]]) resolved
+  each facts-only packet in one round.
+- **The card's goal can be the defect** — the EV-29 goal named a unit the
+  provider does not produce; [[steward]] amended it. A goal found wrong is not
+  a fold-in; it routes to the portfolio seat.
 
 ## Guards
 

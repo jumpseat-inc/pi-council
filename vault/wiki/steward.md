@@ -4,9 +4,9 @@ type: entity
 summary: The portfolio-authority seat and product-owner's escalation target — rules what the portfolio is for, build order, the order of card retirement, and permanent residuals. Never implements.
 aliases: [steward seat]
 tags: [pi-council/seat]
-sources: []
+sources: ["[[2026-09-11-epic7-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-03
+updated: 2026-09-11
 ---
 
 > ⚠️ Derived from `council/agents/steward.md` (captured 2026-08-23). Verify against the seat file.
@@ -41,6 +41,20 @@ Test: "does this move what the product is for, or just how one part of it works?
   flip. Prefers the cheapest-to-reverse option, naming reversibility.
 - Stand-in only from `product-owner` escalation or a genuine strategy fork.
 
+## Exercised in EPIC-7 (2026-09-11)
+
+- **Goal-wording authority** — [[product-owner]] escalated EV-29's goal
+  because it named a provider data granularity that does not exist; steward
+  amended the sentence in place (legal while the card is `Deliberating`, see
+  [[engineering-board]]) rather than declining or re-decomposing the card. The
+  cheapest-to-reverse fix (one frontmatter line) beat the expensive one (a new
+  card, reopening R-SCOPE/R-ORDER).
+- **Eval-boundary mechanism** — ruled the opt-in `boundaryMode: "marker"`
+  extension and the third R-5 state ([[usage-block]]) when product-owner
+  escalated the EV-32 items that touched EV-30's settled zero-both surface.
+- **Run closure** — ruled EPIC-7 `Done` on observed acceptance, ending the
+  run; FLLWUP-26..35 ride as `Backlog` residuals under the Done epic.
+
 ## Related
 
 - [[seats]], [[council-loop]], [[product-owner]], [[engineering-board]]
@@ -49,3 +63,4 @@ Test: "does this move what the product is for, or just how one part of it works?
 ## Sources
 
 - `council/agents/steward.md`, `council/procedures/council.md`
+- [[2026-09-11-epic7-run-ledger]] — goal amendment, eval-boundary mechanism, epic closure

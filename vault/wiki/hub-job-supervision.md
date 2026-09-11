@@ -4,9 +4,9 @@ type: concept
 summary: The battle-tested engine that spawns, monitors, stalls, times out, and sweeps seat subprocesses — the hub table, pid file, anti-stall kill, and the dispatch/wait/cancel tools.
 aliases: [hub, job table, council_dispatch]
 tags: [pi-council/concept]
-sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]"]
+sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-06
+updated: 2026-09-11
 ---
 
 # Hub Job Supervision
@@ -20,7 +20,12 @@ ported verbatim from the source repo — its semantics are stable.
 ## The hub table
 
 `Hub` (in `hub.ts`) keeps a `jobs` map: id, seat, pid, state, timestamps,
-`timeoutMs`, `stalledMs`, usage (input/output/cost/turns), stderr tail, events.
+`timeoutMs`, `stalledMs`, **the full flat usage tuple** — `input, output,
+cacheRead, cacheWrite, reasoning, totalTokens,
+costInput/costOutput/costCacheRead/costCacheWrite, cost, turns, costBasis,
+usageSource` (EV-28, [[usage-accounting]]) — stderr tail, events. ⚠️ The
+pre-EPIC-7 `usage (input/output/cost/turns)` shape is **superseded**; the cache,
+reasoning, component-cost and provenance fields are now retained.
 The monitor runs on an interval:
 
 - **Stall** — no activity for `stallMs` → `stalled`, SIGTERM then SIGKILL after 5s.
@@ -55,7 +60,7 @@ appends their names to the child's `--tools` allowlist for hub-enabled seats
 
 ## The wait-report format
 
-The report carries `state`, `turns`, `cost`, `output`, `stopReason`,
+The report carries `state`, the full usage tuple, `output`, `stopReason`,
 `errorMessage`, `stderrTail`. An **empty-done + `stopReason=length`** is surfaced
 as a model-config problem (see [[model-output-floors]]), not a silent success —
 this is the whitespace observer of the guard.
@@ -113,6 +118,19 @@ insufficient. See [[main-repo immutability]] and
 applied to content constraints; both dead containers again recovered
 from committed board state with zero work lost.
 
+**EPIC-7 recurrence #3 — the invariant is still orchestrator discipline
+(2026-09-11):** EV-31's first runner was dispatched with a 30-minute stall
+window — below the 45-minute owner ceiling it then waited on — and the hub
+anti-stall-killed it mid-wait. A fresh runner with a 75-minute window finished
+the card. Three consecutive runs have now re-learned "window > longest silent
+wait"; the durable fix is a **tool-level default/guard** on the dispatch tool,
+not a lesson re-stated in prose. Recovered from committed board state, zero
+work lost. A sibling failure class surfaced the same run: a **deleted package
+root** makes every child `pi` re-resolve packages, load no pi-council
+extension, and run as a vanilla hub-tool-less agent — the runner correctly
+`HALT`ed (`Tool council_dispatch not found`). The Phase-0 lesson is to assert
+the dispatch *tools* exist, not just that seat names resolve.
+
 ## Related
 
 - [[seats]], [[council-loop]], [[model-output-floors]]
@@ -131,3 +149,5 @@ from committed board state with zero work lost.
   institutionalized) + the sub-dispatch lifecycle lesson
 - [[2026-09-06-epic6-close-run-ledger]] — the close-run recurrence and
   the dual-layer (seat body + dispatch input) fix
+- [[2026-09-11-epic7-run-ledger]] — recurrence #3, the package-root failure
+  class, and the full-usage-tuple widening

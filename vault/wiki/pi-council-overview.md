@@ -4,9 +4,9 @@ type: overview
 summary: pi-council is an installable pi package pairing a multi-agent Council deliberation/implementation loop with an LLM-maintained wiki — the workflow's opinions are the product.
 aliases: [pi-council, council, the Council]
 tags: [pi-council/overview]
-sources: ["[[2026-08-23-readme]]", "[[2026-08-23-pi-council-design-spec]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]", "[[2026-09-03-v0.14.0-domain-neutral-stack-agnostic]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]"]
+sources: ["[[2026-08-23-readme]]", "[[2026-08-23-pi-council-design-spec]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]", "[[2026-09-03-v0.14.0-domain-neutral-stack-agnostic]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-06
+updated: 2026-09-11
 ---
 
 `pi-council` (v0.18.0) is an installable [pi](https://pi.dev) package, distributed
@@ -77,6 +77,11 @@ behavior change:
 | v0.15.0 | **EPIC-3 + EPIC-4 first half** — /features-new rebuilt as a three-wave seated deliberation (EV-10/11/12); the model eval harness foundations: design spec, per-run model override, 16 fixtures, pure scorer (EV-16..19) | [[three-wave-decomposition]], [[2026-09-04-epic3-run-ledger]], [[model-eval-harness]] |
 | v0.16.0 | **EPIC-4 second half** — `/council-eval` matrix runner (scratch-tree cells, eval store, snapshot persist, smoke Phase 3) and `/council-leaderboard` (per-command/per-seat rankings, CI triage, truthful empty states, smoke Phase 4); the first TS-registered product commands; CONFIRM-2 fixed the live summary's version-blind grouping | [[model-eval-harness]], [[eval-store-contract]], [[2026-09-04-epic4-run-ledger]] |
 
+| v0.17.0 | **EPIC-5: `/council-models` shipped** — catalogue resolver, `.council.json` writer, token-only modal picker, command wiring | [[council models picker]], [[council config writer]], [[2026-09-04-epic5-run-ledger]] |
+| v0.17.1 | **EPIC-6 first run** — the model-name search filter (EV-26/EV-27) + FLLWUP-9/10/11 | [[two-bit focus machine]], [[2026-09-05-epic6-run-ledger]] |
+| v0.18.0 | **EPIC-6 close run** — BUG-1 + FLLWUP-13..25; env-split contract, single-writer hardening, lock-drift tripwire; first epic-card closure | [[2026-09-06-epic6-close-run-ledger]] |
+| EPIC-7 (main) | **Honest usage accounting** — the full flat token/cost tuple with `costBasis`/`usageSource` provenance ([[usage-accounting]]), the invocation-scoped [[spend-record]], the durable [[usage-store]] at `getAgentDir()/council/usage/`, the five-exit [[usage-block]], and provider-reported figures ([[cost-provenance]]). All five children gated; EPIC-7 closed `Done`. Landed on `main`; version stays **v0.18.0** | [[2026-09-11-epic7-run-ledger]] |
+
 The wiki scaffold shipped in the same commit as the council scaffold — the
 wiki is not an add-on. The full arc and commit-message discipline live in the
 git log; this table is a secondary summary that can drift.
@@ -111,6 +116,7 @@ git log; this table is a secondary summary that can drift.
   close-run concepts
 - [[2026-09-06-epic6-close-run-ledger]] — the run that closed EPIC-6 and
   shipped v0.18.0
+- [[usage-accounting]], [[cost-provenance]] — the EPIC-7 accounting subsystem
 
 ## Sources
 

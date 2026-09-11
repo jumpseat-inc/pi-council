@@ -4,9 +4,9 @@ type: concept
 summary: Under /features-deliver the human merge gate is replaced by five mechanical criteria — owner gates, gates-SUCCESS on the PR head SHA, no blocking skeptic objection, judge PASS, no open ruling — executed with no discretion, merged with --match-head-commit.
 aliases: [merge gate, deterministic merge, five criteria merge]
 tags: [pi-council/features-deliver, pi-council/process]
-sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]"]
+sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]"]
 created: 2026-09-04
-updated: 2026-09-06
+updated: 2026-09-11
 ---
 
 # Deterministic Merge Check
@@ -66,6 +66,24 @@ silently. A mismatch is a **HALT, not a retry**.
 - Copy rulings were enforced at merge time as literal-string tests with
   gate-integrity injections (a one-word copy change turned 3 tests red).
 
+## Observed practice (EPIC-7 run)
+
+- Five more merges (PRs #42–#46: EV-28 `6768d25`, EV-30 `f33cbdf`,
+  EV-31 `f3bcd8a`, EV-32 `32a67a3`, EV-29 `ec33fc0`), squash method,
+  `--match-head-commit` pinned on every one; every head-SHA `gates` check
+  `SUCCESS`, every merged-SHA CI re-verified.
+- **All five cards escalated** (five [[product-owner]], two [[steward]]
+  round-trips) — the criterion that mattered was #5 (no outstanding
+  ruling), which forced the two-seat chain before each merge.
+- **The preflight branch-freshness artifact** (FLLWUP-27) recurred on
+  every card: `preflight.sh` reports `FAIL: local history does not descend
+  from origin/main` on a correctly-based branch once the runner pushes its
+  record commits to `main` mid-card. Resolved by recorded practice
+  (preflight is the run-start/owner-time gate; the step-11 re-run set is
+  `tsc`/`bun test`/`validate.py`), never by weakening a criterion.
+- One union merge (EV-30, `540aca6`); the first merge was announced
+  in-line; no push raced a check.
+
 ## Related
 
 - [[council loop]] — steps 9–12 this check overlays.
@@ -98,3 +116,7 @@ silently. A mismatch is a **HALT, not a retry**.
   dismissed (FLLWUP-14's prune exit 123) — the re-run is load-bearing;
   one empty judge output was re-dispatched (an empty output is not a
   verdict); the run closed with the epic card itself marked Done.
+- [[2026-09-11-epic7-run-ledger]] — five more (PRs #42–#46: EV-28
+  `6768d25`, EV-30 `f33cbdf`, EV-31 `f3bcd8a`, EV-32 `32a67a3`,
+  EV-29 `ec33fc0`): every card escalated, the branch-freshness artifact
+  ruled around, one union merge, EPIC-7 closed Done.

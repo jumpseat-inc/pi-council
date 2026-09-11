@@ -4,9 +4,9 @@ type: entity
 summary: The per-card autonomous execution container — dispatched by /features-deliver to run the full /council loop for one card in an isolated context; routes, counts, and writes the board but never decides.
 aliases: [council-runner, runner]
 tags: [pi-council/seat]
-sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]"]
+sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-06
+updated: 2026-09-11
 ---
 
 > ⚠️ Derived from `council/agents/council-runner.md` (captured 2026-08-23). Verify against the seat file.
@@ -137,6 +137,27 @@ reserved powers are re-homed per the authority map in `features-deliver.md`.
   cards of the run reconciled by clean rebase or fast-forward; the
   [[union-merge reconcile]] repair became avoidable, not just survivable.
 
+## Lessons from the EPIC-7 run
+
+- **A card's goal can be the defect** — EV-29's goal named a provider data
+  granularity that does not exist (there is no per-component dollar source;
+  see [[cost-provenance]]). The runner escalated it rather than re-scoping,
+  and [[steward]] amended the wording. Goal-wording authority is steward's.
+- **Every child can escalate** — five cards, seven ruling dispatches (five
+  [[product-owner]], two [[steward]]), each resolved in one facts-only round.
+  Phase-1 literals settle *copy*, not *placement, trigger, multiplicity, or
+  durable carrier* — the discovered-mechanism class.
+- **The stall invariant recurred a third time** — EV-31's first container
+  had a 30-min stall window under a 45-min owner ceiling and was
+  anti-stall-killed; the durable fix belongs in the dispatch tool's default,
+  not in orchestrator discipline. Recovered from committed board state.
+- **A vanished package root degrades children to vanilla agents** — every
+  child `pi` re-resolves packages at startup, so a deleted package root yields
+  a hub-tool-less agent (the runner correctly `HALT`ed). Phase 0 should assert
+  the dispatch *tools* exist, not just that seat names resolve.
+- **One union merge recurred** (EV-30) despite the EPIC-6 avoidance recipe —
+  "push records as they happen" reduces but does not eliminate it.
+
 ## Related
 
 - [[seats]], [[council-loop]]
@@ -147,6 +168,7 @@ reserved powers are re-homed per the authority map in `features-deliver.md`.
 - [[main-repo immutability]], [[verification-subject pinning]] — the hardening chain this seat now carries
 - [[env-split contract]] — why dispatch inputs must control the seat environment
 - [[2026-09-06-epic6-close-run-ledger]] — the close run's lessons
+- [[2026-09-11-epic7-run-ledger]] — the EPIC-7 usage-accounting run's lessons
 
 ## Sources
 
