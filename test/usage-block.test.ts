@@ -287,5 +287,6 @@ test("point-6: marker stamped → pending push carries the marker id and the mar
 	expect(pending[0]!.markerId === sm.getLeafId()).toBe(true);
 	expect(pending[0]!.runId).toBe("run-X");
 	expect(typeof pending[0]!.markerAt).toBe("number");
-	expect(pending[0]!.sessionFile !== null && pending[0]!.sessionFile !== undefined).toBe(true);
+	// sessionFile is getSessionFile() ?? null — an in-memory session legitimately has none
+	expect(pending[0]!.sessionFile).toBe(sm.getSessionFile() ?? null);
 });
