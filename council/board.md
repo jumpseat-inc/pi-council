@@ -39,11 +39,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-32 — Usage reported at every autonomous entry point
-
 ## Needs Human
 
 ## Done
+
+- EV-32 — Usage reported at every autonomous entry point
 
 - EV-31 — Durable usage store outside the pruned run directory, with session provenance
 
