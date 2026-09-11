@@ -20,7 +20,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-8 — council-leaderboard task drill-down filter
 - EPIC-5 — /council-models provider and model picker for per-seat .council.json overrides
 - EPIC-7 — Token and cost usage accounting for autonomous council invocations
-- EV-29 — Provider-reported actual cost and per-component divergence from the estimate
 - FLLWUP-26 — Per-run cumulative token ceiling guard in /council
 - FLLWUP-27 — Preflight branch-freshness clause vs mid-card record pushes
 - FLLWUP-28 — Widen cellScope.usage to the full tuple and amend the eval-store contract
@@ -30,10 +29,13 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-32 — Usage-store retention and compaction policy
 - FLLWUP-33 — Live end-to-end falsifier for the EV-31 gated write path
 - FLLWUP-34 — Bounded retry policy for a failed usage-store write
+- FLLWUP-35 — Usage/accounting wiki page for the EPIC-7 lineage
 
 ## Deliberating
 
 ## Ready
+
+- EV-29 — Provider-reported actual cost and per-component divergence from the estimate
 
 ## In Progress
 
