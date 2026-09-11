@@ -37,11 +37,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-31 — Durable usage store outside the pruned run directory, with session provenance
-
 ## Needs Human
 
 ## Done
+
+- EV-31 — Durable usage store outside the pruned run directory, with session provenance
 
 - EV-30 — Invocation-scoped spend record from the invoking session plus its job subtree
 
