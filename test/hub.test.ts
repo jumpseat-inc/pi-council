@@ -325,3 +325,65 @@ test("T7: no assistant message suppresses only the usage segment, across states"
 		expect(rep).not.toContain("tokens=");
 	}
 });
+
+// ---- EV-32: council_wait runner usage blocks (T10/T11) ----
+
+import { formatWaitReport } from "../extensions/hub-tools.ts";
+import type { RunManifest } from "../extensions/runs.ts";
+
+function reportOf(over: Partial<Parameters<typeof formatReport>[0]>): Parameters<typeof formatReport>[0] {
+	return {
+		id: "job-1", seat: "council-runner", state: "done", output: "", elapsedMs: 60_000,
+		usage: usageOf(), stderrTail: "", ...over,
+	};
+}
+
+function waitManifest(id: string, over: Partial<RunManifest> = {}): RunManifest {
+	return {
+		id, seat: "council-runner", model: "m/x", parentJobId: null, pid: null, sessionId: id,
+		state: "done", startedAt: 0, settledAt: null, exitCode: 0,
+		usage: usageOf(), ...over,
+	};
+}
+
+test("T10-wait: settled reports get the runner block (no ownSession, one subtree line, true job count); running/timeout get none", () => {
+	const manifests = [
+		waitManifest("job-w", { usage: usageOf({ input: 300, cost: 3, totalTokens: 600, turns: 1 }) }),
+		waitManifest("job-w.1", { parentJobId: "job-w", usage: usageOf({ input: 200, cost: 2, totalTokens: 400, turns: 1 }) }),
+		waitManifest("job-w2"), // running: no usage anyway
+	];
+	const reports = [
+		reportOf({ id: "job-w", state: "done", output: "card done" }),
+		reportOf({ id: "job-w2", state: "running" }),
+		reportOf({ id: "job-w3", state: "timeout" }),
+	];
+	const text = formatWaitReport(reports, manifests);
+	const wSection = text.split("====")[0]!;
+	expect(wSection).toContain("usage  subtree     basis=stream-assistant  turns=2 tokens=in 500/out 0/cR 0/cW 0/reason 0/total 1000 cost≈$5.0000 (catalogue)");
+	expect(wSection).toContain("usage  boundary=session=job-w entries=unresolved jobs=2");
+	expect(wSection).not.toContain("ownSession");
+	expect(wSection.split("\n").filter((l) => l.startsWith("usage  "))).toHaveLength(2);
+	// running / timed-out jobs: no block, ever
+	for (const section of text.split("====").slice(1)) {
+		expect(section.includes("usage  boundary=")).toBe(false);
+		expect(section.includes("basis=stream-assistant")).toBe(false);
+	}
+});
+
+test("T11-wait: settled job with no manifest renders state 1 — never blank; failed/cancelled/stalled are settled too", () => {
+	const text = formatWaitReport(
+		[
+			reportOf({ id: "job-x", state: "failed", stderrTail: "boom" }),
+			reportOf({ id: "job-y", state: "cancelled" }),
+			reportOf({ id: "job-z", state: "stalled" }),
+		],
+		[], // pre-EV-16: no manifests at all
+	);
+	const sections = text.split("====");
+	expect(sections[0]!.includes("usage  no usage recorded")).toBe(true);
+	expect(sections[1]!.includes("usage  no usage recorded")).toBe(true);
+	expect(sections[2]!.includes("usage  no usage recorded")).toBe(true);
+	for (const section of sections) {
+		expect(section.includes("ownSession")).toBe(false);
+	}
+});
