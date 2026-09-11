@@ -37,9 +37,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-29 — Provider-reported actual cost and per-component divergence from the estimate
-
 ## In Review
+
+- EV-29 — Provider-reported actual cost and per-component divergence from the estimate
 
 ## Needs Human
 
