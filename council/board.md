@@ -35,9 +35,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-31 — Durable usage store outside the pruned run directory, with session provenance
-
 ## In Review
+
+- EV-31 — Durable usage store outside the pruned run directory, with session provenance
 
 ## Needs Human
 
