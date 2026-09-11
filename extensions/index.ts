@@ -8,6 +8,7 @@ import { PKG_ROOT, listSeatNames, loadSeat, loadCouncilConfig, loadThemeConfig, 
 import { activateTheme } from "./theme-activation.ts";
 import { watchCouncilConfig, type CouncilConfigWatcher } from "./theme-watcher.ts";
 import { mintRunId, pruneRuns } from "./runs.ts";
+import { recordInvocationBoundary } from "./spend.ts";
 import { scaffoldInto } from "./scaffold.ts";
 import { installArgsFor, resolveCouncilDependencies } from "./dependencies.ts";
 import { getMcp } from "./mcp-load.ts";
@@ -215,6 +216,15 @@ export default async function (pi: ExtensionAPI) {
 			pi.registerCommand(name, {
 				description: argumentHint ? `${description} (${argumentHint})` : description,
 					handler: async (args, ctx) => {
+						// EV-30: make the invocation boundary durable before the send, in both
+						// the TUI and headless branches. pi.appendEntry is synchronous
+						// (agent-session.js:2029 → appendCustomEntry) and the marker does not
+						// participate in LLM context; fail-closed on a stale/replaced session
+						// (recordInvocationBoundary returns null, which EV-31/EV-32 must treat
+						// as an unresolved boundary). The send calls below are untouched, so
+						// the TUI fire-and-forget contract and the headless waitForIdle
+						// teardown hazard are unchanged.
+						recordInvocationBoundary(pi, ctx, name, getHub(repoRoot).runId ?? "");
 						const routed = renderProcedure(body, procDir, args);
 						if (ctx.mode === "tui") {
 							// Interactive: fire-and-forget — the turn streams to the UI and the
