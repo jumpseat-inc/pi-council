@@ -24,6 +24,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-31 — Durable usage store outside the pruned run directory, with session provenance
 - EV-32 — Usage reported at every autonomous entry point
 - FLLWUP-26 — Per-run cumulative token ceiling guard in /council
+- FLLWUP-27 — Preflight branch-freshness clause vs mid-card record pushes
+- FLLWUP-28 — Widen cellScope.usage to the full tuple and amend the eval-store contract
+- FLLWUP-29 — Persist Anthropic cacheWrite1h write-premium tokens
 
 ## Deliberating
 
