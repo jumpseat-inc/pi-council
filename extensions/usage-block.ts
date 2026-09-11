@@ -13,9 +13,10 @@
 // job-scope boundary row (formatBoundaryLabel hardcodes jobs=0, which would be
 // false here), with the same prefix, label column, basis field, ordering, and
 // whole-block states.
+import type { ProviderCostReport, ProviderGeneration } from "./provider-cost.ts";
 import type { RunManifest, Usage } from "./runs.ts";
 import { formatBoundaryLabel, accumulateFlat, zeroUsage, NUMERIC_METRICS, type SpendRecord } from "./spend.ts";
-import { formatMoney, formatTokensFragment } from "./usage-format.ts";
+import { formatMoney, formatReportedMoney, formatTokensFragment } from "./usage-format.ts";
 
 /** The two measurement halves (SpendRecord's own field names). */
 export type Half = "ownSession" | "subtree";
@@ -27,8 +28,11 @@ const UNRESOLVED_LINE = "usage  accounting boundary unresolved";
 const LEGEND_LINE = "usage  n/a = provider figure unavailable";
 const FAILED_PREFIX = "usage  accounting failed \u2014 "; // U+2014
 
+/** The block input (ruling C1): the record variant gains EV-29's optional
+ * provider report. Absent `provider` ⇒ byte-identical to the pre-EV-29 render
+ * (T-B3/T-B6). The three whole-block states return before any reported row. */
 export type UsageBlockInput =
-	| { record: SpendRecord; unavailableCost?: Half[] }
+	| { record: SpendRecord; unavailableCost?: Half[]; provider?: ProviderCostReport }
 	| { failed: string };
 
 /** Every numeric metric of a half is 0. */
@@ -44,10 +48,46 @@ function measurementRow(half: Half, u: Usage, unavailable: boolean): string {
 	return `usage  ${half.padEnd(10, " ")}  basis=${u.usageSource}  ${formatTokensFragment(u)} ${money}`;
 }
 
+/** C2's routed multiset: the REPORTED generations' providerName counts,
+ * ordered descending count then ascending name, `<name>x<n>` joined by commas
+ * with no spaces (ASCII `x`); `providerName === null` excluded. Returns the
+ * rendered multiset and the distinct-name count (the C2 fallback's K base). */
+function routedMultiset(generations: ProviderGeneration[]): { text: string; distinct: number } {
+	const counts = new Map<string, number>();
+	for (const g of generations) {
+		if (g.status !== "reported" || g.providerName === null) continue;
+		counts.set(g.providerName, (counts.get(g.providerName) ?? 0) + 1);
+	}
+	const entries = [...counts.entries()];
+	entries.sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0));
+	return {
+		text: entries.map(([name, n]) => `${name}x${n}`).join(","),
+		distinct: entries.length,
+	};
+}
+
+/** The one new row (C1/C2): `usage  reported  cost=$Σ.XXXX (reported)
+ * routed=<multiset>`, placed after the boundary row and before the legend.
+ * ≤160 columns hard: an overflowing multiset renders `routed=(mixed; +K more)`
+ * (K = distinct names − 1); the omitted names stay verbatim on the record —
+ * never wrapped, never truncated silently. An empty multiset omits the
+ * `routed=` segment (no invented copy). */
+function reportedRow(provider: ProviderCostReport): string {
+	const prefix = `usage  reported  ${formatReportedMoney(provider.totalCost!)}`;
+	const ms = routedMultiset(provider.generations);
+	let row = ms.text.length > 0 ? `${prefix} routed=${ms.text}` : prefix;
+	if ([...row].length > 160) {
+		row = `${prefix} routed=(mixed; +${Math.max(ms.distinct - 1, 0)} more)`;
+	}
+	return row;
+}
+
 /** The session-boundary form (points 1–4). Three whole-block states in the
  * precedence failed > unresolved > empty; the resolved form is two
- * measurement rows, the boundary row (R-4 verbatim), and the conditional
- * legend (present iff unavailableCost names ≥1 half — PO D/E). */
+ * measurement rows, the boundary row (R-4 verbatim), the conditional EV-29
+ * reported row (only when a dollar total was actually reported — C1), and the
+ * conditional legend (present iff unavailableCost names ≥1 half — PO D/E, or
+ * the EV-29 provider report is unavailable — C4/E). */
 export function formatUsageBlock(input: UsageBlockInput): string {
 	if ("failed" in input) {
 		// Newline-normalized so the state stays exactly one line.
@@ -57,12 +97,20 @@ export function formatUsageBlock(input: UsageBlockInput): string {
 	const record = input.record;
 	if (!record.boundary.resolved) return UNRESOLVED_LINE; // state 3
 	if (allZeroUsage(record.ownSession) && allZeroUsage(record.subtree)) return NO_USAGE_LINE; // state 1
-	const unavailable = input.unavailableCost ?? [];
+	const unavailable = [...(input.unavailableCost ?? [])];
+	// C4/E: an unavailable provider report marks the SUBTREE half (the reported
+	// figures' half) — cost=n/a + the legend, never a blank.
+	if (input.provider?.status === "unavailable" && !unavailable.includes("subtree")) {
+		unavailable.push("subtree");
+	}
 	const rows = [
 		measurementRow("ownSession", record.ownSession, unavailable.includes("ownSession")),
 		measurementRow("subtree", record.subtree, unavailable.includes("subtree")),
 		`usage  ${formatBoundaryLabel(record)}`,
 	];
+	// C1: exactly one reported row, only when a dollar figure was actually
+	// reported (zero reported generations ⇒ totalCost null ⇒ no row).
+	if (input.provider && input.provider.totalCost !== null) rows.push(reportedRow(input.provider));
 	if (unavailable.length > 0) rows.push(LEGEND_LINE);
 	return rows.join("\n");
 }

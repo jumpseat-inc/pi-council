@@ -46,6 +46,8 @@ test("T9b: formatMoney renders R-1 verbatim — U+2248 catalogue, plain $ report
 
 import { formatUsageBlock, formatRunnerUsageBlock, sumSubtreeUsage } from "../extensions/usage-block.ts";
 import { formatBoundaryLabel } from "../extensions/spend.ts";
+import { formatReportedMoney } from "../extensions/usage-format.ts";
+import type { ProviderCostReport, ProviderGeneration } from "../extensions/provider-cost.ts";
 import { sumSubtree, type RunManifest } from "../extensions/runs.ts";
 
 /** Resolved, measured fixture record (hand-built for full numeric control). */
@@ -234,6 +236,123 @@ test("T16: every line of every fixture render is ≤160 columns", () => {
 });
 
 // ---------------------------------------------------------------------------
+// EV-29: the provider-reported row — one new row after the boundary row and
+// before the legend (ruling C1); `routed=` multiset (C2); the provider-driven
+// subtree unavailability (C4/E); ≤160 hard (C2). The two measurement rows, the
+// boundary row, and the three whole-block states are unchanged (T-B6 is the
+// existing T1–T16 set running unmodified-expectations with no provider).
+// ---------------------------------------------------------------------------
+
+function providerGen(over: Partial<ProviderGeneration> = {}): ProviderGeneration {
+	return {
+		generationId: "gen-1",
+		jobId: "job-1",
+		model: "openrouter/anthropic/claude-x",
+		providerName: "Infermatic",
+		totalCost: 0.0042,
+		upstreamInferenceCost: null,
+		upstreamInferencePromptCost: null,
+		upstreamInferenceCompletionsCost: null,
+		cacheDiscount: null,
+		isByok: null,
+		nativeTokens: null,
+		status: "reported",
+		fetchedAt: "2026-09-11T00:00:00.000Z",
+		...over,
+	};
+}
+
+function providerReport(over: Partial<ProviderCostReport> = {}): ProviderCostReport {
+	return { status: "reported", totalCost: 0.0042, generations: [providerGen()], ...over };
+}
+
+test("T-B1 (C1 bytes): reported provider — the three existing rows byte-identical, then exactly one reported row, no legend", () => {
+	const noProvider = formatUsageBlock({ record: measuredRecord });
+	const withProvider = formatUsageBlock({ record: measuredRecord, provider: providerReport() });
+	const lines = withProvider.split("\n");
+	expect(lines).toHaveLength(4);
+	expect(lines[0]).toBe(noProvider.split("\n")[0]);
+	expect(lines[1]).toBe(noProvider.split("\n")[1]);
+	expect(lines[2]).toBe(noProvider.split("\n")[2]);
+	// the one new row, byte-exact R-1 via the composed formatter (never forked)
+	expect(lines[3]).toBe("usage  reported  cost=$0.0042 (reported) routed=Infermaticx1");
+	expect(lines[3]).toContain(formatReportedMoney(0.0042));
+	expect(withProvider).not.toContain("provider figure unavailable");
+});
+
+test("T-B2 (multiset): routed=ax2,bx1 — descending count, then ascending name, ASCII x, no spaces; providerName null excluded", () => {
+	const rep = providerReport({
+		totalCost: 0.03,
+		generations: [
+			providerGen({ generationId: "g1", providerName: "b", totalCost: 0.01 }),
+			providerGen({ generationId: "g2", providerName: "a", totalCost: 0.01 }),
+			providerGen({ generationId: "g3", providerName: "a", totalCost: 0.01 }),
+			providerGen({ generationId: "g4", providerName: null, totalCost: 0 }), // excluded
+		],
+	});
+	const row = formatUsageBlock({ record: measuredRecord, provider: rep }).split("\n")[3];
+	expect(row).toBe("usage  reported  cost=$0.0300 (reported) routed=ax2,bx1");
+});
+
+test("T-B3 (omission, C2): unavailable + zero reported → no reported row, subtree cost=n/a + legend; absent provider → bytes identical to today", () => {
+	const unavail: ProviderCostReport = { status: "unavailable", reason: "no-api-key", totalCost: null, generations: [] };
+	const b = formatUsageBlock({ record: measuredRecord, provider: unavail });
+	const lines = b.split("\n");
+	expect(lines).toHaveLength(4);
+	expect(lines.some((l) => l.includes("reported "))).toBe(false);
+	// the subtree half carries the marker; ownSession is unaffected
+	expect(lines[0]).toContain("cost≈$0.0123 (catalogue)");
+	expect(lines[1]).toContain("cost=n/a");
+	expect(lines.at(-1)).toBe("usage  n/a = provider figure unavailable");
+	// absent provider (and explicit undefined) → no row, no legend, byte-identical
+	const noProvider = formatUsageBlock({ record: measuredRecord });
+	expect(formatUsageBlock({ record: measuredRecord, provider: undefined })).toBe(noProvider);
+});
+
+test("T-B4 (partial): unavailable with ≥1 reported → subtree cost=n/a AND legend AND the reported row", () => {
+	const partial: ProviderCostReport = {
+		status: "unavailable",
+		reason: "fetch-failed:boom",
+		totalCost: 0.01,
+		generations: [
+			providerGen({ generationId: "g1", totalCost: 0.01 }),
+			providerGen({ generationId: "g2", status: "unavailable", reason: "timeout", providerName: null, totalCost: null }),
+		],
+	};
+	const b = formatUsageBlock({ record: measuredRecord, provider: partial });
+	const lines = b.split("\n");
+	expect(lines).toHaveLength(5);
+	expect(lines[1]).toContain("cost=n/a");
+	expect(lines[3]).toBe("usage  reported  cost=$0.0100 (reported) routed=Infermaticx1");
+	expect(lines.at(-1)).toBe("usage  n/a = provider figure unavailable");
+});
+
+test("T-B5 (≤160, C2): a wide multiset falls back to routed=(mixed; +K more); every line ≤160", () => {
+	const names = Array.from({ length: 30 }, (_, i) => `provider-${i}`);
+	const rep: ProviderCostReport = {
+		status: "reported",
+		totalCost: 0.03,
+		generations: names.map((n, i) => providerGen({ generationId: `g${i}`, providerName: n, totalCost: 0.001 })),
+	};
+	const b = formatUsageBlock({ record: measuredRecord, provider: rep });
+	for (const line of b.split("\n")) {
+		expect([...line].length).toBeLessThanOrEqual(160);
+	}
+	const reported = b.split("\n").find((l) => l.startsWith("usage  reported"))!;
+	expect(reported).toContain("routed=(mixed; +29 more)"); // K = distinct names − 1
+	expect(reported).not.toContain("provider-"); // omitted names stay verbatim on the record, never in the row
+});
+
+test("T-B6 (regression): existing renders stay byte-identical with no provider input (T1/T3/T4/T5/T8/T10 asserted above run unchanged)", () => {
+	// spot-pin the three whole-block states never gain a reported row or legend
+	expect(formatUsageBlock({ record: zeroRecord, provider: providerReport() })).toBe("usage  no usage recorded");
+	expect(formatUsageBlock({ record: unresolvedRecord, provider: providerReport() })).toBe(
+		"usage  accounting boundary unresolved",
+	);
+	expect(formatUsageBlock({ failed: "x" })).toBe("usage  accounting failed \u2014 x");
+});
+
+// ---------------------------------------------------------------------------
 // Task 5 (EV-32): the scanned-procedure stamp seam — spec §2.5 item 6 / PO
 // effect 6: a null marker (stale/replaced session) emits the R-5 failure state
 // synchronously and is never blank.
@@ -311,6 +430,9 @@ interface EvalHarness {
 	sent: string[];
 	handler: (args: string, ctx: ExtensionContext) => Promise<void>;
 	sm: SessionManager;
+	/** T-S5 (O-6): ordering log — the flush double's start/done markers and the
+	 * handler's summary emission land in one shared stream. */
+	eventLog: string[];
 }
 
 function evalHarness(): EvalHarness {
@@ -336,6 +458,7 @@ function evalHarness(): EvalHarness {
 	const pending: PendingInvocation[] = [];
 	const emitted: string[] = [];
 	const notes: Array<{ m: string; k: string }> = [];
+	const eventLog: string[] = [];
 	registerCouncilEvalCommand(pi, repoRoot, {
 		runMatrix: async () => {
 			// the double simulates the real run: cells settle with manifests
@@ -349,9 +472,14 @@ function evalHarness(): EvalHarness {
 			return { store: "", fixtureVersion: "1.0.0", rubricVersion: "1.0.0", summaries: [] };
 		},
 		pending,
-		flushUsage: (trigger, ctx) => {
+		flushUsage: async (trigger, ctx) => {
+			// T-S5 (O-6): the double is genuinely async — if the eval tail stops
+			// awaiting, the summary outruns flush-done and this test goes red.
+			eventLog.push("flush-start");
+			await new Promise((r) => setTimeout(r, 25));
+			eventLog.push("flush-done");
 			const smm = ctx.sessionManager;
-			const res = flushPendingInvocations({
+			const res = await flushPendingInvocations({
 				repoRoot,
 				entries: smm.getEntries(),
 				leafId: smm.getLeafId(),
@@ -364,7 +492,10 @@ function evalHarness(): EvalHarness {
 			pending.length = 0;
 			pending.push(...res.remaining);
 		},
-		sink: (line) => emitted.push(line),
+		sink: (line) => {
+			emitted.push(line);
+			eventLog.push("summary");
+		},
 	});
 	const sent = sentRef.sent;
 	const ctx = {
@@ -373,7 +504,7 @@ function evalHarness(): EvalHarness {
 		modelRegistry: { getAvailable: () => [{ provider: "p", id: "m" }] },
 		mode: "headless",
 	} as unknown as ExtensionContext;
-	return { repoRoot, pending, emitted, notes, sent, handler, sm };
+	return { repoRoot, pending, emitted, notes, sent, handler, sm, eventLog };
 }
 
 let evalStoreRoot = "";
@@ -420,6 +551,38 @@ test("T15: the eval run path stamps a marker, pushes boundaryMode:'marker', and 
 		expect(h.sm.getEntries().filter((e: SessionEntry) => e.type === "message").length).toBe(messageEntriesBefore);
 		// the block text never appears in the sink (deterministic engine sinks only)
 		expect(h.emitted.some((l) => l.startsWith("usage  "))).toBe(false);
+	} finally {
+		shutdownHub();
+	}
+});
+
+test("T-S5 (O-6): the eval tail awaits the flush — flush-done lands before the summary, pending drained", async () => {
+	const storeRoot = fs.mkdtempSync(path.join(os.tmpdir(), "ev32-eval-store-"));
+	setEvalStoreRoot(storeRoot);
+	const h = evalHarness();
+	try {
+		const task = listFixtureTasks(h.repoRoot)[0];
+		expect(task).toBeTruthy();
+		await h.handler(`${task} p/m`, {
+			hasUI: false,
+			sessionManager: h.sm,
+			modelRegistry: { getAvailable: () => [{ provider: "p", id: "m" }] },
+			mode: "headless",
+		} as unknown as ExtensionContext);
+		// the awaited tail observed the full async flush: start → done → summary.
+		// The 50ms settle lets a hypothetical un-awaited flush finish landing
+		// first — without it, an un-awaited tail's flush-done (index −1) would
+		// vacuously pass the ordering check. This is the O-6 falsifier.
+		await new Promise((r) => setTimeout(r, 60));
+		expect(h.eventLog).toContain("flush-start");
+		expect(h.eventLog.indexOf("flush-start")).toBeLessThan(h.eventLog.indexOf("flush-done"));
+		expect(h.eventLog[h.eventLog.length - 1]).toBe("summary");
+		expect(h.eventLog.indexOf("flush-done")).toBeLessThan(h.eventLog.lastIndexOf("summary"));
+		// the flush drained: no pending entry survives the awaited tail
+		expect(h.pending).toHaveLength(0);
+		// and the flush's real body ran to completion — exactly one written block
+		expect(h.notes).toHaveLength(1);
+		expect(h.notes[0]!.k).toBe("info");
 	} finally {
 		shutdownHub();
 	}

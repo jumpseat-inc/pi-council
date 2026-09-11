@@ -16,10 +16,12 @@ import {
 	readUsageRecords,
 	resolveProvenance,
 	usageRecordName,
+	type FlushProviderDeps,
 	type PendingInvocation,
 	type StoredUsageRecord,
 	type UsageProvenance,
 } from "../extensions/usage-store.ts";
+import { PROVIDER_COMPONENTS, providerComponentFigure, type GenerationResponse } from "../extensions/provider-cost.ts";
 
 // Captured BEFORE any test mutates the env (module top level runs at import):
 // T-U16 asserts the real default agent dir was never written.
@@ -454,7 +456,9 @@ test("T-U12 range-missing: file present, one or both ids absent → range-missin
 function flushSetup(): {
 	repo: Repo;
 	pending: PendingInvocation[];
-	flush: (trigger: "forest-settle" | "agent-settled" | "session-shutdown", pending: PendingInvocation[], opts?: { storeRoot?: string; notify?: (m: string, k: "info" | "warning") => void }) => ReturnType<typeof flushPendingInvocations>;
+	entries: SessionEntry[];
+	leafId: string;
+	flush: (trigger: "forest-settle" | "agent-settled" | "session-shutdown", pending: PendingInvocation[], opts?: { storeRoot?: string; notify?: (m: string, k: "info" | "warning") => void; providerDeps?: FlushProviderDeps }) => ReturnType<typeof flushPendingInvocations>;
 } {
 	const repo = repoWithRun("run-F");
 	const sessDir = tmpDir("ev31-sess-");
@@ -465,7 +469,7 @@ function flushSetup(): {
 	const flush = (
 		trigger: "forest-settle" | "agent-settled" | "session-shutdown",
 		pend: PendingInvocation[],
-		opts?: { storeRoot?: string; notify?: (m: string, k: "info" | "warning") => void },
+		opts?: { storeRoot?: string; notify?: (m: string, k: "info" | "warning") => void; providerDeps?: FlushProviderDeps },
 	) =>
 		flushPendingInvocations({
 			repoRoot: repo.root,
@@ -476,15 +480,15 @@ function flushSetup(): {
 			trigger,
 			...opts,
 		});
-	return { repo, pending, flush };
+	return { repo, pending, entries, leafId, flush };
 }
 
-test("T-U8 run dir removed before the write: exit-time (zero) subtree, manifestsObserved 0, pointer class stated", () => {
+test("T-U8 run dir removed before the write: exit-time (zero) subtree, manifestsObserved 0, pointer class stated", async () => {
 	const { repo, pending, flush } = flushSetup();
 	writeManifest(repo.root, repo.runId, manifest("job-1", { startedAt: T0 + 1500, exitCode: 0, state: "done" }));
 	fs.rmSync(path.join(repo.root, ".pi", "council", "runs", repo.runId), { recursive: true, force: true });
 	const storeRoot = tmpDir("ev31-store-");
-	const { outcomes } = flush("session-shutdown", pending, { storeRoot });
+	const { outcomes } = await flush("session-shutdown", pending, { storeRoot });
 	expect(outcomes).toHaveLength(1);
 	expect(outcomes[0]!.status).toBe("written");
 	const [record] = readUsageRecords(storeRoot);
@@ -497,13 +501,13 @@ test("T-U8 run dir removed before the write: exit-time (zero) subtree, manifests
 	expect(resolveProvenance(record!.provenance)).toBe("resolved");
 });
 
-test("T-U13 seam order (O1c): unsettled forest → no record at settle; manifest completes → exactly one record whose lastEntryId is the leaf; second settle → byte-identical no-op", () => {
+test("T-U13 seam order (O1c): unsettled forest → no record at settle; manifest completes → exactly one record whose lastEntryId is the leaf; second settle → byte-identical no-op", async () => {
 	const { repo, pending, flush } = flushSetup();
 	const storeRoot = tmpDir("ev31-store-");
 	writeManifest(repo.root, repo.runId, manifest("job-1", { startedAt: T0 + 1500, exitCode: null })); // still running
 
 	// first settle trigger while the child is still running: the gate decides — no write
-	const r1 = flush("agent-settled", pending, { storeRoot });
+	const r1 = await flush("agent-settled", pending, { storeRoot });
 	expect(r1.outcomes[0]!.status).toBe("gate-closed");
 	expect(r1.remaining).toHaveLength(1);
 	expect(readUsageRecords(storeRoot)).toHaveLength(0);
@@ -512,7 +516,7 @@ test("T-U13 seam order (O1c): unsettled forest → no record at settle; manifest
 	writeManifest(repo.root, repo.runId, manifest("job-1", { startedAt: T0 + 1500, exitCode: 0, state: "done", settledAt: T0 + 2500 }));
 
 	// next trigger: exactly one record, written once, stamped with the trigger that fired
-	const r2 = flush("agent-settled", pending, { storeRoot });
+	const r2 = await flush("agent-settled", pending, { storeRoot });
 	expect(r2.outcomes[0]!.status).toBe("written");
 	expect(r2.remaining).toHaveLength(0);
 	const records = readUsageRecords(storeRoot);
@@ -524,30 +528,30 @@ test("T-U13 seam order (O1c): unsettled forest → no record at settle; manifest
 	const bytes = fs.readFileSync(path.join(storeRoot, usageRecordName(T0 - 100, repo.runId, "council")), "utf-8");
 
 	// a second settle (session shutdown) observing the same still-on-chain marker: no-op
-	const r3 = flush("session-shutdown", pending, { storeRoot });
+	const r3 = await flush("session-shutdown", pending, { storeRoot });
 	expect(r3.outcomes[0]!.status).toBe("existing");
 	expect(readUsageRecords(storeRoot)).toHaveLength(1);
 	expect(fs.readFileSync(path.join(storeRoot, usageRecordName(T0 - 100, repo.runId, "council")), "utf-8")).toBe(bytes);
 });
 
-test("T-U13b unkeyable: a pending invocation with no marker time is never written (never fabricate) and surfaces a warning", () => {
+test("T-U13b unkeyable: a pending invocation with no marker time is never written (never fabricate) and surfaces a warning", async () => {
 	const { pending, flush } = flushSetup();
 	const storeRoot = tmpDir("ev31-store-");
 	const notes: string[] = [];
 	const unkeyable: PendingInvocation[] = [{ ...pending[0]!, markerAt: null }];
-	const { outcomes } = flush("session-shutdown", unkeyable, { storeRoot, notify: (m) => notes.push(m) });
+	const { outcomes } = await flush("session-shutdown", unkeyable, { storeRoot, notify: (m) => notes.push(m) });
 	expect(outcomes[0]!.status).toBe("unkeyable");
 	expect(readUsageRecords(storeRoot)).toHaveLength(0);
 	expect(notes.length).toBeGreaterThanOrEqual(1);
 });
 
-test("T-U14 (EV-32-amended) notify: the written block replaces the success notify (one notify = the block); EACCES → ≥1 notify with the absolute target path inside the R-5 literal; never throws", () => {
+test("T-U14 (EV-32-amended) notify: the written block replaces the success notify (one notify = the block); EACCES → ≥1 notify with the absolute target path inside the R-5 literal; never throws", async () => {
 	// success
 	const { repo, pending, flush } = flushSetup();
 	writeManifest(repo.root, repo.runId, manifest("job-1", { startedAt: T0 + 1500, exitCode: 0, state: "done" }));
 	const storeRoot = tmpDir("ev31-store-");
 	const successNotes: Array<{ m: string; k: string }> = [];
-	const r = flush("forest-settle", pending, { storeRoot, notify: (m, k) => successNotes.push({ m, k }) });
+	const r = await flush("forest-settle", pending, { storeRoot, notify: (m, k) => successNotes.push({ m, k }) });
 	expect(r.outcomes[0]!.status).toBe("written");
 	expect(successNotes).toHaveLength(1);
 	// PO J: the block replaces the flush success notify — one emission, the block
@@ -566,7 +570,7 @@ test("T-U14 (EV-32-amended) notify: the written block replaces the success notif
 		const failNotes: string[] = [];
 		let threw = false;
 		try {
-			const rf = flush("session-shutdown", pending, { storeRoot: roStore, notify: (m) => failNotes.push(m) });
+			const rf = await flush("session-shutdown", pending, { storeRoot: roStore, notify: (m) => failNotes.push(m) });
 			expect(rf.outcomes[0]!.status).toBe("failed");
 		} catch {
 			threw = true;
@@ -608,24 +612,24 @@ test("T-U16 env seam: no explicit root → the record lands under PI_CODING_AGEN
 // silent; a second settle after written → silent.
 // ---------------------------------------------------------------------------
 
-test("T12: written emits exactly one notify equal to formatUsageBlock(record); existing emits zero; second agent_settled after written emits zero", () => {
+test("T12: written emits exactly one notify equal to formatUsageBlock(record); existing emits zero; second agent_settled after written emits zero", async () => {
 	const { repo, pending, flush } = flushSetup();
 	writeManifest(repo.root, repo.runId, manifest("job-1", { startedAt: T0 + 1500, exitCode: 0, state: "done" }));
 	const storeRoot = tmpDir("ev31-store-");
 	const notes: string[] = [];
 	// written
-	const r1 = flush("agent-settled", pending, { storeRoot, notify: (m) => notes.push(m) });
+	const r1 = await flush("agent-settled", pending, { storeRoot, notify: (m) => notes.push(m) });
 	expect(r1.outcomes[0]!.status).toBe("written");
 	const [written] = readUsageRecords(storeRoot);
 	expect(notes).toHaveLength(1);
 	expect(notes[0]).toBe(formatUsageBlock({ record: written!.spend }));
 	// a second flush observing the same marker: existing → zero notifications
-	const r2 = flush("session-shutdown", pending, { storeRoot, notify: (m) => notes.push(m) });
+	const r2 = await flush("session-shutdown", pending, { storeRoot, notify: (m) => notes.push(m) });
 	expect(r2.outcomes[0]!.status).toBe("existing");
 	expect(notes).toHaveLength(1); // unchanged
 });
 
-test("T12b (EV-32): flushPendingInvocations forwards PendingInvocation.boundaryMode to spendRecord — marker mode resolves the eval invocation", () => {
+test("T12b (EV-32): flushPendingInvocations forwards PendingInvocation.boundaryMode to spendRecord — marker mode resolves the eval invocation", async () => {
 	const repo = repoWithRun("run-M");
 	const sessDir = tmpDir("ev31-sess-");
 	// marker-only chain: NO user message after the marker (the /council-eval shape)
@@ -642,7 +646,7 @@ test("T12b (EV-32): flushPendingInvocations forwards PendingInvocation.boundaryM
 		{ command: "council-eval", markerId: "ev_m1", runId: repo.runId, markerAt: marker.data.at, sessionFile: file, boundaryMode: "marker" },
 	];
 	const notes: string[] = [];
-	const r = flushPendingInvocations({
+	const r = await flushPendingInvocations({
 		repoRoot: repo.root, entries, leafId: "ev_a1", sessionId: SID, pending,
 		trigger: "agent-settled", storeRoot, notify: (m) => notes.push(m),
 	});
@@ -657,3 +661,181 @@ test("T12b (EV-32): flushPendingInvocations forwards PendingInvocation.boundaryM
 	expect(notes).toHaveLength(1);
 	expect(notes[0]).toBe(formatUsageBlock({ record: record!.spend }));
 });
+
+// ---------------------------------------------------------------------------
+// EV-29 — schema v2 provider sibling + async fetch-before-persist flush
+// (spec §2.2–§2.3; acceptance bullets 1–2; O-2 identity binding; O-7 ordering;
+// choose-once × provider).
+// ---------------------------------------------------------------------------
+
+/** An assistant entry carrying an OpenRouter generation id (responseId). */
+function assistantWithRid(id: string, parentId: string | null, ts: number, rid: string) {
+	const entry = assistantEntry(id, parentId, ts, { input: 1, totalTokens: 1, cost: { total: 1 } }) as {
+		message: Record<string, unknown>;
+	};
+	entry.message.responseId = rid;
+	return entry;
+}
+
+/** The EV-29 fixture: the standard chain in a session dir, plus an
+ * OpenRouter-modelled job whose session file lives INSIDE the run dir (the
+ * production path `findSessionFile` reads). */
+function openRouterFlushSetup(): ReturnType<typeof flushSetup> & { jobSessionPath: string } {
+	const s = flushSetup();
+	const jobSessionPath = path.join(s.repo.root, ".pi", "council", "runs", s.repo.runId, "job-1.jsonl");
+	fs.writeFileSync(
+		jobSessionPath,
+		[
+			{ type: "session", version: 3, id: "job-1", timestamp: iso(T0), cwd: s.repo.root },
+			assistantWithRid("ja1", null, T0 + 100, "gen-f1"),
+		].map((e) => JSON.stringify(e)).join("\n") + "\n",
+	);
+	writeManifest(
+		s.repo.root,
+		s.repo.runId,
+		manifest("job-1", { model: "openrouter/anthropic/claude-x", startedAt: T0 + 1500, exitCode: 0, settledAt: T0 + 2100, state: "done" }),
+	);
+	return { ...s, jobSessionPath };
+}
+
+const FIXTURE_RESPONSE = {
+	id: "gen-f1",
+	total_cost: 0.0042,
+	provider_name: "Infermatic",
+	native_tokens_prompt: 12,
+	native_tokens_cached: 880,
+	is_byok: true,
+};
+
+/** An injected transport that records every generation id it saw. */
+function recordingTransport(): { calls: string[]; fetchGeneration: (id: string) => Promise<GenerationResponse> } {
+	const calls: string[] = [];
+	return {
+		calls,
+		fetchGeneration: async (id: string) => {
+			calls.push(id);
+			return FIXTURE_RESPONSE;
+		},
+	};
+}
+
+test("T-S1 (acceptance 1 end to end): the flush persists the fixture response's values with schemaVersion 2; the transport saw exactly the session-harvested ids (O-2)", async () => {
+	const s = openRouterFlushSetup();
+	const storeRoot = tmpDir("ev31-store-");
+	const t = recordingTransport();
+	const notes: string[] = [];
+	const r = await flushPendingInvocations({
+		repoRoot: s.repo.root,
+		entries: s.entries,
+		leafId: s.leafId,
+		sessionId: SID,
+		pending: s.pending,
+		trigger: "agent-settled",
+		storeRoot,
+		notify: (m) => notes.push(m),
+		providerDeps: { fetchGeneration: t.fetchGeneration, apiKey: "k" },
+	});
+	expect(r.outcomes[0]!.status).toBe("written");
+	const [record] = readUsageRecords(storeRoot);
+	expect(record!.schemaVersion).toBe(2);
+	expect(record!.provider!.status).toBe("reported");
+	expect(record!.provider!.generations[0]!.totalCost).toBe(0.0042);
+	expect(record!.provider!.generations[0]!.providerName).toBe("Infermatic");
+	expect(record!.provider!.generations[0]!.nativeTokens!.cached).toBe(880);
+	expect(record!.provider!.generations[0]!.isByok).toBe(true);
+	expect(record!.provider!.generations[0]!.jobId).toBe("job-1");
+	// O-2 identity binding: the ids the transport saw are exactly those harvested
+	// from the invocation's own session file via findSessionFile — never a
+	// caller-supplied list.
+	expect(t.calls).toEqual(["gen-f1"]);
+	// spend byte-verbatim; the sibling lives on the wrapper, never inside spend
+	expect(Object.keys(record!.spend).sort()).toEqual(["boundary", "ownSession", "subtree"]);
+	expect("provider" in record!.spend).toBe(false);
+	// the written-transition emission is the block composed from the PERSISTED record
+	expect(notes[0]).toBe(formatUsageBlock({ record: record!.spend, provider: record!.provider }));
+	expect(notes[0]).toContain("usage  reported  cost=$0.0042 (reported) routed=Infermaticx1");
+});
+
+test("T-S2 (acceptance 2 end to end): a rejecting transport persists the unavailable report; providerComponentFigure returns the identical marker for every component, read back from disk", async () => {
+	const s = openRouterFlushSetup();
+	const storeRoot = tmpDir("ev31-store-");
+	const r = await flushPendingInvocations({
+		repoRoot: s.repo.root,
+		entries: s.entries,
+		leafId: s.leafId,
+		sessionId: SID,
+		pending: s.pending,
+		trigger: "agent-settled",
+		storeRoot,
+		providerDeps: {
+			fetchGeneration: async () => {
+				throw new Error("ECONNREFUSED");
+			},
+			apiKey: "k",
+		},
+	});
+	// a fetch failure NEVER takes the { failed } path — the record is written
+	expect(r.outcomes[0]!.status).toBe("written");
+	const [record] = readUsageRecords(storeRoot);
+	expect(record!.provider!.status).toBe("unavailable");
+	expect(record!.provider!.reason).toBe("fetch-failed:ECONNREFUSED");
+	expect((record!.provider!.reason ?? "").length).toBeGreaterThan(0);
+	for (const c of PROVIDER_COMPONENTS) {
+		expect(providerComponentFigure(record!.provider, c)).toBe("n/a");
+	}
+});
+
+test("T-S3 (ordering, O-1/O-7): a next-tick transport still lands — the awaited flush's record carries the fetched values; an early persist genuinely has no provider field", async () => {
+	const s = openRouterFlushSetup();
+	const storeRoot = tmpDir("ev31-store-");
+	await flushPendingInvocations({
+		repoRoot: s.repo.root,
+		entries: s.entries,
+		leafId: s.leafId,
+		sessionId: SID,
+		pending: s.pending,
+		trigger: "agent-settled",
+		storeRoot,
+		providerDeps: {
+			fetchGeneration: async (id: string) => {
+				await new Promise((r) => setTimeout(r, 0)); // resolves on a later tick
+				return { ...FIXTURE_RESPONSE, id };
+			},
+			apiKey: "k",
+		},
+	});
+	const [record] = readUsageRecords(storeRoot);
+	expect(record!.provider!.status).toBe("reported");
+	expect(record!.provider!.generations[0]!.totalCost).toBe(0.0042);
+	// contrast fixture: an early-persisting variant (no provider) yields a record
+	// with NO provider field — late-fetch, fetch-failure, and no-report records
+	// are three distinct shapes (O-7).
+	const early = persistInvocationUsage(persistInput(), tmpDir("ev31-store-early-"));
+	expect("provider" in early.record).toBe(false);
+});
+
+test("T-S4 (choose-once × provider): a second flush observes existing — byte-identical file, transport call count unchanged", async () => {
+	const s = openRouterFlushSetup();
+	const storeRoot = tmpDir("ev31-store-");
+	const t = recordingTransport();
+	const input = {
+		repoRoot: s.repo.root,
+		entries: s.entries,
+		leafId: s.leafId,
+		sessionId: SID,
+		pending: s.pending,
+		trigger: "agent-settled" as const,
+		storeRoot,
+		providerDeps: { fetchGeneration: t.fetchGeneration, apiKey: "k" },
+	};
+	const r1 = await flushPendingInvocations(input);
+	expect(r1.outcomes[0]!.status).toBe("written");
+	expect(t.calls).toEqual(["gen-f1"]);
+	const file = r1.outcomes[0]!.file!;
+	const bytes = fs.readFileSync(file, "utf-8");
+	const r2 = await flushPendingInvocations(input);
+	expect(r2.outcomes[0]!.status).toBe("existing");
+	expect(t.calls).toEqual(["gen-f1"]); // the choose-once file check precedes the fetch — never re-fetch
+	expect(fs.readFileSync(file, "utf-8")).toBe(bytes);
+});
+

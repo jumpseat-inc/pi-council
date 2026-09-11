@@ -23,11 +23,20 @@ import {
 	parseSessionEntries,
 	type SessionEntry,
 } from "@earendil-works/pi-coding-agent";
+import {
+	fetchProviderReport,
+	openRouterGenerationTransport,
+	resolveOpenRouterApiKey,
+	type FetchGeneration,
+	type ProviderCostReport,
+} from "./provider-cost.ts";
 import { spendRecord, type SpendRecord } from "./spend.ts";
 import { formatUsageBlock } from "./usage-block.ts";
-import { readManifests, runsDir } from "./runs.ts";
+import { findSessionFile, readManifests, runsDir } from "./runs.ts";
 
-export const USAGE_RECORD_SCHEMA_VERSION = 1;
+/** Ruling D: the wrapper's schema gains the EV-29 provider sibling. `spend`
+ * is untouched — EV-31's freeze covers `spend`, not the wrapper. */
+export const USAGE_RECORD_SCHEMA_VERSION = 2;
 
 export type UsageTrigger = "forest-settle" | "agent-settled" | "session-shutdown";
 
@@ -59,6 +68,10 @@ export interface StoredUsageRecord {
 	/** ISO-8601 write clock — the invocation time lives on the key, not here. */
 	writtenAt: string;
 	basis: { trigger: UsageTrigger; manifestsObserved: number };
+	/** EV-29 sibling (ruling D): the provider-reported figures, present only
+	 * when an OpenRouter-modelled seat ran in the invocation window. Absent on
+	 * non-OpenRouter runs and pre-EV-29 v1 records. */
+	provider?: ProviderCostReport;
 }
 
 /** The ruling's five values; read-time only, never stored. */
@@ -176,6 +189,9 @@ export interface PersistUsageInput {
 	markerAt: number;
 	trigger: UsageTrigger;
 	manifestsObserved: number;
+	/** EV-29: the provider report, copied only when defined (absent ⇒ a record
+	 * byte-identical to v1 modulo schemaVersion — never fabricated). */
+	provider?: ProviderCostReport;
 	/** Injectable write clock (default wall-clock ISO). */
 	now?: () => string;
 }
@@ -215,6 +231,7 @@ export function persistInvocationUsage(input: PersistUsageInput, storeRoot: stri
 		repoRoot: input.repoRoot,
 		writtenAt: now(),
 		basis: { trigger: input.trigger, manifestsObserved: input.manifestsObserved },
+		...(input.provider !== undefined ? { provider: input.provider } : {}),
 	};
 	const tmp = `${file}.tmp-${process.pid}`;
 	fs.writeFileSync(tmp, JSON.stringify(record, null, "\t") + "\n", { mode: 0o600 });
@@ -303,6 +320,19 @@ export interface PendingInvocation {
 
 export type FlushStatus = "written" | "existing" | "gate-closed" | "failed" | "unkeyable";
 
+/** The provider injection seam (spec §2.3): only the transport and the key
+ * are injectable. There is NO caller-supplied job or id list — the eligible
+ * jobs and their generation ids are harvested from the invocation's own
+ * manifests and session files, which is what makes the acceptance's
+ * never-fetch falsifier bite (O-2/O-7). Production callers pass nothing: the
+ * real transport and the resolved credential are the defaults. */
+export interface FlushProviderDeps {
+	fetchGeneration?: FetchGeneration;
+	apiKey?: string | null;
+	now?: () => string;
+	timeoutMs?: number;
+}
+
 export interface FlushOutcome {
 	markerId: string;
 	status: FlushStatus;
@@ -322,7 +352,7 @@ export interface FlushOutcome {
  * target path, and the pending entry dropped — never crashes the caller,
  * never retries against a failing store, never silently drops the
  * invocation. */
-export function flushPendingInvocations(input: {
+export async function flushPendingInvocations(input: {
 	repoRoot: string;
 	entries: SessionEntry[];
 	leafId: string | null;
@@ -332,7 +362,8 @@ export function flushPendingInvocations(input: {
 	notify?: (message: string, kind: "info" | "warning") => void;
 	storeRoot?: string;
 	now?: () => string;
-}): { outcomes: FlushOutcome[]; remaining: PendingInvocation[] } {
+	providerDeps?: FlushProviderDeps;
+}): Promise<{ outcomes: FlushOutcome[]; remaining: PendingInvocation[] }> {
 	const storeRoot = input.storeRoot ?? usageStoreDir();
 	const notify = input.notify ?? (() => {});
 	const byId = new Map(input.entries.map((e) => [e.id, e]));
@@ -379,6 +410,30 @@ export function flushPendingInvocations(input: {
 				manifests,
 				boundaryMode: p.boundaryMode ?? "user-message",
 			});
+			// EV-29 (spec §2.3): fetch the provider report AFTER the choose-once
+			// file check and BEFORE persist, so the durable record is final at write
+			// time and a second flush never re-fetches. Eligible jobs come from the
+			// invocation-window manifests already read for the gate — never a
+			// caller-supplied list (O-2). A fetch failure is converted INSIDE
+			// fetchProviderReport into the unavailable report (never the {failed}
+			// path); only a write failure reaches the catch below.
+			const apiKey = input.providerDeps?.apiKey !== undefined ? input.providerDeps.apiKey : resolveOpenRouterApiKey();
+			const jobs = manifests
+				.filter((m) => m.model.startsWith("openrouter/") && m.startedAt >= p.markerAt!)
+				.map((m) => ({
+					jobId: m.id,
+					model: m.model,
+					sessionPath: findSessionFile(input.repoRoot, p.runId, m.sessionId) ?? null,
+				}));
+			const provider = await fetchProviderReport({
+				repoRoot: input.repoRoot,
+				runId: p.runId,
+				jobs,
+				fetchGeneration: input.providerDeps?.fetchGeneration ?? openRouterGenerationTransport(apiKey ?? ""),
+				apiKey,
+				now: input.providerDeps?.now,
+				timeoutMs: input.providerDeps?.timeoutMs,
+			});
 			const res = persistInvocationUsage(
 				{
 					spend,
@@ -391,15 +446,18 @@ export function flushPendingInvocations(input: {
 					trigger: input.trigger,
 					manifestsObserved: manifests.length,
 					now: input.now,
+					...(provider !== null ? { provider } : {}),
 				},
 				storeRoot,
 			);
 			outcomes.push({ markerId: p.markerId, status: res.written ? "written" : "existing", file: res.file });
 			// EV-32 (PO G/J): the block IS the written-transition emission — it
 			// replaces EV-31's success notify (wording ownership transferred), so
-			// exactly one line-set lands, byte-equal to disk. `existing` stays
-			// silent (choose-once already satisfied at a prior settle).
-			notify(formatUsageBlock({ record: res.record.spend }), "info");
+			// exactly one line-set lands, byte-equal to disk. EV-29: the block is
+			// composed from the PERSISTED record's provider sibling, so "what was
+			// shown" and "what is on disk" are equal by construction. `existing`
+			// stays silent (choose-once already satisfied at a prior settle).
+			notify(formatUsageBlock({ record: res.record.spend, provider: res.record.provider }), "info");
 		} catch (e) {
 			const msg = e instanceof Error ? e.message : String(e);
 			outcomes.push({ markerId: p.markerId, status: "failed", file, error: msg });
