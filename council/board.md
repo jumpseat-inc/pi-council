@@ -30,11 +30,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- EV-30 — Invocation-scoped spend record from the invoking session plus its job subtree
-
 ## Ready
 
 ## In Progress
+
+- EV-30 — Invocation-scoped spend record from the invoking session plus its job subtree
 
 ## In Review
 
