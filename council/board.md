@@ -31,9 +31,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-## Ready
-
 - EV-31 — Durable usage store outside the pruned run directory, with session provenance
+
+## Ready
 
 ## In Progress
 
