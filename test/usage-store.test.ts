@@ -8,6 +8,7 @@ import {
 } from "@earendil-works/pi-coding-agent";
 import { ensureRunDir, pruneRuns, readManifests, writeManifest, type RunManifest, type Usage } from "../extensions/runs.ts";
 import { spendRecord } from "../extensions/spend.ts";
+import { formatUsageBlock } from "../extensions/usage-block.ts";
 import {
 	USAGE_RECORD_SCHEMA_VERSION,
 	flushPendingInvocations,
@@ -540,7 +541,7 @@ test("T-U13b unkeyable: a pending invocation with no marker time is never writte
 	expect(notes.length).toBeGreaterThanOrEqual(1);
 });
 
-test("T-U14 notify presence: exactly one success notify naming file/command/runId; EACCES → ≥1 notify containing the absolute target path; never throws", () => {
+test("T-U14 (EV-32-amended) notify: the written block replaces the success notify (one notify = the block); EACCES → ≥1 notify with the absolute target path inside the R-5 literal; never throws", () => {
 	// success
 	const { repo, pending, flush } = flushSetup();
 	writeManifest(repo.root, repo.runId, manifest("job-1", { startedAt: T0 + 1500, exitCode: 0, state: "done" }));
@@ -549,9 +550,10 @@ test("T-U14 notify presence: exactly one success notify naming file/command/runI
 	const r = flush("forest-settle", pending, { storeRoot, notify: (m, k) => successNotes.push({ m, k }) });
 	expect(r.outcomes[0]!.status).toBe("written");
 	expect(successNotes).toHaveLength(1);
-	expect(successNotes[0]!.m).toContain(r.outcomes[0]!.file!);
-	expect(successNotes[0]!.m).toContain("council");
-	expect(successNotes[0]!.m).toContain(repo.runId);
+	// PO J: the block replaces the flush success notify — one emission, the block
+	const [written] = readUsageRecords(storeRoot);
+	expect(successNotes[0]!.m).toBe(formatUsageBlock({ record: written!.spend }));
+	expect(successNotes[0]!.k).toBe("info");
 
 	// failure: a read-only PARENT dir makes the store mkdir fail with EACCES.
 	// (chmod 0500 on the store root itself would not: ensureUsageDir re-asserts
@@ -572,6 +574,10 @@ test("T-U14 notify presence: exactly one success notify naming file/command/runI
 		expect(threw).toBe(false); // caught per record, never crashes the caller
 		expect(failNotes.length).toBeGreaterThanOrEqual(1);
 		expect(failNotes.some((m) => m.includes(roStore))).toBe(true);
+		// R-5 failure literal + EV-31's T-U14 absolute-path property, composed
+		const failedNote = failNotes.find((m) => m.includes(roStore))!;
+		expect(failedNote.startsWith("usage  accounting failed \u2014 write failed for ")).toBe(true);
+		expect(failedNote).toContain(": ");
 	} finally {
 		fs.chmodSync(parent, 0o700);
 	}
@@ -595,4 +601,59 @@ test("T-U16 env seam: no explicit root → the record lands under PI_CODING_AGEN
 	// nothing landed at the real default path
 	expect(fs.existsSync(path.join(REAL_AGENT_DIR, "council", "usage", path.basename(res.file)))).toBe(false);
 	expect(fs.existsSync(path.join(envHome, "council", "usage", "README.md"))).toBe(true);
+});
+
+// ---------------------------------------------------------------------------
+// T12 (EV-32) — one emission per invocation: written → the block; existing →
+// silent; a second settle after written → silent.
+// ---------------------------------------------------------------------------
+
+test("T12: written emits exactly one notify equal to formatUsageBlock(record); existing emits zero; second agent_settled after written emits zero", () => {
+	const { repo, pending, flush } = flushSetup();
+	writeManifest(repo.root, repo.runId, manifest("job-1", { startedAt: T0 + 1500, exitCode: 0, state: "done" }));
+	const storeRoot = tmpDir("ev31-store-");
+	const notes: string[] = [];
+	// written
+	const r1 = flush("agent-settled", pending, { storeRoot, notify: (m) => notes.push(m) });
+	expect(r1.outcomes[0]!.status).toBe("written");
+	const [written] = readUsageRecords(storeRoot);
+	expect(notes).toHaveLength(1);
+	expect(notes[0]).toBe(formatUsageBlock({ record: written!.spend }));
+	// a second flush observing the same marker: existing → zero notifications
+	const r2 = flush("session-shutdown", pending, { storeRoot, notify: (m) => notes.push(m) });
+	expect(r2.outcomes[0]!.status).toBe("existing");
+	expect(notes).toHaveLength(1); // unchanged
+});
+
+test("T12b (EV-32): flushPendingInvocations forwards PendingInvocation.boundaryMode to spendRecord — marker mode resolves the eval invocation", () => {
+	const repo = repoWithRun("run-M");
+	const sessDir = tmpDir("ev31-sess-");
+	// marker-only chain: NO user message after the marker (the /council-eval shape)
+	const file = writeSessionFile(sessDir, SID, [
+		assistantEntry("ev_pre", null, T0 - 500, { input: 100, totalTokens: 100, cost: { total: 100 } }),
+		markerEntry("ev_m1", "ev_pre", T0 - 100, repo.runId),
+		assistantEntry("ev_a1", "ev_m1", T0 + 2000, { input: 6, totalTokens: 6, cost: { total: 6 } }),
+	]);
+	const entries = parseFixture(file);
+	const marker = entries.find((e) => e.id === "ev_m1") as unknown as { data: { at: number } };
+	writeManifest(repo.root, repo.runId, manifest("job-m1", { startedAt: T0 + 2000, exitCode: 0, state: "done", usage: flatUsage({ input: 30, totalTokens: 30, cost: 3, turns: 1 }) }));
+	const storeRoot = tmpDir("ev31-store-");
+	const pending: PendingInvocation[] = [
+		{ command: "council-eval", markerId: "ev_m1", runId: repo.runId, markerAt: marker.data.at, sessionFile: file, boundaryMode: "marker" },
+	];
+	const notes: string[] = [];
+	const r = flushPendingInvocations({
+		repoRoot: repo.root, entries, leafId: "ev_a1", sessionId: SID, pending,
+		trigger: "agent-settled", storeRoot, notify: (m) => notes.push(m),
+	});
+	expect(r.outcomes[0]!.status).toBe("written");
+	const [record] = readUsageRecords(storeRoot);
+	// marker mode resolved despite never injecting a user message
+	expect(record!.spend.boundary.resolved).toBe(true);
+	expect(record!.spend.boundary.firstEntryId).toBe("ev_m1");
+	expect(record!.spend.boundary.lastEntryId).toBe("ev_a1");
+	expect(record!.spend.boundary.jobCount).toBe(1);
+	expect(record!.spend.subtree.totalTokens).toBe(30);
+	expect(notes).toHaveLength(1);
+	expect(notes[0]).toBe(formatUsageBlock({ record: record!.spend }));
 });

@@ -88,7 +88,10 @@ function accumulateWire(into: Usage, u: WireUsage | undefined): void {
 
 /** Flat RunManifest.usage summation — the manifest tuple is already EV-28-shaped
  * (scalar cost + cost* components), not the nested wire shape. */
-const NUMERIC_METRICS: UsageMetric[] = [
+/** The numeric metrics a manifest/half Usage can be summed over (the two
+ * string-valued fields cannot be). Exported for EV-32's additive
+ * sumSubtreeUsage in usage-block.ts. */
+export const NUMERIC_METRICS: UsageMetric[] = [
 	"input",
 	"output",
 	"cacheRead",
@@ -103,7 +106,9 @@ const NUMERIC_METRICS: UsageMetric[] = [
 	"turns",
 ];
 
-function accumulateFlat(into: Usage, u: Usage | undefined): void {
+/** Flat Usage summation over every numeric metric. Exported for EV-32's
+ * additive sumSubtreeUsage in usage-block.ts. */
+export function accumulateFlat(into: Usage, u: Usage | undefined): void {
 	if (!u) return; // legacy/partial manifest: counts in jobCount, adds 0
 	for (const k of NUMERIC_METRICS) into[k] += u[k] || 0;
 }
@@ -145,8 +150,18 @@ export function spendRecord(opts: {
 	markerId: string | null;
 	/** readManifests(repoRoot, runId) for the session's run dir. */
 	manifests: RunManifest[];
+	/** Steward A(c): the boundary anchor. Default "user-message" — first on-chain
+	 * user message after the marker, byte-preserving. "marker" (opt-in, for
+	 * invocations whose handler awaits and never injects a user message): the
+	 * anchor IS the marker, required present and on-chain; then resolved=true,
+	 * firstEntryId = markerId, lastEntryId = leafId, and the forest gate's clock
+	 * is the marker entry's own recorded timestamp (the same timestamp field the
+	 * default mode reads off the boundary entry — in this mode the marker entry
+	 * IS the boundary entry). Marker absent/off-chain → the identical unresolved
+	 * zero-both record (EV-30's rejected-option-4 invariant stands). */
+	boundaryMode?: "user-message" | "marker";
 }): SpendRecord {
-	const { entries, leafId, sessionId, markerId, manifests } = opts;
+	const { entries, leafId, sessionId, markerId, manifests, boundaryMode = "user-message" } = opts;
 	const ownSession = zeroUsage("catalogue-estimate", "session-reconciled");
 	const subtree = zeroUsage("catalogue-estimate", "stream-assistant");
 	const byId = new Map(entries.map((e) => [e.id, e]));
@@ -159,12 +174,18 @@ export function spendRecord(opts: {
 	// the leaf before the injected user message is persisted).
 	let boundaryId: string | null = null;
 	if (markerId && byId.has(markerId) && onChain.has(markerId)) {
-		const markerIdx = entries.findIndex((e) => e.id === markerId);
-		for (let i = markerIdx + 1; i < entries.length; i++) {
-			const e = entries[i]!;
-			if (e.type === "message" && e.message.role === "user" && onChain.has(e.id)) {
-				boundaryId = e.id;
-				break;
+		if (boundaryMode === "marker") {
+			// Steward A(c): an extension, not a relaxation — the marker is itself
+			// the boundary; no new label token, no invented timestamp.
+			boundaryId = markerId;
+		} else {
+			const markerIdx = entries.findIndex((e) => e.id === markerId);
+			for (let i = markerIdx + 1; i < entries.length; i++) {
+				const e = entries[i]!;
+				if (e.type === "message" && e.message.role === "user" && onChain.has(e.id)) {
+					boundaryId = e.id;
+					break;
+				}
 			}
 		}
 	}

@@ -3,8 +3,8 @@ import * as os from "node:os";
 import * as path from "node:path";
 import { CONFIG_DIR_NAME, type ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
-import { Hub, type JobReport } from "./hub.ts";
-import { type Usage } from "./runs.ts";
+import { Hub, type JobReport, type JobState } from "./hub.ts";
+import { type RunManifest, readManifests } from "./runs.ts";
 import { buildChildArgv, buildSystemPrompt, loadSeat, proceduresDir, resolveEffectiveModel } from "./seats.ts";
 import { childEnv, ensureRunDir, mintRunId } from "./runs.ts";
 import { getMcp } from "./mcp-load.ts";
@@ -42,19 +42,12 @@ export function shutdownHub(): void {
 	hubSingleton = null;
 }
 
-/** The usage segment of the council_wait head line (EV-28 spec §2.5 / step-6
- * ruling Q5 + R-1): fixed token order in/out/cR/cW/reason/total (persisted
- * fields stay cacheRead/cacheWrite/reasoning; only the labels collapse, and
- * `reason` avoids colliding with stopReason), no thousands separators, `turns`
- * first, labelled money rightmost; `≈` is U+2248 for the catalogue estimate,
- * `$` for a reported charge. */
-export function formatUsageSegment(u: Usage): string {
-	const money =
-		u.costBasis === "reported"
-			? `cost=$${u.cost.toFixed(4)} (reported)`
-			: `cost≈$${u.cost.toFixed(4)} (catalogue)`; // ≈ is U+2248
-	return `turns=${u.turns} tokens=in ${u.input}/out ${u.output}/cR ${u.cacheRead}/cW ${u.cacheWrite}/reason ${u.reasoning}/total ${u.totalTokens} ${money}`;
-}
+// EV-32: the segment lives in usage-format.ts (with the extracted
+// formatTokensFragment/formatMoney fragments); imported + re-exported here so
+// EV-28's landed import and byte test are untouched.
+import { formatUsageSegment } from "./usage-format.ts";
+import { formatRunnerUsageBlock, sumSubtreeUsage } from "./usage-block.ts";
+export { formatUsageSegment };
 
 export function formatReport(r: JobReport): string {
 	const mins = (r.elapsedMs / 60_000).toFixed(1);
@@ -73,6 +66,25 @@ export function formatReport(r: JobReport): string {
 	const err =
 		(r.state === "failed" || r.state === "stalled") && r.stderrTail ? `\n--- stderr tail ---\n${r.stderrTail}` : "";
 	return head + body + provErr + emptyWarn + err;
+}
+
+/** EV-32 point 5 (PO C, steward I): append the runner-shaped usage block to
+ * every settled job's report (done|failed|cancelled|stalled), built from
+ * `sumSubtreeUsage` over the job's subtree (inclusive, every numeric metric).
+ * The parent renders; the runner never self-computes (its session has no
+ * marker — a null marker zeroes both halves). Running or timed-out jobs get
+ * no block (not a conclusion); a settled job with no manifest (pre-EV-16)
+ * renders state 1 — never blank. The EV-28 head-line segment is untouched. */
+export function formatWaitReport(reports: JobReport[], manifests: RunManifest[]): string {
+	const settled: ReadonlySet<JobState> = new Set(["done", "failed", "cancelled", "stalled"]);
+	return reports
+		.map((r) => {
+			const base = formatReport(r);
+			if (!settled.has(r.state)) return base;
+			const { subtree, jobCount } = sumSubtreeUsage(manifests, r.id);
+			return `${base}\n\n${formatRunnerUsageBlock({ sessionId: r.id, jobCount, subtree })}`;
+		})
+		.join("\n\n====\n\n");
 }
 
 export function registerHubTools(pi: ExtensionAPI, repoRoot: string, opts: HubToolOptions = {}): void {
@@ -223,8 +235,11 @@ export function registerHubTools(pi: ExtensionAPI, repoRoot: string, opts: HubTo
 		async execute(_id, params, signal) {
 			const hub = getHub(repoRoot);
 			const reports = await hub.wait(params.job_ids, params.timeout_minutes * 60_000, signal);
+			// EV-32 point 5: each settled report carries its runner usage block,
+			// rendered parent-side from the run dir's manifests.
+			const manifests = readManifests(repoRoot, hub.runId ?? "");
 			return {
-				content: [{ type: "text", text: reports.map(formatReport).join("\n\n====\n\n") }],
+				content: [{ type: "text", text: formatWaitReport(reports, manifests) }],
 				details: { reports },
 			};
 		},

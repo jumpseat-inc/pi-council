@@ -24,6 +24,7 @@ import {
 	type SessionEntry,
 } from "@earendil-works/pi-coding-agent";
 import { spendRecord, type SpendRecord } from "./spend.ts";
+import { formatUsageBlock } from "./usage-block.ts";
 import { readManifests, runsDir } from "./runs.ts";
 
 export const USAGE_RECORD_SCHEMA_VERSION = 1;
@@ -292,6 +293,12 @@ export interface PendingInvocation {
 	markerAt: number | null;
 	/** ctx.sessionManager.getSessionFile() ?? null. */
 	sessionFile: string | null;
+	/** Steward A(c): the boundary anchor for spendRecord at flush. Default
+	 * "user-message" — byte-preserving for every existing caller; the scanned
+	 * procedure push omits it. Set "marker" for await-without-injection
+	 * handlers (/council-eval). The discriminator lives on the store record,
+	 * never on EV-30's returned SpendRecord. */
+	boundaryMode?: "user-message" | "marker";
 }
 
 export type FlushStatus = "written" | "existing" | "gate-closed" | "failed" | "unkeyable";
@@ -370,6 +377,7 @@ export function flushPendingInvocations(input: {
 				sessionId: input.sessionId,
 				markerId: p.markerId,
 				manifests,
+				boundaryMode: p.boundaryMode ?? "user-message",
 			});
 			const res = persistInvocationUsage(
 				{
@@ -387,12 +395,16 @@ export function flushPendingInvocations(input: {
 				storeRoot,
 			);
 			outcomes.push({ markerId: p.markerId, status: res.written ? "written" : "existing", file: res.file });
-			// Wording is EV-32's (ruling item 2); EV-31 owns the call site only.
-			notify(`council usage: usage record written (command=${p.command}, run=${p.runId}): ${res.file}`, "info");
+			// EV-32 (PO G/J): the block IS the written-transition emission — it
+			// replaces EV-31's success notify (wording ownership transferred), so
+			// exactly one line-set lands, byte-equal to disk. `existing` stays
+			// silent (choose-once already satisfied at a prior settle).
+			notify(formatUsageBlock({ record: res.record.spend }), "info");
 		} catch (e) {
 			const msg = e instanceof Error ? e.message : String(e);
 			outcomes.push({ markerId: p.markerId, status: "failed", file, error: msg });
-			notify(`council usage: write failed for ${file}: ${msg}`, "warning");
+			// R-5 failure state with EV-31's T-U14 absolute-path property composed in.
+			notify(formatUsageBlock({ failed: `write failed for ${file}: ${msg}` }), "warning");
 		}
 	}
 	return { outcomes, remaining };
