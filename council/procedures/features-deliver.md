@@ -123,6 +123,9 @@ report:
   requires of an attended run: never a prose bullet, always its own card,
   drafted and confirmed before it's written.
 
+Carry each card's runner usage block verbatim from the `council_wait` report
+into this ledger's per-card entry.
+
 ## The deterministic merge check
 
 This is what replaces the human at the merge gate. It is executed
