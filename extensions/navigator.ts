@@ -812,6 +812,15 @@ export class TranscriptView implements Component {
 		}
 		const focusLine = starts[fv] ?? 0;
 		const maxTop = Math.max(0, all.length - this.viewportRows);
+		if (this.viewportRows === 1) {
+			// EV-36 (R3): one-row floor — the effective-indexed unit's composed head,
+			// read-only. follow ? live tail : cursor. No write to `focused` (Q2); the
+			// marker stays the existing `vi === fv` gate, so a fresh follow-on view
+			// at vis.length > 1 carries no ▌ (ruling Q3 — the shipped comprehension
+			// rule; the marker returns on the next nav key, which sets follow=false).
+			const line = vis.length === 0 ? all[1]! : all[starts[this.follow ? vis.length - 1 : fv]!]!;
+			return [line];
+		}
 		if (this.follow) this.topLine = maxTop;
 		else this.topLine = Math.min(Math.max(0, focusLine - 2), maxTop);
 		return all.slice(this.topLine, this.topLine + this.viewportRows);
