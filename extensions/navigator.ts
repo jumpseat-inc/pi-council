@@ -429,6 +429,10 @@ export class CouncilTreeWidget implements Component {
 		const tree = ordered.slice(0, layout.treeLines).map(({ node }) => truncateToWidth(this.rowLine(node), width));
 		const sep = layout.sepLines > 0 ? [truncateToWidth(this.theme.fg("dim", "── progress ──────────────"), width)] : [];
 		const view = this.controller?.selectedSessionId ? this.ensureView(layout.progressLines) : undefined;
+		// EV-36: re-grant on every render, fresh or cached — ensureView's early return
+		// ignores the grant, so this is the single seam that keeps viewportRows equal
+		// to computeProgressLayout's current grant (the modal path never calls it).
+		if (view) view.setViewportRows(layout.progressLines);
 		const viewLines = view ? view.render(width).slice(0, layout.progressLines) : [];
 		return [...tree, ...sep, ...viewLines];
 	}
@@ -639,6 +643,11 @@ export class TranscriptView implements Component {
 		this.onChange = fn;
 	}
 
+	/** EV-36: the grant is a per-render parameter — the widget re-grants every render. */
+	setViewportRows(n: number): void {
+		this.viewportRows = Math.max(1, n);
+	}
+
 	dispose(): void {
 		clearInterval(this.timer);
 	}
@@ -719,8 +728,10 @@ export class TranscriptView implements Component {
 			head = t.fg("muted", `⎿ ${b.label} · ${b.bytes ?? 0}b`);
 			if (b.isError === true) head += t.fg("muted", " ✗");
 		}
-		// single heads are not truncated today: marker + head, no width change
-		const out = [marker + head];
+		// EV-36 (Q4): a head line that overflows the granted viewport is wrong at
+		// any size — clamp here, the single source, idempotent with the toolCall
+		// head's clamp. Marker before truncate so a narrow width cannot eat the ▌.
+		const out = [truncateToWidth(marker + head, width)];
 		const showBody = b.kind === "user" || b.kind === "assistant" || this.expanded.has(i);
 		if (showBody) {
 			const body = b.kind === "toolResult" || b.kind === "thinking" ? (b.detail ?? "") : b.text;
@@ -812,6 +823,15 @@ export class TranscriptView implements Component {
 		}
 		const focusLine = starts[fv] ?? 0;
 		const maxTop = Math.max(0, all.length - this.viewportRows);
+		if (this.viewportRows === 1) {
+			// EV-36 (R3): one-row floor — the effective-indexed unit's composed head,
+			// read-only. follow ? live tail : cursor. No write to `focused` (Q2); the
+			// marker stays the existing `vi === fv` gate, so a fresh follow-on view
+			// at vis.length > 1 carries no ▌ (ruling Q3 — the shipped comprehension
+			// rule; the marker returns on the next nav key, which sets follow=false).
+			const line = vis.length === 0 ? all[1]! : all[starts[this.follow ? vis.length - 1 : fv]!]!;
+			return [line];
+		}
 		if (this.follow) this.topLine = maxTop;
 		else this.topLine = Math.min(Math.max(0, focusLine - 2), maxTop);
 		return all.slice(this.topLine, this.topLine + this.viewportRows);
