@@ -43,12 +43,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-36 — Transcript legibility at the one-row progress floor
-
 ## Needs Human
 
 ## Done
 
+- EV-36 — Transcript legibility at the one-row progress floor
 - EV-35 — Transcript interaction model — visible focus, honest keymap, visible toggles
 
 - EV-34 — Compose each tool call and its result into one rendered unit

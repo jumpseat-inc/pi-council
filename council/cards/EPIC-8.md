@@ -85,3 +85,19 @@ ruling and cites which one; it does not re-ask.
 - **R-ESCALATE** — judgment routes to `product-owner`, escalating to
   `steward`; the authority map's rows are exhaustive and nothing outside
   them is decided by inference.
+
+## Run closure fact (features-deliver)
+
+All four children are merged to `main` with `gates` SUCCESS on each merged
+SHA: EV-33 `186c04d` (#47), EV-34 `7235178` (#48), EV-35 `85db7a6` (#49),
+EV-36 `6b858c9` (#50). EV-36's one-row projection was ruled **R3** by
+`product-owner` (job-17) under the step-6 ruling's Q1–Q4 (read-only effective
+index; no `focused` write; the no-`▌` fresh follow-on floor shipped as the
+card's comprehension rule; the width clamp at the `unitLines` single-head
+site). No `HALT`, no `RETIRED`; EV-36 ran one `ESCALATION` round-trip.
+
+**This epic's own `state` is left unchanged (`Backlog`) by this record.** The
+recorded convention sets an epic's `state: Done` under a `steward` ruling on
+observed acceptance (cf. EPIC-7, commit `042a0c8`: "Steward ruled epic
+closure on observed acceptance"). A card-runner container dispatches no
+ruling seat, so the state change is deferred to the orchestrator.
