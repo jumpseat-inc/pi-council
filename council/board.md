@@ -41,9 +41,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-## In Review
-
 - EV-33 — Transcript parser preserves tool-call identity, error state, and one shared argument summary
+
+## In Review
 
 ## Needs Human
 
