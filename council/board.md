@@ -42,11 +42,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-34 — Compose each tool call and its result into one rendered unit
-
 ## Needs Human
 
 ## Done
+
+- EV-34 — Compose each tool call and its result into one rendered unit
 
 - EV-33 — Transcript parser preserves tool-call identity, error state, and one shared argument summary
 - EPIC-7 — Token and cost usage accounting for autonomous council invocations
