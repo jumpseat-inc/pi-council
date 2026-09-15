@@ -785,7 +785,11 @@ export class TranscriptView implements Component {
 		const vis = this.visible();
 		if (this.focused >= vis.length) this.focused = Math.max(0, vis.length - 1);
 		const all: string[] = [
-			t.bold(`${this.title} — ↑↓ move · e expand · t thinking · f follow${this.follow ? "(on)" : ""} · esc back`),
+			// EV-35 (R-KEYMAP): g/G are implemented (jump-to-first/last) and now
+			// advertised. Follow state is the (on) suffix's presence/absence (Q3).
+			t.bold(
+				`${this.title} — ↑↓ move · e expand · t thinking · f follow${this.follow ? "(on)" : ""} · g/G jump · esc back`,
+			),
 		];
 		if (vis.length === 0) all.push(t.fg("dim", this.tail ? "  (waiting for output · idle)" : "  (no transcript)"));
 		const starts: number[] = [];

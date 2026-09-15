@@ -51,6 +51,20 @@ function fixtureView(name: string, lines: string[], viewportRows = 24): Transcri
 const DOWN = "\x1b[B";
 const UP = "\x1b[A";
 
+// --- O2 (maxTop===0-scoped): the header advertises g/G; follow state is (on) presence/absence ---
+
+test("O2 header: fresh view advertises 'g/G jump' and 'f follow(on)'; after f the suffix is absent (Q3 presence/absence)", () => {
+	const view = fixtureView("hdr", [callLine("bash", "echo one", "c1"), resultLine("c1", "one")]);
+	const fresh = view.render(80); // fixture fits the viewport → maxTop === 0, header is row 0
+	expect(fresh[0]).toContain("g/G jump");
+	expect(fresh[0]).toContain("f follow(on)");
+	expect(fresh[0]).toContain("esc back");
+	view.handleInput("f");
+	const off = view.render(80);
+	expect(off[0]).toContain("f follow");
+	expect(off[0]).not.toContain("follow(on)");
+});
+
 // --- O1 (Q1): the production key gate honors kitty/modifyOtherKeys forms ----
 
 test("O1: classifyProgressKey classifies the kitty CSI-u forms of e/t/f/g (was raw ===, returned 'other')", () => {
