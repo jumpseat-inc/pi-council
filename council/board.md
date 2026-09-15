@@ -35,11 +35,12 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Ready
 
-- EV-34 — Compose each tool call and its result into one rendered unit
 - EV-35 — Transcript interaction model — visible focus, honest keymap, visible toggles
 - EV-36 — Transcript legibility at the one-row progress floor
 
 ## In Progress
+
+- EV-34 — Compose each tool call and its result into one rendered unit
 
 ## In Review
 
