@@ -29,6 +29,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-33 — Live end-to-end falsifier for the EV-31 gated write path
 - FLLWUP-34 — Bounded retry policy for a failed usage-store write
 - FLLWUP-35 — Usage/accounting wiki page for the EPIC-7 lineage
+- FLLWUP-36 — Remove the unreachable pre-EV-34 transcript renderer left in TranscriptView
 - EPIC-8 — Elegant tool-call and transcript rendering in the /council-tree inline progress view
 
 ## Deliberating
