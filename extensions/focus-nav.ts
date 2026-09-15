@@ -64,10 +64,14 @@ export function classifyProgressKey(data: string): ProgressKey {
 	if (matchesKey(data, Key.escape)) return "escape";
 	if (matchesKey(data, Key.up)) return "up";
 	if (matchesKey(data, Key.down)) return "down";
-	if (data === "e") return "e";
-	if (data === "t") return "t";
-	if (data === "f") return "f";
-	if (data === "g") return "g";
+	// EV-35 (Q1): matchesKey here like every other branch — the raw === forms
+	// dropped these keys on kitty/modifyOtherKeys terminals (CSI-u), which the
+	// gate then forwarded into the editor draft. matchesKey("g") stays false for
+	// legacy "G" and the CSI-u shift form, so the ordering below is safe.
+	if (matchesKey(data, "e")) return "e";
+	if (matchesKey(data, "t")) return "t";
+	if (matchesKey(data, "f")) return "f";
+	if (matchesKey(data, "g")) return "g";
 	if (matchesKey(data, Key.shift("g"))) return "G";
 	return "other";
 }
