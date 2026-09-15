@@ -3,7 +3,7 @@ import type { ThemeColor } from "@earendil-works/pi-coding-agent";
 import { Key, matchesKey, truncateToWidth, visibleWidth, wrapTextWithAnsi, type Component } from "@earendil-works/pi-tui";
 import { findSessionFile, listRunIds, readManifests } from "./runs.ts";
 import { buildTree, flattenTree, textTree, type TreeNode } from "./tree.ts";
-import { lastActivity, TranscriptTail, type TranscriptBlock } from "./transcript.ts";
+import { firstArgOf, lastActivity, TranscriptTail, type TranscriptBlock } from "./transcript.ts";
 import {
 	TreeFocusState,
 	installTreeEditor,
@@ -228,21 +228,6 @@ function glyphFor(node: TreeNode): string {
 
 function stateOf(node: TreeNode): string {
 	return node.orphaned ? "orphaned" : node.manifest.state;
-}
-
-function firstArgOf(block: TranscriptBlock): string {
-	if (!block.detail) return "";
-	try {
-		const obj = JSON.parse(block.detail);
-		if (obj && typeof obj === "object") {
-			for (const v of Object.values(obj)) {
-				if (typeof v === "string") return v;
-			}
-		}
-	} catch {
-		/* not JSON → no first arg */
-	}
-	return "";
 }
 
 /** Verb-first last-activity copy from a TranscriptBlock (designer GLANCE). */

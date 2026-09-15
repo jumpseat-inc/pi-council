@@ -2,7 +2,7 @@ import { test, expect } from "bun:test";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import { lastActivity, parseTranscript, TranscriptTail } from "../extensions/transcript.ts";
+import { firstArgOf, lastActivity, parseTranscript, TranscriptTail } from "../extensions/transcript.ts";
 
 const HEADER = `{"type":"session","version":3,"id":"job-1","timestamp":"t","cwd":"/x"}`;
 const USER = `{"type":"message","id":"1","parentId":null,"timestamp":"t","message":{"role":"user","content":[{"type":"text","text":"do it"}]}}`;
@@ -63,6 +63,14 @@ const OOO_CALL_1 = `{"type":"message","id":"10","parentId":null,"timestamp":"202
 const OOO_CALL_2 = `{"type":"message","id":"11","parentId":null,"timestamp":"2026-01-01T00:00:01.000Z","message":{"role":"assistant","content":[{"type":"toolCall","id":"c2","name":"bash","arguments":{"command":"echo two"}}]}}`;
 const OOO_RESULT_2 = `{"type":"message","id":"12","parentId":null,"timestamp":"2026-01-01T00:00:02.000Z","message":{"role":"toolResult","toolCallId":"c2","toolName":"bash","content":[{"type":"text","text":"two"}],"isError":false}}`;
 const OOO_RESULT_1 = `{"type":"message","id":"13","parentId":null,"timestamp":"2026-01-01T00:00:03.000Z","message":{"role":"toolResult","toolCallId":"c1","toolName":"bash","content":[{"type":"text","text":"one"}],"isError":false}}`;
+
+test("firstArgOf is the single derivation the tree row copy consumes", () => {
+	const call = parseTranscript(OOO_CALL_1)[0];
+	expect(firstArgOf(call)).toBe("echo one");
+	// non-JSON / no-arg details degrade to ""
+	expect(firstArgOf({ ...call, detail: undefined })).toBe("");
+	expect(firstArgOf({ ...call, detail: "not json" })).toBe("");
+});
 
 test("parseTranscript pairs out-of-order same-name results by toolCallId, not position", () => {
 	const blocks = parseTranscript([OOO_CALL_1, OOO_CALL_2, OOO_RESULT_2, OOO_RESULT_1].join("\n"));

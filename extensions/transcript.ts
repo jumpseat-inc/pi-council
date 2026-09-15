@@ -24,6 +24,27 @@ function firstLine(s: string): string {
 	return s.split("\n")[0] ?? "";
 }
 
+/**
+ * EV-33: THE single primary-argument derivation (PO ruling D1) — the first
+ * string value of the block's parsed `detail` JSON, "" when absent/unparseable.
+ * Consumed by the navigator tree row copy (`activityCopy`) and by the
+ * transcript header path (EV-34's composed head); no second derivation may exist.
+ */
+export function firstArgOf(block: TranscriptBlock): string {
+	if (!block.detail) return "";
+	try {
+		const obj = JSON.parse(block.detail);
+		if (obj && typeof obj === "object") {
+			for (const v of Object.values(obj)) {
+				if (typeof v === "string") return v;
+			}
+		}
+	} catch {
+		/* not JSON → no first arg */
+	}
+	return "";
+}
+
 function textOf(content: unknown): string {
 	if (!Array.isArray(content)) return "";
 	return (content as Array<{ type?: string; text?: string }>)
