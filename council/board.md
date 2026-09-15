@@ -41,9 +41,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-36 — Transcript legibility at the one-row progress floor
-
 ## In Review
+
+- EV-36 — Transcript legibility at the one-row progress floor
 
 ## Needs Human
 
