@@ -690,8 +690,13 @@ export class TranscriptView implements Component {
 		return out;
 	}
 
-	private unitLines(u: ToolUnit, i: number, width: number): string[] {
+	private unitLines(u: ToolUnit, i: number, width: number, isFocused: boolean): string[] {
 		const t = this.theme;
+		// EV-35 (R-MARKER): ▌ marks the focused unit's HEAD line only. isFocused is
+		// computed in render() from the same clamped visible index `e` reads (Q5) —
+		// never from controller.surface or a constructor flag (T11 parity holds by
+		// construction: focus state is the only input).
+		const marker = isFocused ? `${t.fg("accent", TREE_ROW_MARKER)} ` : "";
 		if (u.kind === "toolCall") {
 			// EV-34 composed head (R-COPY): `→ <Tool>  <primary-arg>`; a failed
 			// paired result appends muted ✗. Collapsed shows only the head; the
@@ -699,7 +704,8 @@ export class TranscriptView implements Component {
 			const arg = firstArgOf(u.call);
 			let head = t.fg("warning", arg ? `→ ${u.call.label}  ${arg}` : `→ ${u.call.label}`);
 			if (u.result?.isError === true) head += t.fg("muted", " ✗");
-			const out = [truncateToWidth(head, width)];
+			// marker prepended BEFORE truncation so a narrow width cannot eat it
+			const out = [truncateToWidth(marker + head, width)];
 			if (this.expanded.has(i) && u.result) out.push(...this.bodyLines(u.result.detail ?? "", width));
 			return out;
 		}
@@ -713,7 +719,8 @@ export class TranscriptView implements Component {
 			head = t.fg("muted", `⎿ ${b.label} · ${b.bytes ?? 0}b`);
 			if (b.isError === true) head += t.fg("muted", " ✗");
 		}
-		const out = [head];
+		// single heads are not truncated today: marker + head, no width change
+		const out = [marker + head];
 		const showBody = b.kind === "user" || b.kind === "assistant" || this.expanded.has(i);
 		if (showBody) {
 			const body = b.kind === "toolResult" || b.kind === "thinking" ? (b.detail ?? "") : b.text;
@@ -754,10 +761,11 @@ export class TranscriptView implements Component {
 		const vis = this.visible();
 		if (matchesKey(data, Key.up)) {
 			this.follow = false;
-			this.focused = Math.max(0, this.focused - 1);
+			// EV-35 (O6a): consumed no-op on an empty transcript — no focused mutation.
+			if (vis.length > 0) this.focused = Math.max(0, this.focused - 1);
 		} else if (matchesKey(data, Key.down)) {
 			this.follow = false;
-			this.focused = Math.min(vis.length - 1, this.focused + 1);
+			if (vis.length > 0) this.focused = Math.min(vis.length - 1, this.focused + 1);
 		} else if (matchesKey(data, "e") && vis[this.focused]) {
 			const i = vis[this.focused].i;
 			if (this.expanded.has(i)) this.expanded.delete(i);
@@ -768,10 +776,10 @@ export class TranscriptView implements Component {
 			this.follow = !this.follow;
 		} else if (matchesKey(data, "g")) {
 			this.follow = false;
-			this.focused = 0;
+			if (vis.length > 0) this.focused = 0;
 		} else if (matchesKey(data, Key.shift("g"))) {
 			this.follow = false;
-			this.focused = Math.max(0, vis.length - 1);
+			if (vis.length > 0) this.focused = vis.length - 1;
 		} else if (matchesKey(data, Key.escape)) {
 			this.dispose();
 			this.onClose();
@@ -783,17 +791,26 @@ export class TranscriptView implements Component {
 	render(width: number): string[] {
 		const t = this.theme;
 		const vis = this.visible();
-		if (this.focused >= vis.length) this.focused = Math.max(0, vis.length - 1);
+		// EV-35 (O6a/O6d): focused always sits inside [0, vis.length - 1]; 0 when
+		// empty. fv is the SAME expression `e` reads — the marker derives from it.
+		if (vis.length === 0) this.focused = 0;
+		else this.focused = Math.min(Math.max(this.focused, 0), vis.length - 1);
+		const fv = this.focused;
 		const all: string[] = [
-			t.bold(`${this.title} — ↑↓ move · e expand · t thinking · f follow${this.follow ? "(on)" : ""} · esc back`),
+			// EV-35 (R-KEYMAP): g/G are implemented (jump-to-first/last) and now
+			// advertised. Follow state is the (on) suffix's presence/absence (Q3).
+			t.bold(
+				`${this.title} — ↑↓ move · e expand · t thinking · f follow${this.follow ? "(on)" : ""} · g/G jump · esc back`,
+			),
 		];
 		if (vis.length === 0) all.push(t.fg("dim", this.tail ? "  (waiting for output · idle)" : "  (no transcript)"));
 		const starts: number[] = [];
-		for (const { i, u } of vis) {
+		for (let vi = 0; vi < vis.length; vi++) {
+			const { i, u } = vis[vi]!;
 			starts.push(all.length);
-			all.push(...this.unitLines(u, i, width));
+			all.push(...this.unitLines(u, i, width, vi === fv));
 		}
-		const focusLine = starts[this.focused] ?? 0;
+		const focusLine = starts[fv] ?? 0;
 		const maxTop = Math.max(0, all.length - this.viewportRows);
 		if (this.follow) this.topLine = maxTop;
 		else this.topLine = Math.min(Math.max(0, focusLine - 2), maxTop);

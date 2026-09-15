@@ -259,9 +259,32 @@ test("T9 cache folds the surface; T12-negative: ▌ hidden when surface ≠ 'tre
 	c.enter();
 	c.enterProgress("job-1");
 	const inProgress = w.render(200);
-	expect(inProgress.join("\n")).not.toContain("\u258C"); // marker hidden in progress
+	// EV-35 (Q4): narrowed to the tree-row slice — T9's named intent is that the
+	// TREE-ROW marker is surface-gated; the transcript's own focused-unit marker
+	// (EV-35) is not a tree-row marker. One job → 1 tree content line.
+	const layout = computeProgressLayout(c.termRowsCap, 1);
+	expect(inProgress.slice(0, layout.treeLines).join("\n")).not.toContain("\u258C"); // tree-row marker hidden in progress
 	c.backFromProgress();
 	expect(w.render(200).join("\n")).toContain("\u258C"); // marker restored on tree
+});
+
+test("O3 positive (EV-35): with a session file and a focused unit, the progress render carries exactly one ▌ — on the focused unit's head", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "ev9-o3-"));
+	const runId = "ro3";
+	ensureRunDir(root, runId);
+	writeManifest(root, runId, m("job-1"));
+	writeSession(root, runId, "job-1", [toolLine("1", "2026-01-01T00:04:00.000Z")]);
+	const c = new TreeFocusState();
+	c.termRowsCap = 24;
+	const w = new CouncilTreeWidget(root, () => runId, theme, { now, controller: c, termRowsCap: 24 });
+	c.setOpen(true);
+	w.render(200);
+	c.enter();
+	c.enterProgress("job-1");
+	const lines = w.render(200);
+	const marked = lines.filter((l) => l.includes("\u258C"));
+	expect(marked.length).toBe(1); // exactly one marker in the whole progress render
+	expect(marked[0]).toContain("→ bash  ls -la"); // the focused unit's composed head
 });
 
 test("T11 parity (block-renderer level): inline progress view lines == standalone TranscriptView with same JSONL+width+viewportRows", () => {
