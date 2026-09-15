@@ -1,7 +1,7 @@
 ---
 id: EPIC-8
 title: Elegant tool-call and transcript rendering in the /council-tree inline progress view
-state: Backlog
+state: Done
 owner: null
 epic: null
 goal: Tool calls and the surrounding seat transcript render in the /council-tree inline progress view with an editorial, low-noise hierarchy, a visible focus-and-expand interaction model, and legibility that holds from a one-row viewport to a full panel, drawing only pi theme tokens
@@ -96,8 +96,10 @@ index; no `focused` write; the no-`▌` fresh follow-on floor shipped as the
 card's comprehension rule; the width clamp at the `unitLines` single-head
 site). No `HALT`, no `RETIRED`; EV-36 ran one `ESCALATION` round-trip.
 
-**This epic's own `state` is left unchanged (`Backlog`) by this record.** The
-recorded convention sets an epic's `state: Done` under a `steward` ruling on
-observed acceptance (cf. EPIC-7, commit `042a0c8`: "Steward ruled epic
-closure on observed acceptance"). A card-runner container dispatches no
-ruling seat, so the state change is deferred to the orchestrator.
+**Closure ruled.** `steward` (job-19) ruled EPIC-8 closed on observed
+acceptance, ending the run; this record applies that ruling. The four
+follow-ups (`FLLWUP-36` through `FLLWUP-39`) ride as `Backlog` residuals
+under the `Done` epic, unpromoted. Two permanent residuals ride with the
+epic: the out-of-order `toolResult` case (a result ordered before its call
+renders standalone and folded) and the `t`-toggle cursor stability under
+the visible-index scheme. No version bump was made a condition of closure.

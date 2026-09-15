@@ -30,7 +30,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-34 — Bounded retry policy for a failed usage-store write
 - FLLWUP-35 — Usage/accounting wiki page for the EPIC-7 lineage
 - FLLWUP-36 — Remove the unreachable pre-EV-34 transcript renderer left in TranscriptView
-- EPIC-8 — Elegant tool-call and transcript rendering in the /council-tree inline progress view
 - FLLWUP-37 — Keep the progress keymap header visible when follow-mode content overflows the viewport
 - FLLWUP-38 — Clamp the inline progress transcript header to the granted render width
 - FLLWUP-39 — Dispose the replaced transcript view when the inline progress surface switches sessions
@@ -53,6 +52,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-34 — Compose each tool call and its result into one rendered unit
 
 - EV-33 — Transcript parser preserves tool-call identity, error state, and one shared argument summary
+- EPIC-8 — Elegant tool-call and transcript rendering in the /council-tree inline progress view
 - EPIC-7 — Token and cost usage accounting for autonomous council invocations
 - EV-29 — Provider-reported actual cost and per-component divergence from the estimate
 - EV-32 — Usage reported at every autonomous entry point
