@@ -40,9 +40,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-34 — Compose each tool call and its result into one rendered unit
-
 ## In Review
+
+- EV-34 — Compose each tool call and its result into one rendered unit
 
 ## Needs Human
 
