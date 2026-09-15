@@ -39,9 +39,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-35 — Transcript interaction model — visible focus, honest keymap, visible toggles
-
 ## In Review
+
+- EV-35 — Transcript interaction model — visible focus, honest keymap, visible toggles
 
 ## Needs Human
 
