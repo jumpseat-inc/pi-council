@@ -429,6 +429,10 @@ export class CouncilTreeWidget implements Component {
 		const tree = ordered.slice(0, layout.treeLines).map(({ node }) => truncateToWidth(this.rowLine(node), width));
 		const sep = layout.sepLines > 0 ? [truncateToWidth(this.theme.fg("dim", "── progress ──────────────"), width)] : [];
 		const view = this.controller?.selectedSessionId ? this.ensureView(layout.progressLines) : undefined;
+		// EV-36: re-grant on every render, fresh or cached — ensureView's early return
+		// ignores the grant, so this is the single seam that keeps viewportRows equal
+		// to computeProgressLayout's current grant (the modal path never calls it).
+		if (view) view.setViewportRows(layout.progressLines);
 		const viewLines = view ? view.render(width).slice(0, layout.progressLines) : [];
 		return [...tree, ...sep, ...viewLines];
 	}
@@ -637,6 +641,11 @@ export class TranscriptView implements Component {
 
 	setOnChange(fn: () => void): void {
 		this.onChange = fn;
+	}
+
+	/** EV-36: the grant is a per-render parameter — the widget re-grants every render. */
+	setViewportRows(n: number): void {
+		this.viewportRows = Math.max(1, n);
 	}
 
 	dispose(): void {

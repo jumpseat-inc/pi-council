@@ -238,9 +238,96 @@ test("EV-36 T8: for each kind the grant-1 line is byte-equal to the multi-row he
 		// the title, which contains the fixture name)
 		const headRow = many.render(80).slice(1).find((l) => l.includes(literal));
 		expect(headRow).toBeDefined();
-		expect(oneLine[0]).toBe(headRow);
+		expect(oneLine[0]).toBe(headRow!);
 		one.dispose();
 		many.dispose();
 	}
 });
 
+// --- T4 (frozen grant): the cached view re-syncs to the current grant ---
+
+test("EV-36 T4: re-grant per render — the cached view tracks computeProgressLayout across (9,1)→(9,2)→(40,2)", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "ev36-t4-"));
+	const runId = "r";
+	ensureRunDir(root, runId);
+	writeManifest(root, runId, m("job-1"));
+	writeSession(root, runId, "job-1", [
+		callLine("bash", "echo one", "c1"),
+		resultLine("c1", "one"),
+		assistantLine(Array.from({ length: 60 }, (_, i) => `body line ${i}`).join("\n")),
+	]);
+	const c = new TreeFocusState();
+	c.termRowsCap = 9;
+	const w = new CouncilTreeWidget(root, () => runId, theme, { now, controller: c, termRowsCap: 9 });
+	c.setOpen(true);
+	w.render(200);
+	c.enter();
+	expect(c.enterProgress("job-1")).toBe(true);
+	w.render(200);
+	const view = w.activeTranscriptView!;
+	const layout91 = computeProgressLayout(9, 1);
+	expect((view as unknown as { viewportRows: number }).viewportRows).toBe(layout91.progressLines); // 2
+	// a second job lands mid-progress: grant shrinks 2 → 1
+	writeManifest(root, runId, m("job-2", { seat: "skeptic", state: "done", settledAt: NOW - 60_000 }));
+	w.refresh();
+	const layout92 = computeProgressLayout(9, 2);
+	expect(layout92.progressLines).toBe(1);
+	const lines1 = w.render(200);
+	expect((view as unknown as { viewportRows: number }).viewportRows).toBe(1); // frozen-grant defect site
+	const progress1 = lines1.slice(layout92.treeLines + layout92.sepLines);
+	expect(progress1.length).toBe(1);
+	expect(progress1[0]).toContain("assistant");
+	expect(progress1[0]).not.toContain("body line");
+	// raise the grant on the SAME cached view: termRows 9 → 40 (tree content still 2 → grant 31)
+	(w as unknown as { termRowsCap: number }).termRowsCap = 40;
+	w.refresh();
+	const layout402 = computeProgressLayout(40, 2);
+	expect(layout402.progressLines).toBe(31);
+	w.render(200);
+	expect((view as unknown as { viewportRows: number }).viewportRows).toBe(31);
+	const viewLines = view.render(200);
+	expect(viewLines.length).toBe(31); // transcript (60+ body lines) longer than the grant
+	const lines40 = w.render(200);
+	expect(lines40.slice(layout402.treeLines + layout402.sepLines).length).toBeLessThanOrEqual(31);
+});
+
+// --- T9 (parity + modal inertness): inline == standalone at every grant; modal unchanged ---
+
+test("EV-36 T9: inline == standalone at grant 2 and grant 1 and across the (9,1)→(9,2) transition; modal-shaped view is inert", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "ev36-t9-"));
+	const runId = "r";
+	ensureRunDir(root, runId);
+	writeManifest(root, runId, m("job-1"));
+	writeSession(root, runId, "job-1", [
+		callLine("bash", "echo one", "c1"),
+		resultLine("c1", "one"),
+		assistantLine("streaming output with words"),
+	]);
+	const file = path.join(runDir(root, runId), "job-1.jsonl");
+	const c = new TreeFocusState();
+	c.termRowsCap = 9;
+	const w = new CouncilTreeWidget(root, () => runId, theme, { now, controller: c, termRowsCap: 9 });
+	c.setOpen(true);
+	w.render(200);
+	c.enter();
+	expect(c.enterProgress("job-1")).toBe(true);
+	w.render(200);
+	const inline = w.activeTranscriptView!;
+	let standalone = new TranscriptView(file, theme, "job-1 owner", computeProgressLayout(9, 1).progressLines, () => {});
+	expect(inline.render(80)).toEqual(standalone.render(80));
+	standalone.dispose();
+	writeManifest(root, runId, m("job-2", { seat: "skeptic", state: "done", settledAt: NOW - 60_000 }));
+	w.refresh();
+	w.render(200);
+	standalone = new TranscriptView(file, theme, "job-1 owner", computeProgressLayout(9, 2).progressLines, () => {});
+	expect(inline.render(80)).toEqual(standalone.render(80));
+	expect(inline.render(80).length).toBe(1);
+	standalone.dispose();
+	// modal-shaped: own grant (termRows − 4), never re-granted → unchanged window, never projected
+	const modal = new TranscriptView(file, theme, "job-1 owner", 40 - 4, () => {});
+	const modalLines = modal.render(80);
+	expect(modalLines.length).toBeGreaterThan(1);
+	expect(modalLines.length).toBeLessThanOrEqual(36);
+	expect(modalLines).toEqual(new TranscriptView(file, theme, "job-1 owner", 36, () => {}).render(80));
+	modal.dispose();
+});
