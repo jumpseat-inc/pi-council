@@ -41,14 +41,13 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-33 — Transcript parser preserves tool-call identity, error state, and one shared argument summary
-
 ## In Review
 
 ## Needs Human
 
 ## Done
 
+- EV-33 — Transcript parser preserves tool-call identity, error state, and one shared argument summary
 - EPIC-7 — Token and cost usage accounting for autonomous council invocations
 - EV-29 — Provider-reported actual cost and per-component divergence from the estimate
 - EV-32 — Usage reported at every autonomous entry point
