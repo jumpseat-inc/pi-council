@@ -41,11 +41,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-35 — Transcript interaction model — visible focus, honest keymap, visible toggles
-
 ## Needs Human
 
 ## Done
+
+- EV-35 — Transcript interaction model — visible focus, honest keymap, visible toggles
 
 - EV-34 — Compose each tool call and its result into one rendered unit
 
