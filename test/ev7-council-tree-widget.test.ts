@@ -11,6 +11,7 @@ import {
 	surfaceForMode,
 	clearTreeWidget,
 } from "../extensions/navigator.ts";
+import { firstArgOf } from "../extensions/transcript.ts";
 
 // EV-7: display-only below-editor widget. Identity theme so the copy is
 // asserted verbatim (no ANSI in the fixture assertions).
@@ -103,6 +104,27 @@ test("CouncilTreeWidget refresh picks up appended tail line (tail-read)", () => 
 	w.refresh();
 	expect(w.render(200).join("\n")).toMatch(/ran bash/);
 	expect(w.render(200).join("\n")).toMatch(/10s/);
+});
+
+// EV-33 (PO ruling D1): the row copy's argument segment comes from the ONE
+// shared derivation exported by the transcript module, not a private copy.
+test("tree row copy derives its argument from the shared transcript firstArgOf", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "ev7-widget5-"));
+	const runId = "runS";
+	ensureRunDir(root, runId);
+	writeManifest(root, runId, m("job-1"));
+	writeSession(root, runId, "job-1", [toolLine("1", "2026-01-01T00:02:55.000Z")]);
+	const w = new CouncilTreeWidget(root, () => runId, theme, { now });
+	const row = w.render(200).join("\n");
+	const arg = firstArgOf({
+		kind: "toolCall",
+		text: "bash",
+		label: "bash",
+		detail: JSON.stringify({ command: "ls -la" }, null, 2),
+		at: NaN,
+	});
+	expect(arg).toBe("ls -la");
+	expect(row).toMatch(new RegExp(`ran bash ${arg.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&")}`));
 });
 
 test("surfaceForMode: guard is ctx.mode === 'tui' (RPC/headless → console, never widget)", () => {

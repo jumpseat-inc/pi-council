@@ -6,6 +6,10 @@ export interface TranscriptBlock {
 	detail?: string;
 	label?: string;
 	bytes?: number;
+	/** EV-33: call identity — the JSONL toolCall `id` on call blocks, `toolCallId` on result blocks. */
+	toolCallId?: string;
+	/** EV-33: JSONL `isError` on toolResult blocks (undefined elsewhere / on legacy entries). */
+	isError?: boolean;
 	/** ISO timestamp of the JSONL entry (ms epoch); NaN for the "t" placeholder fixtures. */
 	at: number;
 }
@@ -18,6 +22,27 @@ function entryAt(e: any): number {
 
 function firstLine(s: string): string {
 	return s.split("\n")[0] ?? "";
+}
+
+/**
+ * EV-33: THE single primary-argument derivation (PO ruling D1) — the first
+ * string value of the block's parsed `detail` JSON, "" when absent/unparseable.
+ * Consumed by the navigator tree row copy (`activityCopy`) and by the
+ * transcript header path (EV-34's composed head); no second derivation may exist.
+ */
+export function firstArgOf(block: TranscriptBlock): string {
+	if (!block.detail) return "";
+	try {
+		const obj = JSON.parse(block.detail);
+		if (obj && typeof obj === "object") {
+			for (const v of Object.values(obj)) {
+				if (typeof v === "string") return v;
+			}
+		}
+	} catch {
+		/* not JSON → no first arg */
+	}
+	return "";
 }
 
 function textOf(content: unknown): string {
@@ -56,6 +81,7 @@ export function parseTranscript(raw: string): TranscriptBlock[] {
 						label: String(part.name ?? "tool"),
 						text: String(part.name ?? "tool"),
 						detail: JSON.stringify(part.arguments ?? {}, null, 2),
+						toolCallId: part.id != null ? String(part.id) : undefined,
 						at,
 					});
 				}
@@ -66,7 +92,16 @@ export function parseTranscript(raw: string): TranscriptBlock[] {
 						.map((c) => (c.type === "text" ? (c.text ?? "") : `[${c.type}]`))
 						.join("\n")
 				: "";
-			blocks.push({ kind: "toolResult", label: String(m.toolName ?? "tool"), text: firstLine(t), detail: t, bytes: t.length, at });
+			blocks.push({
+			kind: "toolResult",
+			label: String(m.toolName ?? "tool"),
+			text: firstLine(t),
+			detail: t,
+			bytes: t.length,
+			toolCallId: m.toolCallId != null ? String(m.toolCallId) : undefined,
+			isError: typeof m.isError === "boolean" ? m.isError : undefined,
+			at,
+		});
 		}
 	}
 	return blocks;
