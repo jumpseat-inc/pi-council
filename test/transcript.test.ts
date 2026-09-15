@@ -56,6 +56,35 @@ test("TranscriptTail blocks carry at", () => {
 	expect(tail.poll()[0].at).toBe(Date.parse("2026-01-01T00:00:30.000Z"));
 });
 
+// EV-33: identity — two same-named calls whose results arrive OUT of order.
+// Pairing by toolCallId is order-independent; a positional call[i]→result[i]
+// pairing pairs c2's result body with c1's call and fails this assertion.
+const OOO_CALL_1 = `{"type":"message","id":"10","parentId":null,"timestamp":"2026-01-01T00:00:00.000Z","message":{"role":"assistant","content":[{"type":"toolCall","id":"c1","name":"bash","arguments":{"command":"echo one"}}]}}`;
+const OOO_CALL_2 = `{"type":"message","id":"11","parentId":null,"timestamp":"2026-01-01T00:00:01.000Z","message":{"role":"assistant","content":[{"type":"toolCall","id":"c2","name":"bash","arguments":{"command":"echo two"}}]}}`;
+const OOO_RESULT_2 = `{"type":"message","id":"12","parentId":null,"timestamp":"2026-01-01T00:00:02.000Z","message":{"role":"toolResult","toolCallId":"c2","toolName":"bash","content":[{"type":"text","text":"two"}],"isError":false}}`;
+const OOO_RESULT_1 = `{"type":"message","id":"13","parentId":null,"timestamp":"2026-01-01T00:00:03.000Z","message":{"role":"toolResult","toolCallId":"c1","toolName":"bash","content":[{"type":"text","text":"one"}],"isError":false}}`;
+
+test("parseTranscript pairs out-of-order same-name results by toolCallId, not position", () => {
+	const blocks = parseTranscript([OOO_CALL_1, OOO_CALL_2, OOO_RESULT_2, OOO_RESULT_1].join("\n"));
+	const calls = blocks.filter((b) => b.kind === "toolCall");
+	const results = blocks.filter((b) => b.kind === "toolResult");
+	expect(calls.map((c) => c.toolCallId)).toEqual(["c1", "c2"]);
+	expect(results.map((r) => r.toolCallId)).toEqual(["c2", "c1"]); // arrival order
+	// Pair by identity: c1's result carries c1's output, c2's carries c2's.
+	// A positional call[i]→result[i] pairing gives c1→"two" and fails this.
+	const byId = new Map(results.map((r) => [r.toolCallId, r]));
+	expect(byId.get("c1")!.detail).toBe("one");
+	expect(byId.get("c2")!.detail).toBe("two");
+});
+
+test("parseTranscript exposes error state on tool results", () => {
+	const ok = `{"type":"message","id":"20","parentId":null,"timestamp":"2026-01-01T00:00:00.000Z","message":{"role":"toolResult","toolCallId":"c1","toolName":"bash","content":[{"type":"text","text":"fine"}],"isError":false}}`;
+	const bad = `{"type":"message","id":"21","parentId":null,"timestamp":"2026-01-01T00:00:01.000Z","message":{"role":"toolResult","toolCallId":"c2","toolName":"bash","content":[{"type":"text","text":"boom"}],"isError":true}}`;
+	const [okBlock, badBlock] = parseTranscript(ok + "\n" + bad);
+	expect(okBlock.isError).toBe(false);
+	expect(badBlock.isError).toBe(true);
+});
+
 test("TranscriptTail tolerates only new blocks and buffers partials", () => {
 	const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "council-tail-")), "s.jsonl");
 	fs.writeFileSync(file, HEADER + "\n" + USER + "\n");

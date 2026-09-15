@@ -6,6 +6,10 @@ export interface TranscriptBlock {
 	detail?: string;
 	label?: string;
 	bytes?: number;
+	/** EV-33: call identity — the JSONL toolCall `id` on call blocks, `toolCallId` on result blocks. */
+	toolCallId?: string;
+	/** EV-33: JSONL `isError` on toolResult blocks (undefined elsewhere / on legacy entries). */
+	isError?: boolean;
 	/** ISO timestamp of the JSONL entry (ms epoch); NaN for the "t" placeholder fixtures. */
 	at: number;
 }
@@ -56,6 +60,7 @@ export function parseTranscript(raw: string): TranscriptBlock[] {
 						label: String(part.name ?? "tool"),
 						text: String(part.name ?? "tool"),
 						detail: JSON.stringify(part.arguments ?? {}, null, 2),
+						toolCallId: part.id != null ? String(part.id) : undefined,
 						at,
 					});
 				}
@@ -66,7 +71,16 @@ export function parseTranscript(raw: string): TranscriptBlock[] {
 						.map((c) => (c.type === "text" ? (c.text ?? "") : `[${c.type}]`))
 						.join("\n")
 				: "";
-			blocks.push({ kind: "toolResult", label: String(m.toolName ?? "tool"), text: firstLine(t), detail: t, bytes: t.length, at });
+			blocks.push({
+			kind: "toolResult",
+			label: String(m.toolName ?? "tool"),
+			text: firstLine(t),
+			detail: t,
+			bytes: t.length,
+			toolCallId: m.toolCallId != null ? String(m.toolCallId) : undefined,
+			isError: typeof m.isError === "boolean" ? m.isError : undefined,
+			at,
+		});
 		}
 	}
 	return blocks;
