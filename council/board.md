@@ -31,6 +31,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-35 — Usage/accounting wiki page for the EPIC-7 lineage
 - FLLWUP-36 — Remove the unreachable pre-EV-34 transcript renderer left in TranscriptView
 - EPIC-8 — Elegant tool-call and transcript rendering in the /council-tree inline progress view
+- FLLWUP-37 — Keep the progress keymap header visible when follow-mode content overflows the viewport
+- FLLWUP-38 — Clamp the inline progress transcript header to the granted render width
+- FLLWUP-39 — Dispose the replaced transcript view when the inline progress surface switches sessions
 
 ## Deliberating
 
