@@ -30,7 +30,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-34 — Bounded retry policy for a failed usage-store write
 - FLLWUP-35 — Usage/accounting wiki page for the EPIC-7 lineage
 - EPIC-8 — Elegant tool-call and transcript rendering in the /council-tree inline progress view
-- EV-33 — Transcript parser preserves tool-call identity, error state, and one shared argument summary
 
 ## Deliberating
 
@@ -41,6 +40,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-36 — Transcript legibility at the one-row progress floor
 
 ## In Progress
+
+- EV-33 — Transcript parser preserves tool-call identity, error state, and one shared argument summary
 
 ## In Review
 

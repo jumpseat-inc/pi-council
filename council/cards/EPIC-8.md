@@ -50,3 +50,38 @@ and no animation. Every child's tests run under the existing
 - `bun test`, `bunx tsc --noEmit`, and `python3 council/validate.py` stay
   green; `test/ev7-council-tree-widget.test.ts` and the EV-8/EV-9 suites
   stay green.
+
+## Phase 1 rulings (features-deliver, binding for this run)
+
+Recorded human decisions — immutable for the run and binding on every seat,
+`steward` included. A runner that hits a dispute covered here applies the
+ruling and cites which one; it does not re-ask.
+
+- **R-ORDER** — build order is EV-33 → EV-34 → EV-35 → EV-36; a card starts
+  only after its predecessor's merge SHA is on local `main`.
+- **R-READY** — EV-33 is promoted to `Ready`; its D1/D2 goal amendments are
+  transcribed.
+- **R-COPY** — the composed tool-call unit is `→ <Tool>  <primary-arg>` with
+  `muted "✗"` suffixed on failure, the expanded result body indented 2 spaces
+  beneath the head, and the empty inline state worded
+  `(waiting for output · idle)`. EV-36's one-row line reuses this composed
+  head plus the failure suffix.
+- **R-KEYMAP** — EV-35 header copy is
+  `<title> — ↑↓ move · e expand · t thinking · f follow(on) · g/G jump · esc back`;
+  `g`/`G` are advertised, not removed.
+- **R-MARKER** — the focus signifier is `TREE_ROW_MARKER` (U+258C); no new
+  glyph.
+- **R-MODAL** — the full-screen modal transcript path is out of scope
+  (legacy, guarded at `navigator.ts:57`, owned by FLLWUP-4).
+- **R-FOLLOWUP** — a fold-in is ruled by `product-owner`; a genuinely new
+  follow-up card is confirmed by `steward` and written mid-run citing the
+  ruling, as its own `FLLWUP` card.
+- **R-GATES** — owner gates are `bash council/preflight.sh`,
+  `bunx tsc --noEmit`, `bun test`, `python3 council/validate.py`; the
+  network integration test stays gated behind `COUNCIL_INTEGRATION=1`.
+- **R-MERGE** — the deterministic five-criteria check replaces the human
+  merge gate; merge with `gh pr merge <PR> --squash --match-head-commit
+  <SHA>`; the first merge is announced in-line and watched by the human.
+- **R-ESCALATE** — judgment routes to `product-owner`, escalating to
+  `steward`; the authority map's rows are exhaustive and nothing outside
+  them is decided by inference.
