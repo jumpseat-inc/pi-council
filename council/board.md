@@ -36,9 +36,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-39 — Dispose the replaced transcript view when the inline progress surface switches sessions
 
 ## Deliberating
+- EV-36 — Transcript legibility at the one-row progress floor
 
 ## Ready
-- EV-36 — Transcript legibility at the one-row progress floor
 
 ## In Progress
 
