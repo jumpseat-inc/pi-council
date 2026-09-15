@@ -719,8 +719,10 @@ export class TranscriptView implements Component {
 			head = t.fg("muted", `⎿ ${b.label} · ${b.bytes ?? 0}b`);
 			if (b.isError === true) head += t.fg("muted", " ✗");
 		}
-		// single heads are not truncated today: marker + head, no width change
-		const out = [marker + head];
+		// EV-36 (Q4): a head line that overflows the granted viewport is wrong at
+		// any size — clamp here, the single source, idempotent with the toolCall
+		// head's clamp. Marker before truncate so a narrow width cannot eat the ▌.
+		const out = [truncateToWidth(marker + head, width)];
 		const showBody = b.kind === "user" || b.kind === "assistant" || this.expanded.has(i);
 		if (showBody) {
 			const body = b.kind === "toolResult" || b.kind === "thinking" ? (b.detail ?? "") : b.text;
