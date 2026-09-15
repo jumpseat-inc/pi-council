@@ -602,6 +602,14 @@ export function registerNavigator(pi: ExtensionAPI, repoRoot: string, currentRun
 	});
 }
 
+/**
+ * EV-34: one rendered transcript unit — either a lone block, or a toolCall
+ * folded together with the toolResult paired by `toolCallId` (EV-33 identity
+ * fields). Blocks with no identity fields (legacy fixtures) never pair: a
+ * null `toolCallId` on either side keeps them separate units.
+ */
+type ToolUnit = { kind: "single"; b: TranscriptBlock } | { kind: "toolCall"; call: TranscriptBlock; result?: TranscriptBlock };
+
 export class TranscriptView implements Component {
 	private tail: TranscriptTail | null;
 	private blocks: TranscriptBlock[] = [];
@@ -642,8 +650,78 @@ export class TranscriptView implements Component {
 		return true;
 	}
 
-	private visible(): Array<{ i: number; b: TranscriptBlock }> {
-		return this.blocks.map((b, i) => ({ i, b })).filter(({ b }) => b.kind !== "thinking" || this.showThinking);
+/** EV-34: fold each toolCall with its own result (paired by toolCallId, first match wins). */
+	private buildUnits(): ToolUnit[] {
+		const results = new Map<string, TranscriptBlock>();
+		for (const b of this.blocks) {
+			if (b.kind === "toolResult" && b.toolCallId != null && !results.has(b.toolCallId)) {
+				results.set(b.toolCallId, b);
+			}
+		}
+		const consumed = new Set<TranscriptBlock>();
+		const units: ToolUnit[] = [];
+		for (const b of this.blocks) {
+			if (b.kind === "toolCall") {
+				const result = b.toolCallId != null ? results.get(b.toolCallId) : undefined;
+				if (result) consumed.add(result);
+				units.push({ kind: "toolCall", call: b, result });
+			} else if (b.kind === "toolResult" && consumed.has(b)) {
+				continue; // already folded into its call's unit
+			} else {
+				units.push({ kind: "single", b });
+			}
+		}
+		return units;
+	}
+
+	private visible(): Array<{ i: number; u: ToolUnit }> {
+		return this.buildUnits()
+			.map((u, i) => ({ i, u }))
+			.filter(({ u }) => !(u.kind === "single" && u.b.kind === "thinking") || this.showThinking);
+	}
+
+	/** Shared body renderer: 2-space indent, 200-line cap, dim truncation notice. */
+	private bodyLines(body: string, width: number): string[] {
+		const all = body.split("\n");
+		const capped = all.slice(0, 200);
+		if (all.length > 200) capped.push(this.theme.fg("dim", `… truncated (${body.length} bytes total)`));
+		const out: string[] = [];
+		for (const l of capped) out.push(...wrapTextWithAnsi(`  ${l}`, width - 2));
+		return out;
+	}
+
+	private unitLines(u: ToolUnit, i: number, width: number): string[] {
+		const t = this.theme;
+		if (u.kind === "toolCall") {
+			// EV-34 composed head (R-COPY): `→ <Tool>  <primary-arg>`; a failed
+			// paired result appends muted ✗. Collapsed shows only the head; the
+			// paired result's body sits indented 2 spaces beneath it when expanded.
+			const arg = firstArgOf(u.call);
+			let head = t.fg("warning", arg ? `→ ${u.call.label}  ${arg}` : `→ ${u.call.label}`);
+			if (u.result?.isError === true) head += t.fg("muted", " ✗");
+			const out = [truncateToWidth(head, width)];
+			if (this.expanded.has(i) && u.result) out.push(...this.bodyLines(u.result.detail ?? "", width));
+			return out;
+		}
+		const b = u.b;
+		let head: string;
+		if (b.kind === "user") head = t.fg("accent", t.bold("user"));
+		else if (b.kind === "assistant") head = t.fg("success", t.bold("assistant"));
+		else if (b.kind === "thinking") head = t.fg("dim", "thinking");
+		else {
+			// unpaired toolResult: still its own unit; a failed one keeps the ✗ mark
+			head = t.fg("muted", `⎿ ${b.label} · ${b.bytes ?? 0}b`);
+			if (b.isError === true) head += t.fg("muted", " ✗");
+		}
+		const out = [head];
+		const showBody = b.kind === "user" || b.kind === "assistant" || this.expanded.has(i);
+		if (showBody) {
+			const body = b.kind === "toolResult" || b.kind === "thinking" ? (b.detail ?? "") : b.text;
+			out.push(...this.bodyLines(body, width));
+		} else if (b.text) {
+			out.push(truncateToWidth(`  ${t.fg("dim", b.text)}`, width));
+		}
+		return out;
 	}
 
 	private blockLines(b: TranscriptBlock, i: number, width: number): string[] {
@@ -709,11 +787,11 @@ export class TranscriptView implements Component {
 		const all: string[] = [
 			t.bold(`${this.title} — ↑↓ move · e expand · t thinking · f follow${this.follow ? "(on)" : ""} · esc back`),
 		];
-		if (vis.length === 0) all.push(t.fg("dim", this.tail ? "  (waiting for output…)" : "  (no transcript)"));
+		if (vis.length === 0) all.push(t.fg("dim", this.tail ? "  (waiting for output · idle)" : "  (no transcript)"));
 		const starts: number[] = [];
-		for (const { i, b } of vis) {
+		for (const { i, u } of vis) {
 			starts.push(all.length);
-			all.push(...this.blockLines(b, i, width));
+			all.push(...this.unitLines(u, i, width));
 		}
 		const focusLine = starts[this.focused] ?? 0;
 		const maxTop = Math.max(0, all.length - this.viewportRows);
