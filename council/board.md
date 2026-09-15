@@ -34,12 +34,12 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- EV-35 — Transcript interaction model — visible focus, honest keymap, visible toggles
-
 ## Ready
 - EV-36 — Transcript legibility at the one-row progress floor
 
 ## In Progress
+
+- EV-35 — Transcript interaction model — visible focus, honest keymap, visible toggles
 
 ## In Review
 
