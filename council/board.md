@@ -43,9 +43,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-42 — Per-attempt identity for a retried dispatch in the run substrate
-
 ## In Review
+
+- EV-42 — Per-attempt identity for a retried dispatch in the run substrate
 
 ## Needs Human
 
