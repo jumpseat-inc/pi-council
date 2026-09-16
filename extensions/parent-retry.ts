@@ -12,8 +12,18 @@
 // matching errored assistant message (a 3-attempt chain persists one errored
 // assistant turn per attempt; a trailing-only filter would leave the earlier
 // turns in attempt 3's request).
-import type { AgentMessage } from "@earendil-works/pi-coding-agent";
 import { PROVIDER_FINISH_REASON_ERROR } from "./retry.ts";
+
+/** Minimal structural shape the filter reads (role + stopReason +
+ * errorMessage). Deliberately NOT AgentMessage — the context event's message
+ * type is pi-internal; the structural match is what O4 settled anyway. */
+export interface FilterableMessage {
+	role?: unknown;
+	stopReason?: unknown;
+	errorMessage?: unknown;
+	content?: unknown;
+	toolCallId?: unknown;
+}
 
 export interface OnePassContextFilter {
 	/** Arm for exactly one provider request. */
@@ -29,11 +39,14 @@ export interface OnePassContextFilter {
 	 * accidental second pass). Never touches non-assistant messages; the
 	 * toolResult pairing is unaffected.
 	 */
-	apply(messages: AgentMessage[]): AgentMessage[] | undefined;
+	/** Generic over the caller's message type so a filtered list returns with
+	 * the SAME element type it received (the context handler hands back
+	 * pi-internal messages; elements are preserved, only removed). */
+	apply<T extends FilterableMessage>(messages: T[]): T[] | undefined;
 }
 
 function isErroredAssistant(
-	m: AgentMessage,
+	m: FilterableMessage,
 	literal: string,
 ): boolean {
 	return (
@@ -43,7 +56,7 @@ function isErroredAssistant(
 	);
 }
 
-export function createOnePassErrorFilter(
+export function createOnePassErrorFilter<M extends FilterableMessage = FilterableMessage>(
 	literal: string = PROVIDER_FINISH_REASON_ERROR,
 ): OnePassContextFilter {
 	let armed = false;
@@ -55,7 +68,7 @@ export function createOnePassErrorFilter(
 			armed = false;
 		},
 		isArmed: () => armed,
-		apply(messages) {
+		apply<T extends FilterableMessage>(messages: T[]): T[] | undefined {
 			if (!armed) return undefined;
 			armed = false; // exactly one pass
 			const kept = messages.filter((m) => !isErroredAssistant(m, literal));

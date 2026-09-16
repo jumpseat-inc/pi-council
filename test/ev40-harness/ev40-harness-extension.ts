@@ -109,7 +109,7 @@ export default function (pi: ExtensionAPI) {
 		pi.on("context", (event) => {
 			const filtered = filter.apply(event.messages);
 			const effective = filtered ?? event.messages;
-			const shapes = (effective as Array<Record<string, unknown>>).map((m) => {
+			const shapes = (effective as unknown as Array<Record<string, unknown>>).map((m) => {
 				const role = String(m.role);
 				const content = Array.isArray(m.content) ? m.content : [];
 				const text = content
@@ -156,7 +156,7 @@ export default function (pi: ExtensionAPI) {
 				await new Promise((r) => setTimeout(r, 25));
 			}
 			if (typeof (c as { waitForIdle?: unknown }).waitForIdle === "function") {
-				await (c as { waitForIdle: () => Promise<void> }).waitForIdle();
+				await (c as unknown as { waitForIdle: () => Promise<void> }).waitForIdle();
 			}
 			log(SETTLE_LOG, "post-send poll complete (guarded waitForIdle)");
 		};

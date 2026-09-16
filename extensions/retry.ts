@@ -105,3 +105,53 @@ export function classifyRetry(report: JobReport): RetryVerdict | undefined {
 	if (TERMINAL_STATES.includes(report.state)) return "terminal";
 	return undefined;
 }
+
+/**
+ * EV-40 — the parent-loop predicate. The parent turn loop retries ONLY the
+ * council-widened intake literal and must NOT retry a message pi itself
+ * retries: pi already spent its own retry budget before `agent_settled` fired
+ * (agent-session.js's post-run loop), so retrying those here would stack a
+ * second loop on top of pi's. Spec §2.1.
+ *
+ * - "retry"    — stopReason "error" and the message is EXACTLY the
+ *                with-colon intake literal `Provider finish_reason: error`.
+ * - undefined  — everything else: a matched pi-retryable message (pi owns
+ *                those), stopReason stop/length/aborted/absent, a missing
+ *                message, or an errored turn carrying no retryable signal.
+ */
+export function classifyParentTurnRetry(
+	message: { stopReason?: string; errorMessage?: string } | null | undefined,
+): "retry" | undefined {
+	if (!message) return undefined;
+	if (message.stopReason !== "error") return undefined;
+	const text = message.errorMessage ?? "";
+	if (RETRYABLE_PROVIDER_ERROR.test(text)) return undefined; // pi owns these; it already retried
+	return text === PROVIDER_FINISH_REASON_ERROR ? "retry" : undefined;
+}
+
+/**
+ * EV-40 — the pure backoff policy. `attempt` is the council attempt being
+ * awaited (2..maxAttempts). The delay before entering attempt N is the value
+ * the R5 countdown interpolates: baseDelayMs * 2^(attempt-2), capped at
+ * maxDelayMs. The `attempt - 2` exponent matches pi's own first-retry-delay =
+ * baseDelayMs semantics (its `_retryAttempt` starts at 1 for the first retry)
+ * and the R5 example (baseDelayMs = 2000 → "Retrying in 2s (attempt 2 of 3)").
+ *
+ * O2 correction (standing): pi's agent-turn `_prepareRetry` applies NO cap
+ * and NO jitter — the `maxDelayMs` key exists in pi's settings but feeds only
+ * the provider-level loop. This policy is where EV-38's cap + jitter finally
+ * bind. With the defaults (2000/30000/jitter), attempt 2 is in [1000, 3000)
+ * ms and attempt 3 in [2000, 6000) ms.
+ *
+ * Pure given `rand`; tests inject `rand` and a `jitter: false` policy.
+ */
+export function computeBackoffDelay(
+	policy: { baseDelayMs: number; maxDelayMs: number; jitter: boolean },
+	attempt: number,
+	rand: () => number = Math.random,
+): number {
+	const raw = policy.baseDelayMs * 2 ** Math.max(0, attempt - 2);
+	const capped = Math.min(raw, policy.maxDelayMs);
+	// jitter: multiplier in [0.5, 1.5) — "halved to one-and-a-half", rounded.
+	return policy.jitter ? Math.round(capped * (0.5 + rand())) : capped;
+}
