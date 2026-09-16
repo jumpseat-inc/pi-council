@@ -25,11 +25,19 @@
 //   EV40_CONTEXT_LOG    file each `context` event's message shapes are logged to
 //   EV40_PAYLOAD_LOG    file each `before_provider_request` payload is logged to
 //   EV40_SETTLE_LOG     file settle/send telemetry is logged to
+//   EV40_TOOLCALL_DISPATCH "1" → the first provider call is a real
+//                       council_dispatch tool call (designer P6): the parent
+//                       engine spawns a real hub job via the council's own Hub,
+//                       so the `council` widget + inline tree widget render.
+//   EV40_TOOLCALL_SEAT / EV40_TOOLCALL_MODEL  the dispatched seat/model override
+//   EV40_OPEN_TREE      "1" → dispatch the real /council-tree command at
+//                       session_start to open the inline tree widget (P6).
 import { appendFileSync } from "node:fs";
 import {
 	fauxAssistantMessage,
 	fauxProvider,
 	fauxText,
+	fauxToolCall,
 } from "@earendil-works/pi-ai";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { createOnePassErrorFilter } from "../../extensions/parent-retry.ts";
@@ -50,6 +58,14 @@ const FILTER = process.env.EV40_FILTER === "1";
 const CONTEXT_LOG = process.env.EV40_CONTEXT_LOG;
 const PAYLOAD_LOG = process.env.EV40_PAYLOAD_LOG;
 const SETTLE_LOG = process.env.EV40_SETTLE_LOG;
+/** Designer P6: the first provider call is a real council_dispatch tool call, so
+ * the parent engine spawns a real hub job through the council's own Hub. */
+const TOOLCALL_DISPATCH = process.env.EV40_TOOLCALL_DISPATCH === "1";
+const TOOLCALL_SEAT = process.env.EV40_TOOLCALL_SEAT ?? "skeptic";
+const TOOLCALL_MODEL = process.env.EV40_TOOLCALL_MODEL ?? "ev40/ev40-model";
+/** Designer P6: dispatch the REAL /council-tree command at session_start so the
+ * inline tree widget (navigator.ts COUNCIL_TREE_WIDGET_KEY) is active. */
+const OPEN_TREE = process.env.EV40_OPEN_TREE === "1";
 
 function log(file: string | undefined, line: string): void {
 	if (!file) return;
@@ -75,9 +91,20 @@ const faux = fauxProvider({
 	],
 });
 
-// Calls 1..FAILS fail with the with-colon literal (partial text optional);
-// every later call succeeds with the marker. Extra successes are scripted
-// generously so the faux stream never runs dry.
+// P6 (opt-in): a leading real council_dispatch tool call — the engine executes
+// it and the council's own Hub spawns a job (the PATH `pi` stub hangs), so the
+// active-jobs widget + tree widget have real rows. Then calls 1..FAILS fail with
+// the with-colon literal (partial text optional); every later call succeeds with
+// the marker. Extra successes are scripted generously so the stream never runs dry.
+const dispatchStep = fauxAssistantMessage(
+	fauxToolCall("council_dispatch", {
+		seat: TOOLCALL_SEAT,
+		input: "EV40-P6 live active job (no-op; the PATH pi stub hangs)",
+		model: TOOLCALL_MODEL,
+		timeout_minutes: 30,
+	}),
+	{ stopReason: "toolUse" },
+);
 const failStep = (n: number) =>
 	fauxAssistantMessage(
 		PARTIAL ? [fauxText(`${PARTIAL_MARKER} call=${n + 1} partial tokens before the provider died`)] : [],
@@ -87,6 +114,7 @@ const successStep = (_context: unknown, _options: unknown, state: { callCount: n
 	fauxAssistantMessage(`${CONTINUATION_MARKER} call=${state.callCount}`, { stopReason: "stop" });
 
 faux.setResponses([
+	...(TOOLCALL_DISPATCH ? [dispatchStep] : []),
 	...Array.from({ length: FAILS }, (_, i) => failStep(i)),
 	successStep,
 	successStep,
@@ -178,5 +206,20 @@ export default function (pi: ExtensionAPI) {
 		}
 	});
 
-	pi.on("session_shutdown", () => log(SETTLE_LOG, `session shutdown calls=${faux.state.callCount} sent=${sent}`));
+	// Designer P6: open the REAL inline tree widget by dispatching the registered
+	// /council-tree command (navigator.ts toggleWidget) — the same handler the TUI
+	// slash command invokes; no widget is faked here. The deferred tick lets the
+	// council extension's own session_start (Hub.sweepStalePids, hub creation)
+	// finish first.
+	pi.on("session_start", () => {
+		if (!OPEN_TREE) return;
+		setTimeout(() => {
+			pi.sendUserMessage("/council-tree", { expandPromptTemplates: true });
+			log(SETTLE_LOG, "dispatched /council-tree");
+		}, 50);
+	});
+
+	pi.on("session_shutdown", () =>
+		log(SETTLE_LOG, `session shutdown calls=${faux.state.callCount} sent=${sent}`),
+	);
 }
