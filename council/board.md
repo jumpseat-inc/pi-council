@@ -44,9 +44,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-39 — Hub-level retry of a seat dispatch with exponential backoff
-
 ## In Review
+
+- EV-39 — Hub-level retry of a seat dispatch with exponential backoff
 
 ## Needs Human
 
