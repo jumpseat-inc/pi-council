@@ -213,6 +213,102 @@ export function mergeThemeSection(
 	};
 }
 
+/** Retry policy for seat-child dispatch failures (EV-38). */
+export interface RetryPolicy {
+	enabled: boolean;
+	maxAttempts: number;
+	baseDelayMs: number;
+	maxDelayMs: number;
+	jitter: boolean;
+}
+
+/**
+ * Shipped defaults (EV-38 ruling R2): byte-mirrored in
+ * council/scaffold/.council.json so consumers see them as concrete data.
+ */
+export const DEFAULT_RETRY_POLICY: RetryPolicy = {
+	enabled: true,
+	maxAttempts: 3,
+	baseDelayMs: 2000,
+	maxDelayMs: 30000,
+	jitter: true,
+};
+
+function retryInt(
+	key: string,
+	value: unknown,
+	min: number,
+	file: string,
+): number {
+	if (typeof value !== "number" || !Number.isInteger(value) || value < min) {
+		throw new Error(`${file}: retry.${key} must be an integer ≥ ${min}`);
+	}
+	return value;
+}
+
+function retryBool(key: string, value: unknown, file: string): boolean {
+	if (typeof value !== "boolean") {
+		throw new Error(`${file}: retry.${key} must be a boolean`);
+	}
+	return value;
+}
+
+/**
+ * Read and validate the optional top-level `retry` section of `.council.json`
+ * (EV-38). Unlike `loadThemeConfig`, this always returns a full RetryPolicy:
+ * absent file/section yields the R2 defaults, and a present value is merged
+ * over the defaults base — `enabled: false` is off-as-data, never `undefined`
+ * (absent-retry means enabled here, so a falsy absent-shape would be
+ * load-bearing and silently re-enable a disabled policy). Malformed JSON,
+ * invalid content, or unknown keys throw naming the file and the offending
+ * key. The maxDelayMs-vs-baseDelayMs cross-check compares the merged values,
+ * so it holds regardless of the file's key order.
+ */
+export function loadRetryConfig(repoRoot: string): RetryPolicy {
+	const file = path.join(repoRoot, COUNCIL_CONFIG_FILE);
+	if (!fs.existsSync(file)) return { ...DEFAULT_RETRY_POLICY };
+	let parsed: unknown;
+	try {
+		parsed = JSON.parse(fs.readFileSync(file, "utf-8"));
+	} catch (e) {
+		throw new Error(`${file}: malformed JSON — ${e instanceof Error ? e.message : String(e)}`);
+	}
+	if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+		throw new Error(`${file}: root must be a JSON object`);
+	}
+	const raw = (parsed as Record<string, unknown>).retry;
+	if (raw === undefined) return { ...DEFAULT_RETRY_POLICY };
+	if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
+		throw new Error(`${file}: "retry" must be an object`);
+	}
+	const out: RetryPolicy = { ...DEFAULT_RETRY_POLICY };
+	for (const [key, value] of Object.entries(raw as Record<string, unknown>)) {
+		switch (key) {
+			case "enabled":
+				out.enabled = retryBool("enabled", value, file);
+				break;
+			case "jitter":
+				out.jitter = retryBool("jitter", value, file);
+				break;
+			case "maxAttempts":
+				out.maxAttempts = retryInt("maxAttempts", value, 1, file);
+				break;
+			case "baseDelayMs":
+				out.baseDelayMs = retryInt("baseDelayMs", value, 100, file);
+				break;
+			case "maxDelayMs":
+				out.maxDelayMs = retryInt("maxDelayMs", value, 100, file);
+				break;
+			default:
+				throw new Error(`${file}: unknown key "retry.${key}"`);
+		}
+	}
+	if (out.maxDelayMs < out.baseDelayMs) {
+		throw new Error(`${file}: retry.maxDelayMs must be ≥ retry.baseDelayMs`);
+	}
+	return out;
+}
+
 function parseList(raw: string): string[] {
 	const inner = raw.trim().replace(/^\[/, "").replace(/\]$/, "");
 	return inner
