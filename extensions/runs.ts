@@ -56,6 +56,12 @@ export interface RunManifest {
 	/** EV-39 — attempt ordinal; present only when >= 2 (one id / one manifest
 	 * / one row per dispatch, cardinality A). EV-42 owns per-attempt provenance. */
 	attempt?: number;
+	/** EV-42 — per-attempt provenance. Present iff attempt > 1 (same gate as
+	 * `attempt`); ordered and unique across attempts 1..N at every settled
+	 * write; a mid-flight (retrying) manifest carries the settled prefix.
+	 * Pointer-only: each attempt's spend is recovered from the session JSONL
+	 * this names. */
+	attempts?: { attempt: number; sessionId: string }[];
 	/** EV-39 — epoch ms of the next scheduled attempt; present only while the
 	 * dispatch is between attempts (state retrying). */
 	nextAttemptAt?: number;
@@ -103,6 +109,15 @@ export function ensureRunDir(repoRoot: string, runId: string): string {
 
 export function writeManifest(repoRoot: string, runId: string, m: RunManifest): void {
 	writeAtomic(path.join(runDir(repoRoot, runId), `${m.id}.json`), JSON.stringify(m, null, "\t"));
+}
+
+/** EV-42 (spec §2.3) — the one per-attempt accessor. The fail-closed legacy
+ * fallback synthesizes exactly one entry from the manifest's own fields and
+ * never relabels `m.usage` as a per-attempt delta (the pointer shape carries
+ * no usage). Shape discrimination is the manifest's own property:
+ * `m.attempts !== undefined`. */
+export function attemptEntries(m: RunManifest): { attempt: number; sessionId: string }[] {
+	return m.attempts ?? [{ attempt: m.attempt ?? 1, sessionId: m.sessionId }];
 }
 
 export function readManifests(repoRoot: string, runId: string): RunManifest[] {

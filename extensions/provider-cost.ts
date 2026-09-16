@@ -36,8 +36,10 @@ export type ProviderUnavailableReason =
 	| "no-api-key";
 
 /** EV-39 (Q4 disclosure) — record-only literal set in the same pattern as
- * `ProviderUnavailableReason`: why the reported provider figure is partial. */
-export type ProviderPartialReason = "final-attempt-only";
+ * `ProviderUnavailableReason`: why the reported provider figure is partial.
+ * EV-42 widens it: `attempts-unaccounted` is the figure-scoped literal set by
+ * the J1 predicate when a new-shape walk left attempts without a figure. */
+export type ProviderPartialReason = "final-attempt-only" | "attempts-unaccounted";
 
 export interface ProviderNativeTokens {
 	prompt: number | null;
@@ -58,6 +60,11 @@ export interface ProviderGeneration {
 	cacheDiscount: number | null;
 	isByok: boolean | null; // persisted verbatim (steward B), never rendered
 	nativeTokens: ProviderNativeTokens | null; // per-component native token counts (null = none carried)
+	/** EV-42 — the attempt ordinal this generation was harvested from; present
+	 * only when the entry carried `attempt` (new shape / legacy window shape).
+	 * Absent on single-attempt and plain-legacy entries ⇒ old records stay
+	 * byte-identical. `jobId` remains the tree-row id (no per-attempt key). */
+	attempt?: number;
 	status: "reported" | "unavailable";
 	reason?: ProviderUnavailableReason; // present iff unavailable
 	fetchedAt: string;
@@ -71,6 +78,10 @@ export interface ProviderCostReport {
 	 * is the final attempt's alone; wholeness is EV-42. Never rendered as copy —
 	 * the usage block's conditional legend is the only renderer. */
 	partial?: ProviderPartialReason;
+	/** EV-42 (J1) — record-only audit: sorted unique ordinals of new-shape
+	 * entries that yielded no generation ids (session missing / unreadable /
+	 * zero ids). Present iff any new-shape attempt went unaccounted. */
+	unaccountedAttempts?: number[];
 	totalCost: number | null; // Σ over reported generations; null iff none reported
 	generations: ProviderGeneration[];
 }
@@ -192,7 +203,7 @@ export interface FetchProviderReportInput {
 	/** Invocation-window manifests mapped to jobs: OpenRouter-modelled and
 	 * startedAt >= markerAt (the window filter lives at the flush; the model
 	 * gate is re-applied here so eligibility is the module's own property). */
-	jobs: { jobId: string; model: string; sessionPath: string | null }[];
+	jobs: { jobId: string; model: string; attempt?: number; sessionPath: string | null }[];
 	fetchGeneration: FetchGeneration; // injected; production passes the real transport
 	apiKey: string | null;
 	now?: () => string; // default ISO wall clock
@@ -236,7 +247,7 @@ function num(v: unknown): number | null {
 
 function toGeneration(
 	gen: GenerationResponse,
-	job: { jobId: string; model: string },
+	job: { jobId: string; model: string; attempt?: number },
 	generationId: string,
 	fetchedAt: string,
 ): ProviderGeneration {
@@ -260,6 +271,7 @@ function toGeneration(
 		cacheDiscount: num(gen.cache_discount),
 		isByok: typeof gen.is_byok === "boolean" ? gen.is_byok : null,
 		nativeTokens,
+		...(job.attempt !== undefined ? { attempt: job.attempt } : {}),
 		status: "reported",
 		fetchedAt,
 	};
@@ -280,21 +292,36 @@ export async function fetchProviderReport(input: FetchProviderReportInput): Prom
 	}
 	const generations: ProviderGeneration[] = [];
 	const failures: string[] = [];
+	// EV-42 — per-entry unaccounted buckets (new shape only). A read failure
+	// (truncated/corrupt file) lands HERE, never in a contribute-zero bucket —
+	// otherwise a corrupt attempt collapses to ids = [] and the figure reads
+	// whole (the EV-39 falsification class).
+	const unaccounted: number[] = [];
+	const unaccountedClasses: string[] = [];
 	for (const job of jobs) {
+		const isNewShape = job.attempt !== undefined;
+		const markUnaccounted = (cls: string): void => {
+			if (isNewShape) {
+				unaccounted.push(job.attempt!);
+				unaccountedClasses.push(cls);
+			} else {
+				failures.push(cls); // legacy entry — today's semantics, byte-identical
+			}
+		};
 		if (job.sessionPath === null) {
-			failures.push("session-missing");
+			markUnaccounted("session-missing");
 			continue;
 		}
-		let ids: string[] = [];
+		let ids: string[] | null;
 		try {
 			ids = collectGenerationIds(
 				parseSessionEntries(fs.readFileSync(job.sessionPath, "utf-8")).filter(isSessionEntry),
 			);
 		} catch {
-			ids = []; // missing, unreadable, or unparseable → treated as no ids (C3)
+			ids = null; // missing, unreadable, or unparseable — never contribute-zero
 		}
-		if (ids.length === 0) {
-			failures.push("no-generation-id");
+		if (ids === null || ids.length === 0) {
+			markUnaccounted("no-generation-id");
 			continue;
 		}
 		for (const id of ids) {
@@ -312,17 +339,33 @@ export async function fetchProviderReport(input: FetchProviderReportInput): Prom
 			}
 		}
 	}
-	const reason = worstReason(failures);
+	// EV-42 — the unaccounted audit + the C3 worst over BOTH observed sets
+	// (a legacy failure and a new-shape unaccounted class rank identically).
+	const unaccountedAttempts = [...new Set(unaccounted)].sort((a, b) => a - b);
+	const reason = worstReason([...failures, ...unaccountedClasses]);
 	const reported = generations.filter((g) => g.status === "reported");
 	const totalCost = reported.reduce<number | null>(
 		(sum, g) => (g.totalCost === null ? sum : (sum ?? 0) + g.totalCost),
 		null,
 	);
+	// J1 (binding) — the figure-scoped predicate, set in the producer (the
+	// disclosure is the module's claim, never a caller's post-hoc stamp):
+	// on the new shape, partial := totalCost !== null && unaccountedAttempts
+	// nonempty; otherwise absent. The all-unaccounted shape (totalCost null)
+	// carries NO partial — the `n/a` legend only.
+	const hasNewShape = jobs.some((j) => j.attempt !== undefined);
 	return {
-		status: failures.length > 0 ? "unavailable" : "reported",
+		// The `generations.length === 0` clause makes the all-unaccounted new
+		// shape `unavailable`; it changes no legacy path (legacy zero-generation
+		// entries already push a failure).
+		status: failures.length > 0 || generations.length === 0 ? "unavailable" : "reported",
 		...(reason !== undefined ? { reason: reason as ProviderUnavailableReason } : {}),
+		...(hasNewShape && unaccountedAttempts.length > 0 ? { unaccountedAttempts } : {}),
 		totalCost,
 		generations,
+		...(hasNewShape && totalCost !== null && unaccountedAttempts.length > 0
+			? { partial: "attempts-unaccounted" as const }
+			: {}),
 	};
 }
 

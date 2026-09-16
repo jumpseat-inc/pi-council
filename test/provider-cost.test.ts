@@ -389,6 +389,159 @@ test("T-P8: missing session → session-missing; session with no responseId → 
 });
 
 // ---------------------------------------------------------------------------
+// EV-42 — per-entry unaccounted semantics + the figure-scoped J1 predicate.
+// Discriminator per entry: does it carry `attempt`? New-shape entries whose
+// session is missing / unreadable / has no ids are UNACCOUNTED (never a
+// contribute-zero bucket, never silently whole); legacy entries keep today's
+// failure semantics (T-P8 stays the pin).
+// ---------------------------------------------------------------------------
+
+test("EV-42: all-unaccounted new shape — unavailable, C3 worst reason, no partial (J1)", async () => {
+	const { transport, calls } = recordingTransport({});
+	const r = (await fetchProviderReport({
+		repoRoot: tmpDir("ev29-repo-"),
+		runId: "run-EV42a",
+		jobs: [
+			{ jobId: "job-1", model: "openrouter/anthropic/claude-x", attempt: 1, sessionPath: null },
+			{ jobId: "job-1", model: "openrouter/anthropic/claude-x", attempt: 2, sessionPath: null },
+		],
+		fetchGeneration: transport,
+		apiKey: "k",
+		now: NOW,
+	})) as ProviderCostReport;
+	expect(r.status).toBe("unavailable");
+	expect(r.reason).toBe("session-missing");
+	expect(r.totalCost).toBeNull();
+	expect(r.unaccountedAttempts).toEqual([1, 2]); // record-only audit
+	expect("partial" in r).toBe(false); // J1: all-unaccounted carries no partial
+	expect(calls).toHaveLength(0);
+});
+
+test("EV-42: partial-with-figure — attempt 1 unaccounted, attempt 2 reports; the J1 predicate fires in the producer", async () => {
+	const sessDir = tmpDir("ev29-sess-");
+	const attempt2 = writeSessionFile(sessDir, "job-1-attempt2", [
+		userEntry("u2", null, T0 + 3000),
+		assistantEntry("a2", "u2", T0 + 3100, "gen-a2"),
+	]);
+	const { transport, calls } = recordingTransport({ "gen-a2": REPORTED_FIXTURE });
+	const r = (await fetchProviderReport({
+		repoRoot: tmpDir("ev29-repo-"),
+		runId: "run-EV42b",
+		jobs: [
+			{ jobId: "job-1", model: "openrouter/anthropic/claude-x", attempt: 1, sessionPath: null },
+			{ jobId: "job-1", model: "openrouter/anthropic/claude-x", attempt: 2, sessionPath: attempt2 },
+		],
+		fetchGeneration: transport,
+		apiKey: "k",
+	now: NOW,
+	})) as ProviderCostReport;
+	expect(r.status).toBe("reported");
+	expect(r.partial).toBe("attempts-unaccounted");
+	expect(r.unaccountedAttempts).toEqual([1]);
+	expect(r.totalCost).toBe(REPORTED_FIXTURE.total_cost!);
+	expect(r.generations).toHaveLength(1);
+	expect(r.generations[0]!.attempt).toBe(2);
+	expect(r.generations[0]!.jobId).toBe("job-1"); // jobId stays the tree-row id
+	expect(calls).toEqual(["gen-a2"]);
+});
+
+test("EV-42: whole retried dispatch — both attempts report, generations ordered and attempt-stamped, no partial", async () => {
+	const sessDir = tmpDir("ev29-sess-");
+	const f1 = writeSessionFile(sessDir, "job-1", [assistantEntry("a1", null, T0 + 100, "gen-a1")]);
+	const f2 = writeSessionFile(sessDir, "job-1-attempt2", [assistantEntry("a2", null, T0 + 3100, "gen-a2")]);
+	const { transport, calls } = recordingTransport({
+		"gen-a1": REPORTED_FIXTURE,
+		"gen-a2": { ...REPORTED_FIXTURE, id: "gen-a2", total_cost: 0.0031 },
+	});
+	const r = (await fetchProviderReport({
+		repoRoot: tmpDir("ev29-repo-"),
+		runId: "run-EV42c",
+		jobs: [
+			{ jobId: "job-1", model: "openrouter/anthropic/claude-x", attempt: 1, sessionPath: f1 },
+			{ jobId: "job-1", model: "openrouter/anthropic/claude-x", attempt: 2, sessionPath: f2 },
+		],
+		fetchGeneration: transport,
+		apiKey: "k",
+		now: NOW,
+	})) as ProviderCostReport;
+	expect(r.status).toBe("reported");
+	expect(r.totalCost).toBeCloseTo(REPORTED_FIXTURE.total_cost! + 0.0031, 12);
+	expect("partial" in r).toBe(false);
+	expect("unaccountedAttempts" in r).toBe(false);
+	expect(r.generations.map((g) => g.attempt)).toEqual([1, 2]); // walk order
+	expect(calls).toEqual(["gen-a1", "gen-a2"]); // both attempts harvested
+});
+
+test("EV-42: a corrupt/truncated attempt file is unaccounted, never contribute-zero (unaccounted is not zero)", async () => {
+	const sessDir = tmpDir("ev29-sess-");
+	const corrupt = path.join(sessDir, "job-1.jsonl");
+	fs.writeFileSync(corrupt, "not json\n{truncated");
+	const f2 = writeSessionFile(sessDir, "job-1-attempt2", [assistantEntry("a2", null, T0 + 3100, "gen-a2")]);
+	const { transport } = recordingTransport({ "gen-a2": REPORTED_FIXTURE });
+	const r = (await fetchProviderReport({
+		repoRoot: tmpDir("ev29-repo-"),
+		runId: "run-EV42d",
+		jobs: [
+			{ jobId: "job-1", model: "openrouter/anthropic/claude-x", attempt: 1, sessionPath: corrupt },
+			{ jobId: "job-1", model: "openrouter/anthropic/claude-x", attempt: 2, sessionPath: f2 },
+		],
+		fetchGeneration: transport,
+		apiKey: "k",
+		now: NOW,
+	})) as ProviderCostReport;
+	// the corrupt attempt must not collapse the figure to whole
+	expect(r.status).toBe("reported");
+	expect(r.partial).toBe("attempts-unaccounted");
+	expect(r.unaccountedAttempts).toEqual([1]);
+	expect(r.totalCost).toBe(REPORTED_FIXTURE.total_cost!);
+});
+
+test("EV-42: a new-shape entry whose fetch rejects is a FAILURE (not unaccounted) — no partial, no unaccountedAttempts", async () => {
+	const sessDir = tmpDir("ev29-sess-");
+	const f1 = writeSessionFile(sessDir, "job-1", [assistantEntry("a1", null, T0 + 100, "gen-a1")]);
+	const { transport } = recordingTransport({ "gen-a1": new Error("boom") });
+	const r = (await fetchProviderReport({
+		repoRoot: tmpDir("ev29-repo-"),
+		runId: "run-EV42e",
+		jobs: [{ jobId: "job-1", model: "openrouter/anthropic/claude-x", attempt: 1, sessionPath: f1 }],
+		fetchGeneration: transport,
+		apiKey: "k",
+		now: NOW,
+	})) as ProviderCostReport;
+	expect(r.status).toBe("unavailable");
+	expect(r.reason).toBe("fetch-failed:boom");
+	expect("unaccountedAttempts" in r).toBe(false);
+	expect("partial" in r).toBe(false);
+	expect(r.generations).toHaveLength(0);
+});
+
+test("EV-42: mixed window at module level — legacy failure + new-shape unaccounted coexist per entry", async () => {
+	const sessDir = tmpDir("ev29-sess-");
+	const f2 = writeSessionFile(sessDir, "job-2-attempt2", [assistantEntry("a2", null, T0 + 3100, "gen-a2")]);
+	const { transport } = recordingTransport({ "gen-a2": REPORTED_FIXTURE });
+	const r = (await fetchProviderReport({
+		repoRoot: tmpDir("ev29-repo-"),
+		runId: "run-EV42f",
+		jobs: [
+			// legacy entry (no attempt): missing session stays a failure (today)
+			{ jobId: "job-1", model: "openrouter/anthropic/claude-x", sessionPath: null },
+			// new-shape entry: reports
+			{ jobId: "job-2", model: "openrouter/anthropic/claude-x", attempt: 2, sessionPath: f2 },
+		],
+		fetchGeneration: transport,
+		apiKey: "k",
+		now: NOW,
+	})) as ProviderCostReport;
+	expect(r.status).toBe("unavailable"); // a legacy failure still flips worst-of
+	expect(r.reason).toBe("session-missing");
+	expect(r.totalCost).toBe(REPORTED_FIXTURE.total_cost!); // the reported sum
+	expect("unaccountedAttempts" in r).toBe(false);
+	expect("partial" in r).toBe(false); // J1: unaccountedAttempts empty ⇒ no partial
+	expect(r.generations[0]!.attempt).toBe(2);
+	expect(r.generations[0]!.jobId).toBe("job-2");
+});
+
+// ---------------------------------------------------------------------------
 // T-P8b — timeout + undefined-report marker.
 // ---------------------------------------------------------------------------
 

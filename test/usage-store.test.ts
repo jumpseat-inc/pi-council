@@ -719,6 +719,18 @@ function recordingTransport(): { calls: string[]; fetchGeneration: (id: string) 
 	};
 }
 
+/** EV-42 — a transport keyed by generation id, reporting a per-id cost. */
+function keyedTransport(costs: Record<string, number>): { calls: string[]; fetchGeneration: (id: string) => Promise<GenerationResponse> } {
+	const calls: string[] = [];
+	return {
+		calls,
+		fetchGeneration: async (id: string) => {
+			calls.push(id);
+			return { ...FIXTURE_RESPONSE, id, total_cost: costs[id] };
+		},
+	};
+}
+
 test("T-S1 (acceptance 1 end to end): the flush persists the fixture response's values with schemaVersion 2; the transport saw exactly the session-harvested ids (O-2)", async () => {
 	const s = openRouterFlushSetup();
 	const storeRoot = tmpDir("ev31-store-");
@@ -900,6 +912,219 @@ test("EV-39 G4: a retried openrouter/ manifest persists provider.partial='final-
 	});
 	const [plain] = readUsageRecords(storeRoot2);
 	expect("partial" in plain!.provider!).toBe(false);
+});
+
+// ---------------------------------------------------------------------------
+// EV-42 — the per-attempt harvest walk (spec §2.4) + the J1 figure-scoped
+// disclosure. The flush resolves one session path per ATTEMPT (the manifest's
+// `attempts` list); the legacy window shape keeps today's stamp byte-identical.
+// ---------------------------------------------------------------------------
+
+/** A retried dispatch fixture: one manifest with the attempts list, two
+ * attempt JSONLs in the same run dir (attempt 1's id `job-1`, attempt 2's
+ * `job-1-attempt2`), each carrying a distinct generation id. */
+function retriedFlushSetup(): ReturnType<typeof flushSetup> & { attempt1Path: string; attempt2Path: string } {
+	const s = flushSetup();
+	const dir = path.join(s.repo.root, ".pi", "council", "runs", s.repo.runId);
+	const attempt1Path = path.join(dir, "job-1.jsonl");
+	fs.writeFileSync(
+		attempt1Path,
+		[
+			{ type: "session", version: 3, id: "job-1", timestamp: iso(T0), cwd: s.repo.root },
+			assistantWithRid("ja1", null, T0 + 100, "gen-a1"),
+		].map((e) => JSON.stringify(e)).join("\n") + "\n",
+	);
+	const attempt2Path = path.join(dir, "job-1-attempt2.jsonl");
+	fs.writeFileSync(
+		attempt2Path,
+		[
+			{ type: "session", version: 3, id: "job-1-attempt2", timestamp: iso(T0 + 3000), cwd: s.repo.root },
+			assistantWithRid("ja2", null, T0 + 3100, "gen-a2"),
+		].map((e) => JSON.stringify(e)).join("\n") + "\n",
+	);
+	writeManifest(
+		s.repo.root,
+		s.repo.runId,
+		manifest("job-1", {
+			model: "openrouter/anthropic/claude-x",
+			startedAt: T0 + 1500,
+			exitCode: 0,
+			settledAt: T0 + 4200,
+			state: "done",
+			attempt: 2,
+			attempts: [{ attempt: 1, sessionId: "job-1" }, { attempt: 2, sessionId: "job-1-attempt2" }],
+		}),
+	);
+	return { ...s, attempt1Path, attempt2Path };
+}
+
+function flushedProvider(storeRoot: string): StoredUsageRecord["provider"] {
+	const [record] = readUsageRecords(storeRoot);
+	return record!.provider;
+}
+
+function ev42Flush(
+	s: ReturnType<typeof flushSetup>,
+	storeRoot: string,
+	fetchGeneration: (id: string) => Promise<GenerationResponse>,
+) {
+	return flushPendingInvocations({
+		repoRoot: s.repo.root,
+		entries: s.entries,
+		leafId: s.leafId,
+		sessionId: SID,
+		pending: s.pending,
+		trigger: "agent-settled",
+		storeRoot,
+		notify: () => {},
+		providerDeps: { fetchGeneration, apiKey: "k" },
+	});
+}
+
+// Contract 1 (spec §3): a whole retried dispatch sums every attempt.
+test("EV-42 contract 1: a whole retried dispatch sums every attempt — no partial", async () => {
+	const s = retriedFlushSetup();
+	const storeRoot = tmpDir("ev42-store-");
+	const t = keyedTransport({ "gen-a1": 0.0011, "gen-a2": 0.0031 });
+	const r = await ev42Flush(s, storeRoot, t.fetchGeneration);
+	expect(r.outcomes[0]!.status).toBe("written");
+	const p = flushedProvider(storeRoot)!;
+	expect(p.status).toBe("reported");
+	expect(p.totalCost).toBeCloseTo(0.0042, 12); // c1 + c2
+	expect("partial" in p).toBe(false);
+	expect("unaccountedAttempts" in p).toBe(false);
+	expect(t.calls).toEqual(["gen-a1", "gen-a2"]); // BOTH attempts harvested
+	expect(p.generations.map((g) => g.attempt)).toEqual([1, 2]);
+	expect(new Set(p.generations.map((g) => g.jobId))).toEqual(new Set(["job-1"]));
+	// the block renders no partial legend
+	const block = formatUsageBlock({ record: readUsageRecords(storeRoot)[0]!.spend, provider: p });
+	expect(block).not.toContain("usage  partial");
+});
+
+// Contract 2 (spec §3): partial-with-figure on the new shape.
+test("EV-42 contract 2: partial-with-figure — attempt 1 unaccounted, attempt 2 reports; the new legend renders, no n/a", async () => {
+	const s = retriedFlushSetup();
+	fs.rmSync(s.attempt1Path); // attempt 1's pointer dangles
+	const storeRoot = tmpDir("ev42-store-");
+	const t = keyedTransport({ "gen-a2": 0.0031 });
+	await ev42Flush(s, storeRoot, t.fetchGeneration);
+	const p = flushedProvider(storeRoot)!;
+	expect(p.status).toBe("reported");
+	expect(p.partial).toBe("attempts-unaccounted");
+	expect(p.unaccountedAttempts).toEqual([1]);
+	expect(p.totalCost).toBeCloseTo(0.0031, 12);
+	const block = formatUsageBlock({ record: readUsageRecords(storeRoot)[0]!.spend, provider: p });
+	expect(block).toContain("usage  partial = reported figure excludes unaccounted attempts");
+	expect(block).not.toContain("usage  n/a = provider figure unavailable");
+	// stack order: reported row → partial legend
+	const lines = block.split("\n");
+	const reportedIdx = lines.findIndex((l) => l.startsWith("usage  reported"));
+	const partialIdx = lines.findIndex((l) => l.startsWith("usage  partial"));
+	expect(partialIdx).toBe(reportedIdx + 1);
+});
+
+// Contract 3 (spec §3): all-unaccounted new shape — the `n/a` legend only,
+// NO partial legend (J1; the owner dissent is rejected).
+test("EV-42 contract 3: all-unaccounted new shape — unavailable, no partial (J1), the n/a legend last", async () => {
+	const s = retriedFlushSetup();
+	fs.rmSync(s.attempt1Path);
+	fs.rmSync(s.attempt2Path);
+	const storeRoot = tmpDir("ev42-store-");
+	const t = keyedTransport({});
+	await ev42Flush(s, storeRoot, t.fetchGeneration);
+	const p = flushedProvider(storeRoot)!;
+	expect(p.status).toBe("unavailable");
+	expect(p.reason).toBe("session-missing");
+	expect(p.totalCost).toBeNull();
+	expect("partial" in p).toBe(false);
+	expect(p.unaccountedAttempts).toEqual([1, 2]); // present as audit
+	expect(t.calls).toHaveLength(0);
+	const block = formatUsageBlock({ record: readUsageRecords(storeRoot)[0]!.spend, provider: p });
+	const lines = block.split("\n");
+	expect(lines[lines.length - 1]).toBe("usage  n/a = provider figure unavailable");
+	expect(block).not.toContain("usage  partial");
+});
+
+// Contract 4b (spec §3): mixed-window precedence — the new-shape producer
+// owns the disclosure; the legacy stamp does not fire.
+test("EV-42 contract 4b: a mixed window — no final-attempt-only stamp when a new-shape manifest is present", async () => {
+	const s = retriedFlushSetup();
+	const dir = path.dirname(s.attempt1Path);
+	fs.writeFileSync(
+		path.join(dir, "job-2.jsonl"),
+		[
+			{ type: "session", version: 3, id: "job-2", timestamp: iso(T0), cwd: s.repo.root },
+			assistantWithRid("jb1", null, T0 + 200, "gen-b1"),
+		].map((e) => JSON.stringify(e)).join("\n") + "\n",
+	);
+	// the legacy window shape: attempt 2 with NO attempts list
+	writeManifest(
+		s.repo.root,
+		s.repo.runId,
+		manifest("job-2", {
+			model: "openrouter/anthropic/claude-x",
+			startedAt: T0 + 1600,
+			exitCode: 0,
+			settledAt: T0 + 4300,
+			state: "done",
+			attempt: 2,
+		}),
+	);
+	const storeRoot = tmpDir("ev42-store-");
+	const t = keyedTransport({ "gen-a1": 0.0011, "gen-a2": 0.0031, "gen-b1": 0.0007 });
+	await ev42Flush(s, storeRoot, t.fetchGeneration);
+	const p = flushedProvider(storeRoot)!;
+	expect(p.status).toBe("reported");
+	expect("partial" in p).toBe(false); // NOT final-attempt-only
+	expect(t.calls).toEqual(["gen-a1", "gen-a2", "gen-b1"]); // every attempt of both dispatches
+});
+
+// Contract 5 (spec §3): non-retried byte-identity.
+test("EV-42 contract 5: a non-retried dispatch's manifest and record are byte-identical to pre-EV-42", async () => {
+	const s = openRouterFlushSetup();
+	const m = readManifests(s.repo.root, s.repo.runId).find((x) => x.id === "job-1")!;
+	expect("attempt" in m).toBe(false);
+	expect("attempts" in m).toBe(false);
+	const storeRoot = tmpDir("ev42-store-");
+	const t = recordingTransport();
+	await ev42Flush(s, storeRoot, t.fetchGeneration);
+	const p = flushedProvider(storeRoot)!;
+	expect("partial" in p).toBe(false);
+	expect("unaccountedAttempts" in p).toBe(false);
+	expect(p.generations.every((g) => !("attempt" in g))).toBe(true);
+});
+
+// Single-entry compatibility (spec §3 pins): a plain manifest whose session
+// is present but empty stays unavailable/no-generation-id with no partial.
+test("EV-42 single-entry compatibility: present-but-empty legacy session stays unavailable/no-generation-id, no partial", async () => {
+	const s = flushSetup();
+	const dir = path.join(s.repo.root, ".pi", "council", "runs", s.repo.runId);
+	fs.writeFileSync(
+		path.join(dir, "job-1.jsonl"),
+		[
+			{ type: "session", version: 3, id: "job-1", timestamp: iso(T0), cwd: s.repo.root },
+			assistantEntry("ja1", null, T0 + 100, { input: 1, totalTokens: 1, cost: { total: 1 } }), // no responseId
+		].map((e) => JSON.stringify(e)).join("\n") + "\n",
+	);
+	writeManifest(
+		s.repo.root,
+		s.repo.runId,
+		manifest("job-1", {
+			model: "openrouter/anthropic/claude-x",
+			startedAt: T0 + 1500,
+			exitCode: 0,
+			settledAt: T0 + 2100,
+			state: "done",
+		}),
+	);
+	const storeRoot = tmpDir("ev42-store-");
+	const t = recordingTransport();
+	await ev42Flush(s, storeRoot, t.fetchGeneration);
+	const p = flushedProvider(storeRoot)!;
+	expect(p.status).toBe("unavailable");
+	expect(p.reason).toBe("no-generation-id");
+	expect("partial" in p).toBe(false);
+	expect("unaccountedAttempts" in p).toBe(false);
 });
 
 test("EV-39 G3 (gate-closed/written-once): a mid-backoff manifest (exitCode null) keeps the flush gate closed; the settled cumulative chain writes exactly once", async () => {

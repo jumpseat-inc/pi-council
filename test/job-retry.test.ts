@@ -285,6 +285,8 @@ test("wiring: disabled policy → single spawn, manifest has no attempt key, ses
 		fs.readFileSync(path.join(root, CONFIG_DIR_NAME, "council", "runs", "runW39b", `${id}.json`), "utf-8"),
 	);
 	expect("attempt" in manifest).toBe(false);
+	// EV-42 — non-retried byte-identity: no per-attempt provenance either
+	expect("attempts" in manifest).toBe(false);
 	expect(manifest.sessionId).toBe(id);
 }, 15_000);
 

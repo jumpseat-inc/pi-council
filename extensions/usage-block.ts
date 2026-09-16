@@ -13,7 +13,7 @@
 // job-scope boundary row (formatBoundaryLabel hardcodes jobs=0, which would be
 // false here), with the same prefix, label column, basis field, ordering, and
 // whole-block states.
-import type { ProviderCostReport, ProviderGeneration } from "./provider-cost.ts";
+import type { ProviderCostReport, ProviderGeneration, ProviderPartialReason } from "./provider-cost.ts";
 import type { RunManifest, Usage } from "./runs.ts";
 import { formatBoundaryLabel, accumulateFlat, zeroUsage, NUMERIC_METRICS, type SpendRecord } from "./spend.ts";
 import { formatMoney, formatReportedMoney, formatTokensFragment } from "./usage-format.ts";
@@ -26,10 +26,16 @@ export type Half = "ownSession" | "subtree";
 const NO_USAGE_LINE = "usage  no usage recorded";
 const UNRESOLVED_LINE = "usage  accounting boundary unresolved";
 const LEGEND_LINE = "usage  n/a = provider figure unavailable";
-/** EV-39 Q4 — present iff the persisted provider sibling carries `partial`:
- * the reported figure is the final attempt's alone, never the dispatch's
- * whole figure (wholeness is EV-42). */
-const PARTIAL_LEGEND = "usage  partial = reported figure is final-attempt-only";
+/** EV-42 (J3, binding) — the TOTAL legend map: every known record-only
+ * literal renders its ruled copy; an unknown literal (a durable record
+ * carrying a literal this build does not know — choose-once records are never
+ * rewritten) falls back to a generic line, never failing open into a silent
+ * drop of the qualifier. */
+const PARTIAL_LEGENDS: Record<ProviderPartialReason, string> = {
+	"final-attempt-only": "usage  partial = reported figure is final-attempt-only",
+	"attempts-unaccounted": "usage  partial = reported figure excludes unaccounted attempts",
+};
+const PARTIAL_LEGEND_FALLBACK = "usage  partial = figure is not whole";
 const FAILED_PREFIX = "usage  accounting failed \u2014 "; // U+2014
 
 /** The block input (ruling C1): the record variant gains EV-29's optional
@@ -117,7 +123,9 @@ export function formatUsageBlock(input: UsageBlockInput): string {
 	if (input.provider && input.provider.totalCost !== null) rows.push(reportedRow(input.provider));
 	// EV-39 Q4: the partial legend qualifies the reported row — pushed once iff
 	// the persisted sibling carries the record-only literal.
-	if (input.provider?.partial !== undefined) rows.push(PARTIAL_LEGEND);
+	if (input.provider?.partial !== undefined) {
+		rows.push(PARTIAL_LEGENDS[input.provider.partial] ?? PARTIAL_LEGEND_FALLBACK);
+	}
 	if (unavailable.length > 0) rows.push(LEGEND_LINE);
 	return rows.join("\n");
 }
