@@ -1,4 +1,5 @@
 import { pidAlive, readManifests, type RunManifest } from "./runs.ts";
+import { DEFAULT_RETRY_POLICY } from "./seats.ts";
 
 export interface TreeNode {
 	manifest: RunManifest;
@@ -52,10 +53,16 @@ const GLYPH: Record<string, string> = {
 	stalled: "⏸",
 	cancelled: "⊘",
 	timeout: "⚠",
+	retrying: "⏸", // EV-39 — between-attempt backoff (R4: same row, one glyph slot)
 };
 
-/** Plain-text tree for headless parents. */
-export function textTree(repoRoot: string, runIds: string[]): string[] {
+/** Plain-text tree for headless parents. The denominator is the injected
+ * init-time snapshot (Q1/D3 — no config read in a render path). */
+export function textTree(
+	repoRoot: string,
+	runIds: string[],
+	maxAttempts: number = DEFAULT_RETRY_POLICY.maxAttempts,
+): string[] {
 	const lines: string[] = [];
 	for (const runId of runIds) {
 		const nodes = flattenTree(buildTree(readManifests(repoRoot, runId)));
@@ -65,7 +72,13 @@ export function textTree(repoRoot: string, runIds: string[]): string[] {
 			const m = n.manifest;
 			const glyph = n.orphaned ? "☠" : (GLYPH[m.state] ?? "?");
 			const mins = ((Date.now() - m.startedAt) / 60_000).toFixed(1);
-			lines.push(`${"  ".repeat(n.depth + 1)}${glyph} ${m.id} ${m.seat} ${m.state} ${mins}m pid=${m.pid ?? "?"}`);
+			// EV-39 R4 — `attempt N/M` sits between the seat and the state, only
+			// when N > 1; a non-retry row is byte-identical to pre-EV-39.
+			const attempt =
+				m.attempt !== undefined && m.attempt > 1 ? ` attempt ${m.attempt}/${maxAttempts}` : "";
+			lines.push(
+				`${"  ".repeat(n.depth + 1)}${glyph} ${m.id} ${m.seat}${attempt} ${m.state} ${mins}m pid=${m.pid ?? "?"}`,
+			);
 		}
 	}
 	return lines;
