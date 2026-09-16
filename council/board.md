@@ -49,12 +49,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-38 — Retry policy section in .council.json with shipped defaults
-
 ## Needs Human
 
 ## Done
 
+- EV-38 — Retry policy section in .council.json with shipped defaults
 - EV-37 — Retry classification predicate for settled job reports
 - EV-36 — Transcript legibility at the one-row progress floor
 - EV-35 — Transcript interaction model — visible focus, honest keymap, visible toggles
