@@ -53,6 +53,12 @@ export interface RunManifest {
 	 * Optional: manifests written before the extension (or a partial write) may lack it. */
 	usage?: Usage;
 	stopReason?: string;
+	/** EV-39 — attempt ordinal; present only when >= 2 (one id / one manifest
+	 * / one row per dispatch, cardinality A). EV-42 owns per-attempt provenance. */
+	attempt?: number;
+	/** EV-39 — epoch ms of the next scheduled attempt; present only while the
+	 * dispatch is between attempts (state retrying). */
+	nextAttemptAt?: number;
 }
 
 export interface RunInfo {
