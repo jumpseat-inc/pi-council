@@ -134,14 +134,14 @@ export type SettleRetryDecision =
  */
 export function decideSettleRetry(input: {
 	policy: RetryPolicy | null;
-	pendingError: { stopReason?: string; errorMessage?: string } | null | undefined;
+	pendingError: FilterableMessage | null | undefined;
 	attempt: number;
 	rand?: () => number;
 }): SettleRetryDecision {
 	const { policy, pendingError, attempt, rand } = input;
 	if (!policy || !policy.enabled) return { action: "none" };
 	if (!pendingError) return { action: "none" };
-	if (classifyParentTurnRetry(pendingError) !== "retry") return { action: "none" };
+	if (classifyParentTurnRetry(pendingError as { stopReason?: string; errorMessage?: string }) !== "retry") return { action: "none" };
 	if (attempt < policy.maxAttempts) {
 		return {
 			action: "schedule",
@@ -215,6 +215,7 @@ export interface RetryControllerDeps {
 export class RetryController {
 	readonly maxAttempts: number;
 	private readonly deps: RetryControllerDeps;
+	private renderFn: () => void;
 	private surfaceState: RetrySurface = "idle";
 	private _attempt = 1;
 	private _deadline = 0;
@@ -223,6 +224,14 @@ export class RetryController {
 	constructor(deps: RetryControllerDeps) {
 		this.deps = deps;
 		this.maxAttempts = deps.maxAttempts;
+		this.renderFn = deps.requestRender;
+	}
+
+	/** The RetryEditor attaches the real TUI render hook when it is constructed
+	 * (the editor receives the TUI instance; the engine's closure does not).
+	 * Before any editor exists the tick's requestRender is a no-op. */
+	attachRender(fn: () => void): void {
+		this.renderFn = fn;
 	}
 
 	get surface(): RetrySurface {
@@ -310,7 +319,7 @@ export class RetryController {
 	private startTick(): void {
 		if (this.tick) return;
 		this.tick = setInterval(() => {
-			if (this.surfaceState === "backoff") this.deps.requestRender();
+			if (this.surfaceState === "backoff") this.renderFn();
 		}, 1_000);
 		this.tick.unref?.();
 	}
@@ -343,6 +352,9 @@ export class RetryEditor extends CustomEditor {
 	) {
 		super(tui, theme, keybindings, options);
 		this.inner = priorFactory ? (priorFactory(tui, theme, keybindings) as EditorComponent) : undefined;
+		// The editor owns the only TUI reference — wire the controller's 1 s tick
+		// to a real repaint (the countdown line lives in this editor's render).
+		controller.attachRender(() => tui.requestRender());
 	}
 
 	/** The draft lives in the prior editor when one is composed over; the typed

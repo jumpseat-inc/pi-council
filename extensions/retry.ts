@@ -7,6 +7,13 @@
 import type { JobReport, JobState } from "./hub.ts";
 
 /**
+ * EV-40 — the retry policy shape is owned by `seats.ts` (`loadRetryConfig`
+ * returns it); re-exported here so the retry modules speak one name. The
+ * re-export is type-only, so it adds no runtime edge (no import cycle).
+ */
+export type { RetryPolicy } from "./seats.ts";
+
+/**
  * Snapshot of pi's RETRYABLE_PROVIDER_ERROR_PATTERN source tokens, pinned to
  * @earendil-works/pi-coding-agent@0.85.1
  * (dist/bundle/chunks/chunk-JVUZSMYM.js:475), where
