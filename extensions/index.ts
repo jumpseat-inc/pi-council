@@ -74,7 +74,7 @@ export function loadModelFloors(repoRoot: string): Record<string, number> {
 	};
 }
 
-function registerMaxTokensFix(pi: ExtensionAPI, repoRoot: string): void {
+export function registerMaxTokensFix(pi: ExtensionAPI, repoRoot: string): void {
 	const floors = loadModelFloors(repoRoot);
 	pi.on("before_provider_request", (event: any) => {
 		const payload = event?.payload;
@@ -513,16 +513,25 @@ export function registerParentTurnRetry(
 
 		// Headless: await the backoff + the send inside the handler (EV-43), then
 		// poll until the nested run becomes active (waitForIdle only if exposed —
-		// it is not on this tree).
+		// it is not on this tree). The poll reads a CAPTURED ctx: the
+		// extension-initiated nested run replaces the session, so a retry chain's
+		// second poll touches a stale ctx (spec §2.5 — "any ctx access is guarded
+		// and swallows the stale-session assertActive throw"). The run's own
+		// finally is the completion guarantee; a stale poll simply has nothing
+		// left to wait for.
 		await runHeadlessCountdown(decision.nextAttempt, maxAttempts, decision.delayMs);
 		retryAttempt = decision.nextAttempt;
 		expectContinuation = true;
 		contextFilter.arm();
 		pi.sendUserMessage(prompt);
-		for (let i = 0; i < 100 && ctx.isIdle?.(); i++) {
-			await new Promise<void>((resolve) => setTimeout(resolve, 25));
+		try {
+			for (let i = 0; i < 100 && ctx.isIdle?.(); i++) {
+				await new Promise<void>((resolve) => setTimeout(resolve, 25));
+			}
+			if (typeof ctx.waitForIdle === "function") await ctx.waitForIdle();
+		} catch {
+			// stale ctx after session replacement — swallow (spec §2.5).
 		}
-		if (typeof ctx.waitForIdle === "function") await ctx.waitForIdle();
 	};
 
 	return { onSettled };
@@ -562,7 +571,17 @@ export default async function (pi: ExtensionAPI) {
 		setExitCode: (code) => {
 			process.exitCode = code;
 		},
-		getUi: () => uiCtx?.ui ?? null,
+		// Spec §2.5: any `ctx`/`uiCtx` access is guarded and swallows the
+		// stale-session assertActive throw — print mode replaces the session
+		// around teardown, and the captured session_start ctx's `.ui` getter
+		// throws "stale after session replacement" when touched there.
+		getUi: () => {
+			try {
+				return uiCtx?.ui ?? null;
+			} catch {
+				return null;
+			}
+		},
 	});
 
 	// EV-31: per-session pending-invocation ledger. Entries are appended where
