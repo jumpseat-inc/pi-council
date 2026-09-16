@@ -13,9 +13,12 @@ import {
 	listRunIds,
 	pruneRuns,
 	sumSubtree,
+	attemptEntries,
 	type RunManifest,
 	type Usage,
 } from "../extensions/runs.ts";
+
+import { sumSubtreeUsage } from "../extensions/usage-block.ts";
 
 function tmpRepo(): string {
 	return fs.mkdtempSync(path.join(os.tmpdir(), "council-runs-"));
@@ -205,5 +208,56 @@ test("EV-39: manifest round-trips attempt and nextAttemptAt; plain manifests car
 	const plain = manifest("job-2");
 	expect("attempt" in plain).toBe(false);
 	expect("nextAttemptAt" in plain).toBe(false);
+	fs.rmSync(path.join(root, CONFIG_DIR_NAME), { recursive: true, force: true });
+});
+
+// EV-42 — per-attempt provenance: the attempts list round-trips; a plain
+// manifest (non-retried) carries neither `attempt` nor `attempts` (byte-identity).
+test("EV-42: manifest round-trips the attempts list; a plain manifest carries it not", () => {
+	const root = tmpRepo();
+	const runId = "runA42";
+	ensureRunDir(root, runId);
+	writeManifest(root, runId, manifest("job-1", {
+		attempt: 2,
+		attempts: [{ attempt: 1, sessionId: "job-1" }],
+	}));
+	const read = readManifests(root, runId)[0]!;
+	expect(read.attempts).toEqual([{ attempt: 1, sessionId: "job-1" }]);
+	const plain = manifest("job-2");
+	expect("attempts" in plain).toBe(false);
+	fs.rmSync(path.join(root, CONFIG_DIR_NAME), { recursive: true, force: true });
+});
+
+// EV-42 §2.3 — the one per-attempt accessor: the new shape yields the list;
+// the fail-closed legacy fallback synthesizes exactly one entry from the
+// manifest's own fields (never relabels `usage` as a per-attempt delta).
+test("EV-42: attemptEntries — new shape yields the list; legacy fallback synthesizes one entry", () => {
+	expect(
+		attemptEntries({
+			...manifest("j"),
+			attempts: [{ attempt: 1, sessionId: "a" }, { attempt: 2, sessionId: "b" }],
+		}),
+	).toEqual([{ attempt: 1, sessionId: "a" }, { attempt: 2, sessionId: "b" }]);
+	// legacy window shape: attempt > 1, no list → one entry derived from the manifest
+	expect(attemptEntries(manifest("j", { attempt: 2 }))).toEqual([{ attempt: 2, sessionId: "j" }]);
+	// plain single-attempt manifest
+	expect(attemptEntries(manifest("j"))).toEqual([{ attempt: 1, sessionId: "j" }]);
+});
+
+// EV-42 §3 — no-double-count: the pointer-only list never multiplies the
+// cumulative tuple; the subtree sum equals the manifest's own usage.
+test("EV-42: sumSubtreeUsage never double-counts a retried manifest", () => {
+	const root = tmpRepo();
+	const runId = "run42d";
+	ensureRunDir(root, runId);
+	const usage = fullUsage({ cost: 0.0073 });
+	writeManifest(root, runId, manifest("job-1", {
+		attempt: 2,
+		attempts: [{ attempt: 1, sessionId: "job-1" }, { attempt: 2, sessionId: "job-1-attempt2" }],
+		usage,
+	}));
+	const ms = readManifests(root, runId);
+	const { subtree } = sumSubtreeUsage(ms, "job-1");
+	expect(subtree.cost).toBe(usage.cost);
 	fs.rmSync(path.join(root, CONFIG_DIR_NAME), { recursive: true, force: true });
 });
