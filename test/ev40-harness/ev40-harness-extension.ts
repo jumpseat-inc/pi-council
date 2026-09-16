@@ -32,6 +32,7 @@ import {
 	fauxText,
 } from "@earendil-works/pi-ai";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
+import { createOnePassErrorFilter } from "../../extensions/parent-retry.ts";
 
 /** The injected failure class: the intake's WITH-COLON literal, byte-equal to
  * `PROVIDER_FINISH_REASON_ERROR` (asserted by test/ev40-parent-retry.test.ts,
@@ -45,6 +46,7 @@ const ARM = (process.env.EV40_ARM ?? "none") as "inside" | "timer" | "none";
 const PARTIAL = process.env.EV40_PARTIAL === "1";
 const CONTINUATION = process.env.EV40_CONTINUATION ?? "EV40-CONTINUE";
 const MODEL_ID = process.env.EV40_MODEL_ID ?? "ev40-model";
+const FILTER = process.env.EV40_FILTER === "1";
 const CONTEXT_LOG = process.env.EV40_CONTEXT_LOG;
 const PAYLOAD_LOG = process.env.EV40_PAYLOAD_LOG;
 const SETTLE_LOG = process.env.EV40_SETTLE_LOG;
@@ -93,13 +95,21 @@ faux.setResponses([
 
 export default function (pi: ExtensionAPI) {
 	pi.registerProvider(faux.provider);
-	log(SETTLE_LOG, `extension loaded; provider ev40 registered; fails=${FAILS} arm=${ARM} partial=${PARTIAL}`);
+	log(SETTLE_LOG, `extension loaded; provider ev40 registered; fails=${FAILS} arm=${ARM} partial=${PARTIAL} filter=${FILTER}`);
+
+	// The shared §2.4 filter (single source with the engine): armed for exactly
+	// one provider request per harness continuation send (D1 arm B).
+	const filter = createOnePassErrorFilter();
 
 	// Telemetry: message shapes per provider request (D1 recorder) — registered
-	// only when the log is configured so plain P1 arms stay untouched.
+	// only when the log is configured so plain P1 arms stay untouched. The log
+	// records the EFFECTIVE outgoing list (post-filter), i.e. what the provider
+	// request actually carried.
 	if (CONTEXT_LOG) {
 		pi.on("context", (event) => {
-			const shapes = (event.messages as Array<Record<string, unknown>>).map((m) => {
+			const filtered = filter.apply(event.messages);
+			const effective = filtered ?? event.messages;
+			const shapes = (effective as Array<Record<string, unknown>>).map((m) => {
 				const role = String(m.role);
 				const content = Array.isArray(m.content) ? m.content : [];
 				const text = content
@@ -111,9 +121,14 @@ export default function (pi: ExtensionAPI) {
 			});
 			log(
 				CONTEXT_LOG,
-				`context request call=${faux.state.callCount} messages=${event.messages.length}${event.messages.length ? `\n  ${shapes.join("\n  ")}` : ""}`,
+				`context request call=${faux.state.callCount} messages=${effective.length}${effective.length ? `\n  ${shapes.join("\n  ")}` : ""}`,
 			);
-			return undefined;
+			return filtered ? { messages: filtered } : undefined;
+		});
+	} else {
+		pi.on("context", (event) => {
+			const filtered = filter.apply(event.messages);
+			return filtered ? { messages: filtered } : undefined;
 		});
 	}
 
@@ -132,6 +147,7 @@ export default function (pi: ExtensionAPI) {
 		// A leading call failed and this is its settle: continue per arm.
 		sent = true;
 		const send = (): void => {
+			if (FILTER) filter.arm();
 			pi.sendUserMessage(CONTINUATION);
 			log(SETTLE_LOG, `send fired arm=${ARM}`);
 		};

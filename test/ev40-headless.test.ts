@@ -73,3 +73,48 @@ describe("EV-40 O3 — literal hygiene of the harness", () => {
 	});
 });
 
+describe("EV-40 D1 — continuation payload shape, no filter vs shared structural filter (recorded characterization)", () => {
+	test(
+		"arm A attempt-2 request ends [assistant(error), user]; arm B contains no errored assistant and no toolResult delta",
+		() => {
+			const scratchRoot = mkdtempSync(join(tmpdir(), "ev40-d1-test-"));
+			try {
+				const armA = runHarnessArm(
+					{ label: "d1-a", fails: 1, arm: "inside", contextLog: true },
+					scratchRoot,
+				);
+				const armB = runHarnessArm(
+					{ label: "d1-b", fails: 1, arm: "inside", contextLog: true, filter: true },
+					scratchRoot,
+				);
+
+				const shapesA = parseContextLog(armA.contextLog);
+				const shapesB = parseContextLog(armB.contextLog);
+				// Two provider requests per arm: the failing turn, then the continuation.
+				expect(shapesA.length).toBe(2);
+				expect(shapesB.length).toBe(2);
+
+				// Arm A: attempt-2's recorded payload ends […, assistant(error), user].
+				const secondA = shapesA[1]!.messages;
+				expect(secondA[secondA.length - 1]!.startsWith("role=user")).toBe(true);
+				expect(secondA[secondA.length - 2]!).toContain("role=assistant");
+				expect(secondA[secondA.length - 2]!).toContain('err="Provider finish_reason: error"');
+
+				// Arm B: the shared filter strips EVERY errored assistant message from
+				// exactly one request; the continuation payload holds no errored turn.
+				const secondB = shapesB[1]!.messages;
+				expect(secondB[secondB.length - 1]!.startsWith("role=user")).toBe(true);
+				expect(secondB.length).toBe(secondA.length - 1);
+				// No extra/missing toolResult relative to arm A's non-error messages
+				// (0/0 — the faux turns carry none; asserted both arms, all requests).
+				for (const shape of [...shapesA, ...shapesB]) {
+					for (const m of shape.messages) expect(m).toContain("toolResults=0");
+				}
+			} finally {
+				rmSync(scratchRoot, { recursive: true, force: true });
+			}
+		},
+		300_000,
+	);
+});
+
