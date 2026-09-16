@@ -48,9 +48,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-37 — Retry classification predicate for settled job reports
-
 ## In Review
+
+- EV-37 — Retry classification predicate for settled job reports
 
 ## Needs Human
 
