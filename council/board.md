@@ -36,8 +36,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- EV-39 — Hub-level retry of a seat dispatch with exponential backoff
-
 ## Ready
 
 - EPIC-9 — Provider-error retry with exponential backoff under a .council.json policy
@@ -45,6 +43,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-42 — Per-attempt identity for a retried dispatch in the run substrate
 
 ## In Progress
+
+- EV-39 — Hub-level retry of a seat dispatch with exponential backoff
 
 ## In Review
 
