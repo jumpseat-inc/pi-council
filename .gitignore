@@ -12,3 +12,10 @@ smoke/.artifacts/*
 
 # git worktrees (superpowers isolation)
 .worktrees/
+
+# Python bytecode — council/validate.py is run in place by devs and by the
+# gates workflow, so __pycache__/ can appear under council/. Regenerable
+# bytecode must never be committed (and council/.gitattributes assumes all
+# files under council/ are text).
+__pycache__/
+*.py[cod]
