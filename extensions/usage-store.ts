@@ -32,7 +32,7 @@ import {
 } from "./provider-cost.ts";
 import { spendRecord, type SpendRecord } from "./spend.ts";
 import { formatUsageBlock } from "./usage-block.ts";
-import { findSessionFile, readManifests, runsDir } from "./runs.ts";
+import { attemptEntries, findSessionFile, readManifests, runsDir } from "./runs.ts";
 
 /** Ruling D: the wrapper's schema gains the EV-29 provider sibling. `spend`
  * is untouched — EV-31's freeze covers `spend`, not the wrapper. */
@@ -418,13 +418,29 @@ export async function flushPendingInvocations(input: {
 			// fetchProviderReport into the unavailable report (never the {failed}
 			// path); only a write failure reaches the catch below.
 			const apiKey = input.providerDeps?.apiKey !== undefined ? input.providerDeps.apiKey : resolveOpenRouterApiKey();
-			const jobs = manifests
-				.filter((m) => m.model.startsWith("openrouter/") && m.startedAt >= p.markerAt!)
-				.map((m) => ({
+			// EV-42 (spec §2.4) — the per-attempt harvest walk replaces the
+			// one-session-per-manifest map: the manifest's `attempts` list yields
+			// one entry per recorded attempt; the legacy fallback (attemptEntries)
+			// yields one entry derived from m.attempt/m.sessionId. Shape
+			// discrimination is the manifest's own property: m.attempts !== undefined.
+			const openrouterInWindow = manifests.filter(
+				(m) => m.model.startsWith("openrouter/") && m.startedAt >= p.markerAt!,
+			);
+			const hasNewShape = openrouterInWindow.some((m) => m.attempts !== undefined);
+			const hasLegacyWindowShape = openrouterInWindow.some(
+				(m) => (m.attempt ?? 1) > 1 && m.attempts === undefined,
+			);
+			const jobs = openrouterInWindow.flatMap((m) =>
+				attemptEntries(m).map((a) => ({
 					jobId: m.id,
 					model: m.model,
-					sessionPath: findSessionFile(input.repoRoot, p.runId, m.sessionId) ?? null,
-				}));
+					// `attempt` rides on new-shape entries and on the legacy window
+					// shape (attempt > 1); plain single-attempt entries stay
+					// attempt-less so their records remain byte-identical to pre-EV-42.
+					...((m.attempts !== undefined || (m.attempt ?? 1) > 1) ? { attempt: a.attempt } : {}),
+					sessionPath: findSessionFile(input.repoRoot, p.runId, a.sessionId) ?? null,
+				})),
+			);
 			const provider = await fetchProviderReport({
 				repoRoot: input.repoRoot,
 				runId: p.runId,
@@ -434,18 +450,16 @@ export async function flushPendingInvocations(input: {
 				now: input.providerDeps?.now,
 				timeoutMs: input.providerDeps?.timeoutMs,
 			});
-			// EV-39 Q4 disclosure (steward Escalation 2): a retried dispatch's
-			// provider figure is the FINAL attempt's alone (one session path per
-			// manifest — findSessionFile resolves the current attempt only). When
-			// any eligible openrouter/ job is past attempt 1, the report is marked
-			// partial on a COPY before persist, so the durable sibling carries the
-			// machine-readable reason. Wholeness is EV-42's closing deliverable.
-			const retried = jobs.length > 0 && manifests.some(
-				(m) =>
-					m.model.startsWith("openrouter/") && m.startedAt >= p.markerAt! && (m.attempt ?? 1) > 1,
-			);
+			// EV-42 (J1, binding) — on the new shape the disclosure is the module's
+			// own claim (figure-scoped `partial:"attempts-unaccounted"` + record-only
+			// `unaccountedAttempts`); the store stamps NOTHING. The EV-39 legacy
+			// window shape keeps today's unconditional stamp byte-identical (a
+			// mixed window defers to the new-shape producer). The unconditional
+			// `retried` stamp EV-39 added is deleted.
 			const providerOut =
-				provider !== null && retried ? { ...provider, partial: "final-attempt-only" as const } : provider;
+				provider !== null && !hasNewShape && hasLegacyWindowShape
+					? { ...provider, partial: "final-attempt-only" as const }
+					: provider;
 			const res = persistInvocationUsage(
 				{
 					spend,
