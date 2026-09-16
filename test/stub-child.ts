@@ -1,5 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { PROVIDER_FINISH_REASON_ERROR } from "../extensions/retry.ts";
 
 // Fake `pi --mode json` child. Behavior selected by STUB_MODE env:
 //   emit    — prints a message_end event then exits 0
@@ -11,6 +12,11 @@ import * as path from "node:path";
 //   flaky — EV-39: reads/increments a count in STUB_STATE (JSON {count}); while
 //           count <= STUB_FAIL_TIMES (default 1) emits the retryable provider
 //           error and exits 0; afterwards emits "stub result" and exits 0.
+//   finish_error — EV-41: same STUB_STATE/STUB_FAIL_TIMES fail-once shape, but
+//           the failure emits the intake's class byte-equal to
+//           PROVIDER_FINISH_REASON_ERROR ("Provider finish_reason: error",
+//           with colon — extensions/retry.ts) with stopReason "error" and
+//           exits 0; afterwards emits "stub result" and exits 0.
 const mode = process.env.STUB_MODE ?? "emit";
 
 function emitAssistant(text: string, stopReason = "stop", errorMessage?: string) {
@@ -69,6 +75,27 @@ if (mode === "emit") {
 	const failTimes = Number(process.env.STUB_FAIL_TIMES ?? "1");
 	if (count <= failTimes) {
 		emitAssistant("partial output before dying", "error", "Provider returned 502: upstream unavailable");
+	} else {
+		emitAssistant("stub result");
+	}
+	process.exit(0);
+} else if (mode === "finish_error") {
+	// EV-41 (a): the same fail-once-then-succeed shape, but the failure is the
+	// intake's class byte-equal to PROVIDER_FINISH_REASON_ERROR (with colon) —
+	// the state=done trap classifyRetry exists to handle (exits 0).
+	const stateFile = process.env.STUB_STATE!;
+	let count = 0;
+	try {
+		count = (JSON.parse(fs.readFileSync(stateFile, "utf-8")) as { count?: number }).count ?? 0;
+	} catch {
+		/* fresh */
+	}
+	count += 1;
+	fs.mkdirSync(path.dirname(stateFile), { recursive: true });
+	fs.writeFileSync(stateFile, JSON.stringify({ count }));
+	const failTimes = Number(process.env.STUB_FAIL_TIMES ?? "1");
+	if (count <= failTimes) {
+		emitAssistant("", "error", PROVIDER_FINISH_REASON_ERROR);
 	} else {
 		emitAssistant("stub result");
 	}
