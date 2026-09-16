@@ -43,9 +43,10 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-40 — Automatic continuation of a parent turn that ends in a provider error
 - EV-41 — End-to-end falsifier for provider-error retry on both paths
 - EV-42 — Per-attempt identity for a retried dispatch in the run substrate
-- EV-43 — Reachability falsifier for parent-turn continuation
 
 ## In Progress
+
+- EV-43 — Reachability falsifier for parent-turn continuation
 
 ## In Review
 
