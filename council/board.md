@@ -46,14 +46,13 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-43 — Reachability falsifier for parent-turn continuation
-
 ## In Review
 
 ## Needs Human
 
 ## Done
 
+- EV-43 — Reachability falsifier for parent-turn continuation
 - EV-38 — Retry policy section in .council.json with shipped defaults
 - EV-37 — Retry classification predicate for settled job reports
 - EV-36 — Transcript legibility at the one-row progress floor
