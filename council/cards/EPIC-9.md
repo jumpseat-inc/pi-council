@@ -1,7 +1,7 @@
 ---
 id: EPIC-9
 title: Provider-error retry with exponential backoff under a .council.json policy
-state: Backlog
+state: Ready
 owner: null
 epic: null
 goal: Council invocations survive transient provider errors by retrying with exponential backoff under a policy set in .council.json, instead of the session stopping.

@@ -33,6 +33,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-37 — Keep the progress keymap header visible when follow-mode content overflows the viewport
 - FLLWUP-38 — Clamp the inline progress transcript header to the granted render width
 - FLLWUP-39 — Dispose the replaced transcript view when the inline progress surface switches sessions
+
+## Deliberating
+
+## Ready
+
 - EPIC-9 — Provider-error retry with exponential backoff under a .council.json policy
 - EV-37 — Retry classification predicate for settled job reports
 - EV-38 — Retry policy section in .council.json with shipped defaults
@@ -41,10 +46,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-41 — End-to-end falsifier for provider-error retry on both paths
 - EV-42 — Per-attempt identity for a retried dispatch in the run substrate
 - EV-43 — Reachability falsifier for parent-turn continuation
-
-## Deliberating
-
-## Ready
 
 ## In Progress
 
