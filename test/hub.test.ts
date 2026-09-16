@@ -192,6 +192,7 @@ const ACC_FIXTURE = {
 function freshJob(): Job {
 	return {
 		id: "job-t", seat: "stub", pid: undefined, state: "running", startedAt: Date.now(), lastActivityAt: Date.now(),
+		attemptStartedAt: Date.now(),
 		timeoutMs: 60_000, stallMs: 60_000, events: [], output: "", stderrTail: "",
 		usage: {
 			input: 0, output: 0, cacheRead: 0, cacheWrite: 0, reasoning: 0, totalTokens: 0,
@@ -387,3 +388,199 @@ test("T11-wait: settled job with no manifest renders state 1 — never blank; fa
 		expect(section.includes("ownSession")).toBe(false);
 	}
 });
+
+// ---- EV-39: retry state machine (spec §2.2; AGENTS.md §7 — each delta red first) ----
+import { createRetrySupervisor } from "../extensions/job-retry.ts";
+import type { RetryPolicy } from "../extensions/retry.ts";
+
+const EV39_POLICY: RetryPolicy = { enabled: true, maxAttempts: 3, baseDelayMs: 50, maxDelayMs: 50, jitter: false };
+
+function flakyState(): string {
+	return path.join(fs.mkdtempSync(path.join(os.tmpdir(), "ev39-flaky-")), "state.json");
+}
+
+// D1/O-4/G1 core loop: fail once, then succeed — one id, one manifest, cumulative
+// usage, stable startedAt, fresh session id on attempt 2, wait resolves once.
+test("EV-39 D1/O-4: fail-once-then-succeed re-spawns under one id and settles done", async () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "ev39-chain-"));
+	ensureRunDir(root, "run39");
+	hub = new Hub({ monitorIntervalMs: 50, pidFile, run: { repoRoot: root, runId: "run39" } });
+	const state = flakyState();
+	const policy: RetryPolicy = { enabled: true, maxAttempts: 3, baseDelayMs: 50, maxDelayMs: 50, jitter: false };
+	const id = hub.allocateId();
+	const flakyEnv = () =>
+		({ ...process.env, STUB_MODE: "flaky", STUB_STATE: state, STUB_FAIL_TIMES: "1" }) as Record<string, string>;
+	const job = hub.spawnJob({
+		id, seat: "stub", command: "bun", args: [STUB], cwd: import.meta.dir,
+		env: flakyEnv(), timeoutMs: 60_000, stallMs: 60_000, sessionId: id,
+		cleanup: () => {},
+		retry: createRetrySupervisor({
+			hub, jobId: id, policy, cleanup: () => {},
+			attemptSpec: (n) => ({
+				args: [STUB], cwd: import.meta.dir, env: flakyEnv(),
+				sessionId: `${id}-attempt${n}`, timeoutMs: 60_000, stallMs: 60_000,
+			}),
+		}),
+	});
+	const t0 = Date.now();
+	const [r] = await hub.wait([id], 10_000);
+	expect(r.state).toBe("done");
+	expect(r.output).toBe("stub result");
+	// D1: the wall clock spans both attempts (backoff happened)
+	expect(Date.now() - t0).toBeGreaterThanOrEqual(50);
+	// cardinality A: one manifest, attempt=2, the FINAL attempt's session id,
+	// startedAt stable across attempts (D1), no nextAttemptAt after final settle.
+	const ms = readManifests(root, "run39").filter((x) => x.id === id);
+	expect(ms).toHaveLength(1);
+	const m = ms[0]!;
+	expect(m.attempt).toBe(2);
+	expect(m.sessionId).toBe(`${id}-attempt2`);
+	expect(m.startedAt).toBe(job.startedAt); // D1 — never re-based
+	expect(m.state).toBe("done");
+	expect("nextAttemptAt" in m).toBe(false);
+	// D1: cumulative usage — both attempts' assistant messages are in the tuple
+	expect(r.usage.turns).toBe(2);
+}, 15_000);
+
+// G2: tick() must not stall/timeout/kill a retrying job (the retrying half of tick).
+test("EV-39 G2: tick skips retrying jobs (no stalled kill, no timeout flip)", async () => {
+	hub = new Hub({ monitorIntervalMs: 50, pidFile });
+	const id = hub.allocateId();
+	const job = hub.spawnJob({
+		id, seat: "stub", command: "bun", args: [STUB], cwd: import.meta.dir,
+		env: { ...process.env, STUB_MODE: "hang" } as Record<string, string>,
+		timeoutMs: 500, stallMs: 500, sessionId: id, cleanup: () => {},
+	});
+	await Bun.sleep(300); // first output event re-bases lastActivityAt
+	// flip into the retrying window exactly as the supervisor does on a settled
+	// retryable report: exitCode null + pid undefined + state retrying.
+	job.state = "retrying";
+	job.exitCode = null;
+	job.pid = undefined;
+	await Bun.sleep(1_400); // > stallMs(500) and > timeoutMs(500) with monitor at 50ms
+	expect(hub.report(job).state).toBe("retrying"); // no stalled, no timeout
+	expect(hub.list().find((j) => j.id === id)!.pid).toBeUndefined();
+	hub.cancel(id); // disarm + settle cancelled
+}, 15_000);
+
+// Q5 regression / G3: wait never resolves during the backoff window; cancel
+// mid-backoff disarms the timer (spawn count stays 1) and settles cancelled.
+test("EV-39 G3: wait blocks through backoff; cancel mid-backoff disarms the timer", async () => {
+	hub = new Hub({ monitorIntervalMs: 50, pidFile });
+	const id = hub.allocateId();
+	const job = hub.spawnJob({
+		id, seat: "stub", command: "bun", args: [STUB], cwd: import.meta.dir,
+		env: { ...process.env, STUB_MODE: "emit" } as Record<string, string>,
+		timeoutMs: 60_000, stallMs: 60_000, sessionId: id, cleanup: () => {},
+	});
+	await hub.wait([id], 10_000); // attempt 1 settles done
+	let respawned = 0;
+	const sup = createRetrySupervisor({
+		hub, jobId: id, policy: EV39_POLICY, cleanup: () => {},
+		attemptSpec: () => {
+			respawned++;
+			return { args: [STUB], cwd: import.meta.dir, env: { ...process.env } as Record<string, string>, sessionId: `${id}-attempt2`, timeoutMs: 60_000, stallMs: 60_000 };
+		},
+	});
+	// arm the backoff with a synthetic RETRYABLE report (the shape attempt 1 of
+	// a real chain carries — done + stopReason error + retryable message).
+	const retryable = { ...hub.report(job), stopReason: "error" as const, errorMessage: "Provider returned 502: upstream unavailable" };
+	expect(sup.onSettle(job, retryable)).toBe(true);
+	expect(job.state).toBe("retrying");
+	// wait must NOT resolve while the backoff timer is pending (delay 50ms, poll
+	// 200ms — a naive settled-check would return immediately on exitCode!==null;
+	// the retrying clause keeps it blocked until the timer's job moves on)
+	const race = await Promise.race([
+		hub.wait([id], 10_000).then((rs) => rs[0]!.state),
+		Bun.sleep(20).then(() => "STILL-WAITING"),
+	]);
+	expect(race).toBe("STILL-WAITING");
+	// cancel mid-backoff: true, timer disarmed (no respawn), synthetic settle
+	expect(hub.cancel(id)).toBe(true);
+	await Bun.sleep(150); // > baseDelay — a disarmed timer would have fired
+	expect(respawned).toBe(0); // spawn count stays 1 (attempt 1 only)
+	const [r] = await hub.wait([id], 10_000);
+	expect(r.state).toBe("cancelled");
+}, 15_000);
+
+// cancel of a RETRYING job reflects in the manifest (cardinality A: same file)
+test("EV-39: cancel during backoff writes state=cancelled into the same manifest", async () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "ev39-cancel-"));
+	ensureRunDir(root, "run39c");
+	hub = new Hub({ monitorIntervalMs: 50, pidFile, run: { repoRoot: root, runId: "run39c" } });
+	const id = hub.allocateId();
+	const job = hub.spawnJob({
+		id, seat: "stub", command: "bun", args: [STUB], cwd: import.meta.dir,
+		env: { ...process.env, STUB_MODE: "emit" } as Record<string, string>,
+		timeoutMs: 60_000, stallMs: 60_000, sessionId: id, cleanup: () => {},
+	});
+	await hub.wait([id], 10_000);
+	const sup = createRetrySupervisor({
+		hub, jobId: id, policy: EV39_POLICY, cleanup: () => {},
+		attemptSpec: (n) => ({ args: [STUB], cwd: import.meta.dir, env: { ...process.env } as Record<string, string>, sessionId: `${id}-attempt${n}`, timeoutMs: 60_000, stallMs: 60_000 }),
+	});
+	const retryable = { ...hub.report(job), stopReason: "error" as const, errorMessage: "Provider returned 502: upstream unavailable" };
+	sup.onSettle(job, retryable);
+	hub.cancel(id);
+	const ms = readManifests(root, "run39c").filter((x) => x.id === id);
+	expect(ms).toHaveLength(1);
+	const m = ms[0]!;
+	expect(m.state).toBe("cancelled");
+	expect(m.exitCode).toBe(0);
+	// pid file discipline (D2): the retracted pid is not re-published by cancel
+	expect(m.pid).toBeNull();
+}, 15_000);
+
+// shutdown disposes retrying supervisors (disarm + held cleanup) before the kill loop
+test("EV-39: shutdown disposes a retrying supervisor (timer disarmed, cleanup run)", async () => {
+	hub = new Hub({ monitorIntervalMs: 50, pidFile });
+	const id = hub.allocateId();
+	const job = hub.spawnJob({
+		id, seat: "stub", command: "bun", args: [STUB], cwd: import.meta.dir,
+		env: { ...process.env, STUB_MODE: "emit" } as Record<string, string>,
+		timeoutMs: 60_000, stallMs: 60_000, sessionId: id, cleanup: () => {},
+	});
+	await hub.wait([id], 10_000);
+	let cleanups = 0;
+	let respawned = 0;
+	const sup = createRetrySupervisor({
+		hub, jobId: id, policy: { ...EV39_POLICY, baseDelayMs: 10_000 }, cleanup: () => { cleanups++; },
+		attemptSpec: () => { respawned++; return { args: [STUB], cwd: import.meta.dir, env: { ...process.env } as Record<string, string>, sessionId: `${id}-attempt2`, timeoutMs: 1_000, stallMs: 1_000 }; },
+	});
+	const retryable = { ...hub.report(job), stopReason: "error" as const, errorMessage: "Provider returned 502: upstream unavailable" };
+	sup.onSettle(job, retryable);
+	expect(job.state).toBe("retrying");
+	// attach exactly as the real wiring does (spawnJob's retry opt is captured
+	// at spawn; a synthetic arming mirrors it via the same field the Hub reads)
+	job.retry = sup;
+	hub.shutdown();
+	await Bun.sleep(100); // far below the 10s delay, but dispose must have rearmed nothing
+	expect(cleanups).toBe(1);
+	expect(respawned).toBe(0);
+}, 15_000);
+
+// exhaust the budget: maxAttempts reached → final settle keeps attempt=3, no further respawn
+test("EV-39: budget exhaustion settles with attempt=maxAttempts and no further spawn", async () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "ev39-exh-"));
+	ensureRunDir(root, "run39x");
+	hub = new Hub({ monitorIntervalMs: 50, pidFile, run: { repoRoot: root, runId: "run39x" } });
+	const state = flakyState();
+	const id = hub.allocateId();
+	const flakyEnv = () =>
+		({ ...process.env, STUB_MODE: "flaky", STUB_STATE: state, STUB_FAIL_TIMES: "5" }) as Record<string, string>;
+	const job = hub.spawnJob({
+		id, seat: "stub", command: "bun", args: [STUB], cwd: import.meta.dir,
+		env: flakyEnv(), timeoutMs: 60_000, stallMs: 60_000, sessionId: id,
+		cleanup: () => {},
+		retry: createRetrySupervisor({
+			hub, jobId: id, policy: EV39_POLICY, cleanup: () => {},
+			attemptSpec: (n) => ({ args: [STUB], cwd: import.meta.dir, env: flakyEnv(), sessionId: `${id}-attempt${n}`, timeoutMs: 60_000, stallMs: 60_000 }),
+		}),
+	});
+	const [r] = await hub.wait([id], 10_000);
+	expect(r.stopReason).toBe("error"); // last attempt still errored
+	const ms = readManifests(root, "run39x").filter((x) => x.id === id);
+	expect(ms).toHaveLength(1);
+	expect(ms[0]!.attempt).toBe(3); // maxAttempts reached, no 4th spawn
+	expect(ms[0]!.state).toBe("done"); // provider-errored children exit 0
+}, 15_000);
