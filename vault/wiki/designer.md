@@ -4,9 +4,9 @@ type: entity
 summary: The human-centered design seat (Don Norman tradition) — argues discoverability, feedback, conceptual model, and error-tolerance; files durable evidence via vault/raw write-ups but never implements or merges.
 aliases: [designer seat]
 tags: [pi-council/seat]
-sources: []
+sources: ["[[2026-09-15-epic8-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-03
+updated: 2026-09-15
 ---
 
 > ⚠️ Derived from `council/agents/designer.md` (captured 2026-08-23). Verify against the seat file.
@@ -41,6 +41,17 @@ what the data can and cannot claim, where shown values are derived or corrected,
 and which conventions the product has to earn rather than inherit. The gap
 between what the surface implies and what the data knows is the standing design
 hazard this seat owns.
+
+## A web taste skill transfers only its principles (EPIC-8)
+
+The human asked for transcript taste "from the `minimalist-ui` skill". That
+skill is written for web/HTML; its literal palette, spacing scale, and motion
+have **no legal vehicle** here — council-drawn output is token-only
+(AGENTS.md 9.6), the inline viewport is an integer row floor, and the render is
+a pure line slice. The transferable half is the **principle**: editorial
+typographic/structural hierarchy and scarcity of color. The seat that conflates
+the literal CSS with the taste loses standing; the seat that names the gulf and
+applies the instrument wins. See [[transcript-unit-rendering]], [[council-theme]].
 
 ## Related
 - [[seats]], [[council-loop]], [[engineering-board]]

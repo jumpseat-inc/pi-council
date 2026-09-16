@@ -4,9 +4,9 @@ type: entity
 summary: The Council's product-judgment seat — rules open-judgment disputes, fold-in rulings, and mid-flow product decisions; card-level rulings are final among agents; portfolio matters escalate.
 aliases: [product-owner seat]
 tags: [pi-council/seat]
-sources: ["[[2026-09-11-epic7-run-ledger]]"]
+sources: ["[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-11
+updated: 2026-09-15
 ---
 
 > ⚠️ Derived from `council/agents/product-owner.md` (captured 2026-08-23). Verify against the seat file.
@@ -52,6 +52,24 @@ place. The general lesson: **a goal that must be reinterpreted against its own
 words to be satisfiable is the defect**, and goal-wording authority is the
 steward's. Product-owner also ruled EV-30's record shape (no `total`, per-half
 basis) and EV-31's read-back semantics in the same run.
+
+### EPIC-8 (v0.18.0) — acceptance amendment + cross-card ruling reach
+
+EV-33's `goal` named "one accessor consumed by both the tree row copy and the
+transcript header", while its Acceptance bullet 4 said "no render code
+changes". Product-owner ruled (job-6) the accessor is **exported** for EV-34 to
+consume — the goal describes a **post-epic endpoint**, so bullet 3 was amended
+and the goal stood. An Acceptance section is an amendable surface; the goal is
+not ([[engineering-board]]).
+
+EV-35's five-item ruling (job-12) is the run's other defining call:
+`classifyProgressKey` is a **fold-in** (its honesty claim was already false on
+smoke-tested terminals), no header pin (overflow deferred), presence/absence
+follow copy, an EV-9 test narrowing plus a positive `▌` assertion, and the
+visible-index cursor scheme (Q5). EV-36 (job-17) then ruled Q1 = **R3**
+(read-only effective index) and — the precedent — that **EV-35's Q5 anti-goal
+reaches EV-36's R2 writeback**, clarifying its own prior ruling rather than
+reversing a human decision. See [[one-row-floor]].
 
 ## Grounding and escalation
 

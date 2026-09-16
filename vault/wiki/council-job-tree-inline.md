@@ -1,12 +1,12 @@
 ---
 title: Council Job Tree (inline)
 type: concept
-summary: EPIC-2's replacement for the /council-tree modal — an inline below-editor panel pushed up by the input bar, with per-row last activity, editor-driven arrow-key focus, and Enter opening the selected subagent's live inline progress expansion.
+summary: EPIC-2's replacement for the /council-tree modal — an inline below-editor panel pushed up by the input bar, with per-row last activity, editor-driven arrow-key focus, and Enter opening the selected subagent's live inline progress expansion whose tool calls compose with their own results (EPIC-8).
 aliases: [council-tree, inline job tree, council tree inline, job tree]
 tags: [pi-council/concept]
-sources: ["[[2026-08-26-design-ev8]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-design-ev9]]", "[[2026-08-26-design-ev9-round2]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]"]
+sources: ["[[2026-08-26-design-ev8]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-design-ev9]]", "[[2026-08-26-design-ev9-round2]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]", "[[2026-09-15-epic8-run-ledger]]"]
 created: 2026-08-26
-updated: 2026-08-26
+updated: 2026-09-15
 ---
 
 The subject of EPIC-2: `/council-tree` (and `ctrl+shift+t`) renders the live
@@ -29,6 +29,11 @@ in [[run-transcripts]].
   │ user ... / assistant ... / → toolcall ...    │
   └──────────────────────────────────────────────┘
 ```
+
+> ⚠️ **Superseded by EPIC-8 (2026-09-15):** the mock's `→ toolcall ...` line is
+> pre-EPIC-8. A tool call and its own result now render as one composed unit
+> ([[transcript-unit-rendering]]) — `→ <Tool>  <primary-arg>` with the result
+> indented beneath and `muted "✗"` on failure.
 
 Exactly one `ctx.ui.setWidget(key, factory, { placement: "belowEditor" })`
 (factory/function form). The panel renders in the below-editor region; rows
@@ -85,6 +90,27 @@ glyphs still tick). Escape returns to the tree with selection preserved
 isn't nulled). **Tiny-regime floor (binding):** minimum supported terminal
 height for opening progress is **7 rows**; at `termRows ≤ 6` Enter is a
 consumed no-op (see [[2026-08-26-po-ev9-tiny-regime-floor]]).
+
+## EPIC-8 — composed units, honest keymap, one-row floor
+
+EPIC-8 completed the progress transcript's rendering and interaction contract
+(four children, PRs #47–#50):
+
+- **EV-34** composed the unit — the parser now carries `toolCallId`/`isError`
+  and one exported accessor (EV-33), and `unitLines`/`bodyLines` render the
+  head `→ <Tool>  <primary-arg>` with the result indented beneath and a
+  trailing `muted "✗"` on failure. See [[transcript-unit-rendering]].
+- **EV-35** made the keymap honest: the header advertises `e`/`t`/`f`/`g`/`G`
+  and `classifyProgressKey` now uses `matchesKey` rather than raw byte
+  equality, so kitty/modifyOtherKeys CSI-u forms are honored; the U+258C
+  marker derives from the same expression `e` reads. See [[honest-keymap]].
+- **EV-36** made the one-row floor legible: at a one-row grant under follow the
+  line is the effective-indexed unit's composed head (read-only), the marker
+  is absent until a nav key flips follow off, and the width clamp sits at the
+  `unitLines` single-head site. See [[one-row-floor]].
+- **Deferred (all `Backlog`):** FLLWUP-36 (dead `blockLines`), FLLWUP-37
+  (header persistence under follow-mode overflow), FLLWUP-38 (header width
+  clamp), FLLWUP-39 (dispose the replaced `TranscriptView`).
 
 ## Why inline and not a modal
 

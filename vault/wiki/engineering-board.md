@@ -4,9 +4,9 @@ type: concept
 summary: The durable, locally-stored kanban state — council/board.md plus one card file per id, validated by validate.py, and the discipline that everything the Council does starts and records there.
 aliases: [board, card, kanban]
 tags: [pi-council/concept]
-sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]"]
+sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-11
+updated: 2026-09-15
 ---
 
 > ⚠️ Derived from `council/procedures/board-create-card.md`, `features-new.md` and `council/scaffold/council/board.md` @ `8913c6b`/`8f1882b` (captured 2026-08-23). Verify against the procedure files.
@@ -42,6 +42,10 @@ set of markdown files under `council/`:
   While a card is still `Deliberating`, an **amended goal is legal**, and
   goal-wording authority is [[steward]]'s: EV-29's goal named a provider data
   granularity that does not exist, and steward amended it in place (EPIC-7).
+  The **Acceptance section is a separate, amendable surface**: EV-33's goal
+  named a post-epic endpoint (an accessor consumed by the tree *and* the
+  transcript header) while its Acceptance forbade render changes, and
+  [[product-owner]] amended only Acceptance bullet 3 (EPIC-8).
 - **Id allocation is a HEAD operation** (EPIC-3 collision lesson): a parallel
   session on a stale clone allocated `EPIC-3`/`EV-10..15` to itself and the
   mains diverged; reconciled by union merge, never rewrite. See
@@ -73,6 +77,11 @@ set of markdown files under `council/`:
   (EPIC-7, five chain-promoted children, all Done); FLLWUP-27..35 filed as
   `Backlog` residuals under the Done epic (and FLLWUP-36 dropped by the
   human at the follow-up gate).
+- [[2026-09-15-epic8-run-ledger]] — the board's **third epic-card closure**
+  (EPIC-8, four children merged in order); FLLWUP-36..39 filed as `Backlog`
+  residuals under the Done epic, none promoted at closure. Two permanent
+  residuals recorded without cards (out-of-order `toolResult`; `t`-toggle
+  cursor stability).
 
 ## Sources
 

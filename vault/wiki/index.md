@@ -7,8 +7,8 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 
 - [[pi-council-overview]] — Pi-council as an installable package: the Council
   + wiki workflow, two engine halves, the loop, and the release version arc
-  (through v0.18.0: EPIC-6 closed, and EPIC-7's honest usage accounting landed
-  on main).
+  (through v0.18.0: EPIC-6 closed, EPIC-7's honest usage accounting landed on
+  main, and EPIC-8's elegant transcript rendering closed Done).
 
 ## Entities
 
@@ -71,6 +71,9 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[usage-store]] — The durable store at `getAgentDir()/council/usage/`: one record per invocation, schema v2, `pointerSurvivable` + `ResolveOutcome`, surviving run pruning.
 - [[usage-block]] — The deterministic block at five autonomous exits: grammar identity across forms, three whole-block states (failed > unresolved > empty), the conditional `n/a` legend.
 - [[cost-provenance]] — pi computes cost from the static catalogue and never reads a provider charge; OpenRouter reports generation-level dollars + a BYOK-only split — no per-component dollars exist.
+- [[transcript-unit-rendering]] — the EPIC-8 composed tool-call unit (`→ <Tool>  <primary-arg>`, indented result, `muted "✗"`); why parser identity came first.
+- [[honest-keymap]] — advertised keys must be honored; the `matchesKey` vs raw-byte bug class (kitty/modifyOtherKeys CSI-u) EPIC-8 fixed.
+- [[one-row-floor]] — the one-row progress grant: the follow-mode effective index (R3), the markerless live-tail rule, the frozen-grant and width-clamp fixes.
 
 ## Comparisons
 
@@ -115,6 +118,7 @@ _(none yet)_
 - [[2026-09-05-epic6-run-ledger]] — The EPIC-6 run: the model-name search filter (EV-26/EV-27) plus FLLWUP-9/10/11 closed; five gated merges, zero escalations, first fully-autonomous epic closure; stall recurrence, sub-dispatch loss, staged-set contamination lessons.
 - [[2026-09-06-epic6-close-run-ledger]] — The EPIC-6 close run: BUG-1 + FLLWUP-13..25 delivered (14 gated merges), the env-split contract proven (no 0.85.0 regression), the single-writer discipline hardened three layers deep, first epic-card closure, v0.18.0.
 - [[2026-09-11-epic7-run-ledger]] — The EPIC-7 run: honest token/cost usage accounting (EV-28/30/31/32/29, five gated merges) — every child escalated, the provider has no per-component dollar source, the stalled runner re-learned the window invariant, second epic-card closure at v0.18.0.
+- [[2026-09-15-epic8-run-ledger]] — The EPIC-8 run: elegant transcript rendering (EV-33/34/35/36, four gated merges) — the taste request resolved to a parser-fidelity fix first, every child escalated, the one-row R3 projection, third epic-card closure at v0.18.0.
 - [[2026-09-03-po-ev16-grader-topology]] — Grader = harness-dispatched sibling, cellId linkage, three cost columns, no exclusion rule; Q1's repeat dimension superseded its first-write-wins clause.
 - [[2026-09-03-po-ev19-resultrecord-key]] — O1: ResultRecord key (cellId, repeat, scoredUnder) by symmetric mirroring; silent loss of a re-grade rejected.
 - [[2026-09-03-po-epic4-promotion-cadence]] — P1–P5: the automated Backlog→Ready chain for EPIC-4's children.

@@ -4,9 +4,9 @@ type: entity
 summary: The per-card autonomous execution container — dispatched by /features-deliver to run the full /council loop for one card in an isolated context; routes, counts, and writes the board but never decides.
 aliases: [council-runner, runner]
 tags: [pi-council/seat]
-sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]"]
+sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-11
+updated: 2026-09-15
 ---
 
 > ⚠️ Derived from `council/agents/council-runner.md` (captured 2026-08-23). Verify against the seat file.
@@ -157,6 +157,30 @@ reserved powers are re-homed per the authority map in `features-deliver.md`.
   the dispatch *tools* exist, not just that seat names resolve.
 - **One union merge recurred** (EV-30) despite the EPIC-6 avoidance recipe —
   "push records as they happen" reduces but does not eliminate it.
+
+## Lessons from the EPIC-8 run
+
+- **Discovered mechanisms, not literals, drove the escalations** — Phase-1
+  copy rulings settled the R-COPY vocabulary, but the fold-in/new-card split,
+  the header-pin scope, the clamp site, and the cross-card reach of an earlier
+  ruling all surfaced per card. Five in-card escalations (three
+  [[product-owner]], two [[steward]]) plus one closure, each in one facts-only
+  round; different in kind from EPIC-7's every-card-escalates (the premise was
+  sound here, the *wording/scope* was not).
+- **An earlier ruling's anti-goal can bind a later card.** EV-35's Q5 ("no
+  render-time recompute / no cursor-stability work") was ruled to reach EV-36,
+  foreclosing R2's `focused` writeback — see [[one-row-floor]]. A runner must
+  check cross-card ruling reach, not assume a card-local ruling is local.
+- **A card can carry a post-epic endpoint.** EV-33's goal named an accessor
+  the tree *and* the transcript header consume, while its Acceptance forbade
+  render changes; the ruling was "export now, consume next card" — goal stood,
+  Acceptance amended ([[engineering-board]]).
+- **The first merge was announced in-line and watched; the gate held across
+  four merges** ([[deterministic-merge-check]]). One union merge (EV-34
+  `89047ca`); no `HALT`, no stall-kill; the branch-freshness artifact
+  (FLLWUP-27) recurred on every card.
+- **Seat resolution and dispatch tools were healthy throughout** — all
+  required seats resolved; no Phase-0-shaped `HALT`.
 
 ## Related
 

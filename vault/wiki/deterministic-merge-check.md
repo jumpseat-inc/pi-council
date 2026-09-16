@@ -4,9 +4,9 @@ type: concept
 summary: Under /features-deliver the human merge gate is replaced by five mechanical criteria — owner gates, gates-SUCCESS on the PR head SHA, no blocking skeptic objection, judge PASS, no open ruling — executed with no discretion, merged with --match-head-commit.
 aliases: [merge gate, deterministic merge, five criteria merge]
 tags: [pi-council/features-deliver, pi-council/process]
-sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]"]
+sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]"]
 created: 2026-09-04
-updated: 2026-09-11
+updated: 2026-09-15
 ---
 
 # Deterministic Merge Check
@@ -84,6 +84,24 @@ silently. A mismatch is a **HALT, not a retry**.
 - One union merge (EV-30, `540aca6`); the first merge was announced
   in-line; no push raced a check.
 
+## Observed practice (EPIC-8 run)
+
+- Four more merges (PRs #47–#50: EV-33 `186c04dc`, EV-34 `72351780`,
+  EV-35 `85db7a68`, EV-36 `6b858c92`), squash method, `--match-head-commit`
+  pinned on every one; every head-SHA `gates` check `SUCCESS`, every
+  merged-SHA CI re-verified. No push raced a check.
+- The run's first autonomous merge (EV-33, PR #47) was announced in-line
+  and watched; no go/no-go pause (same practice as EPIC-5).
+- **Criterion 5 again did the work** — five in-card escalations (three
+  [[product-owner]], two [[steward]]) plus one `steward` closure dispatch,
+  all resolved before the merge. This set the run's shape: a card's
+  premise/acceptance wording, a cross-card ruling's reach, and a clamp
+  site each surfaced as an outstanding ruling that had to close first.
+- **The preflight branch-freshness artifact** (FLLWUP-27) recurred on
+  every card, handled by recorded practice (the step-11 re-run set is
+  `tsc`/`bun test`/`validate.py`).
+- One union merge (EV-34, `89047ca`); no `HALT`, no stall-kill.
+
 ## Related
 
 - [[council loop]] — steps 9–12 this check overlays.
@@ -120,3 +138,6 @@ silently. A mismatch is a **HALT, not a retry**.
   `6768d25`, EV-30 `f33cbdf`, EV-31 `f3bcd8a`, EV-32 `32a67a3`,
   EV-29 `ec33fc0`): every card escalated, the branch-freshness artifact
   ruled around, one union merge, EPIC-7 closed Done.
+- [[2026-09-15-epic8-run-ledger]] — four more (PRs #47–#50), the first
+  merge announced in-line, five in-card escalations, one union merge,
+  EPIC-8 closed Done.

@@ -4,9 +4,9 @@ type: concept
 summary: The on-disk substrate that makes every council run navigable — per-job manifests and seat session JSONL under .pi/council/runs/, a job forest built from manifests, and the /council-tree + ctrl+shift+t live surface that reads it (inline below-editor as of EPIC-2).
 aliases: [runs, run manifests, transcript viewer, council-tree, session jsonl]
 tags: [pi-council/concept]
-sources: ["[[2026-08-25-smoke-test-bugfixes]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]", "[[2026-09-11-epic7-run-ledger]]"]
+sources: ["[[2026-08-25-smoke-test-bugfixes]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]"]
 created: 2026-08-25
-updated: 2026-09-11
+updated: 2026-09-15
 ---
 
 # Run Transcripts
@@ -52,6 +52,18 @@ children sorted numerically by id, and an `orphaned` flag (manifest says
 assistant, thinking, toolCall, toolResult — with text, label, and byte counts.
 `TranscriptTail` provides incremental tailing for the live viewer.
 
+**EPIC-8 (2026-09-15) extended the block shape.** `TranscriptBlock` now carries
+**`toolCallId`** and **`isError`** (both present in the JSONL and previously
+discarded), so a consumer can pair every `toolCall` with **its own**
+`toolResult` by identity even when same-named calls' results arrive out of
+order; the parser also exports the single **primary-argument accessor** that
+the tree row's `/ran <tool> <arg>` copy and the transcript head both consume
+(EV-33, commit `186c04dc`). The progress transcript renders a call and its
+result as one composed unit ([[transcript-unit-rendering]]). This is an
+**evolution**, not a contradiction: the flat-block description above is now
+incomplete at the rendering layer; the substrate facts (manifests, forest,
+tailing, retention) are unchanged.
+
 ## The `/council-tree` surface (`extensions/navigator.ts`)
 
 A TUI component registered by the parent (`registerNavigator`, invoked as a
@@ -82,7 +94,8 @@ activated pi theme tokens** — `border` rails, `accent` selection cursor +
 the `▌` marker, `dim` hints/overflow, `bold` headers, and transcript labels
 (`accent` user, `success` assistant, `dim` thinking, `warning` toolCall,
 `muted` toolResult) — per the token-only drawing rule (AGENTS.md 9.6,
-[[council-theme]]). Under the council theme the surface follows the
+[[council-theme]]). Since EPIC-8 a tool call and its result render as one
+composed unit rather than two separate heads ([[transcript-unit-rendering]]). Under the council theme the surface follows the
 activated palette and **repaints live on mid-session theme change** via
 `onThemeChange → invalidate()` — see [[council-theme]] and
 [[2026-08-25-design-ev4-round1]].
@@ -99,6 +112,7 @@ activated palette and **repaints live on mid-session theme change** via
 
 - [[hub-job-supervision]], [[seats]], [[smoke-test]]
 - [[council-job-tree-inline]] — the EPIC-2 inline below-editor surface (EV-7/8/9) that reads this substrate; supersedes the v0.11.4 modal presentation
+- [[transcript-unit-rendering]] — the EPIC-8 composed tool-call unit rendered over these blocks
 - [[council-theme]] — the palette/theme tokens the tree/transcript draw
 - [[pi-council-overview]] — version arc
 - [[2026-08-25-council-tree-modal]] — the v0.11.4 full-screen modal fix (now superseded by [[council-job-tree-inline]])

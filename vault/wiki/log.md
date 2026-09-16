@@ -1,5 +1,27 @@
 # Wiki Log
 
+## [2026-09-15] ingest | EPIC-8 run ledger — transcript rendering, third epic closure
+
+Filed `vault/raw/2026-09-15-epic8-run-ledger.md` (the `/features-new` +
+`/features-deliver EPIC-8` run: four gated merges PRs #47–#50, 672→704 tests,
+EPIC-8 closed `Done`) and ingested it. Created [[transcript-unit-rendering]],
+[[honest-keymap]], [[one-row-floor]] + the source page. Updated
+[[pi-council-overview]] (EPIC-8 row; version stays v0.18.0),
+[[council-job-tree-inline]] (⚠️ the flat `→ toolcall`/`⎿` heads superseded by
+the composed unit; keymap fix; one-row R3; FLLWUP-36..39), [[run-transcripts]]
+(⚠️ parser now carries `toolCallId`/`isError` + one exported accessor; composed
+unit rendering), [[council-runner]] (EPIC-8 lessons: discovered mechanisms,
+cross-card ruling reach), [[deterministic-merge-check]] (four more merges;
+first watched in-line; one union merge), [[engineering-board]] (third epic
+closure; Acceptance is an amendable surface while the goal is not),
+[[product-owner]] (Q5 cross-card reach; the EV-33 acceptance amendment),
+[[steward]] (closure #3; follow-up confirmation; permanent residuals),
+[[designer]] (the minimalist-ui transfer limit), [[council-theme]] (token-only
+drawing drove that limit), [[index]]. Key takeaways: a taste request resolved
+to a parser-fidelity fix first; an earlier ruling's anti-goal can bind a later
+card; a card goal can describe a post-epic endpoint; and honest keymap
+(`matchesKey` vs raw byte equality) is a bug class.
+
 ## [2026-09-11] ingest | EPIC-7 run ledger — honest usage accounting, second epic closure
 
 Filed `vault/raw/2026-09-11-epic7-run-ledger.md` (the `/features-new` +

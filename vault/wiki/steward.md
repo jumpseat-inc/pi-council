@@ -4,9 +4,9 @@ type: entity
 summary: The portfolio-authority seat and product-owner's escalation target — rules what the portfolio is for, build order, the order of card retirement, and permanent residuals. Never implements.
 aliases: [steward seat]
 tags: [pi-council/seat]
-sources: ["[[2026-09-11-epic7-run-ledger]]"]
+sources: ["[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-11
+updated: 2026-09-15
 ---
 
 > ⚠️ Derived from `council/agents/steward.md` (captured 2026-08-23). Verify against the seat file.
@@ -54,6 +54,22 @@ Test: "does this move what the product is for, or just how one part of it works?
   escalated the EV-32 items that touched EV-30's settled zero-both surface.
 - **Run closure** — ruled EPIC-7 `Done` on observed acceptance, ending the
   run; FLLWUP-26..35 ride as `Backlog` residuals under the Done epic.
+
+## Exercised in EPIC-8 (2026-09-15)
+
+- **Follow-up confirmation** — the R-FOLLOWUP home for genuinely new cards:
+  confirmed `FLLWUP-36` (dead `blockLines`, job-9) and, after EV-35's step 13,
+  `FLLWUP-37`/`FLLWUP-38`/`FLLWUP-39` (job-14), including a goal amendment on
+  FLLWUP-37 to carry the one-row carve-out. None promoted: "promotion is a
+  later, human-reachable call."
+- **Permanent residuals accepted** — the out-of-order `toolResult`
+  duplicate-render (job-9, dropped on reachability) and `t`-toggle cursor
+  stability under the visible-index scheme (job-14, a UX gain not a defect).
+- **Run closure #3** — ruled EPIC-8 `Done` on observed acceptance (job-19),
+  ending the run; the four follow-ups ride as `Backlog` residuals under the
+  Done epic. It declined to make a **version bump a closure condition** (the
+  EPIC-7 precedent is closure at an unchanged version), leaving the release
+  decision to the human.
 
 ## Related
 
