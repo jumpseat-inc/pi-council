@@ -1,5 +1,21 @@
 # EV-37 Retry Classification Predicate — Implementation Plan
 
+> **Fold-in amendment (2026-09-16, Resume 2 PO ruling job-8, binding).** The
+> literal is corrected from the colon-free `Provider finish_reason error` to
+> **`Provider finish_reason: error` (with colon)** — pi's real emitted message.
+> Binding source: the card's **Intent**, which "unambiguously binds 'the
+> literal' to pi's real emitted message"; the goal field's colon-free spelling
+> is structurally forced by `council/validate.py:50-52` and does not carry the
+> definition. Grounding: the installed pi 0.85.1 bundle's `mapStopReason`
+> default case is ``errorMessage:`Provider finish_reason: ${reason}` ``
+> (`dist/bundle/chunks/openai-completions-EKZT2IH2.js`); no bundle hit exists
+> for the colon-free form, so the branch as first written was dead code. The
+> snippets below retain the original colon-free spelling as a historical
+> record of the plan as written; `extensions/retry.ts` and
+> `test/retry.test.ts` at the fold-in head carry the corrected literal, and
+> the regression test derives the expectation from the installed bundle and
+> asserts byte-for-byte equality.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** A pure `classifyRetry(report: JobReport): "retry" | "terminal" | undefined` in `extensions/retry.ts` that returns `retry` for settled reports with `stopReason === "error"` whose `errorMessage` is the literal `Provider finish_reason error` or matches pi's shipped retryable-provider-error pattern, `terminal` for `stopReason` `"stop"`/`"length"` and for the `failed`/`cancelled`/`stalled`/`timeout` states, and `undefined` for everything else.

@@ -49,8 +49,8 @@ function report(overrides: Partial<JobReport> = {}): JobReport {
 }
 
 describe("classifyRetry", () => {
-	test("retries a done report with the literal Provider finish_reason error", () => {
-		expect(classifyRetry(report({ stopReason: "error", errorMessage: "Provider finish_reason error" }))).toBe("retry");
+	test("retries a done report with pi's emitted Provider finish_reason: error", () => {
+		expect(classifyRetry(report({ stopReason: "error", errorMessage: "Provider finish_reason: error" }))).toBe("retry");
 	});
 
 	test("retries a done report matching pi's shipped retryable pattern", () => {
@@ -135,7 +135,52 @@ describe("pi pattern snapshot drift (R1 superset guard)", () => {
 
 	test("snapshot compiles to the same regex semantics pi uses", () => {
 		const re = new RegExp(RETRYABLE_PROVIDER_ERROR_PATTERNS.join("|"), "i");
-		expect(PROVIDER_FINISH_REASON_ERROR).toBe("Provider finish_reason error");
 		expect(re.test("HTTP 502")).toBe(true);
+	});
+});
+
+describe("pi finish_reason literal regression (Resume 2 PO ruling, job-8)", () => {
+	// Locate the installed pi package the same way the snapshot-drift describe
+	// does: entry → walk to package root. The ruling binds "the literal" to
+	// pi's real emitted message, so the expectation is derived from the
+	// installed bundle's mapStopReason template — never re-declared here.
+	const ENTRY_URL = import.meta.resolve("@earendil-works/pi-coding-agent");
+	const ENTRY_PATH = fileURLToPath(ENTRY_URL);
+	if (!ENTRY_PATH.endsWith(`${sep}dist${sep}index.js`)) {
+		throw new Error(`EV-37: pi entry resolved to unexpected path ${ENTRY_PATH}`);
+	}
+	const PKG_ROOT = dirname(dirname(ENTRY_PATH));
+
+	function findTemplateFiles(dir: string): string[] {
+		const out: string[] = [];
+		for (const name of readdirSync(dir)) {
+			const p = join(dir, name);
+			if (statSync(p).isDirectory()) out.push(...findTemplateFiles(p));
+			else if (name.endsWith(".js") && readFileSync(p, "utf8").includes("Provider finish_reason:")) out.push(p);
+		}
+		return out;
+	}
+
+	test("PROVIDER_FINISH_REASON_ERROR matches pi's emitted message byte-for-byte", () => {
+		// pi's mapStopReason default case: errorMessage:`Provider finish_reason: ${reason}`
+		// (dist/bundle/chunks/openai-completions-EKZT2IH2.js). Extract the
+		// template and evaluate it at reason === "error" — that evaluation is
+		// the string pi actually puts in JobReport.errorMessage.
+		const files = findTemplateFiles(join(PKG_ROOT, "dist", "bundle"));
+		expect(files.length).toBeGreaterThan(0);
+		let template: string | undefined;
+		for (const file of files) {
+			const match = readFileSync(file, "utf8").match(/errorMessage:`(Provider finish_reason: \$\{reason\})`/);
+			if (match) {
+				template = match[1];
+				break;
+			}
+		}
+		expect(template).toBeDefined();
+		const emitted = (template as string).replace("${reason}", "error");
+		// Byte-for-byte: the constant must equal pi's emitted message.
+		expect(PROVIDER_FINISH_REASON_ERROR).toBe(emitted);
+		// Behavior: a settled report carrying pi's real emitted string retries.
+		expect(classifyRetry(report({ stopReason: "error", errorMessage: emitted }))).toBe("retry");
 	});
 });

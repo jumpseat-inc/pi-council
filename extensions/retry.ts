@@ -62,8 +62,13 @@ export const RETRYABLE_PROVIDER_ERROR_PATTERNS = [
 	"ResourceExhausted",
 ] as const;
 
-/** Council-widened literal: the provider declined with a finish_reason error. */
-export const PROVIDER_FINISH_REASON_ERROR = "Provider finish_reason error";
+/** Council-widened literal: pi's emitted message for a declined finish_reason
+ * (mapStopReason's default case, `Provider finish_reason: ${reason}`, at
+ * reason === "error" — dist/bundle/chunks/openai-completions-EKZT2IH2.js).
+ * The card's Intent binds "the literal" to pi's real emitted message (Resume 2
+ * PO ruling, job-8); test/retry.test.ts derives the expectation from the
+ * installed bundle and asserts byte-for-byte equality. */
+export const PROVIDER_FINISH_REASON_ERROR = "Provider finish_reason: error";
 
 const RETRYABLE_PROVIDER_ERROR = new RegExp(RETRYABLE_PROVIDER_ERROR_PATTERNS.join("|"), "i");
 
@@ -76,7 +81,8 @@ export type RetryVerdict = "retry" | "terminal";
  * Classify a settled job report for the retry loop (EV-38's input).
  *
  * - "retry"    — settled, stopReason "error", and the message is the literal
- *                Provider finish_reason error or matches pi's shipped
+ *                Provider finish_reason: error (pi's emitted message) or
+ *                matches pi's shipped
  *                retryable pattern (state-independent: state never blocks a
  *                retry pi itself would make).
  * - "terminal" — settled with stopReason "stop"/"length", or one of the
