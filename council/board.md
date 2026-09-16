@@ -39,7 +39,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Ready
 
 - EPIC-9 — Provider-error retry with exponential backoff under a .council.json policy
-- EV-37 — Retry classification predicate for settled job reports
 - EV-38 — Retry policy section in .council.json with shipped defaults
 - EV-39 — Hub-level retry of a seat dispatch with exponential backoff
 - EV-40 — Automatic continuation of a parent turn that ends in a provider error
@@ -48,6 +47,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-43 — Reachability falsifier for parent-turn continuation
 
 ## In Progress
+
+- EV-37 — Retry classification predicate for settled job reports
 
 ## In Review
 
