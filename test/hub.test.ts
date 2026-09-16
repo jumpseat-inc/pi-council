@@ -584,3 +584,56 @@ test("EV-39: budget exhaustion settles with attempt=maxAttempts and no further s
 	expect(ms[0]!.attempt).toBe(3); // maxAttempts reached, no 4th spawn
 	expect(ms[0]!.state).toBe("done"); // provider-errored children exit 0
 }, 15_000);
+
+// ---- EV-39: formatReport attempts grammar (spec §2.7; G1 byte-identity) ----
+
+test("EV-39 G1: formatReport with attempts absent or n=1 is byte-identical to the baseline", () => {
+	const r = reportOf({ id: "job-1", seat: "owner", state: "done", output: "card done" });
+	const base = formatReport(r);
+	expect(formatReport(r, { n: 1, max: 3 })).toBe(base);
+	expect(base).not.toContain("attempts=");
+	expect(base).not.toContain("attempt ");
+});
+
+test("EV-39: attempts head fragment + settled sentence on n>1", () => {
+	const r = reportOf({ id: "job-5", seat: "skeptic", state: "done", output: "ok", elapsedMs: 186_000, stopReason: "stop" });
+	const out = formatReport(r, { n: 2, max: 3 });
+	const head = out.split("\n")[0]!;
+	expect(head).toContain("attempts=2/3");
+	expect(head).toContain("elapsed=3.1m");
+	// fragment sits right after elapsed
+	expect(head).toMatch(/elapsed=3\.1m attempts=2\/3/);
+	expect(out).toContain("Settled on attempt 2 of 3.");
+	// sentence comes after the output body
+	expect(out.indexOf("--- output ---")).toBeLessThan(out.indexOf("Settled on attempt 2 of 3."));
+});
+
+test("EV-39: exhausted sentence names the last error", () => {
+	const r = reportOf({ id: "job-5", seat: "skeptic", state: "done", output: "", stopReason: "error", errorMessage: "Provider returned 502: upstream unavailable" });
+	const out = formatReport(r, { n: 3, max: 3 });
+	expect(out).toContain("Retry budget exhausted after 3 of 3 attempts; last error: Provider returned 502: upstream unavailable.");
+});
+
+test("EV-39: non-retryable error stop on the last attempt is a terminal settle, not exhaustion (spec §2.7 table)", () => {
+	// errorMessage empty → classifyRetry is undefined → the terminal-settle row,
+	// NOT the exhausted row (the exhausted row requires verdict === "retry",
+	// which needs a retryable message; the last-error tail is already carried by
+	// the --- provider error --- clause).
+	const r = reportOf({ id: "job-5", seat: "skeptic", state: "done", output: "", stopReason: "error", errorMessage: undefined });
+	const out = formatReport(r, { n: 3, max: 3 });
+	expect(out).toContain("Settled on attempt 3 of 3.");
+	expect(out).not.toContain("exhausted");
+});
+
+test("EV-39: failed-on-attempt sentence", () => {
+	const r = reportOf({ id: "job-5", seat: "skeptic", state: "failed", stderrTail: "boom" });
+	const out = formatReport(r, { n: 2, max: 3 });
+	expect(out).toContain("Failed on attempt 2 of 3.");
+});
+
+test("EV-39: settled on the LAST attempt (terminal, not retryable) names the attempt", () => {
+	const r = reportOf({ id: "job-5", seat: "skeptic", state: "done", output: "ok", stopReason: "stop" });
+	const out = formatReport(r, { n: 3, max: 3 });
+	expect(out).toContain("Settled on attempt 3 of 3.");
+	expect(out).not.toContain("exhausted");
+});

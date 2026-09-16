@@ -177,3 +177,114 @@ test("onSettle after dispose returns false (shutdown-during-backoff)", () => {
 	expect(cleanupRuns).toBe(1); // still exactly once
 	expect(job.state).toBe("done"); // untouched — final settle proceeds
 });
+
+// ---- wiring (spec §2.4): the real council_dispatch arms the supervisor ----
+import * as fs from "node:fs";
+import * as os from "node:os";
+import * as path from "node:path";
+import { afterEach } from "bun:test";
+import { CONFIG_DIR_NAME } from "@earendil-works/pi-coding-agent";
+import { getHub, initHubIdentity, registerHubTools, shutdownHub } from "../extensions/hub-tools.ts";
+
+const STUB = path.join(import.meta.dir, "stub-child.ts");
+const WIRED_POLICY: RetryPolicy = { enabled: true, maxAttempts: 3, baseDelayMs: 60, maxDelayMs: 60, jitter: false };
+
+function writeWiredSeat(root: string, name: string, model: string): void {
+	const dir = path.join(root, CONFIG_DIR_NAME, "agents");
+	fs.mkdirSync(dir, { recursive: true });
+	fs.writeFileSync(
+		path.join(dir, `${name}.md`),
+		`---\nname: ${name}\ndescription: test\nmodel: ${model}\ntools: Read\n---\nunit-test body`,
+	);
+}
+
+/** Register the real hub tools with the injected policy and wrap BOTH spawn
+ * entry points so the stub child runs instead of pi while the ORIGINAL argv
+ * (with --session-id) is captured for O-4 assertions. */
+function makeWiredDispatcher(
+	root: string,
+	policy: RetryPolicy | null,
+	flaky?: { state: string; failTimes: string },
+) {
+	let dispatchTool:
+		| { execute: (id: unknown, params: unknown, signal: unknown, onUpdate: unknown, ctx: unknown) => Promise<Record<string, any>> }
+		| undefined;
+	const pi: unknown = {
+		registerTool: (t: { name: string; execute: (id: unknown, params: unknown, signal: unknown, onUpdate: unknown, ctx: unknown) => Promise<Record<string, any>> }) => {
+			if (t.name === "council_dispatch") dispatchTool = { execute: t.execute };
+		},
+	};
+	registerHubTools(pi as never, root, policy ? { retryPolicy: () => policy } : {});
+	const hub = getHub(root);
+	const spawnArgs: string[][] = [];
+	const respawnArgs: string[][] = [];
+	const realSpawn = hub.spawnJob.bind(hub);
+	(hub as unknown as { spawnJob: (o: Record<string, unknown>) => unknown }).spawnJob = (o: Record<string, unknown>) => {
+		spawnArgs.push(o.args as string[]);
+		const env = flaky
+			? { ...(o.env as Record<string, string>), STUB_MODE: "flaky", STUB_STATE: flaky.state, STUB_FAIL_TIMES: flaky.failTimes }
+			: o.env;
+		return realSpawn({ ...o, command: "bun", args: [STUB], env } as Parameters<typeof realSpawn>[0]);
+	};
+	const realRespawn = hub.respawn.bind(hub);
+	(hub as unknown as { respawn: (id: string, s: Record<string, unknown>) => unknown }).respawn = (id: string, spec: Record<string, unknown>) => {
+		respawnArgs.push(spec.args as string[]);
+		const env = flaky
+			? { ...(spec.env as Record<string, string>), STUB_MODE: "flaky", STUB_STATE: flaky.state, STUB_FAIL_TIMES: flaky.failTimes }
+			: spec.env;
+		return realRespawn(id, { ...spec, args: [STUB], env } as Parameters<typeof realRespawn>[1]);
+	};
+	if (!dispatchTool) throw new Error("council_dispatch was not registered");
+	const ctx = { modelRegistry: { getAvailable: () => [{ provider: "openrouter", id: "test/model" }] } };
+	return {
+		dispatch: (params: Record<string, unknown>) => dispatchTool!.execute(null, params, undefined, undefined, ctx),
+		spawnArgs,
+		respawnArgs,
+	};
+}
+
+afterEach(() => shutdownHub());
+
+test("wiring: retried dispatch re-spawns under one id with -attempt2 session id and settles done", async () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "ev39-wire-"));
+	writeWiredSeat(root, "agent-s", "openrouter/test/model");
+	initHubIdentity("runW39");
+	const state = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "ev39-wire-state-")), "state.json");
+	const { dispatch, respawnArgs } = makeWiredDispatcher(root, WIRED_POLICY, { state, failTimes: "1" });
+	const res = await dispatch({ seat: "agent-s", input: "task" });
+	expect(res.isError).toBeFalsy();
+	const id = res.details.jobId as string;
+	const hub = getHub(root);
+	const [r] = await hub.wait([id], 10_000);
+	expect(r.state).toBe("done");
+	// O-4: attempt 2's argv carried the fresh session id
+	expect(respawnArgs).toHaveLength(1);
+	const sidIdx = respawnArgs[0]!.indexOf("--session-id");
+	expect(sidIdx).toBeGreaterThan(-1);
+	expect(respawnArgs[0]![sidIdx + 1]).toBe(`${id}-attempt2`);
+	// cardinality A: one manifest, attempt 2, the final attempt's session id
+	const manifest = JSON.parse(
+		fs.readFileSync(path.join(root, CONFIG_DIR_NAME, "council", "runs", "runW39", `${id}.json`), "utf-8"),
+	);
+	expect(manifest.attempt).toBe(2);
+	expect(manifest.sessionId).toBe(`${id}-attempt2`);
+}, 15_000);
+
+test("wiring: disabled policy → single spawn, manifest has no attempt key, sessionId == id", async () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "ev39-wire2-"));
+	writeWiredSeat(root, "agent-s", "openrouter/test/model");
+	initHubIdentity("runW39b");
+	const { dispatch, respawnArgs, spawnArgs } = makeWiredDispatcher(root, { ...WIRED_POLICY, enabled: false });
+	const res = await dispatch({ seat: "agent-s", input: "task" });
+	expect(res.isError).toBeFalsy();
+	const id = res.details.jobId as string;
+	await getHub(root).wait([id], 10_000);
+	expect(spawnArgs).toHaveLength(1);
+	expect(respawnArgs).toHaveLength(0);
+	const manifest = JSON.parse(
+		fs.readFileSync(path.join(root, CONFIG_DIR_NAME, "council", "runs", "runW39b", `${id}.json`), "utf-8"),
+	);
+	expect("attempt" in manifest).toBe(false);
+	expect(manifest.sessionId).toBe(id);
+}, 15_000);
+

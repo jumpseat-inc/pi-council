@@ -5,12 +5,30 @@ import { CONFIG_DIR_NAME, type ExtensionAPI } from "@earendil-works/pi-coding-ag
 import { Type } from "typebox";
 import { Hub, type JobReport, type JobState } from "./hub.ts";
 import { type RunManifest, readManifests } from "./runs.ts";
-import { buildChildArgv, buildSystemPrompt, loadSeat, proceduresDir, resolveEffectiveModel } from "./seats.ts";
+import { buildChildArgv, buildSystemPrompt, DEFAULT_RETRY_POLICY, loadSeat, proceduresDir, resolveEffectiveModel } from "./seats.ts";
+import type { RetryPolicy } from "./seats.ts";
 import { childEnv, ensureRunDir, mintRunId } from "./runs.ts";
 import { getMcp } from "./mcp-load.ts";
+import { createRetrySupervisor } from "./job-retry.ts";
+import { classifyRetry } from "./retry.ts";
 
 export interface HubToolOptions {
 	allowedSeats?: string[];
+	/** EV-39 — the one init-time RetryPolicy snapshot getter (Q1/D3: index.ts
+	 * loads once; no other call site may exist). Null ⇒ retry disabled. */
+	retryPolicy?: () => RetryPolicy | null;
+}
+
+/** EV-39 — cleanup exactly once across every chain end (clean settle,
+ * exhaustion, cancel-during-backoff, dispose): the Hub's non-retry settle path
+ * and the supervisor's dispose share this guard. */
+function once(fn: () => void): () => void {
+	let ran = false;
+	return () => {
+		if (ran) return;
+		ran = true;
+		fn();
+	};
 }
 
 export function pidFilePath(repoRoot: string): string {
@@ -49,10 +67,14 @@ import { formatUsageSegment } from "./usage-format.ts";
 import { formatRunnerUsageBlock, sumSubtreeUsage } from "./usage-block.ts";
 export { formatUsageSegment };
 
-export function formatReport(r: JobReport): string {
+export function formatReport(r: JobReport, attempts?: { n: number; max: number }): string {
 	const mins = (r.elapsedMs / 60_000).toFixed(1);
 	const stop = r.stopReason ? ` stopReason=${r.stopReason}` : "";
-	const identity = `[${r.id}] seat=${r.seat} state=${r.state}${stop} elapsed=${mins}m`;
+	// EV-39 — the attempts head fragment appears only when N > 1; a single-attempt
+	// report is byte-identical to pre-EV-39 (G1).
+	const retried = attempts !== undefined && attempts.n > 1;
+	const attemptsFrag = retried ? ` attempts=${attempts.n}/${attempts.max}` : "";
+	const identity = `[${r.id}] seat=${r.seat} state=${r.state}${stop} elapsed=${mins}m${attemptsFrag}`;
 	// Suppression (EV-28 Q2): only the usage segment is omitted when no assistant
 	// message was produced; the identity prefix survives in every terminal state.
 	const suppressed = r.usage.turns === 0 && r.output === "";
@@ -65,7 +87,19 @@ export function formatReport(r: JobReport): string {
 			: "";
 	const err =
 		(r.state === "failed" || r.state === "stalled") && r.stderrTail ? `\n--- stderr tail ---\n${r.stderrTail}` : "";
-	return head + body + provErr + emptyWarn + err;
+	// EV-39 — exactly one sentence after the err clause when N > 1 (spec §2.7
+	// table); the classifier is the verbatim retry.ts one (no second copy).
+	const sentence = retried ? attemptsSentence(r, attempts.n, attempts.max) : "";
+	return head + body + provErr + emptyWarn + err + sentence;
+}
+
+function attemptsSentence(r: JobReport, n: number, max: number): string {
+	if (classifyRetry(r) === "retry" && n === max) {
+		const tail = r.errorMessage ? `; last error: ${r.errorMessage}` : "";
+		return `\nRetry budget exhausted after ${max} of ${max} attempts${tail}.`;
+	}
+	if (r.state === "failed") return `\nFailed on attempt ${n} of ${max}.`;
+	return `\nSettled on attempt ${n} of ${max}.`;
 }
 
 /** EV-32 point 5 (PO C, steward I): append the runner-shaped usage block to
@@ -75,11 +109,18 @@ export function formatReport(r: JobReport): string {
  * marker — a null marker zeroes both halves). Running or timed-out jobs get
  * no block (not a conclusion); a settled job with no manifest (pre-EV-16)
  * renders state 1 — never blank. The EV-28 head-line segment is untouched. */
-export function formatWaitReport(reports: JobReport[], manifests: RunManifest[]): string {
+export function formatWaitReport(
+	reports: JobReport[],
+	manifests: RunManifest[],
+	maxAttempts: number = DEFAULT_RETRY_POLICY.maxAttempts,
+): string {
 	const settled: ReadonlySet<JobState> = new Set(["done", "failed", "cancelled", "stalled"]);
 	return reports
 		.map((r) => {
-			const base = formatReport(r);
+			// EV-39 — the attempt count comes from the manifest (the renderers'
+			// channel), the denominator from the injected policy snapshot (Q1).
+			const n = manifests.find((m) => m.id === r.id)?.attempt ?? 1;
+			const base = formatReport(r, { n, max: maxAttempts });
 			if (!settled.has(r.state)) return base;
 			const { subtree, jobCount } = sumSubtreeUsage(manifests, r.id);
 			return `${base}\n\n${formatRunnerUsageBlock({ sessionId: r.id, jobCount, subtree })}`;
@@ -93,7 +134,8 @@ export function registerHubTools(pi: ExtensionAPI, repoRoot: string, opts: HubTo
 		label: "Council Dispatch",
 		description:
 			"Dispatch a Council seat as an isolated background job. Returns a job ID immediately. " +
-			"Follow with council_wait to collect the result. Timeout default 15 min; raise it for long implementation or verification tasks.",
+			"Follow with council_wait to collect the result. Timeout default 15 min; raise it for long implementation or verification tasks. " +
+			"timeout_minutes and stall_minutes are PER-ATTEMPT ceilings: a provider-errored attempt is retried with backoff up to the retry budget (default 3 attempts), so a fully-retried dispatch may run up to maxAttempts × the per-attempt budget.",
 		parameters: Type.Object({
 			seat: Type.String({ description: "Seat name (e.g. owner, skeptic) — packaged seats load automatically; a repo-local override in .pi/agents/ shadows the packaged seat" }),
 			input: Type.String({ description: "The full task/deliberation input for the seat" }),
@@ -187,27 +229,57 @@ export function registerHubTools(pi: ExtensionAPI, repoRoot: string, opts: HubTo
 						? `${effective.model}:${effective.thinkingLevel}`
 						: effective.model;
 			}
-			const job = hub.spawnJob({
+			// EV-39 — the once-guarded cleanup is shared by the Hub's non-retry
+			// settle path and the supervisor's dispose, so the prompt tmpdir is
+			// removed exactly once across every chain end.
+			const onceCleanup = once(() => {
+				try {
+					fs.rmSync(tmpDir, { recursive: true, force: true });
+				} catch {
+					/* best effort */
+				}
+			});
+			const timeoutMs = (params.timeout_minutes ?? 15) * 60_000;
+			const stallMs = (params.stall_minutes ?? 4) * 60_000;
+			const spawn: Parameters<typeof hub.spawnJob>[0] = {
 				id: jobId,
 				seat: seat.name,
 				model: seat.model,
 				command: "pi",
-				args: buildChildArgv(seat, params.input, promptFile, mcpToolNames, {
-					sessionDir: dir,
-					sessionId: jobId,
-				}),
+				args: buildChildArgv(seat, params.input, promptFile, mcpToolNames, { sessionDir: dir, sessionId: jobId }),
 				cwd: repoRoot,
 				env: childEnv(spawnEnv, runId, jobId),
-				timeoutMs: (params.timeout_minutes ?? 15) * 60_000,
-				stallMs: (params.stall_minutes ?? 4) * 60_000,
-				cleanup: () => {
-					try {
-						fs.rmSync(tmpDir, { recursive: true, force: true });
-					} catch {
-						/* best effort */
-					}
-				},
-			});
+				timeoutMs,
+				stallMs,
+				sessionId: jobId,
+				cleanup: onceCleanup,
+			};
+			// EV-39 — arm the retry supervisor only when the injected policy wants
+			// more than one attempt. The supervisor owns the chain: on a retryable
+			// settle it re-spawns `${jobId}-attempt${n}` after computeBackoffDelay,
+			// reusing the dispatch-time argv shape (fresh session id, same prompt
+			// file and MCP allowlist — EV-42 owns per-attempt provenance).
+			const policy = opts.retryPolicy?.() ?? null;
+			if (policy?.enabled && policy.maxAttempts > 1) {
+				spawn.retry = createRetrySupervisor({
+					hub,
+					jobId,
+					policy,
+					cleanup: onceCleanup,
+					attemptSpec: (n) => {
+						const sessionId = `${jobId}-attempt${n}`;
+						return {
+							args: buildChildArgv(seat, params.input, promptFile, mcpToolNames, { sessionDir: dir, sessionId }),
+							env: childEnv(spawnEnv, runId, jobId),
+							cwd: repoRoot,
+							sessionId,
+							timeoutMs,
+							stallMs,
+						};
+					},
+				});
+			}
+			const job = hub.spawnJob(spawn);
 			return {
 				content: [
 					{
@@ -227,7 +299,7 @@ export function registerHubTools(pi: ExtensionAPI, repoRoot: string, opts: HubTo
 		label: "Council Wait",
 		description:
 			"Wait for dispatched jobs to settle or the window to elapse. Returns each job's state " +
-			"(done|failed|cancelled|stalled|timeout|running) and output. Does NOT cancel on timeout — that is your explicit move.",
+			"(done|failed|cancelled|stalled|timeout|retrying|running) and output. Does NOT cancel on timeout — that is your explicit move.",
 		parameters: Type.Object({
 			job_ids: Type.Array(Type.String(), { description: "Job IDs from council_dispatch" }),
 			timeout_minutes: Type.Number({ description: "How long to wait before returning" }),
@@ -238,8 +310,11 @@ export function registerHubTools(pi: ExtensionAPI, repoRoot: string, opts: HubTo
 			// EV-32 point 5: each settled report carries its runner usage block,
 			// rendered parent-side from the run dir's manifests.
 			const manifests = readManifests(repoRoot, hub.runId ?? "");
+			// EV-39 — the retry denominator comes from the injected snapshot (Q1);
+			// never a config read in a tool path (D3/O-8).
+			const maxAttempts = opts.retryPolicy?.()?.maxAttempts ?? DEFAULT_RETRY_POLICY.maxAttempts;
 			return {
-				content: [{ type: "text", text: formatWaitReport(reports, manifests) }],
+				content: [{ type: "text", text: formatWaitReport(reports, manifests, maxAttempts) }],
 				details: { reports },
 			};
 		},
