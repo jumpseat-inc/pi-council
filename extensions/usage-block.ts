@@ -26,6 +26,10 @@ export type Half = "ownSession" | "subtree";
 const NO_USAGE_LINE = "usage  no usage recorded";
 const UNRESOLVED_LINE = "usage  accounting boundary unresolved";
 const LEGEND_LINE = "usage  n/a = provider figure unavailable";
+/** EV-39 Q4 — present iff the persisted provider sibling carries `partial`:
+ * the reported figure is the final attempt's alone, never the dispatch's
+ * whole figure (wholeness is EV-42). */
+const PARTIAL_LEGEND = "usage  partial = reported figure is final-attempt-only";
 const FAILED_PREFIX = "usage  accounting failed \u2014 "; // U+2014
 
 /** The block input (ruling C1): the record variant gains EV-29's optional
@@ -111,6 +115,9 @@ export function formatUsageBlock(input: UsageBlockInput): string {
 	// C1: exactly one reported row, only when a dollar figure was actually
 	// reported (zero reported generations ⇒ totalCost null ⇒ no row).
 	if (input.provider && input.provider.totalCost !== null) rows.push(reportedRow(input.provider));
+	// EV-39 Q4: the partial legend qualifies the reported row — pushed once iff
+	// the persisted sibling carries the record-only literal.
+	if (input.provider?.partial !== undefined) rows.push(PARTIAL_LEGEND);
 	if (unavailable.length > 0) rows.push(LEGEND_LINE);
 	return rows.join("\n");
 }
