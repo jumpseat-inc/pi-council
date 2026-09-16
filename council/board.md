@@ -36,8 +36,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- EV-40 — Automatic continuation of a parent turn that ends in a provider error
-
 ## Ready
 
 - EPIC-9 — Provider-error retry with exponential backoff under a .council.json policy
@@ -46,6 +44,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-42 — Per-attempt identity for a retried dispatch in the run substrate
 
 ## In Progress
+
+- EV-40 — Automatic continuation of a parent turn that ends in a provider error
 
 ## In Review
 
