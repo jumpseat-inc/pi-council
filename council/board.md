@@ -46,12 +46,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-39 — Hub-level retry of a seat dispatch with exponential backoff
-
 ## Needs Human
 
 ## Done
 
+- EV-39 — Hub-level retry of a seat dispatch with exponential backoff
 - EV-40 — Automatic continuation of a parent turn that ends in a provider error
 - EV-43 — Reachability falsifier for parent-turn continuation
 - EV-38 — Retry policy section in .council.json with shipped defaults
