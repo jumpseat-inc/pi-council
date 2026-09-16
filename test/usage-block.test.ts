@@ -47,7 +47,7 @@ test("T9b: formatMoney renders R-1 verbatim — U+2248 catalogue, plain $ report
 import { formatUsageBlock, formatRunnerUsageBlock, sumSubtreeUsage } from "../extensions/usage-block.ts";
 import { formatBoundaryLabel } from "../extensions/spend.ts";
 import { formatReportedMoney } from "../extensions/usage-format.ts";
-import type { ProviderCostReport, ProviderGeneration } from "../extensions/provider-cost.ts";
+import type { ProviderCostReport, ProviderGeneration, ProviderPartialReason } from "../extensions/provider-cost.ts";
 import { sumSubtree, type RunManifest } from "../extensions/runs.ts";
 
 /** Resolved, measured fixture record (hand-built for full numeric control). */
@@ -621,4 +621,33 @@ test("EV-39 Q4: partial legend renders iff provider.partial present, after the r
 	const plain = formatUsageBlock({ record: measuredRecord, provider: providerReport() });
 	expect(formatUsageBlock({ record: measuredRecord, provider: { ...providerReport(), partial: undefined } })).toBe(plain);
 	expect(plain).not.toContain("partial");
+});
+
+// ---- EV-42 J3: the total partial-legend map + the fail-closed fallback ----
+
+test("EV-42 J3: the new literal renders for attempts-unaccounted, right after the reported row", () => {
+	const provider = providerReport({ partial: "attempts-unaccounted" });
+	const out = formatUsageBlock({ record: measuredRecord, provider });
+	expect(out).toContain("usage  partial = reported figure excludes unaccounted attempts");
+	// stack order: reported row → partial legend → (n/a legend absent here)
+	const lines = out.split("\n");
+	const reportedIdx = lines.findIndex((l) => l.startsWith("usage  reported"));
+	const partialIdx = lines.findIndex((l) => l.startsWith("usage  partial"));
+	expect(partialIdx).toBe(reportedIdx + 1);
+});
+
+test("EV-42 J3: the legacy literal renders verbatim — choose-once records are never rewritten", () => {
+	const out = formatUsageBlock({
+		record: measuredRecord,
+		provider: providerReport({ partial: "final-attempt-only" }),
+	});
+	expect(out).toContain("usage  partial = reported figure is final-attempt-only");
+	expect(out).not.toContain("excludes unaccounted attempts");
+});
+
+test("EV-42 J3: an unknown partial literal fails closed to the generic fallback — never fails open", () => {
+	const provider = providerReport({ partial: "mystery-future-literal" as ProviderPartialReason });
+	const out = formatUsageBlock({ record: measuredRecord, provider });
+	expect(out).toContain("usage  partial = figure is not whole");
+	expect(out).toContain("usage  partial"); // the qualifier is never silently dropped
 });
