@@ -901,3 +901,45 @@ test("EV-39 G4: a retried openrouter/ manifest persists provider.partial='final-
 	const [plain] = readUsageRecords(storeRoot2);
 	expect("partial" in plain!.provider!).toBe(false);
 });
+
+test("EV-39 G3 (gate-closed/written-once): a mid-backoff manifest (exitCode null) keeps the flush gate closed; the settled cumulative chain writes exactly once", async () => {
+	const { repo, pending, flush } = flushSetup();
+	const storeRoot = tmpDir("ev39-store-gate-");
+	// attempt 1 settled retryable and the supervisor armed: the retrying
+	// manifest reads exitCode null with the attempt ordinal (D2) — the same
+	// shape the hub test pins mid-backoff.
+	writeManifest(
+		repo.root,
+		repo.runId,
+		manifest("job-1", { startedAt: T0 + 1500, exitCode: null, state: "retrying", attempt: 2, nextAttemptAt: T0 + 90_000 }),
+	);
+	const r1 = await flush("forest-settle", pending, { storeRoot });
+	expect(r1.outcomes[0]!.status).toBe("gate-closed");
+	expect(readUsageRecords(storeRoot)).toHaveLength(0);
+
+	// the chain completes: attempt 2 settles, the manifest carries the
+	// cumulative usage (cardinality A) and exitCode lands
+	writeManifest(
+		repo.root,
+		repo.runId,
+		manifest("job-1", {
+			startedAt: T0 + 1500, // D1 — stable startedAt, still one invocation window
+			exitCode: 0,
+			state: "done",
+			settledAt: T0 + 2500,
+			attempt: 2,
+			usage: { input: 40, output: 0, cacheRead: 0, cacheWrite: 0, reasoning: 0, totalTokens: 40, cost: 4, costInput: 0, costOutput: 0, costCacheRead: 0, costCacheWrite: 0, turns: 2, costBasis: "catalogue-estimate", usageSource: "stream-assistant" },
+		}),
+	);
+	const r2 = await flush("forest-settle", pending, { storeRoot });
+	expect(r2.outcomes[0]!.status).toBe("written");
+	const records = readUsageRecords(storeRoot);
+	expect(records).toHaveLength(1); // exactly once — never a mid-backoff under-count
+	expect(records[0]!.spend.subtree.cost).toBe(4);
+	expect(records[0]!.spend.subtree.turns).toBe(2);
+
+	// a third flush is the choose-once no-op
+	const r3 = await flush("forest-settle", pending, { storeRoot });
+	expect(r3.outcomes[0]!.status).toBe("existing");
+	expect(readUsageRecords(storeRoot)).toHaveLength(1);
+});
