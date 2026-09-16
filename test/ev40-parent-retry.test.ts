@@ -32,6 +32,15 @@ const toolResult = (): FilterableMessage =>
 
 describe("EV-40 owner P2 — floor re-entry on the continuation payload", () => {
 	test("a continuation payload for deepseek/deepseek-v4-pro-0813 carries max_completion_tokens = 131072 after before_provider_request", () => {
+		// O-P2-live residual (fix cycle 1): the LIVE half is structurally
+		// unobservable — pi invokes `before_provider_request` only from the model
+		// runtime's `onPayload` hook (dist/core/sdk.js:210), and the offline faux
+		// transport's `stream`/`streamSimple` never call `streamOptions.onPayload`
+		// (pi-ai/dist/providers/faux.js), so PAYLOAD_LOG_LINES is 0 by
+		// construction. This test therefore drives the SHIPPED handler itself
+		// (`registerMaxTokensFix`, not a reimplementation) with a
+		// continuation-shaped payload; ev40-live-gates.test.ts pins the live
+		// absence as a tripwire.
 		const handlers = new Map<string, Array<(event: unknown) => unknown>>();
 		const fakePi = {
 			on(type: string, handler: (event: unknown) => unknown) {

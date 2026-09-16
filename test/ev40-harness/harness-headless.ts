@@ -267,11 +267,13 @@ export function runHarnessArm(opts: ArmOptions, scratchRoot: string, engineRepo?
  * trigger line appears — the T-H1 shape (a signal mid-backoff, which a
  * synchronous spawnSync cannot express).
  *
- * Print mode routes EXTENSION output (console.log / process.stdout.write) to
- * the child's STDERR and keeps stdout for pi's own final assistant message
- * (probed directly on this tree: both extension write paths land on stderr).
- * The trigger therefore scans BOTH streams by default (`stream: "either"`),
- * so it fires on the real countdown line wherever pi routes it. */
+ * Stream routing (fix cycle 1, probed): pi's print mode calls
+ * `takeOverStdout()`, which reassigns `process.stdout.write` to `stderr.write`,
+ * so an extension's `console.log` / `process.stdout.write` land on the child's
+ * STDERR while `fs.writeSync(1, …)` reaches the REAL stdout. The engine prints
+ * its countdown/terminal lines via `fs.writeSync(1, …)` (they are on stdout);
+ * the trigger still scans BOTH streams by default (`stream: "either"`) so it
+ * fires wherever a given line is routed. */
 export interface SigintOptions {
 	/** Send the signal after a chunk containing this substring. */
 	trigger: string;

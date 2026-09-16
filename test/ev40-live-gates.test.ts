@@ -9,16 +9,21 @@
 //                 EV-31 pending-invocation marker
 //   T-H1        — SIGINT during the attempt-2 headless backoff disarms
 //
-// Stream routing finding (probed first-hand on this tree, and the reason the
-// assertions read `stderr`): pi's print mode keeps STDOUT for its own final
-// assistant message and routes EXTENSION output there — `console.log` AND
-// `process.stdout.write` both land on the child's STDERR. The R5 countdown
-// line is therefore observable on stderr, not stdout; the implementation's
-// `host.print` is unchanged, only the stream pi chooses differs. This is
-// recorded, not silenced: the live exit code is also pi's own 1 for a failed
-// turn, not the engine's `HEADLESS_RETRY_EXHAUSTED_EXIT_CODE` (75) — the
-// spec §2.7 anticipated exactly this clobber; the engine's setExitCode(75)
-// call is covered by test/ev40-wiring.test.ts.
+// Stream routing + exit-code findings (probed first-hand on this tree, fix
+// cycle 1). pi's `main` calls `takeOverStdout()` in print mode
+// (dist/core/output-guard.js), which reassigns `process.stdout.write` to
+// `stderr.write`; `console.log` and `process.stdout.write` therefore land on
+// the child's STDERR, while `fs.writeSync(1, …)` (a raw fd write) reaches the
+// REAL stdout — probed with a three-path extension: only FSYNC appeared on
+// stdout, CONSOLE/STDOUT/STDERR all on stderr. The engine's headless `print`
+// host is therefore `fs.writeSync(1, …)`, and these assertions read `stdout`.
+//
+// Exit code: pi's `runPrintMode` returns 1 for an errored final assistant turn
+// and `main` then assigns `process.exitCode = exitCode` AFTER the settle
+// handler ran, clobbering the engine's 75 (probed: direct assignment → 1).
+// The engine now re-sets the code from a `process.once("exit")` listener
+// (probed: → 75), which lets pi's whole teardown complete. These assertions
+// pin the child's real status.
 import { describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { mkdtempSync, rmSync } from "node:fs";
@@ -94,13 +99,23 @@ describe("EV-40 live gate — Designer P4 (the real extension's headless retry l
 
 				// One countdown line per backoff, both the exact R5 copy (U+2014)
 				// with the delay the policy pins (baseDelayMs = 200 → 1s ceil).
-				const countdowns = arm.stderr.split("\n").filter((l) => l.startsWith("Retrying in"));
+				// Q5/O-ROUTE: the countdown is headless-observable on the REAL stdout
+				// (read through pi's stdout takeover), never on the extension's own
+				// `console.log` stream (which pi routes to stderr).
+				const countdowns = arm.stdout.split("\n").filter((l) => l.startsWith("Retrying in"));
 				expect(countdowns).toContain(formatRetryCountdown(2, 3, 200));
 				expect(countdowns).toContain(formatRetryCountdown(3, 3, 200));
 				expect(countdowns.some((l) => l.includes("(attempt 2 of 3)"))).toBe(true);
 				expect(countdowns.some((l) => l.includes("(attempt 3 of 3)"))).toBe(true);
-				// The named terminal copy is the final exhaustion line.
-				expect(arm.stderr).toContain(formatRetryExhausted(3));
+				// O-ROUTE: the named terminal copy is the FINAL stdout line (nothing
+				// pi writes afterwards reaches stdout on the errored turn).
+				expect(arm.stdout).toContain(formatRetryExhausted(3));
+				const stdoutLines = arm.stdout.split("\n").filter((l) => l.trim().length > 0);
+				expect(stdoutLines[stdoutLines.length - 1]).toBe(formatRetryExhausted(3));
+				// O-Q5-exit: the live exhausted run's child exit status is 75
+				// (EX_TEMPFAIL), not pi's own 1.
+				expect(arm.exitCode).toBe(75);
+				expect(arm.signal).toBeNull();
 
 				// The session JSONL shows the full attempt chain: the original
 				// prompt three times, each followed by an errored assistant turn
@@ -113,6 +128,45 @@ describe("EV-40 live gate — Designer P4 (the real extension's headless retry l
 
 				// No uncaught extension error (the guarded-ctx fix, spec §2.5).
 				expect(arm.stderr).not.toContain("stale after session replacement");
+			} finally {
+				rmSync(scratchRoot, { recursive: true, force: true });
+			}
+		},
+		180_000,
+	);
+});
+
+describe("EV-40 residual O-P2-live — the live half of the owner-P2 floor gate", () => {
+	// Root cause (probed first-hand, fix cycle 1): `before_provider_request` is
+	// invoked ONLY from pi's model-runtime `onPayload` hook
+	// (node_modules/@earendil-works/pi-coding-agent/dist/core/sdk.js:210 →
+	// core/extensions/runner.js emitBeforeProviderRequest). The offline faux
+	// transport's `stream`/`streamSimple`
+	// (node_modules/@earendil-works/pi-ai/dist/providers/faux.js) never call
+	// `streamOptions.onPayload`, so pi can never emit the event under `--offline`
+	// + `--provider ev40` — PAYLOAD_LOG_LINES is structurally 0, not an engine
+	// gap. The shipped handler is exercised directly by the owner-P2
+	// real-handler test in test/ev40-parent-retry.test.ts, which registers
+	// `registerMaxTokensFix` and invokes the captured handler with a
+	// continuation-shaped payload. This live test pins the absence so a future
+	// faux transport that wires `onPayload` fails the tripwire and forces the
+	// residual to be reclassified.
+	test(
+		"the faux transport never emits before_provider_request (payload log stays empty while the real chain runs)",
+		() => {
+			const scratchRoot = mkdtempSync(join(tmpdir(), "ev40-p2-live-"));
+			try {
+				const arm = runHarnessArm(
+					{ label: "p2-live", fails: 10, arm: "none", councilExtension: true, payloadLog: true },
+					scratchRoot,
+					policy(),
+				);
+				// The run is real: the full 3-attempt chain executed and exhausted.
+				expect(arm.sequence.filter((s) => s.startsWith("assistant stop=error")).length).toBe(3);
+				expect(arm.stdout).toContain(formatRetryExhausted(3));
+				// ...and yet the outgoing payload was never observable: the faux
+				// transport has no `onPayload` call, so the event never fires.
+				expect(arm.payloadLog.trim()).toBe("");
 			} finally {
 				rmSync(scratchRoot, { recursive: true, force: true });
 			}
@@ -171,9 +225,11 @@ describe("EV-40 live gate — T-H1 (SIGINT during the attempt-2 headless backoff
 
 				expect(arm.triggered).toBe(true);
 				expect(arm.triggerToSignalMs).toBeGreaterThanOrEqual(300);
-				// The countdown line for the attempt-2 backoff rendered (real run).
-				expect(arm.stderr).toContain(formatRetryCountdown(2, 3, 2000));
-				// No attempt-3 continuation was scheduled or sent.
+				// The countdown line for the attempt-2 backoff rendered (real run) —
+				// on the REAL stdout (O-ROUTE).
+				expect(arm.stdout).toContain(formatRetryCountdown(2, 3, 2000));
+				// No attempt-3 continuation was scheduled or sent (either stream).
+				expect(arm.stdout).not.toContain("attempt 3 of 3");
 				expect(arm.stderr).not.toContain("attempt 3 of 3");
 				expect(arm.sequence.filter((s) => s.startsWith("user ")).length).toBe(1);
 				expect(arm.sequence.filter((s) => s.startsWith("assistant stop=error")).length).toBe(1);

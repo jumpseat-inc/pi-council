@@ -537,6 +537,31 @@ export function registerParentTurnRetry(
 	return { onSettled };
 }
 
+/**
+ * O-Q5-exit (EV-40 spec §2.7, fix cycle 1): pi's print mode owns
+ * `process.exitCode` for an errored turn — `runPrintMode` returns 1 and
+ * `main` assigns `process.exitCode = 1` AFTER our `agent_settled` handler has
+ * run, clobbering a direct assignment (probed live: set 75 → child status 1).
+ * An `exit` listener runs after pi's assignment, so re-setting the code there
+ * yields the asserted 75 (EX_TEMPFAIL) while pi's entire teardown
+ * (`disposeRuntime`, `flushRawStdout`, `stopThemeWatcher`) still completes —
+ * the least-destructive means that works (probed live: → 75). `process.exit`
+ * would also yield 75, but skips that teardown. The live P4 gate pins the
+ * child's real status.
+ */
+let headlessExitCode: number | null = null;
+let headlessExitListenerInstalled = false;
+function setHeadlessExitCode(code: number): void {
+	headlessExitCode = code;
+	process.exitCode = code;
+	if (!headlessExitListenerInstalled) {
+		headlessExitListenerInstalled = true;
+		process.once("exit", () => {
+			if (headlessExitCode !== null) process.exitCode = headlessExitCode;
+		});
+	}
+}
+
 export default async function (pi: ExtensionAPI) {
 	const mcp = await getMcp();
 	const repoRoot = process.cwd();
@@ -567,10 +592,26 @@ export default async function (pi: ExtensionAPI) {
 	}
 	const retryWiring = registerParentTurnRetry(pi, () => retryPolicy, {
 		sendUserMessage: (prompt) => pi.sendUserMessage(prompt),
-		print: (line) => console.log(line),
-		setExitCode: (code) => {
-			process.exitCode = code;
+		// O-ROUTE (fix cycle 1): pi's print mode calls `takeOverStdout()`
+		// (dist/core/output-guard.js), which reassigns `process.stdout.write` to
+		// `stderr.write` — both `console.log` and `process.stdout.write` from an
+		// extension land on STDERR. Probed first-hand with a three-path probe
+		// extension: CONSOLE/STDOUT/STDERR all landed on stderr, while
+		// `fs.writeSync(1, …)` (a raw fd-1 write, untouched by the takeover)
+		// reached the REAL stdout. The R5 countdown + terminal copy therefore
+		// use `fs.writeSync(1, …)`; the live gate asserts they are on stdout
+		// with the terminal copy as the final line.
+		print: (line) => {
+			fs.writeSync(1, `${line}\n`);
 		},
+		// O-Q5-exit (fix cycle 1): pi's `runPrintMode` returns 1 for an errored
+		// final assistant turn and `main` assigns `process.exitCode = exitCode`
+		// AFTER the settle handler runs, clobbering a direct assignment (probed:
+		// direct 75 → child status 1). The `exit` listener runs after pi's
+		// assignment, so re-setting the code there yields 75 while letting pi's
+		// entire teardown (disposeRuntime, flushRawStdout, stopThemeWatcher)
+		// complete — the least-destructive means that works (probed: → 75).
+		setExitCode: (code) => setHeadlessExitCode(code),
 		// Spec §2.5: any `ctx`/`uiCtx` access is guarded and swallows the
 		// stale-session assertActive throw — print mode replaces the session
 		// around teardown, and the captured session_start ctx's `.ui` getter
