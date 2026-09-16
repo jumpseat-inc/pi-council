@@ -36,14 +36,14 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- EV-42 — Per-attempt identity for a retried dispatch in the run substrate
-
 ## Ready
 
 - EPIC-9 — Provider-error retry with exponential backoff under a .council.json policy
 - EV-41 — End-to-end falsifier for provider-error retry on both paths
 
 ## In Progress
+
+- EV-42 — Per-attempt identity for a retried dispatch in the run substrate
 
 ## In Review
 
