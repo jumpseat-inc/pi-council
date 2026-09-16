@@ -192,3 +192,18 @@ test("T10: usageSource accepts the session-reconciled union member", () => {
 	const u = fullUsage({ usageSource: "session-reconciled" });
 	expect(u.usageSource).toBe("session-reconciled");
 });
+// EV-39 — attempt ordinal + next-attempt timestamp round-trip (spec §2.5);
+// a non-retry manifest carries neither key (G1 byte-identity).
+test("EV-39: manifest round-trips attempt and nextAttemptAt; plain manifests carry neither key", () => {
+	const root = tmpRepo();
+	const runId = "runA39";
+	ensureRunDir(root, runId);
+	writeManifest(root, runId, manifest("job-1", { attempt: 2, nextAttemptAt: 12345 }));
+	const read = readManifests(root, runId)[0]!;
+	expect(read.attempt).toBe(2);
+	expect(read.nextAttemptAt).toBe(12345);
+	const plain = manifest("job-2");
+	expect("attempt" in plain).toBe(false);
+	expect("nextAttemptAt" in plain).toBe(false);
+	fs.rmSync(path.join(root, CONFIG_DIR_NAME), { recursive: true, force: true });
+});

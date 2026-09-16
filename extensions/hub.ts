@@ -1,8 +1,16 @@
 import { spawn } from "node:child_process";
 import * as fs from "node:fs";
 import { type Usage, writeManifest } from "./runs.ts";
+import type { RetrySupervisorHandle } from "./job-retry.ts";
 
-export type JobState = "running" | "done" | "failed" | "cancelled" | "stalled" | "timeout";
+export type JobState =
+	| "running"
+	| "done"
+	| "failed"
+	| "cancelled"
+	| "stalled"
+	| "timeout"
+	| "retrying";
 
 export interface Job {
 	id: string;
@@ -11,6 +19,9 @@ export interface Job {
 	state: JobState;
 	startedAt: number;
 	lastActivityAt: number;
+	/** EV-39 — per-attempt clock for tick(); == startedAt at attempt 1,
+	 * re-based at respawn. `startedAt` itself is never re-based (D1). */
+	attemptStartedAt: number;
 	timeoutMs: number;
 	stallMs: number;
 	events: string[];
@@ -23,6 +34,15 @@ export interface Job {
 	cleanup?: () => void;
 	model?: string;
 	settledAt?: number;
+	/** EV-39 — current attempt's session id (O-4; defaults to job.id). */
+	sessionId?: string;
+	/** EV-39 — current attempt ordinal; undefined ⇒ 1. */
+	attempt?: number;
+	/** EV-39 — epoch ms of the next scheduled attempt; set only while state === "retrying". */
+	nextAttemptAt?: number;
+	/** EV-39 — the settle hook + timer owner for this dispatch (the Hub imports
+	 * no policy concern — it only consults the hook). */
+	retry?: RetrySupervisorHandle;
 }
 
 export interface JobReport {
@@ -61,6 +81,9 @@ function killGroup(pid: number, sig: NodeJS.Signals) {
 export class Hub {
 	private jobs = new Map<string, Job>();
 	private procs = new Map<string, ReturnType<typeof spawn>>();
+	/** EV-39 — the spawn command per job id (respawn re-spawns the same
+	 * executable; the Job shape stays the spec's five additive fields). */
+	private commands = new Map<string, string>();
 	private monitor: ReturnType<typeof setInterval>;
 	private pidFile?: string;
 	private onChange?: () => void;
@@ -93,13 +116,15 @@ export class Hub {
 			model: job.model ?? "",
 			parentJobId: this.run.parentJobPath ?? null,
 			pid: job.pid ?? null,
-			sessionId: job.id,
+			sessionId: job.sessionId ?? job.id,
 			state: job.state,
 			startedAt: job.startedAt,
 			settledAt: job.exitCode !== null ? Date.now() : null,
 			exitCode: job.exitCode,
 			usage: job.usage,
 			...(job.stopReason !== undefined ? { stopReason: job.stopReason } : {}),
+			...(job.attempt !== undefined && job.attempt > 1 ? { attempt: job.attempt } : {}),
+			...(job.nextAttemptAt !== undefined ? { nextAttemptAt: job.nextAttemptAt } : {}),
 		});
 	}
 
@@ -114,6 +139,10 @@ export class Hub {
 		timeoutMs: number;
 		stallMs: number;
 		cleanup?: () => void;
+		/** EV-39 — attempt 1's session id; defaults to id (byte-identical manifest). */
+		sessionId?: string;
+		/** EV-39 — the settle hook + timer owner for retryable dispatches. */
+		retry?: RetrySupervisorHandle;
 	}): Job {
 		const id = opts.id;
 		const now = Date.now();
@@ -125,6 +154,7 @@ export class Hub {
 			state: "running",
 			startedAt: now,
 			lastActivityAt: now,
+			attemptStartedAt: now,
 			timeoutMs: opts.timeoutMs,
 			stallMs: opts.stallMs,
 			events: [],
@@ -139,19 +169,78 @@ export class Hub {
 			},
 			exitCode: null,
 			cleanup: opts.cleanup,
+			sessionId: opts.sessionId ?? id,
+			retry: opts.retry,
 		};
-		const proc = spawn(opts.command, opts.args, {
-			cwd: opts.cwd,
-			env: opts.env ?? (process.env as Record<string, string>),
+		this.spawnProcess(job, opts);
+		this.jobs.set(id, job);
+		this.writeJobManifest(job);
+		this.writePids();
+		return job;
+	}
+
+	/** EV-39 — re-spawn attempt N under the SAME job id (cardinality A): one
+	 * manifest, cumulative usage, stable startedAt (D1). Carries the previous
+	 * attempt's seat/model/usage/cleanup/retry; re-bases the per-attempt clock;
+	 * resets the per-attempt fields. Returns undefined when the id is unknown. */
+	respawn(id: string, spec: {
+		args: string[];
+		env?: Record<string, string>;
+		cwd: string;
+		sessionId: string;
+		timeoutMs: number;
+		stallMs: number;
+	}): Job | undefined {
+		const prev = this.jobs.get(id);
+		if (!prev) return undefined;
+		const now = Date.now();
+		const job: Job = {
+			...prev,
+			timeoutMs: spec.timeoutMs,
+			stallMs: spec.stallMs,
+			sessionId: spec.sessionId,
+			// attempt is NOT incremented here: the supervisor's onSettle already
+			// advanced it when it armed the backoff (the retrying manifest must read
+			// `attempt 2`), and respawn is only invoked from the timer-fire path.
+			attempt: prev.attempt,
+			state: "running",
+			attemptStartedAt: now,
+			lastActivityAt: now,
+			exitCode: null,
+			pid: undefined,
+			settledAt: undefined,
+			nextAttemptAt: undefined,
+			stopReason: undefined,
+			errorMessage: undefined,
+			output: "",
+			stderrTail: "",
+			events: [],
+		};
+		this.spawnProcess(job, { command: this.commands.get(id) ?? "pi", args: spec.args, cwd: spec.cwd, env: spec.env });
+		this.jobs.set(id, job);
+		this.writeJobManifest(job);
+		this.writePids();
+		return job;
+	}
+
+	/** The one process-wiring helper, shared by spawnJob and respawn: spawn +
+	 * stdout/stderr/close/error wiring (identical semantics both paths). */
+	private spawnProcess(job: Job, spec: {
+		command: string;
+		args: string[];
+		cwd: string;
+		env?: Record<string, string>;
+	}): Job {
+		this.commands.set(job.id, spec.command);
+		const proc = spawn(spec.command, spec.args, {
+			cwd: spec.cwd,
+			env: spec.env ?? (process.env as Record<string, string>),
 			shell: false,
 			detached: true,
 			stdio: ["ignore", "pipe", "pipe"],
 		});
 		job.pid = proc.pid;
-		this.writeJobManifest(job);
-		this.jobs.set(id, job);
-		this.procs.set(id, proc);
-		this.writePids();
+		this.procs.set(job.id, proc);
 
 		let buffer = "";
 		proc.stdout?.on("data", (data: Buffer) => {
@@ -240,7 +329,7 @@ export class Hub {
 					const pid = job.pid;
 					setTimeout(() => killGroup(pid, "SIGKILL"), 5_000).unref?.();
 				}
-			} else if (now - job.startedAt > job.timeoutMs) {
+			} else if (now - job.attemptStartedAt > job.timeoutMs) { // EV-39 — per-attempt clock (D1)
 				job.state = "timeout"; // informational — NOT killed
 				this.writeJobManifest(job);
 				this.onChange?.();
@@ -249,6 +338,18 @@ export class Hub {
 	}
 
 	private settle(job: Job) {
+		const report = this.report(job); // captures the real exitCode/state/usage
+		if (job.retry?.onSettle(job, report)) {
+			// EV-39 — retrying: the hook retracted settledness (exitCode null, pid
+			// undefined, nextAttemptAt set) synchronously BEFORE the manifest and
+			// the onChange fan-out, so the usage flush gate stays closed through
+			// the backoff window; the cleanup is withheld — the supervisor owns it.
+			this.procs.delete(job.id);
+			this.writeJobManifest(job);
+			this.writePids();
+			this.onChange?.();
+			return;
+		}
 		job.settledAt = Date.now();
 		this.procs.delete(job.id);
 		job.cleanup?.();
@@ -261,6 +362,19 @@ export class Hub {
 	cancel(id: string): boolean {
 		const job = this.jobs.get(id);
 		if (!job) return false;
+		if (job.state === "retrying") {
+			// EV-39 — cancel mid-backoff: disarm the timer (the disposed guard
+			// makes a later fire a no-op), run the held once-guarded cleanup, and
+			// settle synthetically (exitCode 0 — no close event will fire).
+			job.retry?.dispose();
+			job.state = "cancelled";
+			job.exitCode = 0;
+			job.nextAttemptAt = undefined;
+			this.writeJobManifest(job);
+			this.writePids();
+			this.onChange?.();
+			return true;
+		}
 		if (job.exitCode !== null) return false;
 		job.state = "cancelled";
 		this.writeJobManifest(job);
@@ -289,6 +403,7 @@ export class Hub {
 	/** Settled for wait purposes: timeout is informational (wait returns);
 	 * cancelled/stalled count once the process actually died. */
 	private isSettledForWait(job: Job): boolean {
+		if (job.state === "retrying") return false; // EV-39 — wait blocks through the backoff window
 		if (job.state === "timeout") return true;
 		if (job.state === "running") return false;
 		return job.exitCode !== null;
@@ -315,6 +430,12 @@ export class Hub {
 		return [...this.jobs.values()];
 	}
 
+	/** EV-39 — public accessor used by the retry supervisor's timer fire to
+	 * re-check the job's state before respawning. */
+	get(id: string): Job | undefined {
+		return this.jobs.get(id);
+	}
+
 	private writePids() {
 		if (!this.pidFile) return;
 		const pids = [...this.jobs.values()].filter((j) => j.exitCode === null && j.pid).map((j) => j.pid);
@@ -327,6 +448,11 @@ export class Hub {
 
 	shutdown(): void {
 		clearInterval(this.monitor);
+		// EV-39 — retrying jobs have no live pid; dispose their supervisors so the
+		// pending backoff timers are cleared and the held cleanup runs exactly once.
+		for (const job of this.jobs.values()) {
+			if (job.state === "retrying") job.retry?.dispose();
+		}
 		for (const job of this.jobs.values()) {
 			if (job.exitCode === null && job.pid) {
 				job.state = "cancelled";

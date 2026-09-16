@@ -60,3 +60,22 @@ test("textTree renders indented rows with glyphs", () => {
 	expect(lines[1]).toContain("● job-1 owner");
 	expect(lines[2]).toMatch(/^\s{4}✗ job-1\.2 skeptic failed/);
 });
+// ---- EV-39 R4: one row per dispatch, `attempt N/M` between seat and state ----
+
+test("EV-39 R4: attempt>1 renders 'attempt N/M' between seat and state; retrying glyph ⏸; attempt absent → byte-identical", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-tree39-"));
+	ensureRunDir(root, "run39");
+	writeManifest(root, "run39", m("job-1", { state: "retrying", attempt: 2, nextAttemptAt: Date.now() + 5_000 }));
+	writeManifest(root, "run39", m("job-2"));
+	const lines = textTree(root, ["run39"]);
+	expect(lines[1]).toMatch(/⏸ job-1 owner attempt 2\/3 retrying /);
+	expect(lines[2]).not.toContain("attempt"); // attempt-1 row byte-identical
+});
+
+test("EV-39: textTree honors the injected maxAttempts denominator", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-tree39b-"));
+	ensureRunDir(root, "run39b");
+	writeManifest(root, "run39b", m("job-1", { state: "retrying", attempt: 2, nextAttemptAt: Date.now() + 5_000 }));
+	const lines = textTree(root, ["run39b"], 5);
+	expect(lines[1]).toContain("attempt 2/5");
+});

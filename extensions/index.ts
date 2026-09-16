@@ -4,7 +4,7 @@ import { CONFIG_DIR_NAME, getAgentDir, type ExtensionAPI, type ExtensionContext,
 import { runChildMode } from "./child.ts";
 import { Hub } from "./hub.ts";
 import { getHub, initHubIdentity, pidFilePath, registerHubTools, shutdownHub } from "./hub-tools.ts";
-import { PKG_ROOT, listSeatNames, loadSeat, loadCouncilConfig, loadThemeConfig, loadRetryConfig, proceduresDir, parseQualifiedModel, type RetryPolicy } from "./seats.ts";
+import { PKG_ROOT, listSeatNames, loadSeat, loadCouncilConfig, loadThemeConfig, loadRetryConfig, proceduresDir, parseQualifiedModel, DEFAULT_RETRY_POLICY, type RetryPolicy } from "./seats.ts";
 import { activateTheme } from "./theme-activation.ts";
 import { watchCouncilConfig, type CouncilConfigWatcher } from "./theme-watcher.ts";
 import { mintRunId, pruneRuns } from "./runs.ts";
@@ -576,12 +576,11 @@ export default async function (pi: ExtensionAPI) {
 	let uiCtx: ExtensionContext | null = null;
 	let widgetTimer: ReturnType<typeof setInterval> | null = null;
 	let themeWatcher: CouncilConfigWatcher | null = null;
-	registerHubTools(pi, repoRoot);
-	registerNavigator(pi, repoRoot, () => getHub(repoRoot).runId);
-
-	// EV-40: parent-turn retry (spec §2.3). The `.council.json` retry section is
-	// read ONCE at init; a throw disables retry for the session and is notified
-	// at session_start (a malformed config must never crash init, owner P4).
+	// The `.council.json` retry section is read ONCE at init, BEFORE the hub
+	// tools and the navigator register (Q1/D3/O-8: this is the one call site;
+	// both consumers get the snapshot getter, never their own read). A throw
+	// disables retry for the session and is notified at session_start (a
+	// malformed config must never crash init, owner P4).
 	let retryPolicy: RetryPolicy | null = null;
 	let retryConfigError: unknown = null;
 	try {
@@ -590,6 +589,17 @@ export default async function (pi: ExtensionAPI) {
 		retryPolicy = null;
 		retryConfigError = e;
 	}
+	const retryPolicyGetter = (): RetryPolicy | null => retryPolicy;
+
+	// EV-39: the hub-level retry loop consumes the same snapshot; the navigator
+	// gets only the maxAttempts denominator for its `attempt N/M` label.
+	registerHubTools(pi, repoRoot, { retryPolicy: retryPolicyGetter });
+	registerNavigator(
+		pi,
+		repoRoot,
+		() => getHub(repoRoot).runId,
+		() => retryPolicy?.maxAttempts ?? DEFAULT_RETRY_POLICY.maxAttempts,
+	);
 	const retryWiring = registerParentTurnRetry(pi, () => retryPolicy, {
 		sendUserMessage: (prompt) => pi.sendUserMessage(prompt),
 		// O-ROUTE (fix cycle 1): pi's print mode calls `takeOverStdout()`
@@ -680,7 +690,7 @@ export default async function (pi: ExtensionAPI) {
 	pi.on("session_start", async (_event, ctx) => {
 		uiCtx = ctx;
 		if (retryConfigError !== null) {
-			const message = `council: parent-turn retry disabled — ${retryConfigError instanceof Error ? retryConfigError.message : String(retryConfigError)}`;
+			const message = `council: retry disabled for this session (hub + parent-turn loops) — ${retryConfigError instanceof Error ? retryConfigError.message : String(retryConfigError)}`;
 			if (ctx.hasUI) ctx.ui.notify(message, "warning");
 			else console.log(message);
 		}

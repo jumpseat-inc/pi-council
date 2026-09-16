@@ -175,3 +175,26 @@ test("CouncilTreeWidget orders running-first then stalled/failed/done", () => {
 	expect(rIdx).toBeLessThan(dIdx);
 	expect(fIdx).toBeLessThan(dIdx);
 });
+// ---- EV-39: retrying label + countdown (spec §2.6; Q3 — no new ticker) ----
+
+test("EV-39: retrying row renders 'attempt N/M' label + 'retrying in Ns' countdown", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "ev7-widget39-"));
+	const runId = "run39W";
+	ensureRunDir(root, runId);
+	writeManifest(root, runId, m("job-1", { seat: "skeptic", state: "retrying", attempt: 2, nextAttemptAt: NOW + 7_000, pid: null, exitCode: null }));
+	const w = new CouncilTreeWidget(root, () => runId, theme, { now });
+	const row = w.render(200).join("\n");
+	expect(row).toContain("attempt 2/3");
+	expect(row).toMatch(/retrying in 7s/);
+});
+
+test("EV-39: attempt>1 label appears on a settled row too; attempt 1 rows unchanged", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "ev7-widget39b-"));
+	const runId = "run39X";
+	ensureRunDir(root, runId);
+	writeManifest(root, runId, m("job-1", { seat: "skeptic", state: "done", settledAt: NOW - 60_000, attempt: 2, exitCode: 0 }));
+	writeManifest(root, runId, m("job-2", { state: "done", settledAt: NOW - 60_000, exitCode: 0 }));
+	const w = new CouncilTreeWidget(root, () => runId, theme, { now });
+	const row = w.render(200).join("\n");
+	expect(row).toContain("attempt 2/3");
+});

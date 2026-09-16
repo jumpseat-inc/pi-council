@@ -3,6 +3,7 @@ import type { ThemeColor } from "@earendil-works/pi-coding-agent";
 import { Key, matchesKey, truncateToWidth, visibleWidth, wrapTextWithAnsi, type Component } from "@earendil-works/pi-tui";
 import { findSessionFile, listRunIds, readManifests } from "./runs.ts";
 import { buildTree, flattenTree, textTree, type TreeNode } from "./tree.ts";
+import { DEFAULT_RETRY_POLICY } from "./seats.ts";
 import { firstArgOf, lastActivity, TranscriptTail, type TranscriptBlock } from "./transcript.ts";
 import {
 	TreeFocusState,
@@ -27,10 +28,12 @@ const GLYPH: Record<string, string> = {
 	stalled: "⏸",
 	cancelled: "⊘",
 	timeout: "⚠",
+	retrying: "⏸", // EV-39 — between-attempt backoff (R4: same row, one glyph slot)
 };
 
 const STATE_ORDER: Record<string, number> = {
 	running: 0,
+	retrying: 0, // EV-39 — an in-flight dispatch (between attempts), top of the tree
 	stalled: 1,
 	timeout: 1,
 	failed: 2,
@@ -47,6 +50,7 @@ const STATE_TOKEN: Record<string, ThemeColor> = {
 	cancelled: "dim",
 	timeout: "warning",
 	orphaned: "error",
+	retrying: "warning", // EV-39 — between-attempt backoff
 };
 
 export function formatAge(ms: number): string {
@@ -266,6 +270,12 @@ function settledCopy(node: TreeNode, now: number): { copy: string; age: string }
 			const secs = m.settledAt != null ? Math.max(0, Math.floor((now - m.settledAt) / 1000)) : 0;
 			return { copy: `timeout ${secs}s`, age: "" };
 		}
+		case "retrying": {
+			// EV-39 — the countdown to the next attempt (the 2 s widget refresh is
+			// the tick — Q3: no new ticker).
+			const secs = m.nextAttemptAt != null ? Math.max(0, Math.ceil((m.nextAttemptAt - now) / 1000)) : 0;
+			return { copy: `retrying in ${secs}s`, age: "" };
+		}
 		case "orphaned":
 			return { copy: "orphaned", age: "" };
 		default:
@@ -288,6 +298,7 @@ export class CouncilTreeWidget implements Component {
 	private lastBlocks = new Map<string, TranscriptBlock | undefined>();
 	private cached?: { w: number; sig: string; lines: string[] };
 	private now: () => number;
+	private maxAttempts: number;
 	private controller?: TreeFocusState;
 	/** EV-9: captured terminal height used by floor guard + progress layout. */
 	private termRowsCap = 24;
@@ -306,7 +317,9 @@ export class CouncilTreeWidget implements Component {
 			/** EV-9: captured terminal height (mirrors the modal's Math.max capture). */
 			termRowsCap?: number;
 			/** EV-9: harness render tick (view.onChange → refresh + this). */
-			onRender?: () => void;
+				onRender?: () => void;
+			/** EV-39 — the injected retry denominator for the `attempt N/M` label. */
+			maxAttempts?: number;
 		} = {},
 		maxRows = ROWS_MAX,
 	) {
@@ -314,6 +327,7 @@ export class CouncilTreeWidget implements Component {
 		this.termRowsCap = opts.termRowsCap ?? 24;
 		this.onRender = opts.onRender;
 		this.now = opts.now ?? Date.now;
+		this.maxAttempts = opts.maxAttempts ?? DEFAULT_RETRY_POLICY.maxAttempts;
 		this.refresh();
 	}
 
@@ -352,7 +366,11 @@ export class CouncilTreeWidget implements Component {
 	private rowLine(node: TreeNode): string {
 		const st = stateOf(node);
 		const glyph = glyphFor(node);
-		const seat = node.manifest.seat;
+		const m = node.manifest;
+		// EV-39 R4 — the attempt label rides the seat field; the pad is applied to
+		// the combined visible seat+label so the left edge stays stable.
+		const attempt = m.attempt !== undefined && m.attempt > 1 ? ` attempt ${m.attempt}/${this.maxAttempts}` : "";
+		const seat = `${m.seat}${attempt}`;
 		const bold = st === "running" || st === "stalled";
 		const token = (STATE_TOKEN[st] ?? "muted") as ThemeColor;
 		const styled = bold ? this.theme.bold(this.theme.fg(token, seat)) : this.theme.fg(token, seat);
@@ -478,10 +496,16 @@ export class CouncilTreeWidget implements Component {
 	}
 }
 
-export function registerNavigator(pi: ExtensionAPI, repoRoot: string, currentRunId: () => string | undefined): void {
+export function registerNavigator(
+	pi: ExtensionAPI,
+	repoRoot: string,
+	currentRunId: () => string | undefined,
+	maxAttempts?: () => number,
+): void {
+	const denominator = (): number => maxAttempts?.() ?? DEFAULT_RETRY_POLICY.maxAttempts;
 	const open = async (ctx: ExtensionContext): Promise<void> => {
 		if (!ctx.hasUI) {
-			const lines = textTree(repoRoot, listRunIds(repoRoot).slice(0, 5));
+			const lines = textTree(repoRoot, listRunIds(repoRoot).slice(0, 5), denominator());
 			console.log(lines.length ? lines.join("\n") : "No council jobs yet.");
 			return;
 		}
@@ -549,7 +573,7 @@ export function registerNavigator(pi: ExtensionAPI, repoRoot: string, currentRun
 
 	const toggleWidget = async (ctx: ExtensionContext): Promise<void> => {
 		if (surfaceForMode(ctx.mode) === "console") {
-			const lines = textTree(repoRoot, listRunIds(repoRoot).slice(0, 5));
+			const lines = textTree(repoRoot, listRunIds(repoRoot).slice(0, 5), denominator());
 			console.log(lines.length ? lines.join("\n") : "No council jobs yet.");
 			return;
 		}
@@ -571,6 +595,7 @@ export function registerNavigator(pi: ExtensionAPI, repoRoot: string, currentRun
 					controller: treeController!,
 					termRowsCap,
 					onRender: () => tui?.requestRender?.(),
+					maxAttempts: denominator(),
 				});
 				// EV-9 dual clocks: 2s tree refresh here, 1s transcript tail inside the
 				// inline view. BOTH cleared in dispose (T10).

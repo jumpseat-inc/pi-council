@@ -1,3 +1,6 @@
+import * as fs from "node:fs";
+import * as path from "node:path";
+
 // Fake `pi --mode json` child. Behavior selected by STUB_MODE env:
 //   emit    — prints a message_end event then exits 0
 //   length  — prints a thinking-only message_end (stopReason length) then exits 0
@@ -5,6 +8,9 @@
 //   fail    — prints to stderr, exits 3
 //   hang  — prints one event, then sleeps forever (no further output)
 //   slow  — prints an event every 200ms for 10s, then exits 0
+//   flaky — EV-39: reads/increments a count in STUB_STATE (JSON {count}); while
+//           count <= STUB_FAIL_TIMES (default 1) emits the retryable provider
+//           error and exits 0; afterwards emits "stub result" and exits 0.
 const mode = process.env.STUB_MODE ?? "emit";
 
 function emitAssistant(text: string, stopReason = "stop", errorMessage?: string) {
@@ -46,4 +52,25 @@ if (mode === "emit") {
 			process.exit(0);
 		}
 	}, 200);
+} else if (mode === "flaky") {
+	// EV-39 spec §2.10: fail the first STUB_FAIL_TIMES invocations (counted in
+	// STUB_STATE), then emit the normal result. Supports fail-once-then-succeed
+	// (STUB_FAIL_TIMES=1) and budget exhaustion (STUB_FAIL_TIMES >= maxAttempts).
+	const stateFile = process.env.STUB_STATE!;
+	let count = 0;
+	try {
+		count = (JSON.parse(fs.readFileSync(stateFile, "utf-8")) as { count?: number }).count ?? 0;
+	} catch {
+		/* fresh */
+	}
+	count += 1;
+	fs.mkdirSync(path.dirname(stateFile), { recursive: true });
+	fs.writeFileSync(stateFile, JSON.stringify({ count }));
+	const failTimes = Number(process.env.STUB_FAIL_TIMES ?? "1");
+	if (count <= failTimes) {
+		emitAssistant("partial output before dying", "error", "Provider returned 502: upstream unavailable");
+	} else {
+		emitAssistant("stub result");
+	}
+	process.exit(0);
 }

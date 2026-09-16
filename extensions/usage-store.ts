@@ -434,6 +434,18 @@ export async function flushPendingInvocations(input: {
 				now: input.providerDeps?.now,
 				timeoutMs: input.providerDeps?.timeoutMs,
 			});
+			// EV-39 Q4 disclosure (steward Escalation 2): a retried dispatch's
+			// provider figure is the FINAL attempt's alone (one session path per
+			// manifest — findSessionFile resolves the current attempt only). When
+			// any eligible openrouter/ job is past attempt 1, the report is marked
+			// partial on a COPY before persist, so the durable sibling carries the
+			// machine-readable reason. Wholeness is EV-42's closing deliverable.
+			const retried = jobs.length > 0 && manifests.some(
+				(m) =>
+					m.model.startsWith("openrouter/") && m.startedAt >= p.markerAt! && (m.attempt ?? 1) > 1,
+			);
+			const providerOut =
+				provider !== null && retried ? { ...provider, partial: "final-attempt-only" as const } : provider;
 			const res = persistInvocationUsage(
 				{
 					spend,
@@ -446,7 +458,7 @@ export async function flushPendingInvocations(input: {
 					trigger: input.trigger,
 					manifestsObserved: manifests.length,
 					now: input.now,
-					...(provider !== null ? { provider } : {}),
+					...(providerOut !== null ? { provider: providerOut } : {}),
 				},
 				storeRoot,
 			);

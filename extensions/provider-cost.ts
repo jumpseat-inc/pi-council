@@ -35,6 +35,10 @@ export type ProviderUnavailableReason =
 	| "timeout"
 	| "no-api-key";
 
+/** EV-39 (Q4 disclosure) — record-only literal set in the same pattern as
+ * `ProviderUnavailableReason`: why the reported provider figure is partial. */
+export type ProviderPartialReason = "final-attempt-only";
+
 export interface ProviderNativeTokens {
 	prompt: number | null;
 	completion: number | null;
@@ -62,6 +66,11 @@ export interface ProviderGeneration {
 export interface ProviderCostReport {
 	status: "reported" | "unavailable"; // worst-of: unavailable if ANY generation is unavailable
 	reason?: ProviderUnavailableReason; // deterministic; present iff unavailable
+	/** EV-39 (steward Escalation 2, Q4) — record-only literal, present iff the
+	 * reported figure is PARTIAL. At EV-39 a retried dispatch's provider figure
+	 * is the final attempt's alone; wholeness is EV-42. Never rendered as copy —
+	 * the usage block's conditional legend is the only renderer. */
+	partial?: ProviderPartialReason;
 	totalCost: number | null; // Σ over reported generations; null iff none reported
 	generations: ProviderGeneration[];
 }

@@ -606,3 +606,19 @@ test("T15: the no-arg listing form stamps no marker and pushes nothing", async (
 		shutdownHub();
 	}
 });
+
+// ---- EV-39 Q4: the final-attempt-only conditional legend (spec §2.9) ----
+
+test("EV-39 Q4: partial legend renders iff provider.partial present, after the reported row", () => {
+	const provider = providerReport({ partial: "final-attempt-only" });
+	const out = formatUsageBlock({ record: measuredRecord, provider });
+	expect(out).toContain("usage  partial = reported figure is final-attempt-only");
+	const lines = out.split("\n");
+	const reportedIdx = lines.findIndex((l) => l.startsWith("usage  reported"));
+	const partialIdx = lines.findIndex((l) => l.startsWith("usage  partial"));
+	expect(partialIdx).toBeGreaterThan(reportedIdx);
+	// absent partial → byte-identical to the pre-EV-39 render (no legend, no row)
+	const plain = formatUsageBlock({ record: measuredRecord, provider: providerReport() });
+	expect(formatUsageBlock({ record: measuredRecord, provider: { ...providerReport(), partial: undefined } })).toBe(plain);
+	expect(plain).not.toContain("partial");
+});
