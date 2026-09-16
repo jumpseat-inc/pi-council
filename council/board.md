@@ -46,9 +46,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-43 — Reachability falsifier for parent-turn continuation
-
 ## In Review
+
+- EV-43 — Reachability falsifier for parent-turn continuation
 
 ## Needs Human
 
