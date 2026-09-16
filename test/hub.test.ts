@@ -389,6 +389,93 @@ test("T11-wait: settled job with no manifest renders state 1 — never blank; fa
 	}
 });
 
+// ---- EV-42: per-attempt provenance on the manifest (spec §2.2; each delta red first) ----
+
+// Ordinal-at-settle: after a retryable attempt-1 settle the on-disk manifest
+// reads {attempt: 2, nextAttemptAt set, attempts: [{1, id}]} with sessionId
+// still attempt 1's — never an entry synthesized from job.attempt.
+test("EV-42: retrying manifest carries the settled prefix — attempt 2 paired with attempts [{1, id}]", async () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "ev42-settle-"));
+	ensureRunDir(root, "run42s");
+	hub = new Hub({ monitorIntervalMs: 50, pidFile, run: { repoRoot: root, runId: "run42s" } });
+	const state = flakyState();
+	const id = hub.allocateId();
+	const flakyEnv = () =>
+		({ ...process.env, STUB_MODE: "flaky", STUB_STATE: state, STUB_FAIL_TIMES: "1" }) as Record<string, string>;
+	hub.spawnJob({
+		id, seat: "stub", command: "bun", args: [STUB], cwd: import.meta.dir,
+		env: flakyEnv(), timeoutMs: 60_000, stallMs: 60_000, sessionId: id,
+		cleanup: () => {},
+		retry: createRetrySupervisor({
+			hub, jobId: id,
+			policy: { enabled: true, maxAttempts: 3, baseDelayMs: 60_000, maxDelayMs: 60_000, jitter: false },
+			cleanup: () => {},
+			attemptSpec: (n) => ({
+				args: [STUB], cwd: import.meta.dir, env: flakyEnv(),
+				sessionId: `${id}-attempt${n}`, timeoutMs: 60_000, stallMs: 60_000,
+			}),
+		}),
+	});
+	// attempt 1 settles retryable quickly (the stub exits fast); poll for the retrying manifest
+	const mFile = path.join(root, CONFIG_DIR_NAME, "council", "runs", "run42s", `${id}.json`);
+	let m: Record<string, unknown> | undefined;
+	for (let i = 0; i < 100; i++) {
+		try {
+			const parsed = JSON.parse(fs.readFileSync(mFile, "utf-8")) as Record<string, unknown>;
+			if (parsed.state === "retrying") {
+				m = parsed;
+				break;
+			}
+		} catch {
+			/* not written yet */
+		}
+		await Bun.sleep(50);
+	}
+	expect(m).toBeDefined();
+	expect(m!.state).toBe("retrying");
+	expect(m!.attempt).toBe(2); // the PENDING ordinal
+	expect(m!.nextAttemptAt).toBeGreaterThan(0);
+	expect(m!.sessionId).toBe(id); // the COMPLETED attempt's session id
+	expect(m!.attempts).toEqual([{ attempt: 1, sessionId: id }]); // the settled prefix — never [{2, id}]
+	hub.cancel(id); // disarm the backoff timer, settle cancelled (cleanup)
+}, 15_000);
+
+// Complete + ordered: after budget exhaustion the list is 1..N in order and
+// attempts[last].sessionId === manifest.sessionId.
+test("EV-42: budget exhaustion leaves attempts complete, ordered 1..N, ending on manifest.sessionId", async () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "ev42-exh-"));
+	ensureRunDir(root, "run42x");
+	hub = new Hub({ monitorIntervalMs: 50, pidFile, run: { repoRoot: root, runId: "run42x" } });
+	const state = flakyState();
+	const id = hub.allocateId();
+	const flakyEnv = () =>
+		({ ...process.env, STUB_MODE: "flaky", STUB_STATE: state, STUB_FAIL_TIMES: "5" }) as Record<string, string>;
+	hub.spawnJob({
+		id, seat: "stub", command: "bun", args: [STUB], cwd: import.meta.dir,
+		env: flakyEnv(), timeoutMs: 60_000, stallMs: 60_000, sessionId: id,
+		cleanup: () => {},
+		retry: createRetrySupervisor({
+			hub, jobId: id, policy: EV39_POLICY, cleanup: () => {},
+			attemptSpec: (n) => ({
+				args: [STUB], cwd: import.meta.dir, env: flakyEnv(),
+				sessionId: `${id}-attempt${n}`, timeoutMs: 60_000, stallMs: 60_000,
+			}),
+		}),
+	});
+	await hub.wait([id], 10_000);
+	const ms = readManifests(root, "run42x").filter((x) => x.id === id);
+	expect(ms).toHaveLength(1);
+	const m = ms[0]!;
+	expect(m.attempt).toBe(3);
+	expect(m.attempts).toEqual([
+		{ attempt: 1, sessionId: id },
+		{ attempt: 2, sessionId: `${id}-attempt2` },
+		{ attempt: 3, sessionId: `${id}-attempt3` },
+	]);
+	expect(m.attempts![m.attempts!.length - 1]!.sessionId).toBe(m.sessionId);
+	expect(m.sessionId).toBe(`${id}-attempt3`);
+}, 15_000);
+
 // ---- EV-39: retry state machine (spec §2.2; AGENTS.md §7 — each delta red first) ----
 import { createRetrySupervisor } from "../extensions/job-retry.ts";
 import type { RetryPolicy } from "../extensions/retry.ts";
@@ -435,6 +522,12 @@ test("EV-39 D1/O-4: fail-once-then-succeed re-spawns under one id and settles do
 	const m = ms[0]!;
 	expect(m.attempt).toBe(2);
 	expect(m.sessionId).toBe(`${id}-attempt2`);
+	// EV-42 — the settled list is complete and ordered at the final write
+	expect(m.attempts).toEqual([
+		{ attempt: 1, sessionId: id },
+		{ attempt: 2, sessionId: `${id}-attempt2` },
+	]);
+	expect(m.attempts![m.attempts!.length - 1]!.sessionId).toBe(m.sessionId);
 	expect(m.startedAt).toBe(job.startedAt); // D1 — never re-based
 	expect(m.state).toBe("done");
 	expect("nextAttemptAt" in m).toBe(false);

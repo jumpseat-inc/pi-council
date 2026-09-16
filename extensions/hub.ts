@@ -38,6 +38,12 @@ export interface Job {
 	sessionId?: string;
 	/** EV-39 — current attempt ordinal; undefined ⇒ 1. */
 	attempt?: number;
+	/** EV-42 — per-attempt provenance fed to the manifest: the settled prefix
+	 * of completed attempts, appended at settle (BEFORE the retry hook advances
+	 * the ordinal — that hook is the only place where the completed ordinal and
+	 * the completed session id are unambiguously paired). Seeded at spawnJob
+	 * with attempt 1; carried across respawn. Never synthesized from `attempt`. */
+	attempts?: { attempt: number; sessionId: string }[];
 	/** EV-39 — epoch ms of the next scheduled attempt; set only while state === "retrying". */
 	nextAttemptAt?: number;
 	/** EV-39 — the settle hook + timer owner for this dispatch (the Hub imports
@@ -124,6 +130,10 @@ export class Hub {
 			usage: job.usage,
 			...(job.stopReason !== undefined ? { stopReason: job.stopReason } : {}),
 			...(job.attempt !== undefined && job.attempt > 1 ? { attempt: job.attempt } : {}),
+			// EV-42 — same gate as `attempt`; read from the settled list only (never
+			// synthesized from job.attempt — inside the retrying write that pairing
+			// would be a lie: {attempt: 2, sessionId: <attempt 1's id>}).
+			...(job.attempt !== undefined && job.attempt > 1 && job.attempts ? { attempts: job.attempts } : {}),
 			...(job.nextAttemptAt !== undefined ? { nextAttemptAt: job.nextAttemptAt } : {}),
 		});
 	}
@@ -170,6 +180,9 @@ export class Hub {
 			exitCode: null,
 			cleanup: opts.cleanup,
 			sessionId: opts.sessionId ?? id,
+			// EV-42 — the attempt-1 record; appended to at settle (never here —
+			// spawn proves only that attempt 1 started, settle proves it completed).
+			attempts: [{ attempt: 1, sessionId: opts.sessionId ?? id }],
 			retry: opts.retry,
 		};
 		this.spawnProcess(job, opts);
@@ -338,6 +351,18 @@ export class Hub {
 	}
 
 	private settle(job: Job) {
+		// EV-42 — append the just-completed attempt BEFORE calling onSettle:
+		// onSettle advances `attempt` to the PENDING ordinal before the hub's
+		// retrying write, so this is the only point where the completed ordinal
+		// and the completed session id are unambiguously paired. Copy-on-write +
+		// idempotent per ordinal (a re-entering settle is a no-op).
+		const completedOrdinal = job.attempt ?? 1;
+		if (!job.attempts?.some((a) => a.attempt === completedOrdinal)) {
+			job.attempts = [
+				...(job.attempts ?? []),
+				{ attempt: completedOrdinal, sessionId: job.sessionId ?? job.id },
+			];
+		}
 		const report = this.report(job); // captures the real exitCode/state/usage
 		if (job.retry?.onSettle(job, report)) {
 			// EV-39 — retrying: the hook retracted settledness (exitCode null, pid
