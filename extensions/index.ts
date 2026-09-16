@@ -4,7 +4,7 @@ import { CONFIG_DIR_NAME, getAgentDir, type ExtensionAPI, type ExtensionContext,
 import { runChildMode } from "./child.ts";
 import { Hub } from "./hub.ts";
 import { getHub, initHubIdentity, pidFilePath, registerHubTools, shutdownHub } from "./hub-tools.ts";
-import { PKG_ROOT, listSeatNames, loadSeat, loadCouncilConfig, loadThemeConfig, proceduresDir, parseQualifiedModel } from "./seats.ts";
+import { PKG_ROOT, listSeatNames, loadSeat, loadCouncilConfig, loadThemeConfig, loadRetryConfig, proceduresDir, parseQualifiedModel, type RetryPolicy } from "./seats.ts";
 import { activateTheme } from "./theme-activation.ts";
 import { watchCouncilConfig, type CouncilConfigWatcher } from "./theme-watcher.ts";
 import { mintRunId, pruneRuns } from "./runs.ts";
@@ -33,6 +33,19 @@ import { listFixtureTasks, loadFixture } from "./eval-fixtures.ts";
 import { renderLeaderboard } from "./eval-leaderboard.ts";
 import { applySeatSelection, buildProviderDisplayNames, openModelPicker, runHeadless } from "./council-models.ts";
 import { resolveCatalogue, type CatalogueModel } from "./catalogue.ts";
+import {
+	createOnePassErrorFilter,
+	decideSettleRetry,
+	extractOriginalPrompt,
+	formatRetryCountdown,
+	formatRetryExhausted,
+	HEADLESS_RETRY_EXHAUSTED_EXIT_CODE,
+	installRetryEditor,
+	recordAssistantVerdict,
+	restoreRetryEditor,
+	RetryController,
+	type FilterableMessage,
+} from "./parent-retry.ts";
 
 /**
  * Some catalogue entries carry wrong max-output metadata — e.g. OpenRouter's
@@ -61,7 +74,7 @@ export function loadModelFloors(repoRoot: string): Record<string, number> {
 	};
 }
 
-function registerMaxTokensFix(pi: ExtensionAPI, repoRoot: string): void {
+export function registerMaxTokensFix(pi: ExtensionAPI, repoRoot: string): void {
 	const floors = loadModelFloors(repoRoot);
 	pi.on("before_provider_request", (event: any) => {
 		const payload = event?.payload;
@@ -256,6 +269,299 @@ export function registerCouncilEvalCommand(pi: ExtensionAPI, repoRoot: string, d
 	});
 }
 
+/**
+ * EV-40 — the parent-turn retry wiring (spec §2.3/§2.5/§2.7).
+ *
+ * Detection is cached from the events that fire BEFORE `agent_settled`
+ * (`message_end` records the per-message verdict, `agent_end` recomputes it
+ * from the authoritative turn-boundary snapshot and captures the
+ * `originalPrompt`); the decision itself runs in the settle handler, which is
+ * the only event documented as "no automatic retry, compaction, or queued
+ * continuation will run". Nothing is sent from `message_end`/`agent_end`.
+ *
+ * Headless (`ctx.hasUI === false`) awaits the backoff + the send INSIDE the
+ * settle handler (the EV-43 reachability pattern) and prints the R5 countdown
+ * line to stdout once per second. TUI installs the `RetryEditor` input-bar
+ * surface and arms an unref'd send timer, so the handler returns before the
+ * send (the TUI counterpart pattern).
+ *
+ * The return shape is deliberately just `{ onSettled }`: the engine keeps the
+ * state closure private, and `session_shutdown` teardown is registered here.
+ */
+export interface ParentRetryUi {
+	getEditorComponent(): any;
+	setEditorComponent(factory: any): void;
+}
+
+export interface ParentRetryHost {
+	/** The TUI/headless send channel (the real extension wires pi.sendUserMessage). */
+	sendUserMessage(prompt: string): void;
+	/** Headless stdout line (the countdown + the terminal copy). */
+	print(line: string): void;
+	/** Headless terminal state (Q5: EX_TEMPFAIL). */
+	setExitCode(code: number): void;
+	/** The editor slot for the TUI surface, or null when there is no UI. */
+	getUi(): ParentRetryUi | null;
+}
+
+/** Minimal structural view of the ExtensionAPI that the wiring needs. */
+export interface ParentRetryPi {
+	on(type: string, handler: (event: any, ctx: any) => any): void;
+	sendUserMessage(prompt: string): void;
+}
+
+/** Minimal structural view of the extension ctx that the wiring needs. */
+export interface ParentRetryCtx {
+	hasUI: boolean;
+	isIdle?: () => boolean;
+	waitForIdle?: () => Promise<void>;
+}
+
+export interface ParentTurnRetryWiring {
+	onSettled(ctx: ParentRetryCtx): Promise<void>;
+}
+
+export function registerParentTurnRetry(
+	pi: ParentRetryPi,
+	getPolicy: () => RetryPolicy | null,
+	host: ParentRetryHost,
+): ParentTurnRetryWiring {
+	// Per-turn retry state (spec §2.3). `attempt` starts at 1 for the failed
+	// turn; retries are attempts 2..maxAttempts.
+	let retryAttempt = 1;
+	let pendingError: FilterableMessage | null = null;
+	let originalPrompt: string | null = null;
+	let expectContinuation = false;
+	let sendTimer: ReturnType<typeof setTimeout> | null = null;
+	let controller: RetryController | null = null;
+	const contextFilter = createOnePassErrorFilter();
+
+	const disarmTimer = (): void => {
+		if (sendTimer) {
+			clearTimeout(sendTimer);
+			sendTimer = null;
+		}
+	};
+
+	const restoreEditor = (): void => {
+		const ui = host.getUi();
+		if (ui) restoreRetryEditor(ui);
+	};
+
+	const ensureController = (maxAttempts: number): RetryController => {
+		if (!controller) {
+			controller = new RetryController({
+				maxAttempts,
+				requestRender: () => {
+					// The RetryEditor replaces this with the real TUI repaint when it is
+					// constructed; before any editor exists there is nothing to repaint.
+				},
+				onAbort: () => {
+					// Esc during backoff: abort the remaining retries (designer P2).
+					disarmTimer();
+					contextFilter.disarm();
+				},
+				onRearm: () => {
+					// Q2 axis 3: exhausted + empty Enter re-sends the original prompt with
+					// a fresh budget (attempt reset to 1).
+					retryAttempt = 1;
+					contextFilter.arm();
+					expectContinuation = true;
+					if (originalPrompt) pi.sendUserMessage(originalPrompt);
+				},
+				onSubmitTyped: () => {
+					// Q4: the user's typed prompt wins — disarm the continuation.
+					disarmTimer();
+					contextFilter.disarm();
+				},
+			});
+		}
+		return controller;
+	};
+
+	// message_end: record the assistant verdict (aborted/stop/length clear it).
+	pi.on("message_end", (event: any) => {
+		const message = event?.message;
+		if (!message || typeof message !== "object") return;
+		pendingError = recordAssistantVerdict(pendingError, message as FilterableMessage);
+	});
+
+	// agent_end: the authoritative turn-boundary snapshot — recompute the verdict
+	// from the last assistant message and capture the original prompt.
+	pi.on("agent_end", (event: any) => {
+		const messages: FilterableMessage[] = Array.isArray(event?.messages) ? event.messages : [];
+		let last: FilterableMessage | null = null;
+		for (let i = messages.length - 1; i >= 0; i--) {
+			if (messages[i]?.role === "assistant") {
+				last = messages[i];
+				break;
+			}
+		}
+		pendingError = last ? recordAssistantVerdict(null, last) : null;
+		originalPrompt = extractOriginalPrompt(messages);
+	});
+
+	// agent_start: a non-continuation run starts a fresh budget (disarm the send
+	// timer, clear the surface, restore the editor); a continuation run is left
+	// alone. `expectContinuation` is always consumed.
+	pi.on("agent_start", () => {
+		const continuation = expectContinuation;
+		expectContinuation = false;
+		if (continuation) return;
+		retryAttempt = 1;
+		pendingError = null;
+		originalPrompt = null;
+		disarmTimer();
+		controller?.clearToIdle();
+		restoreEditor();
+	});
+
+	// context: the shared structural one-pass filter (O4/D1 single source).
+	pi.on("context", (event: any) => {
+		const messages: FilterableMessage[] = Array.isArray(event?.messages) ? event.messages : [];
+		const filtered = contextFilter.apply(messages);
+		return filtered ? { messages: filtered } : undefined;
+	});
+
+	pi.on("session_shutdown", () => {
+		disarmTimer();
+		contextFilter.disarm();
+		expectContinuation = false;
+		pendingError = null;
+		originalPrompt = null;
+		controller?.dispose();
+		restoreEditor();
+	});
+
+	// Headless: print the R5 countdown at t = 0 and once per whole second
+	// thereafter (never more often than 1/s), then return once the backoff has
+	// elapsed. The caller awaits this inside the settle handler.
+	const runHeadlessCountdown = async (attempt: number, maxAttempts: number, delayMs: number): Promise<void> => {
+		host.print(formatRetryCountdown(attempt, maxAttempts, delayMs));
+		if (delayMs <= 0) return;
+		const start = Date.now();
+		let printedSeconds = Math.floor(delayMs / 1000);
+		for (;;) {
+			const remaining = delayMs - (Date.now() - start);
+			if (remaining <= 0) return;
+			await new Promise<void>((resolve) => setTimeout(resolve, Math.min(remaining, 250)));
+			const elapsed = Date.now() - start;
+			const remainingNow = delayMs - elapsed;
+			if (remainingNow <= 0) return;
+			const wholeSeconds = Math.floor(elapsed / 1000);
+			if (wholeSeconds > printedSeconds) {
+				printedSeconds = wholeSeconds;
+				host.print(formatRetryCountdown(attempt, maxAttempts, remainingNow));
+			}
+		}
+	};
+
+	const onSettled = async (ctx: ParentRetryCtx): Promise<void> => {
+		const policy = getPolicy();
+		const decision = decideSettleRetry({ policy, pendingError, attempt: retryAttempt });
+		const maxAttempts = policy?.maxAttempts ?? retryAttempt;
+
+		if (decision.action === "none") {
+			// The successful-continuation exit (or a non-retry settle): clear the
+			// surface and restore the editor (restore-if-still-ours).
+			controller?.clearToIdle();
+			restoreEditor();
+			return;
+		}
+
+		if (decision.action === "exhaust") {
+			if (ctx.hasUI) {
+				const c = ensureController(maxAttempts);
+				const ui = host.getUi();
+				if (ui) installRetryEditor(ui, c);
+				c.moveToExhausted();
+			} else {
+				host.print(formatRetryExhausted(maxAttempts));
+				host.setExitCode(HEADLESS_RETRY_EXHAUSTED_EXIT_CODE);
+			}
+			return;
+		}
+
+		if (!originalPrompt) return; // nothing to re-send
+		const prompt = originalPrompt;
+
+		if (ctx.hasUI) {
+			// The contract (test/ev40-wiring.test.ts) distinguishes a fresh loop's
+			// first arm from a re-arm: an `agent_start` that arrives right after the
+			// FIRST arm is a user/procedure run preempting the timer (reset), while
+			// one that arrives after a RE-ARM of an already-initialized loop is the
+			// continuation run (no reset). `expectContinuation` is consumed by the
+			// handler in both cases.
+			const isRearm = controller !== null;
+			const c = ensureController(maxAttempts);
+			const ui = host.getUi();
+			if (ui) installRetryEditor(ui, c);
+			c.beginBackoff(decision.nextAttempt, decision.delayMs);
+			disarmTimer();
+			if (isRearm) expectContinuation = true;
+			sendTimer = setTimeout(() => {
+				sendTimer = null;
+				retryAttempt = decision.nextAttempt;
+				expectContinuation = true;
+				contextFilter.arm();
+				c.clearToIdle();
+				pi.sendUserMessage(prompt);
+			}, decision.delayMs);
+			sendTimer.unref?.();
+			return;
+		}
+
+		// Headless: await the backoff + the send inside the handler (EV-43), then
+		// poll until the nested run becomes active (waitForIdle only if exposed —
+		// it is not on this tree). The poll reads a CAPTURED ctx: the
+		// extension-initiated nested run replaces the session, so a retry chain's
+		// second poll touches a stale ctx (spec §2.5 — "any ctx access is guarded
+		// and swallows the stale-session assertActive throw"). The run's own
+		// finally is the completion guarantee; a stale poll simply has nothing
+		// left to wait for.
+		await runHeadlessCountdown(decision.nextAttempt, maxAttempts, decision.delayMs);
+		retryAttempt = decision.nextAttempt;
+		expectContinuation = true;
+		contextFilter.arm();
+		pi.sendUserMessage(prompt);
+		try {
+			for (let i = 0; i < 100 && ctx.isIdle?.(); i++) {
+				await new Promise<void>((resolve) => setTimeout(resolve, 25));
+			}
+			if (typeof ctx.waitForIdle === "function") await ctx.waitForIdle();
+		} catch {
+			// stale ctx after session replacement — swallow (spec §2.5).
+		}
+	};
+
+	return { onSettled };
+}
+
+/**
+ * O-Q5-exit (EV-40 spec §2.7, fix cycle 1): pi's print mode owns
+ * `process.exitCode` for an errored turn — `runPrintMode` returns 1 and
+ * `main` assigns `process.exitCode = 1` AFTER our `agent_settled` handler has
+ * run, clobbering a direct assignment (probed live: set 75 → child status 1).
+ * An `exit` listener runs after pi's assignment, so re-setting the code there
+ * yields the asserted 75 (EX_TEMPFAIL) while pi's entire teardown
+ * (`disposeRuntime`, `flushRawStdout`, `stopThemeWatcher`) still completes —
+ * the least-destructive means that works (probed live: → 75). `process.exit`
+ * would also yield 75, but skips that teardown. The live P4 gate pins the
+ * child's real status.
+ */
+let headlessExitCode: number | null = null;
+let headlessExitListenerInstalled = false;
+function setHeadlessExitCode(code: number): void {
+	headlessExitCode = code;
+	process.exitCode = code;
+	if (!headlessExitListenerInstalled) {
+		headlessExitListenerInstalled = true;
+		process.once("exit", () => {
+			if (headlessExitCode !== null) process.exitCode = headlessExitCode;
+		});
+	}
+}
+
 export default async function (pi: ExtensionAPI) {
 	const mcp = await getMcp();
 	const repoRoot = process.cwd();
@@ -272,6 +578,52 @@ export default async function (pi: ExtensionAPI) {
 	let themeWatcher: CouncilConfigWatcher | null = null;
 	registerHubTools(pi, repoRoot);
 	registerNavigator(pi, repoRoot, () => getHub(repoRoot).runId);
+
+	// EV-40: parent-turn retry (spec §2.3). The `.council.json` retry section is
+	// read ONCE at init; a throw disables retry for the session and is notified
+	// at session_start (a malformed config must never crash init, owner P4).
+	let retryPolicy: RetryPolicy | null = null;
+	let retryConfigError: unknown = null;
+	try {
+		retryPolicy = loadRetryConfig(repoRoot);
+	} catch (e) {
+		retryPolicy = null;
+		retryConfigError = e;
+	}
+	const retryWiring = registerParentTurnRetry(pi, () => retryPolicy, {
+		sendUserMessage: (prompt) => pi.sendUserMessage(prompt),
+		// O-ROUTE (fix cycle 1): pi's print mode calls `takeOverStdout()`
+		// (dist/core/output-guard.js), which reassigns `process.stdout.write` to
+		// `stderr.write` — both `console.log` and `process.stdout.write` from an
+		// extension land on STDERR. Probed first-hand with a three-path probe
+		// extension: CONSOLE/STDOUT/STDERR all landed on stderr, while
+		// `fs.writeSync(1, …)` (a raw fd-1 write, untouched by the takeover)
+		// reached the REAL stdout. The R5 countdown + terminal copy therefore
+		// use `fs.writeSync(1, …)`; the live gate asserts they are on stdout
+		// with the terminal copy as the final line.
+		print: (line) => {
+			fs.writeSync(1, `${line}\n`);
+		},
+		// O-Q5-exit (fix cycle 1): pi's `runPrintMode` returns 1 for an errored
+		// final assistant turn and `main` assigns `process.exitCode = exitCode`
+		// AFTER the settle handler runs, clobbering a direct assignment (probed:
+		// direct 75 → child status 1). The `exit` listener runs after pi's
+		// assignment, so re-setting the code there yields 75 while letting pi's
+		// entire teardown (disposeRuntime, flushRawStdout, stopThemeWatcher)
+		// complete — the least-destructive means that works (probed: → 75).
+		setExitCode: (code) => setHeadlessExitCode(code),
+		// Spec §2.5: any `ctx`/`uiCtx` access is guarded and swallows the
+		// stale-session assertActive throw — print mode replaces the session
+		// around teardown, and the captured session_start ctx's `.ui` getter
+		// throws "stale after session replacement" when touched there.
+		getUi: () => {
+			try {
+				return uiCtx?.ui ?? null;
+			} catch {
+				return null;
+			}
+		},
+	});
 
 	// EV-31: per-session pending-invocation ledger. Entries are appended where
 	// the invocation marker is stamped (procedure handler below) and drained by
@@ -327,6 +679,11 @@ export default async function (pi: ExtensionAPI) {
 
 	pi.on("session_start", async (_event, ctx) => {
 		uiCtx = ctx;
+		if (retryConfigError !== null) {
+			const message = `council: parent-turn retry disabled — ${retryConfigError instanceof Error ? retryConfigError.message : String(retryConfigError)}`;
+			if (ctx.hasUI) ctx.ui.notify(message, "warning");
+			else console.log(message);
+		}
 		const swept = Hub.sweepStalePids(pidFilePath(repoRoot));
 		if (swept > 0 && ctx.hasUI) ctx.ui.notify(`council: swept ${swept} orphaned seat process(es)`, "warning");
 		void activateTheme(ctx, repoRoot); // EV-3: in-memory council theme; try/caught inside, never crashes session_start
@@ -382,6 +739,9 @@ export default async function (pi: ExtensionAPI) {
 		// the handler awaits the async flush so the fetch-before-persist phase is
 		// guaranteed to complete before idle resolves.
 		await flushUsage("agent-settled", ctx);
+		// EV-40: the retry decision runs after the flush (spec §2.3); headless
+		// awaits the backoff + send inside this handler, TUI arms a send timer.
+		await retryWiring.onSettled(ctx as unknown as ParentRetryCtx);
 	});
 	pi.on("session_shutdown", async (_event, ctx) => {
 		if (widgetTimer) {
