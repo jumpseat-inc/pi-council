@@ -288,3 +288,14 @@ test("wiring: disabled policy → single spawn, manifest has no attempt key, ses
 	expect(manifest.sessionId).toBe(id);
 }, 15_000);
 
+
+test("malformed policy: init disables retry for both loops and warns — never crashes (spec §4.3)", () => {
+	const src = fs.readFileSync(new URL("../extensions/index.ts", import.meta.url), "utf-8");
+	// the catch disables, it never propagates
+	expect(src).toMatch(/catch \(e\) \{[\s\S]*?retryPolicy = null;[\s\S]*?retryConfigError = e;/);
+	// the session-start warning names both loops (EV-39 broadened copy)
+	expect(src).toContain("retry disabled for this session (hub + parent-turn loops)");
+	// both consumers get the snapshot getter, not their own read
+	expect(src).toMatch(/registerHubTools\(pi, repoRoot, \{ retryPolicy: retryPolicyGetter \}\)/);
+	expect(src).toMatch(/retryPolicy\?\.maxAttempts \?\? DEFAULT_RETRY_POLICY\.maxAttempts/);
+});
