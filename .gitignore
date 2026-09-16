@@ -19,3 +19,4 @@ smoke/.artifacts/*
 # files under council/ are text).
 __pycache__/
 *.py[cod]
+
