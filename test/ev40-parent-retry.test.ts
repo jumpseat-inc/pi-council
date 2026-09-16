@@ -8,6 +8,7 @@
 // — never the colon-less EV-43 falsifier string, which is classify-negative on
 // both clauses and tests nothing (Skeptic O3, standing order).
 import { describe, expect, test } from "bun:test";
+import { registerMaxTokensFix } from "../extensions/index.ts";
 import type { FilterableMessage } from "../extensions/parent-retry.ts";
 import {
 	PROVIDER_FINISH_REASON_ERROR,
@@ -28,6 +29,41 @@ const user = (text: string): FilterableMessage =>
 
 const toolResult = (): FilterableMessage =>
 	({ role: "toolResult", content: [], toolCallId: "t1" });
+
+describe("EV-40 owner P2 — floor re-entry on the continuation payload", () => {
+	test("a continuation payload for deepseek/deepseek-v4-pro-0813 carries max_completion_tokens = 131072 after before_provider_request", () => {
+		const handlers = new Map<string, Array<(event: unknown) => unknown>>();
+		const fakePi = {
+			on(type: string, handler: (event: unknown) => unknown) {
+				const list = handlers.get(type) ?? [];
+				list.push(handler);
+				handlers.set(type, list);
+			},
+		};
+		// Packaged floors only (no repo-local override at this root).
+		registerMaxTokensFix(fakePi as never, "/nonexistent-repo-root-xyz");
+		const patch = handlers.get("before_provider_request")?.[0];
+		expect(patch).toBeDefined();
+
+		// A continuation-shaped request: the council re-issued the original prompt
+		// over the persisted errored assistant turn (the §2.4 shape).
+		const continuationPayload = {
+			model: "deepseek/deepseek-v4-pro-0813",
+			max_completion_tokens: 4096,
+			max_tokens: 4096,
+			messages: [
+				{ role: "assistant", stopReason: "error", errorMessage: PROVIDER_FINISH_REASON_ERROR },
+				{ role: "user", content: [{ type: "text", text: "start" }] },
+			],
+		};
+		const patched = patch!({ payload: continuationPayload }) as Record<string, unknown>;
+		expect(patched.max_completion_tokens).toBe(131072);
+		expect(patched.max_tokens).toBe(131072);
+		// Non-floored / absent payloads are untouched (no change → undefined).
+		expect(patch!({ payload: { model: "some/other-model", max_completion_tokens: 4096 } })).toBeUndefined();
+		expect(patch!({ payload: { model: "deepseek/deepseek-v4-pro-0813" } })).toBeUndefined();
+	});
+});
 
 describe("EV-40 §2.4 — structural one-pass context filter (single source)", () => {
 	test("un-armed → undefined (no filter change)", () => {

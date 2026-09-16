@@ -7,7 +7,7 @@
 // Generalizes ev43/falsifier-headless.ts. Verdict per arm: exit code, stdout,
 // the session JSONL message sequence, and the harness telemetry logs
 // (settle / context-shapes / payload).
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, sep } from "node:path";
@@ -155,9 +155,24 @@ export interface EngineRepoOptions {
 	procedureBody: string;
 }
 
-/** Run one arm of the harness. Synchronous (spawnSync) — the CLI child is
- * offline and bounded by `timeoutMs`. */
-export function runHarnessArm(opts: ArmOptions, scratchRoot: string, engineRepo?: EngineRepoOptions): ArmResult {
+/** The scratch substrate of one arm (dirs, env, argv). Shared by the sync and
+ * the signal-capable runners so both drive byte-identical CLI invocations. */
+export interface PreparedArm {
+	workDir: string;
+	home: string;
+	sessionsDir: string;
+	settleLog: string;
+	contextLog: string;
+	payloadLog: string;
+	env: Record<string, string>;
+	args: string[];
+}
+
+export function prepareHarnessArm(
+	opts: ArmOptions,
+	scratchRoot: string,
+	engineRepo?: EngineRepoOptions,
+): PreparedArm {
 	const workDir = mkdtempSync(join(scratchRoot, `ev40-${opts.label}-cwd-`));
 	const home = mkdtempSync(join(scratchRoot, `ev40-${opts.label}-home-`));
 	mkdirSync(join(home, ".pi", "agent"), { recursive: true });
@@ -190,15 +205,19 @@ export function runHarnessArm(opts: ArmOptions, scratchRoot: string, engineRepo?
 		sessionsDir,
 		"--no-builtin-tools",
 	];
+	return { workDir, home, sessionsDir, settleLog, contextLog, payloadLog, env, args };
+}
 
-	const result = spawnSync(resolveNode(), args, {
-		cwd: workDir,
-		env,
-		encoding: "utf-8",
-		timeout: opts.timeoutMs ?? 120_000,
-	});
-
-	const sessionPath = findSessionJsonl(sessionsDir);
+/** Finalize an arm from its raw process outcome + scratch substrate. */
+function finalizeArm(
+	prepared: PreparedArm,
+	label: string,
+	exitCode: number | null,
+	signal: NodeJS.Signals | null,
+	stdout: string,
+	stderr: string,
+): ArmResult {
+	const sessionPath = findSessionJsonl(prepared.sessionsDir);
 	const sequence: string[] = [];
 	if (sessionPath) {
 		for (const e of parseSessionEntries(sessionPath)) {
@@ -207,22 +226,149 @@ export function runHarnessArm(opts: ArmOptions, scratchRoot: string, engineRepo?
 			);
 		}
 	}
-
 	const read = (f: string): string => (existsSync(f) ? readFileSync(f, "utf-8") : "");
 	return {
-		label: opts.label,
-		exitCode: result.status,
-		signal: result.signal ?? null,
-		stdout: result.stdout ?? "",
-		stderr: result.stderr ?? "",
-		settleLog: read(settleLog),
-		contextLog: read(contextLog),
-		payloadLog: read(payloadLog),
-		home,
-		workDir,
+		label,
+		exitCode,
+		signal,
+		stdout,
+		stderr,
+		settleLog: read(prepared.settleLog),
+		contextLog: read(prepared.contextLog),
+		payloadLog: read(prepared.payloadLog),
+		home: prepared.home,
+		workDir: prepared.workDir,
 		sequence,
 		sessionPath,
 	};
+}
+
+/** Run one arm of the harness. Synchronous (spawnSync) — the CLI child is
+ * offline and bounded by `timeoutMs`. */
+export function runHarnessArm(opts: ArmOptions, scratchRoot: string, engineRepo?: EngineRepoOptions): ArmResult {
+	const prepared = prepareHarnessArm(opts, scratchRoot, engineRepo);
+	const result = spawnSync(resolveNode(), prepared.args, {
+		cwd: prepared.workDir,
+		env: prepared.env,
+		encoding: "utf-8",
+		timeout: opts.timeoutMs ?? 120_000,
+	});
+	return finalizeArm(
+		prepared,
+		opts.label,
+		result.status,
+		result.signal ?? null,
+		result.stdout ?? "",
+		result.stderr ?? "",
+	);
+}
+
+/** Run one arm asynchronously, signalling the child (SIGINT) once a stdout
+ * trigger line appears — the T-H1 shape (a signal mid-backoff, which a
+ * synchronous spawnSync cannot express).
+ *
+ * Print mode routes EXTENSION output (console.log / process.stdout.write) to
+ * the child's STDERR and keeps stdout for pi's own final assistant message
+ * (probed directly on this tree: both extension write paths land on stderr).
+ * The trigger therefore scans BOTH streams by default (`stream: "either"`),
+ * so it fires on the real countdown line wherever pi routes it. */
+export interface SigintOptions {
+	/** Send the signal after a chunk containing this substring. */
+	trigger: string;
+	/** Grace after the trigger line before signalling (default 250 ms). */
+	graceMs?: number;
+	/** Hard ceiling for the whole arm (default opts.timeoutMs / 120 s). */
+	timeoutMs?: number;
+	/** The signal to send (default SIGINT). */
+	signal?: NodeJS.Signals;
+	/** Which stream to scan for the trigger (default "either"). */
+	stream?: "stdout" | "stderr" | "either";
+}
+
+export interface SigintArmResult extends ArmResult {
+	/** ms between the trigger line appearing and the signal being sent. */
+	triggerToSignalMs: number | null;
+	triggered: boolean;
+}
+
+export async function runHarnessArmSigint(
+	opts: ArmOptions,
+	scratchRoot: string,
+	engineRepo: EngineRepoOptions | undefined,
+	sigint: SigintOptions,
+): Promise<SigintArmResult> {
+	const prepared = prepareHarnessArm(opts, scratchRoot, engineRepo);
+	const child = spawn(resolveNode(), prepared.args, {
+		cwd: prepared.workDir,
+		env: prepared.env,
+		stdio: ["ignore", "pipe", "pipe"],
+	});
+	let stdout = "";
+	let stderr = "";
+	let triggered = false;
+	let triggerToSignalMs: number | null = null;
+	let signalTimer: ReturnType<typeof setTimeout> | null = null;
+	const ceiling = sigint.timeoutMs ?? opts.timeoutMs ?? 120_000;
+	let timedOut = false;
+	const deadline = setTimeout(() => {
+		timedOut = true;
+		child.kill("SIGKILL");
+	}, ceiling);
+	deadline.unref?.();
+
+	const maybeTrigger = (): void => {
+		if (triggered) return;
+		const stream = sigint.stream ?? "either";
+		const haystack = stream === "stdout" ? stdout : stream === "stderr" ? stderr : `${stdout}\n${stderr}`;
+		if (!haystack.includes(sigint.trigger)) return;
+		triggered = true;
+		const at = Date.now();
+		signalTimer = setTimeout(() => {
+			triggerToSignalMs = Date.now() - at;
+			try {
+				child.kill(sigint.signal ?? "SIGINT");
+			} catch {
+				// already gone
+			}
+		}, sigint.graceMs ?? 250);
+	};
+
+	child.stdout.on("data", (chunk: Buffer) => {
+		stdout += chunk.toString("utf-8");
+		maybeTrigger();
+	});
+	child.stderr.on("data", (chunk: Buffer) => {
+		stderr += chunk.toString("utf-8");
+		maybeTrigger();
+	});
+
+	const { code, signal } = await new Promise<{ code: number | null; signal: NodeJS.Signals | null }>((resolve) => {
+		child.on("close", (code, signal) => resolve({ code, signal }));
+	});
+	clearTimeout(deadline);
+	if (signalTimer) clearTimeout(signalTimer);
+	if (timedOut) stderr += `\n[harness] arm exceeded ${ceiling} ms and was SIGKILLed`;
+
+	return {
+		...finalizeArm(prepared, opts.label, code, signal, stdout, stderr),
+		triggered,
+		triggerToSignalMs,
+	};
+}
+
+/** Every session JSONL line parses (T-H1 "well-formed session JSONL"). */
+export function sessionJsonlWellFormed(sessionPath: string | undefined): boolean {
+	if (!sessionPath || !existsSync(sessionPath)) return false;
+	const lines = readFileSync(sessionPath, "utf-8").split("\n").filter((l) => l.trim().length > 0);
+	if (lines.length === 0) return false;
+	for (const line of lines) {
+		try {
+			JSON.parse(line);
+		} catch {
+			return false;
+		}
+	}
+	return true;
 }
 
 /** The distinctive marker of a successful post-continuation assistant turn. */
