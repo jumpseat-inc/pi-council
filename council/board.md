@@ -45,11 +45,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-42 — Per-attempt identity for a retried dispatch in the run substrate
-
 ## Needs Human
 
 ## Done
+
+- EV-42 — Per-attempt identity for a retried dispatch in the run substrate
 
 - EV-39 — Hub-level retry of a seat dispatch with exponential backoff
 - EV-40 — Automatic continuation of a parent turn that ends in a provider error
