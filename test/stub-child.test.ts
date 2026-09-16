@@ -51,7 +51,7 @@ test("flaky: default FAIL_TIMES is 1", () => {
 	const state = freshState();
 	const p = Bun.spawnSync(["bun", STUB], {
 		cwd: import.meta.dir,
-		env: { ...process.env, STUB_MODE: "flaky", STUB_STATE: state, STUB_FAIL_TIMES: undefined } as Record<string, string>,
+		env: { ...process.env, STUB_MODE: "flaky", STUB_STATE: state } as Record<string, string>,
 		stdout: "pipe",
 	});
 	expect(p.stdout.toString()).toContain("Provider returned 502");
