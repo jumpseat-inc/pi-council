@@ -47,9 +47,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-38 — Retry policy section in .council.json with shipped defaults
-
 ## In Review
+
+- EV-38 — Retry policy section in .council.json with shipped defaults
 
 ## Needs Human
 
