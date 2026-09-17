@@ -38,9 +38,10 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
+- FLLWUP-44 — Name the provider failure before the backoff countdown
+
 ## Ready
 
-- FLLWUP-44 — Name the provider failure before the backoff countdown
 - FLLWUP-45 — Navigator attempt-awareness for retried dispatches
 - FLLWUP-47 — Documented red-base convention for falsifier evidence
 - FLLWUP-48 — Suite-cost budget for the live pty and -p falsifier arms
