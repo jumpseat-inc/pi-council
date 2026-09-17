@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-47
 title: Documented red-base convention for falsifier evidence
-state: Deliberating
+state: In Progress
 owner: null
 epic: EPIC-9
 goal: A written convention fixes what a falsifier's red-at-base evidence must record and how it is compared across cards.
@@ -1705,3 +1705,27 @@ Neither correction changes the card's `goal`, the converged design, or any
 ruling; both are record sentences, and neither is a design defeat.
 
 **Step 6 outcome: closed by ruling; procedure continues at step 7.**
+
+### Step 7 — spec written and handed to one owner (facilitator)
+
+With R1–R6 applied and both record corrections landed (step 6), the settled
+design was written up verbatim at
+`docs/superpowers/specs/2026-09-17-FLLWUP-47-design.md` (commit `58cd1f5`).
+Nothing was reopened and nothing was derived here: the spec states the
+converged design, the ruling's constraints, and the true causal story the
+block must be written against (the unrecorded `extensions/retry.ts`
+transplant, not harness copy depth).
+
+Self-review before commit: no placeholder/TODO text; internally consistent
+with steps 2–6 (field 7 = head half per R2; no `redAttribution` class field
+and no owner-written boundary bit per R1; two `prose.test.ts` pins per R5; no
+`council.md` copy, no `validate.py` parser, no structured artifact, no
+scaffold change); in scope for the card's `goal`; and unambiguous — siting,
+marker names, the seven fields, the comparison triple and rule, the
+`<output_format>` requirement, both pin shapes, the out-of-scope boundaries,
+and the gate set are all stated, so an owner reading only the spec cannot
+reach two different designs.
+
+The design is handed to the single owner (`owner`), which works in an
+isolated git worktree, never on `main`. Card set `In Progress` (frontmatter
+and board) before the step-8 dispatch; `python3 council/validate.py` clean.
