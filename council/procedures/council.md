@@ -289,8 +289,16 @@ verdict or a clean Skeptic pass as authority to merge on the human's behalf.
 ## 12. Sync and reconcile
 
 Rebase local `main` from `origin/main`. If it does not fast-forward cleanly,
-stop and surface that to the human rather than forcing it — a forced
-resolution here can silently discard the very merge you just waited for.
+that is a diverged `main` — apply the documented **union-merge reconcile**, the
+sanctioned non-destructive repair: union-merge `origin/main` and union-keep
+both record sides — neither side is wrong, so keep both record blocks rather
+than choosing one — then verify the repair before pushing: `council/validate.py`
+must be clean, and sweep the reconciled files for conflict markers, since a
+union resolve can leave a lone marker behind. The never-force guard stands:
+force-pushing, rewinding, or discarding a side is forbidden — a forced
+resolution here can silently discard the very merge you just waited for. If
+the divergence cannot be resolved by that repair without forcing, it is
+surfaced to the human instead.
 
 Only once the merge has landed and CI is confirmed green — never before, and
 never from a seat's report — set the card `Done` in both
