@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-47
 title: Documented red-base convention for falsifier evidence
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-9
 goal: A written convention fixes what a falsifier's red-at-base evidence must record and how it is compared across cards.
@@ -1729,3 +1729,31 @@ reach two different designs.
 The design is handed to the single owner (`owner`), which works in an
 isolated git worktree, never on `main`. Card set `In Progress` (frontmatter
 and board) before the step-8 dispatch; `python3 council/validate.py` clean.
+
+### Step 8 — owner plans then implements (facilitator, observed artifacts)
+
+`owner` (`job-19.1`, 8.6m, 23 turns, `stopReason=stop`, tokens in 98539 / out
+14687 / cR 1148160 / cW 0 / reason 6754 / total 1261386, cost≈$0.0339
+catalogue) was dispatched with the committed spec only (no other seat's
+positions). It cut `feat/fllwup-47-red-base-convention` from `0759761` in an
+isolated worktree, wrote the plan, landed the block + the `<output_format>`
+vocabulary + the two pins red-first, ran the gates, pushed, and opened a PR.
+
+**Observed artifacts (facilitator-read, first-hand):** `gh pr view 64` →
+`state: OPEN`, `headRefName: feat/fllwup-47-red-base-convention`,
+`headRefOid a1d805a901b25e3c2dc2d29aa72dfa6a8905d4e6`, `baseRefName: main`.
+`gh pr checks 64 --json name,state,workflow` →
+`[{"name":"gates","state":"IN_PROGRESS","workflow":"gates"}]`. The PR is
+open, so per council.md step 8 the card transitions to `In Review` on that
+observable fact alone — not on the owner's report that its gates are clear.
+
+The owner's claim set (recorded as its report, not as verified fact — step 9
+tests it): red-first pin output `14 pass / 2 fail` before the block, `16 pass /
+0 fail` after; `bunx tsc --noEmit` exit 0; `bun test` → `884 pass / 2 skip / 0
+fail` across 77 files; `python3 council/validate.py` → clean; `bash
+council/preflight.sh FLLWUP-47` → `PASS: preflight clean`, with the
+branch-freshness clause **not** triggered (`origin/main` was still `0759761` at
+gate time). Commits `7439d0b` (red-first pins) and `a1d805a` (the block); plan
+at `docs/superpowers/plans/2026-09-17-FLLWUP-47-plan.md`. Markers:
+`<!-- red-base-shared-start -->` / `<!-- red-base-shared-end -->`;
+`<output_format>` addition outside the markers.

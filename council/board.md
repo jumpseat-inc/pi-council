@@ -46,9 +46,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- FLLWUP-47 — Documented red-base convention for falsifier evidence
-
 ## In Review
+
+- FLLWUP-47 — Documented red-base convention for falsifier evidence
 
 ## Needs Human
 
