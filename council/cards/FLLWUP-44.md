@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-44
 title: Name the provider failure before the backoff countdown
-state: In Review
+state: Done
 owner: null
 epic: EPIC-9
 goal: During a retried parent turn's backoff the surface names the provider failure once, distinct from the countdown line, and the copy is ruled before it ships.
@@ -712,3 +712,39 @@ All five criteria read from observed artifacts at PR #62, head
    card is `In Review`.
 Merge performed as `gh pr merge 62 --squash --admin --match-head-commit
 85d969e71e2ecc4b498cacfa433ade71cfe78647` (result recorded at step 12).
+
+### Step 12 — sync and reconcile; card Done
+
+The merge landed: `gh pr view 62` → state `MERGED`, merge commit
+`05ae34847af69a4ace7fb9e7b18e89cb74f99e3c` at 2026-09-17T12:22:43Z. Local
+`main` fast-forwarded cleanly from `origin/main` (`git pull --ff-only`, no
+force, no non-fast-forward repair needed). CI on the merged SHA confirmed
+green from the observed artifact: `gh run list --commit 05ae348…` → the
+`gates` workflow `status: completed`, `conclusion: success`. Only then set the
+card `Done` on this card and on `council/board.md`; `python3
+council/validate.py` clean; committed directly to `main` and pushed.
+
+### Step 13 — follow-ups
+
+No follow-up card was surfaced by this run. The step-5 open items were both
+closed by R3 (Q1 string, Q2 per-episode semantic); the spec §6 residuals are
+accepted/ruled, not deferred work (the once-per-cycle semantic is recorded as
+rejected; the O3 lexical residual was accepted by the ruling; the
+third-failure-naming and headless grouping are the ruled behavior). Step-13
+confirmation is re-homed to `product-owner` for this run (Phase-1 ruling), and
+nothing was written to `council/cards/`.
+
+### Step 14 — persist (owed, routed)
+
+The step-14 wiki persist is owed: no `vault/wiki` page documents the second
+editor-region line or the ruled `formatRetryFailure()` copy
+(`The provider returned an error.`) and the per-backoff-episode re-show
+semantic. `council.md` step 14 forbids the facilitator hand-editing `vault/`,
+and no `/wiki-ingest` seat exists in this run's roster, so this is recorded as
+an owed action for the orchestrator: run `/wiki-ingest` against a raw source
+carrying (a) the failure-line carrier (second editor-region line above the R5
+countdown; one `host.print` per backoff episode in headless), (b) the ruled
+string and its per-episode re-show gate (`surfaceState === "backoff"`, zero
+new controller state), and (c) the R3 rationale (rejected candidates and the
+rejected once-per-cycle semantic). Nothing under `vault/` was modified by this
+runner.
