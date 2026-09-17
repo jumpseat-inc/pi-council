@@ -120,6 +120,32 @@ export function attemptEntries(m: RunManifest): { attempt: number; sessionId: st
 	return m.attempts ?? [{ attempt: m.attempt ?? 1, sessionId: m.sessionId }];
 }
 
+/** FLLWUP-45 — the attempts the navigator may browse: the settled prefix
+ *  (attemptEntries) plus the live session when it has not settled yet. */
+export function browsableAttempts(
+	m: RunManifest,
+): { attempt: number; sessionId: string }[] {
+	const entries = attemptEntries(m);
+	const live = { attempt: m.attempt ?? 1, sessionId: m.sessionId };
+	return entries.some((e) => e.sessionId === live.sessionId) ? entries : [...entries, live];
+}
+
+/** FLLWUP-45 — pure attempt selector (the resolveAttemptFile seam Q3 named,
+ *  returning the entry rather than a path so FLLWUP-4 can reuse it): cursor
+ *  hit → that entry; absent/null cursor → the last (latest browsable) entry;
+ *  empty input (cannot occur via browsableAttempts, guarded anyway) → the
+ *  { attempt: 1, sessionId: "", index: 0 } sentinel. */
+export function resolveAttempt(
+	entries: { attempt: number; sessionId: string }[],
+	cursorSessionId?: string | null,
+): { attempt: number; sessionId: string; index: number } {
+	if (entries.length === 0) return { attempt: 1, sessionId: "", index: 0 };
+	const idx = cursorSessionId != null ? entries.findIndex((e) => e.sessionId === cursorSessionId) : -1;
+	if (idx >= 0) return { ...entries[idx]!, index: idx };
+	const last = entries.length - 1;
+	return { ...entries[last]!, index: last };
+}
+
 export function readManifests(repoRoot: string, runId: string): RunManifest[] {
 	const dir = runDir(repoRoot, runId);
 	if (!fs.existsSync(dir)) return [];
