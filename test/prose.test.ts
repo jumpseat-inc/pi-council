@@ -294,3 +294,58 @@ test("council step 12 names the union-merge reconcile as the sanctioned non-fast
 	// A divergence the union merge cannot resolve is surfaced, never forced.
 	expect(step12).toContain("surfaced to the human");
 });
+
+// FLLWUP-47: the red-base evidence convention is one shared block, bracketed
+// by literal HTML-comment markers, that must be byte-identical in the two
+// seats it binds (`owner` records the red-at-base run, `skeptic` reproduces
+// and compares it). A second pin keeps the convention's field vocabulary
+// inside skeptic.md's `<output_format>` block — the judge's actual input —
+// not merely somewhere in the file.
+
+test("red-base convention block is byte-identical in owner and skeptic seats", () => {
+	const START = "<!-- red-base-shared-start -->";
+	const END = "<!-- red-base-shared-end -->";
+	const read = (seat: string) =>
+		fs.readFileSync(path.join(PKG_ROOT, "council", "agents", seat), "utf-8");
+	const slice = (text: string, label: string) => {
+		const start = text.indexOf(START);
+		const end = text.indexOf(END);
+		expect(start, `${label} carries the red-base-shared-start marker`).toBeGreaterThan(-1);
+		expect(end, `${label} carries the red-base-shared-end marker`).toBeGreaterThan(start);
+		return text.slice(start, end + END.length);
+	};
+	const ownerBlock = slice(read("owner.md"), "owner.md");
+	const skepticBlock = slice(read("skeptic.md"), "skeptic.md");
+	expect(ownerBlock).toEqual(skepticBlock);
+});
+
+test("red-base convention vocabulary reaches the skeptic's output format", () => {
+	const text = fs.readFileSync(
+		path.join(PKG_ROOT, "council", "agents", "skeptic.md"),
+		"utf-8",
+	);
+	// Whitespace-normalized so the pin survives line wrapping in the prose.
+	const flat = text.replace(/\s+/g, " ");
+	// The yield-contract block also mentions `<output_format>`; the real
+	// block is the last opening tag and the only closing tag in the file.
+	const start = flat.lastIndexOf("<output_format>");
+	const end = flat.indexOf("</output_format>");
+	expect(start, "skeptic.md carries an output_format block").toBeGreaterThan(-1);
+	expect(end, "skeptic.md closes the output_format block").toBeGreaterThan(start);
+	const format = flat.slice(start, end);
+	for (const field of [
+		"Base identity",
+		"Transplant identity",
+		"Exact command",
+		"Raw red output",
+		"Worktree provenance",
+		"Copy set",
+		"Head half",
+	]) {
+		expect(format, `output_format carries the field name "${field}"`).toContain(field);
+	}
+	expect(format, "output_format carries the comparison triple").toContain(
+		"(base sha, transplant identity, exact command)",
+	);
+	expect(format, "output_format carries the head-half clause").toContain("`0 fail`");
+});
