@@ -36,6 +36,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-50 — Supported refresh path for packaged council tooling in initialized consumer repos
 - FLLWUP-51 — Loud gate for a goal wrapped onto a second line
 - FLLWUP-52 — Evolve EV-39 R4 — retrying row label denotation
+- FLLWUP-53 — De-repo-specific council.md step 8's gate-file reference and widen the prose guard
+- FLLWUP-54 — Wiki page for the red-base evidence convention
 
 ## Deliberating
 

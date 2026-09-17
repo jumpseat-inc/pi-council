@@ -2018,3 +2018,18 @@ also…" was left unfiled.
 
 **Step 13 outcome: drafts held; routed to the orchestrator for `product-owner`
 confirmation. Step 14 (wiki-ingest offer) remains the standing offer per R6.**
+
+### Step 13 — `product-owner` confirmation (job-20) — applied (resumed turn)
+
+Both drafts were carried to the orchestrator as an `ESCALATION` packet and
+confirmed by `product-owner` (job-20). The ruling is appended verbatim below
+and applied: FLLWUP-53 and FLLWUP-54 are written with the exact approved
+draft wording, filed under `epic: EPIC-9` as `Backlog`, with their board lines
+under `## Backlog`.
+
+- **FLLWUP-53: approve as-is.** It identifies a live, unguarded instance of the failure class FLLWUP-47 exists to prevent — `council.md:238` and `owner.md:98` name `docs/gates/GATE-EVIDENCE.md`, a path absent from this repo, while `test/prose.test.ts:28-34` guards `features-deliver.md` alone. FLLWUP-47 spec §6 explicitly carved it out as this step-13 candidate.
+- **FLLWUP-54: approve as-is.** PO step-6 R6 declined the wiki-ingest as a fold-in and explicitly invited it as a step-13 follow-up; the draft honors that, names the optionality, and routes through `/wiki-ingest` (grounding-not-normative).
+- Options rejected: drop FLLWUP-53 (defeats the spec §6 carve, leaves the guard hole open); drop FLLWUP-54 (overrides an explicit invitation; FLLWUP-35 is the standing precedent); edit either (both stay inside their goals).
+- Grounding: `council/cards/FLLWUP-47.md` O7 + spec §6; `vault/raw/2026-09-17-po-fllwup47-step6-ruling.md` R6; `vault/wiki/product-owner.md` Cases §2; `vault/wiki/sources/2026-08-24-bugfix-seat-prose.md`; `test/prose.test.ts:28-34`; `council/procedures/council.md:329-334`.
+
+Both are `Backlog`; file them under EPIC-9 (`epic: EPIC-9`) to match the residual set, and place their board lines under `## Backlog`.
