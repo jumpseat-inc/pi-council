@@ -1378,3 +1378,45 @@ Run-wide record for this card: classification full-council /
 surface-touching; deliberation rounds 2 (≤3 cap); Skeptic verify→fix cycles:
 1 fix used, 2 verify passes (≤3 cap); judge `PASS`; merged and CI-green.
 Step-13 follow-ups and step 14 persistence follow below.
+
+### Step 13 — follow-ups filed (approved-in-substance only)
+
+The run's Phase-1 ruling re-homed step-13 confirmation to `product-owner`
+(draft, never write an unapproved follow-up, never dispatch `product-owner`
+from this container) and pre-approved two items in substance. Both are
+filed here; nothing unapproved was written.
+
+1. **`FLLWUP-52` — Evolve EV-39 R4 — retrying row label denotation**
+   (new card, `Backlog`, `epic: EPIC-9`). The (b) R4-evolution candidate:
+   whether the retrying row's `attempt N/M` should denote the pending
+   ordinal (R4's letter, shipped) or the tailed attempt. Portfolio-level;
+   belongs to `steward`. Carries the acceptance test shape on the real
+   backoff manifest.
+2. **The `:869` finding written onto `FLLWUP-4`'s card** (the Q3
+   approved-in-substance write, now a `## Finding from FLLWUP-45` section):
+   the dormant `openTranscript` resolves the job id (attempt 1's session)
+   under a later-attempt label; the fix is one token against the
+   `browsableAttempts`/`resolveAttempt` seam FLLWUP-45 shipped, or nothing
+   if FLLWUP-4 deletes the path.
+
+**Surfaced, not filed (unapproved — left for `product-owner`/the
+orchestrator to confirm or drop):** the pre-existing, rare EV-40
+`computeBackoffDelay` jitter-cap flake (see step 10) — a `Math.round(5000 *
+(0.5 + Math.random()))` test asserting `< 7500`, ~2% failure per run. It is
+independent of this card and no card currently owns it. Also noted:
+FLLWUP-39 (dispose-on-session-switch) is now more reachable via the cycler
+but is already carded and was explicitly out of scope; the designer's
+round-1 CDP-smoke predictions that no one ran are covered by the shipped
+suite's behavioral assertions, and no separate card is drafted for them.
+
+### Step 14 — persistence
+
+Durable artifacts from this run are already on `main`: the settled spec
+`docs/superpowers/specs/2026-09-17-FLLWUP-45-design.md`, the owner's plan
+`docs/superpowers/plans/2026-09-17-FLLWUP-45-plan.md`, and the deliberation
+record on this card. The three-identity rule the deliberation produced (row
+key = job id; content key = `manifest.sessionId`; attempt cursor separate)
+and the `browsableAttempts` accessor are candidates for a `/wiki-ingest`
+update to [[per-attempt-provenance]]'s Related list; per council.md step 14
+nothing under `vault/` is hand-edited by this container — the offer is
+recorded here for the orchestrator/knowledge-ingest step.

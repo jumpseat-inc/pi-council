@@ -35,6 +35,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-39 — Dispose the replaced transcript view when the inline progress surface switches sessions
 - FLLWUP-50 — Supported refresh path for packaged council tooling in initialized consumer repos
 - FLLWUP-51 — Loud gate for a goal wrapped onto a second line
+- FLLWUP-52 — Evolve EV-39 R4 — retrying row label denotation
 
 ## Deliberating
 

@@ -53,3 +53,32 @@ Boundaries:
   never a silent no-op.
 - All owner gates green: `bunx tsc --noEmit`, `bun test` full suite,
   `python3 council/validate.py`.
+
+## Finding from FLLWUP-45 (recorded, not fixed there)
+
+FLLWUP-45's step-9 Skeptic (O6) re-confirmed this modal path is
+**test-pinned dead code** in the shipped surface (`open` has zero call
+sites; `onActivate` is stored and never invoked; Enter routes to
+`enterProgress`), but `CouncilTree` + its Enter→activate plumbing is
+asserted at `test/navigator.test.ts:66-73`, so it is not compiler-dead.
+
+Within that path, `openTranscript` resolves
+`findSessionFile(repoRoot, runId, node.manifest.id)` — the **job id**, which
+for a retried dispatch is attempt 1's session id, not the session of the
+attempt being viewed. For any retried job the dormant modal would open
+attempt 1's transcript under a label naming a later attempt. FLLWUP-45's
+step-6b `product-owner` ruling (Q3) deliberately **deferred** this to this
+card rather than patch `:869`: this card may delete the path outright (its
+acceptance is literally "guard removed or corrected"), in which case a
+one-line fix there would be thrown away.
+
+FLLWUP-45 nonetheless shipped the seam this card needs for free:
+`extensions/runs.ts` exports `browsableAttempts(m)` (settled prefix plus the
+live session) and `extensions/navigator.ts` exports the pure
+`resolveAttempt(entries, cursorSessionId?)`. If this card chooses the "keep
+the modal" horn, the fix is one token against that resolver
+(`node.manifest.id` → the resolved attempt's `sessionId`) rather than a
+bespoke resolution. If it chooses "delete", no fix is needed.
+
+The current guard drifted from the card body's `navigator.ts:57`: it is
+`if (!ctx.hasUI)` at `navigator.ts:510-514` on the FLLWUP-45 base.
