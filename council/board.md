@@ -44,11 +44,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-41 — End-to-end falsifier for provider-error retry on both paths
-
 ## Needs Human
 
 ## Done
+
+- EV-41 — End-to-end falsifier for provider-error retry on both paths
 
 - EV-42 — Per-attempt identity for a retried dispatch in the run substrate
 
