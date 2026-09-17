@@ -42,9 +42,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-41 — End-to-end falsifier for provider-error retry on both paths
-
 ## In Review
+
+- EV-41 — End-to-end falsifier for provider-error retry on both paths
 
 ## Needs Human
 
