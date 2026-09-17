@@ -168,3 +168,30 @@ test("FLLWUP-45: selection survives an attempt respawn — row key is the job id
 	expect(marked.length).toBe(1); // RED today: no marker on any row
 	expect(marked[0]).toContain("owner"); // the marker is on the respawned job's row
 });
+
+// ---------------------------------------------------------------------------
+// B4: tail-cache guard — the row's last-activity derives from the NEW
+// attempt's file (spec §8.5). Green today; ships as the re-key's guard-rail:
+// a `keyFor → manifest.id` "fix" goes red here (Skeptic O4).
+// ---------------------------------------------------------------------------
+
+test("FLLWUP-45: tail-cache guard — post-respawn last-activity comes from attempt 2's JSONL", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "f45-tail-"));
+	const runId = "r45b";
+	ensureRunDir(root, runId);
+	writeManifest(
+		root,
+		runId,
+		m("job-1", { attempt: 2, sessionId: "job-1-attempt2", attempts: [entry(1, "job-1")] }),
+	);
+	writeSession(root, runId, "job-1", [toolLine("1", "2026-01-01T00:04:00.000Z", "bash", "attempt-one-arg")]);
+	writeSession(root, runId, "job-1-attempt2", [
+		toolLine("2", "2026-01-01T00:04:50.000Z", "bash", "attempt-two-arg"),
+	]);
+	const c = new TreeFocusState();
+	c.termRowsCap = 24;
+	const w = new CouncilTreeWidget(root, () => runId, theme, { now, controller: c, termRowsCap: 24 });
+	const out = w.render(200).join("\n");
+	expect(out).toContain("attempt-two-arg"); // derived from attempt 2's file
+	expect(out).not.toContain("attempt-one-arg"); // never attempt 1's
+});
