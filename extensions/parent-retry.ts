@@ -1,7 +1,7 @@
 // EV-40 — parent-turn retry: the §2.4 structural one-pass context filter.
 //
 // This module is the SINGLE SOURCE for the filter: the offline harness
-// (test/ev40-harness/ev40-harness-extension.ts, D1 arm B) and the engine
+// (test/faux-provider/extension.ts, D1 arm B) and the engine
 // (extensions/index.ts parent mode) both register a `context` handler that
 // consults this one implementation, so the D1 probe exercises exactly what
 // ships.
