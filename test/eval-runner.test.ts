@@ -182,6 +182,21 @@ import { loadSeat } from "../extensions/seats.ts";
 import { spawnSeatJob } from "../extensions/dispatch.ts";
 
 test("dispatch primitive: cell spawned with cwd=scratch carries the override (B2/B4/D2 mirror)", async () => {
+	// The ambient COUNCIL_EVAL_MODEL must not change what this test expects: a
+	// seat shell legitimately carries it (it is the canonical eval carrier), so
+	// pin it to the worst case — a value with a :thinking suffix — and restore
+	// the shell's original afterwards. FLLWUP-40.
+	const ambientSaved = process.env.COUNCIL_EVAL_MODEL;
+	process.env.COUNCIL_EVAL_MODEL = "openrouter/ambient/model:high";
+	try {
+		await dispatchPrimitiveOverrideAssertions();
+	} finally {
+		if (ambientSaved === undefined) delete process.env.COUNCIL_EVAL_MODEL;
+		else process.env.COUNCIL_EVAL_MODEL = ambientSaved;
+	}
+});
+
+async function dispatchPrimitiveOverrideAssertions() {
 	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-disp-"));
 	const dir = path.join(root, CONFIG_DIR_NAME, "agents");
 	fs.mkdirSync(dir, { recursive: true });
@@ -207,12 +222,19 @@ test("dispatch primitive: cell spawned with cwd=scratch carries the override (B2
 	expect(captures[0].cwd).toBe(scratch);
 	expect(captures[0].args as string[]).toContain("--model");
 	expect((captures[0].args as string[])[(captures[0].args as string[]).indexOf("--model") + 1]).toBe("openrouter/ovr/model");
-	expect(captures[0].env.COUNCIL_EVAL_MODEL).toBe("openrouter/ovr/model");
+	// Per-dimension precedence (seats.ts:406): the per-dispatch model param wins
+	// the model dimension, but the ambient env's :high suffix still resolves the
+	// thinking dimension (the param supplies none) — so the child env carries the
+	// resolved composite while argv/manifest carry the bare param model.
+	expect(captures[0].env.COUNCIL_EVAL_MODEL).toBe("openrouter/ovr/model:high");
 	const ms = readManifests(root, "run-disp");
 	expect(ms.find((m) => m.id === "cellA.1")!.model).toBe("openrouter/ovr/model");
-	expect(process.env.COUNCIL_EVAL_MODEL).toBeUndefined();
+	// The eval carrier rides the spawn env, never the parent's process.env
+	// (dispatch.ts) — the dispatch primitive must not mutate the ambient, in
+	// either direction (no write, no clobber).
+	expect(process.env.COUNCIL_EVAL_MODEL).toBe("openrouter/ambient/model:high");
 	shutdownHub();
-});
+}
 
 test("dispatch primitive: unknown effective model refuses loudly, naming it (B3)", async () => {
 	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-dispb-"));
