@@ -393,6 +393,7 @@ All load-bearing claims are now verified first-hand. Composing the round-2 posit
 
 **I concede the principal's scoping point in full: step-1's "one file" is false.** I half-conceded this in round 1; it is now first-hand — `focus-nav.ts` carries the field, the docstring, and the selection machinery. The card's blast radius is two modules plus the ev8/ev9 test *names*, not one file.
 
+
 **And the designer's alternative is unsound at this controller — this is the round-2 finding that settles the identity dispute.** The designer's cycler "moves `controller.selectedSessionId` to that attempt's session id." An attempt's session id (other than the live one) is **not in the row list** (`setRows` receives `manifest.sessionId` per job, `navigator.ts:405`). The moment the cycler sets it: `selectedIndex()` → −1 (`focus-nav.ts:151-152`), the ▌ marker vanishes, `isAtTop()` → true so **Up exits the tree**, and `backFromProgress`'s O3 contract — "return to tree *preserving* selection," pinned green at `test/ev9-progress.test.ts:95-106` — silently breaks on the next Esc. The cycler is only safe on a job-id-keyed controller with a **separate content cursor**. So the designer's affordance *presupposes* the principal's (and my) identity split; it is not an alternative to it.
 
 ### 3. Tail-cache keying — the two proposals converge; the dispute is a guard-rail, not a fork
@@ -714,6 +715,7 @@ The smallest delta from current shipped behavior: item 1 (cross-module) + item 3
 
 ---
 
+
 **Bound.** Dispute 1 settles by accepting owner's framing (label = pending ordinal per R4; title = tailed ordinal, new copy). Dispute 2 settles by re-keying (cross-module, real). Dispute 3 settles by widening `ProgressKey` + classifier + routing (bounded blast, not a bug class). Dispute 4 settles by splitting title-state from header-affordance (both new copy, both escalate per R3).
 
 ### Step 4 — Skeptic attack
@@ -756,11 +758,11 @@ Settling test: `bun -e` against real `TreeFocusState`: `setRows(["job-1"])`, `en
 **Status: `closed-green`** — live defect reproduced. One precision note: `isAtTop()` is `true` both before (index 0) and after (−1) in the single-row case, so it is not a discriminating signal there; `selectedIndex() === -1` plus marker loss is.
 
 **O6 — `openTranscript` reachability.**
-Settling test: first-hand grep + read. `open` (`navigator.ts:506`) is a local const with zero call sites — the only `openTranscript` call inside it is `:520`; command + shortcut register only `toggleWidget` (`:620-631`). `onActivate` is stored (`focus-nav.ts:282`) and never invoked — Enter at tree surface calls `controller.enterProgress(...)` (`focus-nav.ts:318`), a path the ev9 integration test (`:353-371`, *"onActivate stays present but must NOT be the Enter path"*) pins green. Caveat confirmed: principal's round-2 correction holds — `CouncilTree` + Enter→activate **is** asserted at `test/navigator.test.ts:66-73`, so this is test-pinned dead code, not compiler-dead.
+Settling test: first-hand grep + read. `open` (`navigator.ts:506`) is a local const with zero call sites — the only `openTranscript` call inside it is `:520`; command/shortcut register only `toggleWidget` (`:620-631`). `onActivate` is stored (`focus-nav.ts:282`) and never invoked — Enter at tree surface calls `controller.enterProgress(...)` (`focus-nav.ts:318`), a path the ev9 integration test (`:353-371`, *"onActivate stays present but must NOT be the Enter path"*) pins green. Caveat confirmed: principal's round-2 correction holds — `CouncilTree` + Enter→activate **is** asserted at `test/navigator.test.ts:66-73`, so this is test-pinned dead code, not compiler-dead.
 **Status: `closed-green` on reachability; scope judgment below in O9.**
 
 **O7 — cycler key facts.**
-Settling test: `bun -e` probe — `classifyProgressKey(Key.left)` → `"other"`, `Key.right` → `"other"`; `routeEditorFocus` on progress for an unclassified key → `{action:"forward"}`. `ProgressKey` (`focus-nav.ts:25`) has no left/right member; `ev9:48-60` enumerates only ENTER/ESC/UP/DOWN/e/t/f/g/G/x.
+Settling test: `bun -e` probe — `classifyProgressKey(Key.left)` → `"other"`, `Key.right` → `"other"`; `routeEditorFocus` progress for an unclassified key → `{action:"forward"}`. `ProgressKey` (`focus-nav.ts:25`) has no left/right member; `ev9:48-60` enumerates only ENTER/ESC/UP/DOWN/e/t/f/g/G/x.
 **Status: `closed-green`** for principal's round-2 account; designer's round-1 "classify as up/down, no new branch" was wrong (corrected round-2 — left/right need a union widening + classifier branches + routing case; additive, no existing assertion breaks).
 
 **O8 — "cannot ship copy-free."**
@@ -820,7 +822,7 @@ I read the full card (`council/cards/FLLWUP-45.md`, 796 lines): Phase-1 rulings,
 
 - **The label data source.** O1 + O2, closed-green. O1 probe: `attemptEntries` on legacy `{attempt:2,sessionId:"job-1"}` → `[{attempt:2,…}]`; on real backoff `{attempt:2,sessionId:"job-1",attempts:[{1,"job-1"}]}` → `[{attempt:1,…}]`; live widget render → row `⏸ skeptic attempt 2/3 · retrying in 7s`. O2: R4 verbatim. Result: the flip is invisible to the shipped tests but contradicts R4 on real substrate — withdrawn by its author.
 - **Whether the re-key moves the ev8/ev9 suites.** O3, closed-green. Result: zero assertions move; only names/docstrings do. Principal's round-1 "suites move with it" and owner's round-1 "one file" scoping were both overstated (withdrawn round-2).
-- **The tail-cache key.** O4, closed-green. Result: `sessionId` is the content key; a row-key change freezes the tail (probe: reused `TranscriptTail` polls `[]` forever vs fresh object polls `["ATTEMPT-TWO"]`).
+- **The tail-cache key.** O4, closed-green. Result: `sessionId` is the content key; a row-key-keyed cache freezes the tail (probe: reused `TranscriptTail` polls `[]` forever vs fresh object polls `["ATTEMPT-TWO"]`).
 - **The respawn selection-loss glitch.** O5, closed-green. Result: live defect reproduced (`selectedIndex()` 0 → −1, marker loss). Precision note from O5: `isAtTop()` is not discriminating in the single-row case.
 - **`openTranscript` reachability.** O6, closed-green. Result: dead in shipped surface; test-pinned at `navigator.test.ts:66-73`.
 - **Cycler classifier state today.** O7, closed-green. Result: `Key.left`/`Key.right` → `"other"`; widening is additive.
@@ -909,3 +911,223 @@ non-blocking (b)/(e) findings — facts only, no recommendation. The card
 stays `Deliberating`; a resumed turn appends the ruling verbatim and
 continues at step 7.
 
+### Step 6b — PO ruling returned (product-owner) — APPENDED VERBATIM
+
+The four open judgments consolidated in step 5 route here under R3 (copy
+escalates with the drafted string) and the orchestrator's step-6 routing.
+Recorded human decision R4 (EV-39) is binding and unchanged; this card
+ships on R4's letter. The four blocking calls are ruled; (b) and (e)
+are recorded/defaulted.
+
+Appended verbatim:
+
+- **Ruling** — **(a) Progress-title attempt fragment.** Rendered when
+  `attemptEntries(m).length > 1`, form
+  `` `${id} ${seat} · attempt ${k}/${maxAttempts}` `` where `k` is the
+  ordinal of the tailed attempt entry
+  (`attemptEntries(m)[indexOf(m.sessionId)].attempt`). **Divider: `/`**
+  (row-parity, matches `navigator.ts:372` and `tree.test.ts:70`). R3's
+  `Retrying in 2s (attempt 2 of 3)` is parent-turn copy at
+  `parent-retry.ts:112` and is untouched; this title lives inside the
+  navigator surface, and row-parity reads as one form across the row and
+  the title. **(b) Cycler header advertisement.** Appended to the
+  existing R-KEYMAP hint line (`navigator.ts:839`-area) when
+  `attemptEntries(m).length > 1`: `· [/] attempt`. **Key choice: `[/]`
+  over `←/→`.** Two reasons: (1) `↑↓ move` is already in the header; its
+  semantics in `TranscriptView` are follow/scroll. `←/→` reads as a
+  parallel arrow pair cueing the same "movement" operation, when the
+  cycler is per-attempt, not horizontal scroll — `[/]` avoids that
+  semantic collision. (2) Bracketed keys are visually distinct from the
+  arrow family and reuse the EV-35 letter-key pattern (`e`, `t`, `f`,
+  `g`, `G`). `matchesKey` discipline applies; CSI-u / modifyOtherKeys
+  forms are honored by construction. **Q2 — cycler ships in this
+  card. Yes.** The card's `goal` is "a retried dispatch's attempt
+  transcripts are reachable from the navigator." Under cardinality A
+  ([[per-attempt-provenance]], binding — one job, one manifest, one
+  row), new tree rows are forbidden; the progress surface is the only
+  place to expose per-attempt transcripts; and the cycler is the only
+  affordance the record produced for reaching a non-latest attempt.
+  Without it the goal is partially unmet (latest reachable, earlier
+  attempts not). Cost is bounded: `ProgressKey` widening, two
+  `classifyProgressKey` branches, one `routeEditorFocus` case, one
+  delivery seam in `CustomTreeEditor.handleInput`, one header fragment,
+  additive tests. O7 confirms `Key.left`/`Key.right` reach the controller
+  today as `"other"`/forward, so the new keys are additive, not breaking.
+  The cycler shares machinery with the re-key (a separate
+  `attemptCursor` — designer's round-1 mechanism rejected on the
+  respawn-flap basis at `focus-nav.ts:151-152`) and the title
+  (`resolveAttemptFile` accessor); splitting into a follow-up duplicates
+  work rather than reducing it. **Q3 — item 2's disposition. Defer to
+  FLLWUP-4, with the finding recorded via the step-13 follow-up draft.**
+  Three reasons: (1) `openTranscript` (`navigator.ts:869`) is test-pinned
+  dead code (Skeptic O6; `test/navigator.test.ts:66-73` asserts the
+  `CouncilTree` activator plumbing), not compiler-dead. FLLWUP-4's stated
+  acceptance is literally *"guard removed or corrected"* — the card may
+  delete the path entirely, in which case a one-line fix at `:869` here
+  is thrown away. (2) The shared resolver `resolveAttemptFile` is
+  extracted in this card regardless, because item 1's "title names the
+  tailed ordinal" logic needs the same accessor over
+  `attemptEntries(m) ∪ live manifest.sessionId`. FLLWUP-4 inherits it
+  for free; if FLLWUP-4 picks "keep the modal," the fix is one token
+  (`m.sessionId` against the resolver) at the shared seam. (3) The
+  principal's framing — *"hardening a path another card may delete
+  spends budget on a ghost"* — applies cleanly: the bug is small, the
+  patch is one line, and that one line is best spent by FLLWUP-4 if it
+  keeps the path or saved entirely if it deletes it. This container
+  cannot write to FLLWUP-4 directly (the card's step-13 follow-up is
+  re-homed to `product-owner` per R3); the `:869` finding is captured in
+  the step-13 follow-up draft this card produces. **(b) R4-evolution
+  candidate — recorded, not ruled.** Owner-flagged: the card `goal`
+  ("the row's label matches the attempt it denotes") reads toward the
+  tailed ordinal; R4 fixes the pending ordinal. Skeptic O2 confirms the
+  flip contradicts R4 in the canonical first-retry window. The card
+  ships on R4's letter regardless (title carries the tailed ordinal;
+  row carries the pending). Evolving R4 is portfolio-level — recorded
+  human decision — and belongs to `steward`. Surfaced in the step-13
+  follow-up as a candidate R4 evolution; if the steward picks it up, the
+  resolution is a follow-up card that flips the row source and removes
+  the title-attempt fragment. **No work in this card; no scope
+  change.** **(e) Defaults if the cycler ships.**
+  `selectedSessionId → selectedRowKey` rename in the same change
+  (mechanical across `focus-nav.ts`, `navigator.ts`, and 5 test files;
+  prevents shipping a second lie under which the field still holds
+  sessionIds — gate-parity spirit, `vault/wiki/gate-parity.md`).
+  Cycler at one-row floor (`termRowsCap === 7`, `viewportRows === 1`):
+  consumed no-op, matching the EV-9 floor pattern (`Enter` consumed at
+  `termRows ≤ 6`); strongest non-color signal at a floor where the
+  header that would advertise the cycler is suppressed; prevents
+  invisible cursor mutation under the user's hands. Cycler endpoints:
+  clamp, not wrap — "I'm at the latest attempt" is a clearer terminal
+  state than wraparound; consistent with `TranscriptView` clamp
+  semantics on cursor bounds.
+
+- **Options rejected** — **(a) `of` divider** (R3/R5-parity): rejected —
+  creates a third spelling of `attempt N/M` on the same navigator
+  surface; this card does not unify vocabulary across surfaces in this
+  scope, row-parity is the cheaper call. **(b) `←/→`**: rejected for the
+  semantic-collision reason (`↑↓ move` reads as parallel arrows
+  cueing "movement," when the cycler is per-attempt, not horizontal
+  scroll). **`[/] attempts` (plural)**: rejected for grammar; singular
+  `attempt` parallels the existing `<glyph> <verb>` pattern (`↑↓ move`,
+  `e expand`, `t thinking`, `f follow`, `g/G jump`, `esc back`).
+  **Q2 — "cycler is a follow-up card"**: rejected — the goal is unmet
+  without it; the cycler's seam (separate `attemptCursor`,
+  `resolveAttemptFile`) depends on the re-key and resolver which ship
+  here, so a follow-up duplicates rather than reduces work. **Q2 — "use
+  new tree rows"**: rejected — cardinality A is
+  [[per-attempt-provenance]]-binding. **Q2 — "add a picker modal"**:
+  rejected — adds a second interaction surface; principal's named
+  blind spot. **Q3 — "fix `:869` in this card"**: rejected — if
+  FLLWUP-4 deletes the modal, the patch is wasted; the resolver the
+  patch would consume is in this card regardless, so FLLWUP-4 gets the
+  right seam for free. **(e) "Keep `selectedSessionId` as opaque row
+  key with comment only"**: rejected — the rename is mechanical and
+  prevents a documented-but-not-enforced lie. **"Forwarded at one-row
+  floor"**: rejected — would silently mutate the editor cursor under
+  the user's hands; contradicts the EV-9 floor pattern. **"Wrap at
+  endpoints"**: rejected — wraparound obscures "which end am I on"
+  under fast cycling.
+
+- **Grounding** — `vault/wiki/per-attempt-provenance.md` (cardinality A;
+  `attempt N/M` token ruled by R4; the substrate accessor
+  `attemptEntries`). `vault/wiki/council-job-tree-inline.md` (inline
+  progress expansion as the only surface to expose per-attempt
+  transcripts under cardinality A; `↑↓ move` advertisement in the
+  existing header; one-row floor at `termRows ≤ 6`). `vault/wiki/honest-keymap.md`
+  (R-KEYMAP discipline; `matchesKey` (CSI-u / modifyOtherKeys) for new
+  keys; advertised keys must be honored; EV-35 letter-key pattern).
+  `vault/wiki/gate-parity.md` (rename-vs-silent-re-meaning discipline).
+  `council/cards/EV-39.md` R4 (pending-ordinal ruling, binding and
+  unchanged; "labeled `attempt 2/3` while retrying — no extra rows and
+  no separate status line"). `council/cards/FLLWUP-4.md` (acceptance
+  *"guard removed or corrected"*; `epic: null`; outside this run).
+  `council/cards/FLLWUP-45.md` step-1 ruling R3 (new copy escalates
+  with the drafted string; step-13 follow-up re-homed to
+  `product-owner`); step-4 Skeptic O1 (legacy-shape carve-out), O2 (R4
+  binds pending ordinal), O3 (re-key breaks zero assertions), O4
+  (tail-cache must stay on `sessionId`), O5 (respawn selection-loss is
+  live), O6 (`openTranscript` reachability: test-pinned dead), O7
+  (`Key.left`/`Key.right` widen `classifyProgressKey` additively), O8
+  (cannot ship copy-free), O10 (baseline gates green) — closed-green;
+  O9 `open-untested` by nature. Consolidator synthesis (re-key,
+  title-as-denotation source, cycler-with-separate-cursor, FLLWUP-4
+  deferral condition).
+
+- **Reversibility** — **(a) Progress-title string**: one-line edit at
+  `navigator.ts:466`-area; trivially reversible. **(b) Cycler header
+  key/token**: header token + classifier branches + routing; trivially
+  reversible to `←/→` or any other choice. **Q2 (cycler ships)**: if the
+  cycler proves wrong, a follow-up removes it; cost is bounded to the
+  cycler pieces (`focus-nav.ts` union + classifier + routing + delivery
+  + header fragment + cycler tests). **Q3 (defer item 2)**: if FLLWUP-4
+  picks "keep modal," a one-line amend at `:869` using the shared
+  resolver closes the gap; minimal. **(b) R4-evolution candidate**:
+  not a ruling; no work in this card; surfaces to `steward` as a
+  candidate, where it can be promoted to a follow-up card without
+  touching the live one. **(e) Rename**: mechanical across 5 test
+  files; one-row behavior is the smallest-delta choice (reverses to
+  forwarded in one line); clamp-not-wrap reverses to wrap in one line.
+
+**Effect on this card.** Open judgments (a) progress-title + divider,
+(a) cycler header + key, (Q2) cycler ships in this card, (Q3) defer
+`:869` to FLLWUP-4 — all resolved. (e)'s cycler items ride the design;
+(e)'s rename is a mechanical carry of the re-key. (b) the R4-evolution
+candidate is recorded as a step-13 follow-up candidate, not a blocker.
+Card may resume at step 7 with this ruling appended verbatim.
+### Step 6c — facilitator consistency check on the Step 6b ruling (ESCALATED)
+
+Before writing the step-7 spec, the facilitator checked the two predicates
+the Step 6b ruling states for the title fragment and the cycler advertisement
+against the substrate and against the deliberation's own settled definition
+of the browsable-attempt set. Two mismatches were found. Both route to the
+ruling seat per `<escalation_contract>`; neither is resolved in this
+container, and no recommendation is carried.
+
+First-hand substrate probe (`bun -e`, `attemptEntries`):
+
+- First-retry backoff — `{state:"retrying", attempt:2, sessionId:"job-1",
+  attempts:[{attempt:1,sessionId:"job-1"}]}` → `attemptEntries(m)` =
+  `[{attempt:1,sessionId:"job-1"}]`, **length 1**.
+- Running attempt 2 before it settles — `{state:"running", attempt:2,
+  sessionId:"job-1-attempt2", attempts:[{attempt:1,sessionId:"job-1"}]}` →
+  `attemptEntries(m)` = `[{attempt:1,sessionId:"job-1"}]`, **length 1** (the
+  live attempt enters `attempts` only at settle, `hub.ts:354-363`).
+- Legacy retrying — `{attempt:2, attempts:undefined}` → `[{attempt:2,
+  sessionId}]`, length 1.
+
+The deliberation's settled browsable set is **`attemptEntries(m)` ∪ the live
+`manifest.sessionId`** (owner round 1 "Browsable set"; principal round 2
+reframe "resolved through one extracted pure function over
+`attemptEntries(m)` ∪ the live `manifest.sessionId`"; consolidator "Agreed
+design"; synthesis test 3). The Step 6b ruling gates both surfaces on the
+**raw accessor** length:
+
+> title: "Rendered when `attemptEntries(m).length > 1`"
+> header: "when `attemptEntries(m).length > 1`: `· [/] attempt`"
+
+**Question (i) — title-fragment gate.** Under the ruling's literal
+predicate the fragment is absent in the first-retry backoff window — the
+window the card's Intent names ("the live backoff row's tail-versus-label
+mismatch"), the window the designer's round-2 position says the title is on
+screen for ("the only moment a mismatch can occur, and the only moment the
+title is on screen"), and the window the synthesised **unconditional**
+test 2 covers (fixture above + `job-1.jsonl`; assert title contains
+`attempt 1/3`). Under the literal predicate that assertion is red and the
+window shows `job-1 owner` with no ordinal while the row reads
+`attempt 2/3`. Candidate predicates on the record: the literal
+`attemptEntries(m).length > 1`, or one that includes the retried/backoff
+window (`m.attempt > 1`, i.e. the job has retried). No test in the record
+distinguishes anything else.
+
+**Question (ii) — cycler-advertisement gate.** Under the ruling's literal
+predicate a running attempt 2 (browsable = 2 via the live `manifest.sessionId`)
+advertises neither `[/] attempt` nor a title ordinal, even though the cycler
+would reach attempt 1 — contradicting O7's additive-cycler premise and the
+deliberated "browsable > 1" gating. Candidate predicates on the record: the
+literal raw-accessor length, or the resolver's browsable count
+(`attemptEntries(m)` ∪ live session, length 2 in that window).
+
+Card state remains `Deliberating`. No other part of the Step 6b ruling is in
+question: the copy strings, `/` divider, `[/]` key choice, Q2 (cycler ships),
+Q3 (defer `:869` to FLLWUP-4), and the (b)/(e) defaults are applied as ruled.
+A resumed turn appends the ruling on (i)/(ii) verbatim and proceeds at step 7.
