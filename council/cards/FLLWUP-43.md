@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-43
 title: Make the goal field a lossless oracle for the judge
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-9
 goal: A card goal can name an exact literal that contains a colon-space sequence without truncating, and council/validate.py's parse_frontmatter recovers that literal intact when the goal names the string that test/retry.test.ts asserts PROVIDER_FINISH_REASON_ERROR, declared in extensions/retry.ts, to be.
@@ -859,3 +859,33 @@ recorded on this card and folded into the step-14 wiki correction.
 
 The card is ready to hand off: no `Needs Human` state, no open ruling, and no
 open objection without a ruling to close it. Proceeding to step 7.
+
+### Step 7 — settled design written and handed to one owner
+
+Spec committed at `docs/superpowers/specs/2026-09-17-FLLWUP-43-design.md`
+(commit `f9bca96`). Card set `In Progress` on the card and `council/board.md`
+and `python3 council/validate.py` run clean (commit `f3b9f09`). The spec
+carries the converged design, the exact copy (trim, not byte-for-byte, per O1),
+the out-of-scope wrap residual per R1, the dropped "rephrase" advice per R2,
+and the residuals in §6. One owner (`owner`) dispatched with only the spec and
+the card.
+
+### Step 8 — owner implemented; PR open
+
+Dispatch `owner` job-6.1 (45-min ceiling; settled 14.4m / 50 turns, total
+3,800,522 tok, cost≈$0.0885). Work went in an isolated worktree
+`.worktrees/fllwup-43` on branch `feat/fllwup-43-lossless-goal-oracle`; the
+main checkout's branch state was not mutated. Observed artifacts (facilitator,
+not seat report): `gh pr view 59` → state `OPEN`, base `main`, headRefName
+`feat/fllwup-43-lossless-goal-oracle`, headRefOid
+`438978193545241bb3bca29e20ee53a3c7a076e2`; `git ls-remote` agrees on the
+branch SHA. PR: https://github.com/jumpseat-inc/pi-council/pull/59
+
+Owner reported local gates: preflight PASS; `bunx tsc --noEmit` clean;
+`bun test` 858 pass / 0 fail / 2 skip; `python3 council/validate.py`
+`All council artifacts valid`. TDD evidence: T1/T5/T5b/T8(c3) red before,
+green after; T2/T3/T4/T6/T7 green throughout. Recorded residuals: the live
+T8 judge smoke is `COUNCIL_INTEGRATION`-class and not in the owner gate set;
+the `vault/` correction routes through step 14; no `package.json` bump per
+run-scoped EPIC-9 precedent (FLLWUP-40). Card set `In Review` from the
+observed open PR alone.

@@ -48,9 +48,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- FLLWUP-43 — Make the goal field a lossless oracle for the judge
-
 ## In Review
+
+- FLLWUP-43 — Make the goal field a lossless oracle for the judge
 
 ## Needs Human
 
