@@ -932,3 +932,134 @@ Residual points carried to step 4/5, not settled by the exchange:
 test header prose, the `secondMessagePresent` role-agnostic matching,
 the declared universe' grep root, the two-commit split, the D-clause semantics
 fix and its post-fix pty re-run, and the engine comment sweep.
+
+### Step 4 — Skeptic attacks and runs tests (`job-22.5`)
+
+3.6m / 21 turns, settled `done`. Subject: the deliberation record and the tree
+it makes claims about at HEAD (no branch exists at step 4). Objections and
+their **actual** results appended verbatim; all probes ran read-only from
+`/tmp`, the main tree unmodified, no branch/worktree touched.
+
+- **Objections**
+  - **O1 — Intent premise stale (targets card `Intent` + both seats' §1).**
+    Settling test: `git show --stat 952d5c1 | grep -Ei "harness|\.py" | wc -l`
+    → `0`; `grep -n "ev40-harness/harness-headless" test/ev41-retry-e2e.test.ts`
+    → hit. Status: **`closed-green`** — premise false as read; real duplication
+    is `ev43/` + pty screen models, not EV-41/EV-42.
+  - **O2 — Pty CSI-D drift, `ev41-tui.py` wrong (targets owner's executable
+    claim).** Settling test: `/tmp/pty_drift.py` loads each `Screen`, applies
+    `ESC[10;20H` then `ESC[5D`. Status: **`closed-green`** — `ev41-tui.py` →
+    `c=4` (absolute-column misread, same clause as `G`); `tui-retry.py` and
+    `falsifier-tui.py` → `c=14` (correct relative-left). Copies have diverged;
+    kit must pick relative-left. (Owner's "col 15" vs my "c=14" is 1-based vs
+    0-based — same cell.)
+  - **O3 — `secondMessagePresent` attribution widens on re-point (targets
+    principal's blind-spot iii).** Settling test: `/tmp/role_probe.ts` — shared
+    helper on a user-line-only arm, local helper on user-line vs assistant-line
+    arms. Status: **`closed-green`** — shared matches a `user` line containing
+    the marker (`true`); local is assistant-only (`false` on user-line, `true`
+    on assistant-line). Re-pointing EV-43 onto the shared predicate changes
+    attribution semantics; commit 2 must tighten to assistant-only.
+  - **O4 — Universe/grep-root + smoke residual (targets owner `grep test/`→1 vs
+    principal repo-wide→2).** Settling test: `grep -rn "class Screen" test/
+    ev43/ smoke/` and `grep -rln "class Screen\|class Session" .`. Status:
+    **`closed-green`** — exactly 4 definitions at HEAD
+    (`test/ev40-harness/tui-retry.py:48`, `test/ev41-tui.py:54`,
+    `ev43/falsifier-tui.py:52`, `smoke/search-smoke/driver.py:66`); `class
+    Session` likewise ×4. `smoke/search-smoke/README.md:114-116` pins "stdlib
+    only … authored in the driver"; `run.sh:20` pins pi `0.84.3` vs harness
+    `import.meta.resolve` dev pi. Both counts right under own root — spec must
+    declare the universe with `driver.py` named residual.
+  - **O5 — EV-43 identity is four strings, knob covers one (targets owner's
+    knob claim).** Settling test: grep EV-43 literals + `EV40_ERROR_MESSAGE`
+    absence. Status: **`closed-green`** — moving strings are provider id
+    `ev43`/`ev43-model`, `EV43-CONTINUE` (`:66,:72,:75`),
+    `EV43-SECOND-RESPONSE` (`:68`), colon-less class (`:73`,
+    `ev43-extension:55`); `EV40_ERROR_MESSAGE` appears nowhere at HEAD;
+    `CONTINUATION_MARKER` is exported but the `EV40-CONTINUE` prompt itself is
+    a non-exported `const CONTINUATION`. Knob preserves 1-of-4; test header
+    (`:1-19`, names deleted `ev43/` files) and `:66/:68/:72` still need the
+    export/header fix. `EV-43.md` must stay unedited (record, agreed by both
+    seats).
+  - **O6 — `hasUI` branch differs (targets owner's §3 port / round-2
+    withdrawal).** Settling test: read `ev40-harness-extension.ts:190-204` vs
+    `ev43-extension:72-91`. Status: **`closed-green` on the fact, open design
+    choice** — shared has send-then-poll only; ev43 has the `ctx.hasUI`
+    fire-and-forget-vs-poll split. Whether commit 2 ports it (scenario moved)
+    or drops it (scenario retired) is unresolved between the seats' round-2
+    texts.
+  - **O7 — Seat-path reachability (targets principal r1 "engine change" vs r2
+    correction).** Settling tests: (a) read `buildChildArgv`
+    (`seats.ts:600-621`) — no `-e`/`--provider`, confirmed; `hub-tools.ts:248-249`
+    `command:"pi"`, `cwd: repoRoot` + `-a` confirmed; auto-discovery docs
+    (`pi-coding-agent/docs/extensions.md:113-120`) confirmed project-local
+    `.pi/extensions` loads. (b) `ev41-retry-e2e.test.ts:161-168` spawns
+    `command:"bun", args:[STUB]`, `seat:"stub"` label — never calls
+    `buildChildArgv`; only `integration.test.ts:33` spawns real `pi`. Status:
+    **structural sub-claims `closed-green`** — r1 "unsatisfiable without engine
+    change" is falsified as too strong; r2 "reachable via scratch-repo
+    `.pi/extensions` + `.council.json`, no engine change" is structurally
+    plausible. **Live E2E (scratch repo + real `council_dispatch` asserting the
+    faux literal in a seat child) `open-untested`** — would require
+    writes/dispatch outside this read-only turn; not run.
+  - **O8 — Goal has no falsifier today.** Settling test: full `bun test` +
+    `tsc` + `validate.py` at HEAD with all 4 copies present. Status:
+    **`closed-green`** — `bun test`: 884 pass / 2 skip / 0 fail; `bunx tsc
+    --noEmit` clean; `validate.py` clean. Green coexists with full duplication:
+    vacuous witness confirmed. Removal half (`rm test/ev40-harness
+    test/ev41-tui.py` leaves suite identical, FLLWUP-47 PO ruling
+    `vault/raw/2026-09-17-po-fllwup47-step6-ruling.md:300-307`) is **cited,
+    `open-untested`** — re-running it requires modifying the tree, forbidden
+    this turn.
+  - **O9 — Shape test sufficient as sole operationalization?** Settling test
+    (logical + grep evidence): a predicate scoped to one directory passes while
+    copies survive elsewhere — demonstrated by O4's root-dependent counts.
+    Status: **`closed-green` with condition** — only an identity-scoped test
+    (one provider script / one headless runner / one `Screen`+`Session` inside
+    the *declared universe*, `ev43/` absent, `py_compile` on runners) falsifies
+    "no duplicated copy"; an exact-`readdirSync` or wrong-root variant can be
+    satisfied while a copy survives. Today's `read_sequences` evidence supports
+    consolidation: ev41 dict-form is strictly richer than tui-retry string-form.
+  - **O10 — No new live arms (FLLWUP-48 adjacency).** Settling test: `grep -c
+    "test("` baseline → ev40-headless 3, live-gates 5, ev41-retry-e2e 5,
+    ev43-reachability 2. Status: **`closed-green` on baseline** — candidate
+    compliance (shape test spawns nothing, no arm-count/timeout delta) is
+    checkable only post-implementation.
+
+- **What I ran** (all read-only, main tree unmodified; timeouts explicit)
+  - `git show --stat 952d5c1 | grep -Ei "harness|\.py" | wc -l` → `0`. Full
+    stat: 12 files, `extensions/{hub,provider-cost,runs,usage-*}.ts` +
+    specs/tests only.
+  - `grep -n "ev40-harness/harness-headless" test/ev41-retry-e2e.test.ts` →
+    `:64: } from "./ev40-harness/harness-headless.ts";`
+  - `grep -rn "class Screen" test/ ev43/ smoke/` → 4 hits listed in O4;
+    `grep -rln "class Screen\|class Session" .` → same 4 (+ `.worktrees/*`
+    clones only).
+  - `python3 /tmp/pty_drift.py` → `t41 … c=4`; `t40 … c=14`; `t43 … c=14`
+    (plus `D`-default: t41 `c=0`, t40/t43 `c=18`).
+  - `bun /tmp/role_probe.ts` → `shared matches user-line marker: true`; `local
+    matches user-line marker: false`; `local matches assistant-line marker:
+    true`.
+  - Reads (all confirmed as quoted): `seats.ts:600-621`, `hub-tools.ts:248-249`,
+    `docs/extensions.md:113-120`, `ev41-retry-e2e.test.ts:161-168`,
+    `stub-child.ts:3`, `ev40-harness-extension.ts:48-55`,
+    `ev43-extension:37-55,72-91`, `ev43-reachability.test.ts:1-19,28-73`,
+    `EV-43.md:149-158,455-457`, `README.md:114-116`, `run.sh:20`,
+    `parent-retry.ts:4`, `live-gates.test.ts:147`.
+  - `bun test` → `884 pass, 2 skip, 0 fail, 5620 expect() calls, 77 files,
+    [94.58s]`; `bunx tsc --noEmit` → exit 0; `python3 council/validate.py` →
+    `All council artifacts valid`.
+  - `grep -c "test(" …` → `3 / 5 / 5 / 2` (order above); `grep -rn
+    "EV40_ERROR_MESSAGE" test/ ev43/ extensions/` → no hits.
+
+- **Verdict — candidate stands on the facts, with two named `open-untested`
+  items that do not change the re-point.** No `closed-red` blocks the design:
+  premise correction, drift direction, role-agnostic widening, 4-string EV-43
+  identity, smoke boundary, vacuous-green, and structural seat-reachability
+  correction all settled as the seats converged. Open: (1) live seat-child E2E
+  through scratch-repo auto-discovery; (2) re-running the FLLWUP-47
+  removal-inertness probe. Under either outcome of (1) the shipped design is
+  identical (seat stays on `stub-child.ts`); the remedy is spec prose — premise
+  correction, file-granularity seat reading, declared universe, identity-
+  criterion shape test, `hasUI`/header/role-tightening disposition — not a
+  redesign.
