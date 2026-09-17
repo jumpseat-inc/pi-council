@@ -12,7 +12,8 @@
 // residual (spec §2).
 import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 
 const REPO_ROOT = dirname(import.meta.dir); // test/ parent = repo root
@@ -20,14 +21,24 @@ const TEST_DIR = join(REPO_ROOT, "test");
 const FAUX = join(TEST_DIR, "faux-provider");
 const WITNESS = "test/faux-provider-shape.test.ts";
 
-/** Recursively list every file under dir, excluding the witness itself. */
+/**
+ * Recursively list every file under dir, excluding the witness itself and any
+ * Python bytecode. The witness polices SOURCE, not bytecode: bytecode is
+ * derived, regenerable, gitignored, and re-compiled in-run by test 8 —
+ * scanning it adds zero information and lets stale residue (an orphan .pyc
+ * compiled from pre-move source) self-arm the witness (FLLWUP-48).
+ */
 function filesUnder(dir: string): string[] {
 	const out: string[] = [];
 	const walk = (d: string): void => {
 		for (const e of readdirSync(d)) {
 			const p = join(d, e);
-			if (statSync(p).isDirectory()) walk(p);
-			else if (!p.endsWith(WITNESS)) out.push(p);
+			if (statSync(p).isDirectory()) {
+				if (e !== "__pycache__") walk(p); // bytecode is derived, never source
+			} else if (!p.endsWith(WITNESS)) {
+				if (/\.(pyc|pyo|pyd)$/.test(p)) continue; // bytecode, same rule
+				out.push(p);
+			}
 		}
 	};
 	walk(dir);
@@ -84,6 +95,26 @@ describe("faux-provider shape (the goal's committed witness)", () => {
 		expect(readFileSync(join(TEST_DIR, "ev41-retry-e2e.test.ts"), "utf-8")).toContain("stub-child.ts");
 		const entries = readdirSync(FAUX);
 		expect(entries.some((e) => e.startsWith("stub"))).toBe(false);
+	});
+
+	describe("scan domain — bytecode exclusion (FLLWUP-48)", () => {
+		// The witness polices SOURCE, not bytecode: Python bytecode is derived,
+		// regenerable, gitignored, and re-compiled in-run by test 8 — scanning it
+		// adds zero information and lets stale residue (e.g. an orphan .pyc
+		// compiled from pre-move source) self-arm the witness. Two-sided: the
+		// `.ts` case guards against an over-broad exclusion weakening the witness.
+		test("drops __pycache__ bytecode but still hits source carrying the same retired token", () => {
+			const scratch = mkdtempSync(join(tmpdir(), "fllwup48-scan-"));
+			try {
+				writeFileSync(join(scratch, "x.ts"), "const retired = 'ev40-harness/';\n", "utf-8");
+				mkdirSync(join(scratch, "__pycache__"), { recursive: true });
+				writeFileSync(join(scratch, "__pycache__", "x.pyc"), "ev40-harness/\0binary payload", "utf-8");
+				const hits = countMatches(scratch, /ev40-harness\//);
+				expect(hits).toEqual([join(scratch, "x.ts")]);
+			} finally {
+				rmSync(scratch, { recursive: true, force: true });
+			}
+		});
 	});
 
 	test("8: every pty runner compiles", () => {
