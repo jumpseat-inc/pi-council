@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-45
 title: Navigator attempt-awareness for retried dispatches
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-9
 goal: A retried dispatch's attempt transcripts are reachable from the navigator, and the backoff row's label matches the attempt it denotes.
@@ -1263,3 +1263,27 @@ All probes ran against the branch head. Main checkout untouched (`git status` cl
 ### Verdict
 
 **`blocks`** — one item: **O2b, the tail-cache guard test does not satisfy its spec-pinned property.** Spec §8.5 requires the test to go red under a `keyFor → manifest.id` regression; as shipped it stays green (15/15) under exactly that mutation. The branch *behavior* is correct (my two-phase probe proves it), so the fix is test-only: extend the shipped guard to the two-phase form — render with attempt 1 live, rewrite the manifest to attempt 2 with a later-`at` JSONL, `refresh()`, assert the row shows attempt-2 content — which I demonstrated goes red under the regression and green on the head. Everything else: no open objections.
+
+### Step 9 (cont.) — fix cycle 1; re-verify dispatched (facilitator)
+
+The one red item was handed to the owner (`job-16.4`, 4.1m, 15 turns,
+`stopReason=stop`), test-only. The shipped tail-cache guard was rewritten to
+the two-phase form: render with attempt 1 live (asserting `attempt-one-arg`,
+proving the cache bound attempt 1's file), respawn the manifest to attempt 2
+with a later-`at` attempt-2 JSONL, `w.refresh()`, assert the row's
+last-activity comes from `attempt-two-arg`. Falsifier verified first-hand:
+with `keyFor → node.manifest.id` applied in place, the file ran **14 pass /
+1 fail** — the single failure exactly the tail-cache guard — then restored
+(`git checkout --`) and re-ran **15 pass / 0 fail**. No behavior change, no
+copy change, `navigator.ts:869` and the §7 boundaries untouched.
+
+Owner's gate results (re-verified by the re-dispatched Skeptic, not trusted
+here): `tsc` exit 0; `bun test` 882 pass / 2 skip / 0 fail, 77 files,
+94.42 s; `validate.py` clean. Commit `c0cd845` on top of `e799ca1` (normal
+push, no force).
+
+Observed artifacts (facilitator-read): PR #63 remains `OPEN`, head
+`c0cd84555e7e3802742a8cf69afedc9db098978d`, `mergeable: MERGEABLE`; branch
+pushed to `origin` at the same SHA; worktree `.worktrees/fllwup-45` clean.
+Card restored to `In Review` on that fact. This is verify→fix cycle 1
+complete; the re-verification (cycle 2 of ≤3) is dispatched at the new head.
