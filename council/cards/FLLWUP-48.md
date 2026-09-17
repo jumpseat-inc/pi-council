@@ -1377,3 +1377,28 @@ ahead at the branch cut). Budget measurement recorded at committed hygiene SHA
 is the figure written into the three docs per PO ruling 1. Zero-new-arms
 attested (3/5/5/2 unchanged, before/after). No gates.yml change, no new flag,
 no preflight.sh string. Step-9 skeptic dispatched next at the branch head.
+
+### Step 9 — skeptic verification at the branch head (`job-28.2`) — PASS
+
+`skeptic` settled `done` (9.9m, 37 turns) at the pinned subject (PR #66, head
+`64ecb72`, fresh detached worktree). **Verdict: PASS — no open objections,
+nothing red.** Six objections O1–O6, all `closed-green`, each with the real
+run recorded: (O1) all three budget docs carry the same ca22360/94.39s
+provenance-complete figure, 180s framed as drift threshold, AGENTS.md has both
+flags and no test count, wiki page has catalog link + per-file table +
+ceiling-vs-budget distinction + re-measure command (`bun install` first) +
+maintenance rules; (O2) two-sided exclusion verified by direct probes —
+orphan-tokenized `.pyc` on disk → shape file still 9/0, source-token → test 6
+red; (O3) retired comment token fixed, only change in that file; (O4) full
+gate set re-run at head — tsc exit 0, `bun test` 893/2/0 across 78 files at
+**96.91s** (under the 180s drift threshold), validate.py clean, preflight PASS
+clean — plus gate-integrity injections proving each gate can fail and name the
+defect; (O5) every binding constraint holds — arm counts 3/5/5/2 at base and
+head, gates.yml/preflight.sh zero-line diffs, no new flag, no elapsed
+assertion, no sibling arm, witness regex byte-identical; (O6) PR identity
+confirmed (two commits, dates consistent with the documented measurement).
+Two non-blocking observations recorded on the card (README's "this machine"
+wording is the spec's own mandate; the provider-cost T-P9 inline-return skip
+matches the already-recorded O10 note). **No blocking Skeptic objection —
+deterministic merge check criterion 3 holds.** Verify-cycle counter: 1 of 3
+used, no fix cycle needed.
