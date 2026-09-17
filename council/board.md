@@ -33,12 +33,19 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-37 — Keep the progress keymap header visible when follow-mode content overflows the viewport
 - FLLWUP-38 — Clamp the inline progress transcript header to the granted render width
 - FLLWUP-39 — Dispose the replaced transcript view when the inline progress surface switches sessions
+- FLLWUP-40 — Isolate COUNCIL_EVAL_MODEL from the eval-runner dispatch-primitive test
+- FLLWUP-41 — Reconcile council.md step 12's non-fast-forward wording with the union-merge repair
+- FLLWUP-42 — Make the deterministic merge check independent of a human-granted admin bypass
+- FLLWUP-43 — Make the goal field a lossless oracle for the judge
+- FLLWUP-44 — Name the provider failure before the backoff countdown
+- FLLWUP-45 — Navigator attempt-awareness for retried dispatches
+- FLLWUP-47 — Documented red-base convention for falsifier evidence
+- FLLWUP-48 — Suite-cost budget for the live pty and -p falsifier arms
+- FLLWUP-49 — Promote the offline faux-provider harness into a shared smoke helper
 
 ## Deliberating
 
 ## Ready
-
-- EPIC-9 — Provider-error retry with exponential backoff under a .council.json policy
 
 ## In Progress
 
@@ -48,6 +55,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Done
 
+- EPIC-9 — Provider-error retry with exponential backoff under a .council.json policy
 - EV-41 — End-to-end falsifier for provider-error retry on both paths
 
 - EV-42 — Per-attempt identity for a retried dispatch in the run substrate
