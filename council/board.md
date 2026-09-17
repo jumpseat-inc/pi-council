@@ -46,9 +46,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- FLLWUP-48 — Suite-cost budget for the live pty and -p falsifier arms
-
 ## In Review
+
+- FLLWUP-48 — Suite-cost budget for the live pty and -p falsifier arms
 
 ## Needs Human
 

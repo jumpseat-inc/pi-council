@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-48
 title: Suite-cost budget for the live pty and -p falsifier arms
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-9
 goal: The default bun test suite's wall-clock budget is documented, and the live pty and -p falsifier arms run within it or are gated behind an opt-in.
@@ -1358,3 +1358,22 @@ scope); unambiguous for an owner with no memory of the deliberation. Card set
 to `In Progress`; board moved; `validate.py` clean before the owner dispatch.
 Owner dispatched next (step 8) with the spec, a fresh-worktree constraint, and
 the full gate set.
+
+### Step 8 — owner implemented (`job-28.1`, PR #66)
+
+`owner` settled `done` (8.7m, 29 turns). Observed artifacts (facilitator-
+verified, not taken from the seat report): **PR #66 open** at
+`https://github.com/jumpseat-inc/pi-council/pull/66`, branch
+`fllwup48-suite-budget`, head SHA `64ecb72e4fb04463162bbe7d15fa008c13d9931a`,
+files exactly the six the spec names (`AGENTS.md`, `README.md`,
+`test/ev41-retry-e2e.test.ts`, `test/faux-provider-shape.test.ts`,
+`vault/wiki/index.md`, `vault/wiki/test-suite-budget.md`). **State set to `In
+Progress`→`In Review` on the sole step-8 condition: a branch exists with an
+open PR.** Owner-reported gate evidence (subject to step-9 verification): tsc
+clean; full suite 893 pass / 2 skip / 0 fail (895 tests / 78 files, 94.52s);
+validate.py clean; preflight PASS with no stale-freshness line (main was not
+ahead at the branch cut). Budget measurement recorded at committed hygiene SHA
+`ca22360`: 94.39s total, per-arm 38.0/16.5/12.8/4.8s, full provenance — this
+is the figure written into the three docs per PO ruling 1. Zero-new-arms
+attested (3/5/5/2 unchanged, before/after). No gates.yml change, no new flag,
+no preflight.sh string. Step-9 skeptic dispatched next at the branch head.
