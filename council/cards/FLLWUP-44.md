@@ -451,3 +451,104 @@ All four are test-settleable; principal's tests 1, 3, 5, and 6 cover them.
 - **No glyph.** No `⚠` or icon; R5 lines are plain text. A glyph would be a register break with R5 and with the existing input-bar copy. Taste, but consistent with prior ruling.
 
 I do not write any source; this is a draft only. The final string is ruled by product-owner per R3. I expect PO to edit at most the article.
+
+### Step 4 — Skeptic attacks and runs tests (`job-9.7`, 4.8m, 20 turns, `done`)
+
+Working tree clean; all probes under `/tmp`; no tracked source touched.
+
+**Baseline gates (real runs, current tree):** `bunx tsc --noEmit` → clean exit 0;
+`python3 council/validate.py` → `All council artifacts valid`; `bun test` (full)
+→ **860 pass, 2 skip, 0 fail** across 76 files (94s; the 2 skips are the
+pre-existing gated skips). Focused `bun test test/ev40-parent-retry.test.ts
+test/ev40-wiring.test.ts test/retry.test.ts` → 50 pass, 0 fail.
+
+#### Skeptic report — verbatim
+
+**O1. Re-show semantics** — `closed-green` for owner/principal per-episode
+implementability; **`closed-red`** for designer's once-per-cycle spec as
+written. Evidence: `extensions/index.ts` send-timer callback is verbatim
+`retryAttempt = …; expectContinuation = true; contextFilter.arm();
+c.clearToIdle(); pi.sendUserMessage(prompt);` — `clearToIdle()` fires before
+every continuation send (including attempt-2→3), so a latch reset there is
+cleared before attempt 3's `beginBackoff` re-sets it → observable behavior is
+per-episode, contradicting P4. Owner's trilemma (never-reset / clearToIdle-reset
+/ new-failure-reset) is exhaustive against this code; no fourth call site.
+Probe: after `beginBackoff(2,…)` render length 4, after `clearToIdle()` length
+3 (== super length) — nothing survives into the continuation turn; "shown once,
+remembered" is unobservable on this carrier. Second defect: the headless
+schedule branch never touches the controller (`await runHeadlessCountdown(…);
+retryAttempt = …; contextFilter.arm(); pi.sendUserMessage(prompt);` — no
+`beginBackoff`, no `clearToIdle`), so a `failureShown` flag in `RetryController`
+cannot govern headless; the headless once-per-cycle semantic needs a second,
+unspecified flag. The re-show choice itself remains a ruling input; the
+once-per-cycle option must name a reset point that survives the send-timer
+`clearToIdle()` — none exists on this carrier.
+
+**O2. Placement/ordering invariants** — `closed-green`, principal's corrections
+confirmed. A naming line pushed above the countdown keeps
+`during.at(-1)` containing "attempt 2 of 3" (owner P1 holds at assertion level);
+a naming line pushed above the terminal copy **still satisfies**
+`lines.at(-1) === formatRetryExhausted(3)` — principal's length-assertion gap is
+real and load-bearing. The test is literally titled "appends exactly one extra
+line while the surface is non-idle; none while idle" while asserting only
+`>= 1` + `.at(-1)`; the implementer must retitle. Live gate `:105` builds the
+filter with `startsWith("Retrying in")` then asserts presence with `toContain`,
+and `:113-114` asserts the last non-empty stdout line is the terminal copy; a
+naming line starting with `Retrying in` would pass every current assertion, so
+that rule is hygiene, not a gate.
+
+**O3. Copy claims** — `closed-red` against the round-1 string
+`Provider returned no response (finish_reason: error).`; `open-untested` for the
+round-2 string's residual accuracy. Evidence: the pending-error path preserves
+the message object including its `content` array (`recordAssistantVerdict`
+identity probe `{kept:true}`); the green P3 live gate asserts an errored
+assistant entry with `errorMessage === INJECTED_ERROR_MESSAGE` **and**
+`text.includes("EV40-PARTIAL")` persists in the JSONL. An `error`-stop turn
+demonstrably carries streamed partial text, so "returned no response" can
+contradict the transcript directly above it — the designer's withdrawal of the
+round-1 draft was required, not optional. Round-2 `The provider returned an
+error.`: the bundle template check (green) pins that pi *synthesizes*
+`Provider finish_reason: error` in `mapStopReason`'s default branch for a
+declined `finish_reason`; whether "The provider returned an error" misattributes
+pi's synthesis to the provider is a lexical question no repo test settles →
+`open-untested`; exact settling test named (extract `mapStopReason`'s
+surrounding upstream context from the installed bundle chunk plus the provider
+wire meaning of `finish_reason: "error"`). Principal's `not.toMatch(/finish_reason/)`
+replacement rule is verified implementable (`closed-green` as a gate,
+independent of the taste ruling).
+
+**O4. Literal/predicate coupling** — `closed-green`. `classifyParentTurnRetry`
+returns `"retry"` only for byte-equality with `PROVIDER_FINISH_REASON_ERROR`
+and `undefined` for `"Provider returned 502"`, `"Provider returned 502:
+upstream unavailable"`, `"The provider returned an error."`, `"Provider request
+failed"`, `""`. Static formatter correct; interpolation would add a dynamic
+string over a singleton domain. pi's `provider.?returned.?error` token matches
+neither draft string.
+
+**O5. Carrier** — `closed-green`. `EditorTheme` is exactly
+`{borderColor, selectList}`; `showWarning` appends `Spacer` +
+`Text("Warning: " + msg)` to the chat container, permanent, session-scoped;
+`showStatus` de-dups back-to-back identical messages; no fading mechanism
+exists. At narrow widths the rendered line is the clamp, not the ruled string
+(`visibleWidth <= 10` while raw bytes differ) — the ruling must name the width
+behavior (byte-equal at wide widths; clamped at narrow).
+
+**O6. Further settled claims (all `closed-green`).** Owner's `host.print`
+reaches real stdout via `fs.writeSync(1, …)` and the green P4 live gate; the
+O-ROUTE wiring is at `registerParentTurnRetry`'s host block (~`:606-616`), not
+designer's `:584-587`; `classifyRetry` is the wider hub predicate while the
+parent loop's `classifyParentTurnRetry` is deliberately narrower (designer
+conflated them); principal's admission that his round-1 test #6 would have
+passed the round-1 draft is verified by inspection.
+
+**Skeptic verdict: `blocks`** — one item, precisely scoped: the re-show
+semantic is specified against a reset rule that contradicts the code (designer's
+P7 resets at `clearToIdle()`, which fires before every continuation send; plus
+the headless branch has no controller for the flag to live in). The card may
+proceed only with (a) per-episode semantics, which the carrier implements with
+zero new state, or (b) a once-per-cycle spec that names a reset point distinct
+from the inter-episode `clearToIdle()` and a headless-side flag — neither exists
+on this tree today. The word "once" in the goal is `open`: per-episode vs
+per-cycle is engine contract with mutually exclusive pinning tests (owner test 3
+vs designer T-RR1), not settleable by testing; the escalation must present both
+with O1's mechanism finding.
