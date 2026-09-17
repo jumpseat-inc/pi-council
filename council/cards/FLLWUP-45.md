@@ -1306,3 +1306,35 @@ Step 9 closes; the card is ready for step 10.
 
 Verify→fix cycle count for this card: **1 fix cycle used, 2 verify passes
 run** (within the ≤3 cap).
+
+### Step 10 — judge: PASS
+
+`job-16.6` (judge, 2.4m, 11 turns, `stopReason=stop`), dispatched with the
+card's `goal` and the step-9 Skeptic evidence only — no spec, no
+deliberation, no recap of this container's reasoning. Verdict **`PASS`**:
+the decisive `test/fllwup45-attempt-awareness.test.ts` passes 15/15 at the
+branch head `c0cd845`, covering both goal clauses (reachability of a retried
+dispatch's attempt transcripts; the backoff row label `attempt N/M` as the
+settled design defines it, with the progress title naming the shown
+attempt's ordinal).
+
+The judge's basis noted a single full-suite failure (`EV-40
+computeBackoffDelay jitter cap`). Because the two step-9 Skeptic runs and the
+owner's run all observed `bun test` green, the facilitator verified this
+first-hand rather than accepting either account:
+
+- `bun test` on the branch head `c0cd845` → **882 pass / 2 skip / 0 fail**
+  (5604 expects, 77 files, 94.42 s).
+- The branch diff touches only `docs/superpowers/plans/2026-09-17-FLLWUP-45-plan.md`,
+  `extensions/focus-nav.ts`, `extensions/navigator.ts`, `extensions/runs.ts`,
+  `test/ev8-focus-navigation.test.ts`, `test/ev9-progress.test.ts`,
+  `test/fllwup45-attempt-awareness.test.ts` — `extensions/retry.ts` and
+  `test/ev40-parent-retry.test.ts` are untouched.
+- The named test calls `computeBackoffDelay(capped, 6, Math.random)` 200
+  times asserting `< 7500`; the jittered value is `Math.round(5000 * (0.5 +
+  rand))`, which reaches 7500 at `rand >= 0.9999` (~2% per run). It is a
+  pre-existing rare flake in an unmodified test, independent of this card
+  (a 40-repeat probe of that file produced 0 failing runs).
+
+None of this is a card defect. Criterion 1 rests on the observed gate run
+(§step 11 below), not on the judge's incidental observation.
