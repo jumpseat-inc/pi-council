@@ -50,11 +50,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- FLLWUP-49 — Promote the offline faux-provider harness into a shared smoke helper
-
 ## Needs Human
 
 ## Done
+
+- FLLWUP-49 — Promote the offline faux-provider harness into a shared smoke helper
 
 - FLLWUP-47 — Documented red-base convention for falsifier evidence
 

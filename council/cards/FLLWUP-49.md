@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-49
 title: Promote the offline faux-provider harness into a shared smoke helper
-state: In Review
+state: Done
 owner: null
 epic: EPIC-9
 goal: The offline faux-provider harness is one shared test helper under test/, imported by each of test/ev40-headless.test.ts, test/ev40-live-gates.test.ts, test/ev41-retry-e2e.test.ts and test/ev43-reachability.test.ts, with the seat-dispatch arm's child staying on test/stub-child.ts and no duplicated harness copy under test/ or in ev43/, witnessed by a committed shape test asserting exactly one provider extension, one headless runner, and one pty screen model.
@@ -1749,3 +1749,136 @@ halves (vacuous-`bun-test` half + non-vacuous-shape half). O-H (O7 live E2E)
 stays `open-untested` as the spec permits — non-blocking, shipped design
 unaffected. Scratch worktrees removed; ready-made worktree and main checkout
 clean and untouched.
+
+### Step 10 — judge the stop condition (judge)
+
+`judge` (`job-25.4`, 1.9m, 5 turns, `stopReason=stop`) was dispatched with
+**the card's `goal` and the Skeptic's step-9 evidence only** — no spec, no
+deliberation record, no positions — subject-pinned to the PR head
+`f12f3be11343245fb25154a3051c361b7e6b8c06` and to the frame that step 10
+precedes step 11's mechanical merge, which the facilitator executes and no seat
+performs.
+
+**Verdict: `PASS`** (basis, verbatim):
+
+> 1. **Shape test `8 pass / 0 fail`** at branch head `f12f3be`:
+>    - Assert 2: exactly one provider extension (`fauxProvider(`) → `test/faux-provider/extension.ts`
+>    - Assert 3: exactly one headless runner (`runHarnessArm`) → `test/faux-provider/harness.ts`
+>    - Assert 4: exactly one pty screen model (`class Screen` + `class Session` in same file) → `test/faux-provider/pty_kit.py`
+> 2. **All four consumers import from the shared harness** (`from "./faux-provider/harness.ts"`): `ev40-headless.test.ts`, `ev40-live-gates.test.ts`, `ev41-retry-e2e.test.ts`, `ev43-reachability.test.ts` — confirmed via grep and shape assertion 5.
+> 3. **No duplicated harness**: no `ev43/` directory under `test/` (shape assertion 1), no retired path tokens (shape assertion 6), no `stub*` files under `test/faux-provider/` (shape assertion 7), and `test/stub-child.ts` (103 lines) remains the seat-dispatch arm unchanged.
+
+No `REJECT`, so the card remains `In Review` and proceeds to step 11.
+
+### Step 11 — deterministic merge check and merge (facilitator, mechanical)
+
+Read **before** the merge, subject pinned to the PR head: `gh pr checks 65
+--json name,state,workflow` → `[{"name":"gates","state":"SUCCESS","workflow":"gates"}]`,
+and `gh pr view 65 --json headRefOid` →
+`f12f3be11343245fb25154a3051c361b7e6b8c06` (unchanged from the SHA the Skeptic
+and judge verified). All five deterministic criteria held:
+
+1. **Every owner gate green, in full** — `bunx tsc --noEmit` exit 0; `bun test`
+   → `892 pass / 2 skip / 0 fail` (894 tests / 78 files); `python3
+   council/validate.py` → `All council artifacts valid`. Run by the owner, then
+   re-run at the head by the Skeptic, then re-confirmed by the judge.
+2. **GitHub Actions green on the PR head SHA** — the `gates` workflow
+   `SUCCESS` on `f12f3be11343245fb25154a3051c361b7e6b8c06`, keyed on the
+   `workflow` field (an absent check would not have counted).
+3. **No blocking Skeptic objection** — step 9 verdict `no open objections`;
+   the sole residual, O-H (the O7 live-E2E half), is `open-untested` and
+   non-blocking by the spec's explicit boundary.
+4. **Judge verdict `PASS`** — step 10.
+5. **No `Needs Human` state, no outstanding ruling** — the step-6 goal-text
+   question was ruled by `steward` (job-24) and applied; the two spec
+   dispositions (`hasUI`, ruled-adjacent open-untested items) were disposed of
+   in step 7/8; nothing is left unruled.
+
+Merge executed with the criterion-2 SHA pinned: `gh pr merge 65 --squash
+--admin --match-head-commit f12f3be11343245fb25154a3051c361b7e6b8c06` →
+**MERGED** `2026-09-17T17:06:12Z`; merge commit
+`323abdc8ffacae1d7c8cbb018889ba5d1afb8c67`. `--admin` is the Phase-1-recorded,
+run-scoped authorization (FLLWUP-42), not a personal bypass.
+
+### Step 12 — sync and reconcile; card `Done`
+
+`git fetch origin` → `origin/main` =
+`323abdc8ffacae1d7c8cbb018889ba5d1afb8c67`; local `main` was `fce0ecb`, an
+ancestor, so `git merge --ff-only origin/main` fast-forwarded cleanly — no
+divergence, no union-merge reconcile, never forced. Merged-SHA CI confirmed
+green from the API, not from any seat's report: `gh run list --commit
+323abdc…` → `gates`, `status: completed`, `conclusion: success`.
+
+Done is written from that observed artifact — merged, with green CI on the
+merged SHA — and nothing else. `python3 council/validate.py` clean.
+
+### Step 13 — card the follow-ups (drafts only — **not written**, pending confirmation)
+
+Per the run-wide Phase-1 ruling, step-13 confirmation is re-homed to
+`product-owner`; this container **drafts and does not write** any card, and does
+not dispatch `product-owner`. The drafts below are held here (marked DRAFT) and
+are carried to the orchestrator as the run's step-13 surface for edit / drop /
+approve. Next free id appears to be `FLLWUP-55`; allocation is the
+orchestrator's.
+
+#### DRAFT (not written) — candidate A: the fourth pty screen model in `smoke/`
+
+```
+id: FLLWUP-55
+title: Collapse the smoke driver's private pty screen model onto the shared kit
+goal: smoke/search-smoke/driver.py consumes the shared pty screen model instead of carrying its own class Screen/class Session, with the release gate's pinned-pi isolation and the README's stdlib-only claim preserved or explicitly amended.
+epic: EPIC-9
+```
+
+Intent: this card's goal scoped its universe to `test/` plus `ev43/`, so
+`smoke/search-smoke/driver.py`'s own `class Screen`/`class Session` (the fourth
+definition, O4) was left untouched and named as a bounded residual — the
+`steward` ruling called that "a scoping decision matching O4, not a permanent
+portfolio acceptance". This card is that residual: decide whether the smoke
+driver can import the shared kit without coupling the release gate (which
+installs a pinned external pi 0.84.3) to a `test/` module that resolves the
+dev-installed pi, and without falsifying `smoke/search-smoke/README.md`'s
+"authored in the driver" claim. If it cannot, the card's deliverable is the
+recorded rationale plus an amended README claim — not a forced share.
+
+#### DRAFT (not written) — candidate B: the seat-dispatch arm's own provider
+
+```
+id: FLLWUP-56
+title: Saturate the seat-dispatch provider-error arm onto a config-injected faux provider
+goal: A falsifier exists for the seat child's own provider-error path — the parent-turn offline faux-provider harness reaching a real seat child — and its live-arm budget is accounted for in the suite-cost measurement.
+epic: EPIC-9
+```
+
+Intent: step-4 O7's live half stayed `open-untested` (non-blocking): the faux
+provider is structurally reachable in a real seat child via a scratch repo's
+`.pi/extensions` + `.council.json` and `command: "pi"` with `-a`
+(`seats.ts:600-621` has no `-e`/`--provider`), but running it would re-architect
+the (b) arm — changing what that falsifier proves — and add a live arm to
+FLLWUP-48's budget. Filed as a residual, not a defect: if pursued, it is a
+different card whose design owns the arm-cost accounting.
+
+No other candidate: the FLLWUP-27 preflight branch-freshness artifact is
+already carded; the manual pty runners' CI wiring was explicitly out of scope
+(§10); the `hasUI` in-handler scenario was voluntarily retired with the
+`ev43/` tree and its restoration is not owed. No deferred idea, out-of-scope
+objection, or "we should also" remains unfiled.
+
+**Step 13 outcome: drafts held; routed to the orchestrator for `product-owner`
+confirmation. Nothing written to `council/cards/`.**
+
+### Step 14 — persist (owed, routed)
+
+One durable item is offered for `/wiki-ingest`: the **"witness the goal, not
+the suite" pattern** this card's step 4 O8/O9 settled. When a goal's clause is
+unsatisfiable by the suite as it stands — `bun test` was green with all four
+harness copies present, and the FLLWUP-47 PO ruling recorded that removing them
+left the count identical — the goal has no falsifier until a committed,
+identity-scoped shape test exists; one-shot PR-time evidence (`ls`, `grep`
+counts) proves the state at merge and nothing after. The Corollary: the
+witness must assert identities (one provider extension / one headless runner /
+one screen model inside a *declared* universe), not a directory listing; and
+when a characterization test is re-pointed onto a shared helper, its recorded
+forcing input must be preserved byte-identically (the `EV40_ERROR_MESSAGE`-style
+knob) or the re-encode silently re-records the observation. Recorded as owed;
+this container never hand-edits `vault/` and writes no file there.
