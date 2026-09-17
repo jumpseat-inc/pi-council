@@ -120,8 +120,10 @@ four tests).
 
 ≈ **$9.79** catalogue-estimate for the seven merged runner containers, ≈
 **$14–15** all-in including the four escalation containers and the ruling
-dispatches. Version stays **v0.18.0** — the third behavior-changing epic behind
-one stamp.
+dispatches. Version stayed **v0.18.0** through closure — the third
+behavior-changing epic behind one stamp — and the release landed after
+closure as **v0.19.0** (`package.json` bumped, `v0.19.0` tagged, `latest`
+moved).
 
 ## Related
 

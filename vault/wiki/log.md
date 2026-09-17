@@ -1,5 +1,16 @@
 # Wiki Log
 
+## [2026-09-16] ingest | v0.19.0 release — EPIC-9 minor bump
+
+Bumped `package.json` 0.18.0 → 0.19.0 (commit `689f621`), tagged `v0.19.0`
+(lightweight, matching the v0.14.0-onward convention) and force-moved `latest`
+from `4074870` to `689f621`. Updated [[pi-council-overview]] (current version →
+v0.19.0; a `v0.19.0` release row) and [[index]]. ⚠️ **Gap flagged:** v0.18.0 was
+bumped in source but **never tagged**, and `latest` had been pointing at the
+untagged 0.17.1 bump commit; the tag set also carries two un-prefixed strays
+(`0.17.1`, `0.6.2`). No source page — the release's content is the EPIC-9
+ledger already ingested.
+
 ## [2026-09-16] ingest | EPIC-9 run ledger — provider-error retry, the dead-literal catch
 
 Filed `vault/raw/2026-09-16-epic9-run-ledger.md` (the `/features-new` +

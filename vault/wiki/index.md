@@ -7,9 +7,9 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 
 - [[pi-council-overview]] — Pi-council as an installable package: the Council
   + wiki workflow, two engine halves, the loop, and the release version arc
-  (through v0.18.0: EPIC-6 closed, EPIC-7's honest usage accounting landed on
+  (through v0.19.0: EPIC-6 closed, EPIC-7's honest usage accounting landed on
   main, EPIC-8's elegant transcript rendering closed Done, and EPIC-9's
-  provider-error retry closed Done).
+  provider-error retry closed Done and was released).
 
 ## Entities
 
@@ -125,7 +125,7 @@ _(none yet)_
 - [[2026-09-06-epic6-close-run-ledger]] — The EPIC-6 close run: BUG-1 + FLLWUP-13..25 delivered (14 gated merges), the env-split contract proven (no 0.85.0 regression), the single-writer discipline hardened three layers deep, first epic-card closure, v0.18.0.
 - [[2026-09-11-epic7-run-ledger]] — The EPIC-7 run: honest token/cost usage accounting (EV-28/30/31/32/29, five gated merges) — every child escalated, the provider has no per-component dollar source, the stalled runner re-learned the window invariant, second epic-card closure at v0.18.0.
 - [[2026-09-15-epic8-run-ledger]] — The EPIC-8 run: elegant transcript rendering (EV-33/34/35/36, four gated merges) — the taste request resolved to a parser-fidelity fix first, every child escalated, the one-row R3 projection, third epic-card closure at v0.18.0.
-- [[2026-09-16-epic9-run-ledger]] — The EPIC-9 run: provider-error retry with exponential backoff (EV-37/38/39/40/41/42/43, seven gated merges) — all five merge criteria passed on a dead literal branch, four cards escalated, the first human-granted merge bypass, fourth epic-card closure at v0.18.0.
+- [[2026-09-16-epic9-run-ledger]] — The EPIC-9 run: provider-error retry with exponential backoff (EV-37/38/39/40/41/42/43, seven gated merges) — all five merge criteria passed on a dead literal branch, four cards escalated, the first human-granted merge bypass, fourth epic-card closure at v0.18.0 (released as v0.19.0).
 - [[2026-09-03-po-ev16-grader-topology]] — Grader = harness-dispatched sibling, cellId linkage, three cost columns, no exclusion rule; Q1's repeat dimension superseded its first-write-wins clause.
 - [[2026-09-03-po-ev19-resultrecord-key]] — O1: ResultRecord key (cellId, repeat, scoredUnder) by symmetric mirroring; silent loss of a re-grade rejected.
 - [[2026-09-03-po-epic4-promotion-cadence]] — P1–P5: the automated Backlog→Ready chain for EPIC-4's children.
