@@ -395,14 +395,16 @@ export class CouncilTreeWidget implements Component {
 
 	render(width: number): string[] {
 		const surface = this.controller?.surface ?? "editor";
-		const sig = `${surface}:${this.controller?.selectedSessionId ?? ""}`;
+		const sig = `${surface}:${this.controller?.selectedRowKey ?? ""}`;
 		if (this.cached?.w === width && this.cached.sig === sig) return this.cached.lines;
 		const ordered = [...this.rows].sort(
 			(a, b) => (STATE_ORDER[stateOf(a.node)] ?? 99) - (STATE_ORDER[stateOf(b.node)] ?? 99),
 		);
-		// EV-8: keep the controller's row list (sessionId order) in sync so the
+		// EV-8: keep the controller's row list (row-key order) in sync so the
 		// editor's arrow routing and the highlighted row share one source (O6).
-		this.controller?.setRows(ordered.map(({ node }) => node.manifest.sessionId));
+		// FLLWUP-45: the row key is the JOB id — the only identity stable across
+		// an attempt respawn (the sessionId mutates; the id does not).
+		this.controller?.setRows(ordered.map(({ node }) => node.manifest.id));
 		const avail = Math.max(1, this.termRowsCap - PROGRESS_CHROME);
 		let lines: string[];
 		if (surface === "progress" && this.termRowsCap >= DISPLAY_FLOOR) {
@@ -427,7 +429,7 @@ export class CouncilTreeWidget implements Component {
 			const rowBudget = overflow ? ROWS_MAX - 1 : ROWS_MAX;
 			for (const { node } of ordered.slice(0, rowBudget)) {
 				const selected =
-					this.controller?.surface === "tree" && this.controller.selectedSessionId === node.manifest.sessionId;
+					this.controller?.surface === "tree" && this.controller.selectedRowKey === node.manifest.id;
 				const base = this.rowLine(node);
 				// EV-8: ▌ (U+258C) prefixes the selected row only while tree-focus (O6/OJ-3).
 				const line = selected ? `${this.theme.fg("accent", TREE_ROW_MARKER)} ${base}` : base;
@@ -446,7 +448,7 @@ export class CouncilTreeWidget implements Component {
 		const layout = computeProgressLayout(this.termRowsCap, ordered.length);
 		const tree = ordered.slice(0, layout.treeLines).map(({ node }) => truncateToWidth(this.rowLine(node), width));
 		const sep = layout.sepLines > 0 ? [truncateToWidth(this.theme.fg("dim", "── progress ──────────────"), width)] : [];
-		const view = this.controller?.selectedSessionId ? this.ensureView(layout.progressLines) : undefined;
+		const view = this.controller?.selectedRowKey ? this.ensureView(layout.progressLines) : undefined;
 		// EV-36: re-grant on every render, fresh or cached — ensureView's early return
 		// ignores the grant, so this is the single seam that keeps viewportRows equal
 		// to computeProgressLayout's current grant (the modal path never calls it).
@@ -457,7 +459,7 @@ export class CouncilTreeWidget implements Component {
 
 	/** Build (once per selected session) the live TranscriptView; installs it as viewHost. */
 	private ensureView(viewportRows: number): TranscriptView | undefined {
-		const sid = this.controller?.selectedSessionId ?? null;
+		const sid = this.controller?.selectedRowKey ?? null;
 		if (!sid) return undefined;
 		if (this.viewFor?.sessionId === sid) return this.viewFor.view;
 		const runId = this.currentRunId() ?? "";

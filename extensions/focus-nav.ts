@@ -119,11 +119,11 @@ export function computeProgressLayout(termRows: number, treeContentLines: number
 	return { avail, sepLines, treeLines, progressLines };
 }
 
-/** The shared mutable focus surface: surface + sessionId-keyed selection. */
+/** The shared mutable focus surface: surface + row-key-keyed selection. */
 export class TreeFocusState {
 	surface: Surface = "editor";
-	/** Selected row keyed by sessionId, NEVER by index (O6). */
-	selectedSessionId: string | null = null;
+	/** Selected row keyed by row key (the job id), NEVER by index (O6). */
+	selectedRowKey: string | null = null;
 	/** EV-9: captured terminal height (widget factory), used by the progress floor guard. */
 	termRowsCap = 24;
 	/** EV-9: host for the live TranscriptView so progress keys reach it (editor is always-focused). */
@@ -139,25 +139,25 @@ export class TreeFocusState {
 	isOpen(): boolean {
 		return this._open;
 	}
-	/** Current sorted session-id rows (index == visual row in the widget, running-first). */
+	/** Current sorted row keys (index == visual row in the widget, running-first). */
 	setRows(ids: string[]): void {
 		this._rows = ids;
 	}
 	rowCount(): number {
 		return this._rows.length;
 	}
-	/** Resolve the selected session to its CURRENT row index (recomputed; never stale). */
+	/** Resolve the selected row key to its CURRENT row index (recomputed; never stale). */
 	selectedIndex(): number {
-		if (this.selectedSessionId === null) return -1;
-		const i = this._rows.indexOf(this.selectedSessionId);
+		if (this.selectedRowKey === null) return -1;
+		const i = this._rows.indexOf(this.selectedRowKey);
 		return i < 0 ? -1 : i;
 	}
 	/** Try to enter the tree. Returns true once surface==="tree". */
 	enter(): boolean {
 		if (this.surface === "tree") return true;
 		if (!this._open || this._rows.length === 0) return false;
-		if (this.selectedSessionId === null || !this._rows.includes(this.selectedSessionId)) {
-			this.selectedSessionId = this._rows[0]!;
+		if (this.selectedRowKey === null || !this._rows.includes(this.selectedRowKey)) {
+			this.selectedRowKey = this._rows[0]!;
 		}
 		this.surface = "tree";
 		return true;
@@ -166,7 +166,7 @@ export class TreeFocusState {
 	move(dir: -1 | 1): void {
 		const i = this.selectedIndex();
 		const next = dir === 1 ? Math.min(this._rows.length - 1, i + 1) : Math.max(0, i - 1);
-		this.selectedSessionId = this._rows[next] ?? null;
+		this.selectedRowKey = this._rows[next] ?? null;
 	}
 	isAtTop(): boolean {
 		return this.selectedIndex() <= 0;
@@ -178,17 +178,17 @@ export class TreeFocusState {
 	/** Exit the tree: back to editor, clear selection (T3). */
 	exit(): void {
 		this.surface = "editor";
-		this.selectedSessionId = null;
+		this.selectedRowKey = null;
 	}
 	/**
 	 * EV-9: open the inline progress for `sessionId`. Floor guard (product-owner
 	 * ruling): at termRows < 7 the entry is a consumed NO-OP — surface stays put,
 	 * no progress viewport, no side effects. Returns true only on transition.
 	 */
-	enterProgress(sessionId: string): boolean {
+	enterProgress(rowKey: string): boolean {
 		if (this.termRowsCap < DISPLAY_FLOOR) return false;
 		if (!this._open) return false;
-		this.selectedSessionId = sessionId;
+		this.selectedRowKey = rowKey;
 		this.surface = "progress";
 		return true;
 	}
@@ -315,7 +315,7 @@ export class CustomTreeEditor extends CustomEditor {
 		};
 		const r = routeEditorFocus(this.controller, key, meta);
 		if (r.action === "consumed") {
-			if (key === "enter") this.controller.enterProgress(this.controller.selectedSessionId ?? "");
+			if (key === "enter") this.controller.enterProgress(this.controller.selectedRowKey ?? "");
 			this.tui.requestRender();
 			return;
 		}

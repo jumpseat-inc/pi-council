@@ -137,3 +137,34 @@ test("FLLWUP-45: resolveAttempt — absent or null cursor resolves the LAST entr
 test("FLLWUP-45: resolveAttempt — empty entries guard returns the {1, '', 0} sentinel", () => {
 	expect(resolveAttempt([])).toEqual({ attempt: 1, sessionId: "", index: 0 });
 });
+
+// ---------------------------------------------------------------------------
+// B3: selection survives an attempt respawn (spec §8.3; Skeptic O5)
+// ---------------------------------------------------------------------------
+
+test("FLLWUP-45: selection survives an attempt respawn — row key is the job id, ▌ marker stays", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "f45-respawn-"));
+	const runId = "r45a";
+	ensureRunDir(root, runId);
+	writeManifest(root, runId, m("job-1"));
+	writeManifest(root, runId, m("job-2", { seat: "skeptic", state: "done", settledAt: NOW - 60_000 }));
+	const c = new TreeFocusState();
+	c.termRowsCap = 24;
+	const w = new CouncilTreeWidget(root, () => runId, theme, { now, controller: c, termRowsCap: 24 });
+	w.render(200); // setRows from manifests
+	c.setOpen(true);
+	c.enter(); // selects job-1
+	expect(c.selectedIndex()).toBe(0);
+	// the retry timer fires: same job id, new attempt/session
+	writeManifest(
+		root,
+		runId,
+		m("job-1", { attempt: 2, sessionId: "job-1-attempt2", attempts: [entry(1, "job-1")] }),
+	);
+	w.refresh();
+	const lines = w.render(200);
+	expect(c.selectedIndex()).toBe(0); // RED today: -1 (selection keyed on the mutated sessionId)
+	const marked = lines.filter((l) => l.includes("\u258C"));
+	expect(marked.length).toBe(1); // RED today: no marker on any row
+	expect(marked[0]).toContain("owner"); // the marker is on the respawned job's row
+});
