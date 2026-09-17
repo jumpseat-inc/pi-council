@@ -458,3 +458,477 @@ it invalidates the next card's measurement.
 `bun test`; `python3 council/validate.py`; `bash council/preflight.sh
 FLLWUP-49` (expect the FLLWUP-27 stale-by-construction line only); plus
 claims 1–6 above, and `python3 -m py_compile test/faux-provider/pty.py`.
+
+### Step 3 — bounded exchange (round 2)
+
+Re-dispatched each generator with the other's round-1 position (read from this
+record). Jobs: `owner` `job-22.3` (3.6m, 9 turns), `principal` `job-22.4`
+(3.6m, 16 turns), both settled `done`. Positions appended verbatim. **Closed
+at 2 rounds** — positions stabilised (see the facilitator note below).
+
+#### Round 2 — `owner` (job-22.3)
+
+### Checks I ran (real output, this tree)
+
+1. **Premise greps / `952d5c1`:** `git show --stat 952d5c1 | grep -Ei
+   "harness|\.py" | wc -l` → **`0`**. EV-42 carries no harness or pty file —
+   the Intent sentence is stale as read. And `test/ev41-retry-e2e.test.ts:64-65`
+   already imports `./ev40-harness/harness-headless.ts` + `INJECTED_ERROR_MESSAGE`.
+2. **CSI `D` drift (red today, executable):** driving `ESC[10;20H` then
+   `ESC[5D` through each `Screen._csi`: `ev41-tui.py` → **col 4**
+   (absolute-column misread); `tui-retry.py` → **col 14** (correct
+   relative-left). The copies have diverged and `ev41-tui.py` is the wrong one.
+3. **Seat-dispatch reachability:** `extensions/seats.ts:600-617`
+   (`buildChildArgv`) emits
+   `["--mode","json","-p","-a","--session-dir",…,"--session-id",…,"--model",seat.model,…]`
+   — **no `-e`, no `--offline --provider`**. Principal's
+   structural-unreachability claim is verified fact.
+4. **Literal check:** `INJECTED_ERROR_MESSAGE = "Provider finish_reason:
+   error"` (`ev40-harness-extension.ts:48`); both classes are pinned
+   non-pi-retryable (`ev41-retry-e2e.test.ts:88` with-colon;
+   `ev43-reachability.test.ts:32-47` colon-less).
+
+### Where I concede to `principal`
+
+1. **Directory rename to `test/faux-provider/`** — conceded. My round-1
+   "cosmetic wart, out of goal" was wrong in kind: a shared general-purpose
+   helper named after one epic is an active misdirection for the next
+   consumer, and `git mv` is cheap. Principal's two-commit split (pure move
+   first, naming churn second) is the right settlement shape for the Skeptic.
+2. **`EV40_*` → `HARNESS_*` env names and provider id `ev40` → `harness` in
+   commit 2** — conceded, same argument as (1); consistency with the
+   directory concession. Binding constraint: commit 1 carries **zero**
+   asserted-string changes.
+3. **Profile-based `pty.py` over my three thin runners** — conceded. The
+   drift bug I just executed is the empirical case for maximal consolidation
+   of the screen model; my "scenarios assert different things" argument is
+   answered by the profile table, and principal's shape test (`readdirSync`
+   exactly `{harness.ts, extension.ts, pty.py}`) is cleaner than my `grep -c
+   "class Screen"` census. `falsifier-tui.py` deleted, its hasUI in-handler
+   TUI scenario recorded as a retired manual capability, and with it my
+   round-1 `ctx.hasUI` port into the shared extension becomes dead code —
+   withdrawn.
+4. **Shape test as the goal's only falsifier** — conceded and adopted. I had
+   "no duplicated copy remains" as a prose claim with no operationalization;
+   principal is right that `bun test` green with four copies present is a
+   vacuous green. `test/faux-provider-shape.test.ts` (exact dir set,
+   `!existsSync(ev43)`, one `class Screen`/`class Session` outside `smoke/`,
+   one `resolveNode`, plus `py_compile pty.py` — coverage gain) goes in the
+   design.
+5. **`smoke/search-smoke/driver.py` boundary** — conceded: outside the
+   declared universe; a `smoke/ → test/` import inside the release gate is a
+   layering inversion against an independently-ruled manual. Pinned residual,
+   named in the spec.
+6. **FLLWUP-48 adjacency** — accepted: this refactor adds zero live arms and
+   no arm-timeout changes, or it invalidates the next card's budget.
+
+### What I still defend: the `EV40_ERROR_MESSAGE` knob (against principal's declared colon-less → with-colon swap at `ev43-reachability.test.ts:73`)
+
+Principal's own blind-spot section names the hazard — the EV-43 test is a
+*characterization of pi's runtime* whose **recorded** observation
+(`council/cards/EV-43.md:143-153`) was produced by the old extension and the
+**colon-less** literal — and then accepts swapping the literal anyway as
+"declared, strengthening." I don't: a characterization test whose forcing
+input changes relative to the recorded observation is a new observation
+wearing an old name. The knob (`EV40_ERROR_MESSAGE` env in the extension,
+default `INJECTED_ERROR_MESSAGE`, ~5 lines) byte-preserves the recorded
+falsifier identity and makes my diff strictly smaller than principal's: only
+literals→imported-constants, **no** asserted-string change in
+`ev43-reachability.test.ts` (the `control.stderr` assertion at `:73` stays
+`Provider finish_reason error` byte-identical to HEAD, since the with-colon
+literal does not contain that substring). Principal's counter would be
+"one-test surface"; I accepted exactly that trade in round 1, for this
+reason. This is a ~5-line cost vs. falsifier identity — I hold it.
+
+### Goal-text defect — I agree with principal, with the reading that keeps the oracle
+
+Two defects, both verified above: (a) the **premise** is stale (EV-42 carries
+nothing; EV-41 headless already shared; the real duplication is `ev43/` + the
+pty screen models); (b) the **seat-dispatch clause is unsatisfiable as
+literally read** — the seat-dispatch provider-error test is built on
+`test/stub-child.ts` (shared by 5 test files, per principal's grep), and
+routing a faux provider into the real seat child path requires changing
+`buildChildArgv`/spawn in the engine, which would change what that falsifier
+proves. The correct reading the implementation can satisfy: **"the
+seat-dispatch provider-error test imports [its shared helper]" =
+`stub-child.ts`**, which is itself a shared test helper with no duplicated
+copy — while *the parent-turn provider-error tests* import the faux-provider
+harness. Under that reading the goal's outcome is: one faux-provider harness
+(extension + headless runner + pty substrate) in `test/faux-provider/`, every
+provider-error test importing its shared helper and no copy, and the spec
+records the premise correction, the seat-clause reading, and the named
+`driver.py` residual. No engine change; the judge's oracle holds as written.
+
+### Tradeoffs accepted
+
+- I lose the three-runners shape and the hasUI TUI port (retired, recorded).
+  The knob survives as the one deliberate divergence from principal's design;
+  if the consolidator sides with principal, the fallback is principal's
+  declared swap **plus** a spec note that the `:73` assertion change is a
+  declared observation re-encode, not silent drift.
+- The knob is one more env var in the extension's contract — accepted; it is
+  also what lets the shape test's "exactly three files" stay honest while
+  `ev43/`'s identity rides on behavior, not a renamed literal.
+
+### Testable claims
+
+1. **Settled by run this round:** drift test above (cols 4 vs 14 —
+   `ev41-tui.py`'s `D` clause is wrong today); `952d5c1` stat has zero
+   harness/py files; `buildChildArgv` has no `-e`/`--provider`.
+2. **Knob vs swap (red/green):** under my design, `git diff main --
+   test/ev43-reachability.test.ts` shows only import-path changes; `grep -n
+   "finish_reason error" test/ev43-reachability.test.ts` hits survive
+   byte-identical; under principal's, `:73`'s literal changes. One command
+   distinguishes the two designs post-implementation.
+3. **Goal operationalized (post-refactor):** principal's shape test asserts
+   exactly `{harness.ts, extension.ts, pty.py}` in `test/faux-provider/`, no
+   `ev43/`, one `class Screen` outside `smoke/`, and — my addition —
+   `stub-child.ts` still the single seat fixture (no new seat-fixture copy
+   born).
+4. **Gates unchanged:** `bunx tsc --noEmit` → `bun test` → `python3
+   council/validate.py` → `bash council/preflight.sh FLLWUP-49`, in order,
+   plus claims 1–3 and `python3 -m py_compile test/faux-provider/pty.py`.
+
+#### Round 2 — `principal` (job-22.4)
+
+**Shell availability, stated up front:** this pass has
+`read`/`grep`/`find`/`ls` only — **no execution**. Every fact below is settled
+by reading source with line numbers; every *command* is marked `NOT RUN` and
+is the Skeptic's. I claim no run I did not make.
+
+---
+
+### Cross-seam reading — what the contract actually is
+
+Owner's approach §1–§2 and my §"Cross-seam" agree on the tree, and I confirm
+owner's drift finding by direct read (previously unverified by me):
+
+- `test/ev41-tui.py:113` → `self.c = max(0, min(self.cols - 1, n - 1))` — the
+  `G` clause's absolute-column semantics (`:115`), which is **wrong** for CSI
+  `D`.
+- `test/ev40-harness/tui-retry.py:107` and `ev43/falsifier-tui.py:111` →
+  `max(0, self.c - n)` — correct relative-left.
+
+So the pty family has **already drifted**, and the kit must pick one
+semantics. Confirmed, not inferred.
+
+One contract fact I got wrong in round 1 and correct here, from both sides of
+the seam:
+
+- `test/ev41-retry-e2e.test.ts:191-215` spawns the seat arm as
+  `hub.spawnJob({ seat: "stub", command: "bun", args: [STUB], … })` — it
+  **never calls `buildChildArgv` and never dispatches a seat**. Its failure
+  literal is engine-sourced: `test/stub-child.ts:3` imports
+  `PROVIDER_FINISH_REASON_ERROR` from `../extensions/retry.ts`. The only test
+  that runs a real `"pi"` child is the gated `test/integration.test.ts:33`.
+- My round-1 claim "wiring the faux provider into the seat path is an
+  **engine** change" is **too strong**. `buildChildArgv`
+  (`extensions/seats.ts:613`) has no `-e`/`--provider`, but the child runs
+  `cwd: repoRoot` with `-a` (`seats.ts:607-608`: "trust project-local files …
+  so project extensions load") and `command: "pi"` (`hub-tools.ts:248-249`),
+  and pi auto-discovers `.pi/extensions/*.ts` project-locally
+  (`pi-coding-agent/docs/extensions.md:113-120`). With a scratch repo carrying
+  `.pi/extensions/<faux>.ts` plus a `.council.json` seat-model override, a real
+  seat child **can** reach the faux provider with no engine change. I did not
+  run this; see `NOT RUN (b)`.
+
+That correction does not save the goal's seat half — it moves it to a
+stronger objection, below.
+
+---
+
+### Where I concede, point by point
+
+1. **`EV40_*` env naming stays.** They are a private wire between the TS
+   runner (`harness-headless.ts:120-140` `harnessEnv`) and the py runner;
+   renaming buys zero behavior and enlarges a diff whose whole value is being
+   small. Conceded — and note this **deletes my round-1 commit 2**, whose only
+   content was that rename. I replace the split, I don't keep a split with
+   nothing in it (see defense 4).
+2. **`EV40_ERROR_MESSAGE` knob: conceded.** `council/cards/EV-43.md:149-158`
+   records the observation with the colon-less class by name, and
+   `test/ev43-reachability.test.ts:5-17` states the observation *is* the
+   characterization. A silently swapped literal makes "observation preserved"
+   unfalsifiable in the one direction that matters. Owner is right. Condition
+   attached: the knob covers **one of four** moving identity strings (defense
+   2).
+3. **Three thin pty runners, not one profile-parametrized file: conceded.**
+   The substrate is where dedup pays; a profile table adds an argv dispatch
+   and a knob forest while removing no definition. Owner's `pty-kit.py` +
+   three scenario runners achieves the same single-`class Screen`,
+   single-`class Session` outcome with more readable per-scenario verdicts.
+4. **Not renaming the directory: conceded as tradeable, defended as
+   preferable (ranked last).** I will not spend a round on it. Rationale if it
+   survives: `test/ev40-harness/` names the family after the *first* of three
+   consumers (EV-40, EV-41, EV-43), and after this card the directory is the
+   family's home; the directory name is the only discovery surface a third
+   consumer has. Cost is bounded and mechanical — `HARNESS_EXTENSION`
+   (`harness-headless.ts:14`) feeds `test/ev41-retry-e2e.test.ts:59,344`, the
+   three TS import blocks (`ev40-headless.test.ts:35-37`,
+   `ev40-live-gates.test.ts:39-40`, `ev41-retry-e2e.test.ts:64-65`),
+   `test/ev43-reachability.test.ts:25`'s re-point, and five comment citations
+   (`extensions/parent-retry.ts:4`, `test/ev41-tui.py:4`,
+   `test/ev40-harness/tui-retry.py:4`, `test/ev41-retry-e2e.test.ts:4,32`,
+   `test/ev40-live-gates.test.ts:147`). If the consolidator drops it, I take
+   `test/ev40-harness/` + `pty-kit.py` without objection.
+
+Conceded items are off the table for me. Everything below is load-bearing,
+ranked.
+
+---
+
+### Where I still defend, and why
+
+**1. The committed shape test — the goal has no other operationalization, and
+this is now a *settled* claim, not a preference.**
+The suite cannot witness this goal, in two independent ways:
+
+- No test asserts the shape: `grep "class Screen"` repo-wide returns only
+  `ev43/falsifier-tui.py:52`, `test/ev41-tui.py:54`,
+  `test/ev40-harness/tui-retry.py:48`, `smoke/search-smoke/driver.py:66` —
+  four `.py` definitions, **zero** assertions. All four copies exist today
+  under a green suite.
+- The fleet precedent is *settled*: the immediately-preceding card's PO step-6
+  ruling records, as a `closed-red` fact, that "removing
+  `test/ev40-harness/` and `ev41-tui.py` leaves the count identical — those
+  files are inert in that configuration"
+  (`vault/raw/2026-09-17-po-fllwup47-step6-ruling.md:302-307`, mirrored at
+  `docs/superpowers/specs/2026-09-17-FLLWUP-47-design.md:86-91`).
+
+So a Skeptic whose falsifier is `bun test` returns a vacuous green. Owner's
+claims 3–4 (`ls ev43/`, grep counts) are *one-shot PR-time* evidence; they
+prove the state at merge and nothing after. I keep the shape test, refined
+against the change-detector objection: assert **identity** properties, not an
+exact `readdirSync` list — one provider extension, one headless runner, exactly
+one `class Screen`/`class Session` under `test/`, `ev43/` absent — plus
+`python3 -m py_compile` on each pty runner (today a syntax error in an
+unspawned manual runner breaks nobody; that is a real gap, not decoration).
+
+**2. EV-43 characterization fidelity — and owner's knob covers one of four
+strings.**
+The recorded observation names four identity strings: extension/provider id
+`ev43`/`ev43-model`, continuation `EV43-CONTINUE`, marker
+`EV43-SECOND-RESPONSE`, and the injected class (`council/cards/EV-43.md:149-158`,
+`:317`, `:415-418`). Re-pointing onto the shared harness necessarily moves
+three of them, and the test asserts all of them: `:66` and `:72`
+(`EV43-CONTINUE`), `:68` (`EV43-SECOND-RESPONSE`), `:73` (the class the knob
+preserves). Two additions close it, both cheap:
+
+- export the continuation prompt from the extension (one line;
+  `CONTINUATION_MARKER` is already exported at
+  `ev40-harness-extension.ts:33`) so the re-pointed test asserts **no**
+  harness-internal literal — the property I argued for in round 1 and which
+  owner's `EV40_ERROR_MESSAGE` knob alone doesn't reach.
+- correct `test/ev43-reachability.test.ts:1-19`: its header currently
+  describes extension + runner that this refactor deletes ("the EV-43 scratch
+  extension"). That paragraph is live documentation, not a historical record,
+  and it would lie after the re-point. Owner's consumer table (`ev43/`
+  deleted, test re-pointed) does not list it.
+- `EV-43.md` itself must **not** be edited — it is the record of what was
+  observed (my round-1 claim 6, `git diff --stat main -- council/cards vault`
+  → empty). Owner and I agree; naming it here so the Skeptic doesn't accept an
+  amended record.
+
+**3. The smoke `driver.py` boundary, unchanged — and the universe must be
+*declared*, or the Skeptic settles it by grep root.**
+Grounds, stronger than my round-1 "release-gate independence":
+`smoke/search-smoke/README.md:114-116` pins a greppable claim — "`driver.py`
+imports python3 stdlib only … The screen model and the byte table are authored
+in the driver" — and `run.sh:60-83` installs a **pinned** pi 0.84.3 into a
+scratch prefix (`driver.py:4`) while the test harness resolves the
+**dev-installed** pi via `import.meta.resolve` (`harness-headless.ts:21-25`).
+Sharing a screen model across two different pinned pi versions couples the
+release gate to a module under `test/` and falsifies a pinned README claim.
+This is also where owner's claim 3 and my claim 1 diverge in a way the spec
+must resolve: owner greps `test/` and expects `1`; I grep repo-wide and expect
+`2`. Both are right under their own scope. **The spec must pin the universe in
+prose** — the faux-provider falsifier family under `test/` plus the retired
+`ev43/`, with `smoke/search-smoke/driver.py` named as the one pinned residual
+— or a Skeptic can make either claim red by choosing a root.
+
+**4. The two-commit split, re-specified now that the rename is gone.**
+Commit 1 = pure relocation + substrate dedup + re-points, **zero assertion or
+behavior change**. Commit 2 = the declared deltas: the D-clause semantics fix,
+`EV40_ERROR_MESSAGE`, the `hasUI` branch port, the EV-43 identity strings →
+imports, the header/comment corrections, and the shape test. Rationale: the
+Skeptic's "no behavior change" falsifier is only checkable on a commit that
+*excludes* the changes we already know change behavior. Fold them together and
+no reviewer can separate "moved" from "changed" without reading the whole
+diff — the exact hiding place this card-class is about.
+Sequencing point neither round-1 position made: **the D-clause fix changes a
+live arm's screen rendering** (`ev41-retry-e2e.test.ts:338` spawns it,
+`:355-357` assert its verdict). It must be re-run *after* the fix, not merely
+after the move — the pty arm's current green may or may not depend on the
+wrong `D` semantics, and only a post-fix run settles it.
+
+**5. The `hasUI` port owner found (his §3): accepted, and owner is factually
+right.** `ev40-harness-extension.ts:190-204` has only the send-then-poll
+branch; `ev43/ev43-falsifier-extension.ts:72-91` has the `ctx.hasUI` split.
+Moving `falsifier-tui.py`'s scenario onto the shared extension without that
+branch silently changes the TUI shape. This is a genuine contribution from
+owner's read and belongs in commit 2.
+
+**6. Engine-comment sweep (mine, round-1 item 6) is now inside commit 2** —
+`extensions/parent-retry.ts:4` cites
+`test/ev40-harness/ev40-harness-extension.ts`; `test/ev40-live-gates.test.ts:147`
+cites `--provider ev40`. A test path cited from an engine file is the
+cross-seam tell this seat exists to catch, and it is absent from owner's
+table.
+
+---
+
+### The goal-text question, resolved with `owner`
+
+`goal` (card line 12): "…a shared test helper that **both the parent-turn and
+seat-dispatch provider-error tests import**, with no duplicated harness copy."
+
+There are exactly two readings, and the tree settles both:
+
+- **File granularity:** `test/ev41-retry-e2e.test.ts` imports
+  `harness-headless.ts` (`:64`) and the extension (`:65`), and the seat block
+  lives in that file → **true at HEAD already**, and stays true under either
+  design (both leave the seat block and `stub-child.ts` untouched). Under this
+  reading the clause is **vacuous**: it moves nothing.
+- **Block granularity:** the seat block imports/uses the harness → **false at
+  HEAD** (its child is `bun stub-child.ts`, its literal is
+  `PROVIDER_FINISH_REASON_ERROR` via `stub-child.ts:3`), and satisfiable only
+  by re-architecting the seat arm into a real `pi` child under a
+  config-injected faux provider — which changes what it proves (a 20-second
+  deterministic Hub + `createRetrySupervisor` falsifier becomes a multi-minute
+  live CLI e2e) and adds an arm to the suite whose budget is literally the next
+  card's subject (`council/cards/FLLWUP-48.md`: "EV-41's live pty and `-p`
+  parent-turn arms cost roughly 30 to 95 seconds inside the default `bun test`
+  suite").
+
+**My ruling, offered as agreement with owner's conclusion and a sharper
+reason:** the `Intent` sentence is **stale** (both of us verified: EV-42's
+squash `952d5c1` added no harness; EV-41's headless half is already shared) —
+that is a fact, not a judgment. The `goal`'s "both … import" clause is
+**defective as a specification**, because it is either vacuous or
+unsatisfiable *and the goal text does not say which*; its second clause ("no
+duplicated harness copy") is the only clause this card actually moves.
+Critically, this defect **does not block delivery**: under both readings the
+re-pointed design leaves the seat half exactly as it is, so no reading is
+violated by shipping the dedup. The remedy is a spec sentence, not a recast:
+record the operative reading (file granularity), record that the seat block
+remains on `test/stub-child.ts` deliberately, and do not touch `goal`
+mid-deliberation without a ruling — the card's Phase-1 face gives the
+deliberation the design, not the card text.
+
+---
+
+### Blind spots, by vantage
+
+- **Owner's (inside the refactor):** (i) "keep the colon-less expectations via
+  the knob" is one-of-four — `:66`, `:68`, `:72` still move; (ii) the
+  re-pointed test's *header prose* (`:1-19`) survives the table and would
+  describe the deleted extension; (iii) the shared `secondMessagePresent`
+  (`harness-headless.ts:377-379`) matches against the **whole** `sequence`,
+  which includes `user` lines (`finalizeArm`, `:210-218`), while EV-43's local
+  one (`falsifier-headless.ts:129-131`) is assistant-only — role-agnostic
+  matching inside the very predicate that carries treatment/control
+  attribution. One line to tighten; own it in commit 2.
+- **The card/Intent's:** the tree. It cannot see that the seat arm is a
+  Hub/supervisor test with a `seat: "stub"` *label*, or that no test
+  dispatches a real seat child outside the gated integration test.
+- **The smoke's:** that its own `driver.py:66,265` is the fourth
+  `Screen`/`Session`, that `README.md:114-116` pins "authored in the driver"
+  as a greppable claim, and that it targets a pinned external pi rather than
+  the dev-installed one.
+- **The Skeptic's:** that `bun test` is structurally incapable of witnessing
+  this goal (above), so a green suite must not be recorded as evidence of "no
+  duplicated copy."
+- **Mine, restated:** I could not read EV-41/EV-42/EV-43 card bodies end to
+  end, and I have no shell — every executable claim below is unrun.
+
+---
+
+### Reframe
+
+**No design reframe — the agent's convergence is earned.** The tree nearly
+forces it: EV-40's family is the superset, `ev43/` is a live predecessor copy,
+four `Screen`/`Session` definitions exist with proven drift, and the
+stub-child fixture is a different family. Owner and I now differ only on:
+committed-vs-one-shot falsification (defense 1), directory name (conceded as
+tradeable), runner count (conceded), and the goal reading (resolved above). I
+explicitly accept owner's `pty-kit.py` + three thin runners, the `EV40_*`
+naming, the `EV40_ERROR_MESSAGE` knob, the `hasUI` port, and the untouched
+`stub-child.ts`/`smoke` boundary. The design is sound; the two things this
+round must not lose are the **committed shape test** and the **declared
+universe**.
+
+---
+
+### Checks: what I ran, what I did not
+
+**Read-verified this pass (real output reported above, no execution):** the
+`D`-clause divergence (`ev41-tui.py:113` vs `tui-retry.py:107` vs
+`falsifier-tui.py:111`); the seat arm's `command: "bun"` spawn with no
+`buildChildArgv` (`ev41-retry-e2e.test.ts:191-215`); `stub-child.ts:3`'s
+engine-sourced literal; `command: "pi"` in tests only at
+`integration.test.ts:33`; four unasserted `class Screen` definitions;
+`read_sequences` dict-form (`ev41-tui.py:237`) vs string-form
+(`tui-retry.py:250`); the `childEnv`/`cwd: repoRoot`/`-a` + `.pi/extensions`
+auto-discovery path.
+
+**`NOT RUN` — for the Skeptic:**
+- **(a)** the pty drift one-liner (owner's claim 2). Read-derived expectation:
+  after `ESC[10;20H` then `ESC[5D`, `ev41-tui.py` lands at 0-based `c=4`,
+  `tui-retry.py` at `c=14`. Unexecuted.
+- **(b)** the falsifier that decides my round-1 error: a scratch repo with
+  `.pi/extensions/<faux-provider>.ts` + `.council.json` seat-model override,
+  dispatched through a real `council_dispatch`, asserting the seat child's
+  error carries the faux literal. **This is the check that distinguishes
+  "unsatisfiable" (my round-1 claim, now doubtful) from "satisfiable but
+  changes what the seat arm proves" (my round-2 claim).** A shape test
+  asserting the dir contents is safe against either outcome; a design that
+  re-architects the seat arm is not.
+- **(c)** the gate set: `bunx tsc --noEmit`; `bun test`; `python3
+  council/validate.py`; `bash council/preflight.sh FLLWUP-49` (FLLWUP-27 line
+  excepted per the card's binding note).
+- **(d)** the shape test itself — it does not exist yet.
+- **(e)** post-D-fix re-run of the pty arm: `python3 <kit>/ev41-tui.py <out>`
+  must still exit 0. Cannot be skipped on the grounds that the arm is green
+  today.
+
+**Testable claims (runnable, in priority order):**
+1. **Goal has no witness (must be red today, then green with the shape
+   test):** `grep -rn "class Screen" test/ --include=*.py | wc -l` → `3`;
+   `ls ev43/` → exists; `bun test` → green. A shape test asserting
+   single-definition/no-`ev43` is the only thing that flips this.
+2. **No other assertion moved:** `git diff main -- test/ev4*.test.ts` shows
+   only import paths, the pty spawn argv, the EV-43 identity strings →
+   imported constants, and the `:73` class literal. *Falsified by:* any other
+   assertion or any arm count/timeout delta.
+3. **EV-43 characterization preserved, not re-recorded:** `bun test
+   test/ev43-reachability.test.ts` green with the colon-less class on
+   `control.stderr` and exit 1; the test file's header names the shared
+   extension; `git diff --stat main -- council/cards vault` empty.
+4. **D-clause fix is re-verified, not assumed:** `python3 <kit>/ev41-tui.py
+   <out>` exit 0 **after** the fix, with the four `EV41-TUI-*` lines identical
+   to pre-fix.
+5. **Universe check bounded:** `grep -rln "class Screen\|class Session" . `
+   → exactly `test/<kit>/pty-kit.py` + `smoke/search-smoke/driver.py`, with the
+   latter named in the spec as the pinned residual.
+6. **No new live arm:** `grep -c "test(" test/ev40-*.test.ts
+   test/ev41-retry-e2e.test.ts test/ev43-reachability.test.ts` unchanged from
+   `main` — FLLWUP-48's budget stays measurable.
+
+#### Facilitator note — exchange closed at round 2
+
+Positions stabilised. Both generators conceded the other's load-bearing
+points: `owner` conceded the `test/faux-provider/` rename, the profile-based
+`pty.py`, the committed shape test, the `smoke/search-smoke/driver.py`
+boundary, and the FLLWUP-48 zero-new-live-arms constraint; `principal`
+conceded the `EV40_*` env naming, the `EV40_ERROR_MESSAGE` knob, the three
+thin pty runners, and did not press the rename. On the card's `goal` text both
+agree the `Intent` premise is stale (verified: EV-42's squash carries no
+harness file) and the "both … import" clause is vacuous-or-defective, with
+the remedy a spec sentence rather than a recast of `goal` — neither proposal
+changes what the re-pointed design does to the seat arm (it stays on
+`test/stub-child.ts`). No third round is needed; the ≤3 cap is not reached.
+Residual points carried to step 4/5, not settled by the exchange:
+`principal`'s four-moving-identity-strings condition, the re-pointed EV-43
+test header prose, the `secondMessagePresent` role-agnostic matching,
+the declared universe' grep root, the two-commit split, the D-clause semantics
+fix and its post-fix pty re-run, and the engine comment sweep.
