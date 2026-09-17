@@ -1,11 +1,11 @@
 {
 	"council": {
 		"consolidator": {
-			"model": "openrouter/z-ai/glm-5.2",
+			"model": "openrouter/qwen/qwen3.8-flash",
 			"thinking": "high"
 		},
 		"council-runner": {
-			"model": "openrouter/deepseek/deepseek-v4.1-flash",
+			"model": "openrouter/z-ai/glm-5.3-flash",
 			"thinking": "high"
 		},
 		"designer": {
@@ -29,8 +29,8 @@
 			"thinking": "high"
 		},
 		"skeptic": {
-			"model": "openrouter/meta/muse-spark-1.3",
-			"thinking": "medium"
+			"model": "openrouter/deepseek/deepseek-v4-flash-0731",
+			"thinking": "high"
 		},
 		"steward": {
 			"model": "openrouter/deepseek/deepseek-v4.1-flash",
