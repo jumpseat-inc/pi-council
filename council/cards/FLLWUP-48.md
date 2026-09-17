@@ -872,3 +872,157 @@ are converging on is one branch — README envelope + maintained wiki page with
 provenance and re-measure rule + no new gate + three bounded hygiene fixes
 (bytecode exclusion with a two-sided temp-tree test, `:325` stale comment,
 `AGENTS.md:17`) — and both seats should sign it as-is.
+
+### Step 4 — Skeptic attacks and runs tests (`job-26.5`)
+
+`skeptic` (`job-26.5`, 23.3m, 38 turns) was dispatched with every position
+recorded so far (steps 2–3). It ran a fresh `git worktree` at HEAD with a real
+`bun install`, a `/tmp` scratch reproduction of the shape scan, and a real
+engine-code gate-emptiness demonstration. Full report appended verbatim below.
+
+**Facilitator transcription (counting only, deciding nothing):** twelve
+objections plus one gate-integrity self-check — **all `closed-green` except O11
+(split) and O12/O13 (record corrections, non-blocking). No `closed-red`; no
+`open-untested`.** Two record corrections: (1) the `.pyc` carrier is
+`ev40-harness/`, not the `ev43/*` tokens `principal`'s claim-1 list named — the
+mechanism holds, the listed token set was wrong; (2) on this container the main
+checkout's red had a **second** cause — `@modelcontextprotocol/sdk` missing
+from `node_modules` until `bun install`. **Facilitator action taken:** ran
+`bun install` on the main checkout (1 package installed) so local gate runs are
+usable; recorded as environment upkeep, not a source change.
+
+The one genuinely open item is **O11**: whether the suite's cost is within a
+documented budget is measureable (95.83s < 180s on this machine), but the
+**figure itself** is not settable by any test — it is open judgment. That is
+the item step 6 must route, together with the optional `gates.yml`
+`timeout-minutes` backstop (owner recommends; principal argues the 300s TUI arm
+ceiling makes a budget-tight step timeout mask attribution) and the scope of
+the three hygiene fixes.
+
+#### skeptic — step 4 (`job-26.5`) — verbatim
+
+Verification base: main checkout `7da00e7` (clean), plus two throwaway detached
+worktrees (`/tmp/fllwup48-clean`, `/tmp/fllwup48-gate`), both removed.
+Worktrees were fresh checkouts at HEAD, node_modules installed via `bun install
+--frozen-lockfile` (self-contained, not symlinked to main).
+
+### Objections and settling results
+
+**O1 — "Default suite ≈ 94.4s / 894 tests / 78 files on a clean tree"** —
+`closed-green`. Fresh fully-installed worktree: `892 pass / 2 skip / 0 fail`,
+`Ran 894 tests across 78 files`, **95.83s wall**, EXIT 0. (Backlog note: my
+first worktree run was red — not from source but because the ancestor
+`node_modules` on this container lacks `@modelcontextprotocol/sdk`, in
+`package.json` line 18 but uninstalled. After a real install the tree is green.
+Source is defect-free; container install was stale.)
+
+**O2 — Per-file table (38.0/16.5/12.8/4.9; TUI 32.5; `-p` 5.3; rest ~22s)** —
+`closed-green`. Measured: `ev41-retry-e2e` 38.08s (5 tests), `ev40-live-gates`
+16.50s (5), `ev40-headless` 12.81s (3), `ev43-reachability` 4.86s (2); `-t
+"TUI branch"` 32.51s; `-t "headless -p branch"` 5.35s; four-arm sum 72.3s; rest
+of suite = 95.83 − 72.3 = 23.5s. Arm counts 3/5/5/2 (T8) confirmed.
+
+**O3 — Additivity (plain `bun test` is serial)** — `closed-green`. `bun test
+ev41-retry-e2e.test.ts ev40-live-gates.test.ts` → **54.0s** ≈ 38.1+16.5, not
+max≈38. `--parallel` is NOT default; the principal's serial claim holds and the
+owner's sum-deduction is valid.
+
+**O4 — Arms offline, need no network/credentials; only `integration.test.ts`
+is a network test** — `closed-green`. `harness.ts:209-211` spawns `--offline
+--provider ev40`; grep for `OPENROUTER|API_KEY|AUTH_TOKEN` across the four arm
+files + harness → **0 hits**. `bun test test/integration.test.ts` (no flag) → `0
+pass / 1 skip`, EXIT 0.
+
+**O5 — `gates.yml` bare `bun test`, no `timeout-minutes`/`if:`/env;
+`package.json` no `--parallel`** — `closed-green`. Full file shown above: `- run:
+bun test` only; grep found no matches; `package.json:28` = `"test": "bun test"`.
+
+**O6 — T4 structural: a default-skip gate empties criterion-2 evidence (suite
+stays green with the mechanism broken)** — `closed-green`, demonstrated on real
+engine code. In the gate worktree I patched `harness.ts` so `resolveNode()`
+**throws unconditionally** (only that function changed; tsc-clean), then added
+a `test.skipIf(!COUNCIL_LIVE_ARM)` probe importing the real `resolveNode`. Gate
+off → `0 pass / 1 skip / 0 fail`, EXIT 0 — **green while the mechanism is
+broken**. Gate on → `1 fail` — the break is witnessed. Since `gates.yml` sets no
+env var (O5), CI would run gate-off. The seats' chain holds.
+
+**O7 — Eleven arm-level ceilings exist; no suite ceiling; no upper-bound
+elapsed assertion (`hub.test.ts:517` is a lower bound)** — `closed-green`. Grep
+found exactly the eleven sites including `ev41-retry-e2e.test.ts:362 300_000`;
+every `toBeLessThan*` in `test/` is an index/order/count comparison; the only
+elapsed assertion (`hub.test.ts:517`, `toBeGreaterThanOrEqual(50)`) is a lower
+bound. Also arithmetically true: the TUI arm's own 300s ceiling exceeds any
+~180s suite budget (principal round-2 point 2).
+
+**O8 — Residue reproduces; `.pyc` is the token carrier; clean tree is green** —
+`closed-green` with a detail correction. Main checkout: shape file → `7 pass / 1
+fail`, test 6 at 3.38ms, EXIT 1. `grep -a` on
+`test/__pycache__/ev41-tui.cpython-312.pyc` finds `ev40-harness/` (the tripping
+token) **and** `test/ev41-tui.py`; the `ev43/*` tokens in the principal's
+claim-1 list are **absent** from every `.pyc` — the carrier is `ev40-harness/`,
+which is in the witness regex, so the substance holds; the artifact is the
+listed token set, not the mechanism. Fresh worktree: shape file `8 pass / 0
+fail`; full suite green.
+
+**O9 — Exclusion is two-sided; orphan-on-disk acceptance** — `closed-green`.
+Pure `/tmp` reproduction of the exact scan logic, run against both the real
+`test/` dir and a tokenized scratch tree:
+- Real `test/`, current scan → hits
+`[test/__pycache__/ev41-tui.cpython-312.pyc]` only (no source file carries the
+token). Excluded scan → `[]` (**test 6 passes with the orphan on disk**).
+- Scratch: `__pycache__/x.pyc` + `src/x.ts`, same token. Current scan → hits
+both; excluded scan → hits `src/x.ts` only. The `.ts` source token survives;
+bytecode is dropped. Witness not weakened.
+
+**O10 — AGENTS.md:17 stale** — `closed-green`. Actual suite: 894 tests, **2**
+skips; exactly two `skipIf` sites (`integration.test.ts:13`,
+`mcp/integration-context7.test.ts:7`); two distinct flags
+(`COUNCIL_INTEGRATION`, `COUNCIL_MCP_INTEGRATION` — the latter also has an
+inline-`return` skip variant in `provider-cost.test.ts:666`). Line 17's "34
+tests, 1 skipped … COUNCIL_INTEGRATION=1" is stale on count, skip count, and
+flag inventory.
+
+**O11 — Budget figure ≤180s** — split verdict. Settable part closed-green: the
+suite on this tree runs **95.83s < 180s**. The *figure itself* is **not settable
+by any test I can run**: a measurement can falsify "under N" per machine, but
+cannot select N across machines — CI-class hardware is unmeasured (owner
+concedes) and the arms' explicit budget-envelope choice stays open judgment for
+`product-owner`. The measured 95.8s bounds it from below on this machine only.
+
+**O12 — New finding neither seat recorded: on THIS container the main checkout
+is red for two environmental reasons, not one.** Even with the `.pyc` gone, the
+main checkout's `node_modules` lacks `@modelcontextprotocol/sdk`; before I
+installed it in the worktree, the same tree produced 4 file-load errors + 2
+`dep-less` failures (`lstat … node_modules/@modelcontextprotocol` ENOENT in
+`fllwup23-dep-less.test.ts` restoreSdk). `bun install` fixes it. This corrects
+the facilitator-observed attribution ("red on the main checkout … from the
+stale .pyc") to "red from residue **and** a stale install" — and it means the
+card's standing re-measure command (`time bun test`) must be preceded by `bun
+install` on any tree whose `node_modules` predates the mcp dep. Neither seat's
+source-tree claim is falsified; but the residue narrative as recorded
+understates the current container's red causes. Not blocking — both causes are
+gitignored/regenerable, CI runs `bun install --frozen-lockfile` and is
+unaffected.
+
+**O13 — Gate-integrity self-check (can the full-suite gate fail?)** — the
+default suite demonstrably goes red under real conditions: observed EXIT 1 with
+either the `.pyc` residue present (main checkout) or the mcp dep missing
+(worktree run 1); EXIT 0 only when both env artifacts are cleared. The gate is
+capable of failing and names the failing test (shape test 6; `dep-less`
+restore).
+
+### What I ran (evidence above, not paraphrased)
+All timing and mechanism runs: full log excerpts at
+`/tmp/fllwup48-fullsuite3.log` etc.; key numbers quoted inline in O1–O9. Main
+checkout left at `7da00e7`, `git status --porcelain` = 0 lines; no commits, no
+branch pointer moved, worktrees removed.
+
+### Verdict
+No open objections — **no blocking items**. Every load-bearing claim I could
+run is `closed-green`. Two record corrections, neither blocking: (1) the `.pyc`
+carries `ev40-harness/`, not the `ev43/*` tokens the principal's claim-1 list
+named; (2) on this container the main checkout's red has a second, unrecorded
+cause — `@modelcontextprotocol/sdk` missing from `node_modules` until `bun
+install` — which the budget's re-measure command must account for. The ≤180s
+figure remains open `product-owner` judgment, constrained by the measured
+95.8s.
