@@ -281,3 +281,299 @@ These are *hypotheses* the new copy must satisfy; the smoke that would falsify t
 1. **Which lossless syntax the warning names.** Quoted value, block scalar, or escape sequence — the engineer seat (`owner`/`principal`) decides what the parser supports; designer argues for the copy direction. I will not pick one. Whichever lands, the FAIL message should name it concretely, not just point at the template.
 2. **Whether to keep "rephrase without a colon" as a fallback.** It is currently the only advice offered. Keeping it preserves a workable escape hatch for goals that don't *need* to name a literal verbatim. Dropping it forces every author toward the lossless form, which is safer (closes the EV-37 class) but raises the floor for goals that are genuinely paraphrasable. The copy direction can go either way; I'd flag this as the one question whose answer changes how aggressive the new template sentence should be.
 3. **FAIL message specificity.** Whether the new FAIL message names the exact syntax ("wrap in backticks") or points at `_template.md` for the form. The first is more useful when the project has one canonical lossless form; the second is safer if multiple forms are allowed. Settled by the engineer's choice in (1).
+
+### Step 3 — round 2 positions (verbatim; exchange closed at 2 of ≤3 rounds)
+
+Positions had stabilised on the design (plain-line lossless rule; delete the colon-space FAIL; update template/procedure/features-new/rubric/seeds; correct docstrings) and narrowed to two live disputes — the wrapped-line policy and the fixture/rubric version bumps. No third round was run: the remaining disagreement is open-judgment, not a claim one more exchange would settle (council.md step 3, stop early on stabilisation; `<yield_contract>`, do not re-argue).
+
+Dispatches: `owner` job-3.4 (3.6m, 6 turns, total 152250 tok, cost≈$0.0088); `principal` job-3.5 (3.6m, 14 turns, total 1012139 tok, cost≈$0.0480); `designer` job-3.6 (3.6m, 8 turns, total 245442 tok, cost≈$0.0354). Each was handed the others' round-1 positions via the card record.
+
+---
+
+#### owner (job-3.4)
+
+All load-bearing facts are now verified against the tree. Here is my round-2 position.
+
+---
+
+## Approach
+
+**Load-bearing claim verdicts.**
+
+*Principal:*
+
+1. **"The parser is already lossless for single-line values; the docstring's truncation claim is false"** — **agree**, verified empirically: `parse_frontmatter('---\ngoal: ...Provider finish_reason: error.\n---\n')` returns the full byte-exact value (`council/validate.py:59` splits on the first `: `, which is the key separator). The docstring (`:8-9`) and `parse_frontmatter`'s own docstring (`:52` "stopping at a value truncation") are both false as written.
+2. **"The real truncation path is the wrapped line (`:61-63` `elif line.strip(): break`)"** — **agree**, verified: a two-line goal parses to only its first line, silently, and `validate.py` exits 0. This is a live silent-loss path in exactly the field this card governs.
+3. **"Conjunct (B) is a proof obligation no file edit and no gate can falsify"** — **agree with a correction.** The judge hop is procedural (council.md:270 hands the judge the goal text verbatim — verified), so the *end-to-end* span card→judge→runtime literal is not code-testable; but the code-testable prefix (card file → `parse_frontmatter` → assertion against `PROVIDER_FINISH_REASON_ERROR`, `extensions/retry.ts:78`) is real and principal's T4 captures it. Owner's T2 is the same test from the parser side. Together they are the maximum code-testable realization of (B); the residual is eval-level, and I say so rather than letting (B) be silently declared "done."
+4. **"Wrapped-line scope is open-judgment"** — **disagree that it's fully open; the *loudness* half is decidable here** (see reconciliation (a) below). Whether to *support* multi-line goals is open-judgment; whether a documented-lossless field may keep a *silent* truncation path is not — that is the artifact-vs-intake trap [[deterministic-merge-check]] records from EV-37.
+
+*Designer:*
+
+1. **"The current copy is parser-truthful"** — **disagree, and this is designer's premise error.** The copy's claim ("a `: ` truncates everything after it") is factually false — I ran the parser. Designer believed the docstring without executing it; owner, principal, and my own run all confirm the claim is false. Designer's *conclusion* nonetheless survives: the copy's framing (parser hazard) is the wrong framing, and the oracle framing ("the goal is the only thing the judge reads; name the exact literal") is the right one. The verdict on the copy direction stands; the evidentiary basis is corrected.
+2. **"The module docstring is parser-truthful and should not change"** — **disagree.** The docstring contains the false truncation claim verbatim (`validate.py:8-9`). Shipping a validator whose behavior changed while its own docstring still asserts the deleted rule recreates the false-model problem this card exists to fix. Owner's change list (docstring included) is correct; designer's do-not-touch list loses this one item.
+3. **Designer's P3 (FAIL message names the remedy)** — **agree in transferred form**: the colon-space FAIL is deleted, so the remedy-naming obligation transfers to the new wrapped-line FAIL message.
+4. **Designer's deferred lossless-form question** — **settled by convergence**: plain-line, no quoting/escaping/block scalar (owner's rejection of decode steps is correct; any decode between file bytes and judge input recreates the lossy class; block scalar needs a parser rewrite).
+
+**Reconciliation (a) — the wrapped-line path.** **In scope, in the loud form; multi-line support is explicitly declared out.** Reasoning: after this card, the documented contract is "the goal value is read byte for byte." The only remaining way that promise breaks is a wrap, and today a wrap is *silent* — the exact EV-37 signature (validator green, goal lossy). We do not need to make wrapped goals lossless (that's a block-scalar/parser rewrite — out, and I join owner in rejecting it); we need them to **FAIL loudly**. This is one detectable condition — `parse_frontmatter` terminates frontmatter on a bare non-`key: value` line, and a well-formed card always terminates on `---` — so it is a small FAIL addition in a file already being edited, with a red-first test (principal's T2 inverted: today the wrapped goal *passes* with a truncated value; after the fix it must FAIL). This must be decided here and recorded, not discovered by the implementer — that answers principal's design question 3.
+
+**Reconciliation (b) — seeds, digests, rubric, features-new.** **All in scope**, on three grounds I verified:
+- **Mechanical necessity:** editing any `council/fixtures/*/seed/council/*` file without re-pinning throws at load (`extensions/eval-fixtures.ts:683-685`) — re-pinning is not optional once seeds change; it is convention #5's tripwire working as designed.
+- **Necessity of the seed edits themselves:** all ten copies of `validate.py` (top, scaffold, 8 seeds) are byte-identical today (verified by diff), and each seed carries `_template.md` (verified: 8). A fixture whose seed enforces a rule the shipped validator just deleted certifies the lossy behavior — the artifact-level trap. Skip-the-seeds was defensible only if the rule stayed; it doesn't.
+- **rubric.json c3 and features-new.md:** both carry the ban (rubric c3: "a testable goal with no colon-space sequence" — verified; features-new.md:54,57,75 — verified). The rubric is *outside* the digest (confirmed — the pin covers `seed/`), so it changes with no digest implication. Left stale, c3 would instruct a judge to reject now-legal goals, and the decomposition wave would keep censoring child goals after the gate is gone. The card's surface enumeration was incomplete, not exhaustive-constitutional. Also in scope per the same rule: `vault/wiki/engineering-board.md:30-33`, which repeats the false truncation claim (verified). *Not* in scope: `vault/raw/*` records (immutable history) and historical cards (EV-37 is Done; goal immutability).
+
+**Converged design (one).**
+
+*Rule:* `goal` stays a single `goal: <text>` line. Value = everything after the first `: ` of the line, byte-exact; colons and colon-spaces legal in the value. Frontmatter ends at a `---` line, at a line break ending the value, or at a bare non-`key: value` line. Multi-line goals are **not supported** (declared out) — a bare-line termination is a **FAIL**: "frontmatter entry not in `key: value` form ends frontmatter — is the goal wrapped onto a second line?"
+
+*Files, one change set:* `council/validate.py` (delete the `": " in goal` FAIL; rewrite module + parser docstrings to the lossless contract; add the bare-line-termination FAIL) → byte-identical into scaffold + 8 seeds; `_template.md` goal example line (owner's copy, amended to name the single-line rule) → scaffold + 8 seeds; `board-create-card.md` Hard-failure paragraph (owner's 3 sentences, with sentence 3 amended: the validator now *FAILs* on a wrap, not merely "never wrap"); `features-new.md:54,57,75` (bars become "single-line, byte-literal goal — colons allowed in the value"); `board-create-card/rubric.json` c3 (same phrasing); `vault/wiki/engineering-board.md` truncation claim corrected; 8 × `fixture.json` `treeDigest` recomputed via `sha256Tree` in the same commit.
+
+*Red-first tests:* **T1** (red today) temp-tree card whose goal contains `: ` → expect exit 0; today `FAIL: goal contains a colon-space sequence`. **T2** (green today, pins it) parser identity: parsed goal ≡ input bytes for `: ` and bare `:` values — the green-T2/red-T1 pair proves the ban, not the parser, was the lossiness. **T3** (red today, inverse) wrapped-goal card → must FAIL with the wrap message; today it silently passes truncated. **T4** (stays red) `goal:foo` → FAIL missing goal. **T5** byte-parity top↔scaffold↔8 seeds. **T6** fixture load path green after re-pins. **T7** literal-match on rubric c3 and features-new bars (the [[deterministic-merge-check]] copy-as-literal-test precedent). **T8** (principal's T4, the conjunct-B prefix) parse a treatment card whose goal names `Provider finish_reason: error` → assert `goal.includes(PROVIDER_FINISH_REASON_ERROR)`; colon-free control → assert not. No existing test asserts the colon FAIL; nothing to invert.
+
+**Remaining questions, separated.**
+
+- **Testable:** whether the parser is lossless (T2, settled — green today); whether the ban is the lossiness (T1, red today); whether a wrap silently truncates (T3, settled); whether all surfaces moved together (T5/T6/T7); whether the goal can carry the runtime literal (T8).
+- **Open-judgment (product-owner/steward, not resolvable here):** (1) retroactivity of EV-37's frozen lossy goal — new card vs. accepted historical record; (2) propagation to already-initialized consumer repos, which keep the false rule forever via non-clobbering scaffold with no `validate.py` override path (I2 — unbounded skew; no test settles whether that's acceptable); (3) whether an unrecorded second rationale for the old ban existed (retraction is safe only if not); (4) whether the "rephrase without a colon" secondary advice survives as optional guidance for goals that need not name a literal (I lean keep-as-secondary; copy tone, no test). I do not resolve these by fiat.
+
+**Is the card's own goal a faithful oracle?** **Partially defective, and the run must route it — but the route already exists in writing.** Conjunct A is clean. Conjunct B has two defects: "the classification test" is referentially opaque (names no file — principal's point 8 is correct), and the judge→runtime equality it asserts is procedural, not code. Council.md step 10 prescribes the remedy for exactly this: "If the goal is ambiguous without context, that ambiguity is a defect in the card's `goal` text — fix the card, don't widen the judge's input." The card is `Deliberating`, so a goal amendment is legal under the goal-immutability rule (only post-`In Progress` edits force a new card). The referent is unambiguous in fact — the only classification assertion is `test/retry.test.ts` against `PROVIDER_FINISH_REASON_ERROR` (`extensions/retry.ts:78`, verified). So: amend FLLWUP-43's goal while still `Deliberating` to name that file and constant, and record conjunct B's eval-level residual explicitly in the card's record. That is routing, not papering over — leaving the opaque phrase in place for this card's own judge would be the card committing the defect it fixes.
+
+## Tradeoffs accepted
+
+- Adding the bare-line FAIL is the one place I expand beyond the minimum a strict reading of the goal requires — justified because shipping a "byte for byte" contract next to a silent truncation path reproduces EV-37's class; cost is one extra branch and one extra test.
+- We accept unbounded rule skew in already-initialized consumer repos (no `validate.py` override mechanism) rather than inventing one this card — flagged as open-judgment item (2), not silently absorbed.
+- Cosmetic: council copy will contain `: ` sequences; the uniform no-colon aesthetic is gone.
+
+## Testable claims
+
+- **"The ban, not the parser, is the lossiness"** — T2 green today while T1 is red; settled by execution, and it pins the parser against anyone who "fixes" this by adding a quoting layer.
+- **"A wrapped goal silently truncates today and must FAIL after"** — T3 red in the inverse sense today (silent green), green-as-FAIL after; this settles reconciliation (a) without prose.
+- **"All five-plus surfaces moved together"** — T5/T6/T7 fail on any partial edit, including a stale rubric or a stale features-new bar.
+- **"The goal can carry the runtime literal"** — T8 treatment/control pair; the residual judge-hop span is *not* code-testable and is recorded as eval-level rather than claimed green.
+
+---
+
+#### principal (job-3.5)
+
+## Cross-seam reading — what the contract actually is, right now
+
+**The parse.** `council/validate.py:59-60` is `key, value = line.split(": ", 1)` then `value.strip()`. So the value is *everything after the first `: ` of the line*, whitespace-trimmed at the edges. A colon-space *inside* the value is preserved. This is the same in all ten copies I verified by grep: root, `council/scaffold/council/validate.py`, and the eight seed copies (`board-create-card, council, council-runner, features-deliver, features-new, owner, wiki-ingest, wiki-lint`) — identical text at `:8-9` and `:124` in each. `_template.md` line 7 is also identical in all ten copies.
+
+**The gate.** `validate.py:121-124` FAILs when `": " in goal`. It is a substring test on the *parsed value*, so it cannot distinguish a legal colon from a parse break. The docstring at `:8-9` and the `parse_frontmatter` docstring at `:49` ("stopping at a value truncation") assert a truncation the parser does not perform for a single-line value. Owner's core claim is correct, and I re-derived it from the split rather than from any seat's report.
+
+**The real truncation.** `validate.py:61-63` — `elif line.strip(): break`. A goal wrapped onto a second line terminates frontmatter; the goal silently becomes its first line. Nothing FAILs. This is the only lossy path in the field, and the rule is aimed at the wrong character.
+
+**The judge hop.** `council/procedures/council.md` step 10 hands the judge "the card's `goal` and the Skeptic's evidence — nothing else"; `council/agents/judge.md` `<when_invoked>` confirms. **There is no engine code in that hop.** `grep goal extensions/` returns exactly one hit, `runs.ts:10`, and it is a comment. In the eval harness the judge's input is a static file read verbatim (`eval-runner.ts:557-558`). So the goal→judge transfer is LLM transcription by instruction, not code — **and I am correcting my own round-1 claim that this hop is "lossless by construction." It is lossless by *instruction* only.** That correction is load-bearing for conjunct (B).
+
+**The authority on the literal.** `test/retry.test.ts` (~`:142-187`) derives `emitted` from pi's installed bundle's `mapStopReason` template and asserts `PROVIDER_FINISH_REASON_ERROR === emitted` (`extensions/retry.ts:78`). `test/ev40-parent-retry.test.ts:6` calls these "every classification test." That is the referent of "the classification test."
+
+**The eval surface.** `board-create-card/rubric.json:18` (`c3`) grades "a testable goal **with no colon-space sequence**." `sha256Tree`/digest verification covers `seedDir` only (`eval-fixtures.ts:494,681-685`) — **`rubric.json` is outside the digest.** And `eval-runner.ts:128,134` key Result/Verdict records on `fixtureVersion`+`rubricVersion`, with `atomicWriteTuple` (`:139-152`) *throwing* on a divergent payload under the same tuple.
+
+## Blind spots, named separately
+
+- **owner (data/validator slice):** sees the parser is lossless and sees the missing colon as the lossiness — correct — but models the goal→judge hop as "no consumer exists, therefore no risk." A hop with no *code* is not a hop with no risk; it is a hop with no *gate*. It cannot see that conjunct (B) is therefore unprovable by any file it plans to edit.
+- **designer (render/comprehension slice):** reasons about the signifier and the author's mental model — genuinely the right frame — but takes the validator's own docstring and FAIL message as the parser's truth. Its premise "the copy is parser-truthful" is false against `:59`; it never opened the split. It also treats "which lossless syntax" as open taste when the parser admits exactly one form.
+- **My own (seam) slice's blind spot, to name it:** I was looking for a seam *test* to span card→judge, and there is none to write — the hop is an LLM turn. I over-claimed in round 1 and correct it here.
+
+## Reframe
+
+The card's sentence has two conjuncts of different kinds, and one of them has no code seam at all:
+
+- **(A)** "a goal can name a colon-space literal without truncating" — a write-seam change: delete the FAIL, retract the false copy. Owner is right.
+- **(B)** "the judge reads the same string the classification test asserts" — a property over a hop that is *LLM transcription*. The strongest engine-provable form is **card-file → `parse_frontmatter` → the bundle-derived literal** (transitive, because `test/retry.test.ts` already binds the constant to pi's bundle). The literal "judge reads" step is not engine-testable; it is authoring/facilitation discipline plus one eval fixture.
+
+Deleting the FAIL is **sufficient for (A)** and **necessary-but-not-sufficient for (B)**. And owner's design contains one claim of the exact class this card is about: "a wrapped two-line goal must equally FAIL" is false under the design owner proposes — the wrap silently yields its first line and `validate.py` exits 0.
+
+## 1. Owner's claims, adjudicated
+
+| Claim | Verdict |
+|---|---|
+| Parser is already lossless for embedded `: `; the ban is the lossiness | **Agree**, from `:59`. |
+| "byte for byte" | **Agree with correction:** it is `line.split(": ", 1)` + `.strip()` (`:59-60`), so edge whitespace is trimmed. The replacement copy must not say "byte for byte" or we swap one false parser model for another, smaller one. |
+| Delete the FAIL; no quoting, no escaping, no block scalar | **Agree.** Quoting is not a form — `goal: "a: b"` yields `"a: b"` *including quote characters*; there is no unquote step anywhere. Block scalar requires a parser rewrite. There is exactly one supported form. |
+| No engine code consumes the goal | **Agree** (`runs.ts:10` only). |
+| Five surfaces move together; seeds re-pin in the same change | **Agree**, and the card's own step 1 names the seeds, so this is not a widening. |
+| **T4: "a wrapped two-line goal must equally FAIL"** | **Disagree — factually wrong.** `goal: first part\n second part` parses to `"first part"`; `goal` is present; validate exits 0. Owner's design neither fails it nor gates it. This must be stated as an explicit, documented residual, not asserted as a FAIL. |
+| File list completeness | **Correct to add:** bump `fixtureVersion` on the 8 fixtures and `rubricVersion` on `board-create-card/rubric.json`. Because the store key (`eval-runner.ts:128,134`) does not include seed content, editing seeds under an unchanged `fixtureVersion` makes a re-run throw `divergent payload already stored for this key tuple` (`:152`). Re-pinning the digest is not enough. |
+| `engineering-board.md` is a "Yes" change | **Correct with correction:** council.md step 14 forbids the facilitator hand-editing `vault/`; that correction routes through `/wiki-ingest`. |
+
+**Where owner is sufficient:** conjunct (A) in full; the authoring-layer lossiness that produced EV-37's colon-free goal; and, once the version bumps are added, the seed/rubric surfaces.
+**Where owner is not:** conjunct (B) as an unqualified sentence; and the newline residual, which owner's copy names but owner's T4 mis-states.
+
+## 2a. Wrapped/continued-line truncation — in scope?
+
+**Out of scope for this card's `goal`; explicitly declared; carded at step 13.** Grounds, not preference:
+
+- The goal sentence's subject is "an exact literal that **contains a colon-space sequence**." The wrap is a different mechanism; the goal text does not name it.
+- The natural alternative — a new writer FAIL aimed at the newline — is what [[gate-parity]] forbids: the parser silently truncates, there is no downstream gate that is that strict, and the doctrine's answer is "teach at the surface; don't gate at persistence." So retargeting the FAIL is not the gate-parity-consistent fix; **deleting it is.**
+- council.md step 13 is this repo's native mechanism for "surfaced but not done." A real defect discovered here with no gate belongs there.
+- Condition on "out": the new copy must be *true*. It must say the value ends at a line break, must not claim truncation-proofness, and the design record must name the residual. A documented silent truncation is acceptable; an undocumented one is the defect class recursing.
+
+## 2b. Seeds+digests, rubric `c3`, `features-new.md` — judged against the goal and the scope rules
+
+- **8 seeds + `treeDigest` re-pins: yes, same change.** The card's step 1 explicitly includes "the eval fixture seeds carry pinned copies." AGENTS.md #5 makes the digest the load mechanism, not a scope question. **Add:** `fixtureVersion` bump on the 8 (`1.0.0` → next) or the next `/council-eval` run throws on the divergent store key.
+- **`features-new.md:54,57,75`: yes.** Not a widening: the card's Intent says the fix is "owed before the next autonomous run," and `/features-new` is that run's card-authoring entry point. Leaving the bars stale means the capability the goal asserts stays refused on the autonomous path. No digest impact — procedures resolve from `PKG_ROOT`, and no procedure file lives in any `seed/`.
+- **`board-create-card/rubric.json c3`: yes.** It is the shipped *expression* of the retracted rule inside the eval that grades `board-create-card`; left alone, the eval penalizes conforming goals and the digest doesn't catch it. **Add:** bump `rubricVersion` for the same divergent-store-key reason. Note the positive: `c3` is the only in-repo surface that exercises the judge-input hop, which is why it matters beyond copy hygiene.
+
+## 3. One converged design
+
+**Rule.** `goal` is one physical line. Its value is everything after the first `: ` of that line, trimmed by `parse_frontmatter`. Colons, quotes, backslashes are literal characters. A line break ends the value (and the frontmatter). No quoting, no unquoting, no block scalar.
+
+**Files (one change, all together).**
+1. `council/validate.py` — delete `:121-124`; fix the docstring bullets `:8-9` and `parse_frontmatter`'s `:49`.
+2. `council/scaffold/council/validate.py` — byte-identical.
+3. 8× `council/fixtures/{board-create-card,council,council-runner,features-deliver,features-new,owner,wiki-ingest,wiki-lint}/seed/council/validate.py` — byte-identical.
+4. `_template.md` goal line: root + scaffold + the same 8 seeds.
+5. `council/procedures/board-create-card.md` §3 Hard-failure-mode paragraph.
+6. `council/procedures/features-new.md:54,57,75`.
+7. `council/fixtures/board-create-card/rubric.json` `c3` prompt + `rubricVersion` bump.
+8. 8× `fixture.json` — new `treeDigest` + `fixtureVersion` bump.
+9. Wiki correction via `/wiki-ingest` at step 14 (`engineering-board.md:30-32` false truncation claim; `retry-classification.md:53` describes the ban as current).
+
+**Copy.**
+- `_template.md`: `goal: One testable sentence stating what done means. Keep it on one line — everything after "goal: " is the goal as written; a literal may contain ": " because the judge reads this line, so spell real message strings with their exact characters.`
+- `board-create-card.md` §3: state the true contract; name the oracle ("this sentence is the judge's only input"); state that a line break ends the value and is **not** currently gated; drop "rephrase without a colon" as *mechanism* (keep only as optional style).
+- `features-new.md`: each bar → "single-line, literal-exact goal (colons allowed in the value)."
+
+**Red-first tests.**
+- **T1 (red today):** temp council tree, card whose goal contains `Provider finish_reason: error` → `python3 council/validate.py` exit 0. Today exit 1, `FAIL: … colon-space sequence (value truncates)`.
+- **T2 (green today, pins the parser):** `parse_frontmatter` on single-line values with `: ` and with a bare colon returns the inner text (modulo `.strip()`).
+- **T3 (the honest conjunct (B)):** a test that writes a card, parses it, and asserts the goal equals `PROVIDER_FINISH_REASON_ERROR` — which `test/retry.test.ts` already binds byte-for-byte to pi's bundle template. Red today only at the validate step.
+- **T4 (parity guard):** byte-equality of `validate.py` and `_template.md` across root/scaffold/8 seeds; digest verification via `test/fixtures.test.ts`.
+- **T5 (residual pin):** assert a two-line goal parses to its first line and validate exits 0 — converting an undocumented hazard into a documented one so it cannot be "fixed" silently.
+- **T6 (negative survives):** `goal:no-space` → `missing required key 'goal'`.
+- **T7 (version discipline):** after the seed edit, `loadFixture` digest passes; a re-write under an unchanged `fixtureVersion` throws the divergent-tuple error (`eval-runner.ts:152`).
+
+## 4. Remaining questions
+
+**Testable (a run settles):** T1–T7 above; the wrapped-goal behavior (T5); the literal text of `rubric.json c3` and the three `features-new.md` bars (literal-match tests, per the deterministic-merge-check precedent); the 10-copy parity; the fact that the goal text names no file.
+
+**Open-judgment (no test settles — `product-owner`/`steward`):** whether the wrapped-line truncation's *follow-up card* is promoted (§13 filing is mechanical; its priority is not); whether keeping "rephrase" advice is acceptable; acceptance of the propagation gap (already-initialized consumer repos keep the old `validate.py` forever — non-clobbering scaffold, no override path); whether to amend the card's own goal (below).
+
+## 5. My round-1 point 8 — stated as fact
+
+1. **Fact:** the card's `goal` names no file; the phrase "the classification test" appears once, in `council/cards/FLLWUP-43.md:7`.
+2. **Fact:** in-repo that phrase denotes the retry-classification tests — `test/retry.test.ts`'s `classifyRetry` suite and its bundle-derived literal regression, with `test/ev40-parent-retry.test.ts:6` using "classification test" for the same set. There is exactly one test that derives the literal from pi's bundle.
+3. **Fact:** council.md step 10 states that a goal ambiguous without context "is a defect in the card's `goal` text" and forbids widening the judge's input; `judge.md`'s `<when_invoked>` gives the judge the goal and the Skeptic's evidence only.
+4. **Fact:** goal-wording authority rests with `steward`, and an in-place amendment is legal while the card is `Deliberating` ([[engineering-board]]).
+5. **Therefore:** it is resolvable from the Intent for a reader of the whole card, and **not** resolvable for the judge — and the procedure's own rule makes the judge's view the deciding one. It is a card-goal defect, and it is the card committing the exact defect class it exists to fix. Routing: `steward`, not any seat's edit. Severity is low because the referent is uniquely determined and step 9's evidence will name it; the cheap correct remedy is a `steward` amendment naming `test/retry.test.ts`, and if the steward declines, the residual should be recorded rather than papered over.
+
+## Testable claims
+
+- **"Owner's T4 is false":** `printf -- '---\nid: X-1\ngoal: first part\n second part\n---\n'` written to a temp card, then `python3 council/validate.py` — predict exit 0 with `goal` present. Settles the wrapped-line question as fact, and falsifies owner's parenthetical.
+- **"The judge hop has no code seam":** `grep -rn goal extensions/` → one comment hit (`runs.ts:10`); `eval-runner.ts:557-558` reads the judge fixture's `input.md` verbatim. Settles whether a card→judge seam test is constructible (it is not).
+- **"The store key ignores seed content":** edit a seed without bumping `fixtureVersion`, re-run the cell → predict the throw at `eval-runner.ts:152`. Settles the version-bump obligation as runnable.
+- **"The rubric is outside the digest":** `sha256Tree(seedDir)` (`:494,681`) vs `rubric.json` living at the task dir — a rubric edit needs no re-pin; a seed edit does. Settles the two surfaces' different disciplines.
+
+Cited wiki: [[engineering-board]] (goal-as-oracle, goal-immutability + steward wording authority — and its `:30-32` false truncation claim), [[gate-parity]] (writer ⊆ loader ∪ dispatch; teach at the surface), [[retry-classification]] (the literal's authority), [[deterministic-merge-check]] (copy rulings enforced as literal-string tests), [[eval-store-contract]] (version-keyed records). Wiki gaps: no page states `parse_frontmatter`'s split semantics — `engineering-board` mis-states them — and no page covers the seed-follows-shipped `fixtureVersion` policy.
+
+---
+
+#### designer (job-3.6)
+
+I have read the card, the three round-1 positions, and the actual artifact (validate.py, _template.md, board-create-card.md, features-new.md, rubric.json, judge/input.md, engineering-board.md, gate-parity.md, EV-37.md, retry.ts). I am grounding my round-2 position in those reads, not in memory of the round-1 positions.
+
+---
+
+**Design position**
+
+The validator's parser is already lossless for single-line values — `validate.py:55-56` does `line.split(": ", 1)` and reads the rest of the line byte-exact. The defect is the FAIL block at `:124` and the truncation claim repeated in the module docstring (`:8-9`), the `parse_frontmatter` docstring (`:46`), `board-create-card.md:43-44`, `features-new.md:49/57/75`, and `rubric.json:c3`. Delete the FAIL; correct the docstrings to name both the lossless contract *and* the oracle principle; drop "rephrase without a colon" permanently; update the template sentence so it carries the oracle principle, not just the lossless contract; update `features-new.md` and `rubric.json` in lockstep with the validator change. The wrapped-line truncation at `:60-65` (the silent path the current rule misses) is in scope per the goal's "without truncating"; the *policy* on wraps is product-owner territory.
+
+**Gulf closed**
+
+Gulf of Evaluation, for the author at the moment they fill in `goal:`. Today the author has no signal that their goal's misspelled literal is the literal their code will be matched against; the validator stays silent on a misspelling, the judge reads the misspelling, and the failure surfaces only as a dead runtime branch. The new template sentence + procedure paragraph close this gulf *only if* the template carries the oracle principle, not just the lossless contract — and only if the "rephrase without a colon" escape hatch is removed.
+
+**Principle and evidence**
+
+- **Signifier, in the wrong place today.** `council/cards/_template.md:5` says "No colon-space sequence anywhere in this value" — a *parser* signifier on a field whose purpose is a *judge-readable oracle*. Verified by reading the file. The author who obeys it learns only "don't truncate," not "the goal is the literal your code will be tested against." EV-37's author obeyed the parser signifier (`EV-37.md:7` spells `Provider finish_reason error` without the colon) and missed the oracle (`extensions/retry.ts:78` declares `"Provider finish_reason: error"`). The failure mode is documented in `vault/wiki/engineering-board.md` — "a goal forced to misspell a literal is a goal that lies" — but the wiki principle never reached the template.
+- **Conceptual model, missing.** The author needs "goal = the literal the judge tests against." `board-create-card.md` paragraph 2 in owner's proposed rewrite states it explicitly ("The goal the judge reads is exactly the text you wrote, so spell any literal precisely as the system emits it, colons and all; a colon-less paraphrase of a real message string is the one hard failure mode here (EV-37 shipped a dead branch that way)"). I read this in owner's round-1 dispatch. **This paragraph closes the oracle gulf.** It should land as-is.
+- **Forcing function, relocated.** Today's forcing function lives at the validator and refuses `: ` — wrong location, because the wrong-branch behavior is *misspelling*, not a forbidden character. The new FAIL message (or its absence, if we just delete the block) lets the author type the literal; the procedure paragraph teaches them they must. The "Falsifiable" / "Not satisfiable by a stub" bullets in `board-create-card.md:38-42` are unaffected — they govern *kind of sentence*, not *characters*.
+- **Knowledge in the world, earned.** The EV-37 reference in the procedure paragraph is the kind of knowledge an author would otherwise have to have learned by shipping a dead branch. Cited concretely, it puts the lesson on the screen at the moment it applies.
+
+**On each load-bearing claim from the other two seats**
+
+*Owner (job-3.1):*
+
+1. **"The actual mechanism — there is no truncation"** — **AGREE.** Verified: `validate.py:55` is `if ": " in line: key, value = line.split(": ", 1)` — splits at the first occurrence. The docstring at `:46` says "stopping at a value truncation"; the code says "split at first colon-space." The claim and the implementation disagree. EV-37's goal parses losslessly even today — I grep-confirmed that `EV-37.md:7` contains no `: ` and would still parse losslessly with one.
+2. **Plain-line, no quoting/escaping/block scalar** — **AGREE.** Plain-line is what the parser already does, what the judge already reads raw, and what the template already requires. Adding a quoted/escaped/block form reintroduces a decode step between file bytes and judge input — exactly the class of lossy-oracle hazard principal named. Owner's reasoning on (b) and (c) is correct.
+3. **Scope: `features-new.md` and `rubric.json` must change** — **AGREE.** Verified: `features-new.md:49` and `:57` carry "no colon-space sequence" as a wave-1 bar; `:75` carries it as a skeptic attack. `rubric.json:c3` prompt grades "a testable goal with no colon-space sequence." If the validator stops forbidding it, the rubric silently grades against a superseded rule. Not digest-pinned, not red-tested — silent staleness, the most expensive kind.
+4. **Re-pinning the 8 fixture digests in the same change** — **AGREE-WITH-A-CORRECTION.** The mechanism is real (`eval-fixtures.ts:684` throws on `treeDigest` mismatch — owner's citation, I didn't open it in this turn). But this is *engineer* territory, not design. The design question owner raises — "re-pin vs. drop the seeds" — is settled by [[gate-parity]]'s corollary (if the surface changes, the seed must track it) plus the wiki's stated seed-follows-shipped intent. I have no design objection; the judgment is owner's.
+5. **Scaffold/seed byte-parity for `validate.py` and `_template.md`** — **AGREE.** Grep confirmed: 8 fixture seeds carry the same colon FAIL and same docstring. Stale seeds = fixture trains/grades against a rule the shipped repo doesn't enforce. This is the EV-37 class of artifact-vs-intake drift.
+
+*Principal (job-3.2):*
+
+6. **Reframe: oracle hazard, not parser hazard** — **AGREE.** This is what I argued in round 1. The validator's `value truncates` claim points at the wrong artifact. The hazard class is "goal lies about the literal," and no parser change fixes that — only the copy teaches the author to spell the literal.
+7. **Conjunct (B) of the goal sentence — proof obligation across a seam with no code in it** — **AGREE.** No edit to `validate.py` proves "the judge reads the same string the classification test asserts." The proof needs a fixture-grade test asserting byte-identity between the parsed goal and the bundle-derived literal — principal's T4 shape is correct. This is the test that *closes the card*, and it must be in the deliverable.
+8. **Wrapped-line truncation at `validate.py:60-65`** — **AGREE.** Verified by reading `:55-65`. The `elif line.strip(): break` ends frontmatter on any bare non-`key: value` line — a wrapped goal silently loses its continuation. This is the actual silent-truncation path, unguarded by the current rule. The *policy* (forbid wraps vs. support continuation) is open-judgment; the *fact* that it exists is settled by execution.
+9. **I1–I6 invariants** — **AGREE.** I2 (no override resolution for `validate.py`; non-clobbering scaffold means existing consumer repos keep the false rule forever) is the strongest *propagation* concern but is out of design scope — escalate to product-owner if anyone thinks the propagation gap is a defect.
+
+**On owner's proposed copy vs. my round-1 principle**
+
+My round-1 principle: *the goal is the only thing the judge reads; name the exact literal*.
+
+Owner's proposed `_template.md` sentence:
+> `goal: One testable sentence stating what done means. Written on a single line; the text after "goal: " is the goal byte for byte, colons included.`
+
+**Partial close.** It names the lossless contract but not the oracle principle. The author who reads this learns they *can* include `: ` — they do not learn they *must spell* the literal their code will be matched against. The oracle gulf is still open.
+
+Owner's proposed `board-create-card.md:42-47` replacement paragraph:
+> `The frontmatter parser takes everything after the first ': ' of the line as the value, byte for byte — a colon-space inside the value does not truncate or re-encode anything. The goal the judge reads is exactly the text you wrote, so spell any literal precisely as the system emits it, colons and all; a colon-less paraphrase of a real message string is the one hard failure mode here (EV-37 shipped a dead branch that way).`
+
+**Full close.** "The goal the judge reads is exactly the text you wrote" states the oracle principle. "Spell any literal precisely as the system emits it, colons and all" is the instruction. "A colon-less paraphrase of a real message string is the one hard failure mode here" names the failure class. This paragraph is the right shape.
+
+**Exact replacement wording for the template sentence** (so the oracle principle lands at the authoring screen, not just in the procedure):
+
+> `goal: One testable sentence stating what done means — the goal the judge reads is the exact text you write here, so spell any literal (a log message, an error string, a constant) precisely as the system emits it. Written on a single line; everything after "goal: " is the goal byte for byte, colons included.`
+
+That single sentence closes both gulfs at the moment the author reads it.
+
+**On the docstring (`validate.py:8-9` and `:46`)**
+
+In round 1 I said "do not change the module docstring — it is parser-truthful." I was wrong: the module docstring at `:8-9` contains the same false truncation claim the FAIL message propagates, and the `parse_frontmatter` docstring at `:46` says "stopping at a value truncation." Owner is right to change both. Correction noted; my round-1 "do not change" list shrinks.
+
+For the *content* of the docstring change: if owner simply replaces the truncation claim with the lossless contract, future engineers will read "parser is lossless" and stop there — repeating my round-1 error. The docstring should also state the oracle principle: "the goal value is the judge's only oracle for the literal the implementation is tested against; spell literals exactly as the system emits them." Not user-facing copy, but it is what the next engineer reads first.
+
+**Open-judgment question I flagged in round 1: keep "rephrase without a colon" as a fallback?**
+
+**Drop it permanently.** This is a design recommendation with a comprehension consequence.
+
+The clause is the bug. The whole point of the fix is to make the author *not* rephrase. Keeping "rephrase without a colon" as a documented fallback tells the author that paraphrasing a colon-space literal is an acceptable workaround — which is the exact behavior EV-37 demonstrated, and the exact class of behavior we are closing. The author's comprehension becomes: "I can spell the literal verbatim, or I can paraphrase." The first is the oracle-safe path; the second is the oracle-unsafe path. Listing both as acceptable is the comprehension failure.
+
+The case for keeping it (paraphrasing is appropriate when no literal exists, e.g., "the endpoint exists and returns 200 for the listed routes" — no colon-space anywhere, no oracle hazard) is already covered by silence: if the goal doesn't name a literal, there is no `: ` to escape, and the author simply writes the sentence. The clause is needed only when a literal *is* named, and in that case the literal must be spelled. So the clause is never useful; it is always the wrong suggestion.
+
+Comprehension consequence: a goal that names a literal must spell the literal; a goal that doesn't name a literal can be written as plain English. The author's mental model becomes "if I'm naming something real, I name it exactly." There is no longer a "workaround" tier.
+
+**Settlable?** The comprehension question — does listing "rephrase without a colon" cause authors to paraphrase literals they should spell? — is testable by a cold-read authoring test: present an author with the new template + procedure, given a goal whose judged literal must contain `: `, and measure whether they write verbatim or paraphrase. But the *judgment* of which path is right is product-owner territory; a test can settle comprehension, not policy. I'd flag this as **design recommendation with a test that could falsify the recommendation's premise**, not as something a test picks the winner on.
+
+**Remaining questions, by who settles them**
+
+- **Engineer-settled**: scaffold/seed byte-parity; re-pinning 8 fixture digests in the same change; deleting the FAIL block; correcting the docstrings; the wrapped-line truncation at `:60-65` exists (fact) and a *testable policy* governs it.
+- **Product-owner-settled**: retroactivity for EV-37's frozen goal (new card vs. accept the lossy record); propagation to existing initialized consumer repos (non-clobbering scaffold leaves them on the old rule, unbounded skew); whether to forbid wraps outright or support continuation; whether the lossless form is plain-line-only (owner argues yes; principal argues open by construction — the goal's "without truncating" is consistent with all three forms but does not name which).
+- **No test settles**: which is the right lossless form for an *unrecorded* second rationale behind the current rule (defense against a hypothetical future YAML consumer). Principal named this; I have nothing to add.
+
+**Falsifiable predictions**
+
+- **P1 (oracle principle at authoring).** A cold-read author given *only* the new template sentence (my replacement wording above) and the procedure paragraph writes the literal `Provider finish_reason: error` (with colon) on the first try when given a goal whose judged literal must contain `: `. Falsifier: the author rewrites without the colon. *The smoke is a cold-read authoring test, not a CDP assertion* — the artifact is author comprehension of static text, not rendered layout.
+- **P2 (lossless seam).** A pure-seam test: `parse_frontmatter("---\ngoal: Provider finish_reason: error\n---")["goal"] === "Provider finish_reason: error"` — green before the change (this is the proof that the ban, not the parser, is the lossiness; owner and principal agree on this; I agree).
+- **P3 (FAIL message and docstring corrected).** Grep of `validate.py` after the change: no occurrence of "truncates" or "truncation" in the goal parser or docstring; both module docstring and `parse_frontmatter` docstring contain the oracle principle.
+- **P4 (rubric grades against the new rule).** `council/fixtures/board-create-card/rubric.json:c3` prompt is byte-identical to the new template sentence's oracle statement. Falsifier: a colon-spaced literal in a treatment arm's rubric would PASS c3 after the fix and FAIL c3 before the fix — this is the test that *closes the card's conjunct (B)* for the rubric surface.
+- **P5 (procedure surfaces).** `board-create-card.md:42-47` and `features-new.md:49/54/57/75` no longer contain "colon-space sequence" or "no colon-space" — grep on `prepare_board-create-card.md` and `features-new.md` for the old phrasing, must return zero matches.
+- **P6 (wrapped-line truncation, the real hazard).** A pure-seam test: `parse_frontmatter("---\ngoal: first part\n second part\n---")["goal"] === "first part"` (the second line is silently dropped today). Green today; the *policy* for what to do about it is product-owner, but the fact that it exists must be in the deliverable.
+
+**Correction to my round-1 point 4 (copy I would NOT change)**
+
+I said in round 1: "validate.py's module docstring — do not change." That was wrong. Verified by reading `validate.py:8-9`: the module docstring contains the false truncation claim. It is a comprehension surface for the next engineer, and the same false claim must be removed. My updated "do not change" list:
+
+- The em-dash convention in `board-create-card.md` §6 (different parser, different failure mode — do not tie the two fixes).
+- The state-column names and ordering (out of scope).
+- The "one testable sentence" framing and the "Falsifiable" / "Not satisfiable by a stub" bullets in `board-create-card.md:36-42` (govern *kind of sentence*, not characters).
+- The "Draft, then stop" gate and the human-approval rule in §5–7.
+
+**On `features-new.md` and the fixture rubric as comprehension surfaces**
+
+`features-new.md` is a comprehension surface for the LLM during wave-1 decomposition (the bars list at `:49` is what principal sees when slicing). Owner and I agree it must change in lockstep with the validator. The change there is mechanical (bars contain "no colon-space sequence" → "single-line literal-exact goal"), and the oracle principle should land there too: the bar should be "single-line goal that names any literal exactly as the system emits it."
+
+The rubric `c3` is a comprehension surface for an LLM judge. **Critical change.** It is not digest-pinned (I verified: `seed.treeDigest` covers `council/*` under the seed, but `rubric.json` itself is sibling-of-fixture.json, not under the digest tree) and not red-tested. A stale rubric silently grades against a superseded rule — exactly the artifact-vs-intake drift the EV-37 closure ruling named. I would update it, and the update is in scope per the card's surface list expansion.
+
+**Preferences, ranked last**
+
+- I prefer the template sentence to carry the oracle principle inline rather than only pointing at the procedure paragraph. The template is the one-line gloss the author sees on their screen at the moment they fill in `goal:`; the procedure is what they read if they keep going. If only one surface carries the principle, the template is the better choice. Ranked last because this is taste about *placement*; the substance (the principle must land somewhere) is settled.
+- I prefer naming EV-37 in the procedure paragraph over abstract phrasing ("a previous run shipped a dead branch this way"). The concrete reference earns the lesson the way the wiki's `engineering-board.md` names it. Ranked last because this is taste about *how* to teach; the teaching must happen is settled.
