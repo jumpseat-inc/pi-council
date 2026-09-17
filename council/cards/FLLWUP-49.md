@@ -1451,3 +1451,74 @@ the facts of the goal-text question to the orchestrator.
 22.3), `principal` (22.2, 22.4), `skeptic` (22.5), `consolidator` (22.6); two
 exchange rounds (under the ≤3 cap), one skeptic attack, one synthesis. All 6
 jobs settled `done`; no dispatch stalled, timed out, or needed a re-dispatch.
+
+### Step 6 — rulings applied (resumed runner, job-22 container resumed)
+
+The prior runner (job-22) ended its turn with an `ESCALATION` report carrying
+the consolidator's goal-text question (bucket 2a) as facts, with no
+recommendation. `product-owner` escalated (job-23) — the card's `goal` itself
+looked like the defect, which is `product-owner`'s own escalation criterion —
+and `steward` ruled (job-24): **the clause is defective; amend the `goal` in
+place before step 10.** The orchestrator applied the amendment before this
+dispatch: the card's `goal` frontmatter line is now the steward-amended text
+(commit `a448047`, `python3 council/validate.py` clean). Per
+`<escalation_contract>` step 3 the ruling is appended verbatim below and is
+binding; this resumption re-asks nothing the ruling answers and re-runs none of
+steps 1–6 (the ruling states the amendment "leaves the shipped design
+identical"). No Phase-1 run-wide ruling covered the question — the step-6
+record above already checked them and recorded them inapplicable — so applying
+one would have been deciding under the appearance of applying.
+
+#### steward ruling (job-24) — verbatim
+
+> **The clause is defective; amend the `goal` in place before step 10.** Two
+defects: (1) "both the parent-turn and seat-dispatch provider-error tests
+import" is undecidable from the goal alone — vacuous under file granularity,
+unsatisfiable under block granularity, and the goal does not say which; (2) the
+goal has no witness — O8 settled `closed-green` that `bun test` is green with
+all four copies present, so "no duplicated harness copy" is unfalsifiable
+without naming a falsifier. The amendment codifies the file-granularity reading
+both seats deliberated under, adds zero work and zero live arms (FLLWUP-48's
+budget stays measurable), and leaves the shipped design identical, so steps 1–6
+are not re-run. The seat-dispatch arm's child stays on `test/stub-child.ts`.
+The `Intent` sentence stays as written (it is not the oracle). Paths:
+`vault/wiki/steward.md`, `vault/wiki/engineering-board.md`,
+`vault/wiki/product-owner.md` Cases §2 + EPIC-7 EV-29 lesson,
+`vault/wiki/judge.md` (judge gets goal + Skeptic evidence only). Residual
+explicitly bounded: `smoke/search-smoke/driver.py`'s own `Screen`/`Session` is
+excluded from this goal's universe by the "under test/ or in ev43/" scope (a
+scoping decision matching O4, not a permanent portfolio acceptance). Not ruled
+/ left alone: the `hasUI` port-vs-drop is a card-level design taste that stays
+with the owner/`product-owner` and rides into step 7 as a spec disposition, as
+do the two non-blocking `open-untested` items (O7 live half, O8 removal half).
+No new card, no promotion, no retirement, no residual accepted permanently.
+
+#### Facilitator note — what the ruling resolves, and what it hands to step 7
+
+- **The goal-text question (bucket 2a) is closed by ruling.** The amended
+  `goal` is the step-10 oracle. It codifies the **file-granularity** reading
+  both seats deliberated under: the four named test files
+  (`test/ev40-headless.test.ts`, `test/ev40-live-gates.test.ts`,
+  `test/ev41-retry-e2e.test.ts`, `test/ev43-reachability.test.ts`) each import
+  the shared helper; the seat-dispatch arm's child stays on
+  `test/stub-child.ts`; "no duplicated harness copy" now names its universe
+  ("under `test/` or in `ev43/`") and its falsifier (a committed shape test
+  asserting exactly one provider extension, one headless runner, and one pty
+  screen model). The judge therefore no longer faces an undecidable clause.
+- **Nothing in the settled design is reopened.** The amended goal is the same
+  deliverable steps 2–5 converged on; the spec written at step 7 states that
+  design, the four named consumers, the seat-arm reading, the declared
+  universe, and the shape test.
+- **Handed to step 7 as named dispositions (not decided here):** the `hasUI`
+  port-vs-drop (steward: "stays with the owner/`product-owner`"); the two
+  non-blocking `open-untested` items O7 (live seat-child E2E half) and O8
+  (FLLWUP-47 removal-inertness half); and the bounded
+  `smoke/search-smoke/driver.py` residual (excluded by the goal's own scope,
+  not a permanent portfolio acceptance).
+- **No `vault/` file was written by this container.** The ruling is reproduced
+  verbatim above from the resume packet (job-24). Per council.md step 14,
+  `vault/` is never hand-edited by the runner; any durable ingest is owed as a
+  step-14 offer.
+
+**Step 6 outcome: closed by ruling; no `Needs Human` state, no outstanding
+ruling. Procedure continues at step 7.**
