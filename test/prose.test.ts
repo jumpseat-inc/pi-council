@@ -222,3 +222,37 @@ test("features-new step 2 session status line sits in the Part 2 paragraph, adja
 	expect(seam).not.toContain("Session status");
 	expect(seam).not.toContain("presented, never written");
 });
+
+// FLLWUP-42 (Phase-1 ruling R2): the deterministic merge check must name
+// the human-granted `--admin` bypass explicitly as the sanctioned merge
+// step under a `main` ruleset that requires an approving review, and state
+// that the authorization is run-scoped and never extended to a later run.
+
+test("features-deliver names the run-scoped --admin bypass as the sanctioned merge step", () => {
+	const text = fs.readFileSync(
+		path.join(PKG_ROOT, "council", "procedures", "features-deliver.md"),
+		"utf-8",
+	);
+	// Whitespace-normalized so the pin survives line wrapping in the prose.
+	const flat = text.replace(/\s+/g, " ");
+	// The bypass must be named explicitly, inside the deterministic-merge-
+	// check section, in the exact authorized command shape.
+	const sectionStart = flat.indexOf("## The deterministic merge check");
+	const sectionEnd = flat.indexOf("## Guards");
+	expect(sectionStart).toBeGreaterThan(-1);
+	expect(sectionEnd).toBeGreaterThan(sectionStart);
+	const mergeCheck = flat.slice(sectionStart, sectionEnd);
+	expect(mergeCheck).toContain("requires an approving review");
+	expect(mergeCheck).toContain("gh pr merge <PR> --squash --admin --match-head-commit <X>");
+	expect(mergeCheck).toContain("sanctioned merge step");
+	// The authorization is run-scoped — recorded on the card / by a Phase-1
+	// ruling before the merge — and never extended to a later run.
+	expect(mergeCheck).toContain("run-scoped");
+	expect(mergeCheck).toContain("Phase-1 ruling");
+	expect(mergeCheck).toContain("not extended to any later run");
+	// A run with no recorded authorization must not use `--admin`; if the
+	// ruleset then blocks the merge, that is a HALT surfaced to the human,
+	// not a bypass.
+	expect(mergeCheck).toContain("must not use `--admin`");
+	expect(mergeCheck).toContain("HALT surfaced to the human");
+});
