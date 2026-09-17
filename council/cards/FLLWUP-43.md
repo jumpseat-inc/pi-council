@@ -930,3 +930,42 @@ claimed gate-verified). It is recorded, not claimed green, and is not a red.
 
 Verdict: **`passes`**. Criterion 3 of the deterministic merge check (no
 blocking Skeptic objection) holds.
+
+### Step 10 — judge verdict
+
+Dispatch `judge` job-6.3 (15-min ceiling; settled 0.5m / 2 turns, total 22,122
+tok, cost≈$0.0026). Input: the card's amended `goal` verbatim plus the
+Skeptic's step-9 evidence — nothing else. Subject: head SHA
+`438978193545241bb3bca29e20ee53a3c7a076e2`, worktree `.worktrees/fllwup-43`;
+frame: step 10 precedes step 11's mechanical merge.
+
+Verdict: **`PASS`**. Basis: the goal's two claims are confirmed by the
+Skeptic's executed tests — T1 validates a colon-space goal clean, and T6 shows
+the parsed goal carries `Provider finish_reason: error`
+(`PROVIDER_FINISH_REASON_ERROR`, `extensions/retry.ts:78`) for the treatment
+while the colon-free control does not. The one open residual (live R4 cell) was
+correctly recorded as a non-red outside the gate set. Criterion 4 of the
+deterministic merge check holds.
+
+### Step 11 — deterministic merge check
+
+Facilitator-executed, mechanically; all five criteria read from observed
+artifacts at head SHA `438978193545241bb3bca29e20ee53a3c7a076e2`:
+
+1. **Owner gates green, in full** — verified independently by the step-9
+   Skeptic at the branch head: preflight PASS; `bunx tsc --noEmit` clean;
+   `bun test` 858 pass / 0 fail / 2 skip; `python3 council/validate.py`
+   `All council artifacts valid`.
+2. **GitHub Actions green on the PR head SHA** — `gh pr checks 59 --json
+   name,state,workflow` → `[{"name":"gates","state":"SUCCESS","workflow":"gates"}]`;
+   the `gates` workflow appears `SUCCESS` (keyed on `workflow`).
+3. **No blocking Skeptic objection** — step-9 verdict `passes`; the sole
+   `open-untested` item is the ruling-governed live R4 cell.
+4. **Judge verdict `PASS`** — step 10.
+5. **No `Needs Human` state or outstanding ruling** — card is `In Review`;
+   ESC-1 applied, ESC-2 accepted as a permanent non-blocking residual, ESC-3
+   routed to step 13 as an approved follow-up.
+
+Merge authorized for this run only: `gh pr merge 59 --squash --admin
+--match-head-commit 438978193545241bb3bca29e20ee53a3c7a076e2`, pinned to the
+exact SHA criterion 2 was read against.
