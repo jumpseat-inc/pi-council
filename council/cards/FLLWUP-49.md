@@ -1063,3 +1063,391 @@ their **actual** results appended verbatim; all probes ran read-only from
   correction, file-granularity seat reading, declared universe, identity-
   criterion shape test, `hasUI`/header/role-tightening disposition — not a
   redesign.
+
+### Step 5 — synthesis (`job-22.6`)
+
+2.2m / 3 turns, settled `done`. Dispatched with the full deliberation record
+(steps 2–4). Synthesis appended verbatim.
+
+## Synthesis — FLLWUP-49 (step 5)
+
+Read in full: `council/procedures/council.md` (step 5),
+`council/cards/FLLWUP-49.md` (steps 1–4, full run record). The exchange closed
+at round 2 by facilitator note (positions stabilised; ≤3 cap not reached).
+Below is the three-bucket sort, faithful to the record. Nothing here is my own
+design opinion; where the two seats' round-2 texts are in tension I say so
+rather than smoothing it.
+
+---
+
+### 1. Settled
+
+**Agreed design (the dedup the tree nearly forces).**
+
+- **Canonical shared harness = the EV-40 family.** `harness-headless.ts` is
+  already the generalization (its own header says so), with the superset of
+  knobs (fail-count, arm, partial, context/payload/settle logs, SIGINT); all
+  four current TS import sites already point there. Canonicality is a fact at
+  HEAD, not a choice.
+- **Home = `test/faux-provider/`** (a `git mv` of `test/ev40-harness/`).
+  `owner` conceded the rename in round 2; `principal` conceded it as tradeable
+  and will not press (round-2 concession 4, "ranked last"). The convergent
+  action is the rename; `principal`'s mild preference for keeping
+  `ev40-harness/` is recorded but does not survive as a dispute.
+- **Exported surface — symbol-for-symbol unchanged, plus three surgical
+  additions agreed in round 2:** (i) re-export `INJECTED_ERROR_MESSAGE`,
+  `PARTIAL_MARKER`, `CONTINUATION_MARKER`, and a newly-exported `CONTINUATION`
+  prompt from the extension so no TS consumer asserts a harness-internal
+  literal; (ii) the `EV40_ERROR_MESSAGE` env knob in the extension (default
+  `INJECTED_ERROR_MESSAGE`) — `owner` proposed, `principal` conceded (round-2
+  concession 2) on the grounds that a silently swapped literal makes
+  "observation preserved" unfalsifiable; (iii) the `hasUI` branch port — see
+  the disposition note below.
+- **Fate of each duplicated copy:**
+  - `ev43/` (3 files: `ev43-falsifier-extension.ts`, `falsifier-headless.ts`,
+    `falsifier-tui.py`) — **deleted**; `test/ev43-reachability.test.ts`
+    re-pointed onto the shared harness.
+  - `test/ev41-tui.py` — **moved** into the harness dir (thinned over the
+    shared `pty-kit.py` substrate); one spawn-path update in
+    `test/ev41-retry-e2e.test.ts:338`.
+  - `test/ev40-harness/tui-retry.py` — **stays**, thinned over `pty-kit.py`.
+  - `falsifier-tui.py`'s hasUI in-handler TUI scenario — **retired** as a
+    manual capability, recorded in the spec (both seats agree the scenario is
+    retired; `principal` round 1, `owner` round 2 concession 3).
+  - `test/ev40-headless.test.ts`, `test/ev40-live-gates.test.ts`,
+    `test/ev41-retry-e2e.test.ts` imports — untouched except paths.
+  - `test/stub-child.ts` + its 5 consumers — **untouched**; it is a different
+    fixture family (a stub `pi --mode json` child for Hub dispatch), not a
+    faux-provider harness copy.
+- **Pty family: one shared substrate + thin scenario runners.** `owner`'s
+  `pty-kit.py` (stdlib-only: `Screen`, `Session`, `read_sequences` in the
+  dict-entry form, `DA_REPLY`/`KITTY_REPLY`/`K_CR`) + three scenario runners
+  (~60–100 lines each). `principal` conceded the three-runner shape over its
+  round-1 profile-parametrized `pty.py` (round-2 concession 3). The `D` clause
+  adopts correct **relative-left** semantics; `G` keeps absolute-column.
+- **Consumer re-point list:** as in `owner` round-2 §5 / `principal` round-2
+  defense — `ev43-reachability.test.ts` (treatment
+  `{fails:1,arm:"inside"}`, control `{fails:1,arm:"none"}`, no council
+  extension), `ev41-retry-e2e.test.ts:338` runner path, `ev43/` deleted,
+  `ev41-tui.py` moved. `stub-child.ts` and `smoke/` untouched.
+- **Committed shape test** (`test/faux-provider-shape.test.ts`, no live runs)
+  as the goal's only operationalization: identity-scoped — one provider
+  extension, one headless runner, exactly one `class Screen`/`class Session`
+  under `test/`, `ev43/` absent, one `resolveNode` under `test/`, plus
+  `python3 -m py_compile` on each pty runner. `owner` conceded this in round 2
+  (concession 4); `principal` defended it as settled (round-2 defense 1,
+  refined against the change-detector objection to assert *identity* not exact
+  `readdirSync`).
+- **`EV40_ERROR_MESSAGE` / identity-string handling:** the knob preserves the
+  colon-less class byte-identical at `ev43-reachability.test.ts:73`. The other
+  three moving EV-43 identity strings (`ev43`/`ev43-model` provider id,
+  `EV43-CONTINUE` at `:66/:72/:75`, `EV43-SECOND-RESPONSE` at `:68`) are
+  handled by the `CONTINUATION` prompt export + literals→imported-constants.
+  `EV-43.md` is **not edited** (it is the record of what was observed; both
+  seats agree).
+- **`hasUI` disposition:** the shared extension
+  (`ev40-harness-extension.ts:190-204`) has send-then-poll only;
+  `ev43-extension:72-91` has the `ctx.hasUI` split — **fact settled
+  closed-green (O6)**. Disposition as converged: scenario retired → port
+  withdrawn as dead code (`owner` round-2 concession 3). *Tension recorded, not
+  smoothed:* `principal` round-2 defense 5 separately argues the `hasUI` port
+  "belongs in commit 2" on the grounds that moving the scenario without it
+  silently changes the TUI shape — an argument that presupposes the scenario
+  is moved rather than retired, and which cuts against both seats' retirement
+  agreement. The facilitator note did not carry `hasUI` as a residual; the
+  Skeptic (O6) called the fact `closed-green` but the disposition an "open
+  design choice." If a future owner moves rather than retires the scenario,
+  the port becomes load-bearing again — flag this so the owner does not
+  silently drop it.
+- **`secondMessagePresent` role-tightening:** the shared predicate
+  (`harness-headless.ts:377-379`) matches against the whole `sequence`
+  including `user` lines, while EV-43's local helper is assistant-only. Commit
+  2 must tighten the shared predicate to assistant-only. Settled by O3.
+- **Declared universe + `smoke/search-smoke/driver.py` residual:** universe =
+  the offline faux-provider falsifier family (extension + headless runner +
+  pty substrate) under `test/` plus the retired `ev43/`;
+  `smoke/search-smoke/driver.py` is the one pinned residual, named in the
+  spec, untouched (a `smoke/ → test/` import would be a layering inversion
+  against an independently-ruled manual that pins its own `Screen` and a
+  pinned external pi 0.84.3). Settled by O4.
+- **Two-commit split:** commit 1 = pure relocation + substrate dedup +
+  re-points, **zero** assertion or behavior change; commit 2 = the declared
+  deltas (D-clause fix, `EV40_ERROR_MESSAGE` knob, `hasUI` disposition per
+  above, EV-43 identity strings → imports, header/comment corrections, shape
+  test, `secondMessagePresent` tightening). `owner` conceded the split;
+  `principal` re-specified it in round-2 defense 4 after the rename dropped
+  out of commit 2.
+- **Post-D-fix pty re-run:** the D-clause fix changes a live arm's screen
+  rendering (`ev41-retry-e2e.test.ts:338` spawns it, `:355-357` assert its
+  verdict). The pty arm must be re-run **after** the fix, not merely after the
+  move — the current green may or may not depend on the wrong `D` semantics.
+  Settled as a required check (`principal` round-2 defense 4 sequencing point;
+  `owner` round-2 claim 6).
+- **Engine comment sweep:** `extensions/parent-retry.ts:4` cites
+  `test/ev40-harness/ev40-harness-extension.ts`; `test/ev40-live-gates.test.ts:147`
+  cites `--provider ev40`. Both updated in commit 2. `owner`'s round-1 table
+  omitted this; `principal` round-2 defense 6 surfaced it; folded into the
+  agreed commit 2.
+- **FLLWUP-48 zero-new-live-arms constraint:** this refactor adds **zero**
+  live arms and no arm-count/timeout changes, or it invalidates FLLWUP-48's
+  measurement. `owner` conceded (round-2 concession 6); `principal` asserted
+  (round-2 defense, reframe). Baseline arm counts recorded by O10:
+  ev40-headless 3, live-gates 5, ev41-retry-e2e 5, ev43-reachability 2.
+
+**Settled disputes (each with the Skeptic test and its actual result).**
+
+- **O1 — Intent premise stale.** `git show --stat 952d5c1 | grep -Ei
+  "harness|\.py" | wc -l` → `0`; `grep -n "ev40-harness/harness-headless"
+  test/ev41-retry-e2e.test.ts` → hit at `:64`. **`closed-green`:** EV-42's
+  merged squash carries no harness or pty file; EV-41's headless half already
+  imports the EV-40 harness at HEAD. The real duplication is `ev43/` + the pty
+  screen models. The `Intent` sentence is stale as read.
+- **O2 — Pty CSI-`D` drift, `ev41-tui.py` wrong.** `/tmp/pty_drift.py` driving
+  `ESC[10;20H` then `ESC[5D` through each `Screen`. **`closed-green`:**
+  `ev41-tui.py` → `c=4` (absolute-column misread, same clause as `G`);
+  `tui-retry.py` and `falsifier-tui.py` → `c=14` (correct relative-left).
+  Copies have diverged; the kit must pick relative-left. (`owner`'s "col 15"
+  vs `principal`'s "c=14" is 1-based vs 0-based — same cell.)
+- **O3 — `secondMessagePresent` attribution widens on re-point.**
+  `/tmp/role_probe.ts`. **`closed-green`:** shared helper matches a `user` line
+  containing the marker (`true`); local helper is assistant-only (`false` on
+  user-line, `true` on assistant-line). Re-pointing EV-43 onto the shared
+  predicate changes attribution; commit 2 must tighten to assistant-only.
+- **O4 — Universe / grep-root + smoke residual.** `grep -rn "class Screen"
+  test/ ev43/ smoke/` and repo-wide. **`closed-green`:** exactly 4 definitions
+  at HEAD (`tui-retry.py:48`, `ev41-tui.py:54`, `falsifier-tui.py:52`,
+  `driver.py:66`); `class Session` likewise ×4.
+  `smoke/search-smoke/README.md:114-116` pins "stdlib only … authored in the
+  driver"; `run.sh:20` pins pi `0.84.3` vs the harness's `import.meta.resolve`
+  dev pi. Both seats' counts are right under their own root; the spec must
+  declare the universe with `driver.py` named as the pinned residual.
+- **O5 — EV-43 identity is four strings; knob covers one.** Grep of EV-43
+  literals + `EV40_ERROR_MESSAGE` absence. **`closed-green`:** moving strings
+  are provider id `ev43`/`ev43-model`, `EV43-CONTINUE` (`:66/:72/:75`),
+  `EV43-SECOND-RESPONSE` (`:68`), colon-less class (`:73`,
+  `ev43-extension:55`). `EV40_ERROR_MESSAGE` appears nowhere at HEAD.
+  `CONTINUATION_MARKER` is exported but the `EV40-CONTINUE` prompt is a
+  non-exported `const CONTINUATION`. Knob preserves 1-of-4; the `CONTINUATION`
+  export + header fix close the other three. `EV-43.md` stays unedited
+  (agreed).
+- **O6 — `hasUI` branch differs (fact).** Read of
+  `ev40-harness-extension.ts:190-204` vs `ev43-extension:72-91`.
+  **`closed-green` on the fact:** shared has send-then-poll only; ev43 has the
+  `ctx.hasUI` split. (Disposition treated above; the one residual tension is
+  carried, not buried.)
+- **O7 — Seat-path reachability (structural sub-claims).** Reads of
+  `buildChildArgv` (`seats.ts:600-621`), `hub-tools.ts:248-249`,
+  `docs/extensions.md:113-120`, `ev41-retry-e2e.test.ts:161-168`,
+  `integration.test.ts:33`. **`closed-green` on structure:** `buildChildArgv`
+  has no `-e`/`--provider`; `command:"pi"` with `cwd: repoRoot` + `-a` and
+  project-local `.pi/extensions` auto-discovery is real;
+  `ev41-retry-e2e.test.ts` spawns `command:"bun", args:[STUB]` with a
+  `seat:"stub"` label and never calls `buildChildArgv`; only
+  `integration.test.ts:33` spawns real `pi`. `principal`'s round-1
+  "unsatisfiable without engine change" is falsified as too strong; the
+  round-2 "reachable via scratch-repo `.pi/extensions` + `.council.json`, no
+  engine change" is structurally plausible. (Live E2E half is open — see
+  bucket 3.)
+- **O8 — Goal has no falsifier today.** Full `bun test` + `tsc` + `validate.py`
+  at HEAD with all 4 copies present. **`closed-green`:** `bun test` → 884 pass
+  / 2 skip / 0 fail; `bunx tsc --noEmit` exit 0; `validate.py` → `All council
+  artifacts valid`. Green coexists with full duplication: vacuous witness
+  confirmed. (The removal-inertness half is open — see bucket 3.)
+- **O9 — Shape test sufficient as sole operationalization?** Logical + grep
+  evidence. **`closed-green` with condition:** only an identity-scoped test
+  (one provider script / one headless runner / one `Screen`+`Session` inside
+  the declared universe, `ev43/` absent, `py_compile` on runners) falsifies
+  "no duplicated copy"; an exact-`readdirSync` or wrong-root variant can be
+  satisfied while a copy survives. Today's `read_sequences` evidence (ev41
+  dict-form strictly richer than tui-retry string-form) supports consolidation.
+- **O10 — No new live arms (FLLWUP-48 adjacency).** `grep -c "test("`
+  baseline. **`closed-green` on baseline:** 3 / 5 / 5 / 2. Candidate
+  compliance (shape test spawns nothing, no arm-count/timeout delta) is
+  checkable only post-implementation.
+
+**Premise finding, as settled fact.** The card's `Intent` sentence ("EV-41
+and EV-42 currently carry duplicated harness copies") is **false as read at
+HEAD** (O1, closed-green). EV-42's squash `952d5c1` carries no harness or pty
+file; EV-41's headless half already imports the EV-40 harness. The duplication
+that actually exists is `ev43/` (a full predecessor harness still imported)
+plus the pty screen-model defined four times with proven drift. The deliverable
+is a **dedup refactor**, not the creation of harness copies.
+
+---
+
+### 2. Open judgment — for `product-owner`, escalating to `steward`
+
+**(a) The `goal` text question.** The card's `goal` (line 12) reads: "The
+offline faux-provider harness is a shared test helper that **both the
+parent-turn and seat-dispatch provider-error tests import**, with no duplicated
+harness copy."
+
+The two seats agree on the operative reading and on what the implementation
+does under it: **file granularity** — `test/ev41-retry-e2e.test.ts` (the file
+carrying the seat-dispatch provider-error test) imports `harness-headless.ts`
+and the extension at `:64-65`, and the seat block stays on `test/stub-child.ts`
+deliberately. Under that reading the "both … import" clause is **vacuous**
+(true at HEAD already, moves nothing); under **block granularity** it is
+**unsatisfiable without re-architecting the seat arm into a real `pi` child
+under a config-injected faux provider**, which changes what that falsifier
+proves and adds a live arm whose budget is literally the next card's subject
+(FLLWUP-48). The `goal` text does not say which reading is intended.
+
+Where the seats diverge is only on **what to do about the text itself**:
+
+- **`owner` (round 2, "Goal-text defect"):** agrees the `goal` text is
+  defective (premise stale; seat-dispatch clause unsatisfiable as literally
+  read), but holds "the judge's oracle holds as written" under the
+  file-granularity reading — no engine change, implementation proceeds, spec
+  records the correction, `goal` not touched mid-deliberation.
+- **`principal` (round 2, "The goal-text question, resolved with `owner`"):**
+  agrees the remedy is a spec sentence and that `goal` is not recast
+  mid-deliberation, but frames the clause as "defective as a specification,
+  because it is either vacuous or unsatisfiable and the goal text does not say
+  which," and states "do not touch `goal` mid-deliberation without a ruling."
+
+Both positions leave the shipped design identical (seat stays on
+`stub-child.ts`; no engine change). The open judgment is narrow but real: **is
+the `goal` text itself a defect that requires a ruling before step 10, or is
+it a stale-`Intent`/spec-prose matter the implementation can proceed under
+with a recorded spec sentence?** This routes to `product-owner`; because the
+card's `goal` itself looks like the defect (vacuous-or-unsatisfiable and silent
+on which), `product-owner`'s own escalation criteria (`council.md` step 6:
+"the card's `goal` itself looks like the defect") apply — it escalates to
+`steward`. The judge at step 10 receives only the `goal` and the Skeptic's
+evidence; if the judge reads "both … import" at block granularity, the seat
+half on `stub-child.ts` fails the oracle. That is the live risk a ruling would
+close.
+
+**(b) `hasUI` port vs. drop (narrow, carried from O6).** Both seats agree the
+scenario is retired and `falsifier-tui.py` deleted. `owner` round-2 withdrew
+the `ctx.hasUI` port as dead code on that basis. `principal` round-2 defense 5
+separately argues the port "belongs in commit 2" because moving the scenario
+onto the shared extension without it silently changes the TUI shape — an
+argument that presupposes the scenario is *moved* rather than *retired*. No
+test settles this while the scenario is retired (there is nothing to move); it
+becomes live the moment a future owner elects to move rather than retire.
+Stated at equal weight: **port it now (principal defense 5)** vs. **withdraw
+it as dead code (owner round-2 concession 3)**. This is a values/taste call on
+a dormant code path, not a fact a test can settle; recorded here so the owner
+does not silently pick one.
+
+---
+
+### 3. Open objections — Skeptic objections whose settling test has not passed
+
+- **O7 (live half) — live seat-child E2E through scratch-repo auto-discovery.**
+  `open-untested`. The structural sub-claims closed green (see bucket 1); the
+  live E2E — a scratch repo carrying `.pi/extensions/<faux>.ts` + a
+  `.council.json` seat-model override, dispatched through a real
+  `council_dispatch`, asserting the seat child's error carries the faux literal
+  — was **not run** (requires writes/dispatch outside the Skeptic's read-only
+  turn). A future test would have to show, in a real seat child spawned by the
+  engine (not a `bun stub-child.ts` Hub test), whether the faux provider's
+  injected literal reaches the seat's provider-error path with no engine
+  change. **Does not block the plan:** the Skeptic records that under either
+  outcome the shipped design is identical (the seat arm stays on
+  `stub-child.ts`); the remedy is spec prose, not a redesign. If satisfiable,
+  the "satisfiable seat-dispatch faux provider" finding becomes follow-up
+  territory (a different card that re-architects the seat arm — out of this
+  card's scope).
+
+- **O8 (removal half) — FLLWUP-47 removal-inertness re-run.** `open-untested`.
+  The vacuous-green half closed green (full `bun test` green with all four
+  copies present). The removal half — `rm test/ev40-harness test/ev41-tui.py`
+  leaves the suite identical (cited from the FLLWUP-47 PO ruling,
+  `vault/raw/2026-09-17-po-fllwup47-step6-ruling.md:300-307`) — was **not
+  re-run**; it requires modifying the tree, forbidden in the Skeptic's
+  read-only turn. A future test would have to show, after the refactor lands,
+  that removing the harness dir and `ev41-tui.py` from a pre-refactor tree
+  leaves `bun test` counts unchanged (corroborating the inertness basis for
+  the vacuous-witness claim). **Does not block the plan:** it is corroborating
+  evidence for a claim already settled green by the vacuous-witness run and
+  already cited from a recorded PO ruling; the shape test operationalizes the
+  goal independently of this probe.
+
+No `closed-red` objection blocks the design. Both open-untested items are
+explicitly non-blocking per the Skeptic's verdict and leave the shipped design
+unchanged under either outcome.
+
+---
+
+### Out of this card's scope (follow-up territory, step 13)
+
+- **`smoke/search-smoke/driver.py`** — the fourth `Screen`/`Session`
+  definition, named as the one pinned residual. Outside the declared universe
+  (independently-ruled manual, pins its own `Screen` and a pinned external pi
+  0.84.3; a `smoke/ → test/` share would couple the release gate to a `test/`
+  module and falsify a pinned README claim). Named in the spec; a future card
+  would decide whether to collapse it.
+- **Satisfiable seat-dispatch faux provider via scratch-repo `.pi/extensions`
+  + `.council.json`** (the O7 live-E2E question) — if satisfiable,
+  re-architecting the seat arm into a real `pi` child under a config-injected
+  faux provider is a different card, and one that would change what the seat
+  falsifier proves and add a live arm to FLLWUP-48's budget.
+- **`tui-retry.py` and `falsifier-tui.py` wiring into CI** — both stay manual
+  (not in `bun test`) per both seats; wiring them in would add ~10 minutes of
+  pty runtime per suite run. Out of scope.
+- **Directory name cosmetic wart** — `test/faux-provider/` will hold a
+  general-purpose harness; the rename is in-scope and settled, but the
+  underlying "epic-named general-purpose helper" naming question is a recurring
+  pattern worth a follow-up if it recurs.
+
+---
+
+### Ready to hand off?
+
+**No — one open judgment must route before step 7.** The `goal`-text question
+(bucket 2a) routes to `product-owner`, escalating to `steward` (the card's
+`goal` itself looks like the defect). Until that ruling lands, step 10's judge
+— which receives only the `goal` and the Skeptic's evidence — may read the
+"both … import" clause at block granularity and REJECT on a seat half that the
+design deliberately leaves on `stub-child.ts`. The narrow `hasUI` port-vs-drop
+judgment (bucket 2b) and the two non-blocking open objections (bucket 3) do not
+block the plan; the design ships identically under their either-outcome. The
+single blocker is the `goal`-text ruling.
+
+### Step 6 — routing (facilitator)
+
+**Phase-1 rulings checked before escalating** (per `<escalation_contract>` step
+1): the run-wide rulings bindings are scope = the nine promoted EPIC-9
+residuals with EPIC-9 staying `Done`; sequencing by `steward` (eighth card);
+merge = `gh pr merge <PR> --squash --admin --match-head-commit <X>` with all
+five deterministic criteria; **R1** union-merge reconcile as the sanctioned
+non-fast-forward repair, never force; and step-13 follow-up confirmation
+re-homed to `product-owner`. **None of these addresses the consolidator's
+goal-text question** — whether the card's `goal` clause "both the parent-turn
+and seat-dispatch provider-error tests import" is itself a defect requiring a
+ruling, or a stale-`Intent`/spec-prose matter the implementation may proceed
+under. Extending a run-wide ruling to a question it does not answer would be
+deciding under the appearance of applying, which `<escalation_contract>` names
+as the failure mode. The question is therefore **not covered** and is
+escalated.
+
+- **Goal-text question — routes to `product-owner`, escalating to `steward`.**
+  The consolidator names it the single blocker to step 7. Both factual halves
+  are settled: O1 `closed-green` (the `Intent` premise is false at HEAD) and O7
+  `closed-green` on structure (the seat-dispatch arm is a Hub/`stub-child.ts`
+  test that never calls `buildChildArgv`; the faux provider is structurally
+  reachable in a real seat child only by re-architecting the arm, which changes
+  what it proves and adds a live arm to FLLWUP-48's budget). What is *not*
+  settled is whether the `goal` text itself must be ruled before step 10, given
+  the judge receives only the `goal` and the Skeptic's evidence.
+- **`hasUI` port-vs-drop (2b)** — not escalated as its own ruling. No test
+  settles it and it does not block a plan; the consolidator records both
+  positions at equal weight (port it now vs. withdraw it as dead code). It
+  rides into step 7 as a named open design choice the spec/owner must
+  disposition explicitly rather than silently.
+- **O7 live half / O8 removal half (`open-untested`)** — per the Skeptic's own
+  characterization and the consolidator's bucket 3, both are non-blocking and
+  leave the shipped design identical under either outcome; they ride into step
+  7/9 as named evidence items, not blockers.
+
+**No decision is taken here.** The card stays `Deliberating`; steps 7 onward do
+not start until the ruling returns. This container returns `ESCALATION` with
+the facts of the goal-text question to the orchestrator.
+
+**Throughput/usage (this card so far):** 6 seat dispatches — `owner` (22.1,
+22.3), `principal` (22.2, 22.4), `skeptic` (22.5), `consolidator` (22.6); two
+exchange rounds (under the ≤3 cap), one skeptic attack, one synthesis. All 6
+jobs settled `done`; no dispatch stalled, timed out, or needed a re-dispatch.
