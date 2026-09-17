@@ -4,9 +4,9 @@ type: concept
 summary: The deterministic usage block rendered at five autonomous exits — grammar identity across forms, three whole-block states (failed > unresolved > empty), the conditional `n/a` legend, and the opt-in marker boundary mode.
 aliases: [usage block, usage line, no usage recorded, accounting boundary unresolved]
 tags: [pi-council/concept, pi-council/epic7]
-sources: ["[[2026-09-11-epic7-run-ledger]]"]
+sources: ["[[2026-09-11-epic7-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]"]
 created: 2026-09-11
-updated: 2026-09-11
+updated: 2026-09-16
 ---
 
 # Usage Block
@@ -55,6 +55,14 @@ A **conditional legend** `usage  n/a = provider figure unavailable` appears iff
 a slot rendered `n/a` (see [[cost-provenance]]); a standing legend on a block
 with no `n/a` would be the plausible-but-false pattern in reverse.
 
+A **second conditional legend**, `usage  partial = reported figure excludes
+unaccounted attempts`, appears iff the provider sibling carries `partial` while
+a figure exists (EPIC-9, [[figure-scoped-disclosure]]). Stack order is reported
+row → partial legend → `n/a` legend. An **all-unaccounted** retried record
+carries no `partial` at all — the `n/a` legend *is* the whole disclosure — and
+the legacy window shape (`attempt > 1 && attempts === undefined`) keeps its
+`final-attempt-only` bytes identical.
+
 ## The boundary-mode extension
 
 `/council-eval` is a TS command whose handler awaits and never injects a user
@@ -68,6 +76,7 @@ extension, not a relaxation of the zero-both invariant.
 
 - [[usage-accounting]] — the tuple the block renders
 - [[spend-record]], [[usage-store]], [[cost-provenance]]
+- [[figure-scoped-disclosure]] — the partial legend's predicate
 - [[council-loop]] — the exits it reports at
 - [[deterministic-merge-check]] — the run that shipped it
 

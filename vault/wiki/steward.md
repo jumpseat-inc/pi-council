@@ -4,9 +4,9 @@ type: entity
 summary: The portfolio-authority seat and product-owner's escalation target — rules what the portfolio is for, build order, the order of card retirement, and permanent residuals. Never implements.
 aliases: [steward seat]
 tags: [pi-council/seat]
-sources: ["[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]"]
+sources: ["[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-15
+updated: 2026-09-16
 ---
 
 > ⚠️ Derived from `council/agents/steward.md` (captured 2026-08-23). Verify against the seat file.
@@ -70,6 +70,33 @@ Test: "does this move what the product is for, or just how one part of it works?
   Done epic. It declined to make a **version bump a closure condition** (the
   EPIC-7 precedent is closure at an unchanged version), leaving the release
   decision to the human.
+
+## Exercised in EPIC-9 (2026-09-16)
+
+- **A `Ready` sibling re-scoped in place** (job-21). EV-39's settled
+  cardinality made EV-42's premise false. Steward ruled: EV-39 records the
+  shipped mechanism in its own card and **does not touch EV-42**; the
+  orchestrator executes the card edit between cards, same id and slot;
+  `attemptGroupId` dropped; the goal replaced. Gate G5 closed on the ruling.
+  It ruled the pen and the disposition without editing the card itself.
+- **Disclose now, fix in the re-scoped card** — the partial provider-reported
+  figure is disclosed in EV-39's Acceptance (machine-readable and durable,
+  never prose-only, never an unqualified final-attempt-only figure) and fixed
+  by EV-42's per-attempt walk. No permanent residual accepted
+  ([[figure-scoped-disclosure]]).
+- **Run closure #4 and the residual dispositions** (job-27). It applied its own
+  EV-39 run-end condition, closed EPIC-9 on the seven merged SHAs, ruled the
+  release bump **not** a closure condition (v0.18.0 unchanged — three
+  behavior-changing epics behind one stamp), refused a retro-fitted epic
+  `## Acceptance`, and disposed of every candidate follow-up: nine carded
+  `Backlog` under the Done epic, three dropped with reasons (including a
+  claim that was **false at HEAD** — `retry.enabled` *is* consumed by both
+  loops).
+- **Standing-machinery items classified as owed before the next run**: an
+  environment-dependent gate (`COUNCIL_EVAL_MODEL` in the suite), a procedure
+  text that contradicts documented practice, a merge gate that depends on a
+  human-granted admin bypass, and a goal format that can make the judge's only
+  input a lie.
 
 ## Related
 

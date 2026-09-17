@@ -1,5 +1,29 @@
 # Wiki Log
 
+## [2026-09-16] ingest | EPIC-9 run ledger — provider-error retry, the dead-literal catch
+
+Filed `vault/raw/2026-09-16-epic9-run-ledger.md` (the `/features-new` +
+`/features-deliver EPIC-9` run: seven gated merges PRs #51–#57, 713→847 tests,
+four step-6 escalations, EPIC-9 closed `Done`; version stays v0.18.0) and
+ingested it. Created [[retry-classification]], [[retry-policy]],
+[[parent-turn-continuation]], [[per-attempt-provenance]],
+[[figure-scoped-disclosure]] + the source page. Updated [[headless-pi]]
+(print-mode `takeOverStdout` + post-settle exit code; the `agent_settled` ctx
+lacks `waitForIdle`), [[hub-job-supervision]] (`state=done` +
+`stopReason=error`; the `retrying` state), [[cost-provenance]], [[usage-block]],
+[[usage-store]] (figure-scoped `partial`; per-attempt session walk),
+[[council-config]] (the `retry` sibling), [[deterministic-merge-check]] (⚠️ the
+five criteria are artifact-level, not intake-level; ⚠️ the human merge gate is
+not fully replaced under a review-requiring ruleset), [[union-merge-reconcile]]
+(EPIC-9 divergence pair; procedure-vs-practice gap), [[engineering-board]]
+(goal-as-lossy-oracle; acceptance-names-the-observable; closure #4),
+[[preflight]] (FLLWUP-27 recurrence), [[council-runner]], [[product-owner]],
+[[steward]], [[pi-council-overview]], [[index]]. Key takeaways: all five merge
+criteria can pass on a deliverable that cannot work — the cross-check against
+the dependency's *installed bytes* is load-bearing; the `goal` field's
+colon-space ban and the judge's isolation compose into a defect class; and a
+Phase-1 ruling can itself be the dispute.
+
 ## [2026-09-15] ingest | EPIC-8 run ledger — transcript rendering, third epic closure
 
 Filed `vault/raw/2026-09-15-epic8-run-ledger.md` (the `/features-new` +

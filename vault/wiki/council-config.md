@@ -1,12 +1,12 @@
 ---
 title: Council Config
 type: concept
-summary: The committed `.council.json` at the repo root — a per-seat `council` block overriding model/thinking, PLUS a sibling top-level `theme` section giving per-repo control of the council palette. Frontmatter and shipped palette stay the defaults; the file shadows both. Seeded non-clobberingly by /council-init.
+summary: The committed `.council.json` at the repo root — a per-seat `council` block overriding model/thinking, PLUS sibling top-level `theme` and `retry` sections giving per-repo control of the council palette and of provider-error retry policy. Frontmatter, shipped palette, and shipped retry defaults stay the defaults; the file shadows them. Seeded non-clobberingly by /council-init.
 aliases: [.council.json, council.json, agent overrides, seat model override, seat config]
 tags: [pi-council/concept]
 sources: ["[[2026-08-23-council-json-override]]", "[[2026-08-25-design-ev3]]", "[[2026-08-25-design-ev3-round2]]"]
 created: 2026-08-23
-updated: 2026-09-04
+updated: 2026-09-16
 ---
 
 # Council Config
@@ -26,8 +26,11 @@ are shadowed.
 
 Since EPIC-1, `.council.json` also carries a **`theme` section** — a top-level
 sibling of `council` that recolors the council palette per-repo (see
-[[council-theme]]). The two siblings parse through separate loaders; `theme`
-is a reserved key, never a per-seat override.
+[[council-theme]]). Since EPIC-9 it carries a third sibling, **`retry`**, holding
+the provider-error retry policy — `enabled`, `maxAttempts`, `baseDelayMs`,
+`maxDelayMs`, `jitter` — with shipped defaults seeded into the scaffold
+([[retry-policy]]). The siblings parse through separate loaders; `theme` and
+`retry` are reserved keys, never per-seat overrides.
 
 ## File & shape
 
@@ -118,6 +121,7 @@ writer's `existingThinking` misses an object-form `model` `:suffix`
 | Filename shadowing (`<repo>/.pi/agents/*.md`) | whole seat file | no — first hit wins |
 | **`.council.json` field override** | `model`, `thinking` per seat | yes — independent fallback |
 | **`.council.json` theme section** | `vars`/`colors` per variant | yes — over shipped palette base |
+| **`.council.json` retry section** | `enabled`/`maxAttempts`/`baseDelayMs`/`maxDelayMs`/`jitter` | yes — full policy over shipped defaults |
 | Model output floors (`model-floors.json`) | token ceilings per model | yes (merge) |
 
 The mechanisms compose: path shadowing picks which seat body runs, then the
@@ -139,6 +143,7 @@ consumer's edits ([[non-clobbering-scaffold]]).
 - [[council models picker]] — the surface that writes it
 - [[gate parity]] — the writer's validation boundary
 - [[council-theme]] — the palette subsystem the `theme` section drives
+- [[retry-policy]] — the `retry` sibling (EPIC-9)
 - [[seats]] — the schema fields the config overrides
 - [[override-resolution]] — filename shadowing, the sibling mechanism
 - [[non-clobbering-scaffold]], [[model-output-floors]]
@@ -154,3 +159,4 @@ consumer's edits ([[non-clobbering-scaffold]]).
 - [[2026-08-23-council-json-override]]
 - [[2026-08-25-design-ev3]], [[2026-08-25-design-ev3-round2]]
 - [[2026-09-04-epic5-run-ledger]]
+- [[2026-09-16-epic9-run-ledger]] — the `retry` sibling

@@ -4,9 +4,9 @@ type: concept
 summary: The shell+script standard fixture that gates every council run — card-aware checks, MCP registration/auth, superpowers + ask-user-question pins, openrouter auth, and the lock-drift tripwire; any FAIL: line halts startup.
 aliases: [preflight gate]
 tags: [pi-council/concept]
-sources: ["[[2026-08-24-ask-user-question]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]"]
+sources: ["[[2026-08-24-ask-user-question]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-11
+updated: 2026-09-16
 ---
 
 # Preflight
@@ -56,7 +56,11 @@ reports `FAIL: local history does not descend from origin/main` at merge time
 on a *correctly-based* branch. The recording practice (not a criterion
 weakening): preflight is the run-start/owner-time gate; the step-11 re-run set
 is `tsc`/`bun test`/`validate.py` ([[deterministic-merge-check]]). FLLWUP-27
-proposes scoping the check to the branch merge-base.
+proposes scoping the check to the branch merge-base. **It recurred through
+EPIC-9 (2026-09-16)** on most cards — cleared on EV-37 and EV-40 by an owner
+rebase onto `origin/main`, recorded verbatim elsewhere — confirming the
+recording practice is stable: preflight is the run-start/owner-time gate, and
+the step-11 re-run set is `tsc`/`bun test`/`validate.py`.
 
 ## Contract
 

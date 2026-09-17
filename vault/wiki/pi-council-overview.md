@@ -4,9 +4,9 @@ type: overview
 summary: pi-council is an installable pi package pairing a multi-agent Council deliberation/implementation loop with an LLM-maintained wiki — the workflow's opinions are the product.
 aliases: [pi-council, council, the Council]
 tags: [pi-council/overview]
-sources: ["[[2026-08-23-readme]]", "[[2026-08-23-pi-council-design-spec]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]", "[[2026-09-03-v0.14.0-domain-neutral-stack-agnostic]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]"]
+sources: ["[[2026-08-23-readme]]", "[[2026-08-23-pi-council-design-spec]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]", "[[2026-09-03-v0.14.0-domain-neutral-stack-agnostic]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-15
+updated: 2026-09-16
 ---
 
 `pi-council` (v0.18.0) is an installable [pi](https://pi.dev) package, distributed
@@ -82,6 +82,7 @@ behavior change:
 | v0.18.0 | **EPIC-6 close run** — BUG-1 + FLLWUP-13..25; env-split contract, single-writer hardening, lock-drift tripwire; first epic-card closure | [[2026-09-06-epic6-close-run-ledger]] |
 | EPIC-7 (main) | **Honest usage accounting** — the full flat token/cost tuple with `costBasis`/`usageSource` provenance ([[usage-accounting]]), the invocation-scoped [[spend-record]], the durable [[usage-store]] at `getAgentDir()/council/usage/`, the five-exit [[usage-block]], and provider-reported figures ([[cost-provenance]]). All five children gated; EPIC-7 closed `Done`. Landed on `main`; version stays **v0.18.0** | [[2026-09-11-epic7-run-ledger]] |
 | EPIC-8 (main) | **Elegant transcript rendering** — the composed tool-call unit ([[transcript-unit-rendering]]), the honest-keymap fix ([[honest-keymap]]), and the one-row floor projection ([[one-row-floor]]). Four gated merges (PRs #47–#50); the parser-fidelity child came first because the renderer could not pair a call with its own result. EPIC-8 closed `Done` (third epic-card closure). Landed on `main`; version stays **v0.18.0** | [[2026-09-15-epic8-run-ledger]] |
+| EPIC-9 (main) | **Provider-error retry with exponential backoff** — the pure [[retry-classification]] predicate, the `.council.json` [[retry-policy]], the parent-turn continuation ([[parent-turn-continuation]]), hub retry with [[per-attempt-provenance]], and [[figure-scoped-disclosure]]. Seven gated merges (PRs #51–#57); the merge gate caught a dead literal branch ([[deterministic-merge-check]]). EPIC-9 closed `Done` (fourth epic-card closure). Landed on `main`; version stays **v0.18.0** | [[2026-09-16-epic9-run-ledger]] |
 
 The wiki scaffold shipped in the same commit as the council scaffold — the
 wiki is not an add-on. The full arc and commit-message discipline live in the
@@ -119,6 +120,8 @@ git log; this table is a secondary summary that can drift.
   shipped v0.18.0
 - [[usage-accounting]], [[cost-provenance]] — the EPIC-7 accounting subsystem
 - [[transcript-unit-rendering]], [[honest-keymap]], [[one-row-floor]] — the EPIC-8 transcript-rendering concepts
+- [[retry-classification]], [[retry-policy]], [[parent-turn-continuation]], [[per-attempt-provenance]], [[figure-scoped-disclosure]] — the EPIC-9 provider-error-retry concepts
+- [[headless-pi]] — the print-mode rules EPIC-9 extended
 - [[2026-09-11-epic7-run-ledger]] — the preceding autonomous run
 
 ## Sources

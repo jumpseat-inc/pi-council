@@ -4,9 +4,9 @@ type: entity
 summary: The per-card autonomous execution container — dispatched by /features-deliver to run the full /council loop for one card in an isolated context; routes, counts, and writes the board but never decides.
 aliases: [council-runner, runner]
 tags: [pi-council/seat]
-sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]"]
+sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-15
+updated: 2026-09-16
 ---
 
 > ⚠️ Derived from `council/agents/council-runner.md` (captured 2026-08-23). Verify against the seat file.
@@ -181,6 +181,35 @@ reserved powers are re-homed per the authority map in `features-deliver.md`.
   (FLLWUP-27) recurred on every card.
 - **Seat resolution and dispatch tools were healthy throughout** — all
   required seats resolved; no Phase-0-shaped `HALT`.
+
+## Lessons from the EPIC-9 run
+
+- **All five criteria can pass on a dead deliverable.** EV-37's literal branch
+  never matched pi's emitted message, yet owner gates, `gates` SUCCESS, a
+  no-block Skeptic verdict, and judge `PASS` all cleared. The orchestrator
+  caught it by checking the constant against pi's *installed bundle*; the
+  runner has no such cross-check in its loop. See
+  [[deterministic-merge-check]], [[retry-classification]].
+- **A Phase-1 ruling can itself be the dispute.** [[designer]] argued R5's
+  countdown belonged on the status row; [[product-owner]] ruled the input-bar
+  surface **binding** (dissent named) because changing the recorded per-branch
+  observable would reverse a human decision. The escalation was *whether a
+  recorded surface binds*, not what the copy says.
+- **A `Ready` sibling's premise can go false mid-run.** EV-39's settled
+  cardinality made EV-42's `Intent` false; [[steward]] ruled EV-39 records the
+  mechanism in its own card and does **not** touch EV-42, with the orchestrator
+  executing the card edit between cards (same id, same slot). A runner must not
+  edit, absorb, or silently re-scope a sibling card.
+- **Four of seven cards escalated at step 6** (three [[product-owner]], one
+  [[steward]] chain), every one a discovered mechanism — the EPIC-7/EPIC-8
+  pattern continuing. The runner's own failure class recurred mid-run: the
+  EV-40 container died on a provider error (a content-filter one, not the
+  intake's), and several owner dispatches returned no artifact — each survived
+  only by the one-re-dispatch discipline.
+- **The dispatch-input re-statement held.** Every runner dispatch carried the
+  immutability, subject-pinning, and push-records-as-you-go constraints; two
+  divergences still occurred but were repaired from committed state, and no
+  container was anti-stall-killed.
 
 ## Related
 

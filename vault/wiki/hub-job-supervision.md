@@ -4,9 +4,9 @@ type: concept
 summary: The battle-tested engine that spawns, monitors, stalls, times out, and sweeps seat subprocesses — the hub table, pid file, anti-stall kill, and the dispatch/wait/cancel tools.
 aliases: [hub, job table, council_dispatch]
 tags: [pi-council/concept]
-sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]"]
+sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-11
+updated: 2026-09-16
 ---
 
 # Hub Job Supervision
@@ -64,6 +64,24 @@ The report carries `state`, the full usage tuple, `output`, `stopReason`,
 `errorMessage`, `stderrTail`. An **empty-done + `stopReason=length`** is surfaced
 as a model-config problem (see [[model-output-floors]]), not a silent success —
 this is the whitespace observer of the guard.
+
+## Provider-errored children settle `done` (EPIC-9)
+
+A provider error **exits 0**, so `state = code === 0 ? "done" : "failed"`
+labels a provider-errored child `done` with `stopReason=error` and an
+`errorMessage`. Any logic phrased as "retry failed jobs" is wrong on arrival —
+the retry decision keys on `stopReason`/`errorMessage`, never on `state`. See
+[[retry-classification]].
+
+EPIC-9 gave the hub a real retry loop over that class
+([[per-attempt-provenance]]): a settled dispatch classified retry is re-spawned
+with exponential backoff under the [[retry-policy]], the job tree keeps **one
+row per dispatch** (R4, labeled `attempt N/M`), and a new `JobState
+"retrying"` is **not** settled for `council_wait` and carries no usage block
+while running. Each attempt gets a fresh session id; `startedAt` stays stable
+with an internal attempt clock; `pid` is cleared alongside `exitCode`; no
+sidecar file (`readManifests` would ingest it and `buildTree` throws). Carried
+cumulative usage keeps the subtree sum honest across attempts.
 
 ## `/council-jobs` CLI
 

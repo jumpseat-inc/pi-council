@@ -4,9 +4,9 @@ type: concept
 summary: pi computes cost from the static catalogue and never reads a provider charge; OpenRouter reports generation-level dollars plus a BYOK-only two-way split and native token counts — so the honest figure is labelled estimate vs reported, and per-component dollars do not exist.
 aliases: [cost provenance, catalogue estimate, reported cost, provider-reported cost]
 tags: [pi-council/concept, pi-council/epic7]
-sources: ["[[2026-09-11-epic7-run-ledger]]"]
+sources: ["[[2026-09-11-epic7-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]"]
 created: 2026-09-11
-updated: 2026-09-11
+updated: 2026-09-16
 ---
 
 # Cost Provenance
@@ -66,8 +66,20 @@ the **routed upstream provider id** a persisted, rendered fact.
   signal on `Usage.cost` (a `number`), which is why the `n/a` acceptance was
   deferred until EV-29 supplied one.
 
+## Figure-scoped disclosure (EPIC-9)
+
+A retried dispatch's provider-*reported* figure reflects only the final attempt
+until the per-attempt session list is walked ([[per-attempt-provenance]]). When
+an attempt is unaccounted, the qualifier is **figure-scoped** — `partial` is set
+iff a figure exists *and* an attempt is unaccounted, so an all-unaccounted
+retried record renders the `n/a` legend only (a qualifier on a null figure would
+be the standing-legend principle violated in the symmetric direction). See
+[[figure-scoped-disclosure]].
+
 ## Related
 
+- [[figure-scoped-disclosure]] — when a reported figure is marked incomplete
+- [[per-attempt-provenance]] — the substrate that makes it whole
 - [[usage-accounting]] — the `costBasis` label this explains
 - [[usage-store]] — the `provider` sibling that carries the reported figures
 - [[usage-block]] — the coexistence row + `n/a` legend

@@ -4,9 +4,9 @@ type: concept
 summary: The durable, locally-stored kanban state — council/board.md plus one card file per id, validated by validate.py, and the discipline that everything the Council does starts and records there.
 aliases: [board, card, kanban]
 tags: [pi-council/concept]
-sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]"]
+sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-15
+updated: 2026-09-16
 ---
 
 > ⚠️ Derived from `council/procedures/board-create-card.md`, `features-new.md` and `council/scaffold/council/board.md` @ `8913c6b`/`8f1882b` (captured 2026-08-23). Verify against the procedure files.
@@ -29,7 +29,11 @@ set of markdown files under `council/`:
 - `goal` must be **one falsifiable, testable sentence** stating what done means —
   the judge later rules PASS/REJECT from it alone. A `: ` (colon-space) anywhere in
   the value silently truncates the frontmatter (inline parsing, no YAML quoting),
-  so the goal may never contain a colon-space sequence.
+  so the goal may never contain a colon-space sequence. ⚠️ That is not only a
+  truncation risk but a **correctness** one (EPIC-9): the goal is the judge's
+  only input, so a goal forced to misspell a literal is a goal that lies. EV-37
+  shipped a dead classifier branch exactly this way
+  ([[retry-classification]]); carded as FLLWUP-43.
 
 ## Lifecycle / discipline
 
@@ -45,7 +49,14 @@ set of markdown files under `council/`:
   The **Acceptance section is a separate, amendable surface**: EV-33's goal
   named a post-epic endpoint (an accessor consumed by the tree *and* the
   transcript header) while its Acceptance forbade render changes, and
-  [[product-owner]] amended only Acceptance bullet 3 (EPIC-8).
+  [[product-owner]] amended only Acceptance bullet 3 (EPIC-8). The converse
+  showed up in EPIC-9: a goal meta-clause can be satisfied by **naming** an
+  observable even when that observable provably cannot exist for the card's
+  scope — EV-43 required the per-branch observable be "named in the
+  acceptance", the acceptance named an input-bar text delta impossible for a
+  bare reachability probe, and [[product-owner]] ruled naming is a naming
+  requirement, not an existence one (Acceptance amended as documentation; the
+  goal stood).
 - **Id allocation is a HEAD operation** (EPIC-3 collision lesson): a parallel
   session on a stale clone allocated `EPIC-3`/`EV-10..15` to itself and the
   mains diverged; reconciled by union merge, never rewrite. See
@@ -82,6 +93,12 @@ set of markdown files under `council/`:
   residuals under the Done epic, none promoted at closure. Two permanent
   residuals recorded without cards (out-of-order `toolResult`; `t`-toggle
   cursor stability).
+- [[2026-09-16-epic9-run-ledger]] — the board's **fourth epic-card closure**
+  (EPIC-9, seven children); FLLWUP-40..45 + 47..49 filed as `Backlog`
+  residuals, two drafts declined at the gate, two permanent residuals without
+  cards. A `Ready` sibling (EV-42) was **re-scoped in place** by [[steward]]
+  mid-run — premise replaced, same id and slot — the first post-promotion
+  card-wording change executed by the orchestrator between cards.
 
 ## Sources
 

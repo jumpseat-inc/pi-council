@@ -4,9 +4,9 @@ type: concept
 summary: The durable usage store at `getAgentDir()/council/usage/` — one record per invocation keyed on the marker's `at`, wrapping the SpendRecord byte-verbatim, schema v2 with the provider sibling; survives run pruning via write-time `pointerSurvivable` + read-time `ResolveOutcome`.
 aliases: [usage store, durable usage store, StoredUsageRecord, resolveProvenance]
 tags: [pi-council/concept, pi-council/epic7]
-sources: ["[[2026-09-11-epic7-run-ledger]]"]
+sources: ["[[2026-09-11-epic7-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]"]
 created: 2026-09-11
-updated: 2026-09-11
+updated: 2026-09-16
 ---
 
 # Usage Store
@@ -74,6 +74,18 @@ mechanism case (file present, entry ids absent).
 Retention/compaction policy (the store grows unboundedly by design) is
 FLLWUP-32; a bounded write-failure retry is FLLWUP-34; a live write-path
 falsifier is FLLWUP-33.
+
+## Retried dispatches (EPIC-9)
+
+The provider job list is built by matching a manifest's `sessionId` to a
+provider generation. After EV-42 a retried dispatch carries its **per-attempt
+session pointers on the manifest** and the walk uses that list, so the reported
+figure sums every attempt rather than reflecting only the final one
+([[per-attempt-provenance]]). Records remain **choose-once**; the newly
+possible `partial` literals are therefore read through a total legend map with
+a fallback, so an unrecognized literal never fails open into a silent drop of
+the qualifier ([[figure-scoped-disclosure]]). The legacy window shape's bytes
+are preserved verbatim.
 
 ## Related
 

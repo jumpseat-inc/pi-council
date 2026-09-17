@@ -4,9 +4,9 @@ type: concept
 summary: Under /features-deliver the human merge gate is replaced by five mechanical criteria — owner gates, gates-SUCCESS on the PR head SHA, no blocking skeptic objection, judge PASS, no open ruling — executed with no discretion, merged with --match-head-commit.
 aliases: [merge gate, deterministic merge, five criteria merge]
 tags: [pi-council/features-deliver, pi-council/process]
-sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]"]
+sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]"]
 created: 2026-09-04
-updated: 2026-09-15
+updated: 2026-09-16
 ---
 
 # Deterministic Merge Check
@@ -101,6 +101,36 @@ silently. A mismatch is a **HALT, not a retry**.
   every card, handled by recorded practice (the step-11 re-run set is
   `tsc`/`bun test`/`validate.py`).
 - One union merge (EV-34, `89047ca`); no `HALT`, no stall-kill.
+
+## Observed practice (EPIC-9 run)
+
+- Seven more merges (PRs #51–#57: EV-37 `6a375c4`, EV-38 `3e39e66`, EV-43
+  `8853712`, EV-40 `6ab0e48`, EV-39 `79c0573`, EV-42 `952d5c1`, EV-41
+  `653ce01`), squash method, `--match-head-commit` pinned on every one; every
+  head-SHA `gates` check `SUCCESS`, every merged-SHA CI re-verified.
+- ⚠️ **The five criteria are artifact-level, not intake-level.** EV-37 met all
+  five — owner gates, `gates` SUCCESS, no blocking objection, judge PASS — while
+  its literal branch was **dead** ([[retry-classification]]). The orchestrator
+  caught it by checking the shipped constant against pi's *installed bundle*,
+  not against the card. Criterion green says nothing about the intake; the
+  independent cross-check against the dependency's real bytes is load-bearing.
+- ⚠️ **The human merge gate is not fully replaced.** A `main` ruleset created
+  mid-run requires 1 approving review + linear history, so every merge from
+  EV-40 on depended on a human-granted `--admin` bypass (authorised
+  run-scoped, never extended). The authority map re-homes the human merge gate
+  to the five criteria but says nothing about merge-time protection that itself
+  requires a human act. Carded as FLLWUP-42.
+- The run's **first autonomous merge was deferred for a human watch and then
+  waived** — a third variation on the first-merge practice (EPIC-5 and EPIC-8
+  announced in-line; EPIC-9 held the merge, then ran unattended on the human's
+  word).
+- The preflight branch-freshness artifact (FLLWUP-27) recurred on most cards and
+  was cleared by an owner rebase on two; the step-11 re-run set stayed
+  `tsc`/`bun test`/`validate.py`. Two union-merge reconciles (EV-37, EV-40) —
+  see [[union-merge-reconcile]].
+- Criterion 5 again did the work: four step-6 escalations (three
+  [[product-owner]], one [[steward]] chain) all closed before their merges, plus
+  one pre-merge defect ruling after the gate was halted.
 
 ## Related
 

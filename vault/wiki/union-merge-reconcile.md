@@ -4,9 +4,9 @@ type: concept
 summary: When a squash-merged PR folds a runner's board commits, a local main carrying later record commits diverges — reconcile by union merge keeping both record sides, then verify (validate.py + a conflict-marker sweep); or avoid it by pushing records as they happen.
 aliases: [union merge, diverged main, union-merge reconcile]
 tags: [pi-council/process]
-sources: ["[[2026-09-05-epic6-run-ledger]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]"]
+sources: ["[[2026-09-05-epic6-run-ledger]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]"]
 created: 2026-09-05
-updated: 2026-09-06
+updated: 2026-09-16
 ---
 
 # Union-Merge Reconcile
@@ -49,6 +49,16 @@ then let `validate.py` be the net.
   hit union merges before the recipe was applied to every runner's
   dispatch input. The repair remains the net; the recipe makes it rare.
 
+- **EPIC-9 again, twice** (2026-09-16): EV-37's reconcile used a **union
+  merge** (`6573fe0`, parents `953dafd` + `6a375c4`, verified with
+  `git merge-base --is-ancestor`), after its owner force-pushed a rebase; EV-40
+  ended `ahead 10, behind 2` and was reconciled in a worktree branched from
+  `origin/main`, pushed fast-forward. The main checkout's local `main` also
+  needed a reconcile to pick up EV-40's code. Both repairs were resolved by
+  **inference from this page** — `council.md` step 12 says to stop and surface a
+  non-fast-forward — which carded as FLLWUP-41: the procedure text and the
+  documented practice disagree.
+
 ## Failure mode
 
 A union resolve can leave conflict-marker debris on a card: FLLWUP-10's
@@ -67,6 +77,8 @@ with this) and [[engineering-board]].
   reconciliation
 - [[engineering-board]] — the state being reconciled
 - [[2026-09-05-epic6-run-ledger]] — twice in one run + the remnant
+- [[2026-09-16-epic9-run-ledger]] — the EPIC-9 divergence pair and the
+  procedure-vs-practice gap (FLLWUP-41)
 
 ## Sources
 

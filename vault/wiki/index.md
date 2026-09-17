@@ -8,7 +8,8 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[pi-council-overview]] — Pi-council as an installable package: the Council
   + wiki workflow, two engine halves, the loop, and the release version arc
   (through v0.18.0: EPIC-6 closed, EPIC-7's honest usage accounting landed on
-  main, and EPIC-8's elegant transcript rendering closed Done).
+  main, EPIC-8's elegant transcript rendering closed Done, and EPIC-9's
+  provider-error retry closed Done).
 
 ## Entities
 
@@ -43,10 +44,10 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[preflight]] — The card-aware, fail-fast shell+script gate before every run, now hosting the lock-drift tripwire.
 - [[lock-drift tripwire]] — Local gates refuse to run when installed deps drift from bun.lock; the named FAIL fires before the frozen-lockfile self-heal.
 - [[llm-wiki]] — The persistent, compounding knowledge base (sources → wiki → schema).
-- [[council-config]] — The committed `.council.json`; field-level per-seat model/thinking override PLUS a top-level `theme` section, scaffold-seeded.
+- [[council-config]] — The committed `.council.json`; field-level per-seat model/thinking override PLUS top-level `theme` and `retry` sections, scaffold-seeded.
 - [[council-theme]] — EPIC-1's omp-palette theme subsystem: pinned dark/light pair, `.council.json` recolor surface, four-state activation, token-only drawing + live repaint (v0.12.1: module located via `getPackageDir()`, not a bare-specifier).
 - [[smoke-test]] — The definitive unattended end-to-end test: Phases 0–5 (council loop, epic, /council-eval matrix, /council-leaderboard, /council-models) in an isolated container, with a SMOKE_PHASE selector (FLLWUP-11) and the kitty search-smoke pty harness (FLLWUP-14) as siblings; standing discipline — the first Council command without an end-to-end falsifier is a defect.
-- [[headless-pi]] — pi's non-interactive modes (-p/json/rpc): no trust prompt, single-shot teardown, stale ctx, and the waitForIdle pattern for command turns.
+- [[headless-pi]] — pi's non-interactive modes (-p/json/rpc): no trust prompt, single-shot teardown, stale ctx, the waitForIdle pattern for command turns (but not event contexts), and print mode's stdout takeover + post-settle exit code.
 - [[run-transcripts]] — the on-disk run substrate: per-job manifests + session JSONL under .pi/council/runs/, the job forest, and the /council-tree surface (inline as of EPIC-2) reading it.
 - [[council-job-tree-inline]] — EPIC-2's inline below-editor job tree (EV-7 last activity, EV-8 editor-driven focus, EV-9 inline progress); supersedes the /council-tree modal.
 - [[three-wave-decomposition]] — The /features-new structure (v0.15.0): three bounded waves — principal authors, skeptic+designer attack, product-owner rules last; facilitator authors nothing; human gate untouched.
@@ -74,6 +75,11 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[transcript-unit-rendering]] — the EPIC-8 composed tool-call unit (`→ <Tool>  <primary-arg>`, indented result, `muted "✗"`); why parser identity came first.
 - [[honest-keymap]] — advertised keys must be honored; the `matchesKey` vs raw-byte bug class (kitty/modifyOtherKeys CSI-u) EPIC-8 fixed.
 - [[one-row-floor]] — the one-row progress grant: the follow-mode effective index (R3), the markerless live-tail rule, the frozen-grant and width-clamp fixes.
+- [[retry-classification]] — the pure retry-vs-terminal predicate: keyed on stopReason/errorMessage not state, a superset of pi's pattern, verified against pi's installed bundle.
+- [[retry-policy]] — the `.council.json` top-level `retry` sibling: shipped defaults, fail-loud validation, the off switch, and the injected denominator snapshot.
+- [[parent-turn-continuation]] — the `agent_settled` + `sendUserMessage` resume loop: input-bar countdown, Esc/Enter semantics, headless SIGINT/exit-75, and the event-ctx gap.
+- [[per-attempt-provenance]] — one job id/manifest/row per retried dispatch, with an `attempt` field, carried cumulative usage, and per-attempt session pointers.
+- [[figure-scoped-disclosure]] — a usage qualifier applies to a figure: `partial` iff a figure exists and an attempt is unaccounted; `n/a` alone when the figure is absent.
 
 ## Comparisons
 
@@ -119,6 +125,7 @@ _(none yet)_
 - [[2026-09-06-epic6-close-run-ledger]] — The EPIC-6 close run: BUG-1 + FLLWUP-13..25 delivered (14 gated merges), the env-split contract proven (no 0.85.0 regression), the single-writer discipline hardened three layers deep, first epic-card closure, v0.18.0.
 - [[2026-09-11-epic7-run-ledger]] — The EPIC-7 run: honest token/cost usage accounting (EV-28/30/31/32/29, five gated merges) — every child escalated, the provider has no per-component dollar source, the stalled runner re-learned the window invariant, second epic-card closure at v0.18.0.
 - [[2026-09-15-epic8-run-ledger]] — The EPIC-8 run: elegant transcript rendering (EV-33/34/35/36, four gated merges) — the taste request resolved to a parser-fidelity fix first, every child escalated, the one-row R3 projection, third epic-card closure at v0.18.0.
+- [[2026-09-16-epic9-run-ledger]] — The EPIC-9 run: provider-error retry with exponential backoff (EV-37/38/39/40/41/42/43, seven gated merges) — all five merge criteria passed on a dead literal branch, four cards escalated, the first human-granted merge bypass, fourth epic-card closure at v0.18.0.
 - [[2026-09-03-po-ev16-grader-topology]] — Grader = harness-dispatched sibling, cellId linkage, three cost columns, no exclusion rule; Q1's repeat dimension superseded its first-write-wins clause.
 - [[2026-09-03-po-ev19-resultrecord-key]] — O1: ResultRecord key (cellId, repeat, scoredUnder) by symmetric mirroring; silent loss of a re-grade rejected.
 - [[2026-09-03-po-epic4-promotion-cadence]] — P1–P5: the automated Backlog→Ready chain for EPIC-4's children.
