@@ -40,7 +40,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Ready
 
-- FLLWUP-41 — Reconcile council.md step 12's non-fast-forward wording with the union-merge repair
 - FLLWUP-44 — Name the provider failure before the backoff countdown
 - FLLWUP-45 — Navigator attempt-awareness for retried dispatches
 - FLLWUP-47 — Documented red-base convention for falsifier evidence
@@ -50,6 +49,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## In Progress
 
 ## In Review
+
+- FLLWUP-41 — Reconcile council.md step 12's non-fast-forward wording with the union-merge repair
 
 ## Needs Human
 
