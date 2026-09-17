@@ -351,3 +351,368 @@ Each string below is **new user-visible copy**. Per the card's `## Orchestrator 
 
 **Out of scope, named so it isn't smuggled in:** a per-attempt `usage` figure on the row, a sub-tree of attempts inside the progress expansion, click-to-open-attempt (no TUI click model), or a per-attempt `startedAt` age column. The card's goal is reachability + label honesty, not a richer attempt display.
 
+### Step 3 — bounded exchange (round 2)
+
+Round 2: each generator re-dispatched with the others' round-1 positions
+(read from this card), asked to respond to what the others actually said.
+Jobs: `owner` `job-12.4` (6.4m, 16 turns), `principal` `job-12.5`
+(6.4m, 15 turns), `designer` `job-12.6` (6.4m, 9 turns). All settled `done`.
+Positions stabilised on three of the four disputes (label source,
+row/selection identity, tail-cache key). One split remains — the
+disposition of item 2 (`openTranscript` at `navigator.ts:869`): owner and
+principal would defer it to FLLWUP-4 (which owns the dead modal path) and
+record the finding; designer would fix it in this card via the shared
+resolver. Two new user-visible strings are agreed as required and both
+escalate per R3. No round 3 is run: the remaining difference is a scope
+judgment plus a copy ruling, and further generator rounds would re-litigate
+rather than settle.
+
+#### Owner round 2 (`job-12.4`) — verbatim
+
+All load-bearing claims are now verified first-hand. Composing the round-2 position as **owner**.
+
+---
+
+## Owner — round 2 (FLLWUP-45)
+
+**Approach.** I verified every load-bearing claim in the principal's and designer's round-1 positions against the tree before agreeing or refuting. Three of their claims survive contact with the code; two are overstated; one of my own round-1 framings was wrong and I correct it below. The disputes mostly dissolve once the ev7 fixture's *shape* and the controller's *key-agnostic machinery* are read precisely.
+
+### 1. The retrying-row label — what the test pins vs. what R4 pins
+
+**The ev7 test pins vocabulary, not data source — and it cannot see a source flip at all.** `test/ev7-council-tree-widget.test.ts:180-189` builds its manifest through the `m()` helper (`:24-36`), which sets `sessionId = id` and no `attempts` array. That is the **legacy-window shape** (`attempt: 2`, `attempts === undefined`). Under a per-state label source, `attemptEntries`' fail-closed fallback (`runs.ts:119-121`: `m.attempts ?? [{ attempt: m.attempt ?? 1, sessionId: m.sessionId }]`) synthesizes `[{attempt: 2, sessionId: "job-1"}]` — the last entry is still attempt 2, the row still renders `attempt 2/3`. The principal's claim that the designer's flip "collides with the shipped, test-pinned `attempt 2/3`" is **wrong about this test**: no runnable variant of the flip turns it red, because the fixture predates EV-42's substrate. This is exactly the carve-out the principal himself demanded be pinned explicitly for his own claim 1.
+
+**But the flip is still ruled out — by R4's text, not by the test.** `council/cards/EV-39.md:56-58`: *"One job-tree row per dispatch, labeled `attempt 2/3` while retrying — no extra rows and no separate status line."* That letter fixes the **pending ordinal** on the retrying row, and it is quoted as binding in this card's `## Orchestrator rulings`. The designer's per-state source flip would render `attempt 1/3 · retrying in 7s` on a new-shape manifest — a direct contradiction of the letter of a binding ruling, which a seat cannot evolve unilaterally. It also reintroduces the exact defect class this card exists to remove: the label's meaning becomes state-dependent (settled row: final ordinal; retrying row: last-completed ordinal), i.e. one glyph, two denotations.
+
+**So the ruling is: keep `m.attempt` (pending ordinal) on the row; repair the mismatch by naming the shown attempt where the tail is consumed — the progress title.** That is my round-1 position, and it survives. One honest cost, now stated plainly: this card's own `goal` ("the backoff row's label matches the attempt it denotes") reads, on the designer's construction, toward the source flip. Where a card goal and a binding ruling conflict, the ruling wins for shipping — and the tension should be **recorded as a candidate R4 evolution for `product-owner`**, not decided in seats. A test cannot settle this: both designs render; the dispute is which denotation is honest, and R4 has already answered it.
+
+**Correction of my own round 1:** I cited `ev7:180-199` as pinning "the ruled vocabulary this card may not contradict." Over-pinned. The test under-pins (legacy shape); the *binding instrument is R4's text*. Same conclusion, wrong citation weight.
+
+### 2. Row/selection identity — the re-key breaks no binding ruling and no test assertion
+
+**The controller is key-agnostic.** `focus-nav.ts:125-126`: the field is *documented* "keyed by sessionId, NEVER by index (O6)" — but the machinery (`_rows: string[]`, `selectedIndex()` via `indexOf` at `:151-152`) requires only a stable key across `setRows` calls. The ev8 T5/O6 test (`test/ev8-focus-navigation.test.ts:246-256`) feeds opaque strings `["c","a","b"]` and asserts identity-not-index; the ev9 suite feeds its own literals into single-attempt fixtures where `id === sessionId`. **No assertion in either suite pins sessionId as the row key.** The re-key to `manifest.id` breaks no EV-8 test and — verified against `council/cards/EV-8.md` — no *binding ruling*: O6's principle is identity-not-index, which the re-key *honors*. What actually moves: the `selectedSessionId` field name/docstring (a two-module documentation surface, `focus-nav.ts` + `navigator.ts`'s four internal resolution points at `:334-336/405/429-430/461`) and the O6 test's *name*. That is an evolution of a record, not a violation of a ruling.
+
+**I concede the principal's scoping point in full: step-1's "one file" is false.** I half-conceded this in round 1; it is now first-hand — `focus-nav.ts` carries the field, the docstring, and the selection machinery. The card's blast radius is two modules plus the ev8/ev9 test *names*, not one file.
+
+**And the designer's alternative is unsound at this controller — this is the round-2 finding that settles the identity dispute.** The designer's cycler "moves `controller.selectedSessionId` to that attempt's session id." An attempt's session id (other than the live one) is **not in the row list** (`setRows` receives `manifest.sessionId` per job, `navigator.ts:405`). The moment the cycler sets it: `selectedIndex()` → −1 (`focus-nav.ts:151-152`), the ▌ marker vanishes, `isAtTop()` → true so **Up exits the tree**, and `backFromProgress`'s O3 contract — "return to tree *preserving* selection," pinned green at `test/ev9-progress.test.ts:95-106` — silently breaks on the next Esc. The cycler is only safe on a job-id-keyed controller with a **separate content cursor**. So the designer's affordance *presupposes* the principal's (and my) identity split; it is not an alternative to it.
+
+### 3. Tail-cache keying — the two proposals converge; the dispute is a guard-rail, not a fork
+
+Verified: `tails`/`lastBlocks` key on `keyFor(node)` = `manifest.sessionId` (`navigator.ts:297-298, 343-353, 381`), and `TranscriptTail` binds its file **at construction** (`:344: new TranscriptTail(file)`). Because attempt N's session id is `${jobId}-attempt${N}` and attempt 1's is the job id (`hub-tools.ts:250, 269-270`), `sessionId` *already encodes* `(jobId, attempt)` — the principal's key and the owner's "resolved session" are the same key. Today's tree therefore does **not** serve attempt 1's last-activity under attempt 2's row; the principal's hazard is real only as a constraint on the re-key: once rows key on `manifest.id`, unifying the tail key with the new row key would return the *stale `TranscriptTail` object bound to attempt 1's file* under the post-respawn row. **Rule: after the re-key, tails/lastBlocks stay keyed on the resolved `manifest.sessionId`, never on the row key.** The distinguishing test is the principal's claim 4 (respawn with a new file and appends → the running row's last-activity comes from attempt 2's JSONL; a row-key-keyed cache goes red). It is green on today's tree; it ships as the re-key's guard-rail, not as a dispute-settler. Minor residual, reported not claimed: stale per-attempt entries are never evicted from `tails`/`lastBlocks` (bounded by the 15-run retention; memory nit only).
+
+### 4. `openTranscript` — the principal's reachability claim is confirmed; defer to FLLWUP-4
+
+First-hand: the `/council-tree` command and shortcut handlers call `toggleWidget` (`navigator.ts:620-631`), never `open`. `open` (`:506`) is a local const with **zero call sites**. `activateSession`'s only wire is as `onActivate` into `installTreeEditor` (`:588` → `focus-nav.ts:348-351` → stored at `:282`) — and `onActivate` is **never invoked anywhere**: Enter at surface "tree" calls `controller.enterProgress(...)` (`focus-nav.ts:334`). Both `openTranscript` call sites (`:520`, `:571`) are therefore dead, and FLLWUP-4 — OV-2's named follow-up, `council/cards/EV-7.md:239-243`, "either delete the dead modal path or fix the guard" — owns that path's disposition. **Cheapest honest disposition: record the `manifest.id` bug in FLLWUP-4's card as a finding and defer the fix there.** Hardening a path another card may delete spends budget on a ghost; and since this card extracts the shared browsable-attempts accessor anyway, FLLWUP-4's fix — should it choose "fix" — is one line against that accessor. No new test for `:869` in this card beyond recording the finding.
+
+### 5. Minimal copy set
+
+The principal's three-spellings observation is confirmed: `attempt ${n} of ${max}` (parent-retry, `parent-retry.ts:112`, R5-bound), `attempts=${n}/${max}` (hub-tools head grammar, `:76`), `attempt ${m.attempt}/${max}` (navigator row, `navigator.ts:372`). Three spellings is already the landed state; this card must not add a fourth *spelling*, and the two drafts below reuse tokens, not spellings. **Minimal set — two strings, both escalated per R3 with these drafts:**
+
+1. **Progress title attempt fragment** — `· attempt 1/3` appended to the existing `${id} ${seat}` title (`navigator.ts:463-465`), rendered whenever the job has >1 browsable attempt. **Reuse, new position only**: the token `attempt N/M` is the navigator surface's own R4 vocabulary (within-surface divider stays `/`; `of` stays parent-retry's R5 sentence — do not unify across surfaces in this card).
+2. **Header affordance fragment** — `←/→ attempts` appended to the existing progress hint line, gated on browsable attempts > 1 (designer's gating is correct and I adopt it, including consumed no-op at the one-row floor and the legacy-window no-op). **Genuinely new**, minimal-novelty, rides the R-KEYMAP grammar.
+
+**Not in this card:** the legacy-modal title suffix (dead path → FLLWUP-4, together with the `:869` fix). **Binding and untouched:** `The provider returned an error.` (`parent-retry.ts:126`, per backoff episode), `Retrying in 2s (attempt 2 of 3) — Esc to abort` (`:112`), `Retries exhausted after 3 attempts. The provider kept failing. Press Enter to try again.` (`:117`), and the navigator's landed `retrying in Ns` / `attempt N/M` row tokens.
+
+---
+
+**Design I defend now.** My round-1 design, amended in three places by the others' evidence: (a) adopt the principal's explicit split — **row/selection key = `manifest.id`; content identity = the attempt entry**, resolved by one extracted pure accessor over `attemptEntries(m)` ∪ the live `manifest.sessionId`; the attempt cycler moves a *content cursor* local to the progress surface (rebinding `ensureView`/the title), **never `controller.selectedSessionId`** — the designer's cycler mechanism is rejected on the verified selection-loss mechanism above, its affordance placement and floor/no-op gating are adopted; (b) the row label keeps `m.attempt` per R4's letter, and the mismatch is repaired by the title naming the shown attempt (escalated string 1); (c) `openTranscript` is deferred to FLLWUP-4 with the finding recorded. Red tests I commit to (all fail on this tree): selection survives a respawn transition (▲ marker + `selectedIndex() >= 0`, keyed on job id); title names the attempt whose file `ensureView` opened during backoff; browsable-set resolution across retrying/running/settled/legacy shapes with the legacy carve-out pinned; tail-keying guard (attempt-2 JSONL feeds the post-respawn row; row-key-keyed tails go red); cycler `←/→` consumed no-ops at the one-row floor and absent from the header when browsable ≤ 1; ev7 `:180-199` and R5 strings untouched and green.
+
+**Genuinely open.** *Test-settleable:* none remaining — every behavioral disagreement above collapsed into a red test or a verified mechanism. *Open-judgment (escalate, not settle here):* the two drafted strings (judge/product-owner under R3); the `←/→` vs letter-key choice (taste; arrows are unclaimed in `classifyProgressKey` — verified `:57-77` — and forward-unhandled on the tree surface, so no EV-8 collision); and the **R4 evolution question** — whether the retrying row's label should eventually denote the tailed attempt rather than the pending ordinal. That last one is the card goal's plain reading against a binding ruling's letter; only `product-owner` can evolve it, and this card ships on R4's letter either way.
+
+**Split judgments.** Blocking: the job-id re-key with a separate content cursor (both the respawn glitch and any cycler are unsound without it); the title naming the shown attempt during backoff (else the viewer is told nothing while being shown attempt N's file under a pending-N+1 row); defer `openTranscript` to FLLWUP-4 rather than harden dead code. Non-blocking: cycler key choice, clamp-not-wrap, `selectedSessionId` rename-now vs re-document-now (re-document is the minimum; the rename rides any later touch). Where I was wrong in round 1: the ev7 test was the wrong instrument to cite for the label ruling (R4's text is); I under-named the two-module cost of the re-key, which the principal caught and I now concede. Where the others were wrong: the principal's test-collision claim on `ev7:180-189` and his "the ev8/ev9 suites move with it" (no assertion moves — names and docstrings do); the designer's tail-rebinding mechanism (`tails`/`lastBlocks` key on `manifest.sessionId`, not `selectedSessionId`) and her cycler's selection-preservation breakage at `focus-nav.ts:151-152`.
+
+#### Principal round 2 (`job-12.5`) — verbatim
+
+Read the card in full, the three round-1 positions, EV-39 R4, FLLWUP-4, and the code on both sides of every claim. Findings below; two of my own round-1 claims need correcting.
+
+---
+
+## Cross-seam reading
+
+**What the contract actually is, first-hand.**
+
+Four identity fields, four lifetimes (`extensions/runs.ts:50-67`), read by six call sites in one file:
+
+| navigator site | field read | role |
+|---|---|---|
+| `:334-336` `keyFor` | `manifest.sessionId` | **content**-cache key for `tails` + `lastBlocks` (`:341-353`) |
+| `:405` `setRows` | `manifest.sessionId` | **row** key set |
+| `:429-430` marker/selection | `manifest.sessionId` | **row** identity compare |
+| `:449,:459-466` `ensureView` | `selectedSessionId` → `findSessionFile` + node lookup by `sessionId` | content resolve + title |
+| `:370-373` label | `manifest.attempt` | state indicator |
+| `:869` `openTranscript` | `manifest.id` | content resolve (dead path) |
+
+The row key, the content key, and the label source are three different things that happen to be two variables today. During `retrying` for pending N+1: `attempt = N+1`, `sessionId` = attempt N (`hub.ts:132-137`), `attempts` = 1..N. So `:405`/`:429-430` (row) and `:334-336` (content) both read attempt N's session — the row key is a *content* identifier being used as an *identity*, which is exactly why it mutates at respawn.
+
+**Dispute 1 — the retrying-row label: the test pins the vocabulary only, and R4 settles it against the flip.**
+
+The fixture at `test/ev7-council-tree-widget.test.ts:183-184` is `m("job-1", {state:"retrying", attempt:2, nextAttemptAt:…})` — **no `attempts` field**. `test/tree.test.ts:69` is the same. So those tests exercise `attemptEntries`'s legacy synthesis (`runs.ts:119-121`: `m.attempts ?? [{attempt: m.attempt ?? 1, sessionId: m.sessionId}]` → `[{attempt:2, …}]`), and the designer's flip falls back to `m.attempt` on exactly that shape. **The test is silent on every non-legacy fixture**; it neither pins the data source nor forbids the flip. The principal's "test-pinned collision" framing and my round-1 echo of it were both over-stated — the test is not the collision.
+
+R4 is. Verbatim (`council/cards/EV-39.md:56-59`): *"One job-tree row per dispatch, **labeled `attempt 2/3` while retrying** — no extra rows and no separate status line."* The only unambiguous instance of its own example is pending = 2, settled = 1 — i.e. **the first retry**. The designer's flip renders `attempt 1/3` in that window (`attempts = [1]`, last entry = 1). That is the ruled string, in the ruled state, changed. So: the flip is a **contradiction of a binding ruling, not an evolution**, and it is not test-detectable because no shipped test covers the shape. `[per-attempt-provenance]` also states R4's own reading — *"R4 makes the row label `attempt 2/3`, so the denominator is carried into the renderers"* — nothing there licenses a source flip.
+
+The designer's "copy-free" claim is what makes this attractive and it is also what is wrong: a flip does not avoid new copy, it *relocates* the need for it. Once the row says `2/3` and the tail is attempt 1's, the ordinal of the shown attempt must appear somewhere, and the only non-ruled surface for it is the progress title. Both horns buy the same string; the ruled horn pays one string. **Ruling for the record: keep `m.attempt` (owner's horn).**
+
+Settle test (red today, green after; neither shape's fixture exists yet):
+
+```
+retrying fixture: {attempt:2, sessionId:"job-1", attempts:[{attempt:1,sessionId:"job-1"}], nextAttemptAt: now+7000}
+  + job-1.jsonl on disk
+assert row contains "attempt 2/3"                       // R4 literal, unchanged
+assert progress title contains "attempt 1/3"            // the denoted content's ordinal
+assert titleOrdinal === indexOfOpenedFileIn(attemptEntries(m)) + 1
+```
+
+The third assertion is the honest-denotation predicate and the only runnable one that distinguishes the two designs regardless of wording.
+
+**Dispute 2 — row/selection identity: the re-key costs less than either of us said; the rename costs more.**
+
+`test/ev8-focus-navigation.test.ts:244-256` (O6) uses **opaque strings** — `setRows(["a","b","c"])`, `setRows(["c","a","b"])`, asserts `selectedSessionId === "c"` and `selectedIndex() === 0`. Its subject is identity-not-index; "sessionId" appears only in the test *name* and the field *name*. Same in ev9 (`:66-110`, `:363-405`) and ev35 (`:95,:110`). **The re-key breaks zero existing assertions** — I was wrong in round 1 ("moves the ev8/ev9 suites"), and the principal's "two-module change, ev8/ev9 suites move with it" is wrong the same way. No binding EV-8 ruling is touched: EV-8's binding content is *editor-driven focus + consume only Up/Down/Enter/Escape + forward-unhandled* (`vault/wiki/council-job-tree-inline.md`, EV-8 section); row-key type is not in it.
+
+What it actually costs:
+- `navigator.ts:405`, `:429-430`, `ensureView`'s node lookup (`:464`) change values. No test churn.
+- `focus-nav.ts:126-128`'s doc comment (`"Selected row keyed by sessionId, NEVER by index (O6)"`) becomes a lie; the parameter name `sessionId` in `enterProgress(:190)` becomes a lie.
+- A **rename** (my "cheap rename" and the principal's "must be renamed/re-documented") touches `selectedSessionId` in 5 test files mechanically (`ev8:108-295`, `ev9:69-405`, `ev35:95,110`, plus `ev8:266`). That is churn, not semantic change, but it is not free: it is the largest single mechanical diff in the card.
+
+So the honest cost of the identity change is: **2 source files + doc/param names; zero test semantics; a mechanical rename across 5 test files if the name is fixed.** In scope? Yes — this card is what makes the name false; leaving `selectedSessionId` holding job ids would ship a second lie to fix a lie (gate-parity spirit, `vault/wiki/gate-parity.md`). Cheapest honest path: rename to `selectedRowKey` in the same change; it is mechanical and the compiler finds every site.
+
+**Dispute 3 — tail-cache keying: owner's own position contains the contradiction; `sessionId` (not `(jobId, attempt)`) is the right key.**
+
+`keyFor` (`navigator.ts:334-336`) is used **only** by `tailRead` (`:337-353`) and `rowLine`'s `lastBlocks` lookup (`:382`). It is *already* the content key and already keys on the thing that changes when content changes — `manifest.sessionId`. Measured against the tree:
+
+- Owner's sentence "re-key `keyFor`… on `manifest.id`" is **wrong and self-defeating**: `tails.set(key, new TranscriptTail(file))` only fires when `!tails.has(key)` (`:342-344`), so a job-id key freezes the tail on attempt 1's file forever after respawn while `findSessionFile(…, manifest.sessionId)` (`:341`) points elsewhere — divergence inside one line.
+- Owner's other sentence, "`sessionId` **equals** `attempts[last].sessionId` … so latest browsable = `manifest.sessionId` in every state," is **correct**, and is the same claim as mine.
+- My round-1 reframe named `(jobId, attempt)`. **I was wrong on the specific key.** In the retrying window `attempt` advances while `sessionId` does not; keying on `attempt` would split the cache at the very moment the content hasn't changed. `sessionId` is EV-39's mandated fresh pointer per attempt, so it is already the exact content identity. Requirement right ("do not key on the row key"), key wrong.
+
+Distinguishing test (red under a `keyFor → manifest.id` fix, green under today's key):
+
+```
+manifest running attempt 2, sessionId "<job>-attempt2"; job-1.jsonl and <job>-attempt2.jsonl both on disk,
+attempt 2's last block has the later `at`.
+assert the row's last-activity text comes from attempt 2's file
+assert after advancing manifestId's attempt to 3 (new sessionId) the row's text changes again
+```
+
+**Dispute 4 — `openTranscript`: unreachable, and the disposition belongs to FLLWUP-4.**
+
+First-hand: `open` (`navigator.ts:509-548`) is defined and never referenced — `registerNavigator` registers only `toggleWidget` (`:612-627`), and `navigator.ts:520` is the only `openTranscript` call inside it. `activateSession` (`:564-572`, the `:571` call) is passed to `installTreeEditor` (`:588`); `CustomTreeEditor` stores it (`focus-nav.ts:282`) and **never invokes it** — `handleInput`'s Enter path is `this.controller.enterProgress(...)` (`:318`). `test/ev9-progress.test.ts:371` even passes `() => {}` with the comment *"onActivate stays present but must NOT be the Enter path"*, and `test/ev8-focus-navigation.test.ts:222-223` builds an `activated` array it never asserts. Reachability of the modal: none from any command or key.
+
+Where my round-1 claim needs a caveat: **"the whole modal path is unreachable" is true of the shipped surface, false of the module.** `CouncilTree` is exported and directly instantiated by `test/navigator.test.ts:66`, and its Enter → activate path *is* asserted (`:72-73`). So `openTranscript` is test-pinned dead code, not compiler-dead code (`vault/wiki/council-job-tree-inline.md` says the same and points at FLLWUP-4). Also: FLLWUP-4's cited `navigator.ts:57` has drifted — the `if (!ctx.hasUI)` guard is at `:510-514` today.
+
+Cheapest honest disposition: **defer item 2 to FLLWUP-4, and do not add a test for it here.** FLLWUP-4's acceptance is literally *"guard removed (dead path deleted) **or** corrected"*, single file, with "is the modal still reachable after EV-7?" as its stated decision fact. A one-token `:869` fix is thrown away if FLLWUP-4 deletes the path — and this card's own reachability deliverable (item 1) makes deletion the likely answer. If a fix is wanted anyway, fix it at the *shared* resolver the reachable path uses, so the dead path inherits it; never at `:869` alone. Item 2 is **not blocking** for this card's goal.
+
+**Dispute 5 — minimal copy: two strings, both reuse; and the surface's three spellings are real.**
+
+The existing divergence the principal named is verifiable: `Retrying in 2s (attempt 2 of 3)` (`extensions/parent-retry.ts:111-112`), `attempts=2/3` (`extensions/hub-tools.ts:76`), `attempt 2/3` (`navigator.ts:372`; ruled by R4). R3's binding strings are untouched by any of this and must stay byte-identical: `The provider returned an error.` (`parent-retry.ts:124-127`, per episode), `formatRetryCountdown`/`formatRetryExhausted` (`:111-118`).
+
+Minimum the design cannot ship without:
+
+1. **Progress title attempt designation** — e.g. `job-4.2 skeptic · attempt 1/3`. **Genuinely new string, reusing ruled vocabulary** — `attempt N/M` is R4's ruled token, already rendered on the row (`:372`) and in `tree.test.ts:70`. New *position*, not new vocabulary. Without it, the ruled label and the shown content are indistinguishable → the card's goal unmet. **Required.**
+2. **Keymap advertisement for the attempt cycler** — e.g. `· ←/→ attempt`. **Genuinely new copy**; rides the existing header string (`navigator.ts:839`) and is required only because `honest-keymap` R-KEYMAP binds an advertised-key surface: a cycler with no advertised key fails the goal's "reachable". **Required iff the cycler ships in this card.**
+
+Cut: the legacy-modal title suffix (dead path → FLLWUP-4, string 3 in owner's list); any change to countdown/"retrying"/exhaustion copy (R5, binding). Designer's set is the same two minus the title — but dropping the title drops the goal. Owner's set is the same two plus one dead-path string.
+
+Two corrections that bear on cost: the designer's claim that `←/→` need "no new `classifyProgressKey` branch" is false — `ProgressKey` (`focus-nav.ts:25`) has no left/right member, `classifyProgressKey` (`:62-71`) has no left/right branch, `routeEditorFocus`'s progress case consumes only `up/down/e/t/f/g/G` (`:213-224`), and delivery is gated by an explicit list (`focus-nav.ts:299`). Their smoke #6 (`classifyProgressKey("\x1b[D") === "down"`) contradicts `test/ev9-progress.test.ts:60-71`, which asserts only UP/DOWN/ENTER/ESC/e/t/f/g/G/x. And: `↑↓ move` is already advertised in the progress header — left/right would sit next to keys whose semantics in this surface are follow/scroll, so the advertisement needs a disambiguating noun, not a bare arrow.
+
+## Blind spots
+
+**Owner (inside the code).** Sees `sessionId` as *the* session, because in single-attempt code it is; cannot see that `keyFor` is already the correct content key (`:334-336` vs `:405`) and so reformulates the fix as re-keying both, which is the one change that breaks the tail. Cannot see that `focus-nav.ts:126-128` documents the row-key contract two modules away, nor that its own "keys them implicitly on the resolved session" contradicts its "re-key `keyFor`" sentence — the two live in the same position and were never reconciled.
+
+**Principal (inside the reframe).** Sees the identity split correctly and the dead code correctly, but cannot see that the ev8/ev9 suites it says "move with it" assert on opaque strings and will not move at all — so it over-prices the change it is right about, and over-states the test collision on the label. It also can't see that a `(jobId, attempt)` content key splits the cache in the retrying window where `attempt` moves and `sessionId` does not.
+
+**Designer (inside the render path).** Sees the person's question ("which attempt am I looking at?") and answers it by making the label read the tail's source — which silently reassigns, in the ruled window, the exact string R4 names. It cannot see that R4's example is the first-retry case (pending 2, settled 1) so the flip is a contradiction at the canonical instance; nor that its cycler moves `selectedSessionId` to an attempt's session id, re-collapsing row key and content key and re-introducing the respawn selection loss the re-key exists to remove. Its classifier claim is checked against a test that does not say what it thinks it says.
+
+**copy / `product-owner` (inside vocabulary).** Will measure new strings against R5 and cannot see that "consistent with R5" is not decidable today: three landed spellings of one fact, one slashed and two "of"/`=`. Nor that the defect is denotation, not wording.
+
+## Reframe
+
+The proposed design is sound on identity and unsound on the cycler's state; **no wholesale reframe needed**, but one structural correction:
+
+**Three identities, three variables — the cycler cannot reuse the row key.**
+
+- `rowKey` = `manifest.id` (job). Drives `setRows` (`:405`), the marker compare (`:430`), `selectedIndex`, and the node lookup in `ensureView`. Stable by construction across retry transitions; kills the respawn selection loss.
+- `contentKey` = the denoted attempt's `manifest.sessionId`. Drives `keyFor`/`tails`/`lastBlocks` (`:334-353`) *as today* and `findSessionFile` (`:341`). No change.
+- `attemptCursor` = **new, separate state**, owned by the widget (not the controller), consumed only while `surface === "progress"`. The designer's "the cycler moves `controller.selectedSessionId` to that attempt's session id" is the defect: it puts a session id back into the row-key variable, so the next `setRows` (job ids) yields `selectedIndex() === -1` and the marker vanishes again — the identical bug, one keystroke later. With a separate cursor, the controller stays attempt-agnostic and `ensureView` resolves `(rowKey, attemptCursor) → content` through one pure helper over `attemptEntries(m)` ∪ the live `manifest.sessionId`.
+
+This also makes items 1 and 3 one change rather than two, and reduces item 2 to a cross-reference.
+
+## Testable claims
+
+Runnable, red today, each distinguishing two designs rather than asserting prose:
+
+1. **Label vs denotation (dispute 1).** Fixture `{state:"retrying", attempt:2, sessionId:"job-1", attempts:[{attempt:1,sessionId:"job-1"}], nextAttemptAt: now+7000}` + `job-1.jsonl`. Assert row contains `attempt 2/3` **and** title contains `attempt 1/3` **and** `titleOrdinal === 1 + indexOf(sessionId in attemptEntries(m))`. Red today (no title ordinal); a flip makes the first assertion red.
+2. **Selection across respawn (dispute 2).** `setRows(["job-1"])`, `enter()`, `enterProgress("job-1")`; then mutate the manifest to `running/attempt 2/sessionId "<job>-attempt2"` and re-render. Assert `selectedIndex() === 0`, `isAtTop() === false`, `▌` still on that row. Red today (`-1`, `true`, no marker).
+3. **Content cache scoping (dispute 3).** Same respawn, with attempt 2's JSONL carrying the later `at`. Assert the row's last-activity text derives from attempt 2's file. Red under a `keyFor → manifest.id` fix; green with `keyFor` unchanged.
+4. **Cycler does not own the row key (dispute 2/3 coupling).** After one cycler press, assert `setRows` values are still job ids and `selectedIndex() !== -1`. Red under the designer's cycler as written.
+
+Untouched and must stay green: `test/ev7-council-tree-widget.test.ts:180-189`, `test/tree.test.ts:65-73`, `test/ev40-parent-retry.test.ts` R5 strings, `test/ev8-focus-navigation.test.ts:244-256`.
+
+## What I would defend now
+
+- **Label source: `m.attempt`, unchanged** (R4 literal, first-retry case decides it). Designer's flip does not ship this card; if the designer wants it, it needs an orchestrator ruling that amends R4's own example, not a design argument.
+- **Row key: `manifest.id`; content key: `manifest.sessionId`, unchanged; a separate `attemptCursor` for the cycler.** Rename `selectedSessionId → selectedRowKey` in the same change (mechanical, 5 test files).
+- **Item 2: defer to FLLWUP-4, cross-reference it in the card record.** If a fix ships anyway, fix the shared resolver, never `:869`, and say in the PR that FLLWUP-4 may delete the path.
+- **Reachability: the progress surface with a cycler**, counting on a new `ProgressKey` member, a new `classifyProgressKey` branch, a new `routeEditorFocus` case, a new delivery-list entry, and one header token — not the "no new branch" the designer claims.
+- **Copy: exactly two strings**, both escalated with the drafted string per R3: the progress-title attempt designation (reuse of R4's ruled token, new position) and the cycler advertisement (genuinely new). R3's and R5's strings untouched, byte-identical.
+
+## What remains genuinely open
+
+- **Test-settleable, not yet settled:** the label/denotation pair (claim 1) — settle by running it, not by argument, if anyone still contests the flip after R4. Content-cache keying (claim 3) — settle by running it.
+- **Open judgment, needing a ruling:** the two strings (R3 escalates); whether the cycler is in this card at all versus a follow-up; the field rename riding this card versus a naming cleanup.
+- **Open judgment, cheap either way:** cycler key (`←/→` vs `[`/`]`) and clamp-vs-wrap — taste, ranked last, and the `[`/`]` horn genuinely avoids the follow/scroll semantic collision that the arrow horn creates in `TranscriptView`.
+
+## Split judgments (honest)
+
+- I was **wrong** in round 1 that the re-key "moves the ev8/ev9 suites" — those tests assert opaque strings and do not move. I was **wrong** that the re-key makes the step-1 "one file" claim false in any load-bearing way — it is false (two source files) but the cost is a rename, not a migration. I was **wrong** to name `(jobId, attempt)` as the tail-cache key: `sessionId` is already the right key and the requirement was simply "don't overload it with the row key."
+- I was **right** that the design cannot ship copy-free, that `:869` is unreachable dead code belonging to FLLWUP-4, and that owner's `keyFor → manifest.id` re-key contradicts owner's own "keyed on the resolved session." I was **overstated** in "the whole modal path is unreachable": true of the shipped surface, false of the module — `CouncilTree`/`openTranscript` are test-pinned (`test/navigator.test.ts:66-73`) and not compiler-dead.
+- The designer is **right** that per-attempt browsing belongs in the progress expansion and not in new tree rows (cardinality A is `[per-attempt-provenance]`-binding), and **wrong** on the label source and on the cycler's state, both for the same reason: the attempt is not the row.
+
+Wiki pages used: `[[per-attempt-provenance]]`, `[[council-job-tree-inline]]`, `[[honest-keymap]]`, `[[one-row-floor]]`, `[[retry-policy]]`, `[[gate-parity]]`. No wiki page states the row-key identity; the fix should extend `[[per-attempt-provenance]]`'s Related list with the three-identity rule, as the principal proposed — that part of their position I endorse without reservation.
+
+#### Designer round 2 (`job-12.6`) — verbatim
+
+I've cross-checked every load-bearing claim from the other two seats against the actual source. Here is my round-2 position, structured to match the four disputes in priority order.
+
+---
+
+## Concessions, named up front (so the rest reads cleanly)
+
+**On dispute 1, I was wrong to call the label/tail fix "copy-free".** I preserved the vocabulary form `attempt N/M` but flipped the data source — and that flip changes the rendered value from `attempt 2/3` to `attempt 1/3` on a retrying-after-attempt-1 row in real backoff substrate. R4's example value is `attempt 2/3` (the pending ordinal), not just the `attempt N/M` shape. The wiki page [[per-attempt-provenance]] confirms the ruling is about the value: "R4 makes the row label `attempt 2/3`". The honest path is the conservative one — keep R4's data source, disambiguate in the title. I over-corrected on a real but smaller defect.
+
+---
+
+## Dispute 1 — the retrying-row label
+
+**What the test at `test/ev7-council-tree-widget.test.ts:180-189` actually pins.** I read the test first-hand. The fixture is `m("job-1", { seat: "skeptic", state: "retrying", attempt: 2, nextAttemptAt: NOW + 7_000, pid: null, exitCode: null })` — `attempt: 2`, no `attempts` field. Under `attemptEntries(m)` (`runs.ts:119-121`), `m.attempts ?? [{ attempt: m.attempt ?? 1, sessionId: m.sessionId }]` returns `[{attempt: 2, sessionId: "job-1"}]`. My flip reads `attemptEntries(m)[length-1].attempt === 2`, renders `attempt 2/3`. **The test as written passes my flip unchanged.** Principal is right that the test pins the vocabulary `attempt N/M` on a retrying row, but the fixture does NOT simulate real backoff substrate (no `attempts` field) — so the test does NOT pin which ordinal the label reads when both `attempt` and `attempts` are present.
+
+**What R4's R4 actually says** (read at `council/cards/EV-39.md` "Orchestrator rulings" + `vault/wiki/per-attempt-provenance.md:32`). R4 is a vocabulary + example ruling: "labeled `attempt 2/3` while retrying". The example `2/3` is the pending ordinal (the next attempt that will fire). Real backoff substrate (`hub.ts:130-138`) writes `attempt: job.attempt` (pending) AND `attempts: job.attempts` (settled prefix) under the same gate. The substrate comment at `hub.ts:134-136` calls out the pairing: "inside the retrying write that pairing would be a lie: `{attempt: 2, sessionId: <attempt 1's id>}`". The pending ordinal `2` is what `m.attempt` carries during retrying-after-attempt-1; the completed ordinal `1` is what `m.attempts[last].attempt` carries.
+
+**Is `attempt 2/3` the honest reading during backoff-after-attempt-1, or a lie the ruling inadvertently froze?** It is honest under R4's intended denotation ("the attempt about to fire, of N allowed") but a lie as a **selector of the tailed transcript** (the live tail at `m.sessionId` reads attempt 1's JSONL; nothing tailable exists for attempt 2 until respawn). Both readings are truthful statements of different facts; the design question is which fact the row label is for. My round-1 flip said "for the tail". I now withdraw that — the row label is for the budget/state ("we are between attempt 1 and attempt 2 of 3"), and the tail denotation belongs in the title where the person actually opens the transcript.
+
+**A test that settles which denotation is honest.** Owner proposed one (T2: "Enter during backoff opens the latest settled attempt, titled with its ordinal"). I would extend it to make the contract explicit: a fixture `{state:"retrying", attempt: 2, attempts: [{attempt:1, sessionId:"job-1"}], sessionId: "job-1"}` with a populated `job-1.jsonl`, asserted to render `<row contains "attempt 2/3">` AND `<progress title contains "attempt 1/3">` AND `<ensureView opens job-1.jsonl>`. This is runnable and pins both halves (label = pending ordinal per R4; title = tailed ordinal per the open-territory title). If anyone in round 3 wants the row label to flip, the RED form of that test asserts `<row contains "attempt 1/3">` and breaks the label half — a runnable disagreement, not a prose dispute.
+
+**Verdict.** Dispute 1 closes by **keeping R4's data source verbatim** and adding attempt-state to the progress title. The label/tail honesty gap moves to where it belongs — the title that opens with the live transcript. New copy → `ESCALATION` per R3.
+
+---
+
+## Dispute 2 — row/selection identity
+
+**Visible behavior under re-keying (`manifest.sessionId` → `manifest.id`).** I walked the rendered path. Marker (`▌` at `navigator.ts:464`), row order (job-keyed vs session-keyed produces identical ordering under cardinality A because one job = one row), and focus routing (Up/Down/Enter/Escape: same arrows move the same job) — **all unchanged in the happy path**. The single-attempt case is byte-identical because `manifest.id === manifest.sessionId` for attempt 1 (`hub-tools.ts:250`). The fix is invisible until a job has >1 attempts and respawn fires.
+
+**Does it break any binding EV-8 ruling?** EV-8 is "consume only Up/Down/Enter/Escape" on the tree surface (`focus-nav.ts:160-170` + the wiki page's bold "consumes only Up/Down/Enter/Escape"). That ruling is about **which keys the surface consumes**, not about the selection key type. Re-keying is orthogonal. The contract I break is `selectedSessionId: string | null` (`focus-nav.ts:186`), which is a TS-level binding (test-ev8 T6 at `:246-256` "same session, NEW index"). That test pins the **principle** (identity-not-index) under the pre-EV-42 substrate; re-keying under EV-42 cardinality preserves the principle (now `selectedJobId` same job, new index still maps).
+
+**Does the step-1 "one file" scoping hold?** No. Principal is right — the move touches `focus-nav.ts` (field rename + `selectedIndex()`'s `_rows` lookup) and `navigator.ts` (5 call sites: `keyFor`, `tailRead`, `setRows`, the controller-compare, the modal-`openTranscript` resolver), plus `test/ev8-focus-navigation.test.ts` (`selectedSessionId` references) and possibly the ev9 suite. This is a 2-module change in production + a test rename in two suites. I accept that the step-1 record understated the surface and the card needs the wider scope acknowledged.
+
+**Verdict.** Re-key on `manifest.id`. Document the rename (`selectedSessionId` → `selectedJobId`, or kept as an opaque row key with a comment update). The cross-module change is real but unavoidable — chasing a mutable key forever is the alternative, and the live-mutation glitch on respawn (`focus-nav.ts:210-215` returning `-1`) is the bigger defect. Test re-stability across respawn is the falsifier (owner's T1).
+
+---
+
+## Dispute 3 — the cycler affordance vs. the floors
+
+**Re-verified at `extensions/focus-nav.ts`, not memory.** `Key.left` and `Key.right` exist in pi-tui (README line 697: `Arrow keys: Key.up, Key.down, Key.left, Key.right`) and are imported transitively via the `Key` constant at `focus-nav.ts:2`. They are not currently classified by either `classifyTreeKey` (`focus-nav.ts:43-49`) or `classifyProgressKey` (`focus-nav.ts:67-99`). Both fall through to `"other"`.
+
+**What `routeEditorFocus` returns for them today.** `routeEditorFocus` (`focus-nav.ts:151-191`) has a single `default: return { action: "forward" }` in both surface branches. Forwarded keys go to `super.handleInput` (or `this.inner.handleInput` if composed — `focus-nav.ts:235-238`, `:307-311`). At `surface === "progress"` with `termRowsCap >= 7`, `←/→` reach the prior editor (cursor move). At `surface === "tree"`, same — cursor move. At `termRowsCap < 7`, surface stays `"tree"` (EV-9 floor at `focus-nav.ts:104-107`), `←/→` forward. **Adding `←/→` to the cycler requires four edits:**
+
+1. `ProgressKey` union widens to include `"left" | "right"` (`focus-nav.ts:11`).
+2. `classifyProgressKey` adds two branches before the `"other"` return.
+3. `routeEditorFocus`'s `progress` switch consumes them and the `tree`/`editor` switches forward them — the existing `default: forward` already does this if I let `←/→` stay out of `TreeKey` and rely on `RouteKey`'s wider union.
+4. `CustomTreeEditor.handleInput` (`focus-nav.ts:295-310`) must deliver `←/→` to a **controller-level handler** (mutates `selectedSessionId`/`selectedJobId` to the prior/next attempt entry), not to `viewHost.handleInput` (which only knows transcript-domain keys).
+
+**One-row floor (EV-36 R3, `termRows === 7`, `viewportRows === 1`).** My round-1 "consumed no-op at one-row" holds: once the cycler is in `routeEditorFocus`'s progress switch, `←/→` are consumed regardless of viewport height. The view's render still suppresses nav at one-row, but the cycler is not nav — it is attempt-domain. Same floor pattern as EV-9's `Enter`-at-`termRows ≤ 6` consumed no-op.
+
+**Term-rows ≤ 6 (EV-9 floor).** Surface stays `"tree"`. `←/→` forwarded to editor draft. Same as today. Not a regression.
+
+**The legacy-window case (`m.attempt > 1 && m.attempts === undefined`).** `attemptEntries` synthesizes one entry from `m.attempt/m.sessionId` (`runs.ts:119-121`). One attempt exists → `←` and `→` clamp at the same point → consumed no-ops. The cycler header copy must not advertise when the row has exactly one attempt (honest-keymap).
+
+**Ev9 test enumeration.** `test/ev9-progress.test.ts:48-60` enumerates `classifyProgressKey` for `ENTER/ESC/UP/DOWN/e/t/f/g/G/x`. The exhaustive list of named keys plus the `"other"` sentinel for `"x"` is asserted. Adding `←/→` requires adding two assertions (`classifyProgressKey(Key.left) === "left"`, `classifyProgressKey(Key.right) === "right"`) — additive, no existing assertion breaks. The "everything else 'other'" claim becomes "everything else besides left/right" and the test name must update.
+
+**Verdict.** Cycler keys add ~5 lines to `focus-nav.ts` (union + classifier + routing) plus one delivery seam in `CustomTreeEditor.handleInput`. The blast radius is wider than the card's stated "one file", but is bounded: `focus-nav.ts` + `navigator.ts`'s `ensureView` (where `selectedSessionId` resolves to a session file via `attemptEntries`). Adding `Key.left`/`Key.right` does not collide with EV-8's exclusivity (tree-surface forward is the existing behavior); the cycler is progress-domain only.
+
+---
+
+## Dispute 4 — new user-visible copy
+
+**My round-1 placement** was the **header** (`←/→ attempt` appended to the existing R-KEYMAP form). **Owner's** was **title** (`${id} ${seat} · attempt 2/3`) + header advertisement `←/→ attempts`. **Principal's** was **title** (`${id} ${seat} · attempt 2/3`) + `· [ ] attempt` hint in the progress hint line.
+
+I now defend a **hybrid** that splits the two facts:
+
+- **Title** carries the attempt state. Title is where the person's eye lands when they press Enter — and "what am I looking at?" is the title's question (cf. the existing transcript title `job-A designer`). Title form: `${id} ${seat} · attempt ${k}/${maxAttempts}` (when `attemptEntries(m).length > 1`), unchanged otherwise. This is **new copy** that escalates per R3. Vocabulary: `attempt k/N` reuses the landed `attempt N/M` token; the divider is `/` not `of` to match the row label (R3/R5 use "of" only in the parent-turn copy, not the navigator — so the divider is a vocabulary choice between R3 parity and row-parity; I flag this for `product-owner`).
+- **Header** carries the cycler affordance. The existing R-KEYMAP grammar is `↑↓ move · <keys> · esc back`. Appending `←/→ attempt` follows the same separator discipline. This is **new copy** that escalates per R3.
+
+Why split: the title answers a state question ("which attempt is on screen?"), the header answers an affordance question ("what keys do what?"). Putting both in the title duplicates the row label's `attempt N/M` and splits the truth across two surfaces. Putting both in the header gives the cycler no anchoring state. Putting state in the title and affordance in the header lets each surface say one thing.
+
+**Vocabulary pivot the person reads correctly:** the row reads `attempt 2/3` (R4's pending ordinal). The title reads `attempt 1/3` (the tailed ordinal). A first-time visitor who never retries sees no title delta. A visitor whose retry succeeded sees `attempt 3/3` in both row and title — no surprise. The mismatch is bounded to the retrying-after-attempt-N window (where N >= 1), where the person just pressed Enter during a backoff — the only moment a mismatch can occur, and the only moment the title is on screen.
+
+**The honest-keymap risk on the cycler.** The header form `←/→ attempt` must be paired with the cycler's `classifyProgressKey` / `routeEditorFocus` additions; if either lags, the cycler is a header lie. R-KEYMAP discipline (the EV-35 regression guard) applies — `classifyProgressKey(Key.left) === "left"` test, `routeEditorFocus` consumed for left/right, viewHost non-delivery (controller handles), one-row no-op — all asserted before the header form is allowed to render.
+
+---
+
+## Disputes genuinely open
+
+**Test-settleable:**
+
+- **Dispute 1's denotation** — owner's T2 ("Enter during backoff opens attempt N, titled attempt N") extended with the fixture I sketched above pins the (label = pending ordinal, title = tailed ordinal) split. Anyone who wants a different split writes the opposite assertion and the dispute becomes a runnable disagreement.
+- **Dispute 3's classifier widening** — `classifyProgressKey(Key.left) === "left"` plus `routeEditorFocus` consumed are direct assertions. The ev9 test additions are mechanical.
+
+**Open judgment:**
+
+- **The cycler's one-row behavior** — consumed no-op (my preference, grounded in EV-9 floor pattern) vs. forwarded (today's behavior on unrecognized keys). I prefer consumed because the forward silently moves the editor cursor at termRows ≤ 6 only on the tree surface — at termRows ≥ 7 / surface === "progress", the cycler is reachable and consumed; at termRows ≤ 6, the cycler is unreachable (surface === "tree") and forwarding is harmless. Either way, the one-row floor (viewportRows === 1 with surface === "progress") needs an explicit choice — consumed is the smallest-delta choice that prevents an invisible cursor mutation under the user's hands if the keymap widens to include left/right.
+- **The title divider** — `/` vs `of`. R3's `Retrying in 2s (attempt 2 of 3)` says `of`; the row's `attempt 2/3` says `/`. I would draft the title as `attempt ${k}/${maxAttempts}` (row-parity, slash) and escalate both with the string. Vocabulary parity with R3 is defensible; row-parity is defensible. The runner should escalate with both drafts.
+- **Whether the legacy-modal title (`:869`'s modal path) gets the attempt suffix.** Owner proposed yes; FLLWUP-4 owns that path. Defer to FLLWUP-4; don't smuggle in.
+- **Whether `selectedSessionId` is renamed now or rides the re-keying as a silent re-meaning.** I prefer the rename (`selectedJobId`) for clarity, but the rename touches the ev8 test name "keyed by sessionId" — handle by adding a comment that documents the rename and the EV-42 cardinality reason.
+
+---
+
+## The design I would defend now
+
+1. **Row identity := `manifest.id` (job).** Two-module change (navigator + focus-nav), with rename to `selectedJobId` (or comment-documented opaque key). Re-keying dissolves the respawn-flap (`focus-nav.ts:210-215`) and is the only fix that makes the controller stable across `m.sessionId` mutation. Test: stability across respawn.
+2. **Row label kept as `attempt ${m.attempt}/${maxAttempts}` per R4 verbatim.** No data-source flip. The label denotes the pending ordinal; this is R4's denotation.
+3. **`openTranscript` fix at `:869`** (one-token source change: `node.manifest.id` → `node.manifest.sessionId`). Path is latent (no live caller); the fix is correct, cheap, and prevents a future regression if FLLWUP-4 ever revives the modal.
+4. **Progress title gets `${id} ${seat} · attempt ${k}/${maxAttempts}` when `attemptEntries(m).length > 1`.** `k` is the attempt entry whose session is being tailed; `maxAttempts` is the policy denominator. The title is the open-territory surface where the person's "which attempt am I looking at?" question gets answered honestly. New copy → escalates per R3.
+5. **Cycler affordance in the progress header** (multi-row, multi-attempt only). `←`/`→` consumed via widened `classifyProgressKey` + `routeEditorFocus`. ViewHost does NOT receive them; the controller mutates `(selectedJobId, ordinal)`. One-row floor: consumed no-op (not forwarded — prevents invisible editor cursor move). TermRows ≤ 6: surface stays tree, ←/→ forward to editor (same as today). New copy → escalates per R3.
+6. **Shared resolver extracted** (`resolveAttemptFile(m, k)` over `attemptEntries(m)`). Both the inline `ensureView` and the legacy-modal `openTranscript` route through it. Single seam, single test.
+
+The smallest delta from current shipped behavior: item 1 (cross-module) + item 3 (one line) + item 4 (new copy, escalate) + item 5 (header fragment + classifier widening, new copy, escalate) + item 6 (extract). The honest step-1 record update: card touches `extensions/navigator.ts`, `extensions/focus-nav.ts`, plus two test suites.
+
+---
+
+## Gulf closed (which, for whom, at what moment)
+
+- **Evaluation gulf, "which attempt am I looking at?"** — closed for the person who has pressed Enter on a retrying row (title names the tailed ordinal). Not closed by the row label, which keeps R4's pending-ordinal denotation.
+- **Evaluation gulf, "did the cycler work?"** — closed by the tail rebinding to the new attempt's session file. Existing `TranscriptView.poll()` is the feedback signal (new content from the cycled JSONL).
+- **Execution gulf, "how do I see an earlier attempt?"** — closed by `←/→` in the progress header. Affordance discoverable, behavior matches the header.
+
+---
+
+## Falsifiable predictions (skeptic inputs)
+
+1. **Title names the tailed ordinal** — fixture `{state:"retrying", attempt:2, attempts:[{1,"job-1"}], sessionId:"job-1", nextAttemptAt:now+7000}` with `job-1.jsonl` present; after Enter, the rendered progress title line contains `attempt 1/3` and the row above contains `attempt 2/3`. CDP `view.render(width)[0]` substring scan; smoke asserts both substrings on different lines.
+2. **`←/→` re-bind the tail** — `controller.selectedSessionId` = attempt 3's session, then `←` via `viewHost.handleInput(\x1b[D)` causes the next `render()` to read `findSessionFile(..., attempt 1's session)` = attempt 1's JSONL. Unit-level smoke; `expect(view.file) === "attempt 1's path"` after the dispatch.
+3. **`←/→` consumed no-op at one-row floor** — `termRowsCap = 7`, `surface === "progress"`, `viewportRows === 1`; dispatching `←` does not mutate `selectedJobId`/ordinal and does not reach the prior editor. Capture: prior editor's `handleInput` call count stays zero.
+4. **`←/→` not advertised when single-attempt** — `attempts: [{1, "job-1"}]` (one entry, no retry); the progress header text does not contain `←/→ attempt`. `view.render(width)[0]` substring scan.
+5. **`openTranscript` resolves the live session** — `{m.sessionId === "job-1-attempt3"}`; the resolver returns `job-1-attempt3.jsonl` not `job-1.jsonl`. Pure-function unit test on the extracted `resolveAttemptFile`.
+6. **Selection survives a respawn** — `setRows(["job-1"])`, enter, select; rewrite manifest to `sessionId:"job-1-attempt2"`, `state:"running"`, re-render; assert `selectedIndex() >= 0` and the `▌` marker stays on row 0. Today: returns `-1`, marker absent.
+7. **`classifyProgressKey` honors `Key.left`/`Key.right`** — `expect(classifyProgressKey(Key.left)).toBe("left")`, same for `Key.right`. Additive to the existing ev9 enumeration.
+
+---
+
+## Preferences, ranked last
+
+- **Title divider `attempt k/N` over `attempt k of N`** — slash keeps row-parity; "of" keeps R3-parity. I'd draft slash because the row uses it and the title sits 1 line below the row; row-parity reads cleaner. **Taste.**
+- **Header cycler copy as `←/→ attempt` over `←/→ attempts` (plural)** — singular is honest about "you're cycling through attempts" but plural reads as a noun ("the attempts feature"). I prefer singular for grammar. **Taste.**
+- **One-row no-op over forwarding at one-row** — same as round 1; defended on principle (the EV-9 floor pattern). Could be overruled by `principal` or `product-owner` if they want the cycler keys always-forwards. **Taste, with a principle.**
+- **Clamp over wrap on the cycler** — same as round 1; clamp gives a definite "I'm at the end" feel, wrap is a different navigation model. **Taste.**
+- **Rename `selectedSessionId` to `selectedJobId` over keeping the name opaque** — clarity beats continuity; the comment update is the documentation cost. **Taste, with a principle.**
+- **`resolveAttemptFile` extracted as a pure export vs. an internal helper** — pure export lets `openTranscript`'s legacy modal route through it and lets the unit test import it directly. The export adds a surface to `navigator.ts`; the helper keeps the test indirect via a fixture. **Taste.**
+
+---
+
+## What I will not relitigate
+
+- **Cardinality A** — one job id, one manifest, one row. Closed by [[per-attempt-provenance]] + R4. Any per-attempt row would re-open EPIC-9.
+- **The progress surface as the cycler's host** — settled by [[council-job-tree-inline]] ("Enter on a highlighted row opens the subagent's live transcript inline as an expansion"). The cycler lives in the expansion, not the tree.
+- **`Key.left`/`Key.right` reach the prior editor today** — verified at `focus-nav.ts:235-238`, `:307-311`. Forwarding is the existing behavior on unrecognized keys; the cycler change is consumption, not introduction.
+- **R3's vocabulary stays unchanged for the failure line and the countdown string** — read at `parent-retry.ts:111-126` (R3 re-shown in the card's Orchestrator rulings block); I have not proposed modifying it.
+
+---
+
+**Bound.** Dispute 1 settles by accepting owner's framing (label = pending ordinal per R4; title = tailed ordinal, new copy). Dispute 2 settles by re-keying (cross-module, real). Dispute 3 settles by widening `ProgressKey` + classifier + routing (bounded blast, not a bug class). Dispute 4 settles by splitting title-state from header-affordance (both new copy, both escalate per R3).
+
