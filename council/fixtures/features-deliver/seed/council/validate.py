@@ -5,8 +5,10 @@ Checks every card in council/cards/ against:
   - required frontmatter keys
   - id pattern ^(EV|FLLWUP|BUG|EPIC)-[1-9]\d*$, matching the filename
   - state in the allowed set
-  - goal present and containing no colon-space sequence (frontmatter is
-    parsed as plain `key: value` lines, so a `: ` truncates the value)
+  - goal present on a single line; the value is everything after the
+    first `: ` of the line, edge-whitespace-trimmed — a colon-space
+    inside the value does not truncate, and the judge reads the same
+    text
   - board.md contains exactly one `- <ID> — <Title>` line per card, under
     the column matching its state, with an em dash (U+2014)
   - board.md contains no orphan lines (entries with no matching card)
@@ -45,7 +47,11 @@ def fail(msg: str) -> None:
 
 
 def parse_frontmatter(text: str) -> dict:
-    """Parse plain `key: value` frontmatter, stopping at a value truncation."""
+    """Parse plain `key: value` frontmatter: the first `: ` of a line splits
+    key from value, edge whitespace is trimmed, and the value ends at a line
+    break or a bare non-`key: value` line (which ends frontmatter). Colons
+    and colon-spaces inside the value are literal characters.
+    """
     meta = {}
     if not text.startswith("---"):
         return meta
@@ -119,9 +125,6 @@ def main() -> int:
         state = meta.get("state")
         if state not in STATE_COLUMNS:
             fail(f"{cid}: state {state!r} not in {STATE_COLUMNS}")
-        goal = meta.get("goal")
-        if goal is not None and ": " in goal:
-            fail(f"{cid}: goal contains a colon-space sequence (value truncates)")
         title = meta.get("title")
 
         # board presence: exactly one line under its state column

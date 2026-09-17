@@ -39,12 +39,18 @@ having never seen this card's `Intent` section. That means:
   not just that some code is present — name the concrete behavior and the
   required evidence (e.g. an automated test exercising that path).
 
-**Hard failure mode — do not write a colon-space sequence (`: `) anywhere in
-the goal.** This frontmatter is parsed as plain `key: value` lines with no
-YAML quoting. A `: ` inside the value truncates everything after it — the
-goal `validate.py` and the judge actually read will silently be the fragment
-before the colon, not the sentence you wrote. If the goal needs to contrast
-two things, rephrase without a colon ("rather than" or "instead of").
+**The goal is the judge's only input — keep it on one line and spell
+literals exactly.** This frontmatter is parsed as plain `key: value` lines
+with no YAML quoting: the value is everything after the first `: ` of the
+line, with edge whitespace trimmed. A colon-space inside the value does not
+truncate or re-encode anything — the goal the judge reads is the text you
+wrote. What ends the value is a line break or a line without the
+`key: value` shape, so never wrap the goal onto a second line and never
+drop the `: ` separator itself (`goal:foo` deletes the field). Name any
+literal (a log message, an error string, a constant) precisely as the
+system emits it, colons and all; a colon-less paraphrase of a real message
+string is the hard failure mode here (EV-37 shipped a dead branch that
+way).
 
 ## 4. Set the initial state
 

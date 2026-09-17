@@ -50,12 +50,12 @@ exchanged.
 **Wave 1 — `principal` authors the first decomposition artifact.**
 
 Dispatch `principal` once with: the feature (`$ARGUMENTS`), the template,
-the board, the assigned epic id, the procedural bars (goal falsifiability,
-no colon-space sequence, state rules, Intent-surface rule, em-dash/board
-rules), and the mandated output shape. The bars are the ones
+the board, the assigned epic id, the procedural bars (goal falsifiability, single-line, literal-exact goal
+(colons allowed in the value), state rules, Intent-surface rule,
+em-dash/board rules), and the mandated output shape. The bars are the ones
 `/board-create-card` steps 3–4 set: each child has a single testable `goal`
-(falsifiable, not satisfiable by a stub, no colon-space sequence anywhere
-in the value), `epic:` set to the epic's id, `state` `Ready` only if the
+(falsifiable, not satisfiable by a stub, single-line, literal-exact — colons
+allowed in the value), `epic:` set to the epic's id, `state` `Ready` only if the
 child is already detailed enough for the Council to deliberate on without
 further clarification (otherwise `Backlog`), and the user-visible surface,
 if any, named in the child's `Intent` — which screen, which copy, which
@@ -72,7 +72,8 @@ native format, with the completeness charter. Independence preserved: no
 input contains another seat's critique.
 
 - `skeptic` attacks each `goal` for falsifiability / stub-satisfiability /
-  colon-space and each `state` against the Ready-vs-Backlog bar, with
+  single-line, literal-exact goal (colons allowed in the value) and each
+  `state` against the Ready-vs-Backlog bar, with
   runnable checks against the draft text itself.
 - `designer` flags which children are surface-touching and argues the
   `Intent` must name the screen/copy/state, in its native `Design position`
