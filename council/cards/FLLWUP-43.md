@@ -4,7 +4,7 @@ title: Make the goal field a lossless oracle for the judge
 state: Deliberating
 owner: null
 epic: EPIC-9
-goal: A card goal can name an exact literal that contains a colon-space sequence without truncating, and the judge reads the same string the classification test asserts.
+goal: A card goal can name an exact literal that contains a colon-space sequence without truncating, and council/validate.py's parse_frontmatter recovers that literal intact when the goal names the string that test/retry.test.ts asserts PROVIDER_FINISH_REASON_ERROR, declared in extensions/retry.ts, to be.
 ---
 
 ## Intent
