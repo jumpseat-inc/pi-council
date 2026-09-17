@@ -95,3 +95,27 @@ EV-39  job-22  turns=369 in 2085567/out 198673/cR 38136533/cW 0/reason 81882/tot
 EV-42  job-25  turns=203 in 1293713/out 136444/cR 15762460/cW 0/reason 72934/total 17192617 cost≈$1.0633
 EV-41  job-26  turns=149 in 833381/out 92394/cR 11034994/cW 0/reason 40143/total 11960769 cost≈$0.7756
 ```
+
+## Residual run — Phase 1 rulings (features-deliver, promote-residuals run)
+
+Human decisions recorded before the first `council-runner` was dispatched.
+Immutable and binding on every seat, `steward` included.
+
+- **Scope promotion.** The nine `Backlog` residuals (`FLLWUP-40`–`45`,
+  `FLLWUP-47`–`49`) are promoted to `Ready` and are this run's delivery
+  scope. `EPIC-9` itself stays `Done`; these are residual cards, not an epic
+  re-open.
+- **Sequencing (strategy row).** Build order is re-homed to `steward`; the
+  orchestrator dispatches one `council-runner` per card in `steward`'s
+  ruled order, never two at once.
+- **Merge (merge row).** R2 on `FLLWUP-42` — the human authorized squash
+  merges with `--admin --match-head-commit <X>` for this run. All five
+  deterministic criteria still hold; `--admin` only clears the ruleset's
+  approving-review requirement, and the authorization is run-scoped.
+- **Non-fast-forward repair.** R1 on `FLLWUP-41` — the documented union-merge
+  reconcile is the sanctioned repair; force-push/rewind stays forbidden.
+- **Copy.** R3 on `FLLWUP-44` — R5 re-opened for a transient provider-failure
+  line; exact wording designer-drafted and product-owner-ruled before merge.
+- **Follow-ups (judgment row).** `council.md` step 13's draft-then-confirm
+  gate is re-homed to `product-owner`, which confirms, edits, or drops each
+  follow-up draft before the card is written.

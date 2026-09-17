@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-47
 title: Documented red-base convention for falsifier evidence
-state: Backlog
+state: Ready
 owner: null
 epic: EPIC-9
 goal: A written convention fixes what a falsifier's red-at-base evidence must record and how it is compared across cards.

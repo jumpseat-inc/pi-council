@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-48
 title: Suite-cost budget for the live pty and -p falsifier arms
-state: Backlog
+state: Ready
 owner: null
 epic: EPIC-9
 goal: The default bun test suite's wall-clock budget is documented, and the live pty and -p falsifier arms run within it or are gated behind an opt-in.

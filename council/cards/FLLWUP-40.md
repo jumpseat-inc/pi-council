@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-40
 title: Isolate COUNCIL_EVAL_MODEL from the eval-runner dispatch-primitive test
-state: Backlog
+state: Ready
 owner: null
 epic: EPIC-9
 goal: A test run of test/eval-runner.test.ts inside a council seat shell with COUNCIL_EVAL_MODEL set, and outside it, both pass without the ambient model variable changing the dispatch-primitive expectation.

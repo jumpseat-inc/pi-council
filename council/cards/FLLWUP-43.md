@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-43
 title: Make the goal field a lossless oracle for the judge
-state: Backlog
+state: Ready
 owner: null
 epic: EPIC-9
 goal: A card goal can name an exact literal that contains a colon-space sequence without truncating, and the judge reads the same string the classification test asserts.
