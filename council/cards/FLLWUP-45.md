@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-45
 title: Navigator attempt-awareness for retried dispatches
-state: Deliberating
+state: In Progress
 owner: null
 epic: EPIC-9
 goal: A retried dispatch's attempt transcripts are reachable from the navigator, and the backoff row's label matches the attempt it denotes.
@@ -1151,3 +1151,22 @@ Appended verbatim:
 - **Companion fix (required):** replace the Step 6b ruling's `k = attemptEntries(m)[indexOf(m.sessionId)].attempt` with `k = browsableAttempts(m).find((e) => e.sessionId === m.sessionId)?.attempt ?? 1` (the live session is not in `attemptEntries` until settle, `hub.ts:354-363`).
 - Nothing else in Step 6b is in question: the copy strings (`/` divider; `[/] attempt`), Q2 (cycler ships), Q3 (defer `:869` to FLLWUP-4), and the (b)/(e) defaults are settled and binding.
 - Process: `product-owner` confirms the single-writer discipline — the runner, not the ruling seat, appends to the card.
+
+### Step 7 — spec written; handed to one owner (facilitator)
+
+Step 6d closed the last open judgment; the run resumed at step 7. The
+settled design was written up (not derived):
+`docs/superpowers/specs/2026-09-17-FLLWUP-45-design.md`, committed on `main`
+as `f485dff`. Self-review before commit checked the four required
+properties: no placeholder/TODO text; internal consistency (nothing
+contradicts steps 2–6d); scope bounded to the card `goal` (FLLWUP-39, the
+`:869` modal fix, and the R4-evolution candidate are named as out of
+scope); and single-design unambiguity (exact strings, gates, cursor
+semantics, no-op conditions all pinned).
+
+The design is handed to the single `owner` seat (`owner` works in an
+isolated worktree, never on `main`). Card set `In Progress` on frontmatter
+and on `council/board.md`; `python3 council/validate.py` reports clean
+before the step-8 dispatch. Step-1 seat-resolution record stands: all six
+seats named this run resolve from the packaged set; this checkout has no
+`.pi/agents/` override.

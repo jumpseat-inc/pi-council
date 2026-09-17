@@ -38,8 +38,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- FLLWUP-45 — Navigator attempt-awareness for retried dispatches
-
 ## Ready
 
 - FLLWUP-47 — Documented red-base convention for falsifier evidence
@@ -47,6 +45,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-49 — Promote the offline faux-provider harness into a shared smoke helper
 
 ## In Progress
+
+- FLLWUP-45 — Navigator attempt-awareness for retried dispatches
 
 ## In Review
 
