@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-42
 title: Make the deterministic merge check independent of a human-granted admin bypass
-state: In Review
+state: Done
 owner: null
 epic: EPIC-9
 goal: The deterministic merge check succeeds under a repository ruleset that requires an approving review without a human-granted admin bypass, or the procedure names the bypass explicitly as the sanctioned step.
@@ -155,3 +155,92 @@ Skeptic usage (verbatim, job-7.2):
 ```
 job-7.2  turns=19 tokens=in 147223/out 6777/cR 311267/cW 0/reason 2025/total 465267 cost≈$0.2595
 ```
+
+### Step 10 — judge PASS (job-7.3)
+
+Judge dispatched with exactly the card's `goal` (verbatim) + the step-9
+Skeptic evidence, subject pinned (head `8815bf4…`, head worktree
+`.worktrees/fllwup-42`), loop frame stated (step 10 precedes step 11's
+mechanical merge, facilitator-executed). Verdict **PASS**: the goal is a
+disjunction, and the procedure at the pinned head names
+`gh pr merge <PR> --squash --admin --match-head-commit <X>` as "the
+sanctioned merge step" under a review-requiring ruleset, run-scoped, with
+all step-11 gates green. No REJECT basis; no goal-text defect.
+
+Judge usage (verbatim, job-7.3):
+
+```
+job-7.3  turns=7 tokens=in 14842/out 1855/cR 78592/cW 0/reason 1142/total 95289 cost≈$0.0071
+```
+
+### Step 11 — deterministic merge check, merged
+
+Five criteria executed mechanically at PR head
+`8815bf44644c474f4d1a95323e06a4d6bda6580c`:
+
+1. **Owner gates green in full.** Re-run by the facilitator at the head in
+   `.worktrees/fllwup-42`: `bunx tsc --noEmit` exit 0; `bun test` **859
+   pass / 2 skip / 0 fail / 5524 expect** (94.86s); `python3
+   council/validate.py` → `All council artifacts valid`. The step-11
+   re-run set is `tsc` / `bun test` / `validate.py` (recorded FLLWUP-27
+   practice; `council/preflight.sh` is the run-start / owner-time gate and
+   its branch-freshness line is the known mid-card artifact — never
+   weakened).
+2. **`gates` workflow SUCCESS on the PR head SHA.**
+   `gh pr checks 60 --json name,state,workflow` →
+   `[{"name":"gates","state":"SUCCESS","workflow":"gates"}]`, asserted
+   on the `workflow` field. `headRefOid` re-read immediately before the
+   merge as `8815bf4…` and asserted equal to the checked SHA.
+3. **No blocking Skeptic objection** — step 9 NO-BLOCK, all eight
+   objections `closed-green`.
+4. **Judge PASS** (job-7.3).
+5. **No `Needs Human` / outstanding ruling** — card `In Review`, zero
+   escalations. R2 is the recorded run-scoped authorization this merge
+   executes under, not an open ruling.
+
+Merged under R2: `gh pr merge 60 --squash --admin --match-head-commit
+8815bf44…` exit 0 → PR #60 **MERGED** (mergedAt 2026-09-17T11:15:10Z),
+squash commit **`aff11012a0133526645a1858e9ee2d872206d50e`** on `main`
+(parent `544f52d`).
+
+**Observed parallel fact:** the ruleset blocks direct `main` updates too
+(`remote: Bypassed rule violations for refs/heads/main: Cannot update this
+protected ref / Changes must be made through a pull request`) — this run's
+step-1/8/9 record pushes and this card's step-12 push bypass it via the
+pusher's admin identity, not via `gh pr merge --admin`. Recorded as a
+step-13 candidate below (the record-push discipline inherits the same
+admin dependency the procedure copy addresses for merges).
+
+### Step 12 — Done
+
+`gates` workflow on the merged SHA `aff1101` (observed via `gh run list
+--commit aff1101…`, workflowName `gates`, event `push`) completed
+**success**. Local `main` fast-forwarded from `544f52d` to `aff1101` —
+clean FF, no forced resolution, no union merge needed. `validate.py`
+clean; board and card set `Done`; reconciliation committed and pushed
+directly to `main`. Card closes with **no open-untested step-9 residual**
+— the verify loop ran once (NO-BLOCK at cycle 1 of ≤3).
+
+### Step 13 — follow-up candidates (drafted, NOT written; per Phase-1
+follow-up ruling, draft-then-confirm is re-homed to `product-owner`, which
+this container must not dispatch)
+
+- **Candidate A — the record-push discipline's own admin dependency.**
+  `features-deliver.md` step 12 instructs committing the reconciliation
+  directly to `main` and pushing, and the active ruleset's "Changes must be
+  made through a pull request" clause blocks that for any pusher without a
+  bypass (observed on every record push this card made). The run-scoped
+  R2 authorization covers the `gh pr merge --admin` step; whether it also
+  covers, or should explicitly cover, the runner's direct record pushes —
+  or whether the next run needs a non-admin record-push path — is an open
+  scope/judgment question this card's goal does not settle. No proposed id
+  assigned; the orchestrator owns allocation.
+- **Candidate B — wiki staleness.** [[deterministic-merge-check]] still
+  reads "The human merge gate is not fully replaced … Carded as FLLWUP-42"
+  and the EPIC-9 source ledger still reads "the procedure text does not yet
+  name it" — both stale as of the merged SHA. Step-14 material; recorded
+  as owed, not hand-edited (`vault/` is never written by hand).
+
+No other candidate: the FLLWUP-27 preflight branch-freshness artifact is
+already carded; the fixture/digest surface has zero impact (verified); the
+prose/stack gates are green.

@@ -51,12 +51,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- FLLWUP-42 — Make the deterministic merge check independent of a human-granted admin bypass
-
 ## Needs Human
 
 ## Done
 
+- FLLWUP-42 — Make the deterministic merge check independent of a human-granted admin bypass
 - FLLWUP-43 — Make the goal field a lossless oracle for the judge
 - EPIC-9 — Provider-error retry with exponential backoff under a .council.json policy
 - EV-41 — End-to-end falsifier for provider-error retry on both paths
