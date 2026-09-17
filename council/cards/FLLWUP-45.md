@@ -716,3 +716,80 @@ The smallest delta from current shipped behavior: item 1 (cross-module) + item 3
 
 **Bound.** Dispute 1 settles by accepting owner's framing (label = pending ordinal per R4; title = tailed ordinal, new copy). Dispute 2 settles by re-keying (cross-module, real). Dispute 3 settles by widening `ProgressKey` + classifier + routing (bounded blast, not a bug class). Dispute 4 settles by splitting title-state from header-affordance (both new copy, both escalate per R3).
 
+### Step 4 — Skeptic attack
+
+Job `skeptic` `job-12.7` (4.1m, 17 turns), settled `done`. Given every
+position recorded above, with instructions to treat each load-bearing claim
+as broken until its own test said otherwise, to run every test it named, and
+not to mutate the tree (probes in `/tmp`, one throwaway scratch copy since
+removed). **Result: no open objections on behavior.** O1–O8 closed `green`,
+O10 (baseline gates) green, and the one remainder (O9, item 2's scope) is
+stated as not test-settleable — `open-untested` by nature.
+
+#### Skeptic attack (`job-12.7`) — verbatim
+
+## Skeptic attack — FLLWUP-45 step 4 (`job-12` round)
+
+I treated every generator claim as broken and ran the settling test for each. No repo files edited, no branches, no checkout mutation — probes via `bun -e` in `/tmp` dirs plus one throwaway `/tmp` copy (since removed). Tree was clean throughout.
+
+### Objections and terms
+
+**O1 — ev7 fixture is legacy shape; the flip is invisible to it (targets owner/principal/designer round-2 §1).**
+Settling test: `bun -e` importing `attemptEntries` on `{attempt:2, sessionId:"job-1"}` (no `attempts`, exactly the `ev7:180-189` / `tree.test.ts:69` shape) vs real backoff `{attempt:2, sessionId:"job-1", attempts:[{1,"job-1"}]}`.
+Output: legacy → `[{"attempt":2,"sessionId":"job-1"}]` (flip renders `attempt 2/3`, unchanged); real → `[{"attempt":1,"sessionId":"job-1"}]` (flip renders `attempt 1/3`). Plus a live widget render of a real-shape retrying manifest: row = `⏸ skeptic attempt 2/3 · retrying in 7s`.
+**Status: `closed-green`** — all three generators are right; the test pins vocabulary only. The designer's round-2 withdrawal stands on evidence, not deference.
+
+**O2 — R4's text rules the pending ordinal (targets the flip's legitimacy).**
+Settling test: read the instruments verbatim. `council/cards/EV-39.md` R4: *"One job-tree row per dispatch, labeled `attempt 2/3` while retrying — no extra rows and no separate status line."* `vault/wiki/per-attempt-provenance.md` Cardinality section: *"R4 makes the row label `attempt 2/3`, so the denominator is carried into the renderers…"*. The only unambiguous instance of R4's example is pending=2/settled=1 — the flip renders `attempt 1/3` in exactly that window.
+**Status: `closed-green`** — the flip was a contradiction of a binding ruling, not an unruled evolution. (The card-goal-vs-R4 tension the owner flags is real and correctly routed to `product-owner` as an R4-evolution candidate.)
+
+**O3 — re-key breaks zero test assertions.**
+Settling test (two halves): (a) read the assertions — `ev8:244-256` feeds opaque `["a","b","c"]`/`["c","a","b"]` and asserts identity-not-index; ev9/ev35 feed literals into single-attempt fixtures where `id === sessionId`; no assertion pins a sessionId value as the row key. (b) Applied the re-key (setRows, `▌` compare, `ensureView` lookup, `activateSession` lookup → `manifest.id`; `keyFor` untouched) in a `/tmp` scratch copy and ran 7 suites: `83 pass, 0 fail` (ev8, ev9, ev7-widget, tree, navigator, ev35, ev36).
+**Status: `closed-green`.**
+
+**O4 — tail-cache must stay on `sessionId`; a row-key change freezes the tail.**
+Settling test: read `navigator.ts:334-344` (`keyFor` → `manifest.sessionId`; `if (!this.tails.has(key)) this.tails.set(key, new TranscriptTail(file))` — file bound at construction), then `bun -e` probe: one `TranscriptTail` bound to attempt-1 file, then an attempt-2 file with later content appears. Reused object polls `[]` forever; a fresh object on the new file polls `["ATTEMPT-TWO"]`.
+**Status: `closed-green`** — the freeze mechanism is real. Collateral findings, both already conceded in round 2: owner's round-1 "re-key `keyFor`" sentence was self-defeating (corrected round-2), and principal's round-1 `(jobId, attempt)` key was wrong on the specific key — during `retrying`, `attempt` advances while `sessionId` does not, so `sessionId` is the content key and the requirement is only "never the row key."
+
+**O5 — respawn selection-loss glitch is live today.**
+Settling test: `bun -e` against real `TreeFocusState`: `setRows(["job-1"])`, `enter()` → `selectedIndex()=0`; then `setRows(["job-1-attempt2"])` (what `render()` does at `:405` after the timer fires) → `selectedIndex()=-1`, stale `selectedSessionId` matches no row so the `▌` compare at `:429-430` fails on every row.
+**Status: `closed-green`** — live defect reproduced. One precision note: `isAtTop()` is `true` both before (index 0) and after (−1) in the single-row case, so it is not a discriminating signal there; `selectedIndex() === -1` plus marker loss is.
+
+**O6 — `openTranscript` reachability.**
+Settling test: first-hand grep + read. `open` (`navigator.ts:506`) is a local const with zero call sites — the only `openTranscript` call inside it is `:520`; command + shortcut register only `toggleWidget` (`:620-631`). `onActivate` is stored (`focus-nav.ts:282`) and never invoked — Enter at tree surface calls `controller.enterProgress(...)` (`focus-nav.ts:318`), a path the ev9 integration test (`:353-371`, *"onActivate stays present but must NOT be the Enter path"*) pins green. Caveat confirmed: principal's round-2 correction holds — `CouncilTree` + Enter→activate **is** asserted at `test/navigator.test.ts:66-73`, so this is test-pinned dead code, not compiler-dead.
+**Status: `closed-green` on reachability; scope judgment below in O9.**
+
+**O7 — cycler key facts.**
+Settling test: `bun -e` probe — `classifyProgressKey(Key.left)` → `"other"`, `Key.right` → `"other"`; `routeEditorFocus` on progress for an unclassified key → `{action:"forward"}`. `ProgressKey` (`focus-nav.ts:25`) has no left/right member; `ev9:48-60` enumerates only ENTER/ESC/UP/DOWN/e/t/f/g/G/x.
+**Status: `closed-green`** for principal's round-2 account; designer's round-1 "classify as up/down, no new branch" was wrong (corrected round-2 — left/right need a union widening + classifier branches + routing case; additive, no existing assertion breaks).
+
+**O8 — "cannot ship copy-free."**
+Attack: I tried to construct a zero-new-string design. It fails both horns: keep R4's `attempt 2/3` row + show attempt-1 content ⇒ the shown ordinal must appear somewhere, and the progress title (`navigator.ts:466`: `` `${id} ${seat}` ``, no ordinal today) is the only non-ruled surface — a new string. Flip the row ⇒ contradicts R4 (O2). A cycler without advertisement violates honest-keymap R-KEYMAP. The `/`-vs-`of` divider choice is a genuine second judgment inside the string.
+**Status: `closed-green`** — I attacked the generators' consensus and lost; minimum one new string (progress-title attempt fragment), two iff the cycler ships. Both escalate per R3.
+
+**O9 — item-2 scope split (shared-resolver fix here vs defer to FLLWUP-4).**
+No runnable test distinguishes these: both horns produce identical green suites (the path is unreachable; the only test touching it, `navigator.test.ts:66-73`, asserts the `CouncilTree` activator plumbing, not the `:869` resolution). Frankly **not test-settleable — `open-untested`** by nature, not by neglect. My reading for the record: deferral is sound *only* with the finding recorded on FLLWUP-4's card (its acceptance is literally "guard removed or corrected"), and the reachable path needs no `:869`-style fix at all — `ensureView` already resolves `selectedSessionId`, never `manifest.id`. The designer's shared-resolver extraction is still worth doing here because item 1 needs the accessor anyway; FLLWUP-4 then inherits it for free.
+
+**O10 — baseline gates on the clean tree.**
+- `bunx tsc --noEmit` → exit 0, no output.
+- `bun test` → `867 pass, 2 skip, 0 fail` (5564 expects, 76 files, 94.67s).
+- `python3 council/validate.py` → `All council artifacts valid`, exit 0.
+- `bash council/preflight.sh FLLWUP-45` → `PASS: preflight clean` (all lines OK). Note: the known FLLWUP-27 branch-freshness FAIL artifact did **not** fire on this run.
+- `COUNCIL_INTEGRATION=1` not run, per instructions.
+**Status: `closed-green` on all four.**
+
+### What I ran (actual commands, abridged outputs above)
+
+1. `bun -e` probe: `attemptEntries` legacy vs real-backoff shapes + flip rendering.
+2. `bun -e` probe: `TreeFocusState` respawn transition (`selectedIndex` 0 → −1).
+3. `bun -e` probe: `classifyProgressKey(Key.left/right)` → `other/other`; `routeEditorFocus` progress → `forward`.
+4. `bun -e` probe: real-shape retrying manifest through `CouncilTreeWidget.render(200)` → `⏸ skeptic attempt 2/3 · retrying in 7s`.
+5. `bun -e` probe: `TranscriptTail` object-reuse freeze vs fresh-object read.
+6. Scratch copy in `/tmp`: 4-site re-key, `bun test` on 7 files → 83/83 (copy removed afterwards).
+7. Greps/reads: `open(`/`onActivate` call sites, `navigator.test.ts:66-73`, `ev9:353-371`, `focus-nav.ts:275-325`, `navigator.ts:506-640/868-880`.
+8. Gates: tsc, full `bun test`, `validate.py`, `preflight.sh FLLWUP-45`.
+
+### Verdict
+
+**`no open objections`** on behavior — O1–O8 closed-green (two of them closed against positions their own authors already withdrew, recorded as such), O10 green on all gates. The single remainder, O9, is a scope judgment I state frankly cannot be settled by any test; my input is that deferral is sound conditional on the `:869` finding being recorded on FLLWUP-4. Gate-integrity note: I did not inject a defect to watch a gate go red (no file edits permitted this turn); the gates are reported as observed-green only, with the full outputs above.
+
