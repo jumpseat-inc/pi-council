@@ -1,5 +1,18 @@
 # Wiki Log
 
+## [2026-09-16] lint | Tag record cleanup — v0.18.0 added, un-prefixed strays renamed
+
+Completed the release tag record flagged by the v0.19.0 entry. Created
+`v0.6.2` (`12a8804`), `v0.17.1` (`4074870`) and **`v0.18.0` (`0f28824`** — bumped
+in source by the EPIC-6 close run but never tagged), then deleted the two
+un-prefixed strays `0.6.2`/`0.17.1`; their commits stay reachable via the new
+`v`-prefixed tags and `main`. Every release 0.1.0 → 0.19.0 now carries exactly
+one `vX.Y.Z` tag (33 refs total: 32 releases + `latest` → `689f621`). The
+annotated/lightweight mix (`v0.1.0`–`v0.2.0`, `v0.11.0`–`v0.11.4` annotated)
+was deliberately left alone — normalizing force-rewrites tag objects for no
+semantic gain. Updated [[pi-council-overview]] to record the resolved state
+rather than the gap.
+
 ## [2026-09-16] ingest | v0.19.0 release — EPIC-9 minor bump
 
 Bumped `package.json` 0.18.0 → 0.19.0 (commit `689f621`), tagged `v0.19.0`
