@@ -616,3 +616,119 @@ All tests below were actually executed on the main checkout (`main`, clean — `
 2. **Owner's "(A wrapped two-line goal must equally FAIL)" is false** under the proposed plain-line design (run: exit 0, silent truncation to first line). Synthesis must either adopt owner's r2 wrap-FAIL addition explicitly (new gate, new test) or principal's r2 out-of-scope-with-documented-residual + step-13 card — it may not carry the sentence as if the design already fails wraps.
 
 I raise no other objection: parser-losslessness, pre-fix red/delete-only green, 10-copy parity, rubric/features-new surfaces, digest scope, version-keyed divergent throw, no-engine-consumer, constructible parse→literal prefix with non-testable judge-reads step, goal opacity, and no-unquote all verified green as stated (with the noted line-number and composition qualifiers).
+
+### Step 5 — Consolidator synthesis (job-3.8, verbatim)
+
+Dispatch: `consolidator` job-3.8 (15-min ceiling; settled 7.7m / 3 turns, total 65680 tok, cost≈$0.0705). Given the full record on this card.
+
+# FLLWUP-43 — Consolidator synthesis (step 5)
+
+Read in full: frontmatter (`goal`, `Intent`), Step 1 classification, Step 2 round-1 (owner/​principal/​designer), Step 3 round-2 (owner/​principal/​designer), Step 4 Skeptic (objection table, open-untested list, `blocks` verdict). No re-deliberation; no new evidence fetched. Cited wiki pages used by the seats: `engineering-board`, `gate-parity`, `deterministic-merge-check`, `retry-classification`, `eval-store-contract`. Wiki gaps stated by the seats (none of which the Skeptic contradicted): no page documents `parse_frontmatter`'s actual split semantics; no page covers the seed-follows-shipped re-pinning / `fixtureVersion` policy.
+
+---
+
+## 1. Settled
+
+Settled by the Skeptic's actual runs (objection table), unless noted as settled-by-deliberation on an uncontested fact.
+
+- **The parser is already lossless for single-line values containing `: ` or a bare `:`.** Settled by objection **1a (`closed-green`)**: `parse_frontmatter` round-trips `Rate limited: try again later` and `a:b` losslessly.
+- **The `": " in goal` FAIL is the lossiness, not the parser.** Settled by objection **2 (`closed-green`)**: a colon-space goal FAILs pre-fix (exit 1, `FAIL: … goal contains a colon-space sequence (value truncates)`); deleting only the three-line check block flips to `All council artifacts valid`, parser untouched.
+- **The real lossy path is the wrapped line.** A goal wrapped onto a second line parses to its first line and `validate.py` exits 0 — silent truncation, no FAIL. Settled by objection **3 (`closed-green` for principal's claim).**
+- **All ten `validate.py` and all ten `_template.md` are byte-identical** across root, scaffold, and the eight seeds. Settled by objection **4 (`closed-green`)**: identical sha256s.
+- **`rubric.json` `c3` grades "a testable goal with no colon-space sequence"** (`rubricVersion: 1.0.0`). Settled by objection **5a (`closed-green`).**
+- **`rubric.json` is outside `seed.treeDigest`.** `sha256Tree`/verify covers `seedDir` only; `rubric.json` is a sibling of `fixture.json`, not under `seed/`. Settled by objection **5b (`closed-green`)**: a rubric edit needs no re-pin; a seed edit does.
+- **`features-new.md` carries the colon-space bar** at lines ~54/57/75 (designer's "49" is off by ~5 lines; substance holds). Settled by objection **6 (`closed-green`)**.
+- **Version-bump obligation is real.** The eval store is keyed on `fixtureVersion`+`rubricVersion` with no content hash; a seed edit under an unchanged `fixtureVersion` reuses the tuple and the next differing write throws `divergent payload already stored for this key tuple`. Settled by objection **7 (`closed-green`)**: the throw primitive executed; full-matrix `/council-eval` re-run not executed (composition code-read only).
+- **No engine code consumes `goal`; the judge hop is procedural, with no code seam.** Sole `goal` hit in `extensions/` is the `runs.ts:10` comment; `council.md:270-276` hands the judge the goal + Skeptic evidence, nothing else; the fixture `inputFile` is read verbatim. Settled by objection **8 (`closed-green`, one line-citation qualifier: principal's pinpoint `eval-runner.ts:557-558` not re-confirmed; substance confirmed).
+- **The card→`parse_frontmatter`→bundle-literal prefix is constructible; the literal "judge reads" step has no code seam.** Settled by objection **9 (`closed-green`)**: the treatment/control pair is sensitive; `test/retry.test.ts`'s byte-for-byte bundle match passes (1 pass / 0 fail). The non-testable residual is the judge-reads hop itself (see objection 8).
+- **Plain-line needs no quoting/escaping/block scalar; no unquote step exists.** `parse_frontmatter('goal: "a: b"')` → `'"a: b"'` (quotes literal); no `unquote`/`unescape`/`stripquotes` hits. Settled by objection **D1 (`closed-green`).**
+- **The negative contract survives.** `goal:no-space-after-key` still FAILs `missing required key 'goal'`. Settled by objection **D2 (`closed-green`).**
+- **The card's own `goal` names no file.** "The classification test" appears once, at `FLLWUP-43.md:7`; in-repo it denotes the retry-classification tests (`test/retry.test.ts`'s bundle-deriving suite; `test/ev40-parent-retry.test.ts:6` uses the same phrase). Settled by objection **10 (`closed-green`, under the derive-vs-use distinction: many files *use* the literal; only `retry.test.ts` *derives* it from pi's bundle).
+- **The module/`parse_frontmatter` docstrings contain the same false truncation claim** the FAIL propagates. Settled by deliberation (uncontested across owner r1/r2, principal r1/r2, designer r2; designer retracted its r1 "do-not-change" for the docstring).
+- **Converged design (the one form).** Across all three generators in round 2: `goal` is a single `goal: <text>` line; value = everything after the first `: ` of that line; colons, colon-spaces, quotes, backslashes literal; no quoting, no unquoting, no block scalar; frontmatter ends at `---`, a line break ending the value, or a bare non-`key: value` line. Settled by deliberation (owner/​principal/​designer converged in round 2).
+- **The change set moves together:** delete the FAIL; correct module + parser docstrings; byte-identical into scaffold + 8 seeds; `_template.md` (root + scaffold + 8 seeds); `board-create-card.md` §3; `features-new.md:54/57/75`; `rubric.json` `c3` + `rubricVersion` bump; 8× `fixture.json` `treeDigest` re-pin + `fixtureVersion` bump; wiki correction routed through `/wiki-ingest` at step 14 (council.md step 14 forbids facilitator hand-editing `vault/`). Settled by deliberation (owner r2, principal r2, designer r2 converged; the version-bump obligations settled by Skeptic #5b/#7).
+
+---
+
+## 2. Open judgment — for `product-owner`, escalating to `steward`
+
+Each stated at equal weight. No test settles any of these.
+
+- **Q1 — Wrapped-line policy.** Fact settled: a wrap silently truncates to the first line (objection 3). What to *do* is open. Positions as deliberation left them:
+  - *owner r2:* in scope, loud form — add a bare-line-termination FAIL (new gate + new red-first test); multi-line support explicitly declared out. Argued as necessary because a "byte for byte" contract next to a silent truncation reproduces the EV-37 class.
+  - *principal r2:* out of scope for this card's `goal` (the goal's subject is "an exact literal that contains a colon-space sequence" — the wrap is a different mechanism, not named); declare it out, document the residual as a known silent truncation in the copy, file a follow-up at council.md step 13. Argued from `gate-parity`: the parser silently truncates, there is no downstream gate that strict, so retargeting the FAIL is not the gate-parity-consistent fix — deleting is.
+  - *designer r2:* fact in scope (must be in the deliverable as a known hazard); *policy* (forbid/FAIL vs. support continuation vs. document-and-follow-up) is product-owner territory.
+  - Why no test settles it: the behavior is a fact (settled); the *policy* is a values/tradeoff call about whether a documented silent truncation is acceptable vs. whether a new writer-side gate is justified under `gate-parity`. Principal and owner both invoke `gate-parity` and reach opposite verdicts.
+
+- **Q2 — Retroactivity of EV-37's frozen lossy goal.** Re-state EV-37's frozen `Done` goal (a new card) vs. accept the historical lossy record. Goal-immutability ([[engineering-board]]) freezes EV-37. No test settles whether to revisit history; portfolio judgment. → `product-owner`/`steward`.
+
+- **Q3 — Propagation skew to already-initialized consumer repos.** Non-clobbering scaffold (`AGENTS.md #6`) plus no `validate.py` override-resolution path means existing consumer repos keep the false rule forever; version skew is unbounded. No test settles whether that is acceptable or whether a mitigation (an override path, a migration) is owed. → `product-owner`/`steward`.
+
+- **Q4 — Keep vs. drop "rephrase without a colon" as secondary advice.**
+  - *designer r2:* drop permanently — the clause is the bug; listing paraphrase as an acceptable workaround is the exact EV-37 behavior.
+  - *owner r2:* lean keep-as-secondary for goals that need not name a literal (copy tone).
+  - *principal r2:* drop as *mechanism*, keep only as optional style.
+  - Why no test settles it: the comprehension question (does listing "rephrase" cause authors to paraphrase literals they should spell?) is testable by a cold-read authoring test in principle, but designer flags it as needing human subjects, not a repo gate; the *policy* of which paths are acceptable is taste. → `product-owner`.
+
+- **Q5 — Lossless-form choice under an unrecorded second rationale.** Whether the colon-space ban existed as a defense against a hypothetical future YAML consumer of card frontmatter. No test settles whether an undocumented rationale exists; retracting a gate documented with a false rationale is safe only if no undocumented rationale exists. (This is principal's stated concern; the seats converged on plain-line regardless, so it does not block the form, but it remains an open judgment on whether the retraction is "safe" in the stronger sense.) → `product-owner`/`steward`.
+
+- **Q6 — Full-matrix `/council-eval` divergent re-run end-to-end.** The throw primitive is green (objection 7); the full composition was code-read, not executed. Whether to require the end-to-end re-run before merge is a judgment about evidence sufficiency, not a fact a gate currently produces. → `product-owner`.
+
+- **Q7 — Designer's P1 cold-read authoring comprehension.** Whether the new template + procedure actually cause a cold-read author to spell the literal verbatim. Needs human subjects; no repo gate settles it. → `product-owner`.
+
+---
+
+## 3. Open objections — Skeptic objections whose settling test has not passed
+
+The Skeptic ran every falsifiable objection (`closed-green` or `closed-red`); it assigned **nothing `open-untested`**. The two `closed-red` results are reproduced here as open objections in the sense the task specifies — they are claims the deliberation left standing that the design, *as written*, does not satisfy. A fix must make them green.
+
+- **O1 — "Byte for byte" copy is false.** Term: **`closed-red` (objection 1b).** Run: `parse_frontmatter` on `goal:␣␣␣padded value with space␣␣␣` → `'padded value with space'`, `stripped: True` — `validate.py:60` is `value.strip()`, so edge whitespace is trimmed. Claimed by owner r1 §2 / r2 converged rule and by designer's template sentence ("the text after 'goal: ' is the goal byte for byte, colons included"). Principal r2's correction ("trimmed, not byte for byte") stands. **What a fix must show:** the contract copy in `validate.py` docstrings (module + `parse_frontmatter`), `_template.md`, and both procedure paragraphs (`board-create-card.md` §3, `features-new.md` bars) reads "everything after the first `: `, edge-whitespace-trimmed" (or equivalent that does not assert byte-identity), and a test pins the `.strip()` behavior so a future "byte for byte" wording cannot recur.
+
+- **O2 — "A wrapped two-line goal must equally FAIL" is false under the proposed design.** Term: **`closed-red` (objection 3, the owner half).** Run: `/tmp/skep/twrap` card `goal: first part\n second part` → `validate.py` exit 0, `All council artifacts valid`, parsed goal `'first part'`. The proposed plain-line design contains **no** FAIL for the wrap; the wrap silently passes, truncated. Owner r1-T4 / r2's parenthetical is refuted by execution. (Principal r2's opposing claim — "silently passes, neither fails nor gates" — is `closed-green` for the *current* behavior.) **What a fix must show:** the synthesis must not carry the parenthetical as if the design already fails wraps. Either (a) adopt owner r2's wrap-FAIL addition explicitly — a *new* gate and a new red-first test (today's wrap is silent-green; after, it must FAIL) — or (b) adopt principal r2's out-of-scope-with-documented-residual + step-13 follow-up card, in which case the copy must *state* that a line break ends the value and must *not* claim truncation-proofness. Carrying the sentence unamended is not an option the record leaves open.
+
+---
+
+## What the synthesis must and must not carry (the two `closed-red`s, as fact)
+
+- **Must not carry:** any "byte for byte" / "byte-exact" wording for the goal value, in docstrings, template, or procedure copy. The parser's `value.strip()` trims edges; that is a smaller false parser model that would swap one false claim for another. The contract language must name the trim.
+- **Must carry:** an explicit, true statement of edge-whitespace trimming wherever the lossless contract is stated.
+- **Must not carry:** owner's parenthetical "(A wrapped two-line goal must equally FAIL)" as a property of the proposed design. Under the plain-line design as written, a wrap silently passes truncated. The record gives two ways to make this true-to-design and neither is the unamended sentence: adopt the new wrap-FAIL (owner r2's proposal, a new gate + test) *or* declare the wrap out of scope with a documented residual and a step-13 follow-up (principal r2). The synthesis must pick one of these framings explicitly, because the Skeptic's `closed-red` otherwise leaves the record asserting a FAIL that does not exist.
+
+---
+
+## Is the card's own `goal` a faithful oracle for this card's judge? (as fact)
+
+**No — partially defective, and the defect is of the exact class this card exists to fix.** Stated as fact:
+
+- **Conjunct A** ("A card goal can name an exact literal that contains a colon-space sequence without truncating") is **clean** — a write-seam claim, settled green by the Skeptic (objections 1a, 2).
+- **Conjunct B** ("the judge reads the same string the classification test asserts") is **not a faithful oracle as written**, for two reasons the Skeptic confirmed:
+  1. **Referential opacity.** "The classification test" names no file (objection 10, `closed-green`: the phrase appears once, at `FLLWUP-43.md:7`). Principal r1 point 8 and owner r2 both flag this; the Skeptic ran it and confirmed. The judge for *this* card receives that phrase as its only input — an instance of the very defect class (a goal that does not name the literal it asserts) the card repairs elsewhere.
+  2. **No code seam.** The judge→runtime equality conjunct B asserts is over a hop with no engine code (objection 8, `closed-green`: sole `goal` hit in `extensions/` is a `runs.ts:10` comment; the judge's input is a static file read verbatim). The engine-testable *prefix* (card file → `parse_frontmatter` → `PROVIDER_FINISH_REASON_ERROR` from `extensions/retry.ts:78`, which `test/retry.test.ts` binds byte-for-byte to pi's bundle) is constructible (objection 9, `closed-green`); the residual "judge reads" step is procedural/LLM-transcription, not code-testable. Principal r2 corrected its own round-1 "lossless by construction" to "lossless by *instruction* only."
+
+**Authority the record gives for amending it:**
+- `council.md` step 10 (verified by Skeptic objection 8): a goal ambiguous without context "is a defect in the card's `goal` text — fix the card, don't widen the judge's input."
+- Goal-immutability ([[engineering-board]]): an in-place amendment is legal while the card is `Deliberating`; only post-`In Progress` edits force a new card. FLLWUP-43 is `Deliberating`.
+- Goal-wording authority rests with `steward` (principal r2 point 5; owner r2 agrees on the route).
+- The referent is unambiguous *in fact* (objection 10): the only bundle-deriving classification test is `test/retry.test.ts` against `PROVIDER_FINISH_REASON_ERROR` (`extensions/retry.ts:78`). So the cheap correct remedy is a `steward` amendment naming that file and constant while the card is still `Deliberating`; if the steward declines, the residual is to be recorded in the card's record rather than papered over. (Routing target: `steward`, not any seat's edit; `vault/` corrections separately route through `/wiki-ingest` at step 14 per `council.md` step 14.)
+
+This is stated as fact, without recommendation on whether the amendment should be made.
+
+---
+
+## Ready to hand off?
+
+**No — not to implementation.** The record leaves two `closed-red` open objections (O1 "byte for byte" copy; O2 the wrap parenthetical) and seven open-judgment questions (Q1–Q7) unresolved.
+
+- The two `closed-red`s **can** be resolved at synthesis/implementation by amending the contract copy (O1) and by explicitly choosing owner r2's wrap-FAIL *or* principal r2's documented-residual-plus-step-13 framing (O2). The synthesis above states what each fix must show; a subsequent step may apply them. But the choice in O2 between "new gate" and "documented residual" interacts with **Q1** (wrapped-line policy), which is open judgment for `product-owner` escalating to `steward` — so O2's framing cannot be finalized without Q1.
+- **Q1** (wrap policy) is the load-bearing open judgment: owner and principal both invoke `gate-parity` and reach opposite verdicts, and it determines whether a new writer-side gate ships. Routes to `product-owner`, escalating to `steward`.
+- **Q2–Q7** route to `product-owner`/`steward` as listed; none blocks the *write-seam* (conjunct A) deliverable, but Q3 (propagation skew) and Q5 (unrecorded rationale) bear on whether the retraction is "safe" in the stronger sense and should be decided before merge.
+
+Hand-off: to `product-owner` (escalating to `steward`) for Q1 first — it unblocks O2's framing — then Q2–Q7; the `closed-red` copy amendment (O1) is mechanical and may proceed in parallel. The card's own `goal` amendment (conjunct B opacity) routes separately to `steward`.
+
+### Step 6 — routing (facilitator)
+
+Phase-1 rulings checked first (`<escalation_contract>` step 1): the EPIC-9 residual-run rulings (scope, serial order `40 → 43 → ...`, run-scoped `--admin` merge, follow-up draft-then-confirm re-homed to `product-owner`, R1 union-merge-reconcile) are all process rulings and answer none of the consolidator's open-judgment questions Q1–Q7 or the card-`goal` defect. They are therefore not applied-and-cited here; they are recorded as checked and inapplicable.
+
+The consolidator left the card **not ready to hand off**: two `closed-red` open objections (O1, O2), seven open-judgment questions (Q1–Q7), and a card-`goal` referential-opacity defect whose wording authority is `steward`'s. Per `<escalation_contract>` step 2 the facilitator does not dispatch `product-owner` or `steward`; it ends the turn with an `ESCALATION` report carrying facts and no recommendation. The card stays `Deliberating`; no `Needs Human` state is set (these are ruling-seat-addressable, not declined by both ruling seats). Nothing in steps 7–14 has run.
+
+No state transition accompanies this record; `python3 council/validate.py` re-run and the record commit are the only writes.
