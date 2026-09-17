@@ -51,8 +51,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- FLLWUP-40 — Isolate COUNCIL_EVAL_MODEL from the eval-runner dispatch-primitive test
-
 ## Needs Human
 
 ## Done
@@ -84,6 +82,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 - EV-28 — Full usage tuple and cost provenance in the hub usage record
 - FLLWUP-25 — Wiki source page matches AGENTS.md hard-conventions count
+- FLLWUP-40 — Isolate COUNCIL_EVAL_MODEL from the eval-runner dispatch-primitive test
 
 - FLLWUP-24 — Local gates refuse to run when installed deps drift from bun.lock
 

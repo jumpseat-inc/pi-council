@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-40
 title: Isolate COUNCIL_EVAL_MODEL from the eval-runner dispatch-primitive test
-state: In Review
+state: Done
 owner: null
 epic: EPIC-9
 goal: A test run of test/eval-runner.test.ts inside a council seat shell with COUNCIL_EVAL_MODEL set, and outside it, both pass without the ambient model variable changing the dispatch-primitive expectation.
@@ -166,3 +166,65 @@ Judge usage (verbatim, job-2.3):
 ```
 job-2.3  turns=6 tokens=in 83321/out 2251/cR 68608/cW 0/reason 1262/total 154180 cost≈$0.0138
 ```
+
+### Step 11 — deterministic merge check, merged
+
+Five criteria executed mechanically at PR head
+`470bc96dce591617b2ff60e75022b4e1a7ffefd1`:
+
+1. **Owner gates green in full.** Re-run by the facilitator at the head in
+   `.worktrees/fllwup-40`: `bunx tsc --noEmit` exit 0; `bun test` **847
+   pass / 2 skip / 0 fail / 5481 expect** both with `env -u
+   COUNCIL_EVAL_MODEL` and with `COUNCIL_EVAL_MODEL="openrouter/ambient/model:high"`
+   exported; `python3 council/validate.py` → `All council artifacts valid`.
+   The step-11 re-run set is `tsc` / `bun test` / `validate.py` (per the
+   recorded FLLWUP-27 practice; `council/preflight.sh` is the run-start /
+   owner-time gate and its branch-freshness line is the known artifact —
+   never weakened).
+2. **`gates` workflow SUCCESS on the PR head SHA.**
+   `gh pr checks 58 --json name,state,workflow` →
+   `[{"name":"gates","state":"SUCCESS","workflow":"gates"}]`, asserted on
+   the `workflow` field. `headRefOid` re-read immediately before the merge
+   as `470bc96…` and asserted equal to the checked SHA.
+3. **No blocking Skeptic objection** — step 9 NO-BLOCK, all five objections
+   `closed-green`.
+4. **Judge PASS** (job-2.3).
+5. **No `Needs Human` / outstanding ruling** — card `In Review`, zero
+   escalations, no Phase-1 ruling extended beyond its recorded reach.
+
+Merged under the run-scoped Phase-1 merge authorization:
+`gh pr merge 58 --squash --admin --match-head-commit 470bc96…` → PR #58
+**MERGED** (mergedAt 2026-09-17T09:40:33Z), squash commit
+**`8dbe0384aacd5571ad4ea85d7b0c297b845b7aa8`** on `main`.
+
+### Step 12 — Done
+
+`gates` workflow on the merged SHA `8dbe038` (observed via
+`gh run list --commit 8dbe038…`, workflowName `gates`, event `push`)
+completed **success**. Local `main` fast-forwarded from `origin/main`
+(`9d12d43..8dbe038`) — clean FF, no forced resolution, no union merge
+needed. `validate.py` clean; board and card set `Done`; reconciliation
+committed and pushed directly to `main`. Card closes with **no open-untested
+step-9 residual** — the verify loop ran once (NO-BLOCK at cycle 1 of ≤3).
+
+### Step 13 — follow-up candidates (drafted, NOT written; per Phase-1
+follow-up ruling, draft-then-confirm is re-homed to `product-owner`)
+
+One candidate surfaced, the owner's own recorded residual, carried here as
+fact for `product-owner` to confirm, edit, or drop:
+
+- **Candidate A — suite determinism under a *catalogue-valid* ambient
+  `COUNCIL_EVAL_MODEL`.** The card's oracle and the step-9/step-11 probes
+  exercised the ambient unset, a plain unknown-model value, and an
+  unknown-model `:thinking`-suffixed value. A *catalogue-valid* ambient
+  value takes a different resolution path (no loud-refusal) and was not
+  exercised across the whole suite. Framing: whether any remaining test in
+  `test/` resolves an exported catalogue-valid ambient as its effective
+  model and thus still makes `bun test` shell-dependent. No proposed id
+  assigned; the orchestrator owns allocation.
+
+No other candidate: `test/override.test.ts` touches
+`process.env.COUNCIL_EVAL_MODEL` but pins its own value before asserting
+(invariant, not shell-dependence — Skeptic-verified); the FLLWUP-27
+preflight branch-freshness artifact is the known recorded one and is
+already carded.
