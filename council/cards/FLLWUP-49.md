@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-49
 title: Promote the offline faux-provider harness into a shared smoke helper
-state: Deliberating
+state: In Progress
 owner: null
 epic: EPIC-9
 goal: The offline faux-provider harness is one shared test helper under test/, imported by each of test/ev40-headless.test.ts, test/ev40-live-gates.test.ts, test/ev41-retry-e2e.test.ts and test/ev43-reachability.test.ts, with the seat-dispatch arm's child staying on test/stub-child.ts and no duplicated harness copy under test/ or in ev43/, witnessed by a committed shape test asserting exactly one provider extension, one headless runner, and one pty screen model.
@@ -1522,3 +1522,34 @@ No new card, no promotion, no retirement, no residual accepted permanently.
 
 **Step 6 outcome: closed by ruling; no `Needs Human` state, no outstanding
 ruling. Procedure continues at step 7.**
+
+### Step 7 — spec written and handed to one owner (facilitator)
+
+With the step-6 ruling applied and the amended `goal` as the oracle, the settled
+design was written up at
+`docs/superpowers/specs/2026-09-17-FLLWUP-49-design.md` (commit `875d606`).
+Nothing was reopened and nothing was derived here: the spec states the converged
+dedup onto `test/faux-provider/` (one provider extension, one headless runner,
+one pty substrate over two thin scenario runners), the fate of every duplicated
+copy, the four consumer re-points, the declared universe with
+`smoke/search-smoke/driver.py` named as the bounded residual, and the committed
+`test/faux-provider-shape.test.ts` as the goal's only operationalization.
+
+Self-review before commit: no placeholder or TODO text; internally consistent
+with steps 2–6 (the amended goal's file-granularity reading; seat arm stays on
+`test/stub-child.ts`; the colon-less class preserved by the `EV40_ERROR_MESSAGE`
+knob; `secondMessagePresent` tightened assistant-only; pty `D` = relative-left);
+in scope for the amended `goal` (no engine change, no version bump, no
+user-visible copy, no new live arm); and unambiguous — layout, exported surface,
+knob names, the two-commit split, the shape test's eight assertions, the `hasUI`
+disposition, and the gate set are all stated, so an owner reading only the spec
+cannot reach two different designs. Two facilitator notes recorded there as
+craft corrections, not design changes: the substrate file is `pty_kit.py`
+(importable module name), and the deliberation's suggested "one `resolveNode`
+under `test/`" assertion is dropped because it is not one of the amended goal's
+three identities and is false at HEAD
+(`test/env-split-contract.test.ts:45`).
+
+The design is handed to the single owner (`owner`), which works in an isolated
+git worktree, never on `main`. Card set `In Progress` (frontmatter and board)
+before the step-8 dispatch; `python3 council/validate.py` clean.
