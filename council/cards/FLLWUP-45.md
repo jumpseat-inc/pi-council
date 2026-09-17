@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-45
 title: Navigator attempt-awareness for retried dispatches
-state: In Review
+state: Done
 owner: null
 epic: EPIC-9
 goal: A retried dispatch's attempt transcripts are reachable from the navigator, and the backoff row's label matches the attempt it denotes.
@@ -1338,3 +1338,43 @@ first-hand rather than accepting either account:
 
 None of this is a card defect. Criterion 1 rests on the observed gate run
 (§step 11 below), not on the judge's incidental observation.
+
+### Step 11 — deterministic merge check (facilitator)
+
+All five criteria verified first-hand on the PR head
+`c0cd84555e7e3802742a8cf69afedc9db098978d`:
+
+1. **Every owner gate green, in full** — on the branch head worktree
+   `.worktrees/fllwup-45`: `bunx tsc --noEmit` exit 0; `bun test` **882 pass /
+   2 skip / 0 fail** (5604 expects, 77 files, 94.47 s); `python3
+   council/validate.py` "All council artifacts valid", exit 0.
+2. **GitHub Actions green on the PR head SHA** —
+   `gh pr checks 63 --json name,state,workflow` → `{"name":"gates",
+   "state":"SUCCESS","workflow":"gates"}`, keyed on `workflow`.
+3. **No blocking Skeptic objection** — step-9 re-verify `no open objections`.
+4. **Judge verdict `PASS`** — step 10.
+5. **No `Needs Human` state or outstanding ruling** — none.
+
+Merge executed pinned to the checked SHA:
+
+```
+gh pr merge 63 --squash --admin --match-head-commit c0cd84555e7e3802742a8cf69afedc9db098978d
+```
+
+Exit 0. PR #63 `MERGED`; **merged SHA
+`2f791426e75625cbdf5b8854bdfb51d3d74c7dcd`**, merged 2026-09-17T14:31:15Z (the
+squash commit on top of `f790c98`).
+
+### Step 12 — sync and reconcile; card Done
+
+CI on the merged SHA confirmed before any state change: `gh run list
+--commit 2f791426e75625cbdf5b8854bdfb51d3d74c7dcd` → `gates`,`completed`,
+`success`. Local `main` fast-forwarded from `f790c98` to `origin/main`
+`2f79142` (`git merge --ff-only origin/main`, clean). Only then was the card
+set `Done` on frontmatter and on `council/board.md` — the observed artifact
+(merged + green CI on the merged SHA), not a seat's report.
+
+Run-wide record for this card: classification full-council /
+surface-touching; deliberation rounds 2 (≤3 cap); Skeptic verify→fix cycles:
+1 fix used, 2 verify passes (≤3 cap); judge `PASS`; merged and CI-green.
+Step-13 follow-ups and step 14 persistence follow below.

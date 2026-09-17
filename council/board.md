@@ -48,11 +48,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- FLLWUP-45 — Navigator attempt-awareness for retried dispatches
-
 ## Needs Human
 
 ## Done
+
+- FLLWUP-45 — Navigator attempt-awareness for retried dispatches
 
 - FLLWUP-44 — Name the provider failure before the backoff countdown
 - FLLWUP-41 — Reconcile council.md step 12's non-fast-forward wording with the union-merge repair
