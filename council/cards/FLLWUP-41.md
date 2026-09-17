@@ -118,3 +118,48 @@ Owner usage (verbatim, job-8.1):
 ```
 job-8.1 seat=owner state=done stopReason=stop elapsed=4.5m turns=20 tokens=in 51196/out 6990/cR 459328/cW 0/reason 2978/total 517514 cost≈$0.0150
 ```
+
+### Step 9 — Skeptic NO-BLOCK at head 1d25f7d (verify cycle 1 of ≤3)
+
+Skeptic (job-8.2) verified at the pinned subject — head SHA
+`1d25f7d37d5ce4e09bca012549e25da0411317e9`, head worktree
+`.worktrees/fllwup-41` — with the loop frame stated (step 9 precedes step 10
+judging and step 11's facilitator-executed mechanical merge; the merge has
+not happened). Verdict: **`no open objections`**, six objections all
+`closed-green`, each with a real run at the head:
+
+1. Step-12 text satisfies the goal — names "the documented union-merge
+   reconcile" as "the sanctioned non-destructive repair", replaces "stop and
+   surface" with "that is a diverged `main` — apply…", and carries the
+   wiki's discipline (union-keep both sides, `validate.py` clean,
+   conflict-marker sweep). Prose suite 14/14.
+2. Never-force guard intact, no loophole — adversarial permissive reading
+   attempted and lost; text forecloses side-choosing twice and keeps
+   `HALT`-to-human only for a divergence the repair cannot resolve without
+   forcing.
+3. Red-first integrity — base text (`git show d5a2405:…`) fails 8/9 pins; the
+   new pin genuinely fails pre-edit; `git diff … -- test/` has zero removed
+   lines (pure addition, no assertion narrowed).
+4. Prose guards green — no forbidden token (`bun`/`bunx`/`tsc`/
+   `typescript`/`registry`/`named agent`/`deliver.md`, no repo-specific
+   literal path) in the step-12 hunk.
+5. Gates green and each provably failable — `bunx tsc --noEmit` exit 0 (red
+   on injected TS2322); `bun test` 860 pass / 2 skip / 0 fail (5535 expects,
+   76 files; red on injected probe); `python3 council/validate.py` clean (red
+   on duplicate board line). `bash council/preflight.sh FLLWUP-41` exit 1 on
+   one line only — `FAIL: local history does not descend from origin/main` —
+   root-caused to the branch cut at `d5a2405` while `origin/main` advanced to
+   the facilitator's record commit `0e25611`: the documented **FLLWUP-27
+   mid-card branch-freshness artifact**, outside the 3-file diff's scope. Not
+   a defect; no criterion weakened; the step-11 re-run set
+   (`tsc`/`bun test`/`validate.py`) is all green.
+6. Fixture/digest non-impact — no fixture holds `council/procedures/council.md`;
+   diff is exactly 3 files +91/−2, no seed.
+
+Verify cycles used: 1 of ≤3; no fix cycle needed.
+
+Skeptic usage (verbatim, job-8.2):
+
+```
+job-8.2 seat=skeptic state=done stopReason=stop elapsed=4.2m turns=19 tokens=in 322201/out 8661/cR 189539/cW 0/reason 2740/total 520401 cost≈$0.4680
+```
