@@ -80,6 +80,7 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[parent-turn-continuation]] — the `agent_settled` + `sendUserMessage` resume loop: input-bar countdown, Esc/Enter semantics, headless SIGINT/exit-75, and the event-ctx gap.
 - [[per-attempt-provenance]] — one job id/manifest/row per retried dispatch, with an `attempt` field, carried cumulative usage, and per-attempt session pointers.
 - [[figure-scoped-disclosure]] — a usage qualifier applies to a figure: `partial` iff a figure exists and an attempt is unaccounted; `n/a` alone when the figure is absent.
+- [[test-suite-budget]] — the measured default-`bun test` wall-clock envelope (FLLWUP-48, ≈94s): per-file live-arm table, ceiling-vs-budget distinction, 180s drift threshold (not a budget), re-measure command, standing maintenance rules.
 
 ## Comparisons
 

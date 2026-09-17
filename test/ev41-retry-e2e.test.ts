@@ -322,7 +322,7 @@ describe("EV-41 (c) parent-turn falsifier — headless -p branch (real council e
 });
 
 // ---------------------------------------------------------------------------
-// (c) Parent-turn falsifier — TUI branch (pty, via test/ev41-tui.py)
+// (c) Parent-turn falsifier — TUI branch (pty, via test/faux-provider/ev41-tui.py)
 // ---------------------------------------------------------------------------
 
 describe("EV-41 (c) parent-turn falsifier — TUI branch (real TUI + real council extension, pty)", () => {
