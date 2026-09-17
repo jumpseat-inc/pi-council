@@ -119,3 +119,19 @@ Immutable and binding on every seat, `steward` included.
 - **Follow-ups (judgment row).** `council.md` step 13's draft-then-confirm
   gate is re-homed to `product-owner`, which confirms, edits, or drops each
   follow-up draft before the card is written.
+
+### Build order — steward ruling (job-1)
+
+The human re-homed sequencing to `steward`. Steward ruled a strict serial
+dispatch order (one runner at a time; no retirements):
+
+`FLLWUP-40 → FLLWUP-43 → FLLWUP-42 → FLLWUP-41 → FLLWUP-44 → FLLWUP-45 → FLLWUP-47 → FLLWUP-49 → FLLWUP-48`
+
+Rationale (abridged): gate-instrument fidelity first (40 makes criterion 1
+deterministic), then the validator/judge-oracle net (43), then the
+merge/reconcile procedure text (42, 41), then the two visible completions
+(44, 45), then evidence-convention and harness hygiene (47, 49) before the
+suite-cost budget measured against them (48). Grounding: the closure
+record's "standing machinery" naming, `deterministic-merge-check.md`,
+`retry-classification.md`, `union-merge-reconcile.md`, `engineering-board.md`,
+`smoke-test.md`.
