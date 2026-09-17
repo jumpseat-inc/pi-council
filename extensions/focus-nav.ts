@@ -22,7 +22,19 @@ import {
 export type Surface = "editor" | "tree" | "progress";
 export type TreeKey = "up" | "down" | "enter" | "escape" | "other";
 /** EV-9: key classification while surface === "progress" (transcript-view domain). */
-export type ProgressKey = "enter" | "escape" | "up" | "down" | "e" | "t" | "f" | "g" | "G" | "other";
+export type ProgressKey =
+	| "enter"
+	| "escape"
+	| "up"
+	| "down"
+	| "e"
+	| "t"
+	| "f"
+	| "g"
+	| "G"
+	| "prevAttempt"
+	| "nextAttempt"
+	| "other";
 /** EV-9: union of the keys the routing kernel can see (tree-domain + progress-domain). */
 export type RouteKey = TreeKey | ProgressKey;
 
@@ -73,6 +85,11 @@ export function classifyProgressKey(data: string): ProgressKey {
 	if (matchesKey(data, "f")) return "f";
 	if (matchesKey(data, "g")) return "g";
 	if (matchesKey(data, Key.shift("g"))) return "G";
+	// FLLWUP-45: attempt cycler ([/]). matchesKey covers legacy bytes and the
+	// kitty CSI-u forms (\x1b[91;1u / \x1b[93;1u) for symbol keys; no collision
+	// with e/t/f/g/G (matchesKey("[", Key.shift("g")) is false).
+	if (matchesKey(data, "[")) return "prevAttempt";
+	if (matchesKey(data, "]")) return "nextAttempt";
 	return "other";
 }
 
@@ -128,6 +145,8 @@ export class TreeFocusState {
 	termRowsCap = 24;
 	/** EV-9: host for the live TranscriptView so progress keys reach it (editor is always-focused). */
 	viewHost: { handleInput(data: string): void } | null = null;
+	/** FLLWUP-45: host for the attempt cycler so [/] reach the widget's content cursor. */
+	attemptHost: ((dir: -1 | 1) => void) | null = null;
 	private _open = false;
 	private _rows: string[] = [];
 
@@ -230,6 +249,8 @@ export function routeEditorFocus(
 				case "f":
 				case "g":
 				case "G":
+				case "prevAttempt":
+				case "nextAttempt":
 				// consumed by the live view (delivered via viewHost by the editor)
 				return { action: "consumed" };
 			default:
@@ -297,7 +318,17 @@ export class CustomTreeEditor extends CustomEditor {
 				onLastLogicalLine: false,
 			});
 			if (r.action === "consumed") {
-				if (key === "e" || key === "t" || key === "f" || key === "up" || key === "down" || key === "g" || key === "G") {
+				if (key === "prevAttempt" || key === "nextAttempt") {
+					this.controller.attemptHost?.(key === "prevAttempt" ? -1 : 1);
+				} else if (
+					key === "e" ||
+					key === "t" ||
+					key === "f" ||
+					key === "up" ||
+					key === "down" ||
+					key === "g" ||
+					key === "G"
+				) {
 					this.controller.viewHost?.handleInput(data);
 				}
 				this.tui.requestRender();

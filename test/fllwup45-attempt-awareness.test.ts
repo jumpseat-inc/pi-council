@@ -226,3 +226,151 @@ test("FLLWUP-45: title names the shown ordinal during backoff — row attempt 2/
 	expect(out).toContain("attempt 2/3"); // row: pending ordinal per R4 — unchanged
 	expect(out).toContain("attempt 1/3"); // RED today: title carries no ordinal
 });
+
+// ---------------------------------------------------------------------------
+// B6-B8: the [/] attempt cycler (spec §5, §6)
+// ---------------------------------------------------------------------------
+
+const OPEN = "[";
+const CLOSE = "]";
+
+// --- B6: cycler does not own the row key (spec §8.6) ---
+test("FLLWUP-45: '[' re-targets the shown attempt to attempt 1 while the row key stays the job id", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "f45-cyc-"));
+	const runId = "r45d";
+	ensureRunDir(root, runId);
+	writeManifest(
+		root,
+		runId,
+		m("job-1", { attempt: 2, sessionId: "job-1-attempt2", attempts: [entry(1, "job-1")] }),
+	);
+	writeSession(root, runId, "job-1", [toolLine("1", "2026-01-01T00:04:00.000Z")]);
+	writeSession(root, runId, "job-1-attempt2", [toolLine("2", "2026-01-01T00:04:50.000Z")]);
+	const c = new TreeFocusState();
+	c.termRowsCap = 24;
+	const w = new CouncilTreeWidget(root, () => runId, theme, { now, controller: c, termRowsCap: 24 });
+	w.render(200);
+	c.setOpen(true);
+	c.enter();
+	c.enterProgress("job-1");
+	w.render(200); // builds the view on the latest attempt (2)
+	const editor = new CustomTreeEditor(
+		new FakeTUI() as unknown as TUI,
+		editorTheme() as never,
+		fakeKeybindings() as never,
+		c,
+		() => {},
+	);
+	editor.setText("draft");
+	const before = w.activeTranscriptView;
+	editor.handleInput(OPEN); // RED today: "[" classifies "other" → forwarded into the draft
+	expect(editor.getText()).toBe("draft"); // never reaches the editor draft
+	const out = w.render(200).join("\n");
+	expect(out).toContain("attempt 1/3"); // title now names attempt 1
+	expect(c.selectedRowKey).toBe("job-1"); // cycler did NOT touch the row key
+	expect(c.selectedIndex()).toBe(0); // marker survives (setRows values are job ids)
+	expect(c.surface).toBe("progress");
+	expect(w.activeTranscriptView).not.toBe(before); // view re-targeted to attempt 1's file
+});
+
+// --- B7: cycler no-ops (spec §8.7) ---
+test("FLLWUP-45: single-attempt job — header carries no '[/] attempt' and '[' changes nothing", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "f45-single-"));
+	const runId = "r45e";
+	ensureRunDir(root, runId);
+	writeManifest(root, runId, m("job-1"));
+	writeSession(root, runId, "job-1", [toolLine("1", "2026-01-01T00:04:00.000Z")]);
+	const c = new TreeFocusState();
+	c.termRowsCap = 24;
+	const w = new CouncilTreeWidget(root, () => runId, theme, { now, controller: c, termRowsCap: 24 });
+	w.render(200);
+	c.setOpen(true);
+	c.enter();
+	c.enterProgress("job-1");
+	const editor = new CustomTreeEditor(
+		new FakeTUI() as unknown as TUI,
+		editorTheme() as never,
+		fakeKeybindings() as never,
+		c,
+		() => {},
+	);
+	editor.setText("draft");
+	const beforeLines = w.render(200);
+	expect(beforeLines.join("\n")).not.toContain("[/] attempt"); // honest-keymap: unadvertised
+	editor.handleInput(OPEN);
+	expect(editor.getText()).toBe("draft");
+	expect(w.render(200)).toEqual(beforeLines); // nothing moved
+});
+
+test("FLLWUP-45: one-row floor (termRowsCap 7) — '[' is a consumed no-op: cursor untouched, draft untouched", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "f45-floor-"));
+	const runId = "r45f";
+	ensureRunDir(root, runId);
+	writeManifest(
+		root,
+		runId,
+		m("job-1", { attempt: 2, sessionId: "job-1-attempt2", attempts: [entry(1, "job-1")] }),
+	);
+	writeSession(root, runId, "job-1", [toolLine("1", "2026-01-01T00:04:00.000Z")]);
+	writeSession(root, runId, "job-1-attempt2", [toolLine("2", "2026-01-01T00:04:50.000Z")]);
+	const c = new TreeFocusState();
+	c.termRowsCap = 7;
+	const w = new CouncilTreeWidget(root, () => runId, theme, { now, controller: c, termRowsCap: 7 });
+	w.render(200);
+	c.setOpen(true);
+	c.enter();
+	expect(c.enterProgress("job-1")).toBe(true);
+	w.render(200);
+	const editor = new CustomTreeEditor(
+		new FakeTUI() as unknown as TUI,
+		editorTheme() as never,
+		fakeKeybindings() as never,
+		c,
+		() => {},
+	);
+	editor.setText("draft");
+	const viewBefore = w.activeTranscriptView;
+	editor.handleInput(OPEN);
+	expect(editor.getText()).toBe("draft"); // consumed, not forwarded
+	w.render(200);
+	expect(w.activeTranscriptView).toBe(viewBefore); // no rebuild ⇒ attemptCursor not mutated
+});
+
+// --- B8: classifier additive + header advertisement gate (spec §8.8) ---
+test("FLLWUP-45: classifyProgressKey — '[' → prevAttempt, ']' → nextAttempt (additive; kitty CSI-u honored)", () => {
+	expect(classifyProgressKey(OPEN)).toBe("prevAttempt");
+	expect(classifyProgressKey(CLOSE)).toBe("nextAttempt");
+	expect(classifyProgressKey("\x1b[91;1u")).toBe("prevAttempt"); // kitty CSI-u form of '['
+	expect(classifyProgressKey("\x1b[93;1u")).toBe("nextAttempt"); // kitty CSI-u form of ']'
+	expect(classifyProgressKey("x")).toBe("other"); // fall-through intact
+});
+
+test("FLLWUP-45: header advertisement gate — '[/] attempt' only when browsableAttempts(m).length > 1", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "f45-advert-"));
+	const runId = "r45g";
+	ensureRunDir(root, runId);
+	// two jobs: single-attempt (running) + retried (running attempt 2)
+	writeManifest(root, runId, m("job-1"));
+	writeSession(root, runId, "job-1", [toolLine("1", "2026-01-01T00:04:00.000Z")]);
+	writeManifest(
+		root,
+		runId,
+		m("job-2", { seat: "skeptic", attempt: 2, sessionId: "job-2-attempt2", attempts: [entry(1, "job-2")] }),
+	);
+	writeSession(root, runId, "job-2", [toolLine("3", "2026-01-01T00:04:00.000Z")]);
+	writeSession(root, runId, "job-2-attempt2", [toolLine("4", "2026-01-01T00:04:50.000Z")]);
+	const c = new TreeFocusState();
+	c.termRowsCap = 24;
+	const w = new CouncilTreeWidget(root, () => runId, theme, { now, controller: c, termRowsCap: 24 });
+	w.render(200);
+	c.setOpen(true);
+	c.enter();
+	c.move(1); // job-2 (the retried one)
+	c.enterProgress("job-2");
+	expect(w.render(200).join("\n")).toContain("[/] attempt"); // browsable length 2
+	c.backFromProgress();
+	c.enter(); // back on tree; move to job-1 (single-attempt)
+	c.move(-1);
+	c.enterProgress("job-1");
+	expect(w.render(200).join("\n")).not.toContain("[/] attempt"); // browsable length 1
+});
