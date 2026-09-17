@@ -1,7 +1,13 @@
 import type { ExtensionAPI, ExtensionContext, Theme } from "@earendil-works/pi-coding-agent";
 import type { ThemeColor } from "@earendil-works/pi-coding-agent";
 import { Key, matchesKey, truncateToWidth, visibleWidth, wrapTextWithAnsi, type Component } from "@earendil-works/pi-tui";
-import { findSessionFile, listRunIds, readManifests } from "./runs.ts";
+import {
+	browsableAttempts,
+	findSessionFile,
+	listRunIds,
+	readManifests,
+	resolveAttempt,
+} from "./runs.ts";
 import { buildTree, flattenTree, textTree, type TreeNode } from "./tree.ts";
 import { DEFAULT_RETRY_POLICY } from "./seats.ts";
 import { firstArgOf, lastActivity, TranscriptTail, type TranscriptBlock } from "./transcript.ts";
@@ -306,6 +312,10 @@ export class CouncilTreeWidget implements Component {
 	private onRender?: () => void;
 	/** EV-9: live inline TranscriptView for the selected session. */
 	private viewFor?: { sessionId: string; view: TranscriptView };
+	/** FLLWUP-45: the widget-owned attempt cursor (content identity) — NEVER the
+	 *  controller's row key. { rowKey, sessionId } with reset-on-row-change and
+	 *  clamp-on-refresh applied through resolveAttempt. */
+	private attemptCursor: { rowKey: string; sessionId: string } | null = null;
 
 	constructor(
 		private repoRoot: string,
@@ -457,15 +467,28 @@ export class CouncilTreeWidget implements Component {
 		return [...tree, ...sep, ...viewLines];
 	}
 
-	/** Build (once per selected session) the live TranscriptView; installs it as viewHost. */
+	/** Build (once per shown attempt session) the live TranscriptView; installs
+	 *  it as viewHost. FLLWUP-45: the shown attempt is resolved through the
+	 *  widget-owned attemptCursor over browsableAttempts(m); the title names the
+	 *  shown ordinal when m.attempt > 1 (step-6d ruling (i)). The cursor
+	 *  reconciles here: row change → reset to the latest browsable; stale
+	 *  cursor → clamped to the last entry (via resolveAttempt). */
 	private ensureView(viewportRows: number): TranscriptView | undefined {
 		const sid = this.controller?.selectedRowKey ?? null;
 		if (!sid) return undefined;
-		if (this.viewFor?.sessionId === sid) return this.viewFor.view;
+		const node = this.rows.find((r) => r.node.manifest.id === sid);
+		if (!node) return undefined;
+		const mn = node.node.manifest;
+		const browsable = browsableAttempts(mn);
+		const cursor = this.attemptCursor?.rowKey === sid ? this.attemptCursor.sessionId : null;
+		const shown = resolveAttempt(browsable, cursor);
+		this.attemptCursor = { rowKey: sid, sessionId: shown.sessionId };
+		if (this.viewFor?.sessionId === shown.sessionId) return this.viewFor.view;
 		const runId = this.currentRunId() ?? "";
-		const file = findSessionFile(this.repoRoot, runId, sid);
-		const node = this.rows.find((r) => r.node.manifest.sessionId === sid);
-		const title = node ? `${node.node.manifest.id} ${node.node.manifest.seat}` : sid;
+		const file = findSessionFile(this.repoRoot, runId, shown.sessionId);
+		const attemptSuffix =
+			mn.attempt !== undefined && mn.attempt > 1 ? ` · attempt ${shown.attempt}/${this.maxAttempts}` : "";
+		const title = `${mn.id} ${mn.seat}${attemptSuffix}`;
 		const view = new TranscriptView(file, this.theme, title, Math.max(1, viewportRows), () => {
 			/* surface close handled via backFromProgress; not a modal close */
 		});
@@ -476,7 +499,7 @@ export class CouncilTreeWidget implements Component {
 			this.onRender?.();
 		});
 		if (this.controller) this.controller.viewHost = { handleInput: (d: string) => view.handleInput(d) };
-		this.viewFor = { sessionId: sid, view };
+		this.viewFor = { sessionId: shown.sessionId, view };
 		return view;
 	}
 

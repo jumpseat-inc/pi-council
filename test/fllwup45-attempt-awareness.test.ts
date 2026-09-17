@@ -195,3 +195,34 @@ test("FLLWUP-45: tail-cache guard — post-respawn last-activity comes from atte
 	expect(out).toContain("attempt-two-arg"); // derived from attempt 2's file
 	expect(out).not.toContain("attempt-one-arg"); // never attempt 1's
 });
+
+// ---------------------------------------------------------------------------
+// B5: title names the shown ordinal during backoff (spec §8.4; 6d ruling (i))
+// ---------------------------------------------------------------------------
+
+test("FLLWUP-45: title names the shown ordinal during backoff — row attempt 2/3 (pending), title attempt 1/3 (shown)", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "f45-title-"));
+	const runId = "r45c";
+	ensureRunDir(root, runId);
+	writeManifest(
+		root,
+		runId,
+		m("job-1", {
+			state: "retrying",
+			attempt: 2,
+			attempts: [entry(1, "job-1")],
+			nextAttemptAt: NOW + 7000,
+		}),
+	);
+	writeSession(root, runId, "job-1", [toolLine("1", "2026-01-01T00:04:00.000Z")]);
+	const c = new TreeFocusState();
+	c.termRowsCap = 24;
+	const w = new CouncilTreeWidget(root, () => runId, theme, { now, controller: c, termRowsCap: 24 });
+	w.render(200);
+	c.setOpen(true);
+	c.enter();
+	expect(c.enterProgress("job-1")).toBe(true);
+	const out = w.render(200).join("\n");
+	expect(out).toContain("attempt 2/3"); // row: pending ordinal per R4 — unchanged
+	expect(out).toContain("attempt 1/3"); // RED today: title carries no ordinal
+});
