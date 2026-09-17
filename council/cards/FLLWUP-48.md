@@ -446,3 +446,429 @@ cost, so this position rests on source files, not wiki prose),
 `vault/wiki/smoke-test.md` (the "unit decode tests remain the CI gate; the
 smoke is the live-path falsifier" separation, which is the closest existing
 statement of what CI green does and does not witness).
+
+### Step 3 — bounded exchange (round 2) — **closed at 2 rounds, positions stabilised**
+
+Re-dispatched each generator with the other's round-1 position (read from this
+record). Jobs: `owner` `job-26.3` (3.3m, 5 turns), `principal` `job-26.4`
+(3.3m, 13 turns), both settled `done`. Positions appended verbatim.
+**Closed at 2 rounds** — both seats converged on one branch (document-only;
+bytecode exclusion in the shape witness; `AGENTS.md:17` decay fix; no new live
+arm), and the only remaining divergence is the optional `gates.yml`
+`timeout-minutes` backstop, which is a card-level judgment item.
+
+#### Round 2 — `owner` (job-26.3)
+
+Verification base for this round (run, not recalled): reproduced the residue
+failure first-hand (`bun test test/faux-provider-shape.test.ts` → `7 pass / 1
+fail`, test 6 tripping on `test/__pycache__/ev41-tui.cpython-312.pyc`, which
+contains exactly one occurrence of the retired token `ev40-harness/`);
+confirmed `gates.yml` is bare `bun test` with no `timeout-minutes`, no env
+gate, no `if:`; confirmed `package.json:28` is `"test": "bun test"` (no
+`--parallel`); confirmed `.gitignore:20` ignores `__pycache__/` (CI
+unaffected); confirmed T5 — every `toBeLessThan` in `test/` is an
+index/ordering/count comparison; the only elapsed assertion in the suite is
+`hub.test.ts:517` and it is a **lower** bound; confirmed `runHarnessArm` passes
+`timeoutMs` to `spawnSync` (`harness.ts:242` default 120s).
+
+### Engaging the principal point by point
+
+**Where the principal is right and I concede:**
+
+1. **"Prose binds nobody" — correct, and my round-1 shape under-specified
+this.** I proposed a README number plus a wiki page; that documents, it does
+not bind. I accept the correction. Where I refine rather than concede: see Q2
+below — the arm-level trip they propose is largely redundant with bindings that
+already exist.
+2. **A suite total is not observable from inside `bun test`** — verified.
+Their Q-B insight ("only the invoker can bind a suite ceiling") is correct, and
+T5 confirms no upper-bound elapsed assertion exists anywhere in `test/`.
+3. **The elapsed-ceiling-as-sibling-test trap** — correct and worth keeping on
+the record verbatim: the constraint (FLLWUP-49 O10) would be violated by a
+sibling re-running an arm; any trip must be an assertion inside the existing
+test.
+4. **Q-C (retention) and the manual-runner drift precedent** — accepted as the
+standing argument against gating anything in this directory. Their "gate it and
+it rots" is a recorded event in this repo, not a hypothesis.
+5. **Q-A (measurement first)** — both our positions already contain it; the
+card's number must come from a recorded run, not the card face's unprovenanced
+"30 to 95 seconds."
+
+**Where I push back, on file evidence:**
+
+- **The arm-level elapsed assertion is mostly redundant, and its marginal
+value is near zero against a real flake cost.** Their claim "an arm ceiling can
+bind inside each existing live test" is true, but an arm ceiling **already
+binds there today**: every arm's `spawnSync` carries `timeoutMs`
+(`harness.ts:242` default 120s; per-test 180s/300s args in the four arm files).
+A runaway arm is already hard-killed and fails downstream. An added `Date.now()`
+assertion buys only "fail at 150s instead of 300s" — while introducing a fresh
+timing-flake class on shared CI runners, which is exactly the failure mode a
+merge gate must never gain. The unique missing binding is the **suite total**,
+and that can only live at the invocation layer.
+
+### Q1 — the `.pyc` residue: **(a) in scope, as a minimal blocking prerequisite**
+
+Classification, settled on evidence: **(c) is wrong** — the residue is the
+trigger, not the defect. The defect is in committed code: `countMatches`
+(`faux-provider-shape.test.ts:26`) reads every file under `test/` as utf-8 with
+no binary exclusion, so a gitignored, regenerable `.pyc` compiled from
+*pre-FLLWUP-49* source deterministically turns the witness red on any dev tree
+holding stale bytecode. A witness that polices *source* must not read
+*bytecode*. **(b) split-out is the purist answer but loses to the coupling:**
+this card's deliverable is a documented budget whose standing re-measure
+command is `time bun test` — on a residue-bearing tree that command is **red**,
+so the card would ship a budget whose own verification path fails. It also
+corrupts the criterion-2 trust chain ("green = witnesses") the principal
+correctly elevates to Q-C: a repo that normalizes red-by-residue has decayed
+its own evidence semantics. The fix is ~2 lines — skip `__pycache__/`
+directories in `filesUnder` — adds zero arms, and is fully TDD-able (below).
+Scope note: the implementing worktree, being fresh, would pass gates without
+the fix; the fix rides this card not because a gate forces it but because the
+card's documented budget is only trustworthy when the default suite is green on
+dirty trees. If `product-owner` prefers strict scope discipline, the honest
+fallback is **(b)** with the follow-up drafted by `product-owner` per the
+step-13 ruling — but I recommend (a).
+
+### Q2 — where the budget binds: **invocation layer or nowhere; descriptive prose documents**
+
+Settled mechanism, refining both round-1 positions:
+
+- **Q-A (measurement):** the card records measured per-file wall-clock (my
+round-1 table; re-measured on the implementing pass). This is the foundation
+both seats share.
+- **Documentation:** README Development section (the `README.md:315` block) gets
+one descriptive line; `vault/wiki/test-suite-budget.md` (new, linked from
+`vault/wiki/index.md` — verified the catalog has no suite-cost page) carries the
+table, the re-measure command, the ceiling-vs-budget distinction, and the
+standing re-measure rule. This is *description*, and it binds nobody — fine,
+because description is all the goal's first clause asks for.
+- **Binding (Q-B):** if anything binds, it binds at `.github/workflows/gates.yml`
+— a `timeout-minutes` on the `gates` job (e.g. 10 minutes against 94.4s
+measured ≈ 6.4× headroom, versus the platform's default 360) is the **only**
+mechanism that can observe a suite total, costs one line, moves zero arms, and
+cannot flake at that headroom. **I now endorse it as the optional enforcement
+piece.** The arm-level elapsed assertion I **reject** on the redundancy grounds
+above: the existing `spawnSync` ceilings already bind each arm, and the added
+assertion is flake risk without unique catch.
+- Whether the `timeout-minutes` line ships is **product-owner's open judgment**
+— the goal text does not require it ("run within it" is satisfied by
+measurement against the documented figure). My recommendation: ship it; it is
+the one cheap way to make "run within it" a maintained invariant instead of a
+stale fact.
+
+### Q3 — gates or documents: **document-only, and I claim this is fact-settled, not merely open judgment**
+
+The orchestrator ruling leaves the choice as card-level open judgment unless a
+testable fact settles it. I claim the settling fact exists, and it is the
+card's own recorded premise: *"binding only if suite time becomes binding."*
+The measurement (round-1, 894 tests / 78 files / **94.4s**) shows nothing binds
+— no CI ceiling, no platform limit, no constraint anywhere in the tree.
+Gating's **only** benefit is suite-time relief, and it buys that by deleting the
+merge gate's strongest falsifiers: verified structurally — `gates.yml` runs
+bare `bun test`, so a default-skip gate either silently empties criterion 2's
+evidence (principal's T4, which I co-sign) or forces a second gate mode. And
+the arms need no gate justification: they are offline faux-provider runs
+(`harness.ts` spawn args: `--offline --provider ev40`), unlike the integration
+test whose `COUNCIL_INTEGRATION=1` gate exists because it needs network + an
+OpenRouter key. So gating is strictly dominated *under the card's recorded
+intent*: the premise that would justify it is measured false. That is a fact
+settling the direction. What remains genuinely open for `product-owner`: (1)
+the budget figure (I propose ≤180s, 2× headroom), (2) whether the optional
+`gates.yml` `timeout-minutes` line ships. I note honestly: the principal
+concluded "I have no testable fact that settles the choice"; my claim is that
+the measurement itself is that fact — the choice was open when it was
+unmeasured, and it no longer is. If `product-owner` still elects gating, they
+are overriding the card's recorded premise, not weighing fresh evidence — and
+the design must then state explicitly that `gates` green no longer witnesses
+the live arms and place them somewhere they actually run (principal's Q-C
+condition, which I adopt for that contingency).
+
+**Zero-new-live-arms:** the design adds zero arms and moves none; the arm set
+measured is exactly the carried baseline (3/5/5/2). The `timeout-minutes` line
+binds the existing run and is neither an arm nor a move; the sibling-test trap
+is noted and avoided.
+
+**Copy flag:** all deliverable strings (README line, wiki page, AGENTS.md line)
+are internal developer documentation — inside the phase-1 carve-out, no
+escalation. If gating were elected and any string were added to
+`council/preflight.sh` ("live arms skipped"), that string is open-judgment —
+escalate, don't ship. Platform-generated GH Actions failure text from
+`timeout-minutes` is not our copy.
+
+### Q4 — `AGENTS.md:17`: **fix in this card, but fix the decay vector, not the number**
+
+Verified: line 17 reads "full suite; 34 tests, 1 skipped" against ~894 tests, 2
+skips — stale by ~26×, and it is the front-door doc for the exact command this
+card budgets. Shipping a budget number next to a false count recreates the
+decay the principal documented (their T6). The right fix is **not** refreshing
+the count (that guarantees the next staleness) but replacing the brittle number
+with durable wording — e.g. "full suite; integration test skipped unless
+`COUNCIL_INTEGRATION=1`" — so the line stops carrying a count that only a run
+can verify. One line, same doc family as the deliverable, in scope. A separate
+card for one line of prose would be process overhead the run doesn't need.
+
+### Tradeoffs accepted
+
+- **Adjacency:** the `.pyc` fix widens this card's diff beyond the budget
+deliverable. Accepted because the budget's own verification command must be
+runnable on dirty trees; the fallback (b) is named if `product-owner` rules
+otherwise.
+- **`timeout-minutes` adds a (thin) new failure mode to CI.** At 6.4× headroom
+it fires only on genuine runaway — which is precisely what it exists to catch.
+Accepted as optional-but-recommended.
+- **No local speed win:** developers keep paying ~94s. Accepted per Q3; the arms
+are the falsifiers and nothing binds at 94s.
+- **My claim that the disjunction is fact-settled is itself a judgment about how
+much a measurement can settle.** I state the chain explicitly so `product-owner`
+can accept the chain or reopen the choice — either is cheap now that the number
+exists.
+
+### Testable claims (Skeptic-runnable)
+
+1. **Residue reproduces and the fix settles it:** with the stale `.pyc` present,
+`bun test test/faux-provider-shape.test.ts` (timeout 120s) fails test 6 —
+verified this round (`7 pass / 1 fail`; the `.pyc` matches `ev40-harness/`
+exactly once). After skipping `__pycache__/` in `filesUnder`, it passes; and
+injecting a retired token into a *source* file under `test/` still fails test 6
+— the witness survives, only bytecode is out of scope.
+2. **Budget holds:** `time bun test` on a clean tree → < 180s (measured 94.4s
+round-1). If CI-class hardware breaks this, the document arm reopens.
+3. **Only the invoker can bind a suite total:** `grep -rn 'toBeLessThan' test/`
+shows no upper-bound elapsed assertion (verified this round); the sole elapsed
+assertion, `hub.test.ts:517`, is a lower bound. Falsifier: exhibit an existing
+test that goes red merely because the suite got slower.
+4. **Arm ceilings already bind today:** `grep -n 'timeoutMs\|timeout'
+test/faux-provider/harness.ts` plus the per-test 180s/300s third args — a
+runaway arm is already killed and fails. Falsifier for my "redundant" claim:
+name a runaway scenario the existing ceilings miss that an in-test elapsed
+assertion would catch materially earlier, without flake.
+5. **Gating empties criterion 2** (principal's T4, co-signed): with a proposed
+env gate off, the four arm files skip green; make `resolveNode()` throw and the
+suite stays green — `gates` SUCCESS no longer witnesses the mechanism. Run only
+if gating is still on the table.
+6. **AGENTS.md:17 is false today:** `bun test 2>&1 | tail -3` (timeout 900s) vs
+the line's "34 tests, 1 skipped" — mismatch confirms; the card fixes the line
+by removing the count, not refreshing it.
+
+**Converged shape I believe both seats can sign:** measure → document (README +
+wiki, descriptive) → minimal in-scope hygiene fix to the shape witness (skip
+`__pycache__`) → AGENTS.md:17 decay fix → optional one-line `timeout-minutes`
+at `gates.yml` as the only binding, product-owner's call. Gating rejected on the
+measured premise; the budget figure and the timeout line are what remains open
+for `product-owner`.
+
+#### Round 2 — `principal` (job-26.4)
+
+### Cross-seam reading — what the contract is, on both sides of the seam
+
+Three seams, not one, and round 1 named only the first two.
+
+1. **Cost → gate (agreed).** `package.json:22` is `"test": "bun test"` (no
+`--parallel`), `.github/workflows/gates.yml:17` is bare `- run: bun test` with
+no `timeout-minutes`, no `if:`, no env. So the live arms are additive to the
+merge gate's wall clock, and "gates green" is the only automated witness that
+the EV-40/41/43 mechanism spawned a real pi CLI. Confirmed in files; I keep
+this.
+2. **Enforcement — I mis-read this side in round 1, and so did the owner.**
+Every live arm is *already* ceilinged at the arm level by bun's third positional
+argument: `ev41-retry-e2e.test.ts:259` `20_000`, `:320` `180_000` (`-p`),
+`:362` `300_000` (TUI pty); `ev40-live-gates.test.ts:84,135,174,209,246`
+`180_000`; `ev40-headless.test.ts:66,117` `300_000`; `ev43-reachability.test.ts:106`
+`300_000`; plus the inner spawn ceiling `harness.ts:264` (`opts.timeoutMs ??
+120_000`) and the arm ceiling `harness.ts:323`. That *is* an enforced upper
+bound on each arm, and bun fails the test when it trips. My round-1 T5 (`grep
+-rn 'toBeLessThan' test/`) tested the wrong surface and I withdraw it as stated
+— there is an enforced ceiling per arm; there is none per suite. The only
+unguarded layer today is the invocation layer, which has nothing.
+3. **The witness seam (round 1 under-weighted).** `test/faux-provider-shape.test.ts:33-35`
+`countMatches` = `filesUnder(dir).filter(f => re.test(readFileSync(f, "utf-8")))`
+— no exclusion; `:36-38` `filesUnder` walks everything. Test 6 (`:89-95`) scans
+for `ev40-harness/|ev43/falsifier|ev43/ev43-falsifier`. Test 8 (`:97-105`) runs
+`python3 -m py_compile` on `pty_kit.py`, `tui-retry.py`, `ev41-tui.py` — into
+`test/faux-provider/__pycache__/`. Independently, the live TUI arm spawns
+`test/faux-provider/ev41-tui.py`, which does `from pty_kit import K_CR, Session,
+read_sequences` (line 40) — CPython writes
+`test/faux-provider/__pycache__/pty_kit.cpython-312.pyc`, inside the tree test 6
+scans, during the same suite run. On disk right now:
+`test/__pycache__/ev41-tui.cpython-312.pyc` (orphan — its source
+`test/ev41-tui.py` no longer exists; that path is the *pre-FLLWUP-49* location)
+and `test/faux-provider/__pycache__/{ev41-tui,pty_kit,tui-retry}.cpython-312.pyc`.
+`.gitignore` covers `__pycache__/` and `*.py[cod]`, which is why CI and a fresh
+worktree are unaffected. So the residue class is **self-arming**: the suite
+writes the scan targets that trip its own witness, and the trip is
+order-dependent (test 6 runs before test 8 only because of declaration order in
+that file; the live arm in a *different* file can be ordered either way, and
+`--parallel` would make it arbitrary). A witness that can go red for a
+tree-history reason is precisely the failure the repo already paid for once
+(FLLWUP-49 O9: a predicate scoped to one directory passing while copies
+survive).
+4. **Third stale artifact, same class as `AGENTS.md:17`.**
+`test/ev41-retry-e2e.test.ts:325` still says "TUI branch (pty, via
+`test/ev41-tui.py`)" — a retired path token *in a source file*, which test 6's
+hand-maintained regex does not cover. The witness's token list is an allowlist
+and it already has a miss, one commit after the move that created the miss.
+
+### Blind spots — per vantage, not mirror images
+
+- **In-code (`owner`, `test/`)**: cannot see the cross-run/cross-file ordering
+of its own scan. From inside one green `bun test`, `countMatches` and
+`py_compile` never appear in the same frame; the failure only materializes in a
+*different* run or a different file order. It also cannot see the tree state the
+doc reader has (READMEs are read on long-lived checkouts, not fresh worktrees).
+- **Mine (`principal`)**: no execution tool. I can cite ceilings and absences,
+never durations; and in round 1 I read the enforcement surface through the wrong
+instrument (an assertion grep) — I could see "no `toBeLessThan`" and missed
+that the timeout argument is the ceiling. A reframer without a run can mis-locate
+a mechanism while being right about the seam.
+- **Documentation vantage (`README.md:315`, `AGENTS.md:17`)**: cannot observe
+its own drift, and specifically cannot see the part that is checkable
+*statically*: there are exactly two `test.skipIf` sites
+(`test/integration.test.ts:13`, `test/mcp/integration-context7.test.ts:7`) and
+two distinct opt-in flags (`COUNCIL_INTEGRATION`, `COUNCIL_MCP_INTEGRATION`),
+while `AGENTS.md:17` says "34 tests, 1 skipped unless COUNCIL_INTEGRATION=1" and
+names neither the second flag nor the second skip. A doc cannot see that its own
+Command block is stale in three ways.
+- **Invocation (`gates.yml`, `preflight.sh`)**: cannot distinguish "an arm hit
+its documented 180/300 s ceiling" from "the runner was slow" — both surface as
+a long job — and today has no ceiling at all, so a hung arm burns the platform
+default. It also cannot see FLLWUP-49's own compliance note: "shape test spawns
+nothing" is literally false (`faux-provider-shape.test.ts:97-105` spawns
+`python3`); it is compliant only because the constraint is about *live pi/pty*
+arms, and that same benign spawn is the residue mechanism.
+- **`product-owner`'s**: cannot see that electing the gate changes what
+criterion 2's `SUCCESS` *means* while its text stays byte-identical (round-1
+point, still standing).
+
+### Reframe
+
+The disjunction collapses once the measurement exists, and "budget" needs
+splitting into two words the card currently conflates.
+
+- **Observed envelope** — one number, per machine, re-measurable, no
+enforcement. This is what belongs at `README.md:315` and in the wiki page.
+- **Enforced ceiling** — per arm, already exists at the eleven sites cited
+above. Nothing to add; say so in the docs so the two numbers are not read as
+one.
+- **Maintenance condition** — the standing re-measure rule the owner proposed.
+This is not a nice-to-have: it is what keeps the goal's "**run within it**"
+branch *true*. Without it the deliverable decays into a false statement of
+fact, which is worse than no doc.
+
+**Settlements on the four items.**
+
+1. **`.pyc` residue — (a) in scope, narrowly; (c) for the file itself.** The
+residue file is environmental (gitignored, regenerable, absent from CI and from
+a fresh worktree) and no commit may touch it. But the *scan domain* fix rides
+this card. I correct the owner's inference: the residue does **not** block this
+card's gates — `council/agents/council-runner.md` (`<main_repo_immutability>`,
+`<skeptic_dispatch_subject>`) pins the implementing and verifying runs to a head
+worktree created with `git worktree add`, which carries no gitignored residue
+(`vault/wiki/main-repo-immutability.md`). It rides anyway because the deliverable
+is a *re-measurable* command (`time bun test` + the per-file loop) that the
+README addresses to exactly the tree where the residue survives, and because the
+trap re-arms at every future token retirement (test 8 × the pty import). Fix =
+exclude generated bytecode from `countMatches` (path segment `__pycache__`,
+extensions `.pyc/.pyo/.pyd`) with a comment stating the rule. This does not
+weaken the witness: every `.py` still under `test/` is re-compiled in-run by
+test 8, so scanning its bytecode adds zero information, and orphaned bytecode is
+derived from a source that no longer exists, is gitignored, and can never ship.
+Testability without polluting the repo: add a `describe("scan domain")` block
+**in the same file** that `mkdtempSync`s a temp tree containing a
+`__pycache__/x.pyc` with a retired token and a `x.ts` with the same token, and
+asserts excluded/hit — two-sided. Acceptance is the orphan criterion: **test 6
+passes with `test/__pycache__/ev41-tui.cpython-312.pyc` still on disk.** Fold in
+the one-line comment fix at `test/ev41-retry-e2e.test.ts:325`; do **not** extend
+the witness's token regex on this branch (that amends FLLWUP-49's committed
+witness; record the allowlist-decay as a finding instead).
+2. **Where the budget binds — the owner's README + wiki is right; drop the
+pretence of a suite ceiling.** `gates.yml` gets no `timeout-minutes` keyed to
+the budget, and here is the file-grounded reason: the TUI arm's own enforced
+ceiling is `300_000` at `ev41-retry-e2e.test.ts:362`, **larger than any proposed
+~180 s suite budget**, so a step timeout tight enough to express the budget would
+pre-empt the arm's own timeout and convert a correctly-attributed arm failure
+into an infrastructure cancel. A cutoff loose enough not to fire (~15 min)
+cannot express a 2-minute budget. So: enforced = per-arm ceilings (exist);
+documented = README line + wiki page with provenance (machine, date, SHA,
+command) and the re-measure trigger. If the repo wants a `gates.yml` runaway
+backstop, that is a separate small item with its own rationale, not this card's
+budget.
+3. **Document vs gate — "document" is permitted as a *fact*, not a judgment,
+once measured.** The goal is a conjunction whose second half is a disjunction:
+`(documented) and (run within it or gated)`. A measurement showing the suite
+inside the documented envelope discharges the "run within it" branch by truth,
+not by taste. So the card needs **no ruling-seat decision on gate-vs-document**;
+the residual open judgment is only the figure and the doc locations (phase-1
+already assigned "where it lives" to the deliberation as a design/writing
+question). Gating stays available as the branch that reopens *if* the envelope
+is ever false — that is what the re-measure rule protects. Agreement with the
+owner's conclusion, with the reasoning corrected from "gating would be worse" to
+"gating is not the branch the measurement picks".
+4. **`AGENTS.md:17` — fix it here, and make it non-decaying.** It is the same
+file family the card is already documenting and it is provably stale from files
+alone: two `test.skipIf` sites vs "1 skipped"; two opt-in flags vs one named.
+Replace the brittle count with the envelope and the flag list (`bun test  # full
+suite (≈2 min); integration/context7 probes are opt-in — COUNCIL_INTEGRATION=1,
+COUNCIL_MCP_INTEGRATION=1`), take the wall-clock figure from the
+implementation-pass run, and keep `README.md:315` and the wiki page stating the
+same number. Docs only → inside the phase-1 carve-out, **no escalation**; the
+escalation trigger remains what round 1 flagged: any new flag name or any string
+added to `council/preflight.sh`, and no new flag is minted under this delivery.
+
+Zero-new-live-arms (FLLWUP-49 O10): the delivery adds zero live arms and moves
+none — baseline `ev40-headless` 3, `ev40-live-gates` 5, `ev41-retry-e2e` 5,
+`ev43-reachability` 2 unchanged; the added scan-domain assertions spawn nothing.
+Docs: `vault/wiki/index.md` (catalog — no page covers suite cost, so the new page
+must be added to the catalog, not just created) and
+`vault/wiki/main-repo-immutability.md` (worktree-only, which is why the residue
+does not gate this card).
+
+### Testable claims (runnable; explicit timeouts; each falsifiable)
+
+1. **Residue is orphan bytecode, not source.** `timeout 60 grep -a -o -e
+'ev43/ev43-falsifier' -e 'ev43/falsifier' -e 'test/ev41-tui.py'
+test/__pycache__/*.pyc test/faux-provider/__pycache__/*.pyc | sort -u` (use
+shell grep, not a gitignore-aware tool) → hits in
+`test/__pycache__/ev41-tui.cpython-312.pyc`. Falsifier: no hit ⇒ the residue is
+not the token carrier and my Q1 story is wrong.
+2. **Orphan acceptance, with the file left in place.** `timeout 120 bun test
+test/faux-provider-shape.test.ts` → pre-fix `7 pass / 1 fail`; post-fix `8 pass
+/ 0 fail` **with `test/__pycache__/ev41-tui.cpython-312.pyc` still on disk**.
+Falsifier: post-fix green only after deleting the orphan ⇒ the exclusion did not
+take.
+3. **The witness is not weakened (two-sided).** In the committed temp-tree
+test: a `x.ts` containing `ev43/ev43-falsifier` must still produce a hit, and a
+`__pycache__/x.pyc` containing the same token must not. Falsifier: the `.ts` case
+stops hitting ⇒ exclusion is too broad.
+4. **Enforcement already exists per arm; none per suite.** `timeout 60 grep -nE
+'^[[:space:]]*[0-9_]+000,$' test/ev41-retry-e2e.test.ts test/ev40-headless.test.ts
+test/ev40-live-gates.test.ts test/ev43-reachability.test.ts` → the eleven sites
+above, including `362: 300_000`. `timeout 60 grep -nE 'timeout-minutes|timeout '
+.github/workflows/gates.yml` → no match. Falsifier: exhibit a live arm with no
+timeout argument.
+5. **Nothing in `gates.yml` may be keyed to the budget.** `timeout 60 grep -n
+'300_000' test/ev41-retry-e2e.test.ts` (362) vs the proposed suite budget: the
+arm ceiling exceeds it. Falsifier: show a suite-level ceiling that coexists with
+the arm's own 300 s timeout without masking attribution.
+6. **The "run within it" branch is discharged by measurement.** `timeout 600 bash
+-c 'time bun test'` on the head worktree, recording SHA (`timeout 60 git -C
+<worktree> rev-parse HEAD`), machine, and date → exit 0 and total inside the
+documented envelope. Falsifier: green run materially above the envelope on
+CI-class hardware ⇒ the document branch is false and gating reopens (the owner's
+claim 1, which I accept).
+7. **`AGENTS.md:17` staleness is provable statically.** `timeout 60 bash -c 'grep
+-rn "skipIf" test/ | wc -l'` → 2; `timeout 60 grep -rn
+'COUNCIL_INTEGRATION\|COUNCIL_MCP_INTEGRATION' test/ README.md AGENTS.md`.
+Falsifier: one skip-gated test and one flag ⇒ the block is not stale.
+8. **Zero-new-live-arms.** `timeout 60 bash -c 'for f in ev40-headless
+ev40-live-gates ev41-retry-e2e ev43-reachability; do printf "%s " $f; grep -c
+"test(" test/$f.test.ts; done'` → 3 / 5 / 5 / 2, unchanged before and after. Any
+delta means the ceiling work was implemented as an arm rather than as
+documentation or an in-file assertion.
+
+No reframe is needed beyond the vocabulary split in "Reframe" (observed
+envelope vs enforced ceiling vs maintenance rule); the design the owner and I
+are converging on is one branch — README envelope + maintained wiki page with
+provenance and re-measure rule + no new gate + three bounded hygiene fixes
+(bytecode exclusion with a two-sided temp-tree test, `:325` stale comment,
+`AGENTS.md:17`) — and both seats should sign it as-is.
