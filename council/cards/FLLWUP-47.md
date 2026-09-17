@@ -1886,3 +1886,25 @@ and no prohibited field rides with it. All spec hard boundaries (no three-class
 field, no owner-written bit, no `GATE-EVIDENCE.md` in the block, no
 out-of-scope files, no version bump, no user-visible copy) verified holding by
 runnable checks.
+
+### Step 10 — judge the stop condition (judge)
+
+`judge` (`job-19.3`, 2.3m, 9 turns, `stopReason=stop`, tokens in 29089 / out
+1861 / cR 155520 / cW 0 / reason 984 / total 186470, cost≈$0.0124 catalogue)
+was dispatched with **the card's `goal` and the Skeptic's step-9 evidence only**
+— no spec, no deliberation record, no positions — subject-pinned to the PR head
+`a1d805a901b25e3c2dc2d29aa72dfa6a8905d4e6` and to the frame that step 10
+precedes step 11's mechanical merge, which the facilitator executes and no seat
+performs.
+
+**Verdict: `PASS`** (verbatim basis): at head `a1d805a`, `bun test
+test/prose.test.ts` passes both goal-specific tests ("red-base convention block
+is byte-identical in owner and skeptic seats"; "red-base convention vocabulary
+reaches the skeptic's output format"), and the block itself records both halves
+of the goal (seven required fields; the comparison triple with equal-triple
+exact reproduction, differing-triple non-comparison, and cross-card
+non-aggregation). Full gate suite re-run by the judge: `bunx tsc --noEmit` exit
+0, `bun test` `884 pass / 2 skip / 0 fail`, `python3 council/validate.py` →
+`All council artifacts valid`.
+
+No REJECT, so the card remains `In Review` and proceeds to step 11.
