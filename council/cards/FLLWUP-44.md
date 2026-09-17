@@ -552,3 +552,81 @@ on this tree today. The word "once" in the goal is `open`: per-episode vs
 per-cycle is engine contract with mutually exclusive pinning tests (owner test 3
 vs designer T-RR1), not settleable by testing; the escalation must present both
 with O1's mechanism finding.
+
+### Step 5 — Synthesis (`job-9.8`, 1.0m, 4 turns, `done`)
+
+#### Consolidator synthesis — verbatim
+
+## Agreed design (every seat converged)
+
+- **Carrier:** a second editor-region line in the `RetryEditor` TUI surface, pushed above the R5 countdown, plus one `host.print` per backoff episode in headless. `ui.notify` ("warning" prefixes `Warning: `, permanent chat-append; "info" de-dups consecutive-identical) and direct chat-append (permanent, not transient) are **rejected** as carriers by all three generators and the Skeptic.
+- **Copy register:** human phrasing only — the raw literal `Provider finish_reason: error` never reaches either surface; no `finish_reason` substring; no API/vendor jargon. The named failure is a single constant (`classifyParentTurnRetry` retries only that exact literal), so a static formatter is correct by construction.
+- **Rendering facts (carrier-confirmed, `closed-green` by O5/O6):** plain text; one line; no prefix; above the countdown; never on the `exhausted` surface; `EditorTheme` is exactly `{borderColor, selectList}` (no second visual token — differentiation is by order/content, not color); the rendered string equals the ruled string at wide widths and is the `truncateToWidth(width)` clamp at narrow widths (the one surviving carrier-induced mutation, which the ruling must name).
+- **Placement/ordering invariants (`closed-green` by O2):** the failure line pushes strictly between `super.render(width)` output and the countdown push; countdown stays `lines.at(-1)` in backoff; terminal copy stays `lines.at(-1)` on `exhausted`; headless naming line is never the last non-empty stdout line and never starts with `Retrying in` (hygiene rule, not a gate).
+- **R5 binding strings are immutable invariants no ruling may change:** countdown `Retrying in 2s (attempt 2 of 3) — Esc to abort`; exhaustion `Retries exhausted after 3 attempts. The provider kept failing. Press Enter to try again.` Existing R5-guard tests at `ev40-parent-retry.test.ts:272-282, 359-369, 440-451, 452-458` and the live-gate countdown/terminal/exit-75 assertions must pass **unmodified** — their green is the R5 compliance proof.
+- **Headless mechanism (`closed-green` by O6):** the injected `ParentRetryHost.print` (wired to `fs.writeSync(1, …)` at `index.ts:~606-616`, not designer's cited `:584-587`) is the O-ROUTE write and the only observable path through `ev40-wiring.test.ts`'s `state.printed` seam; a raw `fs.writeSync` in `onSettled` would be invisible to that seam.
+- **Literal/predicate coupling (`closed-green` by O4):** `classifyParentTurnRetry` returns `"retry"` only for byte-equality with `PROVIDER_FINISH_REASON_ERROR`; static formatter correct; interpolation over a singleton domain buys nothing. Note (O6): `classifyRetry` is the wider hub predicate; the parent loop's `classifyParentTurnRetry` is deliberately narrower (designer had conflated them — corrected).
+
+## Settled disputes
+
+- **Round-1 copy string `Provider returned no response (finish_reason: error).`** — `closed-red` by **O3**. The green P3 live gate asserts an errored assistant entry with `errorMessage === INJECTED_ERROR_MESSAGE` **and** `text.includes("EV40-PARTIAL")` persists in the JSONL: an `error`-stop turn demonstrably carries streamed partial text, so "returned no response" can contradict the transcript directly above it. The designer's withdrawal of the round-1 draft was required, not optional. The `not.toMatch(/finish_reason/)` / `.not.toContain(PROVIDER_FINISH_REASON_ERROR)` replacement rule is `closed-green` as an implementable gate (O3/O4), independent of the taste ruling.
+- **`host.print` reaches real stdout** — `closed-green` by the existing green P4 live gate (`arm.stdout` contains countdowns) and O6; designer's stderr assertion was a conflation of the injected host with pi's extension-context print. Designer conceded in round 2.
+- **Carrier is a precondition of the copy ruling** — principal's reframe, endorsed by designer and owner in round 2; now discharged because the carrier is settled in this deliberation (second editor-region line + one headless print per episode). No sequencing deadlock; R3's "draft then rule" ordering survives intact.
+- **Parens / `finish_reason` substring on the surface** — dropped by designer in round 2; the grep-anchor job is already done by the errored assistant message persisted in the JSONL (per the Q2.Axis2 binding transcript invariant). Principal and owner concurred.
+- **`ui.notify` and chat-append as carriers** — rejected unanimously; O5 confirmed the mechanism facts (`showWarning` = permanent `Warning: `-prefixed chat-append; `showStatus` de-dups; no fading mechanism exists).
+- **Owner's withdrawn test (round-1 claim 2 "surface never contains `finish_reason`")** — owner retracted it as prejudging a copy preference into an engine invariant; the narrowed engine-level invariant kept is: rendered line is a static formatter output, never assembled from `pendingError.errorMessage`, never byte-equal to the raw literal.
+
+## Open judgment — for `product-owner`, escalating to `steward`
+
+These are disputes no test can settle; both sides carried forward at equal weight.
+
+1. **The exact lexical copy string.** R3 assigns the final string to `product-owner`; this runner cannot dispatch `product-owner` and must escalate to the orchestrator. Candidate strings, each with a proponent and the Skeptic's relevance finding:
+   - **Designer (round 2, primary):** `The provider returned an error.` — proponent: designer, endorsed as baseline by owner. Fallback variant: `Provider error.` Skeptic **O3: `open-untested`** — the green bundle-template check pins that pi *synthesizes* `Provider finish_reason: error` in `mapStopReason`'s default branch for a declined `finish_reason`; whether "The provider returned an error" misattributes pi's synthesis to the provider is a lexical question no repo test settles. Settling test named: extract `mapStopReason`'s surrounding upstream context from the installed bundle chunk plus the provider wire meaning of `finish_reason: "error"`.
+   - **Principal:** `Provider returned no response.` (designer's human clause, minus the parens). Skeptic **O3: `closed-red` against "returned no response"** in the partial-token case — the green P3 live gate proves an `error`-stop turn can carry streamed partial text, so this clause can contradict the transcript directly above it. (This finding also kills the substring of designer's round-1 draft and any "no response" phrasing.)
+   - **Owner (round 2, updated):** adopt designer's `The provider returned an error.` as baseline, with a leaning to restore the article (`The provider…`) for R5-register consistency; owner's own round-1 sample `Provider request failed — retrying.` is dead (owner conceded designer's "returned an error" / "returned no response" was more precise than "request failed").
+   - **Verified engine-level gate the final string must satisfy (no ruling may relax):** the surface must **not** contain `finish_reason`; must **not** be byte-equal to the raw literal; must be a pure static formatter output; must not start with `Retrying in` (hygiene); must be byte-equal to the rendered line at wide widths and the `truncateToWidth` clamp at narrow widths (the ruling must name the width behavior).
+2. **The re-show semantic — per backoff episode vs once per failure cycle.** This is engine contract with mutually exclusive pinning tests (owner test 3 vs designer T-RR1), not a copy question and not test-settleable as intent. R3 assigns PO the *string*; who shows it, when, and for how long is the state machine this card is about (principal's reframe).
+   - **Per-episode (owner + principal):** the line shows at every `beginBackoff` (attempt 2 and attempt 3 each); the backoff surface *is* the failure state, so no new controller state is required. Designer's gulf argument, applied to designer's own P4, reconstructs the EV-40 defect at attempt 3 (principal). Headless scrollback shows the same sentence twice with per-episode grouping (principal's arithmetic: 2 naming lines, 3 failures; the third is named only by R5's terminal copy).
+   - **Once-per-cycle (designer):** the minimum-reading of "once"; the named failure is information-free on a second showing (same class by construction); the terminal copy already names the final failure. Requires a `failureShown` latch with a reset point.
+   - **Skeptic O1 mechanism finding (`closed-red` for once-per-cycle *as specified*):** the send-timer callback runs `c.clearToIdle()` before every continuation send (including attempt-2→3), so a latch reset at `clearToIdle()` is cleared before attempt 3's `beginBackoff` re-sets it → observable behavior is per-episode, contradicting P4. Owner's trilemma (never-reset / clearToIdle-reset / new-failure-reset) is exhaustive against this code; no fourth call site. A probe confirmed: after `beginBackoff(2,…)` render length 4, after `clearToIdle()` length 3 (== super length) — "shown once, remembered" is unobservable on this carrier. Second defect: the headless schedule branch never touches the controller (no `beginBackoff`, no `clearToIdle`), so a `failureShown` flag in `RetryController` cannot govern headless; the headless once-per-cycle semantic needs a second, unspecified flag. **Per-episode is implementable with zero new state; once-per-cycle on this carrier would need a reset point distinct from the inter-episode `clearToIdle()` plus a headless-side flag — neither exists on this tree today.**
+   - The escalation must present both semantics with O1's mechanism finding; the ruling must either pick per-episode, or pick once-per-cycle *and* name a reset point that survives the send-timer `clearToIdle()` (and a headless-side flag), which does not exist today.
+
+## Open objections
+
+- **O3 (round-2 string residual accuracy) — `open-untested`.** The exact settling test (extract `mapStopReason`'s surrounding upstream context from the installed bundle chunk plus the provider wire meaning of `finish_reason: "error"`) has not been run; it cannot be settled inside this deliberation and routes with the copy ruling to `product-owner`/`steward`. The round-1 "returned no response" clause is `closed-red` (partial-token case), so any ruling adopting "no response" phrasing would re-open this as a defect.
+- **O1 (re-show once-per-cycle as specified) — `closed-red` against the spec as written**; the *choice* itself is open judgment (above), not an objection to be retired by a test. If once-per-cycle is ruled, the ruling must name a reset point that contradicts the code's `clearToIdle()` placement and supply a headless-side flag — a settling implementation test would then be required (designer's P7 / owner's latch-exhaustiveness test). That test has not been run because no such implementation exists on this tree.
+
+(All other Skeptic items — O2, O4, O5, O6 — are `closed-green` and recorded under Settled.)
+
+## Ready to hand off?
+
+**No.** Two open items block ship:
+
+1. **Open judgment: the exact lexical copy string** — R3 requires the final string be ruled by `product-owner` before merge. This runner cannot dispatch `product-owner`; it must escalate to the orchestrator, which routes to `product-owner` (escalating to `steward` on the residual-accuracy question). The four candidate strings and the O3 `closed-red` finding against "returned no response" must travel with the escalation, along with the verified engine-level gate the final string must satisfy.
+2. **Open judgment: the re-show semantic** (per-episode vs once-per-cycle) — engine contract with mutually exclusive pinning tests, not test-settleable as intent; the escalation must present both with O1's mechanism finding. If once-per-cycle is chosen, the ruling must additionally name a reset point distinct from the inter-episode `clearToIdle()` and a headless-side flag (neither exists today), which converts it into an implementation obligation requiring a new settling test.
+
+R3 and R5's binding strings remain immutable; no ruling may change them.
+
+### Step 6 — Route what does not close (facilitator)
+
+The consolidator holds two **open-judgment** items and no blocking open
+objection against the card. R3 assigns the exact string to `product-owner`,
+which this container may not dispatch; per `<escalation_contract>` the two
+items are escalated to the orchestrator as facts and the card is paused in
+`Deliberating` until the ruling returns:
+
+1. **Exact lexical copy string** (R3) — route: `product-owner` via the
+   orchestrator. Candidates and the verified engine-level gate are recorded
+   verbatim in Step 5.
+2. **Re-show semantic** (per-episode vs once-per-cycle) — route:
+   `product-owner` via the orchestrator, with the Skeptic's O1 mechanism
+   finding carried as a fact. If once-per-cycle is ruled, the ruling must
+   name a reset point distinct from the inter-episode `clearToIdle()` and a
+   headless-side flag.
+
+Applied and cited, not re-asked: R3 (transient line permitted; string
+drafted by `designer`, final copy ruled by `product-owner`; R5's countdown
+and exhaustion strings unchanged); R5's binding strings are quoted above as
+immutable invariants; scope/merge/union-merge rulings as recorded in Step 1.
+No `Needs Human` state is entered: `product-owner` may rule both items, and
+R3's escalation path is the orchestrator.
