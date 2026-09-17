@@ -672,3 +672,43 @@ backoff episode. No `Needs Human` state; no further ruling outstanding.
 - **State:** sole condition for `In Review` is an open PR on the branch — met.
   Written from that observed artifact alone; the owner's gate report is not a
   second precondition.
+
+### Step 9 — Verify by acting (`skeptic` `job-11.2`, 3.9m, 13 turns, `done`)
+
+The Skeptic verified at the branch head (`85d969e`, worktree
+`.worktrees/fllwup-44`), main checkout never touched. Objections O1–O8, all
+`closed-green`, each with a settling test it ran: byte-exact
+`formatRetryFailure()`; engine gate (no `finish_reason`, not the raw literal,
+not `Retrying in`-prefixed, static output); `surfaceState === "backoff"` gate
+with zero new controller state; per-episode re-show (attempts 2 and 3) and
+absence on idle/exhausted; headless exactly two failure lines each before the
+episode's first countdown, terminal last, exit 75; R5 strings and guard tests
+unmodified; wide/narrow width behavior; and a failure-injection probe proving
+the gate can go red (5 tests fail on a wrong string, restored green).
+**Verdict: `pass` — no open objections.** Cycle 1 of the step-9 ≤3-cycle cap.
+Real gates: `bunx tsc --noEmit` exit 0; `bun test` 867 pass / 2 skip / 0 fail;
+`python3 council/validate.py` clean; focused retry suites 65 pass / 0 fail.
+
+### Step 10 — Judge the stop condition (`judge` `job-11.3`, 2.6m, 12 turns, `done`)
+
+Input was the card's `goal` verbatim plus the Skeptic's step-9 evidence (subject
+SHA + worktree path + step-10-precedes-step-11 frame pinned). **Verdict:
+`PASS`** — basis: byte-exact ruled string confirmed; no `finish_reason` leakage;
+`surfaceState === "backoff"` gate with no new state; headless print in the
+schedule branch only; diff audit shows zero R5 pin removals; full suite green.
+
+### Step 11 — Deterministic merge check (facilitator, mechanical)
+
+All five criteria read from observed artifacts at PR #62, head
+`85d969e71e2ecc4b498cacfa433ade71cfe78647`:
+1. **Owner gates green in full** — spec's set cleared at step 8 and re-run by
+   the Skeptic at step 9 (`tsc` / `bun test` 867 pass / `validate.py`).
+2. **GitHub Actions green on the PR head SHA** —
+   `gh pr checks 62 --json name,state,workflow` → the `gates` workflow
+   (`workflow: "gates"`) appears with `state: SUCCESS` at `85d969e`.
+3. **No blocking Skeptic objection** — step 9 `pass`, no open objections.
+4. **Judge verdict `PASS`** — step 10.
+5. **No `Needs Human` state or outstanding ruling** — R3 returned and applied;
+   card is `In Review`.
+Merge performed as `gh pr merge 62 --squash --admin --match-head-commit
+85d969e71e2ecc4b498cacfa433ade71cfe78647` (result recorded at step 12).
