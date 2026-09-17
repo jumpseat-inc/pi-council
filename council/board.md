@@ -41,10 +41,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
+- FLLWUP-49 — Promote the offline faux-provider harness into a shared smoke helper
+
 ## Ready
 
 - FLLWUP-48 — Suite-cost budget for the live pty and -p falsifier arms
-- FLLWUP-49 — Promote the offline faux-provider harness into a shared smoke helper
 
 ## In Progress
 
