@@ -50,12 +50,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- FLLWUP-41 — Reconcile council.md step 12's non-fast-forward wording with the union-merge repair
-
 ## Needs Human
 
 ## Done
 
+- FLLWUP-41 — Reconcile council.md step 12's non-fast-forward wording with the union-merge repair
 - FLLWUP-42 — Make the deterministic merge check independent of a human-granted admin bypass
 - FLLWUP-43 — Make the goal field a lossless oracle for the judge
 - EPIC-9 — Provider-error retry with exponential backoff under a .council.json policy

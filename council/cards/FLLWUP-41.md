@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-41
 title: Reconcile council.md step 12's non-fast-forward wording with the union-merge repair
-state: In Review
+state: Done
 owner: null
 epic: EPIC-9
 goal: council.md step 12 names the documented union-merge reconcile as the sanctioned non-fast-forward repair, retains the never-force guard, and a literal reading no longer HALTs a run that the documented repair resolves.
@@ -163,3 +163,88 @@ Skeptic usage (verbatim, job-8.2):
 ```
 job-8.2 seat=skeptic state=done stopReason=stop elapsed=4.2m turns=19 tokens=in 322201/out 8661/cR 189539/cW 0/reason 2740/total 520401 cost≈$0.4680
 ```
+
+### Step 10 — judge PASS (job-8.3)
+
+Judge dispatched with exactly the card's `goal` (verbatim) + the step-9
+Skeptic evidence, subject pinned (head `1d25f7d…`, head worktree
+`.worktrees/fllwup-41`), loop frame stated (step 10 precedes step 11's
+mechanical merge, facilitator-executed). Verdict **PASS**: the shipped
+step-12 paragraph names the union-merge reconcile as the sanctioned repair,
+keeps the never-force guard, and converts a blanket HALT into repair-first
+with surface-to-human only when the repair cannot resolve the divergence
+without forcing. No REJECT basis; no goal-text defect.
+
+Judge usage (verbatim, job-8.3):
+
+```
+job-8.3 seat=judge state=done stopReason=stop elapsed=0.9m turns=4 tokens=in 34307/out 3292/cR 24288/cW 0/reason 2688/total 61887 cost≈$0.0076
+```
+
+### Step 11 — deterministic merge check, merged
+
+Five criteria executed mechanically at PR head
+`1d25f7d37d5ce4e09bca012549e25da0411317e9`:
+
+1. **Owner gates green in full.** Re-run by the facilitator at the head in
+   `.worktrees/fllwup-41`: `bunx tsc --noEmit` exit 0; `bun test` **860 pass /
+   2 skip / 0 fail / 5535 expect** (95.53s); `python3 council/validate.py` →
+   `All council artifacts valid`. `bash council/preflight.sh FLLWUP-41` exits
+   1 on exactly one line — `FAIL: local history does not descend from
+   origin/main` — the documented **FLLWUP-27 mid-card branch-freshness
+   artifact** (branch cut at `d5a2405`, `origin/main` advanced by the
+   runner's own record pushes). The step-11 re-run set is `tsc` / `bun test`
+   / `validate.py`; no criterion weakened.
+2. **`gates` workflow SUCCESS on the PR head SHA.**
+   `gh pr checks 61 --json name,state,workflow` →
+   `[{"name":"gates","state":"SUCCESS","workflow":"gates"}]`, asserted
+   on the `workflow` field. `headRefOid` re-read immediately before the
+   merge as `1d25f7d…` and asserted equal to the checked SHA.
+3. **No blocking Skeptic objection** — step 9 NO-BLOCK, all six objections
+   `closed-green`.
+4. **Judge PASS** (job-8.3).
+5. **No `Needs Human` / outstanding ruling** — card `In Review`, zero
+   escalations. R2 is the recorded run-scoped authorization this merge
+   executes under, not an open ruling.
+
+Merged under R2: `gh pr merge 61 --squash --admin --match-head-commit
+1d25f7d…` exit 0 → PR #61 **MERGED** (mergedAt 2026-09-17T11:35:28Z), squash
+commit **`9adca282ac8ae50633240f7978521b0b253c5926`** on `main`.
+
+### Step 12 — Done
+
+`gates` workflow on the merged SHA `9adca28` (observed via `gh run list
+--commit 9adca282…`, workflowName `gates`, event `push`) completed
+**success**. Local `main` fast-forwarded from `e179b68` to `9adca28` — clean
+FF, no forced resolution, no union merge needed. `validate.py` clean; board
+and card set `Done`; reconciliation committed and pushed directly to `main`.
+Card closes with **no open-untested step-9 residual** — the verify loop ran
+once (NO-BLOCK at cycle 1 of ≤3).
+
+### Step 13 — follow-up candidates (drafted, NOT written; per Phase-1
+follow-up ruling, draft-then-confirm is re-homed to `product-owner`, which
+this container must not dispatch)
+
+- **Candidate A — wiki staleness from this landing.**
+  `vault/wiki/union-merge-reconcile.md`'s Track record still ends "…which
+  carded as FLLWUP-41: the procedure text and the documented practice
+  disagree." As of the merged SHA `9adca28`, step 12 *names* the union-merge
+  reconcile as the sanctioned repair, so that paragraph is stale; the page
+  is exactly the documentation the new procedure text cites. Step-14
+  material — recorded as owed, never hand-edited (`vault/` is written only
+  via `/wiki-ingest`). No proposed id assigned; the orchestrator owns
+  allocation.
+- No other candidate. The **FLLWUP-27 preflight branch-freshness artifact**
+  recurred (step 9/11) and is already carded — no new card. The
+  fixture/digest surface has zero impact (no seed carries
+  `council/procedures/council.md`, verified). The prose/stack gates are
+  green; no design concern was surfaced (mechanical card, no `designer`
+  seated), and the run produced no deferred idea, out-of-scope objection, or
+  "we should also" worth a card.
+
+### Step 14 — persist (owed)
+
+One durable item is offered for `/wiki-ingest`: the
+`union-merge-reconcile.md` Track-record correction above (the procedure text
+and the documented practice no longer disagree). Recorded as owed; this
+container never hand-edits `vault/`.
