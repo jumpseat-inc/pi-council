@@ -198,6 +198,21 @@ function writeWiredSeat(root: string, name: string, model: string): void {
 	);
 }
 
+/** Run fn with the ambient COUNCIL_EVAL_MODEL cleared, restoring the shell's
+ * original afterwards. The wired dispatches below pass no model param, so an
+ * exported ambient value legitimately resolves as the effective model and hits
+ * the loud-refusal path (hub-tools.ts) — the ambient must not change what
+ * these tests expect. FLLWUP-40. */
+async function withAmbientEvalModelCleared<T>(fn: () => Promise<T>): Promise<T> {
+	const saved = process.env.COUNCIL_EVAL_MODEL;
+	delete process.env.COUNCIL_EVAL_MODEL;
+	try {
+		return await fn();
+	} finally {
+		if (saved !== undefined) process.env.COUNCIL_EVAL_MODEL = saved;
+	}
+}
+
 /** Register the real hub tools with the injected policy and wrap BOTH spawn
  * entry points so the stub child runs instead of pi while the ORIGINAL argv
  * (with --session-id) is captured for O-4 assertions. */
@@ -251,7 +266,7 @@ test("wiring: retried dispatch re-spawns under one id with -attempt2 session id 
 	initHubIdentity("runW39");
 	const state = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "ev39-wire-state-")), "state.json");
 	const { dispatch, respawnArgs } = makeWiredDispatcher(root, WIRED_POLICY, { state, failTimes: "1" });
-	const res = await dispatch({ seat: "agent-s", input: "task" });
+	const res = await withAmbientEvalModelCleared(() => dispatch({ seat: "agent-s", input: "task" }));
 	expect(res.isError).toBeFalsy();
 	const id = res.details.jobId as string;
 	const hub = getHub(root);
@@ -275,7 +290,7 @@ test("wiring: disabled policy → single spawn, manifest has no attempt key, ses
 	writeWiredSeat(root, "agent-s", "openrouter/test/model");
 	initHubIdentity("runW39b");
 	const { dispatch, respawnArgs, spawnArgs } = makeWiredDispatcher(root, { ...WIRED_POLICY, enabled: false });
-	const res = await dispatch({ seat: "agent-s", input: "task" });
+	const res = await withAmbientEvalModelCleared(() => dispatch({ seat: "agent-s", input: "task" }));
 	expect(res.isError).toBeFalsy();
 	const id = res.details.jobId as string;
 	await getHub(root).wait([id], 10_000);
