@@ -1,7 +1,13 @@
 import type { ExtensionAPI, ExtensionContext, Theme } from "@earendil-works/pi-coding-agent";
 import type { ThemeColor } from "@earendil-works/pi-coding-agent";
 import { Key, matchesKey, truncateToWidth, visibleWidth, wrapTextWithAnsi, type Component } from "@earendil-works/pi-tui";
-import { findSessionFile, listRunIds, readManifests } from "./runs.ts";
+import {
+	browsableAttempts,
+	findSessionFile,
+	listRunIds,
+	readManifests,
+	resolveAttempt,
+} from "./runs.ts";
 import { buildTree, flattenTree, textTree, type TreeNode } from "./tree.ts";
 import { DEFAULT_RETRY_POLICY } from "./seats.ts";
 import { firstArgOf, lastActivity, TranscriptTail, type TranscriptBlock } from "./transcript.ts";
@@ -306,6 +312,10 @@ export class CouncilTreeWidget implements Component {
 	private onRender?: () => void;
 	/** EV-9: live inline TranscriptView for the selected session. */
 	private viewFor?: { sessionId: string; view: TranscriptView };
+	/** FLLWUP-45: the widget-owned attempt cursor (content identity) — NEVER the
+	 *  controller's row key. { rowKey, sessionId } with reset-on-row-change and
+	 *  clamp-on-refresh applied through resolveAttempt. */
+	private attemptCursor: { rowKey: string; sessionId: string } | null = null;
 
 	constructor(
 		private repoRoot: string,
@@ -395,14 +405,27 @@ export class CouncilTreeWidget implements Component {
 
 	render(width: number): string[] {
 		const surface = this.controller?.surface ?? "editor";
-		const sig = `${surface}:${this.controller?.selectedSessionId ?? ""}`;
-		if (this.cached?.w === width && this.cached.sig === sig) return this.cached.lines;
+		// FLLWUP-45: the cache signature includes the resolved content session so a
+		// cursor move (or a retry that re-points the shown attempt) repaints.
+		const selectedKey = this.controller?.selectedRowKey ?? null;
 		const ordered = [...this.rows].sort(
 			(a, b) => (STATE_ORDER[stateOf(a.node)] ?? 99) - (STATE_ORDER[stateOf(b.node)] ?? 99),
 		);
-		// EV-8: keep the controller's row list (sessionId order) in sync so the
+		let sig = `${surface}:${selectedKey ?? ""}`;
+		if (selectedKey) {
+			const sel = ordered.find(({ node }) => node.manifest.id === selectedKey);
+			if (sel) {
+				const mn = sel.node.manifest;
+				const cursor = this.attemptCursor?.rowKey === mn.id ? this.attemptCursor.sessionId : null;
+				sig += `:${resolveAttempt(browsableAttempts(mn), cursor).sessionId}`;
+			}
+		}
+		if (this.cached?.w === width && this.cached.sig === sig) return this.cached.lines;
+		// EV-8: keep the controller's row list (row-key order) in sync so the
 		// editor's arrow routing and the highlighted row share one source (O6).
-		this.controller?.setRows(ordered.map(({ node }) => node.manifest.sessionId));
+		// FLLWUP-45: the row key is the JOB id — the only identity stable across
+		// an attempt respawn (the sessionId mutates; the id does not).
+		this.controller?.setRows(ordered.map(({ node }) => node.manifest.id));
 		const avail = Math.max(1, this.termRowsCap - PROGRESS_CHROME);
 		let lines: string[];
 		if (surface === "progress" && this.termRowsCap >= DISPLAY_FLOOR) {
@@ -427,7 +450,7 @@ export class CouncilTreeWidget implements Component {
 			const rowBudget = overflow ? ROWS_MAX - 1 : ROWS_MAX;
 			for (const { node } of ordered.slice(0, rowBudget)) {
 				const selected =
-					this.controller?.surface === "tree" && this.controller.selectedSessionId === node.manifest.sessionId;
+					this.controller?.surface === "tree" && this.controller.selectedRowKey === node.manifest.id;
 				const base = this.rowLine(node);
 				// EV-8: ▌ (U+258C) prefixes the selected row only while tree-focus (O6/OJ-3).
 				const line = selected ? `${this.theme.fg("accent", TREE_ROW_MARKER)} ${base}` : base;
@@ -446,7 +469,7 @@ export class CouncilTreeWidget implements Component {
 		const layout = computeProgressLayout(this.termRowsCap, ordered.length);
 		const tree = ordered.slice(0, layout.treeLines).map(({ node }) => truncateToWidth(this.rowLine(node), width));
 		const sep = layout.sepLines > 0 ? [truncateToWidth(this.theme.fg("dim", "── progress ──────────────"), width)] : [];
-		const view = this.controller?.selectedSessionId ? this.ensureView(layout.progressLines) : undefined;
+		const view = this.controller?.selectedRowKey ? this.ensureView(layout.progressLines) : undefined;
 		// EV-36: re-grant on every render, fresh or cached — ensureView's early return
 		// ignores the grant, so this is the single seam that keeps viewportRows equal
 		// to computeProgressLayout's current grant (the modal path never calls it).
@@ -455,15 +478,33 @@ export class CouncilTreeWidget implements Component {
 		return [...tree, ...sep, ...viewLines];
 	}
 
-	/** Build (once per selected session) the live TranscriptView; installs it as viewHost. */
+	/** Build (once per shown attempt session) the live TranscriptView; installs
+	 *  it as viewHost. FLLWUP-45: the shown attempt is resolved through the
+	 *  widget-owned attemptCursor over browsableAttempts(m); the title names the
+	 *  shown ordinal when m.attempt > 1 (step-6d ruling (i)). The cursor
+	 *  reconciles here: row change → reset to the latest browsable; stale
+	 *  cursor → clamped to the last entry (via resolveAttempt). */
 	private ensureView(viewportRows: number): TranscriptView | undefined {
-		const sid = this.controller?.selectedSessionId ?? null;
+		const sid = this.controller?.selectedRowKey ?? null;
 		if (!sid) return undefined;
-		if (this.viewFor?.sessionId === sid) return this.viewFor.view;
+		const node = this.rows.find((r) => r.node.manifest.id === sid);
+		if (!node) return undefined;
+		const mn = node.node.manifest;
+		const browsable = browsableAttempts(mn);
+		const cursor = this.attemptCursor?.rowKey === sid ? this.attemptCursor.sessionId : null;
+		const shown = resolveAttempt(browsable, cursor);
+		this.attemptCursor = { rowKey: sid, sessionId: shown.sessionId };
+		if (this.viewFor?.sessionId === shown.sessionId) {
+			// FLLWUP-45: re-check the advertisement on every render — the browsable
+			// set can grow (retry→running) without the view being rebuilt.
+			this.viewFor.view.setAdvertiseAttempts(browsable.length > 1);
+			return this.viewFor.view;
+		}
 		const runId = this.currentRunId() ?? "";
-		const file = findSessionFile(this.repoRoot, runId, sid);
-		const node = this.rows.find((r) => r.node.manifest.sessionId === sid);
-		const title = node ? `${node.node.manifest.id} ${node.node.manifest.seat}` : sid;
+		const file = findSessionFile(this.repoRoot, runId, shown.sessionId);
+		const attemptSuffix =
+			mn.attempt !== undefined && mn.attempt > 1 ? ` · attempt ${shown.attempt}/${this.maxAttempts}` : "";
+		const title = `${mn.id} ${mn.seat}${attemptSuffix}`;
 		const view = new TranscriptView(file, this.theme, title, Math.max(1, viewportRows), () => {
 			/* surface close handled via backFromProgress; not a modal close */
 		});
@@ -473,9 +514,35 @@ export class CouncilTreeWidget implements Component {
 			this.refresh();
 			this.onRender?.();
 		});
-		if (this.controller) this.controller.viewHost = { handleInput: (d: string) => view.handleInput(d) };
-		this.viewFor = { sessionId: sid, view };
+		if (this.controller) {
+			this.controller.viewHost = { handleInput: (d: string) => view.handleInput(d) };
+			this.controller.attemptHost = (dir) => this.cycleAttempt(dir);
+		}
+		view.setAdvertiseAttempts(browsable.length > 1);
+		this.viewFor = { sessionId: shown.sessionId, view };
 		return view;
+	}
+
+	/** FLLWUP-45: the [/] attempt cycler — moves the widget-owned content cursor,
+	 *  never the controller's row key. Clamp, not wrap; no-op when there is
+	 *  nothing to browse (legacy + single-attempt jobs) or when the header — the
+	 *  advertisement's only surface — is not rendered (effective progressLines
+	 *  <= 1: an unadvertised key must not act, honest-keymap R-KEYMAP). */
+	private cycleAttempt(dir: -1 | 1): void {
+		const rowKey = this.controller?.selectedRowKey ?? null;
+		if (!rowKey) return;
+		const node = this.rows.find((r) => r.node.manifest.id === rowKey);
+		if (!node) return;
+		const browsable = browsableAttempts(node.node.manifest);
+		if (browsable.length <= 1) return;
+		if (computeProgressLayout(this.termRowsCap, this.rows.length).progressLines <= 1) return;
+		const cursor = this.attemptCursor?.rowKey === rowKey ? this.attemptCursor.sessionId : null;
+		const shown = resolveAttempt(browsable, cursor);
+		const nextIndex = Math.min(browsable.length - 1, Math.max(0, shown.index + dir));
+		if (nextIndex === shown.index) return; // clamp: already at the endpoint
+		this.attemptCursor = { rowKey, sessionId: browsable[nextIndex]!.sessionId };
+		this.invalidate();
+		this.onRender?.();
 	}
 
 	/** The live inline transcript view, for parity/teardown tests. */
@@ -487,7 +554,11 @@ export class CouncilTreeWidget implements Component {
 	dispose(): void {
 		const v = this.viewFor?.view;
 		this.viewFor = undefined;
-		if (this.controller) this.controller.viewHost = null;
+		this.attemptCursor = null;
+		if (this.controller) {
+			this.controller.viewHost = null;
+			this.controller.attemptHost = null;
+		}
 		v?.dispose();
 	}
 
@@ -649,6 +720,9 @@ export class TranscriptView implements Component {
 	private follow = true;
 	private timer: ReturnType<typeof setInterval>;
 	private onChange?: () => void;
+	/** FLLWUP-45: honest-keymap advertisement — the header's `· [/] attempt`
+	 *  fragment is present only when the selected row has >1 browsable attempt. */
+	private advertiseAttempts = false;
 
 	constructor(
 		file: string | undefined,
@@ -671,6 +745,13 @@ export class TranscriptView implements Component {
 	/** EV-36: the grant is a per-render parameter — the widget re-grants every render. */
 	setViewportRows(n: number): void {
 		this.viewportRows = Math.max(1, n);
+	}
+
+	/** FLLWUP-45: set the header's `· [/] attempt` advertisement (re-checked per
+	 *  render by the widget, so a retry→running transition that grows the
+	 *  browsable set updates without rebuilding the view). */
+	setAdvertiseAttempts(v: boolean): void {
+		this.advertiseAttempts = v;
 	}
 
 	dispose(): void {
@@ -835,8 +916,10 @@ export class TranscriptView implements Component {
 		const all: string[] = [
 			// EV-35 (R-KEYMAP): g/G are implemented (jump-to-first/last) and now
 			// advertised. Follow state is the (on) suffix's presence/absence (Q3).
+			// FLLWUP-45: the attempt-cycler advertisement rides immediately after
+			// `↑↓ move`, gated by setAdvertiseAttempts (honest-keymap R-KEYMAP).
 			t.bold(
-				`${this.title} — ↑↓ move · e expand · t thinking · f follow${this.follow ? "(on)" : ""} · g/G jump · esc back`,
+				`${this.title} — ↑↓ move${this.advertiseAttempts ? " · [/] attempt" : ""} · e expand · t thinking · f follow${this.follow ? "(on)" : ""} · g/G jump · esc back`,
 			),
 		];
 		if (vis.length === 0) all.push(t.fg("dim", this.tail ? "  (waiting for output · idle)" : "  (no transcript)"));

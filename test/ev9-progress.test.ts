@@ -66,14 +66,14 @@ test("T1/O1-lower (ruling): termRows in {5,6} → enterProgress is a consumed no
 		c.setRows(["a", "b", "c"]);
 		c.enter();
 		expect(c.surface).toBe("tree");
-		const before = c.selectedSessionId;
+		const before = c.selectedRowKey;
 		expect(c.enterProgress("b")).toBe(false);
 		expect(c.surface).toBe("tree"); // no transition to progress
-		expect(c.selectedSessionId).toBe(before); // selection untouched
+		expect(c.selectedRowKey).toBe(before); // selection untouched
 	}
 });
 
-test("T3/T12: enterProgress opens progress at termRows>=7, sets selectedSessionId", () => {
+test("T3/T12: enterProgress opens progress at termRows>=7, sets selectedRowKey", () => {
 	const c = new TreeFocusState();
 	c.termRowsCap = 24;
 	c.setOpen(true);
@@ -81,7 +81,7 @@ test("T3/T12: enterProgress opens progress at termRows>=7, sets selectedSessionI
 	c.enter();
 	expect(c.enterProgress("b")).toBe(true);
 	expect(c.surface).toBe("progress");
-	expect(c.selectedSessionId).toBe("b");
+	expect(c.selectedRowKey).toBe("b");
 });
 
 test("enterProgress on a widget-less (not open) controller returns false, no transition", () => {
@@ -92,7 +92,7 @@ test("enterProgress on a widget-less (not open) controller returns false, no tra
 	expect(c.surface).toBe("editor");
 });
 
-test("T7/O3 (closed-red): backFromProgress returns to tree preserving selectedSessionId; exit() would null it", () => {
+test("T7/O3 (closed-red): backFromProgress returns to tree preserving selectedRowKey; exit() would null it", () => {
 	const c = new TreeFocusState();
 	c.termRowsCap = 24;
 	c.setOpen(true);
@@ -100,14 +100,14 @@ test("T7/O3 (closed-red): backFromProgress returns to tree preserving selectedSe
 	c.enter(); // selects 'a'
 	c.enterProgress("b"); // surface progress, selected 'b'
 	expect(c.surface).toBe("progress");
-	expect(c.selectedSessionId).toBe("b");
+	expect(c.selectedRowKey).toBe("b");
 	c.backFromProgress();
 	expect(c.surface).toBe("tree");
-	expect(c.selectedSessionId).toBe("b"); // preserved by design, NOT nulled
+	expect(c.selectedRowKey).toBe("b"); // preserved by design, NOT nulled
 	// control: a naive exit() would null selection — O3 closed-red guard
 	c.exit();
 	expect(c.surface).toBe("editor");
-	expect(c.selectedSessionId).toBeNull();
+	expect(c.selectedRowKey).toBeNull();
 });
 
 test("T4 upper-bound: for every termRows in {7..11} and representative treeContentLines, tree+sep+progress <= avail AND each >= 1", () => {
@@ -242,7 +242,7 @@ test("O5: a job landing during progress — invalidate() stale, refresh() re-syn
 	expect(w.render(200).join("\n")).toContain("skeptic"); // row appeared
 	c.backFromProgress();
 	expect(c.surface).toBe("tree");
-	expect(c.selectedSessionId).toBe("job-1"); // selection preserved
+	expect(c.selectedRowKey).toBe("job-1"); // selection preserved
 	expect(w.render(200).join("\n")).toContain("skeptic");
 });
 
@@ -374,12 +374,12 @@ test("Integration (Skeptic closed-red): Enter on a highlighted tree row through 
 
 	expect(controller.surface).toBe("tree");
 	controller.move(1); // highlight row 'b'
-	expect(controller.selectedSessionId).toBe("b");
+	expect(controller.selectedRowKey).toBe("b");
 
 	editor.handleInput(ENTER);
 
 	expect(controller.surface).toBe("progress"); // Enter opens inline progress, NOT the modal
-	expect(controller.selectedSessionId).toBe("b"); // selected session preserved + opened
+	expect(controller.selectedRowKey).toBe("b"); // selected session preserved + opened
 });
 
 test("Integration (Skeptic closed-red): Enter at the tiny regime (termRows 6) is a consumed no-op — surface stays 'tree'", () => {
@@ -402,5 +402,5 @@ test("Integration (Skeptic closed-red): Enter at the tiny regime (termRows 6) is
 	expect(controller.surface).toBe("tree");
 	editor.handleInput(ENTER);
 	expect(controller.surface).toBe("tree"); // guard: no transition at termRows < 7
-	expect(controller.selectedSessionId).toBe("a"); // selection untouched
+	expect(controller.selectedRowKey).toBe("a"); // selection untouched
 });

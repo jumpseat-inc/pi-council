@@ -22,7 +22,19 @@ import {
 export type Surface = "editor" | "tree" | "progress";
 export type TreeKey = "up" | "down" | "enter" | "escape" | "other";
 /** EV-9: key classification while surface === "progress" (transcript-view domain). */
-export type ProgressKey = "enter" | "escape" | "up" | "down" | "e" | "t" | "f" | "g" | "G" | "other";
+export type ProgressKey =
+	| "enter"
+	| "escape"
+	| "up"
+	| "down"
+	| "e"
+	| "t"
+	| "f"
+	| "g"
+	| "G"
+	| "prevAttempt"
+	| "nextAttempt"
+	| "other";
 /** EV-9: union of the keys the routing kernel can see (tree-domain + progress-domain). */
 export type RouteKey = TreeKey | ProgressKey;
 
@@ -73,6 +85,11 @@ export function classifyProgressKey(data: string): ProgressKey {
 	if (matchesKey(data, "f")) return "f";
 	if (matchesKey(data, "g")) return "g";
 	if (matchesKey(data, Key.shift("g"))) return "G";
+	// FLLWUP-45: attempt cycler ([/]). matchesKey covers legacy bytes and the
+	// kitty CSI-u forms (\x1b[91;1u / \x1b[93;1u) for symbol keys; no collision
+	// with e/t/f/g/G (matchesKey("[", Key.shift("g")) is false).
+	if (matchesKey(data, "[")) return "prevAttempt";
+	if (matchesKey(data, "]")) return "nextAttempt";
 	return "other";
 }
 
@@ -119,15 +136,17 @@ export function computeProgressLayout(termRows: number, treeContentLines: number
 	return { avail, sepLines, treeLines, progressLines };
 }
 
-/** The shared mutable focus surface: surface + sessionId-keyed selection. */
+/** The shared mutable focus surface: surface + row-key-keyed selection. */
 export class TreeFocusState {
 	surface: Surface = "editor";
-	/** Selected row keyed by sessionId, NEVER by index (O6). */
-	selectedSessionId: string | null = null;
+	/** Selected row keyed by row key (the job id), NEVER by index (O6). */
+	selectedRowKey: string | null = null;
 	/** EV-9: captured terminal height (widget factory), used by the progress floor guard. */
 	termRowsCap = 24;
 	/** EV-9: host for the live TranscriptView so progress keys reach it (editor is always-focused). */
 	viewHost: { handleInput(data: string): void } | null = null;
+	/** FLLWUP-45: host for the attempt cycler so [/] reach the widget's content cursor. */
+	attemptHost: ((dir: -1 | 1) => void) | null = null;
 	private _open = false;
 	private _rows: string[] = [];
 
@@ -139,25 +158,25 @@ export class TreeFocusState {
 	isOpen(): boolean {
 		return this._open;
 	}
-	/** Current sorted session-id rows (index == visual row in the widget, running-first). */
+	/** Current sorted row keys (index == visual row in the widget, running-first). */
 	setRows(ids: string[]): void {
 		this._rows = ids;
 	}
 	rowCount(): number {
 		return this._rows.length;
 	}
-	/** Resolve the selected session to its CURRENT row index (recomputed; never stale). */
+	/** Resolve the selected row key to its CURRENT row index (recomputed; never stale). */
 	selectedIndex(): number {
-		if (this.selectedSessionId === null) return -1;
-		const i = this._rows.indexOf(this.selectedSessionId);
+		if (this.selectedRowKey === null) return -1;
+		const i = this._rows.indexOf(this.selectedRowKey);
 		return i < 0 ? -1 : i;
 	}
 	/** Try to enter the tree. Returns true once surface==="tree". */
 	enter(): boolean {
 		if (this.surface === "tree") return true;
 		if (!this._open || this._rows.length === 0) return false;
-		if (this.selectedSessionId === null || !this._rows.includes(this.selectedSessionId)) {
-			this.selectedSessionId = this._rows[0]!;
+		if (this.selectedRowKey === null || !this._rows.includes(this.selectedRowKey)) {
+			this.selectedRowKey = this._rows[0]!;
 		}
 		this.surface = "tree";
 		return true;
@@ -166,7 +185,7 @@ export class TreeFocusState {
 	move(dir: -1 | 1): void {
 		const i = this.selectedIndex();
 		const next = dir === 1 ? Math.min(this._rows.length - 1, i + 1) : Math.max(0, i - 1);
-		this.selectedSessionId = this._rows[next] ?? null;
+		this.selectedRowKey = this._rows[next] ?? null;
 	}
 	isAtTop(): boolean {
 		return this.selectedIndex() <= 0;
@@ -178,17 +197,17 @@ export class TreeFocusState {
 	/** Exit the tree: back to editor, clear selection (T3). */
 	exit(): void {
 		this.surface = "editor";
-		this.selectedSessionId = null;
+		this.selectedRowKey = null;
 	}
 	/**
 	 * EV-9: open the inline progress for `sessionId`. Floor guard (product-owner
 	 * ruling): at termRows < 7 the entry is a consumed NO-OP — surface stays put,
 	 * no progress viewport, no side effects. Returns true only on transition.
 	 */
-	enterProgress(sessionId: string): boolean {
+	enterProgress(rowKey: string): boolean {
 		if (this.termRowsCap < DISPLAY_FLOOR) return false;
 		if (!this._open) return false;
-		this.selectedSessionId = sessionId;
+		this.selectedRowKey = rowKey;
 		this.surface = "progress";
 		return true;
 	}
@@ -230,6 +249,8 @@ export function routeEditorFocus(
 				case "f":
 				case "g":
 				case "G":
+				case "prevAttempt":
+				case "nextAttempt":
 				// consumed by the live view (delivered via viewHost by the editor)
 				return { action: "consumed" };
 			default:
@@ -297,7 +318,17 @@ export class CustomTreeEditor extends CustomEditor {
 				onLastLogicalLine: false,
 			});
 			if (r.action === "consumed") {
-				if (key === "e" || key === "t" || key === "f" || key === "up" || key === "down" || key === "g" || key === "G") {
+				if (key === "prevAttempt" || key === "nextAttempt") {
+					this.controller.attemptHost?.(key === "prevAttempt" ? -1 : 1);
+				} else if (
+					key === "e" ||
+					key === "t" ||
+					key === "f" ||
+					key === "up" ||
+					key === "down" ||
+					key === "g" ||
+					key === "G"
+				) {
 					this.controller.viewHost?.handleInput(data);
 				}
 				this.tui.requestRender();
@@ -315,7 +346,7 @@ export class CustomTreeEditor extends CustomEditor {
 		};
 		const r = routeEditorFocus(this.controller, key, meta);
 		if (r.action === "consumed") {
-			if (key === "enter") this.controller.enterProgress(this.controller.selectedSessionId ?? "");
+			if (key === "enter") this.controller.enterProgress(this.controller.selectedRowKey ?? "");
 			this.tui.requestRender();
 			return;
 		}

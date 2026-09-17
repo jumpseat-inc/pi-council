@@ -105,7 +105,7 @@ test("T1/O1: Down from editor (focused editor) enters tree on last logical line,
 	// focusedComponent is the editor (OJ-1): the editor is the always-focused seat.
 	editor.handleInput(DOWN);
 	expect(controller.surface).toBe("tree");
-	expect(controller.selectedSessionId).toBe("a");
+	expect(controller.selectedRowKey).toBe("a");
 });
 
 test("T1: Down from a multi-line draft on a mid line does NOT enter the tree (forwarded)", () => {
@@ -137,17 +137,17 @@ test("T3: state machine — enter row0; down 0→1; down-at-last exits; up-on-ro
 	// enter
 	expect(routeEditorFocus(c, "down", { onLastLogicalLine: true, treeOpen: true }).action).toBe("consumed");
 	expect(c.surface).toBe("tree");
-	expect(c.selectedSessionId).toBe("a");
+	expect(c.selectedRowKey).toBe("a");
 	// down 0→1
 	routeEditorFocus(c, "down", { onLastLogicalLine: true, treeOpen: true });
-	expect(c.selectedSessionId).toBe("b");
+	expect(c.selectedRowKey).toBe("b");
 	// down 1→2 (last)
 	routeEditorFocus(c, "down", { onLastLogicalLine: true, treeOpen: true });
-	expect(c.selectedSessionId).toBe("c");
+	expect(c.selectedRowKey).toBe("c");
 	// down at last → exit
 	routeEditorFocus(c, "down", { onLastLogicalLine: true, treeOpen: true });
 	expect(c.surface).toBe("editor");
-	expect(c.selectedSessionId).toBeNull();
+	expect(c.selectedRowKey).toBeNull();
 });
 
 test("T3: up-on-row0 exits + resets; up-non-top moves down the list", () => {
@@ -156,13 +156,13 @@ test("T3: up-on-row0 exits + resets; up-non-top moves down the list", () => {
 	c.move(1);
 	c.move(1); // 'c'
 	routeEditorFocus(c, "up", { onLastLogicalLine: true, treeOpen: true });
-	expect(c.selectedSessionId).toBe("b");
+	expect(c.selectedRowKey).toBe("b");
 	routeEditorFocus(c, "up", { onLastLogicalLine: true, treeOpen: true });
-	expect(c.selectedSessionId).toBe("a");
+	expect(c.selectedRowKey).toBe("a");
 	// up on row 0 → exit + reset
 	routeEditorFocus(c, "up", { onLastLogicalLine: true, treeOpen: true });
 	expect(c.surface).toBe("editor");
-	expect(c.selectedSessionId).toBeNull();
+	expect(c.selectedRowKey).toBeNull();
 });
 
 test("T3: escape exits to editor from any row", () => {
@@ -171,7 +171,7 @@ test("T3: escape exits to editor from any row", () => {
 	c.move(1);
 	routeEditorFocus(c, "escape", { onLastLogicalLine: true, treeOpen: true });
 	expect(c.surface).toBe("editor");
-	expect(c.selectedSessionId).toBeNull();
+	expect(c.selectedRowKey).toBeNull();
 });
 
 test("T4/OJ-2 forward-unhandled: a printable, Home/End, ctrl+c reach super.handleInput (typing lands in editor) and don't flip the mode", () => {
@@ -198,7 +198,7 @@ test("O3 closed: after a non-overlay dialog close (setFocus(editor)), Down still
 	// Down still routed into the tree (moves selection), NOT back to editor
 	editor.handleInput(DOWN);
 	expect(controller.surface).toBe("tree");
-	expect(controller.selectedSessionId).toBe("b");
+	expect(controller.selectedRowKey).toBe("b");
 	// typing still lands in the editor
 	editor.handleInput("y");
 	expect(editor.getText()).toBe("drafty");
@@ -232,7 +232,7 @@ test("O4/T6: composing editor keeps the prior editor's handleInput running for i
 	// A tree-handled key (Down) is CONSUMED — does not reach the prior editor
 	editor.handleInput(DOWN);
 	expect(priorCalls).toEqual([]);
-	expect(controller.selectedSessionId).toBe("b");
+	expect(controller.selectedRowKey).toBe("b");
 	// A non-tree key ('x') is FORWARDED to the prior editor (its handleInput runs)
 	editor.handleInput("x");
 	expect(priorCalls).toEqual(["x"]);
@@ -241,18 +241,18 @@ test("O4/T6: composing editor keeps the prior editor's handleInput running for i
 	expect(installedFactory).toBe(prior);
 });
 
-test("T5/O6: selection is keyed by sessionId and survives a running-first re-sort", () => {
+test("T5/O6: selection is keyed by the row key (the job id) and survives a running-first re-sort", () => {
 	const c = openTree(3);
 	c.enter();
 	c.move(1);
 	c.move(1); // now 'c'
 	// 2s refresh re-sorts running-first → 'c' moves to the top
 	c.setRows(["c", "a", "b"]);
-	expect(c.selectedSessionId).toBe("c");
+	expect(c.selectedRowKey).toBe("c");
 	expect(c.selectedIndex()).toBe(0); // same session, NEW index — not stale
 	// moving again after the re-sort stays on sessions, not indices
 	c.move(1);
-	expect(c.selectedSessionId).toBe("a");
+	expect(c.selectedRowKey).toBe("a");
 });
 
 test("T8: the widget draws the ▌ marker on the selected row only when surface==='tree', budget is never exceeded", () => {
@@ -292,7 +292,7 @@ test("T7: closing the tree (close-with-focus) resets surface to editor and clear
 	// being called on close). Widget never shows the tree sigil while the tree is closed.
 	controller.setOpen(false);
 	expect(controller.surface).toBe("editor");
-	expect(controller.selectedSessionId).toBeNull();
+	expect(controller.selectedRowKey).toBeNull();
 	const afterClose = w.render(1);
 	expect(afterClose.some((l) => l.startsWith(MARK))).toBe(false);
 	expect(afterClose.join("\n").includes(TREE_MODE_LABEL)).toBe(false);
