@@ -2,7 +2,7 @@
 	"schemaVersion": 1,
 	"taskId": "wiki-lint",
 	"name": "Lint a wiki seeded with a known orphan and a known stale claim",
-	"fixtureVersion": "1.0.0",
+	"fixtureVersion": "1.1.0",
 	"kind": "procedure",
 	"target": {
 		"type": "procedure",
@@ -11,7 +11,7 @@
 	},
 	"seed": {
 		"dir": "seed",
-		"treeDigest": "sha256:783fdc0318e495ca7101b3b026224477a0eb66371cab32daae2a9470b5e0536c"
+		"treeDigest": "sha256:d3a4dd8ca8459d1d2acf1e043ea6b44f2f593b6f2d552873d9ee688ea10de7b5"
 	},
 	"env": {
 		"TZ": "UTC"
