@@ -988,3 +988,36 @@ CI on the merged SHA `e25b8132277d9d0a7d5239a6cc3b199995d2e2e5` confirmed
 green from the observed artifact: `gh api .../check-runs` → `gates completed
 success`. Only then set the card `Done` on this card and on `council/board.md`;
 `python3 council/validate.py` clean; committed directly to `main` and pushed.
+
+### Step 13 — follow-ups filed
+
+Two follow-up cards filed at `Backlog` under EPIC-9, both pre-approved in
+substance by the ruling seats:
+
+- **`FLLWUP-50` — Supported refresh path for packaged council tooling in
+  initialized consumer repos.** Steward ESC-3 (acceptance shape verbatim on
+  this card's step-6 record): a consumer repo can bring its packaged council
+  tooling up to the installed package's version through a documented,
+  supported path without overwriting consumer-edited board, cards, or wiki.
+- **`FLLWUP-51` — Loud gate for a goal wrapped onto a second line.**
+  Product-owner R1: the wrap silently truncates today and `validate.py` exits
+  0; the loud gate is owed as a follow-up and must be `gate-parity`-consistent
+  (not a writer-only wrap-FAIL).
+
+Step-13 confirmation is re-homed to `product-owner` for this run (Phase-1
+ruling); both drafts carry the approved substance and are carried in the
+runner's report for confirmation. `python3 council/validate.py` clean.
+
+### Step 14 — persist (owed, routed)
+
+The step-14 wiki correction is owed per steward ESC-3 and spec §3 item 9:
+`vault/wiki/engineering-board.md:30-33` still repeats the false
+"a `: ` silently truncates the frontmatter" claim and the ban, and the
+consumer-repo skew must be folded in so it is not silent. `council.md` step 14
+forbids the facilitator hand-editing `vault/`, and no `/wiki-ingest` seat
+exists in this run's roster, so this is recorded as an owed action for the
+orchestrator: run `/wiki-ingest` against a raw source carrying (a) the
+corrected `parse_frontmatter` semantics (first `: ` splits, edge-whitespace
+trimmed, a colon-space inside the value is literal, a line break ends the
+value) and (b) the ESC-3 consumer-repo skew record. Nothing under `vault/` was
+modified by this runner.
