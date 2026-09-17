@@ -1287,3 +1287,22 @@ Observed artifacts (facilitator-read): PR #63 remains `OPEN`, head
 pushed to `origin` at the same SHA; worktree `.worktrees/fllwup-45` clean.
 Card restored to `In Review` on that fact. This is verify→fix cycle 1
 complete; the re-verification (cycle 2 of ≤3) is dispatched at the new head.
+
+### Step 9 (cont.) — re-verification cycle 2: `no open objections`
+
+`job-16.5` (skeptic, 3.1m, 14 turns, `stopReason=stop`) re-verified at head
+`c0cd845`. The decisive item, O2b, is **`closed-green`**: in a `/tmp` copy
+with `keyFor → manifest.id`, the shipped file ran **14 pass / 1 fail**, the
+single failure being exactly the tail-cache guard at
+`test/fllwup45-attempt-awareness.test.ts:203` (`expected to contain
+"attempt-two-arg"`, received stale `attempt-one-arg`); unmutated head
+**15 pass / 0 fail**. The `e799ca1..c0cd845` diff is one test-only commit,
+one file, +20/−12; `extensions/` untouched. No regression: full suite green
+on `c0cd845` — `bunx tsc --noEmit` clean, `bun test` **882 pass / 2 skip /
+0 fail** (5604 expects, 77 files, 94.48 s), `validate.py` clean. Gate
+integrity reported as its own line (both injections demonstrated red in
+`/tmp`; worktree left byte-identical). **Verdict: `no open objections`.**
+Step 9 closes; the card is ready for step 10.
+
+Verify→fix cycle count for this card: **1 fix cycle used, 2 verify passes
+run** (within the ≤3 cap).
