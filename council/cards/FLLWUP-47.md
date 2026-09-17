@@ -631,3 +631,408 @@ and leaves "which failures count" to prose would have made EV-41's two records
    `skeptic.md`'s `<output_format>` block (`skeptic.md:151-160`), not only in
    `council.md`. A pin that only touches `council.md` passes while the judge's
    actual input (`council.md:268-280`) still cannot carry the record.
+
+### Step 3 — bounded exchange (round 2) — **closed at 2 rounds, positions stabilised**
+
+Each generator was re-dispatched with the other's round-1 position (verbatim in
+this card, §Step 2) and asked to engage it point by point. `owner` (`job-17.3`,
+12.6m, 19 turns, `stopReason=stop`, tokens in 134076 / out 19147 / cR 774656 /
+cW 0 / reason 15944 / total 927879, cost≈$0.0318 catalogue) and `principal`
+(`job-17.4`, 12.6m, 14 turns, `stopReason=stop`, tokens in 368172 / out 25728 /
+cR 513152 / cW 0 / reason 20823 / total 907052, cost≈$0.0722 catalogue) both
+settled. Positions appended verbatim.
+
+**Facilitator's round read (counting only, deciding nothing):** the exchange
+produced a signed convergence — `principal` withdrew the two-site design and the
+required `redAttribution` field and signed `owner`'s design with refinements;
+`owner` conceded the reader-derived mechanism-absent predicate and the
+skeptic-evidence-row placement. No round 3 is warranted: the two round-2
+positions agree on the site, the field list, the comparison key, and the pin
+class, and the residual differences (field-7 shape, pin granularity, whether the
+boundary bit is a written field or a skeptic derivation) are refinements inside
+one design, not competing designs. **Per council.md step 3 the exchange was
+stopped early at 2 of ≤3 rounds because positions stabilised.**
+
+#### owner — round 2 (`job-17.3`) — verbatim
+
+## Round 2 — owner
+
+### Concessions
+
+1. **Site (partial concession, conclusion rejected).** My round-1 "a procedure is
+   a third copy with no added reach" was imprecise, and `principal`'s rebuttal
+   exposed the imprecision: there *is* one facilitator action that touches the
+   convention — writing the spec at `council.md:201-229` — so a block in step 7
+   has a real, if narrow, function (carrying the convention into future
+   full-council specs). What I concede. What I do not concede: `principal`'s
+   step-9 half. `council.md:257-259` gives the facilitator exactly two step-9
+   acts — "Dispatch `skeptic` at the branch" and appending the evidence verbatim;
+   `council.md:8` says "The facilitator decides nothing." The check is performed
+   by the `skeptic`, and `seats.ts:592-597` (`buildSystemPrompt`) proves the
+   skeptic's only in-context text is its own body plus the procedures *directory
+   path* — a step-9 block in `council.md` has one actual reader (the facilitator)
+   who performs no check. And `principal`'s step-7 half is a paraphrase channel —
+   the exact drift mode `principal` itself named against a `council.md`-only
+   design. I also concede `principal`'s claim 6 pin placement: the field
+   vocabulary must surface in the skeptic's *evidence output*, i.e. inside/near
+   `skeptic.md:151-160`'s `<output_format>`, not only in a `verify_by_acting`
+   paragraph — my round-1 block wording didn't say this explicitly; it is wording
+   of the shared block, not a site change.
+
+2. **Comparison key (partial concession).** `principal`'s equality-first tuple
+   `(baseCommit, transplantManifest digest, command, falsifierIdentity)` **is** my
+   triple — they adopted it as their own precondition, so the "competing design"
+   framing is already collapsed. The genuinely new element is `redAttribution`
+   as the cross-triple residual. I concede the *predicate*: the cross-triple
+   claim that survives should be upgraded from my binary "red observed at base"
+   to "the mechanism-absent red set is the same." I do not concede the *field*:
+   per-failure classification into `{mechanism-absent, harness-absent,
+   incidental}` is an asserted interpretation, and my experiment below shows
+   nobody could have classified EV-41's `7 fail / 1 error` record correctly,
+   because its transplant set is unknowable from the record.
+
+3. **Per-failure attribution (no concession on the required class field;
+   concession on placement).** `principal`'s core argument — "fields alone would
+   have made EV-41's two records *both conforming* and still incomparable" — is
+   factually false against my actual field list: the owner's `7 fail / 1 error`
+   record lacked my fields 2 and 6 (transplant identity, copy set), so it is
+   **non-conforming** under my convention; the incomparability is *detected* by
+   the field mismatch, not papered over. What I concede: the separation of
+   `mechanism-absent` from `harness-absent` must be explicitly assigned, and I
+   assign it to the **reader** (the `skeptic` at step 9), not the writer — it is
+   derivable from already-required fields (raw per-failure lines + transplant
+   manifest + base identity), and the skeptic's derivation duty gets a sentence
+   in the shared block.
+
+4. **Judge reachability (correctly out of scope, one refinement conceded).**
+   `principal`'s channel reading is right (`council.md:268-280`;
+   `judge.md:31,55-57` — goal + skeptic evidence, nothing else) but it is not a
+   defect: the judge's own contract (`judge.md` `<when_invoked>` §2, "Confirm
+   rather than trust... re-run the decisive test yourself") makes judge-side
+   schema enforcement redundant, and binding the judge would require widening the
+   judge's input — the exact contamination firewall the step-10 text
+   (`council.md:268-271`) calls deliberate. The refinement I accept is from
+   concession 1: the skeptic's evidence rows must carry the triple and the
+   comparison outcome so the judge *sees* the record — a pin inside `skeptic.md`'s
+   `<output_format>`, which is compatible with my one-site design.
+
+### What I still defend
+
+- **Seat prose is the single normative site.** `seats.ts:592-597` is decisive: a
+  seat's context is `seat.body` + `<council_runtime>` (directory path only) +
+  `<repository_grounding>`. No bound actor ever reads `council.md`. If
+  `council.md` were "the normative home" and seat prose a "binding mirror,"
+  drift between them resolves — by the design's own priority — toward text no
+  bound actor can read at evidence time. The normative site must be the one in
+  the actors' context. The step-7 site also reaches **zero mechanical cards**
+  (`council.md:217-221`: "Do not create a file under `docs/superpowers/specs/`
+  for a mechanical card") — and EV-41, the card that generated this residual,
+  *was* mechanical; every future mechanical falsifier card gets the convention
+  from `owner.md` only. Counter-reasoning that defeats the two-site design: it
+  buys a paraphrase-dependent, full-path-only spec channel at the cost of a
+  third copy and a normativity inversion, when the direct channel (`owner.md`)
+  already covers both paths with zero paraphrase.
+- **My field list, with two wording amendments** (skeptic-derivation duty per
+  concession 3; evidence-row placement per concession 4). Fields: base identity
+  + selection rule; transplant identity (file list + source sha); exact command
+  verbatim; raw red output verbatim — counts *and* per-failure lines; worktree
+  provenance; explicit copy set; landing statement. The record that would have
+  made EV-41 reproducible rather than merely explained.
+- **The three-class taxonomy is the wrong mechanism.** `incidental` has no
+  operational definition and no settling test; a required classification
+  converts a derivable fact into an unauditable assertion. The comparison rule:
+  equality of `(base, transplant, command)` gates count comparison; across
+  differing triples, counts never compare — the surviving claim is
+  red-observed-at-base plus *reader-derived* mechanism-absent set equality,
+  checked by the `skeptic` from the raw lines against the manifest.
+
+### Runnable checks (run this round, real output)
+
+I ran `principal`'s settling experiment (claim 5) at `3e39e66` in
+`/tmp/fllwup47-exp` (detached worktree, `bun install`, removed after; main
+checkout untouched):
+
+- **Bare copy** (`test/ev41-retry-e2e.test.ts` only), scoped command: `0 pass / 1
+  fail / 1 error` — `Cannot find module '../extensions/job-retry.ts'`.
+  Reproduces the Skeptic's `1 fail / 1 error` exactly.
+- **Deep copy** (+ head `stub-child.ts`, `test/ev41-tui.py`, all of
+  `test/ev40-harness/`), same scoped command: **still `1 fail / 1 error`**, same
+  module-not-found.
+- **Deep copy, full `bun test`:** `733 pass / 2 skip / 1 fail / 1 error`.
+- **Deepest copy** (+ `test/ev40-headless.test.ts`, `test/ev40-live-gates.test.ts`),
+  full suite: `733 pass / 2 skip / 3 fail / 3 errors` — all three errors are
+  `Cannot find module` on `job-retry.ts`/`parent-retry.ts`.
+
+Two results, both stronger than either round-1 claim: **(a)** `7 fail / 1 error`
+was not reproducible from *any* transplant/command combination I could
+reconstruct — the owner's record is unreproducible, not merely incomparable,
+because its transplant set and command were never recorded. This is the decisive
+case for the shared fields (transplant manifest + exact command), and it shows
+the classification field would have been worthless here: no one could classify
+the `7 fail` record correctly. **(b)** At every depth, the mechanism-absent
+signature was visible in the *raw failure lines themselves* — the
+module-not-found error stayed constant across depths while the fail count grew
+with the copy set. Reader-side derivation from field 4 + field 2 identified it
+with no taxonomy required. Per `principal`'s own claim-5 concession terms: the
+"identical mechanism-absent set" half held on the errors, but the "delta lies
+wholly in harness-absent" half is **unverifiable against the actual record** —
+the experiment cannot be fully specified without the fields this convention
+mandates. That is the convention's thesis demonstrated.
+
+Remaining settling test, named for the consolidator: the drafted block must
+survive `bun test test/prose.test.ts` (stack-neutrality,
+`test/prose.test.ts:62-67`) and the new byte-identity pin (fixture pattern,
+`test/prose.test.ts:68-93`) must be red until both seat files carry the
+identical block.
+
+### What remains genuinely open
+
+- Whether a facilitator-facing sentence in `council.md` step 7 is worth its third
+  copy despite being redundant with `owner.md` on both paths — my lean is no; it
+  is defensible, and this is a judgment call, not a testable dispute.
+- Whether the step-14 wiki-ingest offer is mandated by this card or left as the
+  standing offer (unchanged from round 1: leave as offer).
+- The exact wording of the reader-derived mechanism-absent rule in the shared
+  block (the *rule* is settled by the experiment; the phrasing is craft).
+
+### Bottom line
+
+One canonical convention block, normative, byte-identical in
+`council/agents/owner.md` and `council/agents/skeptic.md` (pinned by a
+`prose.test.ts` fixture, with the vocabulary surfaced in the skeptic's
+`<output_format>` rows), requiring base identity+rule, transplant identity,
+exact command, verbatim raw red output with per-failure lines, worktree
+provenance, copy set, and the landing statement; comparison keyed on equality of
+`(base, transplant, command)` gating count comparison, and across differing
+triples only red-observed-at-base plus reader-derived mechanism-absent set
+equality — no `validate.py` parser, no `redAttribution` class field, no
+normative `council.md` site.
+
+#### principal — round 2 (`job-17.4`) — verbatim
+
+## Round 2 — `principal`
+
+### Concessions (named up front, per disagreement)
+
+**1. Site — I concede the normative site to `owner`, and withdraw my two-site
+design.** I re-read both sides of the channel this round.
+`extensions/seats.ts:592-597` builds a seat prompt as `seat.body` +
+`<council_runtime>procedures directory: <path>` + grounding — the procedure
+*directory*, never procedure text. The only proof I have that a procedure's
+*body* reaches any model at all is `test/ev40-harness/harness-headless.ts:144-150`,
+where a written procedure is what carries the probe turn into the **parent's**
+user message — i.e. `council.md` enters the facilitator's turn, not a seat's. So
+on the question "which site is normative when the two disagree": there will be
+exactly one site, `owner.md` + `skeptic.md`, and no disagreement is possible.
+Nothing normative in `council.md` needs to change, and I will not claim it does.
+Asked plainly, the facilitator's step-7/step-9 role in this convention is
+**transcription**: step 7 writes the spec the owner reads (`council.md:201-229`),
+step 9 dispatches the skeptic at the branch (`council.md:257-267`) and the
+facilitator appends the resulting record verbatim (`council.md:132`, `:170`).
+The facilitator decides nothing, so a procedure copy of the field list would give
+it nothing to do differently — `owner`'s "third copy with no added reach" is
+right, and my round-1 claim that the obligation is "created and checked per
+card" in the procedure was a claim about *where it is felt*, not about where
+text must live. Withdrawn.
+
+**2. Comparison key — I concede `redAttribution` as a required field.** Not
+merely on redundancy; it is **inoperative at a pre-mechanism base**, which is the
+only case the card exists for. At a base that predates the mechanism, the
+falsifier file usually cannot load: `test/ev41-retry-e2e.test.ts:44-67` imports
+`../extensions/job-retry.ts` (EV-39, merged after `3e39e66`) and
+`../extensions/parent-retry.ts` and `./ev40-harness/harness-headless.ts` (both
+EV-40, merged after `3e39e66`). A missing import fails the *file*; no test runs;
+there are no per-test failures to assign `{mechanism-absent, harness-absent,
+incidental}` to. The repo's own recorded bun shapes confirm the unit is the file,
+not the test: `0 pass / 2 fail / 2 errors` at `3a3773f` for two unresolvable
+imports (`council/cards/EV-41.md:216-219`) versus `1 fail / 1 error` on the
+skeptic's bare copy at `3e39e66` (`EV-41.md:283-284`). "Zero pass" *is* the load
+failure. So my predicate had no observable to read at base, and `owner`'s field 4
+(raw red output verbatim) carries the information my classification could only
+have paraphrased. I also accept `owner`'s point that counts are **not comparable
+across differing triples** — under that rule my predicate was licensing a
+comparison `owner`'s rule refuses, which is exactly the discipline the EV-41 pair
+needs. My field set *was* a superset of the triple (`baseCommit`,
+`falsifierIdentity`+`transplantManifest`, `command`) plus a predicate; the
+predicate is what I drop.
+
+**3. Claim 5 — I could not run it, and I say why precisely rather than hedging.**
+My seat's frontmatter grants me `tools: Read, Grep, Glob`
+(`council/agents/principal.md:5`). I have no Bash this round (confirmed: the only
+tools in this session are read/grep/find/ls and network). Round 1's claim 5 named
+a check I am structurally unable to execute; that is a defect in how I framed it,
+and it is itself design-relevant: a convention whose settling test is owned by a
+seat without Bash will never be run on the cards that need it. I substitute the
+strongest static bound below.
+
+**4. Judge reachability — held, narrowed, and now it is a hard constraint.** I
+keep the claim but restate it where it actually bites: the vocabulary must sit
+inside `skeptic.md`'s `<output_format>` (`skeptic.md:151-163`), because
+`council.md:268-280` and `judge.md:31,55-57` make the judge's substantive input
+the skeptic's evidence row and nothing else. It is **hard, not nice-to-have** —
+and it is a constraint *on `owner`'s design*, which I take up in §5. It is not a
+request to widen the judge's input (`council.md:274-276` forbids that) and adds
+nothing to `judge.md`.
+
+**5. Enforcement — I accept the byte-identity pin, but it cannot be the only one,
+and as stated it conflicts with my §4.** A byte-identity pin across `owner.md`
+and `skeptic.md` survives a single-site design *only if* the two seats' text is
+genuinely identical. It is not: `owner` *records* the base run, `skeptic`
+*reproduces and compares* it. Forcing both duties into one byte-identical block
+means each seat's prompt tells it to do the other seat's job. And if the
+vocabulary must also land in `skeptic.md`'s `<output_format>`, a whole-file
+byte-identity pin is unsatisfiable — `owner.md` has no objection row to mirror.
+Conceded: byte-identity on the *shared* part; refined: not on the whole block.
+
+---
+
+### What I still defend
+
+**(a) One bit of attribution survives, read off the output — not a taxonomy.**
+`owner`'s cross-card residual is the bare binary "red observed at base". That
+binary admits a record whose only reds exist because the *transplant* referenced a
+path the base lacks — e.g. an unloadable `test/ev40-harness/*.ts` — which
+demonstrates nothing about the mechanism under test. The cure is one bit per red,
+derived verbatim from the output, no closed vocabulary: red whose error text
+names an artifact **inside the copy set** ⇒ copy-set-dependent; red whose error
+text names an artifact of the **mechanism under test, absent at base** (e.g.
+`Cannot find module '../extensions/job-retry.ts'`) ⇒ the base-native red sought.
+`owner`'s fields 4 and 6 supply the raw material; the bit is what makes them a
+predicate instead of two lists. This is observable, and it is the **skeptic's**
+obligation at step 9, because only the skeptic holds both trees
+(`council.md:257-267`; `skeptic.md:108-118`).
+
+**(b) `owner`'s field 1 needs the base *role*, and field 7 is the wrong shape.**
+EPIC-9's standing ruling distinguishes the *required* base from an *optional-second*
+extra (`EV-41.md:63-70`); a record that does not say which it is cannot be
+compared across cards, because the required-base record is the one that must
+exist. And "no red test landed" (`owner`'s field 7) is an assertion, while its
+referent is observable: head sha + same command verbatim + `0 fail`
+(`owner.md:87-93`). Field 3 should be understood as the command for *both* halves.
+Replace field 7 with the head half; keep field 3 relational.
+
+**(c) Fields I would drop as redundant.** My `falsifierIdentity` blob hashes and
+`transplantManifest` blob hashes: base sha + source sha + path list already pins
+content. My `worktreeRecipe`: the recipe is a function of the base sha and the
+transplant path list. `owner`'s field 5 (worktree provenance): already normative
+in `owner.md`/`skeptic.md` `<main_repo_immutability>` (`skeptic.md:120-130`) and
+re-stated by the loop — a record field, not evidence. `owner`'s field 7 as
+written: replaced per (b). Nothing else of `owner`'s seven goes.
+
+**(d) EV-41's stated cause does not explain its own numbers — check this before
+writing the convention around it.** `test/ev40-harness/` at head contains three
+files and **no test file**: `ev40-harness-extension.ts`, `harness-headless.ts`,
+`tui-retry.py` (`ls test/ev40-harness`). Copying a directory of modules cannot
+turn one file-level load error into six additional failing tests. And `3e39e66`'s
+suite was green at its own merged SHA — `gates` `conclusion: success`
+(`council/cards/EV-38.md:344-348`) — so every red in the owner's `7 fail / 1 error`
+was *caused by the transplant*. Therefore the transplanted set contained more
+than `test/ev40-harness/` and more than the falsifier file (most plausibly head's
+`test/stub-child.test.ts`, whose `finish_error` pins cannot pass against base's
+`stub-child.ts`). The card's explanation — "tracks how much of `test/ev40-harness/`
+was copied" (`EV-41.md:284-286`) — is a **facilitator-authored causal claim that
+the artifact does not support**, written into the run record by the one role that
+decides nothing. That is not a separate card; it is the strongest single argument
+for `owner`'s triple, sharpened: with base sha + exact command + per-file copy set
+recorded, the 7-vs-1 pair is either explained in one line or exposed as an
+unreproduced number. The triple is doing the work; my predicate was not.
+
+---
+
+### Runnable checks
+
+**Actually run this round: none — I have no Bash grant** (`principal.md:5`:
+`Read, Grep, Glob`). The evidence I gathered this round is first-hand *reads*,
+which I name as such: `extensions/seats.ts:592-597`;
+`council/procedures/council.md:132,201-229,257-280`;
+`council/agents/skeptic.md:120-130,151-163`; `council/agents/judge.md:31,55-57`;
+`council/agents/owner.md:5,87-99`; `test/prose.test.ts:58-66,68-93`;
+`test/ev41-retry-e2e.test.ts:44-67`; `ls test/ev40-harness`;
+`council/cards/EV-41.md:63-70,216-219,281-288`; `council/cards/EV-38.md:344-348`.
+No worktree was created, so none is left behind; main checkout untouched.
+
+**The settling test for disagreement #3, with its prediction** — for `owner` or
+the `skeptic` to run, in a throwaway clone (never the main checkout):
+
+```
+git clone --no-hardlinks <repo> /tmp/ev41-base && cd /tmp/ev41-base
+git checkout 3e39e66
+git checkout <ev41-branch-sha> -- test/ev41-retry-e2e.test.ts test/ev41-tui.py
+timeout 900 bun install --frozen-lockfile
+timeout 900 bun test test/ev41-retry-e2e.test.ts        # (a) bare
+git checkout <ev41-branch-sha> -- test/ev40-harness/
+timeout 900 bun test test/ev41-retry-e2e.test.ts        # (b) harness copied
+```
+
+Prediction (unverified, stated so it can be refuted): both runs produce the
+**same single file-level red** — `Cannot find module '../extensions/job-retry.ts'`
+(0 pass, exit 1) — because `job-retry.ts` (EV-39) and `parent-retry.ts` /
+`ev40-harness` (EV-40) are all post-`3e39e66`, so copying the harness cannot
+resolve the falsifier's load; (b)'s count may rise only by reds from files *inside*
+the copy set. Classification is by the module path in the error text, per §(a):
+paths in the copy set ⇒ copy-set-dependent; `job-retry.ts` / `parent-retry.ts` ⇒
+the base-native red sought. If instead (a) and (b) differ in the base-native reds,
+claim 5 is refuted and I concede the reframe outright — but note the prediction is
+falsifiable *and* already consistent with the two recorded numbers
+(`EV-41.md:216-219,283-284`), which is why I hold it.
+
+**The two pins (settling tests for #5), both red-first:**
+
+1. *Drift pin.* Fetch both seat bodies (`PKG_ROOT/council/agents/{owner,skeptic}.md`,
+   the `councilMarkdown()` helper at `test/prose.test.ts:6-16`), slice between two
+   literal markers (the `STEP3_FIXTURE` style, `prose.test.ts:88-92`),
+   `expect(ownerBlock).toEqual(skepticBlock)`. Red until the shared block lands
+   identically; red the moment one side is edited alone. It proves *non-drift only*.
+2. *Judge pin.* Whitespace-flatten `skeptic.md` (`prose.test.ts:337-342` style),
+   require the field vocabulary to appear between `<output_format>`
+   (`skeptic.md:151`) and `</output_format>` (`:163`) — not merely somewhere in
+   the file. Red while the vocabulary lives only in the shared block. This is the
+   pin my §4 obligation requires and which a whole-file byte-identity pin cannot
+   express.
+
+Neither pin proves a seat *followed* the convention on any card — only step 9's
+reproduction does that. Both are inside the existing stack guard's scan
+(`prose.test.ts:58-66`), so the block must stay runner-neutral.
+
+---
+
+### What remains genuinely open
+
+- Whether the boundary bit (§a) belongs in the owner's record, the skeptic's
+  evidence row, or both. My reading: owner produces it, skeptic audits it — but
+  that is a division of labour, not a test.
+- Whether the base *role* label is required or idiomatic. It is one word; I would
+  require it; no test settles whether a reader needs it.
+- Whether the convention should be offered to `vault/` at step 14
+  (`council.md:329-334`). The `goal` is satisfied by seat prose alone; the wiki
+  page is grounding, not normativity, and cannot be authored directly. Leave as
+  the standing offer.
+- Where the shared block sits in each seat file (which section boundary the
+  markers bracket) — taste, and it will decide whether the block is read at the
+  moment the seat writes its evidence. I would bracket it with the
+  recording/reproduction duty, not park it at file end.
+
+### One-sentence bottom line
+
+I sign `owner`'s design — seat-prose only, no procedure copy, no validator — with
+the comparison triple `(base sha, transplant identity, exact command)` plus raw
+red output verbatim as the comparison key, three refinements (base role on field
+1; the head half replacing the landing statement; one output-derived boundary bit
+on each red), `redAttribution` and the blob hashes dropped, and two
+`prose.test.ts` pins — byte-identity on a marked shared block in
+`owner.md`/`skeptic.md`, plus a judge-reachability pin placing the field
+vocabulary inside `skeptic.md`'s `<output_format>`.
+
+**Convergence recorded (facilitator, facts only):** the two round-2 positions
+agree on one normative site (`council/agents/owner.md` + `council/agents/skeptic.md`,
+seat prose only), on the comparison triple gating count comparison, on raw red
+output verbatim as the evidence, and on `prose.test.ts` as the enforcement class.
+They differ only inside that design: whether the mechanism-absent boundary is a
+owner-written bit audited by the skeptic (`principal`) or a skeptic derivation
+from the raw lines (`owner`), whether `owner`'s field 7 (landing statement) is
+kept alongside the head-half (`principal` would replace it), and the pin
+granularity. `owner` also ran `principal`'s settling experiment first-hand; its
+result (`7 fail / 1 error` reproducible at no transplant/command depth tried) is a
+**fact of this deliberation**, and the two seats' shared reading of it — the
+unrecorded transplant set is the defect — is recorded as their position, not as a
+facilitator conclusion.
