@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-49
 title: Promote the offline faux-provider harness into a shared smoke helper
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-9
 goal: The offline faux-provider harness is one shared test helper under test/, imported by each of test/ev40-headless.test.ts, test/ev40-live-gates.test.ts, test/ev41-retry-e2e.test.ts and test/ev43-reachability.test.ts, with the seat-dispatch arm's child staying on test/stub-child.ts and no duplicated harness copy under test/ or in ev43/, witnessed by a committed shape test asserting exactly one provider extension, one headless runner, and one pty screen model.
@@ -1553,3 +1553,65 @@ three identities and is false at HEAD
 The design is handed to the single owner (`owner`), which works in an isolated
 git worktree, never on `main`. Card set `In Progress` (frontmatter and board)
 before the step-8 dispatch; `python3 council/validate.py` clean.
+
+### Step 8 — owner plans, then implements (facilitator, observed artifacts)
+
+`owner` was dispatched with the committed spec only (no other seat's positions).
+Two bounded dispatches were needed:
+
+- **`job-25.1`** — 11.9m, 38 turns, settled **`failed`** (`stopReason=toolUse`)
+  mid-commit-2. Its partial output was inspected first-hand before any
+  re-dispatch: branch `feat/fllwup-49-shared-faux-provider-harness` existed in
+  `.worktrees/fllwup-49` with commit 1 (`a420940`, the pure move) landed, but
+  commit 2 was uncommitted and nothing was pushed and no PR existed — the
+  deliverable had **not** verifiably landed, so this was not treated as a
+  settled dispatch. One re-dispatch (the bounded-dispatch rule), with the
+  same seat and the resume state.
+- **`job-25.2`** — 8.3m, 29 turn, settled **`done`** (`stopReason=stop`). It
+  verified the resume state, fixed two leftovers (a locally re-defined
+  `sweep_stub_pids` shadowing the kit's, and the empty untracked
+  `test/ev40-harness/` directory), committed commit 2, ran the gates, pushed,
+  and opened the PR.
+
+**Observed artifacts (facilitator-read first-hand):** `gh pr view 65` →
+`state: OPEN`, `headRefName: feat/fllwup-49-shared-faux-provider-harness`,
+`headRefOid f12f3be11343245fb25154a3051c361b7e6b8c06`, `baseRefName: main`;
+`git ls-remote origin` returns the same SHA for the branch. The PR is open, so
+per council.md step 8 the card transitions to `In Review` on that observable
+fact alone — not on the owner's report. `gh pr checks 65 --json
+name,state,workflow` at this instant →
+`[{"name":"gates","state":"IN_PROGRESS","workflow":"gates"}]` (CI is read
+again at step 11 for criterion 2).
+
+**Owner's claim set (recorded as its report, not as verified fact — step 9
+tests it):**
+
+- **Commits:** commit 1 `a420940` (pure move, unchanged from job-25.1); commit 2
+  `f12f3be` (declared deltas + `pty_kit.py` + shape witness + plan doc; clean
+  worktree at push). Base `0dbaeea`.
+- **§8.1 `hasUI` disposition (named by the owner):** scenario **retired**;
+  `ctx.hasUI` **not** ported (the spec's default; the port would be dead code).
+- **Shape-test red/green:** committed shape test transplanted alone onto a
+  detached scratch worktree at base `0dbaeea` → **0 pass / 8 fail, exit 1**;
+  same committed test at `f12f3be` → **8 pass / 0 fail**.
+- **Gates, in order, on the committed tree at `f12f3be`:** `bunx tsc --noEmit`
+  clean exit 0; `bun test` → **892 pass / 2 skip / 0 fail**, 894 tests / 78
+  files (~95 s), arm counts unchanged at 3/5/5/2, with the EV-41 pty arm green
+  inside this run **after** the corrected relative-left `D` clause (owner
+  reports ~32 s for that arm); `python3 council/validate.py` → `All council
+  artifacts valid`; `bash council/preflight.sh FLLWUP-49` → `PASS: preflight
+  clean`, exit 0. **Deviation from the dispatch expectation, recorded verbatim
+  rather than reclassified:** the FLLWUP-27 branch-freshness clause did **not**
+  FAIL — at gate time a fresh `git fetch` left `origin/main` at `0dbaeea` and
+  `merge-base --is-ancestor origin/main HEAD` held, so the clause passed
+  legitimately. No criterion was weakened, and none depends on that clause.
+- **Boundaries kept (owner's report):** no engine change beyond the
+  `parent-retry.ts:4` citation; no new arm or timeout; no CI wiring of the
+  manual runner; no `smoke/` or `stub-child.ts` change; no version bump; no
+  user-visible copy; `council/cards/**` and `vault/` untouched.
+
+**Throughput/usage (this card so far):** 8 seat dispatches — `owner` (22.1,
+22.3, 25.1 failed, 25.2), `principal` (22.2, 22.4), `skeptic` (22.5),
+`consolidator` (22.6). Two exchange rounds (under the ≤3 cap). Ruling seats
+(`product-owner` job-23, `steward` job-24) were dispatched by the orchestrator,
+never by this container.

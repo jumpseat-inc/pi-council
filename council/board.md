@@ -48,9 +48,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- FLLWUP-49 — Promote the offline faux-provider harness into a shared smoke helper
-
 ## In Review
+
+- FLLWUP-49 — Promote the offline faux-provider harness into a shared smoke helper
 
 ## Needs Human
 
