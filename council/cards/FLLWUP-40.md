@@ -147,3 +147,22 @@ Skeptic usage (verbatim, job-2.2):
 ```
 job-2.2  turns=13 tokens=in 115120/out 7380/cR 177725/cW 0/reason 2853/total 300225 cost≈$0.2019
 ```
+
+### Step 10 — judge PASS (job-2.3)
+
+Judge dispatched with exactly the card's `goal` (verbatim) + the step-9
+Skeptic evidence, subject pinned (head `470bc96…`, head worktree
+`.worktrees/fllwup-40`), loop frame stated (step 10 precedes step 11's
+mechanical merge, facilitator-executed). Verdict **PASS**, on its own
+re-runs at the head: `test/eval-runner.test.ts` 35 pass / 0 fail with
+`COUNCIL_EVAL_MODEL` set and 35 pass / 0 fail without it (the `finally`
+restores `undefined`; same code path, no ambient interference); full suite
+847/2/0/5481 identical with `env -u COUNCIL_EVAL_MODEL` and with
+`COUNCIL_EVAL_MODEL="openrouter/ambient/model"`. No REJECT basis; no
+goal-text defect.
+
+Judge usage (verbatim, job-2.3):
+
+```
+job-2.3  turns=6 tokens=in 83321/out 2251/cR 68608/cW 0/reason 1262/total 154180 cost≈$0.0138
+```
