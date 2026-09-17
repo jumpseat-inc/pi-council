@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-45
 title: Navigator attempt-awareness for retried dispatches
-state: In Review
+state: In Progress
 owner: null
 epic: EPIC-9
 goal: A retried dispatch's attempt transcripts are reachable from the navigator, and the backoff row's label matches the attempt it denotes.
@@ -1198,3 +1198,68 @@ Plan at `docs/superpowers/plans/2026-09-17-FLLWUP-45-plan.md`. New tests in
 `test/ev8-focus-navigation.test.ts` / `test/ev9-progress.test.ts`. Branch
 state of the main checkout was not mutated (still `main` at `821d717`,
 clean).
+
+### Step 9 — verify by acting: Skeptic blocks (attempt 1 of ≤3)
+
+`job-16.3` (skeptic, 5.8m, 24 turns, `stopReason=stop`) verified the PR head
+`e799ca1` in worktree `.worktrees/fllwup-45`. All gates re-run first-hand
+(`tsc` exit 0; `bun test` **882 pass / 2 skip / 0 fail**, 5603 expects, 77
+files, 94.60 s; `validate.py` clean); targeted 7-file run 112 pass / 0 fail;
+gate-integrity failure-injection performed in a `/tmp` copy; branch worktree
+left byte-identical.
+
+The Skeptic returned **`blocks`** on exactly one item, O2b, a test-integrity
+defect (not a behavior defect): the shipped tail-cache guard in
+`test/fllwup45-attempt-awareness.test.ts` does not satisfy the spec §8.5
+pinned property — it stays green (15/15) under a `keyFor → manifest.id`
+regression because it is single-render (the attempt-2 manifest is already in
+place when it renders). The branch *behavior* is correct — the Skeptic's own
+two-phase probe reproduced the O4 freeze under the regression and the correct
+read on the head — so the fix is test-only: extend the shipped guard to the
+two-phase form. Every other objection closed `closed-green` (selection
+survives respawn; tail keyed on `sessionId`; title ordinal gate; header ad
+gate incl. caps 7–11 header suppression; cycler re-target + row-key stability;
+cycler no-ops; classifier additive + kitty CSI-u; `browsableAttempts` shapes;
+copy byte-exact; §7 boundaries; the `ensureView` undisposed-view defect is
+pre-existing and merely more reachable, correctly left to FLLWUP-39; rename
+left no stale references).
+
+Per step 9 the card is returned to `In Progress` and the specific red item is
+handed to the owner. This is verify→fix cycle **1 of the ≤3**. The Skeptic's
+report is appended verbatim below.
+
+#### Skeptic report (`job-16.3`) — verbatim
+
+## Skeptic report — FLLWUP-45 step 9 (`e799ca1`, worktree `.worktrees/fllwup-45`)
+
+All probes ran against the branch head. Main checkout untouched (`git status` clean throughout); the branch worktree was never mutated (verified clean at the end); failure-injection ran in a `/tmp` copy (since removed).
+
+### Objections
+
+| # | Claim → settling test | Status |
+|---|---|---|
+| 1 | Selection survives respawn (row keyed on job id, `▌` preserved, `selectedIndex()>=0`). Independent two-job probe (my own fixture, not the owner's test): `setRows ["job-1","job-2"]`, enter, rewrite to `running/attempt2/sessionId job-1-attempt2`, re-render. | **closed-green** — `selectedIndex()` 0→0, exactly 1 `▌` marker on the owner row. (My first probe failed on the marker only because I used `pid:1` → orphaned row; corrected with `process.pid`, it passes. Conceded as probe artifact.) |
+| 2a | Tail cache keyed on `manifest.sessionId`: post-respawn row reads attempt 2's file. Two-phase probe: render attempt 1 → respawn to attempt 2 with later `at` → re-render. | **closed-green** — head shows `attempt-two-arg`, not `attempt-one-arg`; `/tmp` copy with `keyFor→manifest.id` freezes on `attempt-one-arg` (exact O4 mechanism reproduced). |
+| 2b | Spec §8.5's pinned property: "*a `keyFor → manifest.id` fix goes red here*" — applied that exact mutation in the `/tmp` copy and ran the shipped test file. | **closed-red** — `bun test test/fllwup45-attempt-awareness.test.ts` → **15 pass, 0 fail** under the regression. The shipped guard is single-render (attempt-2 manifest already in place), which passes under both keys. Only the two-phase form (my probe) distinguishes them. The behavior is correct; the guard-rail test does not guard what its comment claims. |
+| 3 | Title shows the **shown** attempt's ordinal in first-retry backoff; gate `m.attempt>1`; byte-identical title when `attempt<=1`. Fixture `{retrying, attempt:2, sessionId job-1, attempts:[{1,job-1}]}` + `job-1.jsonl`. | **closed-green** — row contains `attempt 2/3`, progress title contains `job-1 owner · attempt 1/3`; single-attempt job title has no `· attempt` fragment. |
+| 4 | Header ad `[/] attempt` iff `browsableAttempts(m).length>1` **and** header rendered (`progressLines>1`). | **closed-green** — present at cap 24 multi-attempt; absent for single-attempt at 24; absent at caps 7 and 8 despite `browsable==2` (measured `progressLines`: 7→1, 8→1, 9→2, 10→3, 11→4). |
+| 5 | Cycler re-targets content/title while `setRows` stays job ids and `selectedIndex()!==-1`. Drove `attemptHost(-1)` directly. | **closed-green** — title `attempt 2/3`→`attempt 1/3`, `_rows` contains no attempt-suffixed ids, `selectedIndex()!==-1`, pre-press view showed latest. |
+| 6 | Cycler no-ops: single-attempt, legacy, one-row grant; no draft mutation. | **closed-green** — cursor unchanged in all three; owner's one-row test (asserting draft untouched) passes in-suite. |
+| 7 | `classifyProgressKey("[")/" ]"` additive; kitty CSI-u honored; no collision with `e/t/f/g/G`. | **closed-green** — `[`→`prevAttempt`, `]`→`nextAttempt`, `e/t/f/g/G/x` unchanged, `\x1b[91;1u`→prev, `\x1b[93;1u`→next, `matchesKey("[","G")===false`. |
+| 8 | `browsableAttempts` four shapes + `resolveAttempt` (present/absent/null/empty). | **closed-green** — retrying→`[{1,job-1}]` len 1; running-2→len 2; done-3→len 3; legacy `{attempt:2}`→`[{2,job-1}]`; resolve present→entry+index, absent/null→last, empty→`{1,"",0}`. |
+| 9 | Copy byte-exact (§6); row label / `retrying in Ns` / R5 strings untouched. | **closed-green** — `· attempt ${shown.attempt}/${this.maxAttempts}`, `" · [/] attempt"` after `↑↓ move`, `` ` attempt ${m.attempt}/${this.maxAttempts}` ``, `` `retrying in ${secs}s` ``, R5 countdown/exhaustion and `The provider returned an error.` all present verbatim. |
+| 10 | §7 boundaries: `:869` untouched, no second view slot, `keyFor` untouched, no new tree rows. | **closed-green** — `git diff … -- navigator.ts | grep -c openTranscript` → 0 (still `findSessionFile(repoRoot, runId, node.manifest.id)` at :952, deferred per Q3); single `viewFor` slot; `keyFor` returns `` `${node.manifest.sessionId}` ``; `setRows` maps one job id per manifest. |
+| 11 | Leak question: does the cycler introduce the FLLWUP-39 undisposed-view defect, or expose a pre-existing one? | **closed-green (pre-existing, merely more reachable)** — base `821d717` `ensureView` (:462–477) already overwrote `viewFor` without disposing; head does identically (:522). Introduces nothing; out of scope by ruling, correctly left for FLLWUP-39. |
+| 12 | Rename `selectedSessionId→selectedRowKey` left no stale refs; named suites green. | **closed-green** — `grep -rn selectedSessionId extensions/ test/` → none; `ev8+ev9` 32 pass/0 fail; 7-file targeted run 112 pass/0 fail (incl. R4 `attempt 2/3`, R5, onActivate-not-Enter). |
+
+### What I ran (actual output)
+
+- `bunx tsc --noEmit` → exit 0, no output. `python3 council/validate.py` → `All council artifacts valid`, exit 0.
+- `bun test` → `882 pass, 2 skip, 0 fail, 5603 expects, 77 files, 94.60s` (matches the expected ~882/2/0).
+- Targeted: `bun test test/fllwup45-attempt-awareness.test.ts test/ev7-council-tree-widget.test.ts test/tree.test.ts test/ev40-parent-retry.test.ts test/ev8-focus-navigation.test.ts test/ev9-progress.test.ts test/navigator.test.ts` → `112 pass, 0 fail`.
+- Gate integrity (`/tmp` copy): appended `export const __gatecheck_defect: number = "not-a-number"` → `tsc` red `error TS2322 … runs.ts(246,14)`, exit 2; `git checkout` restore → exit 0. Behavioral gate: `keyFor→manifest.id` → two-phase probe red (`phase2 shows two: false`), single-render shipped test green (the O2b finding).
+- Worktree `git status --short` → empty (byte-identical); `git rev-parse HEAD` → `e799ca1edc26d78857f0e59d54da8310845ce43f`.
+
+### Verdict
+
+**`blocks`** — one item: **O2b, the tail-cache guard test does not satisfy its spec-pinned property.** Spec §8.5 requires the test to go red under a `keyFor → manifest.id` regression; as shipped it stays green (15/15) under exactly that mutation. The branch *behavior* is correct (my two-phase probe proves it), so the fix is test-only: extend the shipped guard to the two-phase form — render with attempt 1 live, rewrite the manifest to attempt 2 with a later-`at` JSONL, `refresh()`, assert the row shows attempt-2 content — which I demonstrated goes red under the regression and green on the head. Everything else: no open objections.
