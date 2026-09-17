@@ -1757,3 +1757,132 @@ gate time). Commits `7439d0b` (red-first pins) and `a1d805a` (the block); plan
 at `docs/superpowers/plans/2026-09-17-FLLWUP-47-plan.md`. Markers:
 `<!-- red-base-shared-start -->` / `<!-- red-base-shared-end -->`;
 `<output_format>` addition outside the markers.
+
+### Step 9 — verify by acting (skeptic)
+
+`skeptic` (`job-19.2`, 4.4m, 22 turns, `stopReason=stop`, tokens in 75845 / out
+10480 / cR 811574 / cW 0 / reason 4734 / total 897899, cost≈$0.2611 catalogue)
+was dispatched at the **PR head** — subject `a1d805a901b25e3c2dc2d29aa72dfa6a8905d4e6`,
+head worktree `/tmp/fllwup47-verify` (removed after; main checkout left clean) —
+with the frame that step 9 precedes step 10 judging and step 11's mechanical
+merge, which the facilitator executes and no seat performs. It re-ran the full
+gate set, read the landed prose against the spec, and ran a perturbation
+battery with sha256-verified restores.
+
+**Facilitator transcription (counting only, deciding nothing):** seven
+objections — O1–O7 — **all `closed-green`; no `closed-red`, no
+`open-untested`. Verdict: `no open objections`.** The head SHA it verified
+equals `a1d805a` first-hand. The card therefore stays `In Review`; no fix
+cycle is triggered (step-9 iteration count: cycle 1 of ≤3, clean).
+
+Observed gate evidence at head (read by the Skeptic, its actual output): `bunx
+tsc --noEmit` exit 0 (after `bun install`; a raw worktree lacks `node_modules`,
+an environment cause the Skeptic named); `bun test` → `884 pass / 2 skip / 0
+fail`, 886 tests across 77 files; `python3 council/validate.py` → `All council
+artifacts valid`.
+
+`bash council/preflight.sh FLLWUP-47`, run on the named branch worktree, →
+verbatim: `FAIL: local history does not descend from origin/main (stale before
+running a card)`, exit 1 — the known-by-construction FLLWUP-27 branch-freshness
+artifact, now live because a facilitator record commit advanced `origin/main`
+past the branch cut. Recorded verbatim, not reclassified, and **not** used to
+weaken any criterion; the step-11 re-run set remains `tsc` / `bun test` /
+`validate.py`.
+
+The Skeptic's one non-blocking remark for the judge: field 7's landed text ends
+"…is the obligation; no red test lands." — a present-tense rule restatement, by
+its reading, not a per-record assertion and not an eighth evidence field. It is
+carried verbatim into the step-10 judge packet as part of the evidence.
+
+#### skeptic — step 9 (`job-19.2`) — verbatim
+
+Verification complete. Worktrees removed, main checkout clean (the `ln -s`
+never executed — target was a pre-existing directory; `git status --porcelain`
+empty). Report:
+
+**Head SHA verified: `a1d805a901b25e3c2dc2d29aa72dfa6a8905d4e6`** — `gh pr view
+64 --json headRefOid` returned exactly that SHA, and both worktrees I checked
+(`/tmp/fllwup47-verify`, owner's `.worktrees/fllwup-47`) resolved to it.
+
+## Objections
+
+- **O1 — Gates pass (tsc / bun test / validate.py).** Settling test: run all
+  three in order at head. `bunx tsc --noEmit` → exit 0 (after `bun install`;
+  raw worktree lacks node_modules so tsc exits 1 pre-install — environment, not
+  branch, cause). `bun test` → `884 pass / 2 skip / 0 fail`, 886 tests across
+  77 files. `python3 council/validate.py` → `All council artifacts valid`.
+  **closed-green.**
+- **O2 — Seven fields + triple + rule + Skeptic-derived boundary in landed
+  prose.** Settling test: first-hand read of the `git diff 0759761 a1d805a`
+  hunks against spec §3. All seven present with required substance (40-hex sha
+  + selection-rule sentence + `required`/`optional-second` role; transplant
+  file list + source head sha; stack-neutral "the repo's test command, quoted
+  verbatim"; counts + per-failure lines verbatim; detached-worktree provenance
+  + removal; copy set / "bare copy"; head sha + same command + `0 fail`).
+  Comparison triple `(base sha, transplant identity, exact command)` with
+  equal-triple-exact-reproduction and differing-triple-never-compare rules,
+  population sub-rule, and cross-card non-aggregation all present. Shared block
+  contains the Skeptic-derivation sentence ("The skeptic — not the owner —
+  derives the two-class boundary…"), two classes only ("Two classes only — no
+  third class is defined"), zero hits for `incidental`/`redAttribution` in
+  either seat. **closed-green.**
+- **O3 — Drift pin can fail.** Settling test: one-word perturbation inside
+  skeptic's marked block → `bun test test/prose.test.ts` → `(fail) red-base
+  convention block is byte-identical in owner and skeptic seats`, 15 pass/1
+  fail; restored byte-exact (sha256 match) → 16/0. **closed-green** (objection
+  I raised and lost — the pin holds).
+- **O4 — Reachability pin can fail and is region-scoped.** Settling test:
+  `Copy set` → `Copy collection` inside `<output_format>` only (shared-block
+  occurrence untouched) → `(fail) red-base convention vocabulary reaches the
+  skeptic's output format`, exit 1; restored → green. This simultaneously
+  proves vocabulary parked outside the region cannot satisfy the pin. All seven
+  field names + triple + `` `0 fail` `` confirmed inside the region via
+  whitespace-flattened check; test uses `lastIndexOf("<output_format>")` as
+  claimed. **closed-green.**
+- **O5 — Stack guard covers the new block.** Settling test: inject `(bun test)`
+  into owner's block → `(fail) council prose does not pin a specific tech
+  stack` naming `agents/owner.md` (plus drift pin red); restored byte-exact.
+  Block contains zero runner names / `@ts-expect-error` by direct grep.
+  **closed-green.**
+- **O6 — Scope discipline.** Settling test: `git diff --stat 0759761 a1d805a` →
+  exactly 4 files (`owner.md`, `skeptic.md`, `test/prose.test.ts`, one plan
+  file); zero diff in `council/procedures/`, `judge.md`, `validate.py`,
+  `scaffold/`, `vault/`; no `package.json` change; `GATE-EVIDENCE.md` appears
+  only twice, both in the plan file's out-of-scope list (zero in seat prose);
+  full diff read shows no user-visible copy. **closed-green.**
+- **O7 — Red-first is real.** Settling test: throwaway worktree at pins-only
+  commit `7439d0b` → `bun test test/prose.test.ts` → `14 pass / 2 fail` (both
+  new pins red); at head → `16 pass / 0 fail`. Matches the claimed `14/2 →
+  16/0` exactly. **closed-green** (reproduced, not merely asserted).
+
+## What I ran
+
+- `gh pr view 64 --json headRefOid…` → `a1d805a…`; `git worktree add --detach
+  /tmp/fllwup47-verify a1d805a…` → HEAD confirmed.
+- `bun install` + `bunx tsc --noEmit` → `TSC_EXIT=0`; `bun test` → `884 pass /
+  2 skip / 0 fail / 77 files`; `python3 council/validate.py` → `All council
+  artifacts valid`.
+- Full `git diff 0759761 a1d805a -- council/agents/` read (both hunks pasted
+  in-session); byte-identity script → `True`, len 3815, 0 trailing-ws lines;
+  region-scoped vocab script → 9/9 in-format.
+- Perturbation battery (drift-word, output_format vocab, runner-name injection)
+  with red-then-restore cycles, sha256-verified restores, all green after.
+- Red-first worktree at `7439d0b` → `14 pass / 2 fail / REDFIRST_EXIT=1`.
+- `bash council/preflight.sh FLLWUP-47` on the named branch worktree →
+  verbatim: `FAIL: local history does not descend from origin/main (stale
+  before running a card)`, exit 1. (In a detached worktree the freshness clause
+  is skipped by construction — `symbolic-ref` fails → branch defaults to
+  `main` — so the FAIL is observable only on the named branch. Recorded
+  verbatim, not reclassified, not used to weaken any criterion, per the card's
+  standing note.)
+
+## Verdict
+
+**No open objections.** One remark for the judge, not a block: field 7's landed
+text ends "…is the obligation; no red test lands." — a present-tense rule
+restatement, not a per-record "no red test landed" assertion and not an 8th
+evidence field; the head half (sha + same command + `0 fail`) is fully present
+and no prohibited field rides with it. All spec hard boundaries (no three-class
+field, no owner-written bit, no `GATE-EVIDENCE.md` in the block, no
+out-of-scope files, no version bump, no user-visible copy) verified holding by
+runnable checks.
