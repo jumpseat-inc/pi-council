@@ -114,3 +114,44 @@ Owner usage (verbatim, job-7.1):
 ```
 job-7.1  turns=28 tokens=in 71564/out 9241/cR 972096/cW 0/reason 3329/total 1052901 cost≈$0.0267
 ```
+
+### Step 9 — Skeptic NO-BLOCK at head 8815bf4 (verify cycle 1 of ≤3)
+
+Skeptic (job-7.2) verified at the pinned subject — head SHA
+`8815bf44644c474f4d1a95323e06a4d6bda6580c`, head worktree
+`.worktrees/fllwup-42` — with the loop frame stated (step 9 precedes step 10
+judging and step 11's facilitator-executed mechanical merge). Verdict:
+**`no open objections`**, eight objections all `closed-green`, each with a
+real run at the head:
+
+1. Copy satisfies the goal's second disjunct — the section names
+   `gh pr merge <PR> --squash --admin --match-head-commit <X>` as "the
+   sanctioned merge step", run-scoped, `HALT` when unauthorized.
+2. Five criteria / criterion-2 read / `--match-head-commit` pinning
+   byte-unchanged (`git diff 4ae414f..HEAD` touches only the stale trailing
+   paragraph).
+3. Run-scoping real, not a standing-bypass loophole — attack attempted and
+   lost; the authorization must be a recorded human decision on the card
+   face and is never extended.
+4. Red-first integrity — stripping `--admin` from the procedure turns the
+   new pin red (`12 pass, 1 fail`, naming the exact string); restored
+   `13 pass, 0 fail`; the diff is a pure addition, no assertion narrowed.
+5. Prose forbidden-token guards green (13/13, no forbidden token).
+6. Step-11 gates green and each provably failable: `bunx tsc --noEmit`
+   exit 0 (red on injected TS2322); `bun test` 859 pass / 2 skip / 0 fail
+   (5524 expects, 94.57s); `validate.py` clean (red on `state: Bogus`).
+7. Preflight `FAIL: local history does not descend from origin/main` — the
+   documented FLLWUP-27 mid-card record-push artifact (merge-base
+   `4ae414f`, `origin/main` moved to `bd6e5ea` by the step-8 record
+   commit); the step-11 re-run set (`tsc`/`bun test`/`validate.py`) is all
+   green. Not a defect; no criterion weakened.
+8. Digest/fixture non-impact — fixtures diff empty, no seed carries the
+   procedure.
+
+Verify cycles used: 1 of ≤3; no fix cycle needed.
+
+Skeptic usage (verbatim, job-7.2):
+
+```
+job-7.2  turns=19 tokens=in 147223/out 6777/cR 311267/cW 0/reason 2025/total 465267 cost≈$0.2595
+```
