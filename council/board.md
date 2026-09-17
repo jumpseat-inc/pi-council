@@ -36,8 +36,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- FLLWUP-43 — Make the goal field a lossless oracle for the judge
-
 ## Ready
 
 - FLLWUP-41 — Reconcile council.md step 12's non-fast-forward wording with the union-merge repair
@@ -49,6 +47,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-49 — Promote the offline faux-provider harness into a shared smoke helper
 
 ## In Progress
+
+- FLLWUP-43 — Make the goal field a lossless oracle for the judge
 
 ## In Review
 
