@@ -38,8 +38,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- FLLWUP-44 — Name the provider failure before the backoff countdown
-
 ## Ready
 
 - FLLWUP-45 — Navigator attempt-awareness for retried dispatches
@@ -48,6 +46,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-49 — Promote the offline faux-provider harness into a shared smoke helper
 
 ## In Progress
+
+- FLLWUP-44 — Name the provider failure before the backoff countdown
 
 ## In Review
 

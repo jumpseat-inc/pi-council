@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-44
 title: Name the provider failure before the backoff countdown
-state: Deliberating
+state: In Progress
 owner: null
 epic: EPIC-9
 goal: During a retried parent turn's backoff the surface names the provider failure once, distinct from the countdown line, and the copy is ruled before it ships.
@@ -630,3 +630,27 @@ and exhaustion strings unchanged); R5's binding strings are quoted above as
 immutable invariants; scope/merge/union-merge rulings as recorded in Step 1.
 No `Needs Human` state is entered: `product-owner` may rule both items, and
 R3's escalation path is the orchestrator.
+
+### Step 6b — R3 ruling returned (product-owner job-10) — APPENDED VERBATIM
+
+> **R3 ruling.** Q1 — exact string: `The provider returned an error.` (period, no glyph, no vendor token). Renders equal to this at wide widths; `truncateToWidth(width)` clamp at narrow widths. Pure static formatter output; emitted iff `classifyParentTurnRetry(pendingError) === "retry"`; absent on `idle` and `exhausted`. Engine-level gate: no `finish_reason` substring; not byte-equal to `Provider finish_reason: error`; does not start with `Retrying in`. Q2 — re-show semantic: per backoff episode. The failure line shows at every `beginBackoff(attempt, delayMs)` (attempts 2 and 3), survives across countdown ticks for that episode, disappears with `clearToIdle()` / `moveToExhausted()` / `escAbort()`. Zero new controller state — `surfaceState === "backoff"` is the gate. Carrier confirmed: a second editor-region line pushed above the R5 countdown in `RetryEditor.render(width)` (TUI) and one `host.print` immediately before the first `formatRetryCountdown` print of each backoff episode in headless. R5 binding strings unchanged and binding: countdown `Retrying in 2s (attempt 2 of 3) — Esc to abort`; exhaustion `Retries exhausted after 3 attempts. The provider kept failing. Press Enter to try again.`
+
+Additional binding detail from the ruling (also append to the record): the line is never assembled from `pendingError.errorMessage`; it is a pure static `formatRetryFailure()` output. Rejected candidates and reasons: `Provider returned no response.` (closed-red — an `error`-stop turn can carry streamed partial text, so it can contradict the transcript above it); `Provider request failed — retrying.` (owner conceded round 2); `Provider error.` (drops the article; `The provider` matches R5's terminal-copy register). Rejected semantic: once-per-cycle would need a `RetryController` latch with a reset point distinct from `clearToIdle()` plus a headless-side flag, neither of which exists; designer's T-RR1 is recorded as the rejected semantic, not a skipped test.
+
+Both step-6 open-judgment items are closed by this ruling (R3). Applied, not re-asked:
+Q1 (exact string) = `The provider returned an error.`; Q2 (re-show) = per
+backoff episode. No `Needs Human` state; no further ruling outstanding.
+
+### Step 7 — Spec written, handed to one owner (facilitator)
+
+- **Spec:** `docs/superpowers/specs/2026-09-17-FLLWUP-44-design.md` — a settled
+  design write-up, not a derivation. Self-reviewed for placeholders,
+  internal consistency, scope (nothing beyond the card `goal`), and ambiguity
+  (an owner reading only the spec can reach exactly one design): clean.
+- **R3 applied, not re-asked:** Q1 string `The provider returned an error.`;
+  Q2 re-show = per backoff episode with `surfaceState === "backoff"` as the
+  sole gate (zero new controller state). R5's two binding strings unchanged.
+- **Path:** full-council, surface-touching. Handing the committed spec to the
+  single `owner`, which works in an isolated git worktree and never on `main`.
+- **State:** `In Progress` on the card frontmatter and on `council/board.md`;
+  `python3 council/validate.py` re-run clean after the write.
