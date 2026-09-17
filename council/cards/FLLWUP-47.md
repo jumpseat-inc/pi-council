@@ -1143,4 +1143,76 @@ the converged design, whose two `closed-red` targets the skeptic explicitly
 files as "not design defeats". `consolidator` (step 5) sorts these; the card's
 `goal` (a written convention for red-at-base evidence) is untouched by them, and
 the measured 7-vs-1 discrepancy that motivated the card stands, reproduced
-exactly this turn.
+exactly this turn.### Step 5 — synthesis (consolidator)
+
+`consolidator` (`job-17.2`, 1.4m, 3 turns, `stopReason=stop`, tokens in 32747 /
+out 6398 / cR 225952 / cW 0 / reason 3752 / total 265097, cost≈$0.1056
+catalogue) was handed the full deliberation record (steps 1–4) and returned the
+three-bucket sort below. Appended verbatim.
+
+#### consolidator — step 5 (`job-17.2`) — verbatim
+
+## Settled
+
+### Settled by a Skeptic run (O1–O8, this card)
+
+- **O1 — `closed-red`.** The `7 fail / 1 error` number **is reproducible**. Reconstructed at base `3e39e66` with transplant set `{extensions/retry.ts, test/stub-child.test.ts, test/ev41-retry-e2e.test.ts}` (all from EV-41 head `0330274`), base `test/stub-child.ts` kept. Composition: 6 assertion fails in transplanted head `test/stub-child.test.ts` run against the base stub (which lacks `flaky`/`finish_error`), plus 1 file-level `Cannot find module '../extensions/job-retry.ts'` counted as 1 fail + 1 error. This refutes owner's round-2 claim that the number was "unreproducible from any transplant/command combination." **What it settles about the design: nothing as a verdict.** It settles a *fact about EV-41's record* — the number has a known reconstruction recipe — and, together with O4, demonstrates that the unrecorded transplant set is precisely what the convention's triple would have forced into the record.
+- **O2 — `closed-red`.** The card's stated cause — "the difference tracks how much of `test/ev40-harness/` was copied into the base worktree" (carried in FLLWUP-47's grounded-facts list, sourced from EV-41 step 9) — is **false**. Removing `test/ev40-harness/` and `ev41-tui.py` from the reconstructed state leaves the count identical (`7 fail / 1 error`); the harness files are inert in that configuration. The six extra fails come from head `test/stub-child.test.ts` vs the base stub, enabled by an unrecorded `extensions/retry.ts` transplant. **What it settles about the design: nothing as a verdict.** It is a documented defect in the *record's causal sentence*, not in the converged design; the skeptic files it as "not a design defeat."
+- **O3 — `closed-green` (amended).** Principal's claim (d) confirmed on both halves with one leg added: `test/ev40-harness/` holds no test file (confirmed); the stub hypothesis is the confirmed causal chain **but only with the `extensions/retry.ts` transplant leg** (which `test/stub-child.test.ts:9` imports and which principal did not name). Settles the causal chain as a fact.
+- **O4 — `closed-red`.** Owner's "no one could classify the `7 fail` record correctly; reader-side derivation is worthless" is **refuted**. The reproduced 7/1 decomposes cleanly from raw lines + transplant manifest alone: 6 fails carry `stub-child.test.ts` test ids (copy-set/stub-absent reds); the 1 error names `../extensions/job-retry.ts` (the mechanism under test, absent at base — the base-native red). A reader holding fields 2+4+6 derives the boundary. **What it settles about the design:** it reinstates the reader-derivation duty both seats already converged on, as feasible. It does **not** reinstate a required three-class field — "incidental has no operational definition" (owner's objection) **stands**, and O4 explicitly does not overturn it.
+- **O5 — `closed-green` (narrowed).** Owner's "seven fields retro-predict EV-41 as not-comparable" holds, narrowed: the diagnosis is stronger than "not comparable" — the cause is now identified (O1–O3), and the triple would have forced the actual transplant set into the record.
+- **O6 — `closed-green`.** `extensions/seats.ts:592-597` `buildSystemPrompt` confirmed first-hand: a seat's prompt is `seat.body` + `<council_runtime>` (procedures **directory path only**) + grounding. **No procedure text reaches a seat.** This is the channel fact underpinning the site decision.
+- **O7 — `closed-green`.** All three guard claims confirmed: (a) the stack-pin regex `/\b(bun|bunx|typescript|tsc)\b|bun test|bun run|@ts-expect-error/i` reds on runner-naming drafts, greens on neutral phrasing; (b) the GATE-EVIDENCE guard is per-file (`features-deliver.md` only) while `council.md:238` still names the nonexistent `docs/gates/GATE-EVIDENCE.md` — gap real; (c) a `STEP3_FIXTURE`-style `toEqual` reds on drifted block copies, including trailing-whitespace drift. Plus principal's caveat confirmed: a **whole-file** byte-identity pin is unsatisfiable alongside the `<output_format>` vocabulary requirement — the pin must bracket a **marked shared block**.
+- **O8 — `closed-green`.** EV-38's `3e39e66` was green at its merged SHA (`gates` `conclusion: success`); the judge input contract is goal + skeptic evidence only (`judge.md` `<when_invoked>`).
+
+### Settled by convergence only (shared position; **no test** — rests on agreement, not evidence)
+
+- **One normative site: `council/agents/owner.md` + `council/agents/skeptic.md`, seat prose only.** Principal withdrew its two-site design in round 2; owner held. Rests on the O6 channel fact plus the judgment that the bound actor's context is the normative site.
+- **No normative `council.md` site, no `validate.py` parser, no JSON sidecar / structured artifact.** Both rejected; deliverable type is prose.
+- **Comparison key: `(base sha, transplant identity, exact command)` gates count comparison.** Across differing triples, counts are never compared; the surviving cross-triple claim is red-observed-at-base plus reader-derived mechanism-absent set equality.
+- **Raw red output verbatim — counts *and* per-failure lines — as the evidence.**
+- **No required three-class `redAttribution` field.** Principal conceded/dropped it; owner rejected; O4 sustains the rejection of the class field while reinstating reader-derivation.
+- **`prose.test.ts` as the enforcement class:** two pins — byte-identity on a marked shared block across `owner.md`/`skeptic.md`, plus a judge-reachability pin placing the field vocabulary inside `skeptic.md`'s `<output_format>` (`:151-163`). Both seats converged on two pins.
+- **Stack-neutral phrasing** ("the repo's test command, verbatim") — forced by O7(a).
+- **Required field set (converged shape):** base identity + base-selection rule + base role; transplant identity (enumerated file list + source head sha); exact command verbatim, stack-neutral; raw red output verbatim including per-failure lines; worktree provenance; explicit copy set; and the head half (head sha + same command + `0 fail`). *(Note: "field 7 / landing statement" shape is open — see open judgment.)*
+- **No user-visible copy introduced.** Both seats agree; skeptic confirms. The Phase-1 escalation boundary is **not triggered** by this design.
+- **Step-14 wiki-ingest offer left as the standing offer** (both seats lean leave-as-offer). Rests on convergence only.
+
+## Open judgment — for `product-owner`, escalating to `steward`
+
+Each is a values/craft call no test can settle. Both sides stated at equal weight.
+
+1. **Mechanism-absent boundary — placement.** Both seats agree the skeptic derives/audits it at step 9 from raw lines + transplant manifest (O4 shows this is feasible). They differ on whether the owner **also** writes the bit in its record. `owner`: skeptic-derives-only — the bit is derivable from already-required fields, so a written field is an unauditable assertion. `principal`: owner-produces, skeptic-audits — a division of labour, not a test. No test settles who must produce it.
+2. **Field 7 / landing statement vs head half.** `owner`: keep the "no red test landed" landing statement alongside the head half (it restates a standing rule whose violation is silent and catastrophic). `principal`: replace the landing statement with the head half (head sha + same command + `0 fail`) — its referent is observable, whereas the landing statement is an assertion. Both the head-half and the rule's existence are converged; the open question is whether the rule is *restated as a field* or *replaced by its observable proxy*.
+3. **Shared-block wording.** The *rule* (reader-derived mechanism-absent, keyed on the module path in the error text vs the copy set) is settled by O4; the *phrasing* of the sentence in the shared block is craft.
+4. **Section boundary the pin markers bracket** (where the shared block sits in each seat file — adjacent to the recording/reproduction duty vs parked at file end). Taste; decides whether the block is read at the moment the seat writes its evidence.
+5. **Pin granularity** — the marker placement and exact scope of each of the two pins (which slice of the shared block the byte-identity pin brackets; how tightly the judge-reachability pin scopes the vocabulary to `<output_format>`). Both seats converged on two pins of this class; the granularity inside is craft.
+6. **Step-14 wiki-ingest offer — mandated vs standing.** Both seats lean "leave as standing offer"; no ruling has been made. (Listed here per the runner's residual list; note both seats agree, so it is the lightest of the open items — a confirmation, not a live dispute.)
+
+## Open objections
+
+**None blocking.** The skeptic's verdict is no `open-untested` and no blocking objection against the converged design. The two `closed-red` results (O1, O2) are **documented, reproducible defects in the record's supporting text**, not in the design — "documented is not fixed," but they are closed (tests ran), not open. They require two **record corrections before this card proceeds** (the skeptic's stated terms, not design defeats):
+
+1. The grounded-facts list's repetition of EV-41's "copy depth of `test/ev40-harness/`" explanation is known-wrong (O2); the 6 fails are head `test/stub-child.test.ts` vs the base stub, enabled by an unrecorded `extensions/retry.ts` transplant (O1/O3).
+2. Owner's round-2 "unreproducible" finding is refuted (O1); the reconstruction recipe is the skeptic's transplant table.
+
+Neither correction alters the `goal` or the converged design; both must be reflected in the spec/record so the convention is written against the true causal story.
+
+## What remains before this card can proceed to a spec
+
+The design has converged on site, field set, comparison key, enforcement class, and copy boundary, and the skeptic closed every objection with no blocking item remaining. What stands between this record and a spec is: (a) the two record corrections above (mechanical, the skeptic already supplied the true story); and (b) six open-judgment calls — boundary-bit placement, field-7-vs-head-half, shared-block wording, pin-marker section, pin granularity, and the wiki-ingest-offer confirmation — none of which a test can settle and all of which are craft/placement decisions a ruling seat (`product-owner`, escalating to `steward`) must decide before the owner writes the block, since the owner cannot pick a winner on them. No user-visible copy is introduced, so no escalation is triggered on the design itself.
+
+**Facilitator's transcription (counting only, deciding nothing):** the
+consolidator sorted 8 Skeptic-closed items (O1–O8, all closed by a run), 10
+convergence-only settled items (explicitly *not* test evidence), **6 open-judgment
+items**, and **0 open objections** (none blocking; the two `closed-red` results
+are documented defects in the record's supporting text, already closed by the
+Skeptic's runs). The consolidator's own stated precondition for step 7 is that
+the six open-judgment items are decided by a ruling seat first, because "the
+owner cannot pick a winner on them". Per `<escalation_contract>`, this
+container routes them rather than deciding them: none is answered by a Phase-1
+ruling (the card-specific ruling assigns *siting* to the deliberation — which
+settled it — and makes only user-visible copy beyond internal documentation
+open-judgment; the design introduces none, so that clause is not triggered).
+This container does not dispatch `product-owner`; step 6's open-judgment items
+are carried to the orchestrator as an `ESCALATION`.
