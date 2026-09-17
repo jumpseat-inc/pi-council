@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-48
 title: Suite-cost budget for the live pty and -p falsifier arms
-state: In Review
+state: Done
 owner: null
 epic: EPIC-9
 goal: The default bun test suite's wall-clock budget is documented, and the live pty and -p falsifier arms run within it or are gated behind an opt-in.
@@ -1432,3 +1432,47 @@ objection (step 9 PASS); (4) judge PASS (step 10); (5) no `Needs Human` state
 and no outstanding ruling on the card (the step-6 ruling was returned and
 applied). Merging pinned: `gh pr merge 66 --squash --admin --match-head-commit
 64ecb72e4fb04463162bbe7d15fa008c13d9931a`.
+
+### Step 12 — sync, reconcile, Done (facilitator, observed artifacts)
+
+Merge landed: PR #66 `MERGED`, squash commit
+`1cf907f754339d86b512a60264c68070dc99c477`. Local `main` fast-forwarded
+cleanly from `origin/main` (`git pull --ff-only` → `1cf907f`; no union-merge
+repair needed; R1 not exercised). **CI on the merged SHA confirmed green: the
+`gates` workflow ran `success` at `1cf907f7` on `main`** (the PR-head check
+was already `SUCCESS` per criterion 2; the post-merge run was awaited and
+observed before this transition — status from observed artifacts, never from a
+seat report). Card set `Done` in frontmatter and on the board;
+`python3 council/validate.py` → `All council artifacts valid`; record
+committed and pushed. Known-artifact note: the FLLWUP-27 branch-freshness
+stale-by-construction line did not recur — preflight ran PASS clean at the
+detached verification worktree (step 9).
+
+### Step 13 — follow-up drafts (drafted only; confirmation re-homed to `product-owner`)
+
+Per the run-wide ruling this container drafts and writes **nothing** to
+`council/cards/` unapproved, and never dispatches `product-owner`. Two drafts
+carried in the runner report for ruling-seat confirmation:
+
+1. **`gates.yml` runaway `timeout-minutes` backstop** — explicitly deferred by
+   PO ruling 2 ("CI-timeout policy is a separate question, different rationale,
+   revision path"); the deciding arithmetic (TUI arm ceiling `300_000` > suite
+   budget) is recorded on this card and in the wiki page.
+2. **Witness allowlist-decay policing** — the shape witness's token regex is a
+   hand-maintained allowlist that already missed once (the `:325`
+   source-comment token, fixed on this card without widening the regex per the
+   principal's refinement); a follow-up could derive or police the token list
+   mechanically so the next token retirement cannot silently create a new
+   miss.
+
+Also surfaced, not card-worthy: the skeptic's observation that preflight's
+branch-freshness check is structurally skipped on detached HEAD (the
+FLLWUP-27 Backlog card's territory; recorded here, no new card drafted).
+
+### Step 14 — persistence
+
+The durable artifact the card produced is itself wiki material
+(`vault/wiki/test-suite-budget.md`, delivered in the PR with the catalog
+link); the PO ruling raw text is committed at
+`vault/raw/2026-09-19-po-fllwup48-test-suite-budget.md`. No further
+`/wiki-ingest` offering is needed from this card.
