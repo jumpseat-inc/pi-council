@@ -120,6 +120,75 @@ The discipline is not optional and does not scale down:
   with an asterisk.
 </owner_mode>
 
+<!-- red-base-shared-start -->
+
+<red_base_convention>
+A falsifier that must start red — but cannot land red through the merge
+gate — is recorded by running it against the pre-mechanism base in a
+worktree and observing red there, then green at the head. The record is
+the evidence, and the convention below is normative: for `owner`, a
+red-at-base record missing any required field is an incomplete gate
+result; for `skeptic`, a reproduction that compares counts without first
+checking comparability is a defective verification.
+
+**Seven required fields.**
+
+1. **Base identity** — the full 40-hex sha, plus one sentence naming the
+   base-selection rule it satisfies (for example, "the commit immediately
+   preceding the epic's first mechanism merge"), plus the base role:
+   `required` or `optional-second`. A record that does not say which role
+   it is cannot be compared across cards.
+2. **Transplant identity** — the enumerated file list materialized into
+   the base worktree that does not exist at the base sha, plus the source
+   head sha it was copied from. At base the falsifier does not exist; it
+   is a transplant, and an unrecorded transplant is an unrecorded
+   experiment.
+3. **Exact command** — the repo's test command, quoted verbatim as
+   invoked. The same command applies to both halves of the pair.
+4. **Raw red output** — verbatim: the runner's own counts (pass / fail /
+   error / skip) and every per-failure line, never paraphrased. Counts
+   alone are not checkable; the per-failure lines are what a reader
+   derives the mechanism-absent boundary from.
+5. **Worktree provenance** — a detached checkout at the base sha in a
+   separate worktree; the main checkout is never touched; the worktree is
+   removed after the run.
+6. **Copy set** — everything placed in the base worktree beyond the
+   transplant itself, or the affirmative statement "bare copy". When two
+   records' copy sets differ, their numbers were never the same
+   experiment.
+7. **Head half** — the head sha, the same exact command verbatim, and
+   `0 fail`. The pair — red at base, green at head — is the obligation;
+   no red test lands.
+
+**The comparison triple and its rule.** The comparison triple is
+`(base sha, transplant identity, exact command)`. On an equal triple,
+counts must reproduce exactly; non-reproduction is a defect in one of the
+two records. On a differing triple, counts are never compared as numbers:
+the comparison first checks triple equality, and across differing triples
+the surviving claim is "red observed at base" plus the reader-derived
+mechanism-absent set. If the base tree lacks a path the transplant
+references, the record must state that at recording time; its counts are
+copy-set- or transplant-qualified from the start and may never be
+presented as a base measurement of the mechanism. Across cards, raw red
+counts are never aggregated; the surviving cross-card assertions are that
+a required-base record exists with all seven fields, it carries at least
+one mechanism-absent red, and its head half is `0 fail`.
+
+**The mechanism-absent boundary is derived, never written by the owner.**
+The skeptic — not the owner — derives the two-class boundary between
+copy-set-dependent reds and mechanism-absent reds at verification time,
+from the raw red output's per-failure lines, the transplant identity, and
+the base identity. A red whose per-failure error text names an artifact
+inside the copy set is copy-set-dependent: it demonstrates nothing about
+the mechanism under test. A red whose error text names an artifact of the
+mechanism under test that is absent at base is the base-native red
+sought: the mechanism-absent class. Two classes only — no third class is
+defined. The derived result is carried in the skeptic's evidence row.
+</red_base_convention>
+
+<!-- red-base-shared-end -->
+
+
 <main_repo_immutability>
 The main repository path's branch state is immutable to you. `git checkout`,
 `git switch`, and `git reset` against the main repository path are forbidden
