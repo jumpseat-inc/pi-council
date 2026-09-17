@@ -312,10 +312,18 @@ seat model provider OpenRouter has an API key source — an ambient
 
 ```bash
 bun install
-bun test              # full suite (integration test gated behind COUNCIL_INTEGRATION=1)
+bun test              # full suite (≈94s here; see vault/wiki/test-suite-budget.md)
 bunx tsc --noEmit     # typecheck
 bun run smoke         # unattended end-to-end smoke test (needs OPENROUTER_API_KEY)
 ```
+
+The default suite's measured wall clock on this machine is ≈94s
+(2026-09-17, `ca22360`, after `bun install`: `time bun test`) — see
+`vault/wiki/test-suite-budget.md` for the per-arm table, the re-measure
+command, and the 180s drift threshold. The live pty/CLI arms inside it are
+offline faux-provider runs needing no network or credentials; only the
+integration and context7 probes are opt-in-gated
+(`COUNCIL_INTEGRATION=1` and `COUNCIL_MCP_INTEGRATION=1`).
 
 `bun run smoke` builds an isolated Docker container, installs this package
 into the fixture consumer repo under `smoke/fixture/`, then drives a full
