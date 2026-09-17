@@ -1402,3 +1402,33 @@ wording is the spec's own mandate; the provider-cost T-P9 inline-return skip
 matches the already-recorded O10 note). **No blocking Skeptic objection —
 deterministic merge check criterion 3 holds.** Verify-cycle counter: 1 of 3
 used, no fix cycle needed.
+
+### Step 10 — judge verdict (`job-28.3`) — PASS
+
+`judge` settled `done` (3.1m, 15 turns), input = the card's `goal` verbatim +
+the Skeptic's step-9 evidence, nothing else; subject pinned to PR #66 head
+`64ecb72`; frame stated (judging precedes the mechanical merge, which has not
+happened). **Verdict: PASS.** Basis, independently verified at the branch head
+(the judge ran the full suite itself at `64ecb72`: 893/2/0 across 78 files at
+**94.56s**, within the envelope and under the drift threshold): (1) the budget
+is documented at all three mandated sites with provenance, both flags, and the
+wiki catalog link; (2) the live pty and `-p` arms run within the documented
+budget and are not opt-in-gated — zero references to either flag in the four
+live-arm files, the disjunct satisfied by the "run within it" branch, which
+the recorded PO ruling makes a valid delivery of the goal. **Deterministic
+merge check criterion 4 holds.**
+
+### Step 11 — merge gate (autonomous, deterministic check)
+
+All five criteria checked by this facilitator from observed artifacts, in
+order: (1) owner gates green in full — owner ran all four on the final tree;
+Skeptic independently re-ran all four at head (tsc 0, bun 893/2/0 @ 96.91s,
+validate.py clean, preflight PASS) and proved each gate capable of failing; (2)
+CI green on the PR head SHA — `gh pr checks 66 --json name,state,workflow` →
+`[{"name":"gates","state":"SUCCESS","workflow":"gates"}]`, keyed on the
+`workflow` field per the run ruling, head SHA re-read immediately before merge
+= `64ecb72e4fb04463162bbe7d15fa008c13d9931a`; (3) no blocking Skeptic
+objection (step 9 PASS); (4) judge PASS (step 10); (5) no `Needs Human` state
+and no outstanding ruling on the card (the step-6 ruling was returned and
+applied). Merging pinned: `gh pr merge 66 --squash --admin --match-head-commit
+64ecb72e4fb04463162bbe7d15fa008c13d9931a`.
