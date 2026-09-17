@@ -4,7 +4,7 @@ title: Promote the offline faux-provider harness into a shared smoke helper
 state: Deliberating
 owner: null
 epic: EPIC-9
-goal: The offline faux-provider harness is a shared test helper that both the parent-turn and seat-dispatch provider-error tests import, with no duplicated harness copy.
+goal: The offline faux-provider harness is one shared test helper under test/, imported by each of test/ev40-headless.test.ts, test/ev40-live-gates.test.ts, test/ev41-retry-e2e.test.ts and test/ev43-reachability.test.ts, with the seat-dispatch arm's child staying on test/stub-child.ts and no duplicated harness copy under test/ or in ev43/, witnessed by a committed shape test asserting exactly one provider extension, one headless runner, and one pty screen model.
 ---
 
 ## Intent
