@@ -889,3 +889,44 @@ T8 judge smoke is `COUNCIL_INTEGRATION`-class and not in the owner gate set;
 the `vault/` correction routes through step 14; no `package.json` bump per
 run-scoped EPIC-9 precedent (FLLWUP-40). Card set `In Review` from the
 observed open PR alone.
+
+### Step 9 — Skeptic verification at the branch head
+
+Dispatch `skeptic` job-6.2 (30-min ceiling; settled 3.8m / 16 turns, total
+792,318 tok, cost≈$0.4575). Verification subject: PR head SHA
+`438978193545241bb3bca29e20ee53a3c7a076e2` at head worktree
+`.worktrees/fllwup-43`; frame: step 9 precedes step 10 judging and step 11's
+facilitator merge. Read-only; no branch mutation, no CI polling.
+
+Gate set re-run at the branch head, all green: `bash council/preflight.sh
+FLLWUP-43` → `PASS: preflight clean`; `bunx tsc --noEmit` → clean (exit 0);
+`bun test` → 858 pass / 2 skip / 0 fail across 76 files; `python3
+council/validate.py` → `All council artifacts valid`.
+
+All ten falsifiable objections were run and settled `closed-green`: colon-space
+FAIL absent (grep over all 10 copies, exit 1) and a treatment card with
+`Provider finish_reason: error` validates exit 0; parser logic unchanged and
+lossless with the trim pinned; zero `byte for byte`/`byte-exact` wording on the
+governed surfaces; all 10 `validate.py` + 10 `_template.md` byte-identical
+(`35e3fcf1…` / `120a87f1…`); procedures carry the oracle and drop the ban and
+"rephrase"; `rubricVersion 1.1.0` with c3 rewritten verbatim and all 8 seeded
+`fixture.json` at `fixtureVersion 1.1.0` with digests verifying at load
+(`test/fixtures.test.ts` 26 pass / 0 fail); T6 card→`parse_frontmatter`→
+`PROVIDER_FINISH_REASON_ERROR` treatment/control discriminates (full file 11
+pass); wrap still silently truncates with validate exit 0 and no wrap-FAIL
+added; no Done card goal edited and no `vault/` hand-edit; the validator still
+FAILs on a real defect (deleted goal key → `missing required key 'goal'`).
+
+One **open-untested** residual: the live R4 single-cell smoke on
+`council/fixtures/board-create-card` (a real judge dispatch over the
+treatment/control pair) was not run — it needs a model dispatch
+(`COUNCIL_INTEGRATION`-class, outside the owner gate set). What shipped is the
+offline realization: the rewritten c3 literal asserted byte-exact plus the
+treatment/control parse discrimination. This residual is governed by the
+binding product-owner R4 ruling (single-cell-scale treatment/control is the
+minimum sufficient evidence; the full matrix is not required) and by the
+steward ESC-1 disposition (the judge-reads leg is a procedural residual, not
+claimed gate-verified). It is recorded, not claimed green, and is not a red.
+
+Verdict: **`passes`**. Criterion 3 of the deterministic merge check (no
+blocking Skeptic objection) holds.
