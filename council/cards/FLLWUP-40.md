@@ -97,3 +97,53 @@ Owner usage (verbatim, job-2.1):
 ```
 job-2.1  turns=36 tokens=in 74436/out 17647/cR 1376512/cW 0/reason 9600/total 1468595 cost≈$0.0368
 ```
+
+### Step 9 — Skeptic NO-BLOCK at head 470bc96 (verify cycle 1 of ≤3)
+
+Skeptic (job-2.2) verified at the pinned subject — head SHA
+`470bc96dce591617b2ff60e75022b4e1a7ffefd1`, head worktree
+`.worktrees/fllwup-40` — with the loop frame stated (step 9 precedes step 10
+judging and step 11's facilitator-executed mechanical merge). Verdict:
+**`no open objections`**, five objections all `closed-green`, each with a
+real run at the head:
+
+1. **Environment-dependence closed, not masked.** Three full-suite runs at
+the head — ambient unset, `openrouter/ambient/model`, and
+`openrouter/ambient/model:high` — all identical **847 pass / 2 skip / 0 fail /
+5481 expects**. Grep confirms no test still depends on the shell ambient
+(`override.test.ts` pins its own value before asserting).
+2. **Real invariant preserved.** Diff head-vs-base shows only *added*
+control of the variable plus the child-env expectation
+`"openrouter/ovr/model"` → `"openrouter/ovr/model:high"`; the argv
+`--model openrouter/ovr/model` and manifest `.model ===
+"openrouter/ovr/model"` assertions are byte-identical to base. Checked
+against `extensions/seats.ts` `resolveEffectiveModel` and
+`extensions/dispatch.ts:97-101`: under a pinned ambient with a `:thinking`
+suffix and no param thinking, the code genuinely builds the composite —
+the new expectation matches the implementation, it was not rewritten to
+pass.
+3. **`test/job-retry.test.ts` extension is in scope and required.** At the
+base `93d7a34` under an exported ambient `openrouter/ambient/model:high`,
+**3 tests fail** — the eval-runner dispatch-primitive plus both job-retry
+wiring calls (an exported ambient legitimately resolved as the effective
+model and hit the loud-refusal path). Fixing only `test/eval-runner.test.ts`
+would leave the `bun test` gate environment-dependent, which is exactly
+criterion 1 / the card's Intent. Head targeted rerun with ambient: 46 pass /
+0 fail.
+4. **Gate integrity — all three gates watched fail then restored.**
+`bun test` (injected `WRONG/model:high` → 1 fail naming the test);
+`bunx tsc --noEmit` (injected TS2322 → named error); `validate.py`
+(bogus card → `FAIL:` lines). Each restored; `git diff --stat` empty after.
+5. **Restoration on the throw path.** Verbatim `finally` patterns with an
+injected throw, ambient defined and unset — all four combos restore the
+shell ambient.
+
+Skeptic ran its base-worktree probe under `/tmp/fllwup40-base`, removed it
+afterward, and never touched the main checkout. Verify cycles used: 1 of ≤3;
+no fix cycle needed.
+
+Skeptic usage (verbatim, job-2.2):
+
+```
+job-2.2  turns=13 tokens=in 115120/out 7380/cR 177725/cW 0/reason 2853/total 300225 cost≈$0.2019
+```
