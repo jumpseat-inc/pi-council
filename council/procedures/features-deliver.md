@@ -158,10 +158,24 @@ the merge method in use, re-read `headRefOid` immediately before merging and
 abort if it no longer equals `X`. Either way, a mismatch is a **`HALT`, not
 a retry**.
 
-Merge-time behaviour — branch protection, required status checks — may not
-be configured in this repo. The first autonomous merge this command
-performs should be watched by the human, not merely reported after the
-fact.
+**Merge-time repository protection is a fact to satisfy, not an obstacle
+to route around.** A `main` ruleset that requires an approving review
+blocks an ordinary merge. Under such a ruleset, the sanctioned merge step
+is the human-granted admin bypass, performed with the SHA pinned exactly
+as above:
+
+> `gh pr merge <PR> --squash --admin --match-head-commit <X>`
+
+**The `--admin` bypass is sanctioned only as a run-scoped authorization.**
+It is valid only when a recorded human decision — a Phase-1 ruling, named
+on the card face before the merge — authorizes it for this run. The
+authorization is **not extended to any later run**: a run with no such
+recorded authorization must not use `--admin`. If the ruleset then blocks
+the merge, that is a **HALT surfaced to the human** — the protection is
+doing its job, not an obstacle to defeat.
+
+The first autonomous merge this command performs should be watched by the
+human, not merely reported after the fact.
 
 ## Guards
 
