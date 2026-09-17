@@ -41,10 +41,10 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
+- FLLWUP-48 — Suite-cost budget for the live pty and -p falsifier arms
 
 ## Ready
 
-- FLLWUP-48 — Suite-cost budget for the live pty and -p falsifier arms
 
 ## In Progress
 
