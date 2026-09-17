@@ -256,3 +256,41 @@ test("features-deliver names the run-scoped --admin bypass as the sanctioned mer
 	expect(mergeCheck).toContain("must not use `--admin`");
 	expect(mergeCheck).toContain("HALT surfaced to the human");
 });
+
+// FLLWUP-41 (Phase-1 ruling R1): a literal reading of council.md step 12
+// HALTs a diverged local `main` that the documented union-merge reconcile
+// resolves. Step 12's non-fast-forward paragraph must name the union-merge
+// reconcile as the sanctioned non-destructive repair, retain the never-force
+// guard, and carry the reconcile's own discipline (validator clean + a
+// conflict-marker sweep, the wiki's documented failure mode).
+
+test("council step 12 names the union-merge reconcile as the sanctioned non-fast-forward repair", () => {
+	const text = fs.readFileSync(
+		path.join(PKG_ROOT, "council", "procedures", "council.md"),
+		"utf-8",
+	);
+	// Whitespace-normalized so the pin survives line wrapping in the prose.
+	const flat = text.replace(/\s+/g, " ");
+	const stepStart = flat.indexOf("## 12. Sync and reconcile");
+	const stepEnd = flat.indexOf("## 13. Card the follow-ups");
+	expect(stepStart).toBeGreaterThan(-1);
+	expect(stepEnd).toBeGreaterThan(stepStart);
+	const step12 = flat.slice(stepStart, stepEnd);
+	// The sanctioned repair is named: the documented union-merge reconcile,
+	// applied instead of HALT-ing on a non-fast-forward.
+	expect(step12).toContain("does not fast-forward cleanly");
+	expect(step12).toContain("union-merge reconcile");
+	expect(step12).toContain("the sanctioned non-destructive repair");
+	// The never-force guard stands: force-pushing, rewinding, or discarding a
+	// side stays forbidden.
+	expect(step12).toContain("force-pushing, rewinding, or discarding a side");
+	expect(step12).toContain("forbidden");
+	// The reconcile's own discipline: union-keep both record sides, the
+	// validator must be clean, and a conflict-marker sweep — a union resolve
+	// can leave a lone marker behind.
+	expect(step12).toContain("union-keep both record sides");
+	expect(step12).toContain("`council/validate.py`");
+	expect(step12).toContain("conflict markers");
+	// A divergence the union merge cannot resolve is surfaced, never forced.
+	expect(step12).toContain("surfaced to the human");
+});
