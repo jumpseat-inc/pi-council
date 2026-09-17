@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-48
 title: Suite-cost budget for the live pty and -p falsifier arms
-state: Deliberating
+state: In Progress
 owner: null
 epic: EPIC-9
 goal: The default bun test suite's wall-clock budget is documented, and the live pty and -p falsifier arms run within it or are gated behind an opt-in.
@@ -1331,3 +1331,30 @@ the bytecode fix into a follow-up. The copy-escalation boundary is agreed: all
 deliverable strings are internal developer documentation inside the phase-1
 carve-out, and escalation is required only if a new flag name is minted, a
 string is added to `council/preflight.sh`, or user-visible copy appears.
+
+### Step 6 — ruling returned (`product-owner`, `job-27`) — APPENDED VERBATIM, binding
+
+1. **Budget figure N.** The figure written into `README.md`, `vault/wiki/test-suite-budget.md`, and `AGENTS.md` is the measurement from the implementing pass on a fresh head worktree, with full provenance (machine, date, SHA, command). It is *descriptive*, not normative. **180s is the drift threshold, not the budget** — the maintained invariant the suite is tested against over time; any re-measurement above 180s reopens the card or opens a new one.
+2. **`gates.yml` `timeout-minutes` backstop.** Do **not** ship on this card; CI-timeout policy is a separate question (different rationale, revision path, and interaction with the per-arm `spawnSync` ceilings). The TUI arm's own `300_000` ceiling at `ev41-retry-e2e.test.ts:362` exceeds any ~180s suite budget, so a budget-keyed step timeout masks attribution.
+3. **Gate-vs-document.** **Ratify document-only.** The "run within it" branch is discharged by fact (95.83s measured); gating stays available as the branch that reopens if the re-measured envelope is ever false, protected by the re-measure rule + 180s drift threshold. The Skeptic's O6 demonstrated a default-skip gate empties criterion-2 evidence.
+- **Scope confirmation:** the three hygiene fixes (bytecode exclusion with a two-sided temp-tree test; `test/ev41-retry-e2e.test.ts:325` stale comment; `AGENTS.md:17` decay fix) ride this card as one delivery, add zero new live arms (baseline 3/5/5/2 unchanged), and stay inside the Phase-1 carve-out (no new flag, no `preflight.sh` string, no user-visible copy). Fallback if strict scope discipline is preferred: split the bytecode fix into a step-13 follow-up.
+- Full ruling: `vault/raw/2026-09-19-po-fllwup48-test-suite-budget.md`.
+- Environment note (record correction): the main checkout also needs `bun install` first because `@modelcontextprotocol/sdk` was missing; the re-measure command needs it.
+
+Applied per `<escalation_contract>` step 3: the ruling is binding on every
+seat, all three open-judgment items are now answered, and the card resumes at
+step 7. Nothing in the ruling is reweighed.
+
+### Step 7 — spec written and handed to one owner
+
+Spec: `docs/superpowers/specs/2026-09-19-FLLWUP-48-design.md` (full-council
+path — the deliberation ran; this file writes up the settled design, it does
+not derive one). Self-review before commit: no unresolved placeholder (the
+`<N>` in §2 is the PO-ruled substitution — the figure comes from the
+implementing pass with provenance, never from deliberation); internally
+consistent with steps 2–6 and the three PO rulings; scope bounded to the
+card's `goal` (document-only + three hygiene fixes, §4 names what is out of
+scope); unambiguous for an owner with no memory of the deliberation. Card set
+to `In Progress`; board moved; `validate.py` clean before the owner dispatch.
+Owner dispatched next (step 8) with the spec, a fresh-worktree constraint, and
+the full gate set.
