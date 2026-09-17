@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-43
 title: Make the goal field a lossless oracle for the judge
-state: In Review
+state: Done
 owner: null
 epic: EPIC-9
 goal: A card goal can name an exact literal that contains a colon-space sequence without truncating, and council/validate.py's parse_frontmatter recovers that literal intact when the goal names the string that test/retry.test.ts asserts PROVIDER_FINISH_REASON_ERROR, declared in extensions/retry.ts, to be.
@@ -969,3 +969,22 @@ artifacts at head SHA `438978193545241bb3bca29e20ee53a3c7a076e2`:
 Merge authorized for this run only: `gh pr merge 59 --squash --admin
 --match-head-commit 438978193545241bb3bca29e20ee53a3c7a076e2`, pinned to the
 exact SHA criterion 2 was read against.
+
+The merge landed: `gh pr view 59` → state `MERGED`, merge commit
+`e25b8132277d9d0a7d5239a6cc3b199995d2e2e5` at 2026-09-17T10:48:27Z.
+
+### Step 12 — sync and reconcile; card Done
+
+Local `main` diverged from `origin/main` (ahead 12, behind 1) because the
+record commits made before the branch cut were folded into the squash merge.
+Reconciled per Phase-1 R1 and `vault/wiki/union-merge-reconcile.md`: `git merge
+origin/main`, one conflict in this card file (HEAD's step 7–11 records vs the
+squashed side's step-6 state) resolved by union keeping both record sides, and
+the board's stale `In Progress` FLLWUP-43 line dropped (keeping `In Review`).
+Marker sweep clean; `python3 council/validate.py` → `All council artifacts
+valid`; merge commit `e31401c`.
+
+CI on the merged SHA `e25b8132277d9d0a7d5239a6cc3b199995d2e2e5` confirmed
+green from the observed artifact: `gh api .../check-runs` → `gates completed
+success`. Only then set the card `Done` on this card and on `council/board.md`;
+`python3 council/validate.py` clean; committed directly to `main` and pushed.
