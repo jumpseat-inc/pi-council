@@ -14,7 +14,7 @@ import { dirname, join, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const REPO_ROOT = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
-export const HARNESS_EXTENSION = join(REPO_ROOT, "test", "ev40-harness", "ev40-harness-extension.ts");
+export const HARNESS_EXTENSION = join(REPO_ROOT, "test", "faux-provider", "extension.ts");
 export const COUNCIL_EXTENSION = join(REPO_ROOT, "extensions", "index.ts");
 
 const ENTRY_URL = import.meta.resolve("@earendil-works/pi-coding-agent");

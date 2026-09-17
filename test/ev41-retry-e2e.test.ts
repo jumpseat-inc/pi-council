@@ -61,8 +61,8 @@ import {
 	resolveNode,
 	runHarnessArm,
 	type EngineRepoOptions,
-} from "./ev40-harness/harness-headless.ts";
-import { INJECTED_ERROR_MESSAGE } from "./ev40-harness/ev40-harness-extension.ts";
+} from "./faux-provider/harness.ts";
+import { INJECTED_ERROR_MESSAGE } from "./faux-provider/extension.ts";
 
 const STUB = path.join(import.meta.dir, "stub-child.ts");
 
@@ -335,7 +335,7 @@ describe("EV-41 (c) parent-turn falsifier — TUI branch (real TUI + real counci
 				fs.mkdirSync(outdir, { recursive: true });
 				const res = spawnSync(
 					"python3",
-					[path.join(import.meta.dir, "ev41-tui.py"), outdir],
+					[path.join(import.meta.dir, "faux-provider", "ev41-tui.py"), outdir],
 					{
 						env: {
 							PATH: process.env.PATH ?? "/usr/bin:/bin",
