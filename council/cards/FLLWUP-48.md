@@ -1026,3 +1026,308 @@ cause — `@modelcontextprotocol/sdk` missing from `node_modules` until `bun
 install` — which the budget's re-measure command must account for. The ≤180s
 figure remains open `product-owner` judgment, constrained by the measured
 95.8s.
+
+### Step 5 — synthesis (`job-26.8`)
+
+`consolidator` was dispatched with the full deliberation record. The first two
+dispatches (`job-26.6`, `job-26.7`) returned **no output** on a provider 429 —
+`qwen/qwen3.8-flash` (the `.council.json`-pinned consolidator model) was
+upstream rate-limited. Per the bounded-dispatch rule the same seat was
+re-dispatched once with the same input (same failure); rather than HALT the
+final card on a transient provider outage, this facilitator routed **one**
+further dispatch to the seat's own authored default model
+(`openrouter/z-ai/glm-5.2:high`, a different provider) — `job-26.8` settled
+`done` (1.4m, 3 turns). Recorded as a dispatch-mechanics reroute, not a card
+decision. Synthesis appended verbatim below.
+
+**Facilitator transcription (counting only, deciding nothing):** the
+consolidator sorted the record into **settled** (the measurement and mechanism
+facts, each with the Skeptic test that settled it), **open objections: none**,
+and **three open-judgment items** for `product-owner` (budget figure;
+`gates.yml` `timeout-minutes` backstop; gate-vs-document confirmation). Nothing
+was decided here.
+
+#### consolidator — step 5 (`job-26.8`) — verbatim
+
+Read the card in full (steps 1–4, including the Skeptic's verbatim `job-26.5`
+report). Sort below. Every timing/mechanism claim I cite is the Skeptic's run
+result, not my opinion of the number.
+
+### Agreed design — what every seat converged on
+
+- **Branch elected: document-only, not gate.** Both seats converged on the
+"run within it" disjunct: measure, document descriptively, enforce at the arm
+level (already exists), keep gating in reserve as the branch that reopens *if*
+the envelope is ever false. The owner framed this as fact-settled by the
+measurement (the card's own premise — "binding only if suite time becomes
+binding" — is measured false: nothing binds at 95.83s); the principal reached
+the same place with corrected reasoning ("document is permitted as a *fact*
+once measured," not "gating would be worse"). Gating is **not** the live
+position of either seat.
+- **Measurement is the foundation both share.** Default `bun test` = 894 tests
+/ 78 files / **95.83s** wall on a clean, fully-installed worktree (O1,
+closed-green); per-file table 38.0/16.5/12.8/4.9s, four-arm sum 72.3s (~76%)
+(O2); serial/additive (O3); arms offline, no network/credentials, only
+`integration.test.ts` is a network test (O4).
+- **Deliverable shape (both seats sign):**
+  1. `README.md:315` block — one descriptive envelope line.
+  2. New `vault/wiki/test-suite-budget.md`, linked from `vault/wiki/index.md`
+  catalog (verified no suite-cost page exists) — measured per-file table,
+  re-measure command, ceiling-vs-budget distinction, standing re-measure rule
+  ("any new live arm must state expected wall-clock and ceiling in its test
+  header; README budget line re-measured when an arm changes"). Provenance:
+  machine, date, SHA, command.
+  3. Three hygiene fixes (see below).
+  4. No new live arm, no arm moved (baseline 3/5/5/2 unchanged — O8/T8
+  closed-green).
+- **Three hygiene fixes — in scope, as one delivery; nothing disputed.**
+  - **(a) Bytecode exclusion in the shape scan.** `countMatches`/`filesUnder`
+  (`faux-provider-shape.test.ts`) skip `__pycache__/` and `.pyc/.pyo/.pyd`.
+  Two-sided temp-tree test in the same file (`mkdtempSync`, `__pycache__/x.pyc`
+  + `x.ts` with the same token; assert bytecode dropped, source survives).
+  Acceptance: test 6 passes with `test/__pycache__/ev41-tui.cpython-312.pyc`
+  still on disk. O9 closed-green confirms two-sidedness; O8 closed-green
+  confirms the residue reproduces and the orphan is the carrier.
+  - **(b) `test/ev41-retry-e2e.test.ts:325` stale comment** ("TUI branch (pty,
+  via `test/ev41-tui.py`)" — retired path token in source). One-line comment
+  fix folded in. Principal's refinement: do **not** extend the witness's token
+  regex on this branch (that amends FLLWUP-49's committed witness; record the
+  allowlist-decay as a finding instead).
+  - **(c) `AGENTS.md:17` decay fix — non-decaying wording, not a refreshed
+  count.** Replace "34 tests, 1 skipped … COUNCIL_INTEGRATION=1" with the
+  envelope + the flag list (`COUNCIL_INTEGRATION=1`,
+  `COUNCIL_MCP_INTEGRATION=1`). O10 closed-green confirms staleness on count
+  (894 vs 34), skip count (2 vs 1), and flag inventory (2 flags vs 1 named).
+  - Principal's refinement on (a): the `.pyc` file itself is environmental —
+  gitignored, regenerable, absent from CI and a fresh worktree, and no commit
+  may touch it; the scan-domain fix rides this card because the deliverable is
+  a *re-measurable* command addressed to exactly the tree where the residue
+  survives, and because the trap re-arms at every future token retirement
+  (test 8 × the pty import). The residue does **not** block this card's gates
+  (the implementing/verifying runs are pinned to a fresh `git worktree` per
+  `council-runner.md` `<main_repo_immutability>` —
+  `vault/wiki/main-repo-immutability.md`).
+- **Arm-level enforcement already exists; no suite-level assertion is possible
+from inside `bun test`.** Eleven arm ceilings (including
+`ev41-retry-e2e.test.ts:362 300_000`); `hub.test.ts:517` is a lower bound;
+every `toBeLessThan*` in `test/` is an index/order/count comparison (O7
+closed-green). The owner's proposed in-test elapsed assertion is **rejected by
+both seats** as redundant against the existing `spawnSync` ceilings and a fresh
+timing-flake class on shared CI runners (owner round-2 Q2; principal round-2
+point 2). The sibling-test trap (a sibling re-running an arm = 1–5 new arms,
+doubling cost) is noted and avoided by both.
+- **Copy-escalation boundary — agreed.** All deliverable strings (README line,
+wiki page, AGENTS.md line) are internal developer documentation inside the
+phase-1 carve-out; **no escalation.** The escalation trigger both seats name,
+identically: any new flag name minted, or any string added to
+`council/preflight.sh` (e.g. "live arms skipped"), or any user-visible copy
+beyond internal dev docs → return `ESCALATION` with the drafted string. No new
+flag is minted under this delivery. Platform-generated GH Actions failure text
+(if a `timeout-minutes` line ships) is not our copy (owner round-2).
+- **Zero-new-live-arms (FLLWUP-49 O10 run-wide constraint) — satisfied.** Both
+seats confirm zero arms added, zero moved; the added scan-domain assertions
+spawn nothing (the `python3 -m py_compile` in test 8 is a benign compile, not a
+live pi/pty arm). Baseline 3/5/5/2 unchanged (O8/T8 closed-green).
+
+### Settled disputes — each with the test that settled it
+
+- **Suite cost and per-file table** — O1, O2 (closed-green): 95.83s total;
+38.08/16.50/12.81/4.86s per file; `-t "TUI branch"` 32.51s; `-t "headless -p
+branch"` 5.35s; arm counts 3/5/5/2. Settles the owner's round-1 table (which
+the principal round-1 flagged as unprovenanced "no measurement exists"). The
+card face's "roughly 30 to 95 seconds" is corroborated.
+- **Serial/additive** — O3 (closed-green): `bun test ev41-retry-e2e.test.ts
+ev40-live-gates.test.ts` = 54.0s ≈ sum, not max. Settles the principal's T1
+additivity claim and validates the owner's sum-deduction.
+- **Arms offline / no gate justification** — O4 (closed-green): `--offline
+--provider ev40`; zero `OPENROUTER|API_KEY|AUTH_TOKEN` hits; `integration.test.ts`
+skips without `COUNCIL_INTEGRATION=1`. Settles the owner's "no gating pretext."
+- **`gates.yml` is bare** — O5 (closed-green): `- run: bun test` only; no
+`timeout-minutes`/`if:`/env; `package.json:28` = `"test": "bun test"` (no
+`--parallel`). Settles both seats' invocation-layer reading.
+- **T4 structural — a default-skip gate empties criterion-2 evidence** — O6
+(closed-green, demonstrated on real engine code): patching `harness.ts` so
+`resolveNode()` throws unconditionally + a `test.skipIf(!COUNCIL_LIVE_ARM)`
+probe → gate off = `0 pass / 1 skip / 0 fail` (green while mechanism broken);
+gate on = `1 fail`. Settles the load-bearing claim against gating: `gates`
+SUCCESS no longer witnesses the live arms under a default-skip gate.
+- **Eleven arm ceilings exist; no suite ceiling; 300s TUI ceiling > ~180s
+suite budget** — O7 (closed-green): settles the principal's round-2 point 2
+arithmetically — a step timeout tight enough to express a ~180s budget would
+pre-empt the TUI arm's own 300s ceiling and mask attribution. This is the fact
+both seats use, but note it does **not** by itself settle whether to ship a
+*loose* backstop (see open judgment).
+- **Residue reproduces; `.pyc` is the carrier; clean tree green** — O8
+(closed-green, with record correction): `test/__pycache__/ev41-tui.cpython-312.pyc`
+carries `ev40-harness/` (the tripping token) **and** `test/ev41-tui.py`; the
+`ev43/*` tokens the principal's claim-1 list named are **absent** from every
+`.pyc`. Mechanism holds; the listed token set was wrong. Fresh worktree: shape
+file `8 pass / 0 fail`, full suite green.
+- **Exclusion is two-sided; orphan-on-disk acceptance** — O9 (closed-green):
+excluded scan drops bytecode, keeps source; test 6 passes with the orphan still
+on disk. Settles the owner's round-2 claim 1 and the principal's T2/T3.
+- **`AGENTS.md:17` stale** — O10 (closed-green): 894 tests vs 34; 2 `skipIf`
+sites vs 1; 2 flags (`COUNCIL_INTEGRATION`, `COUNCIL_MCP_INTEGRATION`) vs 1
+named. Settles both seats' T6.
+- **Gate-integrity self-check** — O13 (non-blocking): the default suite
+demonstrably goes red under real conditions (`.pyc` residue, or missing
+`@modelcontextprotocol/sdk`); EXIT 0 only when both env artifacts are cleared.
+The gate can fail and names the failing test.
+
+### Open judgment — for `product-owner`, escalating to `steward`
+
+1. **The budget figure (≤180s proposed; 95.83s measured).** O11 split verdict:
+the settable part is closed-green (95.83s < 180s on this machine), but **the
+figure itself is not settable by any test** — a measurement can falsify "under
+N" per machine but cannot select N across machines; CI-class hardware is
+unmeasured (owner concedes). Owner proposes ≤180s (2× headroom over 94.4s, same
+order as per-arm ceilings); the principal does not propose a figure and
+emphasizes the envelope must come from the implementation-pass run with
+provenance. A ruling must decide: what N is written into README/wiki/AGENTS.md,
+and on what machine/provenance. Both sides at equal weight: a 2× headroom
+figure is maintainable and cheap (owner); the figure must be recorded from the
+implementing pass, not picked here (principal).
+
+2. **The optional `gates.yml` `timeout-minutes` backstop.** Owner recommends
+shipping a ~10-minute backstop on this card as the one cheap binding that makes
+"run within it" a maintained invariant instead of a stale fact (6.4× headroom,
+fires only on genuine runaway, product-owner's call). Principal argues **no**
+`timeout-minutes` keyed to the budget on this card — O7's arithmetic (300s TUI
+ceiling > 180s budget) means a budget-tight step timeout masks attribution, and
+a cutoff loose enough not to fire (~15 min) cannot express a 2-minute budget; a
+runaway backstop is a *separate small item with its own rationale*, not this
+card's budget. O7 settled the arithmetical fact both rely on; it did **not**
+settle whether a loose backstop ships on this card. A ruling must decide: ship
+a loose (~10–15 min) `timeout-minutes` on this card as optional enforcement, or
+defer to a separate item. Both sides at equal weight.
+
+3. **Gate-vs-document disjunction — converged but orchestrator-reserved.** Both
+seats claim the measurement settles the direction (document-only), and no seat
+holds the gating side. The orchestrator's Phase-1 ruling reserved the choice as
+"card-level open-judgment … not settled here." I am not picking a winner: the
+deliberation converged on document-only by agreement (not by a Skeptic test of
+the value choice), with both seats explicitly acknowledging `product-owner`
+retains the authority to elect gating instead. If `product-owner` elects
+gating, the design must (per both seats) state explicitly that `gates` green no
+longer witnesses the live arms and place the arms somewhere they actually run
+(principal's Q-C condition, adopted by the owner). This is routed to
+`product-owner` only because the orchestrator reserved it; there is no live
+inter-seat disagreement to break.
+
+### Open objections — Skeptic objections whose settling test has not passed
+
+**None.** The Skeptic reported **no open objections and no blocking items**.
+Twelve objections plus one gate-integrity self-check, all `closed-green` except
+O11 (split — figure open judgment, routed above) and O12/O13 (record
+corrections, non-blocking):
+
+- **O12 (record correction, non-blocking):** on this container the main
+checkout's red has a **second** cause neither seat recorded —
+`@modelcontextprotocol/sdk` missing from `node_modules` until `bun install`.
+Neither seat's source-tree claim is falsified (both causes are
+gitignored/regenerable; CI runs `bun install --frozen-lockfile` and is
+unaffected), but the residue narrative as recorded understates the current
+container's red causes. **Operational consequence:** the card's standing
+re-measure command (`time bun test`) must be preceded by `bun install` on any
+tree whose `node_modules` predates the mcp dep. Facilitator already ran `bun
+install` on the main checkout (environment upkeep, not a source change).
+- **O13 (record correction, non-blocking):** the gate is capable of failing and
+names the failing test (shape test 6; `dep-less` restore) — observed EXIT 1
+under either residue or missing dep, EXIT 0 only when both cleared.
+
+### Run-wide rulings bearing on the sort
+
+- **Disjunctive goal (card-specific):** documenting a budget and gating are both
+valid deliveries; the choice is card-level open judgment (routed above as item
+3). Where the budget lives is a design/writing question — settled by the
+deliberation (README:315 + new wiki page + AGENTS.md:17, all inside the phase-1
+carve-out).
+- **Zero-new-live-arms (FLLWUP-49 O10):** satisfied — both seats confirm;
+O8/T8 closed-green.
+- **Merge procedure:** `gh pr merge <PR> --squash --admin --match-head-commit
+<X>`, all five deterministic criteria; R1 union-merge reconcile never force.
+Criterion 2 keyed on `gates === SUCCESS` via `workflow` field. Relevant here
+because O6 demonstrated a default-skip gate would silently empty criterion 2 —
+the gate-vs-document sort turns on this.
+- **Step-13 follow-up re-homed to `product-owner`:** draft only, never write an
+unapproved follow-up, never dispatch `product-owner` from this container.
+Relevant if `product-owner` rules strict scope discipline on the `.pyc` fix
+(the owner's fallback (b): split-out with a drafted follow-up).
+
+---
+
+### Ready to hand off?
+
+**Yes — to `product-owner`.** The design is converged and signed by both seats;
+no open objections block. Three open-judgment items route to `product-owner`,
+escalating to `steward` only if product-owner cannot decide:
+
+1. **The budget figure N** (≤180s proposed; 95.83s measured lower bound on this
+machine; CI-class hardware unmeasured) — O11 split.
+2. **Whether the optional `gates.yml` `timeout-minutes` backstop ships on this
+card** (owner recommends ~10 min; principal argues no budget-keyed timeout on
+this card, defer to a separate item) — O7 settled the arithmetic, not the
+judgment.
+3. **Gate-vs-document confirmation** — converged on document-only by both
+seats; routed only because the orchestrator reserved the choice. `product-owner`
+may ratify the convergence or elect gating (contingency design conditions
+named).
+
+Once product-owner rules 1–3, a spec can be written. No `steward` escalation is
+required for any item unless product-owner declines.
+
+### Step 6 — routing (facilitator)
+
+Applied `<escalation_contract>` step 1 first: checked the card's Phase-1
+rulings. The card-specific ruling **reserved** the gate-vs-document choice as
+card-level open judgment and did **not** answer it; it does not address the
+budget figure or the `gates.yml` backstop. **No ruling on record answers any of
+the three items**, so none is re-asked-and-applied — all three are genuinely
+unanswered.
+
+This container may **not** dispatch `product-owner` or `steward`
+(`<escalation_contract>`). Per that contract, this turn ends with an
+**`ESCALATION`** report carrying the three open-judgment items as **facts — the
+positions on each side and the test results, no recommendation**. The card
+stays `Deliberating`; no spec is written and the owner is not dispatched until
+the ruling returns.
+
+**Escalation packet (facts only):**
+
+1. **Budget figure N.** Facts: measured default-suite wall clock **95.83s**
+   (894 tests / 78 files) on a clean, fully-installed worktree at `7da00e7`;
+   the settable claim 95.83s < 180s is `closed-green`. Position A (`owner`):
+   write ≤180s (2× headroom over the measured figure, same order as the
+   per-arm ceilings). Position B (`principal`): does not propose a figure;
+   the envelope must be recorded from the implementation-pass run with
+   provenance (machine, date, SHA, command), not selected in deliberation.
+   Skeptic (`job-26.5` O11): the figure is **not settable by any test** — a
+   per-machine measurement cannot select N across machines; CI-class hardware
+   is unmeasured.
+2. **Optional `gates.yml` `timeout-minutes` backstop.** Facts: `gates.yml`
+   today runs bare `bun test` with no `timeout-minutes` (`closed-green`, O5);
+   the TUI arm's own enforced ceiling is `300_000`
+   (`ev41-retry-e2e.test.ts:362`, `closed-green`, O7), which exceeds any
+   proposed ~180s suite budget; no suite-level ceiling exists. Position A
+   (`owner`): ship a loose (~10 min, 6.4× headroom) backstop on this card as
+   optional enforcement. Position B (`principal`): ship no budget-keyed
+   `timeout-minutes` on this card (a tight timeout pre-empts the arm's own
+   300s ceiling and masks attribution; a loose one cannot express the budget);
+   a runaway backstop is a separate item.
+3. **Gate-vs-document confirmation.** Facts: both seats converged on
+   **document-only**; no seat holds the gating side; the Skeptic demonstrated
+   (O6, `closed-green`) that a default-skip gate leaves the suite green while
+   the live mechanism is broken, and `gates.yml` sets no env var. Position A
+   (`owner`, `principal` jointly): document-only, gating reopens only if the
+   re-measured envelope is ever false. The Phase-1 card ruling reserved this
+   choice to `product-owner` rather than settling it.
+
+Additionally, scope facts the ruling may wish to confirm: the three hygiene
+fixes (bytecode exclusion in the shape scan with a two-sided temp-tree test;
+the `test/ev41-retry-e2e.test.ts:325` stale comment; the `AGENTS.md:17`
+decay fix) are agreed by both seats as in-scope-one-delivery, with zero new live
+arms; the owner's fallback if strict scope discipline is preferred is to split
+the bytecode fix into a follow-up. The copy-escalation boundary is agreed: all
+deliverable strings are internal developer documentation inside the phase-1
+carve-out, and escalation is required only if a new flag name is minted, a
+string is added to `council/preflight.sh`, or user-visible copy appears.
