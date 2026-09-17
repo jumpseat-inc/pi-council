@@ -39,6 +39,7 @@ import {
 	extractOriginalPrompt,
 	formatRetryCountdown,
 	formatRetryExhausted,
+	formatRetryFailure,
 	HEADLESS_RETRY_EXHAUSTED_EXIT_CODE,
 	installRetryEditor,
 	recordAssistantVerdict,
@@ -519,6 +520,10 @@ export function registerParentTurnRetry(
 		// and swallows the stale-session assertActive throw"). The run's own
 		// finally is the completion guarantee; a stale poll simply has nothing
 		// left to wait for.
+		// FLLWUP-44 (R3): name the provider failure once per backoff episode,
+		// immediately before that episode's first countdown print. Never on the
+		// exhaust or none branches.
+		host.print(formatRetryFailure());
 		await runHeadlessCountdown(decision.nextAttempt, maxAttempts, decision.delayMs);
 		retryAttempt = decision.nextAttempt;
 		expectContinuation = true;

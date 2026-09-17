@@ -117,6 +117,15 @@ export function formatRetryExhausted(maxAttempts: number): string {
 	return `Retries exhausted after ${maxAttempts} attempts. The provider kept failing. Press Enter to try again.`;
 }
 
+/** FLLWUP-44 (R3 ruling): the backoff episode's failure line. The parent
+ * classifier (classifyParentTurnRetry) retries exactly one literal, so this
+ * line is a pure static output — never assembled from pendingError. If the
+ * classifier ever widens past that single literal, this static line must be
+ * revisited. */
+export function formatRetryFailure(): string {
+	return "The provider returned an error.";
+}
+
 /** Q5: the headless equivalent of "Press Enter" is an exit code (EX_TEMPFAIL
  * semantic); a wrapper or the operator re-invokes the same prompt. */
 export const HEADLESS_RETRY_EXHAUSTED_EXIT_CODE = 75;
@@ -253,6 +262,13 @@ export class RetryController {
 		}
 		if (this.surfaceState === "exhausted") return formatRetryExhausted(this.maxAttempts);
 		return "";
+	}
+
+	/** FLLWUP-44: the failure line for the current surface — the ruled string
+	 * exactly while the backoff surface is up (per episode; zero extra state),
+	 * "" otherwise. Mirrors lineText(). */
+	failureLineText(): string {
+		return this.surfaceState === "backoff" ? formatRetryFailure() : "";
 	}
 
 	/** Arm the backoff surface for `attempt` with `delayMs` (deadline-relative). */
@@ -400,6 +416,14 @@ export class RetryEditor extends CustomEditor {
 
 	render(width: number): string[] {
 		const lines = super.render(width);
+		// FLLWUP-44 (R3): the failure line rides ABOVE the countdown, same
+		// borderColor token, same width clamp. Only while the backoff surface is
+		// up — idle and exhausted render none.
+		const failure = this.controller.failureLineText();
+		if (failure) {
+			const styledFailure = this.borderColor ? this.borderColor(failure) : failure;
+			lines.push(truncateToWidth(styledFailure, width));
+		}
 		const lineText = this.controller.lineText();
 		if (!lineText) return lines;
 		const styled = this.borderColor ? this.borderColor(lineText) : lineText;

@@ -13,6 +13,7 @@ import {
 	createOnePassErrorFilter,
 	formatRetryCountdown,
 	formatRetryExhausted,
+	formatRetryFailure,
 	type FilterableMessage,
 } from "../extensions/parent-retry.ts";
 import { PROVIDER_FINISH_REASON_ERROR, type RetryPolicy } from "../extensions/retry.ts";
@@ -192,5 +193,41 @@ describe("EV-40 wiring — headless countdown shape", () => {
 		// shape check: the engine prints formatRetryCountdown — the line the
 		// live P4 gate asserts on stdout. 3s backoff → t0 line + 2 whole-second crossings.
 		expect(formatRetryCountdown(2, 3, 3000)).toBe("Retrying in 3s (attempt 2 of 3) \u2014 Esc to abort");
+	});
+});
+
+describe("FLLWUP-44 wiring — headless failure line per backoff episode", () => {
+	test("T7: a 3-attempt headless run prints exactly two failure lines, each before that episode's first countdown; terminal copy is last", async () => {
+		const pi = makePi();
+		const { host, state } = makeHost(() => null);
+		const wiring = registerParentTurnRetry(pi, () => POLICY, host);
+		const ctx = { hasUI: false, mode: "print", isIdle: () => pi.sent.length === 0 };
+		// attempt 1 settle → schedule (episode 1)
+		await pi.emit("message_end", { message: erroredAssistant() }, ctx);
+		await pi.emit("agent_end", { messages: [userMsg("start"), erroredAssistant()] }, ctx);
+		await wiring.onSettled(ctx as never);
+		// attempt 2 settle → schedule (episode 2)
+		await pi.emit("message_end", { message: erroredAssistant() }, ctx);
+		await pi.emit("agent_end", { messages: [userMsg("start"), erroredAssistant()] }, ctx);
+		await wiring.onSettled(ctx as never);
+		// attempt 3 settle → exhaust (terminal copy only; the third failure is named by R5)
+		await pi.emit("message_end", { message: erroredAssistant() }, ctx);
+		await pi.emit("agent_end", { messages: [userMsg("start"), erroredAssistant()] }, ctx);
+		await wiring.onSettled(ctx as never);
+
+		const failure = formatRetryFailure();
+		expect(state.printed.filter((l) => l === failure)).toHaveLength(2); // per-episode: 2 lines, 3 failures
+		for (let i = 0; i < state.printed.length; i++) {
+			if (state.printed[i] === failure) {
+				expect(state.printed[i + 1]?.startsWith("Retrying in")).toBe(true); // that episode's first countdown
+			}
+		}
+		const nonEmpty = state.printed.filter((l) => l.length > 0);
+		expect(nonEmpty[nonEmpty.length - 1]).toBe(formatRetryExhausted(3));
+		expect(state.exitCode).toBe(75);
+		// engine-level gate (R3): no jargon, no raw literal, and the failure line
+		// never carries the countdown prefix (live-gate filter hygiene)
+		expect(state.printed.every((l) => !l.includes("finish_reason"))).toBe(true);
+		expect(state.printed.filter((l) => l === failure).every((l) => !l.startsWith("Retrying in"))).toBe(true);
 	});
 });

@@ -196,6 +196,7 @@ import {
 	createOnePassErrorFilter,
 	formatRetryCountdown,
 	formatRetryExhausted,
+	formatRetryFailure,
 	decideSettleRetry,
 	recordAssistantVerdict,
 	extractOriginalPrompt,
@@ -204,7 +205,7 @@ import {
 	HEADLESS_RETRY_EXHAUSTED_EXIT_CODE,
 	type FocusEditorFactory,
 } from "../extensions/parent-retry.ts";
-import type { TUI } from "@earendil-works/pi-tui";
+import { truncateToWidth, type TUI } from "@earendil-works/pi-tui";
 
 const ESC = "\x1b";
 const ENTER = "\r";
@@ -437,16 +438,18 @@ describe("EV-40 — RetryController surface machine", () => {
 });
 
 describe("EV-40 — RetryEditor render", () => {
-	test("appends exactly one extra line while the surface is non-idle; none while idle", () => {
+	test("appends the failure line above the countdown while the surface is in backoff; none while idle", () => {
 		const { controller } = buildController();
 		controller.beginBackoff(2, 2000, Date.now());
 		const { editor } = buildEditor(controller);
 		const during = editor.render(80);
-		expect(during.length).toBeGreaterThanOrEqual(1);
+		expect(during.length).toBeGreaterThanOrEqual(2);
+		expect(during[during.length - 2]!).toContain("The provider returned an error");
 		expect(during[during.length - 1]!).toContain("attempt 2 of 3");
 		controller.clearToIdle();
 		const after = editor.render(80);
 		expect(after.join("\n")).not.toContain("attempt 2 of 3");
+		expect(after.join("\n")).not.toContain("The provider returned an error");
 	});
 
 	test("exhausted surface renders the terminal copy as the extra line", () => {
@@ -455,6 +458,82 @@ describe("EV-40 — RetryEditor render", () => {
 		const { editor } = buildEditor(controller);
 		const lines = editor.render(120); // wide enough for the 92-cell terminal copy
 		expect(lines[lines.length - 1]).toBe(formatRetryExhausted(3));
+	});
+});
+
+describe("FLLWUP-44 — the R3-ruled transient failure line", () => {
+	const RULED = "The provider returned an error.";
+
+	test("T1: formatRetryFailure is byte-exact, jargon-free, not the raw literal, not a countdown", () => {
+		expect(formatRetryFailure()).toBe(RULED);
+		expect(formatRetryFailure()).not.toContain("finish_reason");
+		expect(formatRetryFailure()).not.toBe(PROVIDER_FINISH_REASON_ERROR);
+		expect(formatRetryFailure().startsWith("Retrying in")).toBe(false);
+	});
+
+	test("T2: backoff render composition — failure line at -2, countdown at -1, +2 over idle", () => {
+		const { controller } = buildController();
+		const { editor } = buildEditor(controller);
+		const base = editor.render(80).length; // idle: no extra lines
+		controller.beginBackoff(2, 2000, Date.now());
+		const during = editor.render(80);
+		expect(during.length).toBe(base + 2);
+		expect(during[during.length - 2]).toBe(RULED); // identity theme — ruled string at a wide width
+		expect(during[during.length - 1]!).toContain("attempt 2 of 3");
+		// pi-tui contract: one string per line, no embedded newline
+		expect(during.every((l) => !l.includes("\n"))).toBe(true);
+	});
+
+	test("T3: idle/exhausted absence — clearToIdle, moveToExhausted, escAbort all drop the failure line", () => {
+		const { controller } = buildController();
+		controller.beginBackoff(2, 2000, Date.now());
+		const { editor } = buildEditor(controller);
+		controller.clearToIdle();
+		expect(editor.render(80)).not.toContain(RULED);
+		controller.moveToExhausted();
+		const exhausted = editor.render(120);
+		expect(exhausted[exhausted.length - 1]).toBe(formatRetryExhausted(3));
+		expect(exhausted).not.toContain(RULED);
+		controller.clearToIdle();
+		controller.beginBackoff(2, 2000, Date.now());
+		editor.handleInput(ESC);
+		expect(controller.surface).toBe("exhausted");
+		expect(editor.render(120)).not.toContain(RULED);
+	});
+
+	test("T4 (the ruling's semantic): per-episode re-show — failure line at attempt 2 AND attempt 3", () => {
+		const { controller } = buildController();
+		const { editor } = buildEditor(controller);
+		controller.beginBackoff(2, 2000, Date.now());
+		const during2 = editor.render(80);
+		expect(during2[during2.length - 2]).toBe(RULED);
+		controller.clearToIdle();
+		controller.beginBackoff(3, 2000, Date.now());
+		const during3 = editor.render(80);
+		expect(during3[during3.length - 2]).toBe(RULED); // re-shown per episode
+		expect(during3[during3.length - 1]!).toContain("attempt 3 of 3");
+	});
+
+	test("T5: width clamp — byte-equal at wide width, truncateToWidth clamp at narrow", () => {
+		const { controller } = buildController();
+		controller.beginBackoff(2, 2000, Date.now());
+		const { editor } = buildEditor(controller);
+		const wide = editor.render(80);
+		expect(wide[wide.length - 2]).toBe(RULED);
+		const narrow = editor.render(10);
+		expect(narrow[narrow.length - 2]).toBe(truncateToWidth(RULED, 10));
+	});
+
+	test("T6: coupling — no backoff surface, no failure line (render side of the classify gate)", () => {
+		const { controller } = buildController();
+		const { editor } = buildEditor(controller);
+		controller.beginBackoff(2, 2000, Date.now());
+		controller.clearToIdle();
+		expect(controller.failureLineText()).toBe(""); // surfaceState is the whole gate
+		// decision side: a pi-retryable message is classify-none (already covered at the decision point)
+		expect(
+			decideSettleRetry({ policy: { enabled: true, maxAttempts: 3, baseDelayMs: 2000, maxDelayMs: 30000, jitter: false }, pendingError: { stopReason: "error", errorMessage: "Provider returned 502" }, attempt: 1 }),
+		).toEqual({ action: "none" });
 	});
 });
 
