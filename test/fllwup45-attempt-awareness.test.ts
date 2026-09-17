@@ -171,29 +171,37 @@ test("FLLWUP-45: selection survives an attempt respawn — row key is the job id
 
 // ---------------------------------------------------------------------------
 // B4: tail-cache guard — the row's last-activity derives from the NEW
-// attempt's file (spec §8.5). Green today; ships as the re-key's guard-rail:
-// a `keyFor → manifest.id` "fix" goes red here (Skeptic O4).
+// attempt's file (spec §8.5). Two-phase (Skeptic O4): render with attempt 1
+// live so the cache binds attempt 1's file, THEN respawn to attempt 2. Green
+// on the correct keying; a `keyFor → manifest.id` "fix" goes red here — the
+// stale key reuses the attempt-1-bound tail and the row keeps attempt 1's
+// earlier-`at` block.
 // ---------------------------------------------------------------------------
 
-test("FLLWUP-45: tail-cache guard — post-respawn last-activity comes from attempt 2's JSONL", () => {
+test("FLLWUP-45: tail-cache guard — post-respawn last-activity comes from attempt 2's JSONL (a keyFor→id re-key goes red)", () => {
 	const root = fs.mkdtempSync(path.join(os.tmpdir(), "f45-tail-"));
 	const runId = "r45b";
 	ensureRunDir(root, runId);
+	// phase 1: attempt 1 live — the tail cache binds attempt 1's file
+	writeManifest(root, runId, m("job-1"));
+	writeSession(root, runId, "job-1", [toolLine("1", "2026-01-01T00:04:00.000Z", "bash", "attempt-one-arg")]);
+	const c = new TreeFocusState();
+	c.termRowsCap = 24;
+	const w = new CouncilTreeWidget(root, () => runId, theme, { now, controller: c, termRowsCap: 24 });
+	expect(w.render(200).join("\n")).toContain("attempt-one-arg"); // cache bound to attempt 1
+	// phase 2: respawn — manifest re-keyed to attempt 2 with a later-`at` JSONL
+	writeSession(root, runId, "job-1-attempt2", [
+		toolLine("2", "2026-01-01T00:04:50.000Z", "bash", "attempt-two-arg"),
+	]);
 	writeManifest(
 		root,
 		runId,
 		m("job-1", { attempt: 2, sessionId: "job-1-attempt2", attempts: [entry(1, "job-1")] }),
 	);
-	writeSession(root, runId, "job-1", [toolLine("1", "2026-01-01T00:04:00.000Z", "bash", "attempt-one-arg")]);
-	writeSession(root, runId, "job-1-attempt2", [
-		toolLine("2", "2026-01-01T00:04:50.000Z", "bash", "attempt-two-arg"),
-	]);
-	const c = new TreeFocusState();
-	c.termRowsCap = 24;
-	const w = new CouncilTreeWidget(root, () => runId, theme, { now, controller: c, termRowsCap: 24 });
+	w.refresh();
 	const out = w.render(200).join("\n");
-	expect(out).toContain("attempt-two-arg"); // derived from attempt 2's file
-	expect(out).not.toContain("attempt-one-arg"); // never attempt 1's
+	expect(out).toContain("attempt-two-arg"); // last-activity now from attempt 2's file
+	expect(out).not.toContain("attempt-one-arg"); // and no longer attempt 1's
 });
 
 // ---------------------------------------------------------------------------
