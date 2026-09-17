@@ -1615,3 +1615,137 @@ tests it):**
 `consolidator` (22.6). Two exchange rounds (under the ≤3 cap). Ruling seats
 (`product-owner` job-23, `steward` job-24) were dispatched by the orchestrator,
 never by this container.
+
+### Step 9 — verify by acting (skeptic)
+
+`skeptic` (`job-25.3`, 11.9m, 29 turns, `stopReason=stop`) was dispatched at the
+**PR head** — subject `f12f3be11343245fb25154a3051c361b7e6b8c06`, head worktree
+`/home/tista/codes/pi-council/.worktrees/fllwup-49` (destructive probes in
+detached `/tmp` worktrees, removed after; main checkout untouched) — with the
+frame that step 9 precedes step 10 judging and step 11's mechanical merge, which
+the facilitator executes and no seat performs.
+
+**Facilitator transcription (counting only, deciding nothing):** eight
+objections O-A … O-H. Seven are **`closed-green`**, none `closed-red`; two
+perturbation injections went red-then-green (the shape test names the defect
+both times); O8's vacuous-`bun test` half is now `closed-green` on both halves
+(a duplicate `class Screen` under `test/` leaves `bun test` green, confirming
+the shape test is the only operationalization); **O-H (the O7 live seat-child
+E2E half) remains `open-untested` and non-blocking by design**, exactly as spec
+§8.2 permits. **Verdict: `no open objections`** (blocking sense). The card stays
+`In Review`; no fix cycle is triggered (**step-9 iteration count: cycle 1 of
+≤3, clean**).
+
+Observed gate evidence at head (the Skeptic's actual output): `bunx tsc
+--noEmit` clean exit 0; `bun test` → `892 pass / 2 skip / 0 fail`, 894 tests /
+78 files (94.97 s), arm counts unchanged at 3/5/5/2; `python3 council/validate.py`
+→ `All council artifacts valid`. `bash council/preflight.sh FLLWUP-49` →
+`FAIL: local history does not descend from origin/main` — the known
+FLLWUP-27 branch-freshness artifact, now live because this container's record
+commit (`1078814`) advanced `origin/main` past the branch cut. Recorded
+verbatim, not reclassified, and **not** used to weaken any criterion; the
+step-11 re-run set remains `tsc` / `bun test` / `validate.py`.
+
+#### skeptic — step 9 (`job-25.3`) — verbatim
+
+Pinned subject confirmed: `/home/tista/codes/pi-council/.worktrees/fllwup-49`
+HEAD = `f12f3be11343245fb25154a3051c361b7e6b8c06`, branch
+`feat/fllwup-49-shared-faux-provider-harness`. All gates run at the head;
+destructive probes run in detached scratch worktrees under `/tmp` (since
+removed). Main checkout untouched throughout.
+
+**Objections**
+
+**O-A — "Shape witness is decoration / cannot fail"** → `closed-green`
+(objection lost). Settling tests (scratch `/tmp/fllwup49-head` at `f12f3be`):
+- Appended `class Screen: pass` to `test/faux-provider/tui-retry.py` → assertion
+4 went red, all others green; `git checkout --` restore → `8 pass / 0 fail`.
+- Rewrote `ev43-reachability.test.ts` import to `./faux-provider/HARNESS.ts` →
+assertion 5 went red alone; restore → `8 pass / 0 fail`.
+The witness names the defect in both cases. Conceded: it is a real gate.
+
+**O-B — "`bun test` alone witnesses the goal" (O8 vacuous half)** →
+`closed-green` (vacuity confirmed, which is why the shape test must exist).
+Settling test: hid `test/faux-provider-shape.test.ts`, added
+`test/ztmp-dup-screen.py` with `class Screen` + `class Session`, ran full
+`bun test` (after real `bun install` in scratch): **884 pass / 2 skip / 0 fail,
+886 tests / 77 files — green with the duplicate present.** Restored byte-exact
+(`git status` empty), shape test `8 pass / 0 fail`. So `bun test` is blind to
+duplication and the shape test is the only operationalization. (First attempt
+with symlinked `node_modules` produced SDK-resolution red herrings —
+environmental, discarded; rerun with real install is the recorded result.)
+
+**O-C — "Red-at-base is copy-set-dependent, not mechanism-absent"** →
+`closed-green` (claim holds, with refinement). Settling test: transplanted shape
+test alone onto detached base `0dbaeea` → `0 pass / 8 fail`, all eight
+assertions red. Per-failure lines: tests 1–6 fail on copy-set facts (`ev43/`
+exists, 2–3 `fauxProvider(`/runner hits, 3 `class Screen`, old import
+specifiers, retired tokens); tests 7–8 fail `ENOENT` on missing
+`test/faux-provider/` (mechanism-absent). Either way red-first is genuine, and
+per the red-base convention the red is expected. Conceded.
+
+**O-D — "Commit 1 is not a pure move"** → `closed-green` (objection lost).
+`git diff --stat 0dbaeea a420940`: 4 files pure `git mv` (0-line deltas:
+`ev41-tui.py`, `extension.ts`, `tui-retry.py`), `harness.ts` 2-line
+(`HARNESS_EXTENSION` re-point), three consumers 4/4/6-line import/specifier
+re-points only. No semantic edit possible in that delta.
+
+**O-E — "Boundaries violated (engine/smoke/stub/council/version)"** →
+`closed-green` (objection lost). `git diff --name-only 0dbaeea f12f3be` = plan
+doc + 3× `ev43/` deletions + `extensions/parent-retry.ts` (1 comment line) +
+`test/**` only. `git diff … -- council/cards vault` empty; `-- package.json
+smoke test/stub-child.ts` empty. No version bump, no user-visible copy.
+
+**O-F — "EV-43 re-encode changes what the test proves"** → `closed-green`
+(objection lost). Byte check: base `ev43/ev43-falsifier-extension.ts:55`
+`"Provider finish_reason error"` ≡ head `EV43_INJECTED_ERROR_MESSAGE`
+(colon-less preserved via `EV40_ERROR_MESSAGE` knob; shared default stays
+with-colon `INJECTED_ERROR_MESSAGE`, verified at `extension.ts:54`).
+`secondMessagePresent` is `startsWith("assistant ")`-gated (assistant-only
+tightening present). Control arm asserts `stderr` contains the colon-less class
++ `exitCode 1` — attribution still meaningful. `hasUI` absent everywhere under
+`test/faux-provider/` (retired, not ported — matches §8.1 disposition).
+
+**O-G — "Seat-dispatch arm re-architected"** → `closed-green` (objection lost).
+`test/ev41-retry-e2e.test.ts:161-166` `(b)` block byte-identical to base
+(`seat: "stub"`, `command: "bun"`, `args: [STUB]`, `STUB = …/stub-child.ts`);
+no `stub*` under `test/faux-provider/`.
+
+**O-H — "O7 live seat-child E2E (carried open-untested)"** → remains
+`open-untested`. Not run: it needs a novel live-dispatch design through
+`council_dispatch` against a scratch repo; per spec §8.2/§10 neither outcome
+changes the shipped design, and attempting it ad hoc risks side effects for
+zero decision value. Live-model credentials exist in env but
+`COUNCIL_INTEGRATION` is unset and no procedure calls for it here. Non-blocking
+by design.
+
+**What I ran**
+
+- `bunx tsc --noEmit` at head → clean, exit 0.
+- `bun test` at head → `892 pass / 2 skip / 0 fail`, `894 tests / 78 files`
+(94.97s). Per-file: ev40-headless 3, ev40-live-gates 5, ev41-retry-e2e 5,
+ev43-reachability 2 — arm counts unchanged.
+- `python3 council/validate.py` → `All council artifacts valid`.
+- Shape test at head `8 pass / 0 fail`; transplanted at base `0 pass / 8 fail`
+(all 8 red, lines recorded).
+- Failure injections: tsc with `const x: number = "broken"` → `error TS2322`
+naming `test/faux-provider/harness.ts`, restored → clean (gate-can-fail proven
+for tsc and shape test).
+- `D` clause at `pty_kit.py:92-94` = relative-left `max(0, self.c - n)`; `G`
+absolute-column; EV-41 verdict lines byte-identical
+(`EV41-TUI-VERDICT/TREATMENT/CONTROL … GREEN`), suite asserts them via
+`toContain`.
+- `bash council/preflight.sh FLLWUP-49` (info only) → all OK except `FAIL: local
+history does not descend from origin/main`. This is the known FLLWUP-27
+freshness artifact firing now that `origin/main` has advanced past the branch
+cut — recorded verbatim, not a gate (step-11 set is tsc/bun test/validate, all
+green).
+
+**Verdict**
+
+**`no open objections`** (blocking sense). Every falsifiable claim tested green;
+both perturbation injections went red-then-green; O8 now closed-green on both
+halves (vacuous-`bun-test` half + non-vacuous-shape half). O-H (O7 live E2E)
+stays `open-untested` as the spec permits — non-blocking, shipped design
+unaffected. Scratch worktrees removed; ready-made worktree and main checkout
+clean and untouched.
