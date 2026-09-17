@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-47
 title: Documented red-base convention for falsifier evidence
-state: In Review
+state: Done
 owner: null
 epic: EPIC-9
 goal: A written convention fixes what a falsifier's red-at-base evidence must record and how it is compared across cards.
@@ -1908,3 +1908,113 @@ non-aggregation). Full gate suite re-run by the judge: `bunx tsc --noEmit` exit
 `All council artifacts valid`.
 
 No REJECT, so the card remains `In Review` and proceeds to step 11.
+
+### Step 11 — deterministic merge check and merge (facilitator, mechanical)
+
+Read **before** the merge, subject pinned to the PR head:
+`gh pr checks 64 --json name,state,workflow` →
+`[{"name":"gates","state":"SUCCESS","workflow":"gates"}]`. All five
+deterministic criteria held:
+
+1. **Every owner gate green, in full** — the Skeptic re-ran `bunx tsc --noEmit`
+   (exit 0), `bun test` (`884 pass / 2 skip / 0 fail`, 886 tests / 77 files) and
+   `python3 council/validate.py` (`All council artifacts valid`) at the head,
+   and the judge re-ran them again.
+2. **GitHub Actions green on the PR head SHA** — the `gates` workflow
+   `SUCCESS` on `a1d805a901b25e3c2dc2d29aa72dfa6a8905d4e6`, keyed on the
+   `workflow` field.
+3. **No blocking Skeptic objection** — step 9 verdict `no open objections`.
+4. **Judge verdict `PASS`** — step 10.
+5. **No `Needs Human` state, no outstanding ruling** — all six open-judgment
+   items were ruled R1–R6 at step 6 and applied at step 7; nothing was left
+   unruled.
+
+Merge executed with the criterion-2 SHA pinned:
+`gh pr merge 64 --squash --admin --match-head-commit a1d805a…` → **MERGED**
+`2026-09-17T15:45:09Z`; merge commit
+`216ea34d0a35afacf7065e52f10d5922ad493637`. `--admin` is the Phase-1-recorded,
+run-scoped authorization (FLLWUP-42), not a personal bypass.
+
+### Step 12 — sync and reconcile; card `Done`
+
+`git fetch origin` → `origin/main` = `216ea34d0a35afacf7065e52f10d5922ad493637`;
+local `main` was `22beb4f`, an ancestor, so `git merge --ff-only origin/main`
+fast-forwarded cleanly — no divergence, no union-merge reconcile, never forced.
+Merged-SHA CI confirmed green from the API, not from any seat's report:
+`gh run list --commit 216ea34…` → `gates`, `status: completed`, `conclusion:
+success`; `…/commits/216ea34…/check-runs` → `{"name":"gates",
+"conclusion":"success","status":"completed"}`.
+
+Done is written from that observed artifact — merged, with green CI on the
+merged SHA — and nothing else. `python3 council/validate.py` clean.
+
+### Step 13 — card the follow-ups (drafts only — **not written**, pending confirmation)
+
+Two items the run surfaced but did not do. Per the run-wide Phase-1 ruling,
+step-13 confirmation is re-homed to `product-owner`; this container **drafts
+and does not write** any card, and does not dispatch `product-owner`. The
+drafts below are held here (marked DRAFT) and are carried to the orchestrator
+as an `ESCALATION` packet for edit / drop / approve.
+
+#### DRAFT (not written) — FLLWUP-53
+
+```
+---
+id: FLLWUP-53
+title: De-repo-specific council.md step 8's gate-file reference and widen the prose guard
+state: Backlog
+owner: null
+epic: null
+goal: council.md no longer hard-references a gate document path that does not exist in this repo, and the packaged-prose guard covers every shipped file that could reintroduce one.
+---
+
+## Intent
+
+FLLWUP-47 step 4 objection O7 (`closed-green`) confirmed a live, unguarded
+instance of the failure FLLWUP-47 exists to prevent: `council.md` step 8
+(lines 237-238 today) states "`docs/gates/GATE-EVIDENCE.md` is the
+authoritative record of what those gates are and how to run them" — a hard,
+source-repo-specific path presented as fact in a procedure that ships to every
+consumer repo. That path does not exist in this repo (`docs/` holds only
+`superpowers/`). The existing guard (`test/prose.test.ts`, the "features-deliver
+does not hard-reference the repo-specific gate file" test at :28-34) reads
+`features-deliver.md` alone, so it does not catch a second naming — FLLWUP-47
+was explicitly constrained not to fix this (its spec §6 names it as a
+step-13 residual). `owner.md` inside `<owner_mode>` carries the same path, but
+as an `e.g.` example, which is weaker. The card is: replace the hard reference
+with consumer-neutral phrasing (the repo's own authoritative gate record, if it
+keeps one) and widen the guard to all packaged seat + procedure prose, rewording
+`owner.md`'s example in the same pass if the widened guard requires it.
+```
+
+#### DRAFT (not written) — FLLWUP-54
+
+```
+---
+id: FLLWUP-54
+title: Wiki page for the red-base evidence convention
+state: Backlog
+owner: null
+epic: null
+goal: vault/wiki carries a red-base-evidence page, produced through /wiki-ingest from the FLLWUP-47 seat-prose convention, that a seat or engineer can cite.
+---
+
+## Intent
+
+FLLWUP-47 R6 ruled the wiki-ingest out of that card's scope as a standing
+step-14 offer, not a fold-in, while noting a wiki page "may be filed as a
+separate follow-up if wanted". The convention now lives only as normative
+packaged seat prose (`council/agents/owner.md`, `council/agents/skeptic.md`);
+`vault/` is grounding prose and is written only through `/wiki-ingest`, never
+hand-edited. This card is that optional follow-up: ingest a red-base-evidence
+page (the seven fields, the comparison triple and gating rule, the
+Skeptic-derived boundary, the true EV-41 causal story) so later cards can cite
+it. Filing it is optional — if not wanted, the card is simply not promoted.
+```
+
+Neither draft is written to `council/cards/`. Both are the run's complete
+step-13 surface: no other deferred idea, Skeptic objection, or "we should
+also…" was left unfiled.
+
+**Step 13 outcome: drafts held; routed to the orchestrator for `product-owner`
+confirmation. Step 14 (wiki-ingest offer) remains the standing offer per R6.**

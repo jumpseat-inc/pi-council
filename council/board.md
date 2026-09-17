@@ -48,11 +48,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- FLLWUP-47 — Documented red-base convention for falsifier evidence
-
 ## Needs Human
 
 ## Done
+
+- FLLWUP-47 — Documented red-base convention for falsifier evidence
 
 - FLLWUP-45 — Navigator attempt-awareness for retried dispatches
 
