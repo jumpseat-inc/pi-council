@@ -1131,3 +1131,23 @@ Card state remains `Deliberating`. No other part of the Step 6b ruling is in
 question: the copy strings, `/` divider, `[/]` key choice, Q2 (cycler ships),
 Q3 (defer `:869` to FLLWUP-4), and the (b)/(e) defaults are applied as ruled.
 A resumed turn appends the ruling on (i)/(ii) verbatim and proceeds at step 7.
+
+### Step 6d — PO ruling on the (i)/(ii) gate predicates (product-owner) — APPENDED VERBATIM
+
+The Step 6c consistency check routed the two predicate mismatches to the
+ruling seat. `product-owner` (job-15) has clarified the gate predicate. The
+ruling below is appended verbatim and is binding; the facilitator writes it,
+the ruling seat did not.
+
+Appended verbatim:
+
+- **(i) Title-fragment gate:** `m.attempt > 1`. The named first-retry-backoff window fires (`m.attempt = 2 > 1`); running and settled retried states fire too, redundantly but harmlessly (title's `attempt N/M` matches the row label's `attempt N/M` outside the retrying window). Rejected literal `attemptEntries(m).length > 1` (fails the card's named window; makes synthesised test 2 red). Rejected `state === "retrying"` (tighter but unnecessarily narrow).
+- **(ii) Cycler-advertisement gate:** `browsableAttempts(m).length > 1`, where
+  ```
+  browsableAttempts(m) = attemptEntries(m)
+    ∪ [{ attempt: m.attempt ?? 1, sessionId: m.sessionId }]   iff m.sessionId ∉ attemptEntries(m)
+  ```
+  Extract as a pure helper co-located with `attemptEntries` in `extensions/runs.ts`. Rejected literal raw-accessor length (fails the running-attempt-2 pre-settle window; leaves the cycler silently reachable — an `honest-keymap`/R-KEYMAP discoverability defect).
+- **Companion fix (required):** replace the Step 6b ruling's `k = attemptEntries(m)[indexOf(m.sessionId)].attempt` with `k = browsableAttempts(m).find((e) => e.sessionId === m.sessionId)?.attempt ?? 1` (the live session is not in `attemptEntries` until settle, `hub.ts:354-363`).
+- Nothing else in Step 6b is in question: the copy strings (`/` divider; `[/] attempt`), Q2 (cycler ships), Q3 (defer `:869` to FLLWUP-4), and the (b)/(e) defaults are settled and binding.
+- Process: `product-owner` confirms the single-writer discipline — the runner, not the ruling seat, appends to the card.
