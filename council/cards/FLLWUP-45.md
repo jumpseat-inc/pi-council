@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-45
 title: Navigator attempt-awareness for retried dispatches
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-9
 goal: A retried dispatch's attempt transcripts are reachable from the navigator, and the backoff row's label matches the attempt it denotes.
@@ -1170,3 +1170,31 @@ and on `council/board.md`; `python3 council/validate.py` reports clean
 before the step-8 dispatch. Step-1 seat-resolution record stands: all six
 seats named this run resolve from the packaged set; this checkout has no
 `.pi/agents/` override.
+
+### Step 8 — owner implemented; PR open (facilitator)
+
+The single `owner` seat was handed the committed spec. First dispatch
+(`job-16.1`) died on a provider error (`Upstream idle timeout exceeded`)
+after worktree setup only, leaving a clean worktree and no deliverable; per
+the one-re-dispatch rule it was re-dispatched with the same input
+(`job-16.2`, 34.2m, 63 turns, `stopReason=stop`) and produced the change.
+
+Observed artifacts (facilitator-read first-hand, not taken from the seat's
+report): branch `feat/fllwup-45-navigator-attempt-awareness` pushed to
+`origin` at `e799ca1edc26d78857f0e59d54da8310845ce43f` (5 commits on
+`821d717`), worktree `.worktrees/fllwup-45` clean; PR #63 `OPEN`,
+base `main`, `mergeable: MERGEABLE`, same head SHA. Card set `In Review` on
+frontmatter and on `council/board.md` on that observable fact alone — the
+sole condition step 8 states. The owner's own gate report is recorded but is
+not what the transition rests on.
+
+Owner's local gate results on the pushed head (re-verified by the step-9
+Skeptic, not trusted here): `bunx tsc --noEmit` exit 0; `bun test` 882 pass /
+2 skip / 0 fail (5603 expects, 77 files, 95.4 s; baseline 867/2/0);
+`python3 council/validate.py` clean. `COUNCIL_INTEGRATION=1` not run (gated).
+Plan at `docs/superpowers/plans/2026-09-17-FLLWUP-45-plan.md`. New tests in
+`test/fllwup45-attempt-awareness.test.ts`; the mechanical
+`selectedSessionId` → `selectedRowKey` rename spans the two source files and
+`test/ev8-focus-navigation.test.ts` / `test/ev9-progress.test.ts`. Branch
+state of the main checkout was not mutated (still `main` at `821d717`,
+clean).

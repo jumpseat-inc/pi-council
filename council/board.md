@@ -46,9 +46,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- FLLWUP-45 — Navigator attempt-awareness for retried dispatches
-
 ## In Review
+
+- FLLWUP-45 — Navigator attempt-awareness for retried dispatches
 
 ## Needs Human
 
