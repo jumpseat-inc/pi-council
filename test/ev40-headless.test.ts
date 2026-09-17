@@ -32,9 +32,9 @@ import {
 	parseContextLog,
 	secondMessagePresent,
 	runHarnessArm,
-} from "../test/ev40-harness/harness-headless.ts";
+} from "./faux-provider/harness.ts";
 import { PROVIDER_FINISH_REASON_ERROR } from "../extensions/retry.ts";
-import { INJECTED_ERROR_MESSAGE } from "../test/ev40-harness/ev40-harness-extension.ts";
+import { INJECTED_ERROR_MESSAGE } from "./faux-provider/extension.ts";
 
 describe("EV-40 P1 — headless send-inside vs timer-deferred (recorded characterization)", () => {
 	test(

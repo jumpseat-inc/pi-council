@@ -36,8 +36,8 @@ import {
 	runHarnessArmSigint,
 	sessionJsonlWellFormed,
 	type EngineRepoOptions,
-} from "../test/ev40-harness/harness-headless.ts";
-import { INJECTED_ERROR_MESSAGE, PARTIAL_MARKER } from "../test/ev40-harness/ev40-harness-extension.ts";
+} from "./faux-provider/harness.ts";
+import { INJECTED_ERROR_MESSAGE, PARTIAL_MARKER } from "./faux-provider/extension.ts";
 import { formatRetryExhausted, formatRetryCountdown } from "../extensions/parent-retry.ts";
 import { PROVIDER_FINISH_REASON_ERROR } from "../extensions/retry.ts";
 

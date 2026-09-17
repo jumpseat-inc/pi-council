@@ -1,4 +1,5 @@
-// EV-40 offline faux-provider harness extension (generalizes ev43/ev43-falsifier-extension.ts).
+// EV-40 offline faux-provider harness extension (generalizes the EV-43
+// falsifier extension — the record of that observation is council/cards/EV-43.md).
 //
 // A scripted (offline, dummy-credential) provider whose FIRST `EV40_FAILS` calls
 // fail with the intake's failure class — the WITH-COLON literal
@@ -10,6 +11,11 @@
 //
 // Knobs (env, read at load):
 //   EV40_FAILS          leading provider calls that fail (default 0)
+//   EV40_ERROR_MESSAGE  the injected failure class (default =
+//                       INJECTED_ERROR_MESSAGE, the with-colon literal). The
+//                       EV-43 reachability test sets this to the recorded
+//                       colon-less class so its falsifier identity stays
+//                       byte-identical after the harness dedup (FLLWUP-49).
 //   EV40_PARTIAL        "1" → failed responses carry partial text content
 //   EV40_ARM            "inside" | "timer" | "none" (default "none")
 //                       inside: the agent_settled handler sends the continuation
@@ -48,11 +54,20 @@ import { createOnePassErrorFilter } from "../../extensions/parent-retry.ts";
 export const INJECTED_ERROR_MESSAGE = "Provider finish_reason: error";
 export const CONTINUATION_MARKER = "EV40-SECOND-RESPONSE";
 export const PARTIAL_MARKER = "EV40-PARTIAL";
+/** The continuation prompt the extension sends (EV40_CONTINUATION may override
+ * it; no arm passes that env, so the test-process and arm-process values are
+ * the same string). Exported so re-pointed tests assert the shared constant
+ * rather than a harness-internal literal (FLLWUP-49). */
+export const CONTINUATION_PROMPT = process.env.EV40_CONTINUATION ?? "EV40-CONTINUE";
 
 const FAILS = Number.parseInt(process.env.EV40_FAILS ?? "0", 10) || 0;
 const ARM = (process.env.EV40_ARM ?? "none") as "inside" | "timer" | "none";
 const PARTIAL = process.env.EV40_PARTIAL === "1";
-const CONTINUATION = process.env.EV40_CONTINUATION ?? "EV40-CONTINUE";
+/** The injected failure class; the default preserves today's byte-for-byte
+ * behavior, the knob lets the EV-43 reachability arm inject its recorded
+ * colon-less class (FLLWUP-49). */
+const ERROR_MESSAGE = process.env.EV40_ERROR_MESSAGE ?? INJECTED_ERROR_MESSAGE;
+const CONTINUATION = CONTINUATION_PROMPT;
 const MODEL_ID = process.env.EV40_MODEL_ID ?? "ev40-model";
 const FILTER = process.env.EV40_FILTER === "1";
 const CONTEXT_LOG = process.env.EV40_CONTEXT_LOG;
@@ -108,7 +123,7 @@ const dispatchStep = fauxAssistantMessage(
 const failStep = (n: number) =>
 	fauxAssistantMessage(
 		PARTIAL ? [fauxText(`${PARTIAL_MARKER} call=${n + 1} partial tokens before the provider died`)] : [],
-		{ stopReason: "error", errorMessage: INJECTED_ERROR_MESSAGE },
+		{ stopReason: "error", errorMessage: ERROR_MESSAGE },
 	);
 const successStep = (_context: unknown, _options: unknown, state: { callCount: number }) =>
 	fauxAssistantMessage(`${CONTINUATION_MARKER} call=${state.callCount}`, { stopReason: "stop" });

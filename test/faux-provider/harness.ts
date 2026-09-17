@@ -4,7 +4,8 @@
 // config, the FLLWUP-21 env-split lesson). Offline via --offline and the faux
 // provider (no network, no credentials).
 //
-// Generalizes ev43/falsifier-headless.ts. Verdict per arm: exit code, stdout,
+// Generalizes the EV-43 falsifier runner (the record of that observation is
+// council/cards/EV-43.md). Verdict per arm: exit code, stdout,
 // the session JSONL message sequence, and the harness telemetry logs
 // (settle / context-shapes / payload).
 import { spawn, spawnSync } from "node:child_process";
@@ -13,8 +14,13 @@ import { tmpdir } from "node:os";
 import { dirname, join, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
+// One import path for every TS consumer: the harness re-exports the
+// extension's identity constants so no consumer asserts a harness-internal
+// literal (FLLWUP-49).
+export { INJECTED_ERROR_MESSAGE, PARTIAL_MARKER, CONTINUATION_MARKER, CONTINUATION_PROMPT } from "./extension.ts";
+
 const REPO_ROOT = dirname(dirname(dirname(fileURLToPath(import.meta.url))));
-export const HARNESS_EXTENSION = join(REPO_ROOT, "test", "ev40-harness", "ev40-harness-extension.ts");
+export const HARNESS_EXTENSION = join(REPO_ROOT, "test", "faux-provider", "extension.ts");
 export const COUNCIL_EXTENSION = join(REPO_ROOT, "extensions", "index.ts");
 
 const ENTRY_URL = import.meta.resolve("@earendil-works/pi-coding-agent");
@@ -68,6 +74,9 @@ export interface ArmOptions {
 	payloadLog?: boolean;
 	/** Load the council extension alongside the harness (engine runs). */
 	councilExtension?: boolean;
+	/** The injected failure class (arm env EV40_ERROR_MESSAGE). Default
+	 * (unset) preserves the extension's with-colon literal byte-for-byte. */
+	errorMessage?: string;
 	timeoutMs?: number;
 }
 
@@ -137,6 +146,7 @@ const harnessEnv = (opts: ArmOptions, home: string, contextLog: string, payloadL
 	...(opts.filter ? { EV40_FILTER: "1" } : {}),
 	...(opts.contextLog ? { EV40_CONTEXT_LOG: contextLog } : {}),
 	...(opts.payloadLog ? { EV40_PAYLOAD_LOG: payloadLog } : {}),
+	...(opts.errorMessage ? { EV40_ERROR_MESSAGE: opts.errorMessage } : {}),
 });
 
 /** Extra scratch-repo files the engine runs need (retry policy + a marker-
@@ -373,9 +383,11 @@ export function sessionJsonlWellFormed(sessionPath: string | undefined): boolean
 	return true;
 }
 
-/** The distinctive marker of a successful post-continuation assistant turn. */
+/** The distinctive marker of a successful post-continuation assistant turn.
+ * Assistant-ONLY: the attribution predicates must not be satisfiable by a
+ * `user` row carrying the marker (the EV-43 re-point's O3 tightening). */
 export function secondMessagePresent(arm: ArmResult): boolean {
-	return arm.sequence.some((s) => s.includes("EV40-SECOND-RESPONSE"));
+	return arm.sequence.some((s) => s.startsWith("assistant ") && s.includes("EV40-SECOND-RESPONSE"));
 }
 
 export function hasUserMessage(arm: ArmResult, needle: string): boolean {

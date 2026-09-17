@@ -1,7 +1,7 @@
 // EV-41 — the end-to-end falsifier for provider-error retry on BOTH paths
 // (card: one falsifier covering seat child + parent turn; (b) and (c) live in
 // this one file with a shared verdict; the TUI branch's pty runner is
-// test/ev41-tui.py, spawned from here).
+// test/faux-provider/ev41-tui.py, spawned from here).
 //
 // The forced failure class is the WITH-COLON literal
 // `Provider finish_reason: error` — byte-equal to PROVIDER_FINISH_REASON_ERROR
@@ -29,7 +29,7 @@
 //                         CLI, scratch HOME, explicit env, --offline):
 //                         countdown line on the real stdout + second
 //                         assistant message in the session JSONL;
-//                       - TUI branch via test/ev41-tui.py (pty, 24x80, real
+//                       - TUI branch via test/faux-provider/ev41-tui.py (pty, 24x80, real
 //                         TUI): the same observables on the screen;
 //                       - control arm per branch (retry disabled): no
 //                         countdown, no continuation.
@@ -61,8 +61,8 @@ import {
 	resolveNode,
 	runHarnessArm,
 	type EngineRepoOptions,
-} from "./ev40-harness/harness-headless.ts";
-import { INJECTED_ERROR_MESSAGE } from "./ev40-harness/ev40-harness-extension.ts";
+} from "./faux-provider/harness.ts";
+import { INJECTED_ERROR_MESSAGE } from "./faux-provider/extension.ts";
 
 const STUB = path.join(import.meta.dir, "stub-child.ts");
 
@@ -335,7 +335,7 @@ describe("EV-41 (c) parent-turn falsifier — TUI branch (real TUI + real counci
 				fs.mkdirSync(outdir, { recursive: true });
 				const res = spawnSync(
 					"python3",
-					[path.join(import.meta.dir, "ev41-tui.py"), outdir],
+					[path.join(import.meta.dir, "faux-provider", "ev41-tui.py"), outdir],
 					{
 						env: {
 							PATH: process.env.PATH ?? "/usr/bin:/bin",
