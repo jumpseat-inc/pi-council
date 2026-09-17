@@ -1036,3 +1036,111 @@ result (`7 fail / 1 error` reproducible at no transplant/command depth tried) is
 **fact of this deliberation**, and the two seats' shared reading of it — the
 unrecorded transplant set is the defect — is recorded as their position, not as a
 facilitator conclusion.
+### Step 4 — Skeptic attacks and runs tests
+
+`owner` and `principal` positions through round 2 were handed to `skeptic`
+(`job-17.1`, 5.7m, 20 turns, `stopReason=stop`, tokens in 294165 / out 14606 /
+cR 1273300 / cW 0 / reason 8586 / total 1582071, cost≈$0.6208 catalogue). It
+filed eight falsifiable objections, ran its own settling tests in a detached
+worktree at `/tmp/fllwup47-skeptic` (removed after; main checkout verified
+clean at `daa8e43` before and after), and reported actual output. Its verdict
+was **no open objections against the converged design**; its two `closed-red`
+results strike the seats' supporting experimental/causal claims, not the
+design. Objections appended verbatim.
+
+#### skeptic — step 4 (`job-17.1`) — verbatim
+
+## Objections
+
+### O1 — Owner round-2: "`7 fail / 1 error` was not reproducible from any transplant/command combination" → **closed-red**
+
+- **Claim targeted:** owner round-2 result (a): the recorded `7 fail / 1 error` is "unreproducible, not merely incomparable, because its transplant set and command were never recorded."
+- **Settling test (run):** detached worktree at `3e39e66` (`git worktree add /tmp/fllwup47-skeptic 3e39e66`), transplant files from EV-41 head `0330274`, `bun install --frozen-lockfile`, full `bun test`. Controls first: bare copy (falsifier file only) → `0 pass / 1 fail / 1 error`; deep copy (+ head `stub-child.ts`, `ev41-tui.py`, all of `test/ev40-harness/`) → `733 pass / 2 skip / 1 fail / 1 error`; deepest (+ `ev40-headless`, `ev40-live-gates`) → `733 pass / 2 skip / 3 fail / 3 errors`. All three reproduce owner's round-2 numbers exactly.
+- **Actual output observed:** with transplant set `{extensions/retry.ts, test/stub-child.test.ts, test/ev41-retry-e2e.test.ts}` (all from `0330274`) over base `3e39e66` keeping base `test/stub-child.ts`:
+  ```
+  733 pass
+  2 skip
+  7 fail
+  1 error
+  ```
+  Composition (`bun test | grep -E "^\(fail\)|^error:"`): 6 unique assertion fails, all in transplanted head `test/stub-child.test.ts` run against base `test/stub-child.ts` (which has no `flaky`/`finish_error` modes); plus `error: Cannot find module '../extensions/job-retry.ts' from '.../test/ev41-retry-e2e.test.ts'` (1 fail + 1 error — bun counts each unloadable file as one of each). 6 + 1 = 7 fail, 1 error. Exact match.
+- **Term: closed-red.** The number IS reproducible. Owner's search was incomplete: it never tried transplanting an engine file. Note the arithmetic the record missed: head `test/stub-child.test.ts` contains exactly 6 `test(` blocks (`grep -c` → 6) — the "six extra fails" is the whole file running, not six mysteries.
+
+### O2 — The card's stated cause: the 7-vs-1 "tracks how much of `test/ev40-harness/` was copied" → **closed-red**
+
+- **Claim targeted:** EV-41 step 9's causal sentence, carried into FLLWUP-47's grounded facts: copy depth of `test/ev40-harness/` explains the discrepancy.
+- **Settling test (run):** from the O1 state, `rm -rf test/ev40-harness test/ev41-tui.py`, re-run full `bun test`.
+- **Actual output observed:** identical `733 pass / 2 skip / 7 fail / 1 error`. The harness files are inert in this configuration — nothing in the suite imports them once the ev40 test files are absent.
+- **Term: closed-red.** Copy depth of `test/ev40-harness/` explains nothing about the 7/1 number; the six fails come from a file the record never mentions (head `test/stub-child.test.ts` vs base stub). Principal's charge stands: this is a facilitator-authored causal claim the artifact does not support.
+
+### O3 — Principal claim (d), split: harness premise confirmed, stub hypothesis confirmed-with-a-missing-leg → **closed-green (amended)**
+
+- **Claim targeted:** "(d): `test/ev40-harness/` holds no test file… the transplanted set contained more than the falsifier file (most plausibly head's `test/stub-child.test.ts`)."
+- **Settling tests (run):** `ls test/ev40-harness/` → `ev40-harness-extension.ts, harness-headless.ts, tui-retry.py` (no test file); `grep ^import` over all head ev40/ev41/stub test files → every one imports `../extensions/retry.ts`, absent at `3e39e66`; O1 repro above.
+- **Actual output observed:** as in O1/O2. Amendment principal did not state: `test/stub-child.test.ts` imports `../extensions/retry.ts` (line 9), so it can only RUN-and-fail if `extensions/retry.ts` was also transplanted — otherwise it ERRORS like every other head test file. Principal's hypothesis needs that leg; with it, it is the confirmed causal chain.
+- **Term: closed-green** on both halves, with the `retry.ts` leg added by my run.
+
+### O4 — Owner round-2: "no one could classify the `7 fail` record correctly; reader-side derivation is worthless" → **closed-red**
+
+- **Claim targeted:** owner's refusal of the attribution predicate on grounds the record is underivable.
+- **Settling test (run):** the O1 decomposition itself — classify the reproduced 7/1 from raw lines + transplant manifest alone.
+- **Actual output observed:** clean split with no taxonomy needed: 6 fails all carry `stub-child.test.ts` test ids asserting stub modes absent at base (copy-set/stub-absent reds); the 1 error names `../extensions/job-retry.ts` (the mechanism under test, absent at base — the base-native red sought). A reader holding fields 2+4+6 derives the boundary exactly.
+- **Term: closed-red** on the "worthless/unreproducible" framing. This does NOT reinstate a required 3-class field (`incidental` still has no operational definition — that part of owner's objection stands); it reinstates the reader-derivation duty both seats already converged on, and it is evidence for principal's conceded round-1 position, which I so record rather than bury.
+
+### O5 — Owner testable claim 4 (seven fields retro-predict EV-41 as not-comparable) → **closed-green (narrowed)**
+
+- **Claim targeted:** applying the field list classifies the pair as not-comparable rather than one-run-wrong.
+- **Settling test:** paper check against the artifact — the 7/1 record lacks fields 2/6 (transplant identity, copy set) and the exact command, so the triple mismatches by construction.
+- **Term: closed-green**, narrowed: the diagnosis is now stronger than "not comparable" — the cause is identified (O1–O3), and the triple would have forced the actual transplant set into the record. The claim holds; its "unreproducible" framing does not.
+
+### O6 — Site claim (`seats.ts` prompt = body + procedures *directory path*; no procedure text reaches seats) → **closed-green**
+
+- **Settling test (run):** read `extensions/seats.ts` `buildSystemPrompt`.
+- **Actual output observed:** `return [seat.body, \`<council_runtime>\nprocedures directory: ${procDir}\n</council_runtime>\`, groundingBlock(repoRoot)].join("\n\n")`. First-hand confirmation of principal's channel reading and owner's single-site conclusion.
+- **Term: closed-green.**
+
+### O7 — Guard claims (stack-neutrality reds on runner-naming; GATE-EVIDENCE per-file gap; byte-identity pin reds on drift) → **closed-green**
+
+- **Settling tests (run):** (a) the prose.test.ts regex `/\b(bun|bunx|typescript|tsc)\b|bun test|bun run|@ts-expect-error/i` against a runner-naming draft sentence → `true` (reds), against neutral phrasing → `false` (greens). (b) `grep GATE-EVIDENCE`: guard reads `features-deliver.md` alone; `council/procedures/council.md:238` still names the nonexistent `docs/gates/GATE-EVIDENCE.md` — gap real. (c) `STEP3_FIXTURE`-style `toEqual` on drifted block copies → reds, including on trailing-whitespace drift.
+- **Term: closed-green** on all three. Principal's caveat stands with them: a whole-file byte-identity pin is unsatisfiable alongside the `<output_format>` vocabulary requirement (skeptic.md:151–163) — the pin must bracket a marked shared block, which is what both seats converged on.
+
+### O8 — EV-38 green-at-base premise; judge input contract → **closed-green**
+
+- **Settling tests (run):** read `council/cards/EV-38.md:340-348` → `{"conclusion":"success","name":"gates","status":"completed"}` on merged SHA `3e39e66`. Read `judge.md` `<when_invoked>` → "You are given the card's `goal` and the Skeptic's evidence."
+- **Term: closed-green** on both.
+
+## What I ran
+
+All in `/tmp/fllwup47-skeptic` (detached worktree at `3e39e66`, removed after; main checkout verified clean at `daa8e43` before and after — `git status --short` empty, worktree list no longer contains it):
+
+| Transplant (from `0330274`) onto base `3e39e66` | Command | Result |
+|---|---|---|
+| `test/ev41-retry-e2e.test.ts` only | `bun test test/ev41-retry-e2e.test.ts` | `0 pass / 1 fail / 1 error` (skeptic's number) |
+| \+ head `stub-child.ts`, `ev41-tui.py`, `test/ev40-harness/` | `bun test` (full) | `733 pass / 2 skip / 1 fail / 1 error` |
+| \+ `ev40-headless`, `ev40-live-gates` | `bun test` (full) | `733 pass / 2 skip / 3 fail / 3 errors` (all `Cannot find module`) |
+| `extensions/retry.ts` + `test/stub-child.test.ts` + `test/ev41-retry-e2e.test.ts`, base stub kept | `bun test` (full) | **`733 pass / 2 skip / 7 fail / 1 error`** — owner's number, exact |
+| same minus `test/ev40-harness/`, `ev41-tui.py` | `bun test` (full) | identical `7 fail / 1 error` — harness irrelevant |
+
+Static reads: `extensions/seats.ts` prompt builder; `test/ev41-retry-e2e.test.ts:40-67` imports; `test/stub-child.test.ts` (6 tests, imports `retry.ts`); base stub (no `finish_error`); `test/prose.test.ts` guards; `council.md:238`; `judge.md` input contract; `skeptic.md:144-163`; `EV-38.md:340-348`.
+
+## Verdict
+
+**No open objections against the converged design** — seat-prose-only site, the triple gating count comparison, raw-lines-verbatim evidence, prose-test pins. My two reds (O1, O2) strike the seats' *supporting experimental/causal claims*, not the design; O4's red strengthens the reader-derivation duty the design already contains. The design emerges stronger: the triple is now demonstrated, not merely argued, to be the load-bearing element.
+
+**Corrections the record requires before this card proceeds** (not design defeats, but the convention must be written against the true story, not the harness-copy story):
+1. The grounded fact repeating EV-41's "copy depth" explanation is known-wrong — the 6 fails are head `test/stub-child.test.ts` vs the base stub, enabled by an unrecorded `extensions/retry.ts` transplant.
+2. Owner's round-2 "unreproducible" finding is refuted — the reconstruction recipe is in the table above.
+
+**Remains open (untestable by construction, correctly left to consolidator/judge):** shared-block wording, pin granularity, field-7 vs head-half shape, boundary-bit placement. No user-visible copy is introduced by this design — no escalation triggered.
+
+**Facilitator's transcription (counting only, deciding nothing):** eight objections
+recorded — O1 `closed-red`, O2 `closed-red`, O3 `closed-green` (amended), O4
+`closed-red`, O5 `closed-green` (narrowed), O6 `closed-green`, O7
+`closed-green`, O8 `closed-green`. **No objection is `open-untested`.** The two
+reds (O1, O2) are defects in the *supporting claims* — the seats' experimental
+reading and one sentence carried in the card's own grounded-facts list — not in
+the converged design, whose two `closed-red` targets the skeptic explicitly
+files as "not design defeats". `consolidator` (step 5) sorts these; the card's
+`goal` (a written convention for red-at-base evidence) is untouched by them, and
+the measured 7-vs-1 discrepancy that motivated the card stands, reproduced
+exactly this turn.
