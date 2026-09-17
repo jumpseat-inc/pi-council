@@ -732,3 +732,130 @@ Phase-1 rulings checked first (`<escalation_contract>` step 1): the EPIC-9 resid
 The consolidator left the card **not ready to hand off**: two `closed-red` open objections (O1, O2), seven open-judgment questions (Q1–Q7), and a card-`goal` referential-opacity defect whose wording authority is `steward`'s. Per `<escalation_contract>` step 2 the facilitator does not dispatch `product-owner` or `steward`; it ends the turn with an `ESCALATION` report carrying facts and no recommendation. The card stays `Deliberating`; no `Needs Human` state is set (these are ruling-seat-addressable, not declined by both ruling seats). Nothing in steps 7–14 has run.
 
 No state transition accompanies this record; `python3 council/validate.py` re-run and the record commit are the only writes.
+
+### Step 6 — rulings applied (resumed runner, job-3 resumed)
+
+The prior runner (job-3) ended the turn with an `ESCALATION` report. The
+ruling seats have now ruled; the rulings below are appended verbatim and are
+binding. ESC-1 was applied by the orchestrator before this turn (the card's
+`goal` frontmatter line is the steward-amended text; `python3
+council/validate.py` is green). No resumption re-asks anything the rulings
+answer.
+
+#### product-owner (job-4) card-level rulings
+
+Full reasoning at `vault/raw/2026-09-17-po-fllwup43-step6-rulings.md`.
+
+- **R1 (Q1, wrapped-line policy):** Out of scope for this card's goal;
+document the wrap residual in the new copy; file a step-13 follow-up card for
+the loud gate. `gate-parity`'s writer ⊆ loader ∪ dispatch invariant sides with
+*deleting* the colon gate (the live asymmetry), not adding a sibling
+wrap-FAIL.
+- **R2 (Q4):** Drop "rephrase without a colon" permanently.
+- **R3 (Q5):** Retraction of the colon-space ban is safe; the recorded
+rationale is false against the actual parser (`validate.py:55-56`).
+- **R4 (Q6):** A single-cell smoke on `council/fixtures/board-create-card`
+with a treatment/control goal pair is the minimum sufficient evidence; the
+full matrix is not required before merge.
+- **R5 (Q7):** Designer's cold-read authoring-comprehension prediction is out
+of repo scope; record it in the card, do not block on a human-subject test.
+
+#### steward (job-5) portfolio rulings
+
+**ESC-1 (goal amendment) — resolved by the orchestrator before this dispatch.**
+Conjunct B amended in place under `engineering-board` amendment authority
+(EV-29 form):
+
+`goal: A card goal can name an exact literal that contains a colon-space sequence without truncating, and council/validate.py's parse_frontmatter recovers that literal intact when the goal names the string that test/retry.test.ts asserts PROVIDER_FINISH_REASON_ERROR, declared in extensions/retry.ts, to be.`
+
+Recorded verbatim:
+
+> ESC-1 disposition (steward). Conjunct B amended in place under the
+> engineering-board amendment authority (EV-29 form). The amended conjunct
+> asserts the engine-testable prefix card file → validate.py
+> parse_frontmatter → PROVIDER_FINISH_REASON_ERROR (extensions/retry.ts:78),
+> which test/retry.test.ts binds byte-for-byte to pi's installed bundle. The
+> residual leg — the facilitator's verbatim hand-off of the goal text to the
+> judge (council.md §10) — is procedural, has no engine code, and is recorded
+> as a residual rather than claimed as gate-verified. Conjunct A and the
+> deliverable design (PO R1–R5) are unchanged.
+
+**ESC-2 (EV-37 frozen lossy Done goal):** Accept the historical lossy record.
+Do not re-state it, do not file a card to carry it, do not edit
+`council/cards/EV-37.md`. Permanent residual. Recorded verbatim:
+
+> ESC-2 disposition (steward). EV-37's historical goal keeps its lossy
+> spelling. Done records are frozen (engineering-board; consistent with
+> steward's EPIC-9 refusal of a retro-fitted epic Acceptance); EV-37 R1 is a
+> recorded human decision and is not touched. Residual accepted permanently;
+> the lesson lives in this card's record and the corrected engineering-board
+> page, not in a re-stated EV-37. Non-blocking for this merge.
+
+**ESC-3 (consumer-repo skew):** Unbounded, undocumented skew is not acceptable
+as a permanent state, but the mitigation is a separate follow-up card, not
+this card and not this merge. (a) File a `Backlog` step-13 residual under
+EPIC-9 for a supported refresh path; (b) record the skew on FLLWUP-43's card
+and in the step-14 wiki correction. This follow-up is approved by steward —
+file it with the next free `FLLWUP-` number. Acceptance shape verbatim:
+
+> A consumer repo initialized against an earlier pi-council install can bring
+> its packaged council tooling (council/validate.py, _template.md, the
+> procedures, the docstrings) up to the currently installed package's version
+> through a documented, supported path, without overwriting consumer-edited
+> board, cards, or wiki.
+
+(An override path alone is insufficient; the card must deliver an adoptable
+path.) Recorded verbatim:
+
+> ESC-3 disposition (steward). Consumer repos initialized before this card
+> keep the old colon-space FAIL, _template.md warning, docstring, procedure
+> paragraph, and features-new.md bars indefinitely: scaffoldInto is
+> non-clobbering and council/validate.py has no override-resolution path.
+> Unbounded skew is not accepted as permanent. A Backlog step-13 follow-up
+> card under EPIC-9 is owed, acceptance shape above; mechanism is that card's
+> design. Not in this card's change set; non-blocking for this merge. The skew
+> itself is recorded here and folded into the step-14 wiki correction so it is
+> not silent.
+
+#### Phase-1 run-wide rulings (unchanged, binding)
+
+- **Merge (merge row):** the human authorized, for this run only,
+`gh pr merge <PR> --squash --admin --match-head-commit <X>`; all five
+deterministic criteria still hold. Run-scoped.
+- **R1 (FLLWUP-41):** the documented union-merge reconcile is the sanctioned
+non-fast-forward repair; never force.
+- **Follow-ups:** step-13 confirmation is re-homed to `product-owner`; the
+ESC-3 and R1 wrap follow-ups are already steward/product-owner-approved in
+substance, so file them when step 13 is reached.
+- **Known artifact:** the FLLWUP-27 branch-freshness preflight FAIL recurs
+mid-card; the step-11 re-run set is `tsc`/`bun test`/`validate.py`; never
+weaken a criterion.
+- **Criterion 2:** `gh pr checks <PR> --json name,state,workflow`, keyed on
+`workflow`; `gates` must appear `SUCCESS`.
+
+#### Routing resolution after the rulings
+
+- **Q1 → R1 applied.** O2's framing is principal r2's option: the wrap is out
+of scope, the residual is documented in the new copy (a line break ends the
+value), and a step-13 follow-up card carries the loud gate. No wrap-FAIL ships
+in this change.
+- **Q4 → R2 applied.** "Rephrase without a colon" is dropped permanently from
+all copy.
+- **Q5 → R3 applied.** The retraction is safe; the recorded rationale is
+false against `validate.py:55-56`.
+- **Q6 → R4 applied.** Minimum sufficient evidence is the single-cell
+`board-create-card` treatment/control smoke, not the full matrix.
+- **Q7 → R5 applied.** Designer's P1 comprehension prediction is recorded
+(step 3, verbatim) and does not block.
+- **O1 (closed-red: "byte for byte" copy is false) closed by copy.** The
+contract language is "everything after the first `: `, edge-whitespace-trimmed";
+a test pins `.strip()`.
+- **O2 (closed-red: the wrap parenthetical) closed by R1** as above.
+- **ESC-1 applied by the orchestrator** before this dispatch (goal frontmatter
+is the amended text).
+- **ESC-2 accepted as a permanent residual** — recorded above; no card filed.
+- **ESC-3 routed to step 13** — the follow-up card is filed there; the skew is
+recorded on this card and folded into the step-14 wiki correction.
+
+The card is ready to hand off: no `Needs Human` state, no open ruling, and no
+open objection without a ruling to close it. Proceeding to step 7.
