@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-42
 title: Make the deterministic merge check independent of a human-granted admin bypass
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-9
 goal: The deterministic merge check succeeds under a repository ruleset that requires an approving review without a human-granted admin bypass, or the procedure names the bypass explicitly as the sanctioned step.
@@ -83,3 +83,34 @@ rather than re-asking.
 No deliberation ran, so the card itself is the owner's handoff: its `goal`,
 `Intent`, and the binding R2. Card set `In Progress`; `validate.py` clean;
 `owner` dispatched.
+
+### Step 8 — owner delivered (job-7.1), PR #60 open
+
+Owner implemented in worktree `.worktrees/fllwup-42` (branch
+`feat/fllwup-42-admin-merge-procedure`, base `origin/main` `4ae414f`),
+pushed, PR #60 open at head
+`8815bf44644c474f4d1a95323e06a4d6bda6580c`. Observed directly (not from the
+seat's report): `gh pr view 60` → state OPEN, base `main`, headRefOid
+`8815bf4…`, `mergeable: MERGEABLE` (mergeStateStatus `BLOCKED` — the
+ruleset's approving-review requirement, the condition this card's copy
+addresses). Diff scope: `council/procedures/features-deliver.md` (the
+stale "may not be configured" paragraph replaced by the run-scoped
+`--admin` sanctioned-step copy), `test/prose.test.ts` (one red-first
+literal-substring pin), and the plan doc
+`docs/superpowers/plans/2026-09-17-FLLWUP-42-admin-merge-procedure.md`. No
+engine, criterion, or `--match-head-commit` change.
+
+Owner gates green at head, real output: `bash council/preflight.sh
+FLLWUP-42` → `PASS: preflight clean` (exit 0); `bunx tsc --noEmit` exit 0;
+`bun test` **859 pass / 2 skip / 0 fail** (baseline at `4ae414f`: 858 pass
+/ 2 skip); `python3 council/validate.py` → `All council artifacts valid`.
+Red-first recorded: the new test FAILs pre-edit (`Expected to contain:
+"requires an approving review"`), GREEN after the copy edit.
+
+Card set `In Review` (sole precondition: open PR, observed).
+
+Owner usage (verbatim, job-7.1):
+
+```
+job-7.1  turns=28 tokens=in 71564/out 9241/cR 972096/cW 0/reason 3329/total 1052901 cost≈$0.0267
+```

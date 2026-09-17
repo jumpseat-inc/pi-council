@@ -49,9 +49,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- FLLWUP-42 — Make the deterministic merge check independent of a human-granted admin bypass
-
 ## In Review
+
+- FLLWUP-42 — Make the deterministic merge check independent of a human-granted admin bypass
 
 ## Needs Human
 
