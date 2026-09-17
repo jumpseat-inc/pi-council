@@ -47,9 +47,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- FLLWUP-44 — Name the provider failure before the backoff countdown
-
 ## In Review
+
+- FLLWUP-44 — Name the provider failure before the backoff countdown
 
 ## Needs Human
 

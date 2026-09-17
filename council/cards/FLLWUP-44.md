@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-44
 title: Name the provider failure before the backoff countdown
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-9
 goal: During a retried parent turn's backoff the surface names the provider failure once, distinct from the countdown line, and the copy is ruled before it ships.
@@ -654,3 +654,21 @@ backoff episode. No `Needs Human` state; no further ruling outstanding.
   single `owner`, which works in an isolated git worktree and never on `main`.
 - **State:** `In Progress` on the card frontmatter and on `council/board.md`;
   `python3 council/validate.py` re-run clean after the write.
+
+### Step 8 — Owner implemented, branch + PR open (facilitator)
+
+- **Dispatch:** `owner` `job-11.1` (8.4m, 31 turns, `done`). Handed the
+  committed spec `docs/superpowers/specs/2026-09-17-FLLWUP-44-design.md` only.
+- **Observed artifacts (facilitator-verified, not seat-reported):** branch
+  `fllwup-44-retry-failure-line`, PR https://github.com/jumpseat-inc/pi-council/pull/62
+  state `OPEN`, base `main`, head SHA `85d969e71e2ecc4b498cacfa433ade71cfe78647`.
+  `gh pr checks 62 --json name,state,workflow` → `gates` workflow
+  `IN_PROGRESS` at the time of this write (re-checked before merge at step 11).
+- **Owner-reported local gates:** `bunx tsc --noEmit` exit 0; `bun test`
+  867 pass / 2 skip / 0 fail (baseline 860/2/0; R5 guards unmodified);
+  `python3 council/validate.py` clean; `council/preflight.sh FLLWUP-44` PASS
+  (the FLLWUP-27 artifact did not trigger — worktree cut from `origin/main`
+  tip).
+- **State:** sole condition for `In Review` is an open PR on the branch — met.
+  Written from that observed artifact alone; the owner's gate report is not a
+  second precondition.
