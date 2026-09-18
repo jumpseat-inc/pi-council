@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-50
 title: Supported refresh path for packaged council tooling in initialized consumer repos
-state: In Review
+state: Done
 owner: null
 epic: EPIC-9
 goal: A consumer repo initialized against an earlier pi-council install is told at session start, non-fatally and no more than once per drift condition (re-arming on new drift), that its packaged council tooling (council/validate.py, _template.md, the procedures, the docstrings) is out of date, and can bring that tooling up to the currently installed package's version through a documented, supported path, without overwriting consumer-edited board, cards, or wiki.
@@ -1076,3 +1076,77 @@ STEWARD Q2.
   `gh pr view 72`: OPEN, headRefOid matches the owner's reported head
   SHA). `python3 council/validate.py` → clean; record commit `242c6bd` +
   this one pushed under R3.
+
+### Steps 9–13 — verified, judged, merged, Done (facilitator, observed artifacts)
+
+- **Step 9 skeptic** (`job-14.2`, 9.0m, 36 turns, total 2412169 tok,
+  cost≈$0.0479) at PR #72 head `d3de248` (own detached worktree; main
+  checkout untouched): **no open objections, no blocks**. All four gates
+  re-run green (preflight PASS; tsc clean; bun test 928 pass / 2 skip /
+  0 fail; validate.py valid) — each gate watched fail via targeted
+  injection, then restored. Spec pins T1–T10 green; 27/27 probes beyond
+  the owner's tests (consent boundary, headless floor, dry-run creates
+  nothing, preflight.sh never written, protected paths, drift
+  persistence, no-init repo). Owner's three disclosed deviations verified
+  sound (command-count pins 14→15; `--accept <path>` headless superset;
+  dry-run-creates-nothing). Three non-blocking cosmetic notes →
+  FLLWUP-64.
+- **Step 10 judge** (`job-14.3`, 4.5m, 20 turns, total 348105 tok,
+  cost≈$0.0256), input = goal + skeptic evidence only, subject = PR head
+  SHA + worktree path, frame = pre-merge: **PASS**. Basis: session_start
+  drift check non-fatal by construction with persisted once-per-condition
+  state (re-arm/clear verified by T9/T9b execution); write path touches
+  only the tooling class; copy-truth satisfied.
+- **Step 11 deterministic merge check, all five criteria:**
+  1. Owner gates green in full (owner-run; skeptic re-ran all four) ✓
+  2. `gh pr checks 72 --json name,state,workflow` → `gates` workflow
+     `state: SUCCESS` on head `d3de248` (keyed on `workflow`) ✓
+  3. No blocking skeptic objection ✓  4. Judge PASS ✓
+  5. No `Needs Human` state, no outstanding ruling (R1–R6 + steward
+     Q2/lifecycle applied) ✓
+- **Merged:** `gh pr merge 72 --squash --admin
+  --match-head-commit d3de2487c262e7e0a7219eb7ac91350a5a43ff63`
+  (run-scoped `--admin` per Phase-1 ruling R2) → MERGED,
+  merge commit `6e3535536607242b1fa9d3771e542bf98d3845fd`.
+- **Step 12:** local `main` fast-forward `bd95245` → `6e35355` (clean,
+  no union-merge needed); `python3 council/validate.py` → valid.
+  **Merged-SHA CI:** first `gates` run (databaseId 35350665364) FAILED in
+  `EV-40 computeBackoffDelay jitter` — a file untouched by this branch;
+  diagnosed as the EV-40 lineage's latent ~2% flake (strict
+  `toBeLessThan(7500)` unsatisfiable under `Math.round` at
+  `rand ≥ 0.9999`; 6/6 local reruns green; PR-head CI had been green).
+  One disclosed rerun of the failed job on the same commit → **success**.
+  CI green on the merged SHA observed before `Done` was set. Flake →
+  FLLWUP-63.
+- **Step 13 follow-ups filed (draft-then-confirm re-homed to
+  product-owner via the orchestrator; run-2 precedent: cards land in
+  Backlog, confirmed at ledger level):**
+  - FLLWUP-63 — EV-40 backoff jitter test's unsatisfiable top edge
+    (merged-SHA CI flake; fix or formula ruling + seeded pin).
+  - FLLWUP-64 — cosmetic cleanup of the refresh surface (skeptic's three
+    non-blocking notes; pure refactor, pins stay green).
+  - FLLWUP-65 — reclassify `_template.md` as package-resolved (ordered
+    verbatim by PO R4).
+  - FLLWUP-66 — `--refresh-file <path>` for data-class files, preflight.sh
+    first (PO R1: "not v1").
+  - FLLWUP-67 — wiki pages for the refresh path (hop chain;
+    override-resolution table + the ROOT-coupling why; non-clobbering
+    companion; preflight overstatement; seed-parity hazard), via
+    /wiki-ingest.
+- **Designer dissent recorded:** the use-site consequence-coupled
+  notification (P7) is steward-rejected (Q2); the site is
+  `session_start`. P7's falsifier is not owed. P1(amended)/P6/P9 (cold-read
+  persona claims) ride the refresh surface as acceptance instruments —
+  covered in-surface by the copy-truth and description tests the skeptic
+  verified; no separate persona smoke card filed.
+- **Step 14:** wiki ingest of this card's grounding is owed to
+  EV-46/EV-47 (both still Backlog); FLLWUP-67 carries the specific page
+  set. Nothing hand-edited under `vault/`.
+
+**Card Done on the observed artifact:** merged `6e35355`, `gates` SUCCESS
+on the merged SHA (after one disclosed flake rerun, diagnosis on record),
+all five merge criteria satisfied at merge time. Usage: owner 9417012 tok
+($0.2216), skeptic 2412169 tok ($0.0479), judge 348105 tok ($0.0256);
+facilitator record commits pushed under R3 (disclosed): `c11f6e7`
+(rulings applied), `83ea452` (spec), `242c6bd` (In Progress), `bd95245`
+(In Review), plus the step-13/Done record commit.

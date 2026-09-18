@@ -40,6 +40,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-59 — Mechanically derive or police the shape witness's token allowlist
 - FLLWUP-61 — Worktree-seat cwd discipline for edit/write tools
 - FLLWUP-62 — Gate the mid-block colon-bearing frontmatter continuation residual
+- FLLWUP-63 — Fix the EV-40 backoff jitter test's unsatisfiable top edge (merged-SHA CI flake)
+- FLLWUP-64 — Cosmetic cleanup of the FLLWUP-50 refresh surface (dead variable, duplicated helper, creationPass filter)
+- FLLWUP-65 — Reclassify council/cards/_template.md as a package-resolved resource
+- FLLWUP-66 — Per-file refresh (--refresh-file <path>) for data-class scaffold files, preflight.sh first
+- FLLWUP-67 — Wiki pages for the refresh path — hop chain, scaffold-copied resources in override-resolution, non-clobbering companion
 - EPIC-10 — Fewer follow-up cards by merging near-duplicates, and unattended wiki ingest at every run completion
 - EV-46 — Ingest at every single-card /council completion, attended or container-run
 - EV-47 — Ingest the whole run when /features-deliver reaches its run ledger
@@ -56,13 +61,12 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- FLLWUP-50 — Supported refresh path for packaged council tooling in initialized consumer repos
-
 
 ## Needs Human
 
 ## Done
 
+- FLLWUP-50 — Supported refresh path for packaged council tooling in initialized consumer repos
 - FLLWUP-53 — De-repo-specific council.md step 8's gate-file reference and widen the prose guard
 
 - FLLWUP-51 — Loud gate for a goal wrapped onto a second line
