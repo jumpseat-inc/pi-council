@@ -35,7 +35,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-39 — Dispose the replaced transcript view when the inline progress surface switches sessions
 - FLLWUP-50 — Supported refresh path for packaged council tooling in initialized consumer repos
 - FLLWUP-51 — Loud gate for a goal wrapped onto a second line
-- FLLWUP-52 — Evolve EV-39 R4 — retrying row label denotation
 - FLLWUP-53 — De-repo-specific council.md step 8's gate-file reference and widen the prose guard
 - FLLWUP-54 — Wiki page for the red-base evidence convention
 - FLLWUP-55 — Collapse the smoke driver's private pty screen model onto the shared kit
@@ -54,6 +53,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Needs Human
 
 ## Done
+
+- FLLWUP-52 — Evolve EV-39 R4 — retrying row label denotation
 
 - FLLWUP-60 — Non-admin record-push path for autonomous runs
 - FLLWUP-48 — Suite-cost budget for the live pty and -p falsifier arms

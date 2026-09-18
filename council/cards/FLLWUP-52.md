@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-52
 title: Evolve EV-39 R4 — retrying row label denotation
-state: Backlog
+state: Done
 owner: null
 epic: EPIC-9
 goal: A binding ruling resolves whether the tree row's `attempt N/M` label on a retrying dispatch denotes the pending ordinal (EV-39 R4's letter) or the attempt whose transcript the row tails, and the label's data source matches that ruling in every state.
@@ -71,3 +71,28 @@ R4's pending-ordinal row).
   attempt fragment is removed in the same change; if R4 is left as-is, the
   card is retired with that ruling recorded.
 - EV-7/EV-8/EV-9/EV-35/FLLWUP-45 suites stay green; all owner gates green.
+
+## Resolution (retired, run 2 of EPIC-9 residuals — R4 applied)
+
+Ruling applied: **R4 (Phase 1, binding — retire, keep EV-39 R4's pending
+ordinal)**, recorded above on this card face before dispatch. The dispute
+this card was filed to settle — whether the retrying row's `attempt N/M`
+label denotes the pending ordinal or the tailed attempt's ordinal — is
+already answered by EV-39 R4's recorded binding ruling, left unchanged:
+the row label denotes the **pending** ordinal, and the FLLWUP-45 shipped
+split (pending ordinal on the row, shown attempt's ordinal in the progress
+title) is correct as shipped.
+
+Per this card's own acceptance clause — "if R4 is left as-is, the card is
+retired with that ruling recorded" — the card is retired:
+
+- No `extensions/navigator.ts` change is made; the FLLWUP-45 progress-title
+  attempt fragment stays.
+- No PR, no branch, no code change, no owner/skeptic/judge dispatches —
+  there is no implementation to verify.
+- `state: Done` per the run's board mechanics: `council/validate.py`'s
+  `STATE_COLUMNS` has no `RETIRED` state, so `Done` is the only durable
+  closure a later run cannot re-pick up.
+
+The acceptance's test-bearing clauses (label data source matching a ruling,
+suite green, owner gates) are vacuous under retirement — nothing changed.
