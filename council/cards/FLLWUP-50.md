@@ -1133,12 +1133,16 @@ STEWARD Q2.
     override-resolution table + the ROOT-coupling why; non-clobbering
     companion; preflight overstatement; seed-parity hazard), via
     /wiki-ingest.
+  - FLLWUP-68 — cold-read persona smoke on /council-update's output
+    surface (consolidator §3's P1(amended)/P6/P9 follow-up owed at
+    implementation; not a gate assertion — person-facing claims).
 - **Designer dissent recorded:** the use-site consequence-coupled
   notification (P7) is steward-rejected (Q2); the site is
   `session_start`. P7's falsifier is not owed. P1(amended)/P6/P9 (cold-read
-  persona claims) ride the refresh surface as acceptance instruments —
-  covered in-surface by the copy-truth and description tests the skeptic
-  verified; no separate persona smoke card filed.
+  persona claims) are open-untested by the only test that settles them —
+  the consolidator's owed follow-up is filed as FLLWUP-68 (the skeptic's
+  copy-truth/description tests cover adjacent mechanical claims, not the
+  persona read itself).
 - **Step 14:** wiki ingest of this card's grounding is owed to
   EV-46/EV-47 (both still Backlog); FLLWUP-67 carries the specific page
   set. Nothing hand-edited under `vault/`.
