@@ -649,3 +649,212 @@ live run, throwaway ref): run the workflow once with `timeout-minutes: 2`
 and record verbatim the job annotation text and whether the UI names the
 running step — otherwise the wiki marks the step-naming statement as
 unverified, not a guarantee.
+
+
+### Step 3 (cont.) — round 3 (final; ≤3-round cap hit) — exchange CLOSED
+
+Both generators re-dispatched with the other's round-2 position. Jobs: `owner`
+`job-28.5` (5.6m, 7 turns), `principal` `job-28.6` (5.6m, 15 turns), both
+settled `done`. **The exchange is closed at the cap.** The two round-2 outputs
+were cross-purposed in time (each seat conceded toward the other's round-1
+shape while the other reversed), so round 3 re-established the real state:
+both seats now hold the census-sum floor and the derived tripwire, but
+**placement** (owner: job-level; principal: step-level) and **the reading**
+(strict/any-arm vs single-arm, deciding 45/60 vs 15) remain open-judgment —
+routed via the consolidator at step 5 to `product-owner` at step 6.
+
+#### Round 3 — `owner` (job-28.5) — FINAL
+
+**Convergence: job-level `timeout-minutes: 60`, floor derived from the tree,
+not from prose.**
+
+**Approach.** I withdraw the step-level-15 + cumulative-tolerance model from
+my round 2. The model dies on a scenario I can verify from the tree: the
+suite is serial and additive (bare `bun test`, `package.json:28`), so in a
+full network wedge all ceiling-bearing tests can *each* run to their ceiling
+serially in one run — the ceiling trip fails the test, the suite moves on,
+and the next arm hangs too. The serial sum is the realizable worst case, not
+the impossible schedule I called it in round 1. Under that schedule the
+`bun test` step legitimately runs ≈42 minutes, and step-level 15 pre-empts a
+correct run. The tolerance table was a hand-maintained guess at trip counts;
+the census-sum rule is mechanical and tripwire-checkable. The principal's
+reframe is the honest form and I adopt it.
+
+**One correction to the principal's census (C1 as stated is wrong, and
+proves the tripwire's own point).** Verified against the tree:
+`ev41-retry-e2e.test.ts:259` carries a third-arg `20_000` (the hub
+job-tree-row unit test) that the multiset `{300_000:4, 180_000:6, 120_000:2}`
+omits. The strict third-arg census is **{300_000:4, 180_000:6, 120_000:2,
+20_000:1} = 13 sites, Σ = 2 540 000 ms ≈ 42.33 min**. All other anchors
+confirmed verbatim; `gates.yml` has 15 lines, no `timeout-minutes`,
+`fetch-depth: 0` at `:11-12`; `package.json:28` bare `bun test`. The
+recommendation is unchanged — 60 is 1.42× the corrected floor — but a pinned
+multiset in C1 would go red against the tree within weeks. **The tripwire
+must derive the sum from the test tree at tripwire-run time and assert
+`timeout-minutes ≥ ceil(derived_sum + fast_files_margin)/60000`; it must
+never restate the multiset or the 42 as constants.**
+
+**Position points, final form:**
+
+1. **Placement: job level.** At 60, the ~1–2 min preamble is ~2%. Job level
+   is also the only single line bounding an install/runner wedge, and the
+   log tail (the attribution mechanism we actually rely on) is
+   placement-independent.
+2. **Value: 60** — 1.42× the corrected census floor. I do not reopen 120.
+3. **My `≥ 88` probe: withdrawn** — it encoded my retracted 85-min floor
+   into CI and would red a correct 45-min backstop.
+4. **Wiki/doc scope: agreed.** Amend the "no suite-level ceiling" bullet to
+   state the backstop, quote PO ruling 2 and what changed (the ruling's
+   pre-emption objection binds a *tight budget-keyed* timeout, not a backstop
+   ≥ the serial sum), and correct the "Ceiling vs budget" census sentence.
+5. **Attribution (C8): optional-second.** The 2-minute live run gates
+   nothing; the wiki states step-naming as a working assumption either way.
+   Marking it unverified in the wiki is acceptable and unblocks shipping.
+6. **C6 amendment:** the tripwire asserts not just presence and floor but
+   *placement* — exactly one `timeout-minutes`, at job level, none under any
+   step (that encodes the PO-ruling-2 boundary mechanically).
+
+**Tradeoffs accepted.** A wedged run now bills up to 60 runner-minutes where
+a step-15 net would have cut the test step at 15; I accept ~1.42× floor as
+the price of never pre-empting a correct full-wedge run and of one line
+bounding every wedge class including install. I give up step-level annotation
+granularity — accepted because the attribution mechanism we rely on (log
+tail) doesn't depend on it and the step-naming claim is unverified anyway.
+
+**Testable claims (carried, with C1 amended):** C1′ tripwire derives Σ from
+the tree = 2 540 000 ms over the 13-site multiset, greens at 60 / reds at 45
+or below (pure, ~30s); C2 Bun 5 000 ms default tier counted for arm-bearing
+tests lacking a third arg; C3 sync arm binds at inner `spawnSync` timeout,
+pty arm at outer test timer; C4 mutation red/green per C1′; C5 shipped =
+wiki number, census-derived-floor language, census sentence corrected; C6′
+placement-parsing red on step-level placement; C7 `fetch-depth: 0` count 1;
+C8 optional-second live annotation capture, wiki marks unverified otherwise.
+
+**Nothing further to add — placement, value, tripwire derivation rule, and
+doc scope are agreed at: job-level `timeout-minutes: 60`, tree-derived floor
+≈ 42.33 min, derived-not-restated tripwire with placement assertion, wiki +
+`test-suite-budget.md` corrected in the same edit, C8 optional-second.**
+
+#### Round 3 — `principal` (job-28.6) — FINAL
+
+Read for this round: `vault/wiki/index.md`, `[[test-suite-budget]]` (full),
+`[[gate-parity]]`, `.github/workflows/gates.yml`, `package.json`,
+`test/faux-provider/harness.ts:290-365`, all five live-arm test files,
+`test/hub.test.ts:88-125`, `test/integration.test.ts`,
+`test/mcp/integration-context7.test.ts`, `council/cards/FLLWUP-58.md`.
+
+**Cross-seam reading — the two records, and the one both seats read wrong.**
+
+**Enforced side (unchanged).** `gates.yml` is 15 lines; no `timeout-minutes`
+at job or step level; `fetch-depth: 0` at checkout. `package.json:28` is
+bare `"test": "bun test"`. The only ceiling is the platform 360-min job
+default.
+
+**The census — a correction both seats need.** The card, the `owner`'s
+round-2 "13 records," and my own round-1 "12 sites" all scanned **only the
+five live-arm files**. A whole-tree scan (`^\s+\d[\d_]*_000,$`, plus the
+expression form) yields:
+
+| Ceiling | × | Sites | In default `bun test`? |
+|---|---|---|---|
+| `300_000` | 4 | ev43:106, ev41-retry-e2e:362, ev40-headless:66,117 | yes |
+| `180_000` | 6 | ev40-live-gates:84,135,174,209,246; ev41-retry-e2e:320 | yes |
+| `120_000` | 2 | ev41-seat-child-live:286,348 | yes |
+| `20_000` | 1 | **ev41-retry-e2e:259** | yes |
+| `15_000` | 3 | **hub.test.ts:96,109,121** | yes |
+| `60_000` | 1 | **mcp/integration-context7:24** | no (`test.skipIf` on `COUNCIL_MCP_INTEGRATION`) |
+| `6 * 60_000` = `360_000` | 1 | **integration.test.ts:60** | no (`test.skipIf` on `COUNCIL_INTEGRATION`) |
+
+Default-suite explicit ceilings: **16 sites**, Σ = 2 585 s ≈ **43.1 min**.
+Include the two gated sites: 18 sites, Σ ≈ 50.1 min. The two inner harness
+bounds (`harness.ts:302`, `:361`, `?? 120_000`) are *not* test-level ceilings
+and must not be summed into the census. `test-suite-budget.md:48-50` already
+says "thirteen sites" and lumps the two mechanisms — that sentence is a
+hand-maintained census that is **wrong today**, before this card ships.
+
+Two consequences neither position priced:
+
+1. **The card's "largest ceiling = 300 s" is a default-suite fact, not a
+   tree fact.** The tree's largest test-level ceiling is `360_000`
+   (`integration.test.ts:60`), gated. Nothing in the record says that
+   scoping, so a future maintainer re-deriving from the tree gets 360 s and
+   possibly a gated test that isn't in CI.
+2. **The proposed tripwire is under-scoped and its parser is fragile.** My
+   round-1 phrasing derived the census from `test/*.test.ts` — that glob
+   does **not** match `test/mcp/integration-context7.test.ts`, and a literal
+   `_000` regex does **not** match `6 * 60_000` at `integration.test.ts:60`.
+   A "derived" census with those two holes re-creates exactly the
+   hand-maintained drift the tripwire exists to kill, but with a green check
+   on top of it.
+
+**Gap that is the card.** `test-suite-budget.md:54-56` still asserts *"There
+is no suite-level ceiling — and none is added."* `grep -rn 'gates.yml'
+test/` is zero. Shipping the line without amending that bullet ships an
+enforced artifact contradicted by the authoritative doc with no net under
+the pair.
+
+**Reframe.** "Never pre-empts an arm's own ceiling" has two readings:
+
+- **Single-arm (PO's stated reason):** floor = `max_ceiling + envelope ≈ 6.7
+  min`. Every value ≥ ~10 is a pure billing choice. **15 and 45 are both
+  conformant.**
+- **Any-arm / strict:** floor = default-suite census-sum ≈ 43 min. **15 is
+  non-conformant** — it truncates the third cumulative arm before its own
+  ceiling, which is the literal text.
+
+The `owner`'s tolerance model is the strict reading's arithmetic with a
+deliberate *count cap*; that cap is a policy choice the card does not
+authorize in prose. So the deliverable is **(reading, census, number)** — and
+the census must be machine-derived from `test/**/*.test.ts` (recursive)
+parsing both literal `_000` and expression ceilings, with gated
+(`test.skipIf`) sites reported separately from the default-suite floor.
+
+**My final position:**
+
+1. **Placement: step-level `timeout-minutes` on the `bun test` step.** The
+   `owner`'s attribution argument is sound and it is the card's central value
+   (PO ruling 2's own words: "step timeout would … mask attribution"); the
+   job-level coverage advantage over `install`/`tsc` is real but out of card
+   scope. I **withdraw** my round-2 job-level placement.
+2. **Value: 45 min** (default-suite census-sum ≈ 43.1 min, rounded). This
+   satisfies the strict reading with no carve-out, and it is "loose" per the
+   card. **60 is equally acceptable** (my round-2 number; ≥ floor). **15 is
+   acceptable only if** the wiki explicitly narrows "never pre-empts an
+   arm's own ceiling" to the single-arm reading — and that narrowing is a
+   PO-facing change, not one either generator may make unilaterally.
+3. **Pins (both seats agree, keep them):** amend `test-suite-budget.md:54-56`
+   quoting PO ruling 2 and stating what changed; add the CI-backstop section
+   with the reading, the census, and the tripped-failure discriminator; one
+   pure offline tripwire pinning line↔doc parity; README/AGENTS `##
+   Commands` pointer only (no new Hard convention — `fllwup25-agents-page`
+   parity coupling); `fetch-depth: 0` verbatim; zero new live arms (O10).
+4. **New pins this round's census forces:** correct `test-suite-budget.md:48-50`
+   (16 default-suite sites, not 13; separate the two mechanisms); the
+   tripwire scans `test/**/*.test.ts` (recursive) and parses expression-form
+   ceilings; gated-integration ceilings (`360_000`, `60_000`) are listed
+   *separately* from the default-suite floor; the `install`/`tsc` hang gap is
+   recorded as accepted-and-known, with the cheaper eventual fix (tight
+   step-level ceilings on those deterministic steps) named.
+
+**Testable claims:** C1 census (30s, offline, fails today): recursive scan
+returns exactly `{300_000: 4, 180_000: 6, 120_000: 2, 20_000: 1, 15_000: 3}`
+default-suite plus `{360_000: 1, 60_000: 1}` in `test.skipIf` files. C2
+parser (15s): the scan must return `integration.test.ts:60`'s `6 * 60_000`;
+a literal-`_000` regex returns 17, not 18. C3 scope (15s):
+`test/*.test.ts` misses `test/mcp/integration-context7.test.ts`;
+`test/**/*.test.ts` catches it. C4 floor (15s): assert
+`shipped ≥ ceil(census_sum / 60) + 1`; 15 fails, 45 and 60 pass. C5 reading
+pin (10s): the wiki section states which reading it adopts. C6 parity +
+placement (30s): shipped = wiki value; exactly one `timeout-minutes`, on the
+`bun test` step; `fetch-depth: 0` count = 1. C7 doc (15s): `:48-50`
+corrected; `:54-56` quotes PO ruling 2; the `install`/`tsc` gap named as
+accepted.
+
+**Final:** step-level `timeout-minutes: 45` on `bun test`; the census
+corrected and machine-derived from `test/**/*.test.ts` parsing literal **and**
+expression ceilings; the single-vs-any-arm reading stated explicitly; wiki
+amendment quoting PO ruling 2; one pure offline tripwire pinning line↔doc
+parity; `install`/`tsc` hang gap recorded as accepted residual. The remaining
+open item for the consolidator is a single binary: **the reading** — strict
+(45/60) or single-arm (15) — plus the placement dispute (owner: job-level
+60; principal: step-level 45/60).
