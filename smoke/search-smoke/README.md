@@ -111,9 +111,15 @@ live execution is **not a gate** (binding fact).
   delivered as the base-case `\x1b[B`**, exactly as a real xterm-compatible
   terminal emits it. Anything the driver cannot interpret is ignored; pi must
   not block on unanswered queries.
-- `driver.py` imports **python3 stdlib only** (`pty`, `fcntl`, `termios`,
-  `select`, `re`, `struct`) — no pi/extension module (greppable claim). The
-  screen model and the byte table are authored in the driver.
+- `driver.py` imports python3 stdlib plus exactly one repo module — the shared
+  stdlib-only pty substrate test/faux-provider/pty_kit.py (Screen, Session,
+  the ANSI regexes). Neither module imports any pi/extension module (greppable
+  claim: grep -nE '^(import|from)' smoke/search-smoke/driver.py
+  test/faux-provider/pty_kit.py). The byte table, the frame matchers, and the
+  session policy (28×80 winsize, checkpoint-byte mark(), SIGTERM teardown,
+  wait_stable timing, OPENROUTER_API_KEY pass-through) are authored in the
+  driver; the screen parser is shared with the faux-provider kit so the O2
+  drift class cannot recur.
 
 ## Byte table (kitty flag-1 CSI-u; the bare form is the settled form)
 
