@@ -1006,3 +1006,156 @@ decisions rest on (16-site/18-site census, 43.1/50.1 min serial sums, `:362`
 inner 280 s vs outer 300 s, step-naming as an *unverified* working
 assumption) has been tested and stands. The two corrections above are
 record-only and do not block.
+
+
+### Step 5 — synthesis (`job-28.8`)
+
+`consolidator` settled `done` (2.1m, 14 turns) with the full record. Synthesis
+appended verbatim below. **Facilitator transcription (counting only): settled
+= the ten Skeptic-tested facts; open objections = none; open judgment = three
+items (placement; the reading; the number as its consequence).**
+
+#### consolidator — step 5 (`job-28.8`) — verbatim
+
+**Agreed design (every seat converged across three exchange rounds):**
+
+1. **Deliverable shape:** `(reading, census, number)` — the CI-backstop
+   line's size is inseparable from the census it derives from and the
+   reading (interpretation of "never pre-empts an arm's own ceiling") it
+   adopts.
+2. **Tree-derived tripwire:** a pure offline test that derives the ceiling
+   census from `test/**/*.test.ts` (recursive, parsing both literal `_000`
+   and expression-form ceilings), asserts
+   `timeout-minutes ≥ ceil(derived_sum + fast_files_margin) / 60000`, asserts
+   line↔doc parity, asserts placement (exactly one `timeout-minutes`), and
+   reds on mutation. Gated sites reported separately. No hardcoded constants.
+3. **Wiki amendments (all in `test-suite-budget.md`):** correct the
+   "thirteen sites" census sentence (currently wrong: 16 default-suite
+   sites, 18 tree-wide); amend the "no suite-level ceiling — and none is
+   added" bullet to state the backstop, quoting PO FLLWUP-48 ruling 2 and
+   explaining what changed (the ruling's pre-emption objection binds a
+   *tight budget-keyed* timeout, not a backstop ≥ the serial sum); new
+   CI-backstop section with the tripped-failure discriminator (read the log
+   tail; own-ceiling line present vs absent), the never-pre-empt rule, the
+   maintenance rule (any arm addition or ceiling change re-derives the
+   floor); record the `install`/`tsc` hang gap as accepted-and-known
+   residual (named eventual fix: tight step-level ceilings on deterministic
+   steps).
+4. **README/AGENTS `## Commands` pointer only** — no new Hard convention, to
+   avoid the `fllwup25-agents-page.test.ts` parity coupling.
+5. **`fetch-depth: 0` verbatim** (FLLWUP-59 R2 constraint preserved).
+6. **Zero new live arms** (FLLWUP-49 O10).
+7. **Step-naming attribution** — recorded as an unverified working
+   assumption (the attribution mechanism we actually rely on is the log
+   tail, which is placement-independent).
+8. **C8 live annotation capture** — optional-second; wiki marks step-naming
+   as unverified either way.
+
+**Settled disputes (each with the Skeptic test that settled it):**
+
+| # | Claim | Settled by | Result |
+|---|---|---|---|
+| 1 | Whole-tree census: 16 default-suite sites {300k×4, 180k×6, 120k×2, 20k×1, 15k×3} Σ = 2 585 s ≈ 43.1 min; 18 tree-wide incl. 2 gated (360k×1, 60k×1) Σ ≈ 50.1 min | Skeptic O1 — recursive + expression-form scans, each site verified | closed-green |
+| 2 | Serial execution: 2×2s files → 4.08s under bare `bun test` (hangs accumulate, never overlap) | Skeptic O3 | closed-green |
+| 3 | Parser fragility: literal `_000` regex returns 17 not 18 (misses `6 * 60_000`); `test/*.test.ts` misses all 8 `test/mcp/*.test.ts` | Skeptic O4 | closed-green |
+| 4 | Bun 5s default real, vacuous for arms | Skeptic O5 (live probe 5001.32ms, Context7 citation, grep) | closed-green |
+| 5 | Mechanism split: inner spawnSync fires first-to-fire; outer test timers are backstops | Skeptic O6 (precision correction applied) | closed-green |
+| 6 | Zero net under doc↔line pair: `grep -rn 'gates.yml' test/` zero | Skeptic O7 | closed-green |
+| 7 | Wiki census sentence wrong today ("thirteen sites" vs 16) | Skeptic O8 | closed-green |
+| 8 | Serial-sum arithmetic: 43.08 / 50.08 min | Skeptic O9 | closed-green |
+| 9 | 81-file envelope consistent (72 + 9 fixture seeds; dot-dirs skipped) | Skeptic O10 | closed-green |
+| 10 | "No suite-level ceiling" bullet contradicted by the card | Both seats + Skeptic O7 | closed-green |
+
+**Record corrections (non-blocking):** owner's 13-site multiset wrong (16 is
+correct); `gates.yml` is 18 lines not 15; 5s tier has no arm-bearing members;
+binding-order precision (inner first).
+
+**Open judgment — for `product-owner`, escalating to `steward`** (none
+settleable by test; all arithmetic beneath them tested and stands):
+
+- **OJ-1 Placement — job-level or step-level?** Owner final: job-level (only
+  line bounding an install/tsc wedge; at ≥60 the ~1–2 min preamble is ~2%;
+  log-tail attribution is placement-independent). Principal final:
+  step-level on the `bun test` step (PO ruling 2's own words made
+  step-level attribution the central value; job-level *cancels*, step-level
+  *fails the step*; install/tsc coverage is real but out of card scope).
+  Tested facts: step-naming annotation is an unverified working assumption;
+  install/tsc are deterministic (~30–60s / ~10–20s); both placements survive
+  the Skeptic.
+- **OJ-2 The reading — strict/any-arm or single-arm?** Strict: floor =
+  census sum ≈ 43.1 min → 45 or 60 conformant; 15 truncates the third
+  cumulative 300s-class arm. Single-arm: floor = max_ceiling + envelope ≈
+  6.7 min → 15 acceptable **only if** the wiki explicitly narrows the goal
+  phrase to single-arm scope — the principal names that narrowing a
+  PO-facing change neither generator may make unilaterally.
+- **OJ-3 The number (consequent on OJ-2).** Strict reading: owner 60 (1.42×
+  the census floor), principal 45 (rounded from 43.1; 60 equally
+  acceptable). Single-arm reading: principal 15 (conditional on the OJ-2
+  narrowing); owner has not taken a position under that reading.
+
+**Open objections: none.** Zero open-untested items. The three open-judgment
+items are values/tradeoffs, not factual disputes with pending tests.
+
+### Step 6 — routing (facilitator)
+
+Applied `<escalation_contract>` step 1 first: checked every Phase-1 ruling on
+record. R2 (merge) and R3 (record push) do not bear on the dispute. The
+FLLWUP-59 step-13 pointer (fetch-depth constraint) is not the dispute.
+FLLWUP-48's PO ruling 2 condemns *budget-keyed* envelope-scale timeouts and
+deferred "CI-timeout policy" as a separate question — the card exists as the
+loose-backstop variant — but it does **not** answer job-vs-step placement,
+the strict-vs-single-arm reading, or the value. The card's `goal` phrasing
+("sized so it never pre-empts an arm's own ceiling") is itself the text OJ-2
+interprets; choosing the reading is the judgment, not a settled premise. **No
+ruling on record answers any of the three items**; none is re-asked-and-applied.
+
+This container may not dispatch `product-owner` or `steward`
+(`<escalation_contract>`). Per that contract, this turn ends with an
+**`ESCALATION`** report carrying the three open-judgment items as **facts —
+positions and test results, no recommendation**. The card stays
+`Deliberating`; no spec is written and the owner is not dispatched until the
+ruling returns.
+
+**Escalation packet (facts only):**
+
+1. **OJ-1 Placement.** Facts: `gates.yml` today has no `timeout-minutes` at
+   job or step level (Skeptic O9, closed-green); step-level semantics = kill
+   the step's process → failed step; job-level semantics = cancel the job;
+   the step-naming annotation is job-scoped and historically unstable
+   (community #40582) — recorded as an unverified working assumption by both
+   seats; the log-tail discriminator (last file block; own-ceiling line
+   present vs absent) is placement-independent; `install`/`tsc` steps are
+   deterministic (~30–60s / ~10–20s) and a step-level line on `bun test`
+   leaves them bounded only by the platform 360-min default. Position A
+   (`owner` final): job-level `timeout-minutes: 60`. Position B (`principal`
+   final): step-level `timeout-minutes: 45` (60 equally acceptable), with
+   the install/tsc gap recorded as accepted-and-known and the cheaper
+   eventual fix named.
+2. **OJ-2 The reading.** Facts: the suite is serial (4.08s for 2×2s files,
+   Skeptic O3); the default-suite census is 16 sites Σ 2 585 s ≈ 43.1 min,
+   tree-wide 18 sites (2 gated) Σ 50.1 min (Skeptic O1/O9); every
+   arm-bearing test carries an explicit ceiling; the largest default-suite
+   ceiling is 300s (TUI pty `:362`, inner 280s first-to-fire). Position A
+   (strict/any-arm): floor = census sum ≈ 43.1 min; the literal goal text
+   ("never pre-empts an arm's own ceiling") reads as any-arm; values 45/60
+   conform, 15 does not (truncates a third cumulative arm). Position B
+   (single-arm): floor = max_ceiling + envelope ≈ 6.7 min; 15 conformant
+   only if the wiki explicitly narrows the goal phrase — the principal names
+   that narrowing a PO-facing change.
+3. **OJ-3 The number.** Facts: 60 = 1.42× the strict census floor; 45 =
+   1.04× it; 15 = 3.0× the single-arm floor and 0.35× the strict floor. Both
+   seats agree the wiki must state the floor, the ratio, and the census; the
+   tripwire derives the census at run time and asserts
+   `shipped ≥ ceil(derived_sum + margin)/60000` plus line↔doc parity and
+   placement.
+
+Scope facts the ruling may wish to confirm (agreed by both seats, Skeptic-
+tested): the tree-derived tripwire (recursive, expression-aware, gated sites
+separate, placement asserted, no hardcoded constants); wiki amendments (the
+census sentence — wrong today at "thirteen sites" — and the "no suite-level
+ceiling" bullet quoting PO ruling 2 and stating what changed) + new
+CI-backstop section with the tripped-failure discriminator; README/AGENTS
+`## Commands` pointer only (no new Hard convention); `fetch-depth: 0`
+verbatim; zero new live arms; the install/tsc hang gap recorded as
+accepted-and-known; step-naming recorded as unverified working assumption;
+live annotation capture (C8) optional.
