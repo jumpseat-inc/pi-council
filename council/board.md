@@ -52,7 +52,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Ready
 
-- FLLWUP-54 — Wiki page for the red-base evidence convention
 - EV-44 — Merge near-duplicate follow-up candidates before a card is drafted
 - EV-45 — Unattended ingest of a run's own ledger, without the human steer turn
 
@@ -60,6 +59,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
+- FLLWUP-54 — Wiki page for the red-base evidence convention
 
 ## In Review
 

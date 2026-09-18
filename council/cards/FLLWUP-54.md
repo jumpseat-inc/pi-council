@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-54
 title: Wiki page for the red-base evidence convention
-state: Ready
+state: In Progress
 owner: null
 epic: EPIC-9
 goal: vault/wiki carries a red-base-evidence page, produced through /wiki-ingest from the FLLWUP-47 seat-prose convention, that a seat or engineer can cite.
