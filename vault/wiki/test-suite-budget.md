@@ -45,19 +45,112 @@ per-file times sum to the suite total within run-to-run tolerance.
 
 ## Ceiling vs budget — they are not the same number
 
-- **Per-arm enforced ceilings** (thirteen sites: bun third positional args
-  plus the `runHarnessArm`/`spawnSync` `timeoutMs` in
-  `test/faux-provider/harness.ts`, default 120s) are **emergency bounds**,
-  not budgets — e.g. the TUI pty arm's ceiling is `300_000`
-  (`test/ev41-retry-e2e.test.ts:362`) against a ~32s actual. A tripped
-  ceiling fails the test; a budget merely describes expected cost.
-- **There is no suite-level ceiling** — and none is added (PO ruling 2: no
-  `gates.yml` `timeout-minutes`; a budget-keyed step timeout would pre-empt
-  the TUI arm's own 300s ceiling and mask attribution).
-- **180s is the drift threshold, not the budget.** It is the maintained
+- **Per-test enforced ceilings** (FLLWUP-58 census correction — this page
+  previously said "thirteen sites", which undercounted and conflated two
+  mechanisms): the tree carries **16 default-suite test-level ceiling
+  sites** ({300_000 ×4, 180_000 ×6, 120_000 ×2, 20_000 ×1, 15_000 ×3}) plus
+  **2 gated sites** (`360_000` at `test/integration.test.ts:60` — written
+  as the expression `6 * 60_000`; `60_000` at
+  `test/mcp/integration-context7.test.ts:24`) = **18 tree-wide**. They are
+  **emergency bounds**, not budgets — e.g. the TUI pty arm's ceiling is
+  `300_000` (`test/ev41-retry-e2e.test.ts:362`) against a ~32s actual. A
+  tripped ceiling fails the test; a budget merely describes expected cost.
+  **Two distinct mechanisms — do not conflate them:** (a) bun
+  third-positional-arg test ceilings (`test(name, fn, timeoutMs)`) are the
+  census terms; (b) harness-internal `spawnSync` bounds
+  (`test/faux-provider/harness.ts:302` and `:361`;
+  `test/ev41-retry-e2e.test.ts:348`, `timeout: 280_000`) are inner
+  first-to-fire bounds under an outer test ceiling — **not census terms**.
+  The gated sites carry `test.skipIf` behind `COUNCIL_INTEGRATION` /
+  `COUNCIL_MCP_INTEGRATION` and are reported separately, never summed into
+  the default-suite floor.
+- **A suite-level backstop now exists** (FLLWUP-58): one loose,
+  ceiling-scale `timeout-minutes` on the `bun test` step of
+  `.github/workflows/gates.yml` — see the CI-timeout backstop section
+  below. This amends, and does not contradict, PO FLLWUP-48 ruling 2
+  ("no `gates.yml` `timeout-minutes`"): that ruling condemned a
+  *budget-keyed* (~2–3 min) step timeout, which would pre-empt the TUI
+  arm's own 300s ceiling and mask attribution. A ceiling-scale backstop ≥
+  the serial census sum does not pre-empt a single trip — the condemnation
+  is of the budget-keyed magnitude, not of any step timeout. FLLWUP-48
+  explicitly deferred "CI-timeout policy is a separate question"; FLLWUP-58
+  is that reserved separate question, now discharged. This narrows nothing.
+- **180s is the drift threshold, not the budget** — and it stays **the only
+  drift alarm** (see the ladder in the CI-timeout backstop section; the
+  60-minute backstop is not a drift alarm). It is the maintained
   invariant the suite is tested against over time. Any re-measurement above
   180s reopens FLLWUP-48 or opens a new card — and that is the branch under
   which gating the live arms behind an opt-in reopens.
+
+## CI-timeout backstop (FLLWUP-58)
+
+**The adopted reading, in the goal's own words:** every arm-bearing test in
+the run gets to trip its own ceiling, including several tripping serially in
+one run. The **single-arm reading was considered and rejected** (floor
+≈ 6.7 min, value 15): it saves runner-minutes on a run that fires ~never
+and costs the one property the card exists to guarantee — **attribution
+completeness** (a tripped ceiling names a test; a truncation names nothing
+and silently un-runs everything after the cut). PO FLLWUP-58 ruling §1,
+verbatim in substance. **Placement is step-level, on the `bun test` step**:
+a job-level number's meaning drifts with the un-tripwireable preamble
+(install, tsc); step-level means permanently what it says.
+
+**Both census floors and ratios:**
+
+| Census | Sum | Against shipped 60 min |
+|---|---|---|
+| Default suite — 16 sites (operative floor) | Σ 2 585 s ≈ 43.1 min | 1.42× |
+| Gated-inclusive tree-wide — 18 sites | Σ 3 005 s ≈ 50.1 min | 1.20× |
+| Measured green envelope | ≈ 101.2 s | ≈ 35.6× |
+
+Floor rule: `shipped_minutes ≥ ceil(default_suite_sum_ms / 60000) + 1`
+⇒ today floor 45, shipped 60. 45 was rejected (1.04× the floor, below the
+tree-wide sum); the single-arm reading (15) and 120 were rejected; the
+retracted ≥88 probe was retracted (PO ruling §1).
+
+**The re-derivation rule:** if a gated site ever enters the default CI run,
+its `skipIf` disappears, the tripwire's census re-derives with it included,
+and the floor re-derives — named here and enforced mechanically by
+`test/fllwup58-gates-backstop.test.ts` (the tripwire reds when the derived
+floor exceeds the shipped value). Shrinking the shipped value also requires
+re-derivation.
+
+**The four-tier ladder** (consistent with "Ceiling vs budget" above):
+
+1. ≈101 s measured envelope — descriptive.
+2. 180 s drift threshold — **the only drift alarm**. Do not "tighten" 60
+   into a budget enforcement; that is the FLLWUP-48 mistake re-made.
+3. Per-arm ceilings 120–300 s — emergency bounds, fire per test.
+4. 60 min gates backstop — fails bounded what in-process timers
+   structurally cannot catch.
+
+**What firing means — the tripped-failure discriminator.** The backstop
+catches the failure class the inner JS timers cannot: wedged event loop,
+OOM, hang outside any timed region. Read the **log tail** (last file
+block): the arm's own ceiling line **absent** ⇒ genuine runaway. The arm's
+own failure line **present** while the step was still killed ⇒ mis-sized
+backstop (or more simultaneous hangs than the tolerance) — that is the
+runaway-vs-pre-emption discriminator.
+
+**Step-naming is an unverified working assumption.** The step-naming
+annotation is job-scoped and historically unstable; the attribution
+mechanism actually relied on is the **log tail**, which is
+placement-independent. Marked as a working assumption, not a guarantee.
+Live annotation capture (C8) is **not adopted** — step-level placement
+makes it moot.
+
+**Accepted-and-known gap (temporary):** a step-level line on `bun test`
+leaves a wedged `bun install` / `tsc` bounded only by the platform 360-min
+job default. The named cheaper eventual fix: tight per-step
+`timeout-minutes` on those two deterministic steps (install ~30–60 s,
+tsc ~10–20 s measured locally). Follow-up drafted at FLLWUP-58 step 13;
+not folded into this card.
+
+Shipped backstop value (machine-parity marker): `timeout-minutes: 60` on the `bun test` step — parity-checked against `.github/workflows/gates.yml` by `test/fllwup58-gates-backstop.test.ts`.
+
+**Maintenance rule, both directions:** any arm addition, ceiling change, or
+gated-site promotion re-derives the floor; the tripwire reds on violation.
+Shrinking the shipped value also requires re-derivation.
 
 ## Re-measure command
 

@@ -323,7 +323,9 @@ bun run smoke         # unattended end-to-end smoke test (needs OPENROUTER_API_K
 The default suite's measured wall clock on this machine is ≈101s
 (2026-09-18, `ad96c4f`, after `bun install`: `time bun test`) — see
 `vault/wiki/test-suite-budget.md` for the per-arm table, the re-measure
-command, and the 180s drift threshold. The live pty/CLI arms inside it are
+command, the 180s drift threshold, and the CI-timeout policy (the gates
+`bun test` step's ceiling-scale `timeout-minutes` backstop — never a
+budget-keyed ceiling). The live pty/CLI arms inside it are
 offline faux-provider runs needing no network or credentials; only the
 integration and context7 probes are opt-in-gated
 (`COUNCIL_INTEGRATION=1` and `COUNCIL_MCP_INTEGRATION=1`).
