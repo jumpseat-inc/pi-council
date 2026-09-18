@@ -33,7 +33,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-37 — Keep the progress keymap header visible when follow-mode content overflows the viewport
 - FLLWUP-38 — Clamp the inline progress transcript header to the granted render width
 - FLLWUP-39 — Dispose the replaced transcript view when the inline progress surface switches sessions
-- FLLWUP-56 — Saturate the seat-dispatch provider-error arm onto a config-injected faux provider
 - FLLWUP-58 — Runaway timeout-minutes backstop on the gates CI job
 - FLLWUP-59 — Mechanically derive or police the shape witness's token allowlist
 - FLLWUP-61 — Worktree-seat cwd discipline for edit/write tools
@@ -65,6 +64,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-48 — Packaged seat-tier map with repo-local merge override
 
 ## Deliberating
+
+- FLLWUP-56 — Saturate the seat-dispatch provider-error arm onto a config-injected faux provider
 
 ## In Review
 
