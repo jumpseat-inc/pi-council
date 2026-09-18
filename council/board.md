@@ -46,10 +46,13 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-47 — Ingest the whole run when /features-deliver reaches its run ledger
 
 ## Ready
-- FLLWUP-51 — Loud gate for a goal wrapped onto a second line
 
 - EV-44 — Merge near-duplicate follow-up candidates before a card is drafted
 - EV-45 — Unattended ingest of a run's own ledger, without the human steer turn
+
+## Deliberating
+
+- FLLWUP-51 — Loud gate for a goal wrapped onto a second line
 
 ## In Progress
 
