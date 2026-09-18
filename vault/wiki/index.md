@@ -84,6 +84,7 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[per-attempt-provenance]] — one job id/manifest/row per retried dispatch, with an `attempt` field, carried cumulative usage, and per-attempt session pointers.
 - [[figure-scoped-disclosure]] — a usage qualifier applies to a figure: `partial` iff a figure exists and an attempt is unaccounted; `n/a` alone when the figure is absent.
 - [[test-suite-budget]] — the measured default-`bun test` wall-clock envelope (FLLWUP-48, ≈94s): per-file live-arm table, ceiling-vs-budget distinction, 180s drift threshold (not a budget), re-measure command, standing maintenance rules.
+- [[red-base evidence]] — The convention fixing what a falsifier's red-at-base evidence record must contain (seven fields) and how records compare (comparison triple; skeptic-derived two-class mechanism-absent boundary; head half green).
 
 ## Comparisons
 
@@ -91,6 +92,7 @@ _(none yet)_
 
 ## Sources
 
+- [[2026-09-17-po-fllwup47-step6-ruling]] — The FLLWUP-47 product-owner ruling that settled the red-base evidence convention (R1–R6) and carried the true EV-41 causal story; the source of [[red-base evidence]].
 - [[2026-08-23-readme]] — README: makes the author's "prompted instead of prompting" project.
 - [[2026-08-23-agents]] — AGENTS.md: the 13 hard conventions + repo operating rules.
 - [[2026-08-23-pi-council-design-spec]] — Design of the pi-council package.

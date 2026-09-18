@@ -4,9 +4,9 @@ type: concept
 summary: A persistence/validation layer may be stricter than the runtime only where an existing downstream gate is also that strict — writer = loader's field-level inverse + dispatch's one failure predicate; capability enforcement lives at selection time, not write time.
 aliases: [gate parity, writer gate parity, gate placement, capability gate placement]
 tags: [pi-council/concept, pi-council/epic5]
-sources: ["[[2026-09-04-epic5-run-ledger]]"]
+sources: ["[[2026-09-04-epic5-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]"]
 created: 2026-09-04
-updated: 2026-09-04
+updated: 2026-09-18
 ---
 
 # Gate Parity
@@ -45,12 +45,26 @@ The symmetric corollary: if a future writer-side hardening is wanted,
 it must ship the **identical check in dispatch in the same change** —
 never the writer alone (writer ⊆ loader ∪ dispatch is the invariant).
 
+## The placement rule beyond persistence (FLLWUP-47 R1)
+
+The same rule decided where the red-base convention's mechanism-absent
+boundary lives ([[red-base evidence]]): at the surface — the skeptic's
+reproduction — not at persistence. A required owner-written
+`redAttribution` field would be writer-only strictness with no matching
+runtime gate (no code path rejects a record that omits or mislabels the
+classification), the exact writer-alone asymmetry this page forbids.
+The record instead provides the raw material; the skeptic derives the
+two-class bit at verification time and carries it in the evidence row.
+
 ## Related
 
 - [[council config writer]] — the application of this principle
 - [[council config]] — the file and its read-path gates
 - [[model-output-floors]] — why catalogue metadata can't bear a hard gate
 - [[council models picker]] — where capability enforcement lives instead
+- [[red-base evidence]] — the R1 application: derivation at the skeptic's
+  reproduction surface, not a writer-side field
+- [[2026-09-17-po-fllwup47-step6-ruling]] — R1's citation of this page
 
 ## Sources
 

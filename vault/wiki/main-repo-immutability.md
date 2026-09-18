@@ -4,9 +4,9 @@ type: concept
 summary: No seat and no runner may run git checkout/switch/reset against the main repository path — branch state changes happen only in a dedicated worktree — enforced at three layers after two incidents corrupted board records.
 aliases: [main repo immutability, branch-state immutability, worktree-only rule]
 tags: [pi-council/concept, pi-council/process]
-sources: ["[[2026-09-06-epic6-close-run-ledger]]"]
+sources: ["[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]"]
 created: 2026-09-06
-updated: 2026-09-06
+updated: 2026-09-18
 ---
 
 # Main-Repo Immutability
@@ -56,6 +56,16 @@ record commits are intact objects — restore main from the reflog, verify
 documents the drill; it was executed twice this run and both times lost
 nothing but time.
 
+## Beyond the main checkout: the red-at-base worktree (FLLWUP-47)
+
+The red-base evidence convention ([[red-base evidence]], field 5) extends
+the worktree-only rule to the base run itself: worktree provenance is a
+required field, meaning a **detached checkout at the base sha in a separate
+worktree** — the main checkout is never touched, and the worktree is
+removed after the run. A red-at-base record without that provenance is an
+incomplete gate result for the [[owner]] and a defective verification for
+the [[skeptic]].
+
 ## Related
 
 - [[engineering board]] — the state being protected
@@ -63,6 +73,10 @@ nothing but time.
 - [[council-runner]] — the facilitator container the blocks live in
 - [[seats]] — the working seats carrying the block
 - [[env-split contract]] — the other way a seat's environment poisons a probe
+- [[red-base evidence]] — field 5 makes the detached base worktree a required
+  part of the evidence record
+- [[2026-09-17-po-fllwup47-step6-ruling]] — the ruling whose end-to-end
+  reversibility framing names this page
 - [[2026-09-06-epic6-close-run-ledger]] — the incidents and the chain
 
 ## Sources

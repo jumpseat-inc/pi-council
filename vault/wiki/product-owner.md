@@ -4,9 +4,9 @@ type: entity
 summary: The Council's product-judgment seat — rules open-judgment disputes, fold-in rulings, and mid-flow product decisions; card-level rulings are final among agents; portfolio matters escalate.
 aliases: [product-owner seat]
 tags: [pi-council/seat]
-sources: ["[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]"]
+sources: ["[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]"]
 created: 2026-08-23
-updated: 2026-09-16
+updated: 2026-09-18
 ---
 
 > ⚠️ Derived from `council/agents/product-owner.md` (captured 2026-08-23). Verify against the seat file.
@@ -108,6 +108,18 @@ to be the real defect).
   `maxAttempts` on the manifest (cheaper to reverse; does not widen the
   substrate EV-42 owns).
 
+### FLLWUP-47 step 6 (2026-09-17) — the red-base evidence ruling
+
+Ruled the six open-judgment items on the [[red-base evidence]] convention
+(job-17): skeptic-derives-only for the mechanism-absent boundary (R1),
+head-half replaces the landing statement (R2), craft delegations with
+constraints for the shared block and pins (R3–R5), and — the fold-in test
+exercised on documentation — the wiki-ingest is a standing offer, not a
+fold-in (R6): the seat prose alone meets the card's goal; a wiki page
+documents rather than fixes. See [[2026-09-17-po-fllwup47-step6-ruling]].
+Also the seat that confirmed and steered the FLLWUP-54 wiki-ingest that
+executed the offer — the lineage is recorded on [[red-base evidence]].
+
 ## Related
 
 - [[seats]], [[council-loop]], [[designer]]/[[consolidator]] — consumers
@@ -120,3 +132,4 @@ to be the real defect).
 - [[2026-08-23-pi-council-design-spec]]
 - [[2026-09-04-epic3-run-ledger]] — the wave-3 ruling-only precedent + three rulings
 - [[2026-09-11-epic7-run-ledger]] — the goal-as-defect escalation (EV-29) + seven ruling dispatches
+- [[2026-09-17-po-fllwup47-step6-ruling]] — the red-base evidence ruling (R1–R6, incl. the R6 fold-in call)
