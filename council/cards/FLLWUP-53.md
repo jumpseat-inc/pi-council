@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-53
 title: De-repo-specific council.md step 8's gate-file reference and widen the prose guard
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-9
 goal: council.md no longer hard-references a gate document path that does not exist in this repo, and the packaged-prose guard covers every shipped file that could reintroduce one.
@@ -100,3 +100,40 @@ keeps one) and widen the guard to all packaged seat + procedure prose, rewording
 No deliberation ran, so the card itself is the owner's handoff: its `goal`,
 `Intent`, and the step-1 grounded facts. Card set `In Progress`;
 `validate.py` clean; `owner` dispatched (45-minute window).
+
+### Step 8 — owner delivered (job-10.1), PR #71 open
+
+`owner` (4.7m, 21 turns, `stopReason=stop`, tokens in 63771 / out 6947 /
+cR 627904 / cW 0 / reason 1552 / total 698622, cost≈$0.0191 catalogue)
+implemented in worktree `.worktrees/fllwup-53` (branch
+`feat/fllwup-53-neutral-gate-record`, cut from `origin/main` `a54e8f8`),
+pushed, PR #71 open at head `e130d9aaa1cb9ca1f11b840d4261cbc556a9e992`.
+Observed directly (not from the seat's report): `gh pr view 71` → state
+OPEN, base `main`, headRefOid `e130d9a…`, `mergeable: MERGEABLE`
+(mergeStateStatus `BLOCKED` — the ruleset's approving-review / PR-only
+requirement, which R2's `--admin` bypass clears at merge time). Diff scope
+(4 files): `council/procedures/council.md` step 8 reworded to
+consumer-neutral phrasing ("the repo's own authoritative gate record, if it
+keeps one, is the source of truth for what those gates are and how to run
+them"), `council/agents/owner.md` example reworded ("an authoritative gate
+document … outranks the wiki", no path), `test/prose.test.ts` guard widened
+from `features-deliver.md`-only to the `councilMarkdown()` enumeration of
+all packaged seats + procedures (renamed "packaged council prose does not
+hard-reference the repo-specific gate file", failure-class comment added),
+plan doc `docs/superpowers/plans/2026-09-17-FLLWUP-53-neutral-gate-record.md`.
+No engine change; scaffold/fixtures/vault untouched; all existing pins
+preserved.
+
+Owner gates green at head, real output: `bash council/preflight.sh
+FLLWUP-53` → `PASS: preflight clean` (exit 0; branch-freshness clause green
+— origin/main had not advanced past the `a54e8f8` cut); `bunx tsc --noEmit`
+exit 0; `bun test` **909 pass / 2 skip / 0 fail** (911 tests, 79 files);
+`python3 council/validate.py` → `All council artifacts valid`. Red-first
+recorded: the widened guard FAILs pre-edit (`agents/owner.md
+hard-references the repo-specific gate file` — Expected to not contain:
+"GATE-EVIDENCE.md"), GREEN after the prose edits (17/17 in that file); grep
+confirms the token absent from all packaged prose.
+
+Main checkout verified clean (`git status --short` empty), `main` still at
+`a54e8f8` == `origin/main` after the push. Card set `In Review` (sole
+precondition: open PR, observed).
