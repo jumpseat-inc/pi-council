@@ -50,12 +50,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- FLLWUP-60 — Non-admin record-push path for autonomous runs
-
 ## Needs Human
 
 ## Done
 
+- FLLWUP-60 — Non-admin record-push path for autonomous runs
 - FLLWUP-48 — Suite-cost budget for the live pty and -p falsifier arms
 
 - FLLWUP-49 — Promote the offline faux-provider harness into a shared smoke helper

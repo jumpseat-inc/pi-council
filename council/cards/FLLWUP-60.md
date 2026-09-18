@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-60
 title: Non-admin record-push path for autonomous runs
-state: In Review
+state: Done
 owner: null
 epic: EPIC-9
 goal: Under the active main ruleset (approving review + linear history + changes must be made through a pull request), an autonomous features-deliver run completes every step-12 record write without an unrecorded privileged bypass — either an explicit, run-scoped, human-recorded authorization for the direct record push exists on the run's Phase-1 record before the run's first record push, the procedure names that authorization explicitly, and an unauthorized push is a HALT surfaced to the human; or the record-push path no longer requires any bypass.
@@ -222,6 +222,74 @@ Judge usage (verbatim, job-2.3):
 ```
 job-2.3  turns=16 tokens=in 16368/out 3023/cR 193472/cW 0/reason 1373/total 212863 cost≈$0.0140
 ```
+
+### Step 11 — deterministic merge check, merged
+
+Five criteria executed mechanically at PR head
+`c30f7b7a79c4b89ed13424dd50f7ef9cb7244ad0`:
+
+1. **Owner gates green in full.** Re-run by the facilitator at the head in
+   `.worktrees/fllwup-60`: `bunx tsc --noEmit` exit 0; `bun test` **894
+   pass / 2 skip / 0 fail / 5649 expect** (94.84s); `python3
+   council/validate.py` → `All council artifacts valid`. The step-11
+   re-run set is `tsc` / `bun test` / `validate.py` (recorded FLLWUP-27
+   practice; `council/preflight.sh` is the run-start / owner-time gate,
+   green at owner time; its verification-time red line is the documented
+   branch-freshness artifact — never weakened).
+2. **`gates` workflow SUCCESS on the PR head SHA.**
+   `gh pr checks 67 --json name,state,workflow` →
+   `[{"name":"gates","state":"SUCCESS","workflow":"gates"}]`, asserted
+   on the `workflow` field. `headRefOid` re-read immediately before the
+   merge as `c30f7b7…` and asserted equal to the checked SHA.
+3. **No blocking Skeptic objection** — step 9 NO-BLOCK, objections all
+   `closed-green` (one non-blocking by-design artifact, O1).
+4. **Judge PASS** (job-2.3).
+5. **No `Needs Human` / outstanding ruling** — card `In Review`, zero
+   escalations. R3 is the recorded run-scoped authorization this run's
+   record pushes execute under, and R2 the merge's — recorded human
+   decisions applied and cited, not open rulings.
+
+Merged under R2: `gh pr merge 67 --squash --admin --match-head-commit
+c30f7b7a79c4b89ed13424dd50f7ef9cb7244ad0` exit 0 → PR #67 **MERGED**
+(mergedAt 2026-09-18T07:54:09Z), squash commit
+**`aa1923fe593cfc34ed295abd2420896e5fd1896e`** on `main` (parent
+`4bde519`).
+
+### Step 12 — Done
+
+Local `main` fast-forwarded from `4bde519` to `aa1923f` — clean FF, no
+forced resolution, no union merge needed. **CI on the merged SHA:** `gh run
+list --commit aa1923f…` → `workflowName=gates`, event `push`, status
+`completed`, conclusion **`success`** (observed directly, after merge).
+`validate.py` clean; board and card set `Done`; reconciliation committed
+and pushed directly to `main` under R3 (disclosed in the run-close report).
+Card closes with **no open-untested step-9 residual** — the verify loop ran
+once (NO-BLOCK at cycle 1 of ≤3). Every step-12 record write this card made
+(executed by this facilitator, the runner) was an R3-authorized direct push
+— the first record pushes this run's procedure text now names explicitly.
+
+### Step 13 — follow-up candidates (drafted, NOT written; per the Phase-1
+follow-up ruling, draft-then-confirm is re-homed to `product-owner`, which
+this container must not dispatch)
+
+- **Candidate A — edit-tool cwd hazard for worktree seats.** The owner's
+  first two file writes resolved against the session cwd (the main
+  checkout) rather than the bash-cd worktree; caught and reverted same-turn
+  (verified residue-free at step 8), but the hazard class recurs per owner
+  dispatch: the edit/write tools follow the session cwd while `git`/`bash`
+  follow the cd. Candidate: harden the `owner` (and `skeptic`) seat
+  guidance to name absolute worktree paths or a session-level cd into the
+  worktree. Small, non-blocking; no defect shipped.
+- **Candidate B — wiki ingest of this card's closure (step-14 material).**
+  [[record-push-discipline]] now describes a closed gap: `council.md` step
+  12 names the run-scoped record-push authorization explicitly and fences
+  an unauthorized push as a `HALT` (squash `aa1923f`). Not hand-edited
+  (`vault/` is never written by hand) — owed to the orchestrator's
+  `/wiki-ingest` pass.
+
+No other candidate: the FLLWUP-27 preflight branch-freshness artifact is
+already carded; the fixture/digest surface has zero impact (verified); the
+prose/stack gates are green; no non-goal surface was touched.
 
 **Non-goals:** no change to the five deterministic criteria, to
 `--match-head-commit` pinning, to FLLWUP-42's merged merge paragraph, or any
