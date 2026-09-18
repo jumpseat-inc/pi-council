@@ -51,9 +51,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- FLLWUP-50 — Supported refresh path for packaged council tooling in initialized consumer repos
-
 ## In Progress
+
+- FLLWUP-50 — Supported refresh path for packaged council tooling in initialized consumer repos
 
 
 ## In Review

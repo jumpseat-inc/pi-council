@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-50
 title: Supported refresh path for packaged council tooling in initialized consumer repos
-state: Deliberating
+state: In Progress
 owner: null
 epic: EPIC-9
 goal: A consumer repo initialized against an earlier pi-council install is told at session start, non-fatally and no more than once per drift condition (re-arming on new drift), that its packaged council tooling (council/validate.py, _template.md, the procedures, the docstrings) is out of date, and can bring that tooling up to the currently installed package's version through a documented, supported path, without overwriting consumer-edited board, cards, or wiki.
