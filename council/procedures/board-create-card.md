@@ -39,13 +39,20 @@ having never seen this card's `Intent` section. That means:
   not just that some code is present — name the concrete behavior and the
   required evidence (e.g. an automated test exercising that path).
 
-**The goal is the judge's only input — keep it on one line and spell
-literals exactly.** This frontmatter is parsed as plain `key: value` lines
-with no YAML quoting: the value is everything after the first `: ` of the
-line, with edge whitespace trimmed. A colon-space inside the value does not
-truncate or re-encode anything — the goal the judge reads is the text you
-wrote. What ends the value is a line break or a line without the
-`key: value` shape, so never wrap the goal onto a second line and never
+**The goal is the judge's only input — keep it on one line, keep `goal`
+last, and spell literals exactly.** This frontmatter is parsed as plain
+`key: value` lines with no YAML quoting: the value is everything after
+the first `: ` of the line, with edge whitespace trimmed. A colon-space
+inside the value does not truncate or re-encode anything — the goal the
+judge reads is the text you wrote. Two different mechanisms are in play,
+and they are not the same thing: a **line break ends the value** (so
+never wrap the goal onto a second line), while a line without the
+`key: value` shape ends the **block**, dropping every key after it.
+`goal` must be the **last frontmatter key** — after the `goal:` line,
+only blank lines and the closing `---` may follow. The validator refuses
+a wrapped goal with a named FAIL: a key-shaped line after `goal:` parses
+as a key, and a line that is not `key: value`-shaped inside the block is
+reported as a wrapped/continued value or a missing closing `---`. Never
 drop the `: ` separator itself (`goal:foo` deletes the field). Name any
 literal (a log message, an error string, a constant) precisely as the
 system emits it, colons and all; a colon-less paraphrase of a real message
