@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-60
 title: Non-admin record-push path for autonomous runs
-state: Backlog
+state: Ready
 owner: null
 epic: EPIC-9
 goal: Under the active main ruleset (approving review + linear history + changes must be made through a pull request), an autonomous features-deliver run completes every step-12 record write without an unrecorded privileged bypass — either an explicit, run-scoped, human-recorded authorization for the direct record push exists on the run's Phase-1 record before the run's first record push, the procedure names that authorization explicitly, and an unauthorized push is a HALT surfaced to the human; or the record-push path no longer requires any bypass.
