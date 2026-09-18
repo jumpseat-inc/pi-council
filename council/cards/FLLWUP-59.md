@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-59
 title: Mechanically derive or police the shape witness's token allowlist
-state: In Review
+state: Done
 owner: null
 epic: EPIC-9
 goal: The shape witness's provider-token list is derived or policed mechanically, so a future token retirement cannot silently create a miss without the hand-maintained regex being updated.
@@ -1279,3 +1279,73 @@ prevent silent partial sets, with `fetch-depth: 0` landing in the same PR;
 is the two-path canary, "a minimal invariant the mechanism assumes true about
 the repo's history, not a full token list." **Deterministic merge check
 criterion 4 holds.**
+
+### Step 11 — merge gate (autonomous, deterministic check)
+
+All five criteria checked by this facilitator from observed artifacts, in
+order: (1) owner gates green in full — owner ran all four on the final tree;
+skeptic independently re-ran all four at head (tsc 0; bun 940/2/0 @ 104.41s;
+validate.py clean; preflight PASS) and proved each gate capable of failing
+with named defects; (2) CI green on the PR head SHA — `gh pr checks 76 --json
+name,state,workflow` → `[{"name":"gates","state":"SUCCESS","workflow":"gates"}]`,
+keyed on the `workflow` field per the run ruling (the other row, `[code]smith`
+SKIPPED, has an empty `workflow` and is not a failing or required check);
+head SHA re-read immediately before merge =
+`6579d683a5df46f726870f7bb2f1b33897a36e41` — matched; (3) no blocking Skeptic
+objection (step 9 PASS); (4) judge PASS (step 10); (5) no `Needs Human` state
+and no outstanding ruling on the card. Merging pinned per **R2**:
+`gh pr merge 76 --squash --admin --match-head-commit
+6579d683a5df46f726870f7bb2f1b33897a36e41` → **MERGED**, squash commit
+`e1b78017402788b976ffa055f0e5fcf594944a72`.
+
+### Step 12 — sync, reconcile, Done (facilitator, observed artifacts)
+
+Local `main` fast-forwarded cleanly from `origin/main` (`git pull --ff-only`
+→ `e1b7801`; no union-merge repair needed; R1 not exercised). **CI on the
+merged SHA confirmed green before this transition: the `gates` workflow ran
+`completed/success` at `e1b78017` on `main` (run 35394444293)** — observed
+directly, never from a seat report. The known merged-SHA EV-40 backoff-jitter
+flake (FLLWUP-63, untouched file) did not recur; no rerun was used. The three
+interleaved record pushes (`5c0ba5d`, `ee7a7ca`, `f9a9e3a`) each also ran
+`gates` green. Card set `Done` in frontmatter and on the board;
+`python3 council/validate.py` → clean; record committed and pushed.
+
+### Step 13 — follow-up drafts (drafted only; pre-write confirmation re-homed to `product-owner`)
+
+Per the run-wide ruling this container drafts and writes **nothing** to
+`council/cards/` unapproved, and never dispatches `product-owner`. Two drafts
+carried in the runner report for ruling-seat confirmation:
+
+1. **Wiki caveat precision** — the newly delivered
+   `vault/wiki/retired-path-tokens.md` caveat (a) says the `323abdc` smoke
+   driver "does not exist" while it exists with pre-kit content (the
+   copy-set-dependent fail is a content fail, not a missing-file error).
+   One-line wording fix, non-blocking, surfaced by the step-9 skeptic.
+2. **Remaining truncated-history guard classes** — the canary's live probe
+   covered `git filter-branch` truncation (`closed-green`); the `git
+   replace`/grafted/archive-export classes remain `open-untested` as live
+   reproductions (canary design verified sound against the real token set;
+   loud, not silent). A small falsifier card could close them, or
+   `product-owner` may drop as over-engineering for this repo's threat
+   model.
+
+Also surfaced, not card-worthy: none — the D1 emission reading, the gates.yml
+two-line shape, and the witness-header paragraph were all folded into the
+delivered PR.
+
+### Step 14 — persistence
+
+The durable artifact is itself wiki material —
+`vault/wiki/retired-path-tokens.md` was delivered in PR #76 with the
+`vault/wiki/index.md` catalog link (spec §6), so no further `/wiki-ingest`
+offering is needed from this card.
+
+### R3 record-push disclosure (this card)
+
+Record pushes made directly to `main` with the pusher's admin identity under
+run-2 ruling **R3**, each disclosed: `df3b32c` (promotion + step 1),
+`d2fbbf9` (step 2), `50b8dc5` (step 3 r2), `27dc3c0` (step 3 r3 + scope
+amendment), `dec7c29` (step 4), `dbed7b5` (steps 5–6), `aeab1bf` (step 7
+spec + In Progress), `5c0ba5d` (step 8, In Review), `ee7a7ca` (step 9),
+`f9a9e3a` (step 10), plus the step-12 Done record (this commit). R2 was used
+for the merge (disclosed above). Not extended to any later run.

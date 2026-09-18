@@ -70,8 +70,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- FLLWUP-59 — Mechanically derive or police the shape witness's token allowlist
 ## Done
+
+- FLLWUP-59 — Mechanically derive or police the shape witness's token allowlist
 
 - FLLWUP-56 — Saturate the seat-dispatch provider-error arm onto a config-injected faux provider
 
