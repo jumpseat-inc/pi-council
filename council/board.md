@@ -42,6 +42,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-67 — Wiki pages for the refresh path — hop chain, scaffold-copied resources in override-resolution, non-clobbering companion
 - FLLWUP-68 — Cold-read persona smoke on /council-update's output surface (designer P1/P6/P9)
 - FLLWUP-69 — Pin the step-13 follow-up confirmation gate as pre-write and mark ledger-level confirmation unsanctioned
+- FLLWUP-70 — Close the gates CI-timeout residuals — a per-step bound on every non-test step, and a ceiling census that covers every writing form
 - EPIC-10 — Fewer follow-up cards by merging near-duplicates, and unattended wiki ingest at every run completion
 - EV-46 — Ingest at every single-card /council completion, attended or container-run
 - EV-47 — Ingest the whole run when /features-deliver reaches its run ledger
