@@ -349,3 +349,68 @@ Also executed as gate-integrity evidence: `bun test test/fllwup43-goal-oracle.te
 - FAIL-copy vocabulary echo (designer R-positional-E) and one-FAIL-per-card suppression: implementation-time choices, no suite pin.
 - Whether the whitespace-in-key predicate is "worth" gating the residual sub-shape: taste, declined; the decline is defensible, the reason given was only half right (O14).
 
+
+### Step 5 — Consolidator synthesis (job-6.8, verbatim)
+
+Dispatch: `consolidator` job-6.8 (15-min ceiling; settled 3.2m / 5 turns, total 142184 tok, cost≈$0.0127). Given the full record on this card (steps 1–4).
+
+# Consolidator synthesis — FLLWUP-51, step 5
+
+Grounding read: `council/cards/FLLWUP-51.md` (full record, steps 1–4), `vault/wiki/index.md`, `vault/wiki/gate-parity.md`, and `council/validate.py:46-68` (the `parse_frontmatter` loop as shipped).
+
+## Agreed design
+
+The loud gate is **the loader's own refusal**, not a post-hoc policy on a parsed dict.
+
+- `council/validate.py::parse_frontmatter` **raises** a `FrontmatterError` carrying `(line_no, line_text, partial_meta)`; it never returns a dict for a block it would silently truncate. `main()` catches per card, emits the structural `FAIL:` line, and **still runs the `REQUIRED_KEYS` loop against `partial_meta`** so T4's `missing required key 'goal'` survives.
+- The predicate is a **positional raw-line rule**: once `goal` has been seen, only blank lines and the closing `---` may follow. It is not "the last key in the parsed dict" and it carries **no key vocabulary** — no unknown-key FAIL.
+- **Branch D (unclosed frontmatter) is in scope**, riding the same raise, with a **distinct FAIL message** from the wrap.
+- **No continuation-folding** (lossless joining was considered and declined: the goal demands refusal, and folding would flip currently-FAILing mid-block wraps green).
+- **Surfaces that move:** `council/validate.py` (+ its docstring, which currently documents a single-line goal that nothing enforces); `council/scaffold/council/validate.py` + the 8 `council/fixtures/<task>/seed/council/validate.py` copies, all byte-identical; 8 `fixture.json` `seed.treeDigest` re-pins with `fixtureVersion` 1.1.0 → 1.2.0; `council/procedures/board-create-card.md` (root copy only) with **goal-last made explicit** and the line-break/bare-line **conflation corrected**; `test/fllwup43-goal-oracle.test.ts` (**T7 flipped in the same change** + T5 fixtureVersion + header note); new `test/fllwup51-*.test.ts`.
+- **Authoring-time refusal is out of scope** — detection at the validator only; inventing a machine-refusing procedure would create a *writer*, which is what gate parity binds.
+- **Agreed documented residual:** a mid-block, colon-bearing continuation of a *non-goal* key stays silent today and stays silent under this design. All three seats classify it identically: record it (copy + step-13 note), do not gate it.
+- One seat-supplied interpretation the wiki does not supply: for cards the gate-parity triple maps to **no code writer, loader = `parse_frontmatter`, dispatch = the prose-mediated judge** — so loader refusal *is* the matched surface, and card gate parity is a procedure-discipline claim, not a code-matched one. `vault/wiki/gate-parity.md` is written entirely about the `.council.json` triple and has no worked card example; every seat said so plainly.
+
+## Settled disputes
+
+**By the Skeptic's actual runs (job-6.7, main `b09bc75`):** O1–O16 as recorded at step 4 — branch A/B/D/R4b silence reproduced (O1/O2/O4/O5); positional rule catches R4b (O6); unknown-key FAIL dominance fact (O7); converged design green on 114 cards + 8 seeds + smoke fixture incl. FLLWUP-47/49 body fences (O8); green-side pins `labels: x` and single-line colon goal (O9/O10); parity mechanics and T7-flip necessity (O11); no other suite pin (O12); residual silent both sides (O13); distinct branch-D message (O15); ancillary facts (O16).
+
+**By uncontested convergence across all three generators in round 2** (no test settles these, no seat dissents after seeing the others): raise over out-param (owner withdrew; principal's falsification accepted); predicate in `parse_frontmatter` not `main()` (designer open call 1, conceded); branch D in scope; no folding; authoring-time refusal out; residual document-not-gate; owner's `labels: x` green-side test as the record of the withdrawn unknown-key FAIL.
+
+## Open judgment — for `product-owner`, escalating to `steward`
+
+1. **Does the residual stay document-only now that the stated reason is half-refuted?** All three seats: document, don't gate. Skeptic O14 (`closed-red` as a blanket claim): for the **space-bearing** sub-shape a cheap whitespace-in-key check or key-shape regex catches it with zero vocabulary and zero order rule; the decline must rest on parser-character and sub-shape-coverage grounds, not impossibility. Whether a sub-shape with a cheap predicate deserves its own card is a values call.
+2. **The consumer-population tradeoff.** A consumer card with a legal-but-unusual key order (goal not last) goes **red by design**. Owner: zero such cards exist here; goal-last already in shipped copy. Principal: measured on the one tree where it is guaranteed true; FLLWUP-50 commits to not overwriting consumer-edited data while non-clobbering scaffolding freezes a consumer's `_template.md`. No test can settle the future population.
+3. **FAIL-copy deltas** — designer's implementation-time call, open judgment by construction: whether the message quotes the offending line's text; whether the bare-line message names *both* hypotheses (bare wrap vs missing terminator — indistinguishable from inside the scan); line-after-goal vs last-parsed-key expression; one-FAIL-per-card suppression; verb tense. No suite pin exists for the vocabulary echo (designer R-positional-E) or for suppression.
+4. **Whether the card-domain gate-parity mapping is the house reading** (no writer, loader = `parse_frontmatter`, dispatch = prose judge; parity as procedure discipline). All three seats use it and the design does not depend on a ruling, but the wiki does not contain it — the step-13/14 record should be ruled on rather than assumed.
+
+## Open objections — results that must be made green by the fix
+
+- **O3, `closed-red` for the round-1 sentence as stated.** The colon-bearing mid-block sub-shape exits 0 silently with a spurious key while all six required keys survive. The spec must carry the corrected shape and the suite must pin it. Not run green by any test — the red result stands as the finding.
+- **O14, `closed-red` as a blanket claim.** The design record must narrow the justification before it is written down. Fixable only by rewording the reason.
+- **Unclosed frontmatter whose body begins with a bare `---`: exits 0 under both designs, currently unpinned.** The grammar cannot distinguish a body fence from the closer; the settling test cannot pass. The only paths are a documented-uncaught-by-design ruling **plus a pin** (R8-style) or not claiming it is handled. Needs a ruling, not a run.
+- **The prototype/source gap.** Every green result attributed to the converged design (O6, O8, O9, O15) was produced by the Skeptic against a converged-shape validator built in `/tmp` scratch — not against this repo's source. The shipped change must reproduce those greens from the real file; that closes only at steps 8–9.
+- **Tests named but not yet existing:** T7 inversion, the new `test/fllwup51-*.test.ts` set (R1, R2′ anti-bolt-on, R3, R4a, R4b, R5′, R7, R8, R9), T3 byte-parity, T5 re-pin + `fixtureVersion`. A change that lands T7 unflipped or `validate.py` patched in only one of 10 copies is a self-contradictory suite and a red gate.
+
+## Is the card's own `goal` a faithful oracle for this card's judge?
+
+**Partially — faithful for the hazard it names, strictly under-inclusive for the design agreed.** Stated as fact, since council.md step 10 dispatches `judge` on the goal sentence and the step-9 evidence and nothing else:
+
+- Everything the goal asserts is test-true as written: silent truncation to the first line (O1), exit 0 today (O1, O2, O4, O5), a diagnostic naming the wrap (O6), red-first proof (O11: T7's assertions demonstrably flip). On that core the goal is a sound oracle.
+- The goal does **not** reach: **branch D** (in scope, not "a goal wrapped onto a second line", and its FAIL deliberately does not name a wrap — O15); the green-side guarantees no seat is willing to break (**O9** no vocabulary ban, **O10** colon-in-single-line-goal intact); the parity mechanics (10 copies, 8 digest re-pins, `fixtureVersion`); the documented residual; the board-copy corrections. Roughly half the shipped scope is invisible to the judge.
+- By council.md step 10's own rule ("if the goal is ambiguous without context, that ambiguity is a defect in the card's `goal` text — fix the card, don't widen the judge's input"), this is a `goal`-text defect, not a judge-input problem.
+
+## Ready to hand off?
+
+**Yes for implementation — with a recorded `product-owner` pass first.**
+
+- **Not blocked:** mechanism, predicate, scope, surfaces and test set are all either test-settled or converged; a fresh `owner` reading only a spec carrying the Agreed design above could not reasonably reach two different implementations.
+- **Needs a ruling at step 6:** judgment items 1–4 and the unclosed-frontmatter/body-fence case. None change the mechanism; all change what the record says; items 1 and 2 could come back later as a "newly discovered" hole.
+- **Needs a goal-text decision, and it is the sharpest one:** either step 6 amends the `goal` to name branch D and the green-side guarantees, or step 10's verdict is rendered against an oracle silent on half the change. That is a `product-owner` call — and if the ruling turns on editing a promoted card's goal, `steward` is the escalation (the EPIC-9 residual run has a precedent for steward goal amendments: FLLWUP-43 ESC-1).
+
+### Step 6 — routing (facilitator)
+
+Phase-1 rulings checked first (`<escalation_contract>` step 1): run-2 R2 (merge), run-2 R3 (record push), follow-up confirmation re-homed to `product-owner`, FLLWUP-43 R1 (wrap out of FLLWUP-43's scope, loud gate owed as this card, gate-parity-consistent), FLLWUP-50 steward ESC-3 (supported refresh path, acceptance shape recorded). None of them answers the consolidator's items: FLLWUP-43 R1 ordered the loud gate built and constrained its parity, but did not rule the residual's sub-shape question (item 1), the consumer key-order consequence (item 2), FAIL-copy deltas (item 3), the card-domain gate-parity mapping as house reading (item 4), the unclosed-frontmatter/body-fence documented-uncaught ruling, or the goal-text amendment. ESC-3's acceptance shape (bring tooling current without overwriting consumer-edited board/cards/wiki) does not address a refreshed validator *refusing* a consumer card by design. Nothing is applied-and-cited beyond what it actually answers.
+
+The consolidator left the card not ready to hand off. Per `<escalation_contract>` step 2 the facilitator does not dispatch `product-owner` or `steward`; it ends the turn with an `ESCALATION` report carrying facts and no recommendation. The card stays `Deliberating` (these are ruling-seat-addressable, not declined by both ruling seats); no `Needs Human` state is set. Nothing in steps 7–14 has run.
+
