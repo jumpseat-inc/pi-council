@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-55
 title: Collapse the smoke driver's private pty screen model onto the shared kit
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-9
 goal: smoke/search-smoke/driver.py consumes the shared pty screen model instead of carrying its own class Screen/class Session, with the release gate's pinned-pi isolation and the README's stdlib-only claim preserved or explicitly amended.
