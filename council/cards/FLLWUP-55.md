@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-55
 title: Collapse the smoke driver's private pty screen model onto the shared kit
-state: Deliberating
+state: In Progress
 owner: null
 epic: EPIC-9
 goal: smoke/search-smoke/driver.py consumes the shared pty screen model instead of carrying its own class Screen/class Session, with the release gate's pinned-pi isolation and the README's stdlib-only claim preserved or explicitly amended.
@@ -464,3 +464,36 @@ The spec must contain, unambiguously: (1) the SHARE decision with both condition
 **No decision is taken here. The card stays `Deliberating`; steps 7 onward wait for the copy ruling. This container returns `ESCALATION`.**
 
 **Throughput/usage (this card so far):** 12 seat dispatches — `owner` (20.1, 20.4 timeout-cancelled, 20.7, 20.9), `principal` (20.2, 20.5 provider-error, 20.8, 20.10), `designer` (20.3, 20.6), `skeptic` (20.11), `consolidator` (20.12). Three exchange rounds (cap reached at 3; two re-dispatches under the bounded-dispatch rule, both settled on attempt 2). No third dispatch for any seat. Ruling seats never dispatched by this container.
+
+### Step 6 resumed — the copy ruling returned (run 2, container 2)
+
+The previous container ended in `ESCALATION` on J1/OB3 (README/docstring copy wording). The orchestrator obtained the ruling from `product-owner` (job-21). Appended verbatim and binding:
+
+=== BEGIN BINDING RULING (appended verbatim) ===
+
+**product-owner (job-21) — copy ruling.** Approve Candidate 1 (owner's r2 draft + r3 amendment) with one minimal edit: insert `wait_stable timing` into the driver-authored session-policy parenthetical so the copy satisfies consolidator constraint (3)'s full enumeration. The `mark()` boundary is fixed at owner's driver-local shape in the copy — the copy states that checkpoint-byte `mark()` is authored in the driver, which is the convergent shape owner is committed to implement.
+
+Final wording, byte-exact, applied in two places.
+
+`smoke/search-smoke/README.md:114-116` — replace the three-line claim with:
+
+> - `driver.py` imports python3 stdlib plus exactly one repo module — the shared stdlib-only pty substrate test/faux-provider/pty_kit.py (Screen, Session, the ANSI regexes). Neither module imports any pi/extension module (greppable claim: grep -nE '^(import|from)' smoke/search-smoke/driver.py test/faux-provider/pty_kit.py). The byte table, the frame matchers, and the session policy (28×80 winsize, checkpoint-byte mark(), SIGTERM teardown, wait_stable timing, OPENROUTER_API_KEY pass-through) are authored in the driver; the screen parser is shared with the faux-provider kit so the O2 drift class cannot recur.
+
+`smoke/search-smoke/driver.py:12-14` — replace the three-line docstring tail with:
+
+> python3 stdlib plus one repo module — the shared stdlib-only pty substrate test/faux-provider/pty_kit.py (Screen, Session, the ANSI regexes). Neither module imports any pi/extension module (testable claim 4). The byte table, frame matchers, and session policy (28×80 winsize, checkpoint-byte mark(), SIGTERM teardown, wait_stable timing, OPENROUTER_API_KEY pass-through) are authored here; the screen parser is shared with the faux-provider kit so the O2 drift class cannot recur.
+
+Options rejected: Candidate 2 (fails constraint (2) — its `grep -E "^import "` on `driver.py` alone becomes literally false once a top-level `from pty_kit import …` exists; the `^(import|from)` shape is the only true witness on both halves); Candidate 3 (moot under SHARE; lives only if OB2 fires and the middle-position revert activates, in which case this ruling is re-issued); staying location-agnostic on `mark()` (produces prose no seat drafted; fixing it at owner's shape does not over-constrain principal's reframe, since the copy requires the checkpoint *policy* to be driver-authored, which is true under either shape); approving Candidate 1 without the `wait_stable timing` insertion (fails constraint (3)'s enumeration).
+
+If the step-8 live smoke reds and the pre-authorized middle-position revert fires (share `Screen`, keep the driver's `Session`), this copy ruling is re-issued — escalate rather than self-adjust the wording.
+
+=== END BINDING RULING ===
+
+**Facilitator application note (this container).**
+
+- **J1/OB3 closed** by the ruling above: Candidate 1 + the `wait_stable timing` insertion; the byte-exact strings are binding acceptance criteria for step 8 (carried into the spec).
+- **J2 resolved in the direction the copy requires:** the ruled copy fixes the `mark()` boundary at **owner's driver-local shape** — the spec states the checkpoint layer as driver-local bytelog-offset code, which is the converged shape `owner` already conceded to in round 3. `principal`'s kit-side reframe is not implemented under this ruling.
+- **OB2's red branch stands pre-authorized:** if the step-8 live smoke reds and the middle-position revert (share `Screen`, keep the driver's `Session`) fires, this container escalates for a **re-issued copy ruling** — no seat and no facilitator self-adjusts the wording.
+- Phase-1 rulings applied here (cited, not re-asked): R2 (run-scoped `--admin` merge, five criteria + SHA pin), R3 (run-scoped direct record push, disclosed), `steward` job-1 build order (eighth of eleven), Phase-1 run-2 scope.
+
+Continuing from **step 7** (spec write) with the SHARE design and the ruled copy as settled.
