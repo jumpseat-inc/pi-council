@@ -307,7 +307,15 @@ as step 8: status is written from observed artifacts, and "merged with green
 CI" is the observed artifact `Done` requires.
 
 Run `python3 council/validate.py` and fix anything it reports until it is
-clean, commit the reconciliation directly to `main`, and push.
+clean, then commit the reconciliation and push: the step-12 record commit
+is pushed directly to `main` — a privileged write the authority map does
+not re-home to any seat. An autonomous features-deliver run pushes the
+record commit this way only under an explicit, run-scoped, human-granted
+authorization — a Phase-1 ruling recorded on the run's Phase-1 record
+before the run's first record push. The authorization is run-scoped and is
+not extended to any later run. Without such a recorded authorization, the
+direct record push must not happen; executing it anyway is a **HALT
+surfaced to the human** — not a bypass, and never silently executed.
 
 ## 13. Card the follow-ups
 
