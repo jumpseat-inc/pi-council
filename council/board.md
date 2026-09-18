@@ -55,12 +55,18 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-55 — Per-card-class optional-seat seating with the frozen roster
 - EV-56 — End-to-end falsifier for headless /council-init non-clobber
 
+
+- EV-59 — End-to-end falsifier for the first-run identity line
+- EPIC-12 — pi-council version and git hash on the first pi run
 ## Ready
 
 - EV-44 — Merge near-duplicate follow-up candidates before a card is drafted
 - EV-45 — Unattended ingest of a run's own ledger, without the human steer turn
 - EV-48 — Packaged seat-tier map with repo-local merge override
 
+
+- EV-57 — Resolve the running pi-council identity from the package root
+- EV-58 — Show the pi-council version and hash on the first pi run
 ## Deliberating
 
 - FLLWUP-58 — Runaway timeout-minutes backstop on the gates CI job
