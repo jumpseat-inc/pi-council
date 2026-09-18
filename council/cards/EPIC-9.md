@@ -261,3 +261,142 @@ Immutable for this run and binding on every seat, `steward` included.
   and the vault pages `deterministic-merge-check.md`, `record-push-discipline.md`,
   `test-suite-budget.md`, `gate-parity.md`, `non-clobbering-scaffold.md`,
   `override-resolution.md`, `smoke-test.md`, `llm-wiki.md`.
+
+## Residual run 2 — closure (features-deliver, FLLWUP-50–60 run)
+
+All eleven in-scope cards resolved; no `HALT`. Ten merged to `main`, one
+retired under R4. Every merge executed with
+`gh pr merge <PR> --squash --admin --match-head-commit <X>` under the
+run-scoped R2 authorization; every head SHA re-read and matched immediately
+before its merge; criterion 2 read as `workflow: gates` `state: SUCCESS` on
+the PR head SHA, and re-observed on each merged SHA.
+
+| Card | PR | Merged SHA | Path |
+|---|---|---|---|
+| FLLWUP-60 | #67 | `aa1923fe` | mechanical + surface-touching |
+| FLLWUP-52 | — | — | **RETIRED** under R4 (pending ordinal stands) |
+| FLLWUP-57 | #68 | `89d0fe40` | full council |
+| FLLWUP-51 | #70 | `dee64c5a` | full council |
+| FLLWUP-53 | #71 | `e3b070c0` | mechanical + surface-touching |
+| FLLWUP-50 | #72 | `6e353553` | full council |
+| FLLWUP-54 | #73 | `52f21449` | full council (wiki via `/wiki-ingest`) |
+| FLLWUP-55 | #74 | `97f4b6db` | full council |
+| FLLWUP-56 | #75 | `6adbfa69` | full council |
+| FLLWUP-59 | #76 | `e1b78017` | full council |
+| FLLWUP-58 | #77 | `3ffb7d01` | full council |
+
+The five deterministic criteria held per card, on observed artifacts. Every
+owner gate was re-run at the branch head by the Skeptic with failure
+injection; judge `PASS` was rendered on the goal + step-9 evidence only. The
+known EV-40 backoff-jitter flake (FLLWUP-63) reddened the **merged-SHA** CI on
+FLLWUP-50 and FLLWUP-55 (untouched files); each was a single disclosed rerun
+on the same commit, never a rerun of the PR-head check.
+
+### Ruling round-trips this run consumed
+
+`product-owner` jobs 3, 7, 12, 15, 18, 21, 24, 27, 29, 31 (and the two raw
+document writes, jobs 25, plus the FLLWUP-59 ruling file); `steward` jobs 1, 8,
+13, 16. Six escalations served: FLLWUP-51 (goal amendment by `steward`),
+FLLWUP-50 (consent fork + detection scope), FLLWUP-54 (`/wiki-ingest` step-2
+steer), FLLWUP-55 (README/docstring copy), FLLWUP-56 and FLLWUP-59 (follow-up
+drafts, all dropped or re-vehicled), FLLWUP-58 (CI-timeout placement/reading).
+
+### Follow-up cards filed this run
+
+All filed as cards, none as prose bullets: **FLLWUP-61** (worktree-seat cwd
+discipline), **FLLWUP-62** (gate the frontmatter continuation residual),
+**FLLWUP-63** (EV-40 jitter top edge), **FLLWUP-64** (refresh-surface
+cosmetics), **FLLWUP-65** (`_template.md` reclassification), **FLLWUP-66**
+(`--refresh-file`), **FLLWUP-67** (refresh-path wiki pages), **FLLWUP-68**
+(cold-read persona smoke), **FLLWUP-69** (pin the pre-write step-13 gate),
+**FLLWUP-70** (gates CI-timeout residuals). All `Backlog`, `epic: EPIC-9`,
+unpromoted.
+
+Dropped by the ruling seat, not carded: FLLWUP-60 candidate B (wiki closure),
+FLLWUP-56 drafts A/B, FLLWUP-59 drafts 1/2 (draft 1 routed to the ingest
+owed list instead). FLLWUP-70/71 ids stay free.
+
+**Gate-inversion correction (steward job-16).** FLLWUP-50's runner wrote
+FLLWUP-63–68 before confirmation and recorded a false "run-2 precedent:
+cards land in Backlog, confirmed at ledger level". `product-owner` confirmed
+them retroactively (EDIT applied to FLLWUP-63/64); `steward` ruled the line a
+false precedent, ordered it corrected in place on the FLLWUP-50 face, and
+carded FLLWUP-69 to pin the pre-write gate in `council.md` step 13 and
+`features-deliver.md` Phase 1. FLLWUP-69 itself is drafted from `steward`'s
+verbatim ruling.
+
+### Environment events and disclosures
+
+- **Concurrent board writers.** EPIC-10/EPIC-11/EPIC-12 decomposition and
+  delivery runs wrote the shared board mid-run. FLLWUP-57 union-merged once
+  (sanctioned R1 repair) and FLLWUP-58 union-merged once; every other push
+  fast-forwarded. No side discarded, no force-push, no history rewrite.
+- **R3 record pushes.** Every step-12 record commit was pushed directly to
+  `main` with the pusher's admin identity under the run-scoped R3
+  authorization; each card discloses its own commit list. R3 is not extended
+  to any later run.
+- **FLLWUP-56 facilitator deviation.** Two owner dispatches were cut by a
+  default-15m window misconfiguration and a lingering process wrote commits
+  mid-session; the facilitator verified author identity and timestamps and
+  corrected the provenance attribution. Disclosed on the card; no repo
+  artifact was affected.
+- **Merged-SHA CI reruns** (FLLWUP-50, FLLWUP-55) as above; FLLWUP-63 is the
+  fix.
+
+### Owed to `/wiki-ingest` (never hand-edited under `vault/`)
+
+- `vault/wiki/record-push-discipline.md` — FLLWUP-60 closed the gap it
+  describes (step-12 authorization named; unauthorized push is a HALT).
+- `vault/wiki/test-suite-budget.md` — FLLWUP-57's masking-luck pattern note;
+  (FLLWUP-58 amended the census and CI-backstop sections as a card
+  deliverable).
+- `vault/wiki/engineering-board.md` — the new positional `goal:` rule and the
+  FAIL message (FLLWUP-51); release notes must call out that `goal:` is now
+  positional and consumer cards must conform.
+- `vault/wiki/sources/2026-08-24-bugfix-seat-prose.md` — its GATE-EVIDENCE
+  guard description is stale as of FLLWUP-53.
+- `vault/wiki/smoke-test.md` — FLLWUP-55 changed the smoke boundary (driver
+  imports the shared kit under SHARE).
+- `vault/wiki/headless-pi.md` and `vault/wiki/council-theme.md` — FLLWUP-56's
+  two pi-runtime mechanism findings (source:
+  `vault/raw/2026-09-18-po-fllwup56-step13-ruling.md`).
+- `vault/wiki/retired-path-tokens.md` — caveat (a) replacement sentence
+  (source: `vault/raw/2026-09-19-po-fllwup59-step13-ruling.md`); the spec must
+  NOT be re-derived from, or the defect re-imports.
+- Carried from run 1: `vault/wiki/union-merge-reconcile.md` and
+  `vault/wiki/deterministic-merge-check.md` stale sentences, and FLLWUP-44/47
+  step-14 offers; FLLWUP-67 cards the refresh-path page set.
+
+### Runner usage blocks (verbatim top-level container lines)
+
+```
+FLLWUP-60  job-2   turns=61  in 276930/out 44667/cR 3686464/cW 0/reason 27804/total  4008061 cost≈$0.1047
+FLLWUP-52  job-4   turns=12  in 66511/out 3265/cR 269312/cW 0/reason 1181/total    339088 cost≈$0.0118
+FLLWUP-57  job-5   turns=55  in 427611/out 26001/cR 3098048/cW 0/reason 9866/total  3551660 cost≈$0.1021
+FLLWUP-51  job-6   turns=33  in 336336/out 33109/cR 2399552/cW 0/reason 8587/total  2768997 cost≈$0.0834
+           job-9   turns=46  in 319160/out 25359/cR 2644992/cW 0/reason 9869/total  2989511 cost≈$0.0839
+FLLWUP-53  job-10  turns=38  in 94497/out 21965/cR 2472896/cW 0/reason 8936/total  2589358 cost≈$0.0596
+FLLWUP-50  job-11  turns=65  in 917492/out 53190/cR 3636864/cW 0/reason 16003/total 4607546 cost≈$0.1640 (attempts 2/3)
+           job-14  turns=75  in 883853/out 32447/cR 5054976/cW 0/reason 9209/total  5971276 cost≈$0.1803
+FLLWUP-54  job-17  turns=17  in 198138/out 9721/cR 907712/cW 0/reason 4282/total   1115571 cost≈$0.0371
+           job-19  turns=32  in 321165/out 14353/cR 908096/cW 0/reason 4129/total  1243614 cost≈$0.0496
+FLLWUP-55  job-20  turns=33  in 693845/out 47172/cR 2979008/cW 0/reason 13784/total 3720025 cost≈$0.1302
+           job-22  turns=52  in 652604/out 32901/cR 3673600/cW 0/reason 16287/total 4359105 cost≈$0.1347
+FLLWUP-56  job-23  turns=68  in 1693043/out 55178/cR 7286080/cW 0/reason 14370/total 9034301 cost≈$0.3001
+FLLWUP-59  job-26  turns=47  in 1420438/out 65209/cR 3926464/cW 0/reason 16020/total 5412111 cost≈$0.2181
+FLLWUP-58  job-28  turns=35  in 598216/out 43646/cR 2317504/cW 0/reason 7143/total  2959366 cost≈$0.1086
+           job-30  turns=48  in 396307/out 23225/cR 2968256/cW 0/reason 6164/total  3387788 cost≈$0.0961
+```
+
+Subtree totals (including every seat each container dispatched) are recorded
+on the respective card records. Ruling-seat dispatches outside a container:
+`steward` jobs 1/8/13/16 and `product-owner` jobs 3/7/12/15/18/21/24/25/27/29/31.
+
+### Run close
+
+Eleven of eleven cards resolved, serial per `steward` job-1, one
+`council-runner` at a time. No `HALT`, no denied merge, no unratified
+follow-up left on the board. The ten follow-up cards filed are `Backlog`
+residuals under the `Done` epic, unpromoted; `EPIC-9` stays `Done`. No version
+bump was made a condition of closure (the EPIC-7/EPIC-8 precedent).
+
