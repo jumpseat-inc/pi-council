@@ -414,3 +414,238 @@ tripped-failure discriminator, and the re-derivation rule; one pointer line
 in README/AGENTS `## Commands` (not a new hard convention, to avoid the
 FLLWUP-25 parity coupling); one pure offline tripwire test that derives the
 ceiling census and pins line↔doc parity.
+
+
+### Step 3 — bounded exchange (round 2)
+
+Both generators re-dispatched with the other's round-1 position. Jobs: `owner`
+`job-28.3` (5.9m, 4 turns), `principal` `job-28.4` (5.9m, 21 turns), both
+settled `done`. Positions appended verbatim. Each seat's round 2 responds to
+the other's round 1, so the two converge asymmetrically; the remaining
+divergence (placement + value + floor model) goes to round 3.
+
+#### Round 2 — `owner` (job-28.3)
+
+**Round-1 self-correction first, because two of my load-bearing numbers were
+wrong and the repo's own records say so.**
+
+**Concession 1 — the arm count.** My "17 arms × 300s ≈ 85 min" floor was
+doubly wrong. (a) The census is 13 records, not 17: `300_000` ×4, `180_000`
+×6, `120_000` ×2, plus the `timeoutMs ?? 120_000` harness default at
+`test/faux-provider/harness.ts:302` and `:361`. The principal's count is
+exact. (b) Worse, my multiplication assumed arms can hang *simultaneously*.
+They cannot: the wiki itself records the suite is serial —
+`vault/wiki/test-suite-budget.md`: *"The suite is serial/additive
+(`package.json`'s `test` script is bare `bun test` — no `--parallel`)"* —
+and I confirmed it empirically: two 2s tests in two files under bare
+`bun test` took **4.08s**, not 2s. Hangs accumulate; they never overlap. The
+true every-ceiling-trips bound is the **sum** (4×300 + 6×180 + 2×120 ≈
+2520s, plus harness-default riders ≈ 42–44 min), not the product. My
+≥88-min static invariant was derived from a model the repo's own recorded
+facts refute. Retracted.
+
+**Concession 2 — step-level, not job-level.** The attribution argument is
+sound: job-level `timeout-minutes` *cancels* (names no step, same class as a
+manual cancel), step-level *fails the step* (names the step; the truncation
+point names the file in flight). The card's own "must name the runaway" rule
+decides this, and coupling a fixed job number to an unmeasured preamble
+under `fetch-depth: 0` is a real headroom leak. I withdraw the job-level 120
+line from this card. One honest-cost rider: the principal's own motivation
+for the backstop cited "a hung `bun install`/`tsc` cannot fire its own inner
+ceiling" — but their line does not bound that class either; with no
+job-level and no step-level on those steps, a preamble hang is bounded only
+by the platform 360-min default. That gap must be *stated* in the wiki
+section as accepted-and-known, not left silent (the same inequality clause
+the principal reserves for a future job-level line; step-level ceilings on
+`install`/`tsc` are the cheaper eventual fix if that class ever bites).
+
+**Correction — the tolerance table's semantics, not its arithmetic.** The
+principal's table ("1 trip → ≥10 min; 2 → 15 min; 3 → 20…") is modeled on
+overlapping hangs and is wrong in structure: with serial execution, "1 trip"
+needs only `max_ceiling + envelope ≈ 400s ≈ 6.7 min`. The table's K×300s
+arithmetic coincidentally matches *cumulative* same-class trips, but a doc
+written from the simultaneous model lets the next maintainer re-derive a
+wrong floor in both directions. The policy must read: **tolerance depth = N
+largest-class cumulative trips plus a full drift-threshold envelope.** On
+that model, 15 min = 900s tolerates 2 × 300s-class trips beyond a full 180s
+drift-threshold envelope (780s, 120s slack) and pre-empts a third ~180s
+before its own ceiling would fire — acceptable, because three hung arms is
+catastrophic breakage where truncation is diagnostic, not a loss. The
+discriminator (last file block; own-ceiling line present vs absent) survives
+truncation either way.
+
+**Acceptance — 15 min, with the derivation pinned, not the number.** 900s =
+5.0× the 180s drift threshold (the normative bound, not the descriptive
+101.2s), > 2 cumulative largest-class trips + full envelope, and it's
+already in the record's vocabulary (FLLWUP-48 step-3/4). Two pins required
+so it never becomes a magic constant: (a) the wiki sizing rule states the
+formula (≥ 5× drift threshold **and** ≥ max_ceiling + drift threshold at
+minimum); (b) the wiki bullet amendment must *quote PO ruling 2 and state
+what changed* — the ruling's stated reason ("a budget-keyed step timeout
+would pre-empt the TUI arm's own 300s ceiling") condemns envelope-scale
+values, ~2–3 min, and a 900s ceiling-scale value does not pre-empt a single
+trip; the amendment narrows the ruling, it doesn't contradict it.
+
+**Acceptance — tripwire and AGENTS.md.** The principal's tripwire design is
+strictly better than my round-1 static invariant: derive the max ceiling
+from `test/*.test.ts` (no hardcoded `300_000`), assert shipped >
+`max_ceiling + drift threshold`, assert line↔doc parity. I'd add one
+relation: assert shipped ≥ 5× the drift threshold. Baseline confirmed:
+`grep -rn 'gates.yml' test/` → zero matches; `gates.yml` is 15 lines with no
+`timeout-minutes` anywhere. The AGENTS.md `## Commands` pointer-line-only
+approach correctly avoids the `fllwup25-agents-page.test.ts` parity
+coupling; no new hard convention. The `harness.ts:158-165` whitelist claim
+checks out and is neutral between job- and step-level.
+
+**Approach:** Concede the principal's structure (step-level 15,
+tolerance-depth policy, derived tripwire, README/AGENTS pointer) — my
+round-1 floor was refuted by the repo's own serial-execution record and by
+probe. Push back on one thing with evidence: the tolerance model must be
+restated as *cumulative* trips (measured 4.08s for 2×2s), and the wiki must
+own the preamble-hang gap the step-level line doesn't cover.
+
+**Tradeoffs accepted:** A third simultaneous largest-class hang would be
+pre-empted ~180s early — accepted because serial execution makes that a
+cumulative-breakage scenario where truncation is diagnostic; preamble hangs
+stay bounded only by the platform 360-min default until a later card;
+pinning ≥5× drift threshold accepts that a drift-threshold trip reopens
+sizing rather than silently absorbing it.
+
+**Testable claims:** T-A serial model (10s, run this round, green —
+evidence for the cumulative-trips restatement); T-B census (30s): exactly
+{4×300_000, 6×180_000, 2×120_000} + harness default; T-C parity (30s):
+shipped value = wiki number, ≥ 5 × 180s, tripwire reds on any mutation; T-D
+wiki amendment (15s): the "no suite-level ceiling" bullet amended with PO
+ruling 2 quoted and the 900s/serial-cumulative-tolerance basis; section
+states the install/tsc-hang coverage gap explicitly; T-E baseline (15s):
+`grep -rn 'gates.yml' test/` empty at base, non-empty after the tripwire
+lands.
+
+#### Round 2 — `principal` (job-28.4)
+
+Read before this: `vault/wiki/index.md`, `[[test-suite-budget]]`,
+`.github/workflows/gates.yml`, `package.json`,
+`test/faux-provider/harness.ts`, the four live-arm test files,
+`vault/raw/2026-09-19-po-fllwup48-test-suite-budget.md`,
+`docs/superpowers/specs/2026-09-19-FLLWUP-48-design.md`. Bun semantics
+verified via Context7 (`oven-sh/bun`, "the default value is 5000 ms");
+GitHub semantics verified against docs.github.com workflow-syntax plus
+community discussion 40582.
+
+**Cross-seam reading — what the two records actually say.**
+
+**Enforced side.** `gates.yml` is 15 lines; no `timeout-minutes` at job or
+step level; `fetch-depth: 0` at checkout (`:11-12`). `package.json:28` is
+bare `"test": "bun test"` — no `--timeout` global override and no
+`--parallel`, so per-test ceilings come only from third-positional-args, and
+the suite is serial/additive.
+
+**Ceiling side.** Grep on `test/**/*.test.ts` yields exactly **12 per-test
+ceilings**: `300_000` ×4 (`ev43-reachability:106`, `ev41-retry-e2e:362`,
+`ev40-headless:66,117`), `180_000` ×6 (`ev40-live-gates:84,135,174,209,246`,
+`ev41-retry-e2e:320`), `120_000` ×2 (`ev41-seat-child-live:286,348`). Sum =
+**2 520 000 ms = 42.0 min**. Arms and ceilings are *different objects*: the
+`ev43-reachability:106` test calls `runHarnessArm` twice; the
+`ev41-retry-e2e:320` test calls it for treatment+control; the `:362` test
+wraps a `spawnSync(..., { timeout: 280_000 })` — one site, several arms.
+Hence 17 arms / 12 sites, not 17 ceilings. Separately, `harness.ts:302` sets
+`timeout: opts.timeoutMs ?? 120_000` on a **blocking** `spawnSync`, and
+where an arm-bearing test carries no third arg, **Bun's documented default
+is 5 000 ms** and a bun-machinery timeout "terminates spawned child
+processes."
+
+**Doc side.** `test-suite-budget.md:44-49` lumps "thirteen sites: bun third
+positional args plus the `runHarnessArm`/`spawnSync` `timeoutMs`", omitting
+the 5 s default; `:54-56` asserts "no suite-level ceiling — and none is
+added." `grep -rn 'gates\.yml' test/` is still **zero** — no gate reads the
+workflow.
+
+**Platform side.** Docs: step-level = "before **killing the process**"
+(failed step); job-level = "GitHub automatically **cancels** it." Community
+#40582 records the job-timeout annotation degrading to "The operation was
+canceled." and later being restored — the annotation is job-scoped and has
+been unstable across the platform's history.
+
+**Point-by-point on the `owner` position:**
+
+1. **10 min is disqualified — conceded.** The TUI arm's own 300 s window
+   consumes it alone.
+2. **The `owner` is right that 15 min is under-sized — conceded, on the
+   strict reading.** My round-1 table already contained the correct "all 12
+   ceilings → 45 min" row and then declined to recommend it. With a serial
+   suite, the never-pre-empt rule's honest form is a sum, not a tolerance
+   count. The `owner`'s reframe ("the deliverable is a reading plus a
+   number") is right, and I extend it: the reading is not a tolerance table,
+   it is **the census**.
+3. **Job-level — conceded, with my round-1 objection withdrawn *for this
+   shape*.** My "unmeasured preamble eats step headroom" point only binds
+   when a job net is paired with a tight *step* line. With a job-level
+   number ≥ ~45 min, the preamble (checkout with `fetch-depth: 0`,
+   setup-bun, install, tsc ≈ 1–2 min) is ~2% of the budget. And the `owner`
+   under-used their own strongest argument: job-level is the only single
+   line that bounds an install/runner wedge at all. Job-level it is.
+4. **Push back — the floor arithmetic is wrong by ~2×.** `17 × 300 s = 85
+   min` is *not* "the strict never-pre-empt floor". The tree carries exactly
+   four `300_000` sites; the rest are 180 s and 120 s, and unlisted tests
+   fall to Bun's 5 s default. The realizable strict floor is the serial sum
+   **≈ 42.0 min** (+ ~1 min of fast files). So the shipped 120 is **2.9× the
+   floor, not 1.4×**. `arms × max` also puts the maintenance rule in the
+   wrong **unit** — the unit that changes is arm-bearing *tests* (sites),
+   not arms.
+5. **Push back — testable claim #1 is an over-constrained probe.**
+   `timeout-minutes ≥ 88` would **red a correct 45-min backstop** and
+   encodes the impossible schedule into CI. A probe must assert the
+   census-derived floor, not `arms × max`.
+6. **Push back — the attribution claim is unverified and load-bearing.**
+   Job-level's stated advantage is "GitHub marks the step that was running —
+   step attribution survives." That is not documented; the annotation is
+   job-scoped and historically unstable. The discriminator we actually rely
+   on is the **log tail** — which is placement-independent. So placement
+   should rest on the install/tsc coverage, and the wiki must state the
+   step-naming behavior as a working assumption, not a guarantee.
+7. **Doc scope — the new section is not enough.** `test-suite-budget.md:44-49`
+   is the sentence the new policy section derives its census from, and it
+   currently lumps two mechanisms and omits the 5 s default. That sentence
+   must be corrected in the same edit.
+8. **Agreed and not contested:** wiki over README/AGENTS (the FLLWUP-25
+   parity coupling is real); the amended `:54-56` bullet; the inline YAML
+   comment; one offline tripwire pinning line↔doc parity; zero new live
+   arms (O10); `fetch-depth: 0` verbatim.
+
+**Reframe.** The deliverable is not the number and not the tolerance depth —
+it is **the census the number is derived from, and the census must be
+derived from the tree by the tripwire rather than restated in prose.** Once
+the census is derived (12 sites: 4 × 300 s, 6 × 180 s, 2 × 120 s, plus
+derived 5 s-default sites; serial sum ≈ 42 min), the never-pre-empt rule has
+exactly one honest form:
+
+```
+timeout-minutes ≥ ceil(census_serial_sum + fast_files) / 60
+```
+
+and every value at or above that floor is a pure cost decision about
+wedged-run billing, with zero attribution difference. On that reading my
+shipping recommendation is **`timeout-minutes: 60` at job level — 1.4× the
+census floor, the ratio the `owner` argued for, at the correct floor** —
+with the wiki stating floor ≈ 42 min, ratio 1.4×, and the census. If the
+`owner` prefers 120, I do not block: 120 is safe. But it must then be
+described as "2.9× the census floor, chosen for wedged-run log
+completeness", and the probe must still assert the 42-min floor. What I do
+not accept shipping is the combination of (a) the 85-min floor, (b) the
+"1.4× floor" framing at 120, and (c) the `≥ 88` probe.
+
+**Testable claims:** C1 census (30s, offline): multiset
+{300_000: 4, 180_000: 6, 120_000: 2}, Σ = 2_520_000 ms; falsifies
+`17 × 300_000` as a realizable schedule. C2 default tier (30s): count
+arm-bearing tests with no third arg (Bun's 5 s default), add `n × 5_000 ms`.
+C3 mechanism split (60s, probe): sync arm's binding bound is the inner
+`spawnSync` timeout; the async pty arm's is the outer test timer. C4
+tripwire mutation (30s, pure): reds at 42 (below floor), green at 45, 60,
+120. C5 doc parity (10s): shipped number = wiki number; section states the
+census-derived floor, not `arms × max`; `:44-49` corrected. C6 placement
+(10s): parse rejects a step-level `timeout-minutes`; mutation red. C7
+`fetch-depth: 0` count 1 after the edit (10s). C8 attribution claim (one
+live run, throwaway ref): run the workflow once with `timeout-minutes: 2`
+and record verbatim the job annotation text and whether the UI names the
+running step — otherwise the wiki marks the step-naming statement as
+unverified, not a guarantee.
