@@ -434,3 +434,51 @@ test("T2b post-refresh runner: consumer-root run of the refreshed validator is g
 	expect(post.output).toContain("All council artifacts valid");
 	fs.rmSync(root, { recursive: true, force: true });
 });
+
+// ---------------------------------------------------------------------------
+// T9 — session_start drift detection: once per drift condition, re-arming
+// ---------------------------------------------------------------------------
+
+test("T9 drift: notify once per condition; resolved drift clears; a NEW drift re-arms exactly once", () => {
+	const { root } = seedConsumerNoRecord();
+	const validatePath = consumerPath(root, "council/validate.py");
+
+	// drift condition A: both tooling files stale → notified exactly once
+	const first = checkToolingDrift(root);
+	expect(first.drifted.sort()).toEqual([...TOOLING].sort());
+	expect(first.message).toContain("council/validate.py");
+	expect(first.message).toContain("council/cards/_template.md");
+	expect(first.message).toContain("/council-update");
+	const again = checkToolingDrift(root);
+	expect(again.message).toBeNull(); // same condition — no nag
+
+	// partial fix: template refreshed, validator still stale → new condition, re-arms once
+	fs.writeFileSync(consumerPath(root, "council/cards/_template.md"), packagedBytes("council/cards/_template.md"));
+	const rearm = checkToolingDrift(root);
+	expect(rearm.drifted).toEqual(["council/validate.py"]);
+	expect(rearm.message).toContain("council/validate.py");
+	expect(checkToolingDrift(root).message).toBeNull();
+
+	// fully fixed → no drift, state cleared
+	fs.writeFileSync(validatePath, packagedBytes("council/validate.py"));
+	const fixed = checkToolingDrift(root);
+	expect(fixed.drifted).toEqual([]);
+	expect(fixed.message).toBeNull();
+	expect(fs.existsSync(path.join(root, CONFIG_DIR_NAME, "council", "tooling-drift.state.json"))).toBe(false);
+
+	// the same drift returns after a fix → it is a NEW condition again
+	fs.writeFileSync(validatePath, packagedBytes("council/validate.py").toString() + "\n# stale again\n");
+	const returned = checkToolingDrift(root);
+	expect(returned.message).not.toBeNull();
+	expect(checkToolingDrift(root).message).toBeNull();
+	fs.rmSync(root, { recursive: true, force: true });
+});
+
+test("T9b drift: a fully-current consumer repo never notifies and leaves no state file", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "fllwup50-t9b-"));
+	scaffoldInto(root, SCAFFOLD);
+	const res = checkToolingDrift(root);
+	expect(res.drifted).toEqual([]);
+	expect(res.message).toBeNull();
+	fs.rmSync(root, { recursive: true, force: true });
+});
