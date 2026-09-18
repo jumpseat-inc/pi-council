@@ -48,11 +48,21 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EPIC-10 — Fewer follow-up cards by merging near-duplicates, and unattended wiki ingest at every run completion
 - EV-46 — Ingest at every single-card /council completion, attended or container-run
 - EV-47 — Ingest the whole run when /features-deliver reaches its run ledger
+- EPIC-11 — Grounded, interview-driven council setup via /council-setup
+- EV-49 — Profile validator — the hard gate on the interview's model output
+- EV-50 — <seat_emphasis> sibling block and the consumer-side-only resource type
+- EV-51 — Consent-gated, backed-up, idempotent write path
+- EV-52 — /council-setup procedure — explore → interview → apply
+- EV-53 — /council-init hands off to /council-setup in the same turn
+- EV-54 — Documentation of the interview, the tier map, and seat-emphasis notes
+- EV-55 — Per-card-class optional-seat seating with the frozen roster
+- EV-56 — End-to-end falsifier for headless /council-init non-clobber
 
 ## Ready
 
 - EV-44 — Merge near-duplicate follow-up candidates before a card is drafted
 - EV-45 — Unattended ingest of a run's own ledger, without the human steer turn
+- EV-48 — Packaged seat-tier map with repo-local merge override
 
 ## Deliberating
 
