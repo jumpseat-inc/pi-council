@@ -33,7 +33,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-37 — Keep the progress keymap header visible when follow-mode content overflows the viewport
 - FLLWUP-38 — Clamp the inline progress transcript header to the granted render width
 - FLLWUP-39 — Dispose the replaced transcript view when the inline progress surface switches sessions
-- FLLWUP-58 — Runaway timeout-minutes backstop on the gates CI job
 - FLLWUP-61 — Worktree-seat cwd discipline for edit/write tools
 - FLLWUP-62 — Gate the mid-block colon-bearing frontmatter continuation residual
 - FLLWUP-63 — Fix the EV-40 backoff jitter test's unsatisfiable top edge (merged-SHA CI flake)
@@ -58,6 +57,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Ready
 
+- FLLWUP-58 — Runaway timeout-minutes backstop on the gates CI job
 - EV-44 — Merge near-duplicate follow-up candidates before a card is drafted
 - EV-45 — Unattended ingest of a run's own ledger, without the human steer turn
 - EV-48 — Packaged seat-tier map with repo-local merge override
