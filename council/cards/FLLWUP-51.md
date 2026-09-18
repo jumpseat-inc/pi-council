@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-51
 title: Loud gate for a goal wrapped onto a second line
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-9
 goal: A wrapped goal, a non-`key: value` line inside the frontmatter block, an unclosed frontmatter block, and a key following `goal:` in the block are each refused by `parse_frontmatter` and reported as a non-zero `council/validate.py` FAIL naming the defect rather than validating green, where a not-`key: value` line's diagnostic names both a wrapped/continued value and a missing closing `---` because the parser cannot tell them apart; single-line goals containing `: ` and cards carrying extra intentional keys before `goal:` parse clean; and the documented residual — a mid-block colon-bearing continuation of a non-goal key — is recorded in copy and pinned by a test but not gated.
@@ -467,5 +467,18 @@ the amended `goal` (parity mechanics and copy corrections carried as
 governed-by-T3/T5/record, not as oracle claims); unambiguous — an owner
 reading only this file reaches one design (raise in `parse_frontmatter`,
 positional raw-line rule, three structural predicates, exact surfaces and
-test set). Card set `In Progress` on the card and `council/board.md` per
-step 7's both-paths closing; owner handed the spec.
+test set). ### Step 8 — owner implementation (job-9.1)
+
+Dispatch: `owner` job-9.1 (45-min ceiling; settled 12.7m / 35 turns, total
+2529591 tok, cost≈$0.0779). Worktree
+`/home/tista/codes/pi-council/.worktrees/fllwup-51` (`git worktree add`
+only; main checkout untouched), branch `feat/fllwup-51-loud-wrap-gate`,
+PR #70 open (observed directly via `gh pr view`), head SHA `09a8679`.
+All four local gates observed by the owner from the worktree: preflight
+PASS (run twice, AGENTS #13), `tsc --noEmit` clean, `bun test` 911 pass /
+0 fail / 2 skip, `validate.py` valid. Red-first observed at base: 9 fail /
+6 pass exactly as the plan predicted. Spec deviations: **none**; two
+implementation notes recorded in the owner's report (R3 fires the bare-line
+predicate first, per spec; R5′ scan scoped to leading frontmatter blocks
+because body quotes of `goal:`-shaped lines are legitimate).
+`In Review` set on the card and board from the observed PR artifact.
