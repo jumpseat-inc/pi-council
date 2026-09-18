@@ -896,3 +896,26 @@ objections O1–O9, all `closed-green`; no fix cycle needed.**
 Nothing blocks step 10 judging or step 11's mechanical merge. **Verify-cycle
 counter: 1 of 3, closed green.**
 
+
+### Step 10 — judge the stop condition (`job-23.12`)
+
+2.2m / 9 turns, settled `done`. Input: the card's `goal` verbatim + the
+Skeptic's step-9 evidence only — no spec, no deliberation record, no
+positions. Subject pinned to PR #75 head `a2f14ba…`; frame stated (judging
+precedes the mechanical merge, which has not happened). **Verdict: `PASS`.**
+Basis, verbatim-digested: (1) the falsifier exists and works — real parent pi
+through `council_dispatch` → `council_wait`, real seat child via
+`command: "pi"` + `-a`, attempt-1 error literal in the child session, hub
+retry respawn to attempt 2 (`attempts[]` pairing), `EV40-SECOND-RESPONSE` in
+the wait toolResult; control arm cleanly isolates the retry mechanism's
+effect; (2) the parent-turn offline faux-provider harness reaches a real seat
+child — scratch `.pi/extensions` shim (dynamic import, env-strip, per-attempt
+re-key), `.council.json` override via the engine's own `loadSeat` →
+`applySeatOverride` path, `PI_OFFLINE=1`; the Skeptic's perturbation red is a
+named 2092ms model failure, never a timeout; (3) the live-arm budget is
+accounted — header expected + ceiling, wiki per-file row, Live-arm share 17
+(78.3s of 101.2s), suite at 101.2s/102.4s under the 180s drift threshold,
+ceiling sites 13, provenance machine/SHA/command complete. The header's
+≈18–30s overstatement of the measured 5.93s is non-blocking per the standing
+rule.
+
