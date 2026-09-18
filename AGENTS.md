@@ -70,9 +70,26 @@ docs/superpowers/    design spec + implementation plan (read before big changes)
    never mixed halves), packaged seeds carry a pinned sha256 `treeDigest`
    verified at load, and `/council-init` performs no copy of fixture trees.
    Any new resource type must follow this pattern.
+   The scaffold provenance record (`<repo>/$CONFIG_DIR_NAME/council/scaffold.json`,
+   FLLWUP-50) is one such record type: a consumer-side file at that path is
+   honored as the record — never merged or shadowed by the package — and is
+   written only when `scaffoldInto` creates files; `/council-update` updates
+   an entry only after a consented write. It is committed by default (a
+   consumer may gitignore it and fall back to the conservative ask-once
+   bootstrap). The tooling-drift state file
+   (`<repo>/$CONFIG_DIR_NAME/council/tooling-drift.state.json`) is the
+   session_start notification's once-per-condition state; engine-written,
+   transient, never a consumer override surface.
 6. **Scaffold writes are non-clobbering.** `scaffoldInto` never overwrites an
    existing file. Preserve this invariant — consumer repos hold user-modified
-   data (a consumer's board and wiki must survive reinstalls).
+   data (a consumer's board and wiki must survive reinstalls). The one
+   sanctioned non-clobbering exception is `/council-update`'s consent-gated
+   refresh write path (FLLWUP-50): it writes only tooling-class files
+   (`council/validate.py`, `council/cards/_template.md`), only after an
+   explicit consent act (`--apply` for `↑ behind` files; per-file `--accept`
+   for `~ diverged` ones), with a timestamped backup first. Data-class
+   scaffold files — board, cards other than `_template.md`, `vault/**`,
+   `.council.json`, `preflight.sh`, `mcp.json` — are never written.
 7. **`hub.ts` is stable.** Its stall/timeout/kill semantics are battle-tested.
    Change behavior only with a failing test first.
 8. **Tool-grant vocabulary** in seat frontmatter uses the omp-style names

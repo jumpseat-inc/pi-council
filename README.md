@@ -195,6 +195,7 @@ plain text (they carry no color to go stale).
 | Command                            | What it does                                                              |
 | ---------------------------------- | ------------------------------------------------------------------------- |
 | `/council-init`                    | Scaffold the council/ + vault/ trees (never overwrites); installs superpowers + ask-user-question project-locally |
+| `/council-update`                  | Update packaged council tooling (`validate.py`, `_template.md`) to the installed version — never touches your board, cards, or wiki; dry-run by default |
 | `/council [card-id]`               | Run the full deliberation → owner → verify → judge loop on a card         |
 | `/board-create-card <desc>`        | Draft a new board card, confirm with you, file it                         |
 | `/features-new <feature>`          | The feature is deliberated by product-owner, designer, principal, and skeptic in a bounded three-wave session; nothing reaches the board until you approve the draft set |
@@ -262,6 +263,8 @@ manages are throwaway:
 | Path                            | What it is                                                                     | Track?     |
 | ------------------------------- | ------------------------------------------------------------------------------ | ---------- |
 | `.council.json`                 | per-seat model/thinking overrides + theme section (seeded by `/council-init`)             | commit     |
+| `.pi/council/scaffold.json`     | provenance record of what `/council-init` scaffolded (digests + package version; `/council-update` reads it) | commit     |
+| `.pi/council/tooling-drift.state.json` | transient drift-notification state (once-per-condition)                            | optional   |
 | `.pi/settings.json`             | project-local install pin                                                      | commit     |
 | `.pi/agents/`                   | repo-local seat overrides (shadow packaged seats)                              | commit     |
 | `.pi/council/procedures/`       | repo-local procedure overrides                                                 | commit     |

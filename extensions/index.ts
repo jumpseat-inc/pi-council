@@ -15,10 +15,21 @@ import {
 	type PendingInvocation,
 	type UsageTrigger,
 } from "./usage-store.ts";
-import { scaffoldInto } from "./scaffold.ts";
+import { scaffoldInto, TOOLING_FILES } from "./scaffold.ts";
 import { installArgsFor, resolveCouncilDependencies } from "./dependencies.ts";
 import { getMcp } from "./mcp-load.ts";
-import { clearTreeWidget, registerNavigator, shutdownTreeFocus } from "./navigator.ts";
+import { Key, matchesKey } from "@earendil-works/pi-tui";
+import { clearTreeWidget, registerNavigator, shutdownTreeFocus, withModalFrame, type NavTheme } from "./navigator.ts";
+import {
+	SCAFFOLD_ROOT,
+	applyRefresh,
+	checkToolingDrift,
+	diffLines,
+	packagedBytes,
+	planRefresh,
+	runPostRefreshValidate,
+	type RefreshRow,
+} from "./council-update.ts";
 import {
 	fixtureTaskDir,
 	parseEvalArgs,
@@ -715,7 +726,20 @@ export default async function (pi: ExtensionAPI) {
 			// Malformed config at start — activateTheme already notified; arm nothing.
 			themeWatcher = null;
 		}
-		initHubIdentity(mintRunId());
+		// FLLWUP-50 (steward Q2): non-fatal tooling-drift detection at session_start —
+	// once per drift condition (state persisted in $CONFIG_DIR_NAME/council/
+	// tooling-drift.state.json), re-arming on new drift. Best-effort: it must
+	// never block or crash a session.
+	try {
+		const drift = checkToolingDrift(repoRoot);
+		if (drift.message) {
+			if (ctx.hasUI) ctx.ui.notify(drift.message, "warning");
+			else console.log(drift.message);
+		}
+	} catch {
+		// never blocks a session
+	}
+	initHubIdentity(mintRunId());
 		pruneRuns(repoRoot);
 		// Composed hub onChange: widget refresh + the EV-31 gated usage write
 		// (forest-settle trigger). The gate decides, not the event — a mid-turn
@@ -887,6 +911,174 @@ export default async function (pi: ExtensionAPI) {
 	});
 
 	mcp.registerMcpCommand(pi, repoRoot);
+
+	/** Column glyph for a refresh report row (init's +/=/family rhythm; the
+	 * states are load-bearing, the glyphs are presentation). */
+	const REFRESH_GLYPHS: Record<RefreshRow["state"], string> = {
+		unchanged: "=",
+		behind: "↑",
+		diverged: "~",
+		removed: "-",
+		shadowed: "…",
+		"local-only": "·",
+	};
+	const refreshRowNote = (row: RefreshRow): string => {
+		switch (row.state) {
+			case "unchanged":
+				return row.tooling ? "tooling — matches the installed package" : "protected — never written";
+			case "behind":
+				return row.tooling
+					? "tooling — behind the installed package (--apply writes it)"
+					: "protected — stale vs the installed package; never written (adapted copies stay yours)";
+			case "diverged":
+				return row.tooling
+					? "tooling — diverged (hand-edited or unrecorded); per-file --accept required"
+					: "protected — your copy; never written";
+			case "removed":
+				return "removed in this repo — reported only, never recreated";
+			case "shadowed":
+				return `local override shadows the packaged procedure — ${row.matchesPackaged ? "matches-packaged" : "differs"}; never written (removing a stale override is a manual step; git is the backup)`;
+			case "local-only":
+				return "no longer shipped by the package — reported only, never deleted";
+		}
+	};
+
+	/** FLLWUP-50 TUI per-file accept for a diverged tooling file: the diff is
+	 * shown before consent (echo-then-run — the diff's 'after' side is the
+	 * packagedBytes the apply writes, sourced through the same function). */
+	const confirmFileAccept = async (ctx: ExtensionContext, rel: string): Promise<boolean> => {
+		const dst = path.join(repoRoot, ...rel.split("/"));
+		const before = fs.existsSync(dst) ? fs.readFileSync(dst, "utf-8") : "(missing)";
+		const after = packagedBytes(SCAFFOLD_ROOT, rel).toString("utf-8");
+		return (
+			(await ctx.ui.custom<boolean | null>(
+				(tui: any, theme: NavTheme, _kb: unknown, done: (v: boolean | null) => void) => {
+					const rows = Math.max(10, tui?.terminal?.rows ?? 24);
+					const content = [
+						theme.bold(`Accept packaged ${rel}?`),
+						"",
+						...diffLines(before, after).map((d) =>
+							d.kind === "add" ? `+ ${d.line}` : d.kind === "del" ? `- ${d.line}` : `  ${d.line}`,
+						),
+						"",
+						"enter = accept the packaged copy (timestamped backup taken first) · esc = keep your copy",
+					];
+					return {
+						render: (w: number) => withModalFrame(theme, w, rows, content),
+						invalidate: () => {},
+						handleInput: (data: string) => {
+							if (matchesKey(data, Key.return)) {
+								done(true);
+								tui?.requestRender?.();
+							} else if (matchesKey(data, Key.escape)) {
+								done(false);
+							}
+						},
+					};
+				},
+				{ overlay: true, overlayOptions: { width: "100%", maxHeight: "100%", margin: 0, anchor: "top-left" } },
+			)) ?? false
+		);
+	};
+
+	pi.registerCommand("council-update", {
+		description:
+			"Update packaged council tooling (council/validate.py, council/cards/_template.md) to the installed version — never touches your board, cards, or wiki; data files (incl. council/preflight.sh) are reported, never written; dry-run by default (--apply writes 'behind' files; hand-edited files need per-file --accept)",
+		handler: async (args, ctx) => {
+			const emit = (line: string) => {
+				if (ctx.hasUI) ctx.ui.notify(line, "info");
+				else console.log(line);
+			};
+			try {
+				const tokens = (args ?? "").trim().split(/\s+/).filter(Boolean);
+				const apply = tokens.includes("--apply");
+				const accepts = new Set<string>();
+				for (let i = 0; i < tokens.length; i++) {
+					if (tokens[i] === "--accept") {
+						const target = tokens[++i];
+						if (!target) {
+							emit("[council-update] error: --accept requires a scaffold-relative path");
+							return;
+						}
+						if (!TOOLING_FILES.includes(target)) {
+							emit(`[council-update] error: --accept only takes tooling files (${TOOLING_FILES.join(", ")})`);
+							return;
+						}
+						accepts.add(target);
+					} else if (tokens[i] !== "--apply") {
+						emit(`[council-update] error: unknown argument '${tokens[i]}' (usage: [--apply] [--accept <path>…])`);
+						return;
+					}
+				}
+
+				// Dry-run plan first — writes nothing (P5: mutation requires --apply).
+				const plan = planRefresh(repoRoot, SCAFFOLD_ROOT);
+				const lines: string[] = [
+					apply
+						? "council-update — applying to the installed package"
+						: "council-update — plan (dry-run, nothing written)",
+				];
+				for (const rel of plan.created) {
+					lines.push(`  + ${rel} — new scaffold file (created on --apply via the non-clobbering path)`);
+				}
+				for (const row of plan.rows) lines.push(`  ${REFRESH_GLYPHS[row.state]} ${row.rel} — ${refreshRowNote(row)}`);
+				lines.push("");
+				// P9: the output alone answers "what is this command allowed to touch?"
+				lines.push("Allowed to write: council/validate.py, council/cards/_template.md (the tooling class) — only with your consent.");
+				lines.push(
+					"Never written: your board, cards, vault/ wiki, .council.json, mcp.json. council/preflight.sh: check for drift — adapted copies are reported, never written.",
+				);
+				emit(lines.join("\n"));
+
+				if (!apply) {
+					emit(
+						"Dry-run complete — nothing written. Rerun with --apply to write 'behind' files; a 'diverged' (hand-edited or unrecorded) file additionally needs its individual --accept <path>.",
+					);
+					return;
+				}
+
+				// TUI: interactive per-file accept for diverged tooling (diff shown).
+				// Headless (-p/json/rpc) has no prompt — diverged files are skipped
+				// unless --accept names them explicitly.
+				if (ctx.mode === "tui" && ctx.hasUI) {
+					for (const row of plan.rows) {
+						if (!row.tooling || row.state !== "diverged" || accepts.has(row.rel)) continue;
+						if (await confirmFileAccept(ctx, row.rel)) accepts.add(row.rel);
+					}
+				}
+
+				const result = applyRefresh(repoRoot, SCAFFOLD_ROOT, accepts);
+				const out: string[] = ["council-update — result"];
+				for (const rel of result.created) out.push(`  + ${rel} — created (non-clobbering)`);
+				for (const rel of result.written) out.push(`  ↑ ${rel} — updated to the installed version`);
+				for (const rel of result.skippedDiverged) {
+					out.push(`  ~ ${rel} — diverged, skipped (accept per file with --accept ${rel})`);
+				}
+				if (result.backupDir !== null) out.push(`  backups: ${result.backupDir}`);
+				if (result.written.length === 0 && result.created.length === 0) {
+					out.push("  (nothing to write — all tooling files already match the installed package)");
+				}
+				emit(out.join("\n"));
+
+				// Distinct block (P8): the consumer's board under the NEW validator is
+				// the board's report, never fused with the refresh result — a newly-red
+				// board is the board's, not the refresh's.
+				if (result.written.length > 0) {
+					const post = runPostRefreshValidate(repoRoot);
+					const block = ["", "── Post-refresh validation (python3 council/validate.py) ──"];
+					if (!post.ran) {
+						block.push(`could not run python3: ${post.error ?? "unknown error"}`);
+					} else {
+						if (post.output.length > 0) block.push(...post.output.split("\n"));
+						block.push(post.status === 0 ? "exit 0" : `exit ${post.status}`);
+					}
+					emit(block.join("\n"));
+				}
+			} catch (e) {
+				emit(`[council-update] error: ${e instanceof Error ? e.message : String(e)}`);
+			}
+		},
+	});
 
 	pi.registerCommand("council-jobs", {
 		description: "Show the Council job table",
