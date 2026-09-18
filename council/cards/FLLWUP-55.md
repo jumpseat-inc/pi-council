@@ -385,3 +385,82 @@ The step-1 blast-radius note said the FLLWUP-49 shape test greps "repo-wide … 
 **Verdict: no blocking reds.** The deliberation record stands on the facts. Two accuracy defects carried, neither overturning a decision: **O3 `closed-red` on the letter** (source-level J-clause drift; behaviorally equivalent; strengthens the collapse) and **O12b** (pervasive line-cite drift). Open-untested carried: O9 container-runtime half, the step-8 smoke re-run, the copy ruling.
 
 **What the Skeptic ran (consolidated):** `git rev-parse`/`git status` (tree untouched); faithful mirror shape-test run (9 pass/0 fail); T3′ probe (0 aged / 2 control / no buf); screen identity diff + behavioral probes (all streams identical, J-clause source drift found); repo-root count port (63/375); greps for all cited internals/consumer call-sites; O11 regex probe; `docker images` probe; host `import pty_kit`.
+
+### Step 5 — synthesis (`job-20.12`)
+
+3.5m / 4 turns, settled `done`. Dispatched with the full deliberation record (steps 1–4). Synthesis appended verbatim.
+
+## Synthesis — FLLWUP-55 (step 5)
+
+Read: `vault/wiki/index.md`, `vault/wiki/smoke-test.md`, `vault/wiki/red-base-evidence.md`, plus the full step 1–4 record on this card.
+
+### Agreed design (what every seat converged on)
+
+All three generators end on **SHARE**: `smoke/search-smoke/driver.py` stops carrying its own screen/session model and imports them from `test/faux-provider/pty_kit.py`. `designer` withdrew its round-1 no-share recommendation in round 2 (with a witness-test condition and a ranked-last fallback); `owner` conceded the mark-shape delta to `principal` in round 3; `principal` confirmed the converged shape in round 3. No seat holds no-share at the close. The converged design, as the seats' final positions state it:
+
+- **Share both classes.** `driver.py` deletes `class Screen` (`:66`) and `class Session` (`:265`) and imports `Screen, Session` through a two-line stdlib `sys.path` shim pointing at `REPO_ROOT/test/faux-provider`.
+- **Kit changes are additive and default-preserving:** `rows`/`cols`/`term_sig` params with defaults **24/80/9**, reproducing `tui-retry.py:98` and `ev41-tui.py:86` **bit-identically** — those two files take **zero diff**.
+- **No `buf` in the kit, and `respond_queries` stays on the last-8 KB disk tail.** The driver's checkpoint layer is a bytelog-offset read over the bytelog the kit already writes and flushes. Location of that ~10-line layer is the one residual preference between seats (J2 below).
+- **Driver keeps** the byte table, `dechrome`/`model_rows`/matchers/walk/`Framelog` — driver-specific assertion logic, never kit material.
+- **Witness:** `test/faux-provider-shape.test.ts` test 4 **stays `TEST_DIR`-scoped, untouched**; a **new smoke-scoped driver-shape assertion** is the red-at-base falsifier (four-part ban form); a **two-sided stdlib-only guard** on `pty_kit.py` lands as a **charter pin, not a falsifier**; the **FLLWUP-55 charter amendment is named in the witness header** (`:9-11`).
+- **Live obligation:** `owner` runs `bash smoke/search-smoke/run.sh` at step 8. **Smoke red → `designer`'s pre-agreed revert** to the middle position (share `Screen`, keep the driver's `Session`).
+- **Gates:** the standard four, plus the step-8 smoke as a once-per-card live probe, **not a CI gate** ([[smoke-test]]).
+
+### Settled disputes (with the test that settled each)
+
+| # | Question | Settling test / result |
+|---|---|---|
+| 1 | Coupling premise — does `pty_kit.py` resolve the dev-installed pi? | **O1 `closed-green`.** Nine stdlib imports only; resolver at `harness.ts:26`; imports clean standalone. Premise misattributed; the share creates a path dependency, not a pi coupling. |
+| 2 | Shape-test scope / does removing the driver's classes move its count? | **O2 `closed-green`** — mirror run **9 pass / 0 fail**; test 4 asserts exactly one file. Step-1 correction stands. |
+| 3 | Are the two `Screen`s identical? | **O3 — `closed-red` on the letter, `closed-green` on the semantics.** Behaviorally identical on all 6 probe streams; J-clause source drift found (`in ("2","3")` vs `== "2" or == "3"`). **Strengthens SHARE** (second drift occurrence); the spec must say "behaviorally identical, source-drifted", never "byte-identical". |
+| 4 | The four `Session` policy deltas | **O4 `closed-green`** (env, kill signal, `wait_stable` defaults, retention) + vestigial `self.outdir`. |
+| 5 | Consumers non-marking / positional / boot-only? | **O5 `closed-green`.** |
+| 6 | In-kit `buf`/`mark()` default-preserving? | **O6 `closed-green` (T3′ run at HEAD).** Aged query → **0 replies** (in-kit-buf shape flips 0→2); no `buf` attribute; disk-contained. **Not** default-preserving; `owner` conceded on exactly this. |
+| 7 | Bytelog-equivalence premise | **O7 `closed-green` (premises)** with the accuracy flag: planned-state property, not a HEAD fact. |
+| 8 | REPO_ROOT widening? | **O8 `closed-green` — a fortiori.** REPO_ROOT count: `^class Screen` **63** / `^class Session` **375**. Widening dead. |
+| 9 | README/docstring claim today | **O10 `closed-green`** — byte-exact as quoted (`README.md:114-116`, `driver.py:12-14`). |
+| 10 | Driver-shape assertion red-at-base? | **O11 `closed-green`.** Hits exactly `:66/:265/:82/:120`; `from pty_kit import` absent; zero false positives. |
+| 11 | SHARE vs no-SHARE | **Settled as the seats' unanimous final position** — settled *because* every stated ground against it was removed by test (premise void O1; container read chain O9; boundary undocumented + shape-test universe unaffected O2/O8; drift cost demonstrated twice O2/O3). **Two conditions attached** (OB1, OB2); the smoke-red revert branch is pre-authorized. |
+
+Record-accuracy items (carried for the spec writer): **O12b** line-cite drift (substance holds on every one; cites off-by-a-few, enumerated in step 4); **O12c** walk-helper exclusions; **O12d** prefers-buf decision-widening (withdrawn, not live).
+
+### Open judgment — for `product-owner`, escalating to `steward`
+
+**J1 — The README `:114-116` and `driver.py` docstring wording. A copy ruling is owed.** No test settles prose; all three seats said so independently. Strings on the table: `owner`'s r1 §3 README replacement (both seats called it the cleaner copy — a lean, not a ruling), with `owner`'s r3 amendment ("name the checkpoint layer as driver-authored"); `designer`'s r1 branch-(a) strings (defensive-hedge framing, rated lower by `designer` itself in r2); `designer`'s branch-(b) no-share strings (**moot** unless the smoke reds and the middle-position revert fires). Three constraints the ruling must respect, all factual:
+  1. Final design puts checkpointing in the **driver** (per `owner`'s final concession; subject to J2), so the copy must name the checkpoint layer as driver-authored.
+  2. Every embedded grep command in the ruled copy must remain **literally true** after the change — the drafts' grep shapes (`^(import|from)` across both files vs `^import ` on driver.py alone) are not interchangeable once a top-level `from pty_kit import` exists.
+  3. The copy must state what is **kit-shared** (screen parser, pty session machinery) vs **driver-authored** (byte table, `dechrome`/matchers, 28×80 winsize, `term_sig=15`, `wait_stable` timing, checkpoint layer, `OPENROUTER_API_KEY` pass-through).
+  *Sequencing:* J1 depends on J2 — rule J2 first, or rule the copy so it stays true under either mark location.
+
+**J2 — Mark location: `owner`'s final (driver-local ~10-line bytelog-offset `mark()`) vs `principal`'s round-3 reframe (kit-side `mark()` sourced from the kit's bytelog).** **Classification: a residual implementation choice inside the `owner`'s implementer discretion, not an open-judgment item** — both shapes satisfy every settled constraint (O5/O6/O7), no test distinguishes them on any goal-relevant property, and the witness does not reach `mark`. Both sides at equal weight (owner: one-consumer driver policy, no divergence surface, reuse dies with this card; principal: the kit already writes the bytelog, zero hot-path growth, primitive stays reusable; designer not consulted). Routing note: belongs to the implementer **unless** the J1 copy ruling wants the boundary stated in one direction.
+
+### Open objections (`open-untested`)
+
+**OB1 — O9 container-runtime half.** Read chain closed green; the container probe did **not** run (no local image; base image lacks python3; settling needs a network build — declined as not harmless). *Needs:* `SMOKE_PHASE=6 bash smoke/run.sh` or the cheap import probe against a built image. *Blocks:* not the plan or the host smoke — the **release-gate claim** (the card's goal is precisely about the release gate). *Who settles:* `owner` at step 8; `skeptic` audits at step 9.
+
+**OB2 — The step-8 live smoke re-run.** `open-untested` by design. Unique falsification value: 28×80 geometry, SIGTERM teardown, `wait_stable` timing against the pinned 0.84.3 (env isolation pre-validated by the kit consumers' green arms). *Blocks:* merge. *Gates:* `designer`'s middle-position revert — **if it reds, SHARE is partially undone and the J1 copy ruling must be re-issued.** *Who settles:* `owner` at step 8, empirically.
+
+**OB3 — The copy ruling (= J1).** `open judgment, no settling test exists`. *Blocks:* yes — the deliverable includes user-visible copy by construction, and the share without the amendment leaves `README.md:114-116` stating a claim O10 proved false. *Who settles:* `product-owner`, then `steward`.
+
+No other open-untested items; no blocking reds.
+
+### Spec-content requirements (step 7)
+
+The spec must contain, unambiguously: (1) the SHARE decision with both conditions and the pre-authorized middle-position revert branch; (2) kit diff additive-only with the exact defaults and the zero-diff assertion for both consumers; (3) the driver diff including the explicit mark location; (4) two behavior-preservation rules stated explicitly — every driver `wait_stable` call site passes `3/0.08/8.0` explicitly (the kit gains no such param), and the driver's boot query scan must not call the kit's `respond_queries()` (last-8KB-only) — it scans the bytelog from offset 0 or sends replies from its own `boot_raw`; (5) the witness as four separate smoke-scoped assertions + the two-sided synthetic half, **with the `def _feed(` ban-list question closed** (`owner` r3 asked for it added; `principal`'s four-part form omits it; O11 shows its absence doesn't affect red-at-base since the driver's Session uses `_ingest`); (6) test 4 untouched, charter amendment named in the header, O8's 63/375 recorded; (7) the stdlib guard as charter pin, explicitly labelled green-at-base/green-at-head; (8) the red-base record with a **pinned base-selection rule** (the record names three different candidate SHAs — `0b85fd7`, `a902a84`, `32d2991` — the spec must pin the rule, not inherit a candidate); (9) O7's planned-state flag; (10) O12b discipline (cites re-derived at spec time; "behaviorally identical, source-drifted"; step-1 premise not re-propagated); (11) gates + OB1/OB2 items; (12) the copy strings carried **as pending the ruling**, with J1's three constraints as acceptance criteria.
+
+**Ready?** Not to merge; yes to `product-owner` for the copy ruling; yes to writing step 7 once the ruling returns. Blocking: OB3/J1 (copy ruling), OB2 (step-8 smoke), OB1 (container evidence). Not blocking: everything else; J2 is implementer discretion.
+
+*Seats used: none re-argued. No winner picked on J1, J2, OB1–OB3.*
+
+### Step 6 — routing (facilitator)
+
+**Phase-1 rulings checked before escalating** (per `<escalation_contract>` step 1): the run-wide rulings are scope = `FLLWUP-50`–`60` (eleven Backlog residuals, EPIC-9 stays `Done`); sequencing = `steward` job-1's serial order (this card eighth); **R2** merge = `gh pr merge <PR> --squash --admin --match-head-commit <X>`, run-scoped; **R3** record push = direct-to-main with admin identity, run-scoped, disclosed; follow-ups = step-13 draft-then-confirm re-homed to `product-owner`, pre-write. **None of these addresses the copy-wording question.** The card face's instruction ("if its wording is open judgment, escalate rather than self-rule") is the orchestrator's dispatch text, not a ruling-seat product; extending a run-wide ruling to it would be deciding under the appearance of applying. The question is **not covered** and is escalated.
+
+- **J1/OB3 — README/docstring copy wording: routes to `product-owner`, escalating to `steward` per its own criteria if declined.** This container returns `ESCALATION` with the drafted strings and constraints as facts, no recommendation.
+- **J2 (mark location)** — not escalated: the consolidator classified it implementer discretion; both shapes satisfy every settled constraint. It rides into step 7 as a named choice the spec states explicitly.
+- **The three spec-writable items** (`_feed` ban-list addition, explicit `wait_stable` call-site args + driver-local boot scan, base-SHA pin rule) — not escalated: each has a last-word position in the record (`owner` r3 for the ban; `owner` r2/r3 for the timing/boot rules; the base rule is mechanical — the pre-mechanism HEAD the owner branches from, recorded with full SHA + rule). They are written into the spec as instructions, not decided as disputes.
+- **OB1/OB2** — not rulings: empirical obligations of step 8, with OB2's red branch pre-authorized (middle-position revert; J1 re-issue if fired).
+
+**No decision is taken here. The card stays `Deliberating`; steps 7 onward wait for the copy ruling. This container returns `ESCALATION`.**
+
+**Throughput/usage (this card so far):** 12 seat dispatches — `owner` (20.1, 20.4 timeout-cancelled, 20.7, 20.9), `principal` (20.2, 20.5 provider-error, 20.8, 20.10), `designer` (20.3, 20.6), `skeptic` (20.11), `consolidator` (20.12). Three exchange rounds (cap reached at 3; two re-dispatches under the bounded-dispatch rule, both settled on attempt 2). No third dispatch for any seat. Ruling seats never dispatched by this container.
