@@ -858,3 +858,151 @@ parity; `install`/`tsc` hang gap recorded as accepted residual. The remaining
 open item for the consolidator is a single binary: **the reading** — strict
 (45/60) or single-arm (15) — plus the placement dispute (owner: job-level
 60; principal: step-level 45/60).
+
+
+### Step 4 — Skeptic attacks and runs tests (`job-28.7`)
+
+`skeptic` (13.2m, 17 turns) ran against `0e3220a` with a clean tree, scratch
+dirs under /tmp created and removed, no live arms, no CI, no full-suite run.
+Report appended verbatim below. **Facilitator transcription (counting only):
+ten objections — nine `closed-green` (two with precision corrections), one
+`closed-red` that is a record correction (non-blocking), zero
+`open-untested`, verdict "no open objections."** The open-judgment disputes
+(placement, reading/value) route via the consolidator.
+
+#### skeptic — step 4 (`job-28.7`) — verbatim
+
+**Objections**
+
+1. **Whole-tree ceiling census** — *claim.* Principal round-3: default-suite
+   explicit ceilings `{300_000:4, 180_000:6, 120_000:2, 20_000:1, 15_000:3}`
+   = 16 sites, Σ = 2 585 s ≈ 43.1 min, plus gated `{360_000:1, 60_000:1}`
+   (18 tree-wide). *Settling test.* Recursive `_000` scan of
+   `test/**/*.test.ts` + expression-form scan; verify each site is a real
+   third positional arg; sum. **closed-green.** Literal scan found exactly 17
+   sites; each verified as a third arg of `test(...)`; `integration.test.ts:60`
+   is `6 * 60_000` (expression), tree total 18. Default-suite sum = 2 585 000
+   ms = 43.08 min; tree incl. gated = 3 005 000 ms = 50.08 min. Both gated
+   sites confirmed on `test.skipIf(!enabled)` with
+   `COUNCIL_INTEGRATION`/`COUNCIL_MCP_INTEGRATION` env guards.
+2. **Owner's 13-site variant** — *claim.* "Strict third-arg census is
+   {300_000:4, 180_000:6, 120_000:2, 20_000:1} = 13 sites, Σ = 2 540 000 ms ≈
+   42.33 min … verified against the tree." *Test.* Same scan; count hub
+   sites. **closed-red (record correction, non-blocking).** The tree carries
+   16 default-suite sites: the owner's multiset omits `15_000` ×3 at
+   `hub.test.ts:96,109,121` (real third args, default-suite, no skip). The
+   multiset as printed is wrong against the whole tree; the owner's own
+   design rule ("tripwire must derive the sum at run time, never restate")
+   covers it, and round-3 arrived at the right 16/18 via the principal.
+   Record note only.
+3. **Serial accumulation** — *claim.* Two 2 s tests in two files under bare
+   `bun test` take ≈4.08 s (owner). *Test.* Two scratch files with
+   `Bun.sleep(2000)`, bare `bun test`. **closed-green.** Ran 2 tests across 2
+   files in `[4.08s]` — matches the owner's figure exactly.
+4. **Parser fragility** — *claim.* A literal `_000` regex returns 17 not 18
+   tree-wide; `test/*.test.ts` misses `test/mcp/…`. *Test.* Both scans.
+   **closed-green.** Literal regex = 17 matches (misses `6 * 60_000`);
+   top-level glob matches 64 files vs 72 recursive, missing all 8
+   `test/mcp/*.test.ts` incl. `integration-context7.test.ts`.
+5. **Bun 5 s per-test default + citation** — *claim.* Default third-arg
+   timeout is 5000 ms (Context7 `oven-sh/bun`) and a machinery timeout
+   terminates spawns; question: does the 5 s tier have members? *Test.* Live
+   scratch test with no third arg sleeping 6 s; Context7 lookup; grep all
+   `test(` in the five live-arm files. **closed-green.** Empirical:
+   `(fail) no-third-arg sleeps 6s [5001.32ms]` — "timed out after 5000ms".
+   Context7 confirms "the default value is 5000 ms" and "terminates spawned
+   child processes". **Refinement:** the 5 s tier is *vacuous for
+   arm-bearing tests* — every test that actually calls
+   `runHarnessArm`/`runHarnessArmSigint`/spawns an arm carries an explicit
+   third arg; the no-third-arg tests in live-arm files (`ev40-headless:71`,
+   `ev41-retry-e2e:83,88`, `ev43:45`) are unit-level and spawn nothing.
+6. **Mechanism split** — *claim.* Sync arm binds at inner `spawnSync` timeout
+   (`harness.ts:302`, `timeoutMs ?? 120_000`); async pty arm binds at outer
+   test timer; `:362` wraps an inner `spawnSync(…, { timeout: 280_000 })`.
+   *Test.* Read-only code paths. **closed-green with precision corrections.**
+   `:302` passes `timeout: opts.timeoutMs ?? 120_000` into `spawnSync` ✓.
+   `ev41-retry-e2e.test.ts:336-348` calls `spawnSync("python3",
+   [ev41-tui.py…], { …, timeout: 280_000 })` ✓. Correction: first-to-fire at
+   `:362` is the *inner* spawnSync 280 s; the outer 300 s test timer is its
+   backstop. Similarly the sigint arms (`ev40-live-gates:219`) have inner
+   ceiling `sigint.timeoutMs ?? opts.timeoutMs ?? 120_000` = 120 s default,
+   below their 180 s outer. "Binds at the outer test timer" is imprecise as
+   binding order; as a test-level ceiling it is correct and all bounds stay ≫
+   180 s, so sizing conclusions are unaffected.
+7. **Zero net under doc↔line pair** — *claim.* `grep -rn 'gates.yml' test/`
+   is empty. *Test.* Run it. **closed-green.** Zero matches (exit 1).
+8. **Census sentence drift** — *claim.*
+   `vault/wiki/test-suite-budget.md:48` "thirteen sites" is wrong today.
+   *Test.* Compare to scan. **closed-green.** Whole-tree default-suite
+   third-arg sites = 16 (13 + hub 15 s×3); the sentence also lumps the
+   harness default into the same count. Wrong today, before this card ships.
+9. **Serial-sum arithmetic** — *claim.* Default Σ = 2 585 s ≈ 43.1 min; tree
+   incl. gated ≈ 50.1 min. *Test.* Sum. **closed-green.** 2 585 s = 43.08
+   min; 3 005 s = 50.08 min. Also confirmed `package.json:28` is bare
+   `"test": "bun test"`, `gates.yml` has no `timeout-minutes`,
+   `fetch-depth: 0` count 1 (file is 18 physical / 16 non-blank lines, not
+   15 — trivial).
+10. **Envelope file count consistency** *(own objection).* Claim: wiki says
+    81 files but `test/` holds 72. *Test.* Discovery probe with nested
+    `seed/test/*.test.ts` + count. **closed-green (explained, no defect).**
+    Bun discovers the 9 fixture-seed test files outside `test/` (72 + 8
+    `council/fixtures/*/seed/test/` + 1 `smoke/fixture` = 81), and skips
+    dot-dirs (stale `.worktrees/` — 26 of them, 1949 `.test.ts` files total
+    — do not contaminate the suite). Fixture seeds carry no `_000` ceilings,
+    so a `test/**`-scoped tripwire is adequate for ceiling derivation.
+
+**What I ran** (all with explicit timeouts; no live arms, no CI, no
+full-suite run — the envelope is already recorded and a timing census needs
+no full run)
+
+- `find test -name '*.test.ts'` → 72 files.
+- `grep -rnE '^\s+[0-9_]+_000,' test --include='*.test.ts'` → 17 sites
+  (4×300_000, 6×180_000, 2×120_000, 1×20_000, 3×15_000, 1×60_000); each
+  confirmed as third positional arg; plus `integration.test.ts:60:
+  6 * 60_000`.
+- awk sum: default 2 585 000 ms = 43.08 min; tree 3 005 000 ms = 50.08 min.
+- Serial probe: `Ran 2 tests across 2 files. [4.08s]` (2×2001.39 ms sleeps).
+- 5 s default probe: `(fail) no-third-arg sleeps 6s [5001.32ms]` / "timed out
+  after 5000ms".
+- `test/*.test.ts` = 64 vs recursive 72; `grep -c mcp` under top-level glob
+  = 0.
+- `grep -rn 'gates.yml' test/` → zero matches.
+- Discovery probe: nested `council/fixtures/x/seed/test/links.test.ts` ran
+  under bare `bun test` (2 files, 2 tests); gitignored *and* dot-dir probes
+  confirmed bun skips dot-dirs but not gitignored non-dot dirs.
+- Read: `harness.ts:150-175` (env whitelist `harnessEnv`, FLLWUP-21 comment)
+  ✓; `harness.ts:290-400` (spawnSync timeout at :302; sigint
+  `ceiling = sigint.timeoutMs ?? opts.timeoutMs ?? 120_000` with SIGKILL
+  deadline) ✓; `ev41-retry-e2e.test.ts:259,320,336-362` (20_000; 180_000;
+  inner `spawnSync` `timeout: 280_000` under outer 300_000) ✓;
+  `ev40-live-gates:214-246` sigint arm ✓; `ev43-reachability:73-106` (double
+  `runHarnessArm`) ✓; `.github/workflows/gates.yml` (18 lines,
+  `fetch-depth: 0`, no timeout-minutes) ✓.
+- Context7 `/oven-sh/bun`: "the default value is 5000 ms" + "terminates
+  spawned child processes" — citation real.
+- Scratch dirs under `/tmp` created and removed.
+
+**Record corrections for the card**
+
+- Owner round-3 C1′ "13 sites, Σ = 2 540 000 ms, verified against the tree"
+  is wrong whole-tree: it omits `hub.test.ts` 15_000×3 (true default-suite
+  sites). Correct default-suite census = 16 sites, 2 585 000 ms.
+  Non-blocking (tripwire derives at run time).
+- "The async pty arm binds at the outer test timer" should read: the pty arm
+  first-to-fire is the inner `spawnSync` 280 s (`:348`); the sigint arms'
+  first-to-fire is the harness inner deadline (120 s default); the outer test
+  timers are test-level ceilings and backstops. No sizing impact.
+- The 5 s-default tier has no *arm-bearing* members; the "n × 5 000 ms" term
+  in any census is 0 unless non-spawning tests are deliberately included.
+- `gates.yml` is 18 physical / 16 non-blank lines (not 15) — cosmetic.
+- The wiki's 81-file envelope figure is consistent with the current tree (72
+  + 9 fixture seeds). Not a defect.
+
+**Verdict: no open objections.** Every factual claim with a runnable test is
+settled; the only uncounted-seat items are the open-judgment disputes
+catalogued as routed to `product-owner` (placement job- vs step-level, value
+45/60 vs 15, and the single-vs-any-arm reading) — all the arithmetic those
+decisions rest on (16-site/18-site census, 43.1/50.1 min serial sums, `:362`
+inner 280 s vs outer 300 s, step-naming as an *unverified* working
+assumption) has been tested and stands. The two corrections above are
+record-only and do not block.
