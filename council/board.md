@@ -71,9 +71,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- FLLWUP-58 — Runaway timeout-minutes backstop on the gates CI job
-
 ## In Review
+
+- FLLWUP-58 — Runaway timeout-minutes backstop on the gates CI job
 
 ## Done
 

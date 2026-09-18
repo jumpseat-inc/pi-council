@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-58
 title: Runaway timeout-minutes backstop on the gates CI job
-state: In Progress
+state: In Review
 owner: worktree (dispatched)
 epic: EPIC-9
 goal: The gates workflow fails bounded on a runaway test step via a loose timeout-minutes, sized so it never pre-empts an arm's own ceiling, with the CI-timeout policy documented.
@@ -1234,4 +1234,27 @@ explicitly out of scope), and ambiguity (tripwire derivation rule, wiki
 section contents, and the FLLWUP-25 pointer-only constraint are enumerated).
 Card + board set `In Progress`; owner dispatched next with the spec.
 
-### Step 8 — owner
+`owner` settled `done` (`job-30.1`, 12.8m, 31 turns) in the prepared worktree
+`/tmp/fllwup58-wt` on branch `fllwup58-gates-backstop`. **PR #77 open** (base
+`main`), head `6704ee77515a7616ede1e1c4391a5f888f72d949`, single conventional
+commit. TDD held: tripwire observed red against the unmodified tree (floor +
+placement + parity reds naming the missing mechanism), then green after the
+line + wiki marker landed. All five spec artifacts delivered, nothing else;
+out-of-scope items untouched. Local gates on the final tree, owner-reported:
+tsc clean; `bun test` 945 pass / 2 skip / 0 fail across 947 tests / 82 files,
+104.13s; `validate.py` clean; `preflight.sh FLLWUP-58` PASS. Mutation proof
+(4/4 discriminating reds, then restored): job-level move → placement red;
+removal → floor+placement+parity red; value 44 → floor+parity red; wiki
+marker 61 → parity red. Derivation reproduced the settled census exactly (16
+default sites Σ 2 585 000 ms, 2 gated separate; no hardcoded
+census constants). **Deviation disclosed (spec-fidelity, accepted):** spec
+§2.2.2's "red on gated promotion" is arithmetically loose — one gated
+promotion re-derives the floor to 51–52 vs shipped 60, still green; the
+mechanical red arrives when the derived floor exceeds the shipped value (sum
+> 59 min). The owner implemented the settled formula verbatim and the wiki
+states the true boundary; flagged so the record carries it. No silent
+widening. **In Review set from the observed artifact (PR #77, state OPEN,
+head `6704ee7`); CI on the head SHA was `IN_PROGRESS` at transition and is
+the facilitator's to check before the merge gate.**
+
+### Step 9 — skeptic
