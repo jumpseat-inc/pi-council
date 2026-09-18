@@ -137,3 +137,48 @@ confirms the token absent from all packaged prose.
 Main checkout verified clean (`git status --short` empty), `main` still at
 `a54e8f8` == `origin/main` after the push. Card set `In Review` (sole
 precondition: open PR, observed).
+
+### Step 9 — Skeptic NO-BLOCK at head e130d9a (verify cycle 1 of ≤3)
+
+Skeptic (job-10.2, 3.6m, 13 turns, tokens in 46496 / out 13661 / total
+492285, cost≈$0.0096 catalogue) verified at the pinned subject — head SHA
+`e130d9aaa1cb9ca1f11b840d4261cbc556a9e992`, head worktree
+`.worktrees/fllwup-53` — with the loop frame stated (step 9 precedes step
+10 judging and step 11's facilitator-executed mechanical merge). Verdict:
+**NO-BLOCK**, eight objections, all `closed-green`, each with a real run at
+the head:
+
+1. Goal clause 1 — `grep -rn GATE-EVIDENCE council/agents/ council/procedures/`
+   → 0 hits (token survives only in historical card records, plans/specs,
+   wiki history, and the guard's own forbidden token). **closed-green.**
+2. Goal clause 2 — widened guard reads `councilMarkdown()` over both
+   subdirs; coverage demonstrated red on a seat file the old guard never
+   read: live red run at `079a014` (test widened, prose unreworded) →
+   `agents/owner.md hard-references the repo-specific gate file`
+   (16 pass / 1 fail). **closed-green.**
+3. Red-first claim — `git log` at head: `079a014` (red test) precedes
+   `f2f693c` (prose reword) precedes `e130d9a` (plan); the red run matches
+   the owner's recorded red verbatim. **closed-green.**
+4. Sentence-meaning integrity — both reworded passages read at head; owner-
+   clears-every-gate and gate-document-outranks-wiki meanings retained, only
+   the consumer-specific path dropped. **closed-green.**
+5. Existing pins — full suite at head **909 pass / 2 skip / 0 fail** (911
+   tests, 79 files), matching the owner's counts exactly; `validate.py` →
+   `All council artifacts valid`. **closed-green.**
+6. Stack-neutrality — grep over the two edited prose files: zero hits
+   (plan-doc hits are not packaged prose and are not scanned).
+   **closed-green.**
+7. Scope fences — `git diff a54e8f8..HEAD` is exactly the 3 prose/test
+   files + the plan doc; no scaffold/fixtures/vault/engine/package.json; no
+   historical card record edited; board/card deltas vs origin/main are this
+   runner's own record push, not branch commits. **closed-green.**
+8. Gates re-run in full at head — `tsc` exit 0; `bun test` 909/2/0;
+   `validate.py` clean; `preflight.sh FLLWUP-53` → the branch-freshness
+   clause FAIL (`local history does not descend from origin/main`) recorded
+   verbatim, exit 1, all other clauses OK — the standing FLLWUP-27 known
+   artifact (this runner's record push `3e81f81` advanced `origin/main`
+   past the `a54e8f8` cut), not reclassified; the operative re-run set
+   (tsc/bun test/validate.py) fully green. **closed-green.**
+
+No `open-untested` residual; one non-blocking cosmetic note (a merged long
+line at `council.md:239`, wrap cosmetics only).
