@@ -70,9 +70,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- FLLWUP-56 — Saturate the seat-dispatch provider-error arm onto a config-injected faux provider
-
 ## Done
+
+- FLLWUP-56 — Saturate the seat-dispatch provider-error arm onto a config-injected faux provider
 
 - FLLWUP-54 — Wiki page for the red-base evidence convention
 

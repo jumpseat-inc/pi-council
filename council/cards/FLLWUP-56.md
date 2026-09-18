@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-56
 title: Saturate the seat-dispatch provider-error arm onto a config-injected faux provider
-state: In Review
+state: Done
 owner: null
 epic: EPIC-9
 goal: A falsifier exists for the seat child's own provider-error path — the parent-turn offline faux-provider harness reaching a real seat child — and its live-arm budget is accounted for in the suite-cost measurement.
@@ -919,3 +919,110 @@ ceiling sites 13, provenance machine/SHA/command complete. The header's
 ≈18–30s overstatement of the measured 5.93s is non-blocking per the standing
 rule.
 
+
+### Steps 11–12 — deterministic merge check, merge, merged-SHA CI, `Done`
+
+All five criteria observed by this facilitator before merging, in order:
+
+1. **Every owner gate green, in full** — owner ran all four on the final tree;
+   the Skeptic independently re-ran all four at the head (`tsc` exit 0, `bun
+   test` 933/2/0, `validate.py` clean, preflight's single
+   stale-by-construction freshness FAIL recorded verbatim) and proved each
+   gate can fail and name the defect (O2).
+2. **GitHub Actions green on the PR head SHA** — `gh pr checks 75 --json
+   name,state,workflow` → `[{"name":"gates","state":"SUCCESS","workflow":"gates"}]`
+   (the `[code]smith` row is an empty-workflow SKIPPED, not a failing check);
+   head SHA re-read immediately before merge =
+   `a2f14ba62e61edab7d663dfed062a61207ffe5b5` — unchanged from the SHA the
+   Skeptic and judge verified.
+3. **No blocking Skeptic objection** — step 9 verdict `no open objections`
+   (verify-cycle 1 of 3, closed green).
+4. **Judge verdict `PASS`** — step 10.
+5. **No `Needs Human` state, no outstanding ruling** — step 6 routed zero
+   open-judgment items; nothing is left unruled.
+
+Merge executed with the criterion-2 SHA pinned (R2 run-scoped
+authorization): `gh pr merge 75 --squash --admin --match-head-commit
+a2f14ba62e61edab7d663dfed062a61207ffe5b5` → **MERGED**, squash commit
+**`6adbfa697f07cd4964e1d2d285a909c070eb1c5d`**.
+
+Step 12: `git fetch origin` → `origin/main` = `6adbfa6`; local `main` was
+`5634c42`, an ancestor — `git merge --ff-only origin/main` fast-forwarded
+cleanly; no divergence, no union-merge reconcile, never forced (R1 not
+exercised). **Merged-SHA CI confirmed green from the API, not from any
+seat's report:** `gates` run on `6adbfa6` → `completed success` (first
+attempt — the FLLWUP-63 EV-40 jitter flake did not recur this time). `Done`
+is written from that observed artifact — merged, with green CI on the merged
+SHA — and nothing else. `python3 council/validate.py` → `All council
+artifacts valid`.
+
+**Record-push disclosures (R3, this card):** `d0bbbca` (promotion + step-1),
+`a400d52` (steps 2–3), `561ec21` (step 4), `3f7cdc6` (steps 5–6), `6e89190`
+(step-7 spec + In Progress), `653a61a` (step-8, In Review), `8dd5f23` (step
+9), `5634c42` (step 10) — all direct-to-main pushes with the pusher's admin
+identity per R3, run-scoped.
+
+### Step 13 — follow-up drafts (drafts only — NOT written, pending product-owner confirmation)
+
+Per the run-wide ruling, step-13 confirmation is re-homed to `product-owner`
+and is **pre-write**; this container drafts and writes nothing unapproved and
+never dispatches `product-owner`. Two drafts carried for edit / drop /
+approve; next free id is `FLLWUP-70`.
+
+#### DRAFT A (not written) — the live arm's header expectation vs measured
+
+```
+id: FLLWUP-70
+title: Reconcile the seat-child live arm's header expectation with its measured cost
+epic: EPIC-9
+goal: test/ev41-seat-child-live.test.ts's header states the design-spec expectation (≈18–30s) while the measured block is 5.96s (~4× lower); the header carries the measured band or the wiki page's standing rule is amended to say which figure the header must carry.
+```
+
+Intent: the FLLWUP-48 standing rule says a live arm's header states "expected
+wall clock and ceiling"; the expected figure came from the deliberation
+(~18–30s) and the measurement came in at 5.96s. The Skeptic called this
+non-blocking (the wiki row carries the true figure; the header repeats the
+spec verbatim). This card is the small reconciliation — update the header to
+the measured band, or amend the standing rule so future arms know which
+figure is authoritative. Filed because a header that overstates by 4× invites
+the next reader to distrust either number.
+
+#### DRAFT B (not written) — pi's project-extension discovery and jiti loader semantics
+
+```
+id: FLLWUP-71
+title: Document pi's project-extension discovery and jiti loader semantics for test shims
+epic: EPIC-9
+goal: The two pi-runtime mechanism findings this card's arm surfaced — project-extension auto-discovery is not -a-gated (a print-mode parent loads project-local extensions too) and a nested require() inside a jiti-transformed extension re-resolves through jiti's sync pipeline and breaks on file-valued subpath aliases (await import() bypasses it) — are documented in one place (wiki page or vetted comment block) that future test-shim authors will find.
+```
+
+Intent: both findings are already recorded locally (the shim's comments, the
+card record, PR #75's body) but are exactly the class of knowledge the next
+scratch-repo-harness author will need and not find. Whether this is a card,
+a `/wiki-ingest` item, or merely an amended comment block is the
+`product-owner`'s confirmation call; drafted here because step 13 says
+nothing surfaced stays unfiled.
+
+No other candidates: the FLLWUP-27 freshness artifact is already carded;
+the O9 note folded into Draft A; the facilitator window/l lingering-process
+class is runner-procedural, not a repo artifact (recorded on this card's
+step 8; surfaced to the orchestrator in the run report).
+
+### Step 14 — persist (offered, routed)
+
+Two durable items offered for `/wiki-ingest` (never hand-written here): (1)
+the **mechanism finding** — pi's project-extension auto-discovery is not
+`-a`-gated and print-mode parents load project extensions too (test shims
+must gate on a child discriminator); (2) the **loader finding** — a nested
+`require()` inside a jiti-transformed extension re-resolves through jiti's
+sync pipeline and breaks on file-valued subpath aliases; `await import()`
+bypasses it. Both recorded verbatim in the card and PR #75; the wiki home is
+the orchestrator's step-14 surface.
+
+**Throughput/usage (this container, whole card):** 12 seat dispatches —
+`owner` (23.1, 23.3, 23.7, 23.8, 23.9, 23.10), `principal` (23.2, 23.4),
+`skeptic` (23.5, 23.11), `consolidator` (23.6), `judge` (23.12). Two
+exchange rounds (≤3 cap not reached). Verify cycles used: 1 of 3. All jobs
+settled except the two step-8 timeouts (window misconfiguration,
+facilitator-owned, recorded). Ruling seats never dispatched by this
+container.
