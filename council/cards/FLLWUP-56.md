@@ -842,3 +842,57 @@ misconfigurations, facilitator-owned). The bounded rule was applied: no seat
 was dispatched more than once past a genuine failed settlement without
 progress; `23.10` settled with the deliverable verified on the branch.
 
+
+### Step 9 — verify by acting (skeptic, verify-cycle 1 of 3)
+
+`job-23.11` (12.6m / 39 turns, settled `done`) was dispatched at the PR head
+(`a2f14ba62e61edab7d663dfed062a61207ffe5b5`, worktree
+`.worktrees/fllwup-56`) with the loop frame stated (step 9 precedes step 10
+judging and step 11's mechanical merge, which the facilitator executes and no
+seat performs). **Verdict: `no open objections` (blocking sense). Nine
+objections O1–O9, all `closed-green`; no fix cycle needed.**
+
+- **O1** gates re-run at head: tsc exit 0 (×2); `bun test` 933/2/0 (101.28s;
+  re-run after `bun install` 102.40s, matching the recorded 101.2s);
+  `validate.py` clean; preflight's single FAIL (`local history does not
+  descend from origin/main`) verified **stale-by-construction** — merge-base
+  `6e89190`, the only absent commit is this run's own step-8 record push
+  `653a61a`. Recorded verbatim; never weakens a gate.
+- **O2** gate integrity: tsc injection → exit 2 naming TS2322; bun injection
+  → 0/1; validate.py bad-card injection → FAIL exit 1; preflight fired red on
+  its own. Each gate can fail and names the defect. All injections restored.
+- **O3** substance: the arm runs 2/0 in 5.96s (treatment 3.41s + control
+  2.15s); shim = dynamic `await import()`; discriminator on `process.argv
+  --session-id`; all `EV40_*` knobs stripped before the extension's top-level
+  read; wait toolResult is the carrier; manifest `attempts[]` pairing;
+  attempt-1 `INJECTED_ERROR_MESSAGE`; control one spawn/zero respawns/no
+  marker.
+- **O4** perturbation red re-run: shim omitted → 2092 ms,
+  `Model "ev40/ev40-model" not found`, `state=failed` via the wait
+  toolResult — named failure, never a timeout (spec §5 exactly).
+- **O5** mechanism finding confirmed empirically: a parent-branch-only marker
+  in a shim variant reads `"loaded"` after a green treatment run — the parent
+  does auto-load the project-local shim; the `--session-id`-absent no-op
+  guard is load-bearing and the parent's run is unaffected.
+- **O6** boundaries exact (diff `eb58e00..a2f14ba`, 7 files): zero changes
+  under `extensions/`, `package.json`, `preflight.sh`, `.github/`, `smoke/`,
+  `test/stub-child.ts`, `test/faux-provider-shape.test.ts`,
+  `test/ev41-retry-e2e.test.ts`, `council/cards/`; only
+  `vault/wiki/test-suite-budget.md` under `vault/`; no `fauxProvider(` token
+  in the new file; env reads = `EV40_*` + `PI_OFFLINE` only.
+- **O7** budget accounting: header states expected + ceiling verbatim; all
+  three doc sites carry the same provenance-complete figure (101.2s/101.3s
+  reproduced); "Live-arm share 17 (78.3s ≈ 77%)"; ceiling-site count 11→13
+  verified by enumeration; 180s still the drift threshold everywhere; arm
+  baseline `3/5/5/2/2`.
+- **O8** provenance anomaly: all four commits carry the seat author identity
+  inside the owner dispatch windows; head is coherent and green — the
+  facilitator's step-8 correction holds on its observable facts.
+- **O9** (non-blocking note): the header's expected ≈18–30s overstates the
+  measured 5.96s (~4×), but it repeats the spec's figure verbatim per
+  FLLWUP-48 rule 1 and the wiki row carries the true measured figure. Not a
+  defect.
+
+Nothing blocks step 10 judging or step 11's mechanical merge. **Verify-cycle
+counter: 1 of 3, closed green.**
+
