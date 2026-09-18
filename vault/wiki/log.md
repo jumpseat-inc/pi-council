@@ -1,5 +1,31 @@
 # Wiki Log
 
+## [2026-09-18] ingest | FLLWUP-47 product-owner step-6 ruling — the red-base evidence convention
+
+Ingested `vault/raw/2026-09-17-po-fllwup47-step6-ruling.md` (the R1–R6
+ruling that settled FLLWUP-47's six open-judgment items and shaped the
+shipped red-base convention) as the wiki's concept page for the convention.
+Created [[red-base evidence]] (the seven fields, the comparison triple and
+gating rule, the skeptic-derived two-class boundary, the EV-41
+causal-story correction, the lineage note) + the source page. Updated
+[[owner]] and [[skeptic]] (the shared-block placements and each seat's
+duty), [[deterministic-merge-check]] (⚠️ R2: "no red test lands" lives in
+the merge gate; the record carries the head half — no double-enforcement),
+[[gate-parity]] (⚠️ R1's application: derivation at the reproduction
+surface, not a writer-side field), [[main-repo immutability]] (field 5's
+detached base worktree), [[product-owner]] (the R1–R6 precedent + the R6
+fold-in call), [[index]]. ⚠️ Contradiction flagged explicitly (1): the
+EV-41 causal story — the recorded "copy depth of `test/ev40-harness/`"
+explanation is known-wrong; the six extra fails come from head
+`test/stub-child.test.ts` vs base `test/stub-child.ts`, enabled by an
+unrecorded `extensions/retry.ts` transplant (`test/ev40-harness/` and
+`ev41-tui.py` are inert in that configuration — per the Skeptic's
+transplant table in FLLWUP-47 step 4). No wiki page previously carried the
+wrong cause, so the correction is a filled gap, flagged not overwritten.
+The EPIC-9 ledger's "declined at step-13" sentence stands untouched; the
+lineage clarification (decline ≠ standing decline) lives on
+[[red-base evidence]] only.
+
 ## [2026-09-17] ingest | EPIC-9 residual run — the record-push gap and the lossless-goal fix
 
 Filed `vault/raw/2026-09-17-epic9-residual-run-ledger.md` (the

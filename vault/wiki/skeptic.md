@@ -4,9 +4,9 @@ type: entity
 summary: The Council's formal adversary and sole evaluator — assumes every claim is broken until a test demonstrates otherwise, and has standing to block a card.
 aliases: [skeptic seat]
 tags: [pi-council/seat]
-sources: ["[[2026-08-23-pi-council-design-spec]]", "[[2026-09-06-epic6-close-run-ledger]]"]
+sources: ["[[2026-08-23-pi-council-design-spec]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]"]
 created: 2026-08-23
-updated: 2026-09-06
+updated: 2026-09-18
 ---
 
 > ⚠️ Derived from `council/agents/skeptic.md` (captured 2026-08-23). Verify against the seat file.
@@ -56,6 +56,17 @@ pinned to the verification subject — PR head SHA + head worktree path —
 plus the loop frame ([[verification-subject pinning]]); FLLWUP-19's own
 skeptic dispatch was the pattern's first live demonstration.
 
+Since FLLWUP-47 (2026-09-17) the seat body also carries the
+`<red_base_convention>` block — bracketed by
+`<!-- red-base-shared-start/end -->` markers, byte-identical to the
+owner's copy — adjacent to `<verify_by_acting>` and the `<output_format>`
+block, and the field vocabulary is required inside `<output_format>` by a
+judge-reachability pin. On [[red-base evidence]] the skeptic derives the
+two-class mechanism-absent boundary (never the owner) from the raw red
+output's per-failure lines + transplant identity + base identity, carries
+it in the evidence row, and treats a reproduction that compares counts
+without first checking comparability as defective verification.
+
 ## Related
 
 - [[seats]], [[council-loop]], [[consolidator]]
@@ -63,6 +74,10 @@ skeptic dispatch was the pattern's first live demonstration.
 - [[engineering-board]] — the verification gate it powers
 - [[council-config]] — default model/thinking override
 - [[verification-subject pinning]] — the step-9 dispatch-input contract
+- [[red-base evidence]] — the two-class boundary the skeptic derives and
+  carries in its evidence row
+- [[2026-09-17-po-fllwup47-step6-ruling]] — R1 (skeptic-derives-only) and
+  R5 (the judge-reachability pin scope)
 - [[2026-09-06-epic6-close-run-ledger]] — the immutability + subject pinning
 
 ## Sources

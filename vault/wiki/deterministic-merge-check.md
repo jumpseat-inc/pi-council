@@ -4,9 +4,9 @@ type: concept
 summary: Under /features-deliver the human merge gate is replaced by five mechanical criteria — owner gates, gates-SUCCESS on the PR head SHA, no blocking skeptic objection, judge PASS, no open ruling — executed with no discretion, merged with --match-head-commit.
 aliases: [merge gate, deterministic merge, five criteria merge]
 tags: [pi-council/features-deliver, pi-council/process]
-sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]"]
+sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]"]
 created: 2026-09-04
-updated: 2026-09-17
+updated: 2026-09-18
 ---
 
 # Deterministic Merge Check
@@ -157,6 +157,16 @@ silently. A mismatch is a **HALT, not a retry**.
   steward ruled the past an accepted permanent residual and FLLWUP-60 owed
   before the next autonomous run ([[record-push-discipline]]).
 
+## Red-base falsifiers and the merge gate
+
+The merge gate is what makes "cannot land red" true: a falsifier that must
+start red cannot merge red, so its evidence is the base run plus a green head
+half ([[red-base evidence]], field 7). FLLWUP-47's step-6 ruling (R2) put the
+"no red test lands" obligation here, in the merge gate, and removed the
+landing statement from the convention's record — the record carries the
+observable head half (head sha + same command verbatim + `0 fail`), not an
+attestation about the merge window. One enforcement, not two.
+
 ## Related
 
 - [[council loop]] — steps 9–12 this check overlays.
@@ -165,6 +175,8 @@ silently. A mismatch is a **HALT, not a retry**.
 - [[council models picker]] — the EPIC-5 surface merged under this gate.
 - [[council config writer]] — the EPIC-6-era writer fixes merged under it.
 - [[union-merge reconcile]] — what squash merges do to local main.
+- [[red-base evidence]] — the head-half field and why the merge gate, not the
+  record, carries "no red test lands".
 - [[2026-09-04-epic4-run-ledger]] — eight merges executed under this gate.
 - [[2026-09-04-epic5-run-ledger]] — four more, squash-method, conditional
   green-light.

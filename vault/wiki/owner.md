@@ -4,9 +4,9 @@ type: entity
 summary: The Council's engineering voice and the single implementing seat — turns agreed specs into plans, implements in a worktree, clears all four gates to a PR.
 aliases: [owner seat]
 tags: [pi-council/seat]
-sources: ["[[2026-08-23-pi-council-design-spec]]", "[[2026-09-06-epic6-close-run-ledger]]"]
+sources: ["[[2026-08-23-pi-council-design-spec]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]"]
 created: 2026-08-23
-updated: 2026-09-06
+updated: 2026-09-18
 ---
 
 > ⚠️ Derived from `council/agents/owner.md` @ `df3...` (captured 2026-08-23). Verify against the seat file.
@@ -47,12 +47,24 @@ branch state changes happen only in a dedicated worktree
 ([[main-repo immutability]]). Local gates are trusted only on a
 lock-synced tree ([[lock-drift tripwire]]; AGENTS.md clause #13).
 
+Since FLLWUP-47 (2026-09-17) the seat body also carries the
+`<red_base_convention>` block — bracketed by
+`<!-- red-base-shared-start/end -->` markers adjacent to `<owner_mode>` —
+so it is read at the moment the owner writes its evidence. The owner
+writes the seven-field [[red-base evidence]] record (a record missing any
+required field is an incomplete gate result) but never the mechanism-absent
+classification: that bit is the skeptic's derivation ([[skeptic]]).
+
 ## Related
 
 - [[seats]], [[council-loop]], [[hub-job-supervision]]
 - [[skeptic]] — the adversary who attacks the owner's branch
 - [[council-config]] — default model/thinking override
 - [[main-repo immutability]] — the worktree-only rule the seat body carries
+- [[red-base evidence]] — the seven-field record the seat body's shared block
+  obligates the owner to write
+- [[2026-09-17-po-fllwup47-step6-ruling]] — the ruling that settled the
+  convention's shape and this block's placement
 - [[2026-09-06-epic6-close-run-ledger]] — the immutability + lock-drift additions
 
 ## Sources
