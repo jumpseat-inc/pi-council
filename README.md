@@ -263,6 +263,8 @@ manages are throwaway:
 | Path                            | What it is                                                                     | Track?     |
 | ------------------------------- | ------------------------------------------------------------------------------ | ---------- |
 | `.council.json`                 | per-seat model/thinking overrides + theme section (seeded by `/council-init`)             | commit     |
+| `.pi/council/scaffold.json`     | provenance record of what `/council-init` scaffolded (digests + package version; `/council-update` reads it) | commit     |
+| `.pi/council/tooling-drift.state.json` | transient drift-notification state (once-per-condition)                            | optional   |
 | `.pi/settings.json`             | project-local install pin                                                      | commit     |
 | `.pi/agents/`                   | repo-local seat overrides (shadow packaged seats)                              | commit     |
 | `.pi/council/procedures/`       | repo-local procedure overrides                                                 | commit     |
