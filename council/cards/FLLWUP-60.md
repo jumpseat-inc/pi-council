@@ -146,6 +146,62 @@ a candidate for the seat's own guidance at step 13.
 
 Card set `In Review` (sole precondition: open PR, observed).
 
+### Step 9 — Skeptic NO-BLOCK at head c30f7b7 (verify cycle 1 of ≤3)
+
+Skeptic (job-2.2) verified at the pinned subject — head SHA
+`c30f7b7a79c4b89ed13424dd50f7ef9cb7244ad0`, head worktree
+`.worktrees/fllwup-60` — with the loop frame stated (step 9 precedes step
+10 judging and step 11's facilitator-executed mechanical merge). Verdict:
+**`NO-BLOCK`**, seven objections, six `closed-green`, each with a real run
+at the head:
+
+1. **Preflight literal-claim reproduction — non-blocking by design.** The
+   skeptic's own `bash council/preflight.sh FLLWUP-60` exited 1 with exactly
+   one FAIL: `local history does not descend from origin/main (stale before
+   running a card)` — the wiki-documented FLLWUP-27 branch-freshness
+   artifact, by construction here (the runner's own step-8 record push
+   `38edc03` moved `origin/main` mid-card; the branch is based at
+   `8e6fe4b`). Recorded practice: preflight is the run-start/owner-time
+   gate; the operative step-11 re-run set is `tsc` / `bun test` /
+   `validate.py` — all three green at head. Same finding FLLWUP-42's
+   skeptic recorded; not a defect, no gate weakened. Owner's PASS was
+   time-of-run true.
+2. **Goal+R3 prose satisfaction — `closed-green`.** All four required
+   elements present and grounded: (a) direct-to-`main` record push named as
+   a privileged write the authority map does not re-home (grounded against
+   `features-deliver.md`'s exhaustive 3-row map — non-vacuous); (b) a
+   recorded, run-scoped, human-granted authorization (a Phase-1 ruling on
+   the Phase-1 record) required before the run's first record push; (c)
+   non-extension to later runs; (d) unauthorized push = `HALT surfaced to
+   the human` — not a bypass, never silent. Loophole attacks (standing,
+   seat-re-homed, retroactive authorization) attempted and all broken by
+   the text.
+3. **Red-first integrity — `closed-green`.** Base prose transplanted over
+   the head: prose suite 16 pass / 1 fail, only the new pin red, naming
+   `Expected to contain: "pushed directly to \`main\`"` (exactly the
+   owner's red); FLLWUP-41/42 pins green in that same state. Restored
+   byte-identical → 17 pass / 0 fail. Diff is a pure expansion (zero
+   removed assertion lines).
+4. **Gate set at head — `closed-green`.** `bunx tsc --noEmit` exit 0; `bun
+   test` **894 pass / 2 skip / 0 fail** (5649 expects, 94.76s) — exact
+   match to the owner's counts; `validate.py` clean.
+5. **Diff scope — `closed-green`.** 3 files, +120/−1, exactly council.md +
+   prose.test.ts + plan doc.
+6. **Non-goals byte-for-byte — `closed-green`.** `features-deliver.md`
+   diff = 0 lines; five criteria + `--match-head-commit` text identical
+   base↔head; 0 tech-stack tokens in council.md; 0 run-specific tokens
+   (`R3`/`FLLWUP-60`/`284ced2`) in council.md.
+7. **Deviation residue — `closed-green`.** Main checkout clean, no
+   board/card/vault file in the PR diff.
+
+Verify cycles used: 1 of ≤3; no fix cycle needed.
+
+Skeptic usage (verbatim, job-2.2):
+
+```
+job-2.2  turns=25 tokens=in 148275/out 24619/cR 887552/cW 0/reason 18109/total 1060446 cost≈$0.0225
+```
+
 **Non-goals:** no change to the five deterministic criteria, to
 `--match-head-commit` pinning, to FLLWUP-42's merged merge paragraph, or any
 reopening of FLLWUP-42.
