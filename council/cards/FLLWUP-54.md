@@ -100,3 +100,31 @@ No Phase-1 ruling names the Ingest step-2 steer gate; per the authority map the 
 re-homes to `product-owner` via the orchestrator. This container escalates rather than
 self-steers. Card remains `In Progress` pending the ruling; the write phase (Ingest steps 3–8,
 in a worktree branch, then the three-gate set) is scoped and awaits steer.
+
+### Ruling on the step-2 steer gate — `product-owner` (job-18), appended verbatim
+
+**product-owner (job-18) — approve the owner's takeaways packet in full.** The owner may proceed to Ingest steps 3–8 with title `Red-Base Evidence`, filename `vault/wiki/red-base-evidence.md`, the one source summary page `vault/wiki/sources/2026-09-17-po-fllwup47-step6-ruling.md`, and all six cross-link updates.
+
+Per-element rulings:
+- **Element 1 — one concept page (not three) + one source page: APPROVE.** The triple and the two-class boundary are inseparable facets of one convention; splitting them would force a reader to re-derive the comparison rule across pages.
+- **Element 2 — title "Red-Base Evidence", aliases `["red-at-base evidence", "red-base convention"]`, filename `red-base-evidence.md`: APPROVE.** Title Case matches the wiki convention; the hyphenated form matches the `red-base-shared` markers already shipped in both seat files (`owner.md:123,189`; `skeptic.md:87,153`); "Convention" in the title is redundant.
+- **Element 3 — all six updates (owner, skeptic, deterministic-merge-check, gate-parity, main-repo-immutability, product-owner): APPROVE all six.** Each is load-bearing for a different surface; trimming to four would strand one of three grounding chains (R1's gate-parity citation, the immutability worktree-only requirement, the PO step-6 ruling source).
+- **Element 4a — no existing page carries the known-wrong harness-copy cause; source page carries the correction: APPROVE** (exactly Ingest step 5's "flag explicitly — never silently overwrite").
+- **Element 4b — EPIC-9 ledger page's "declined at step-13" sentence; lineage clarification on the new page, no edit to the ledger: APPROVE.** The ledger page faithfully summarizes its raw source; editing it would falsify the record.
+- **Element 4c — nothing superseded: APPROVE as stated.**
+- **Element 5 — verification: ACKNOWLEDGE as factual.**
+
+**Execution packet for the owner (steps 3–8):**
+1. Create `vault/wiki/red-base-evidence.md` (type: `concept`, summary: one sharp sentence on what the convention fixes and how it is compared).
+2. Create `vault/wiki/sources/2026-09-17-po-fllwup47-step6-ruling.md` (type: `source`).
+3. Update `vault/wiki/owner.md`, `vault/wiki/skeptic.md`, `vault/wiki/deterministic-merge-check.md`, `vault/wiki/gate-parity.md`, `vault/wiki/main-repo-immutability.md`, `vault/wiki/product-owner.md` — each with the specific change named in the card packet (no trimming).
+4. Cross-link bidirectionally between the new concept page and the six updated pages, plus `index.md` (add the concept to Concepts; add the source to Sources) and `log.md` (newest-first entry).
+5. Flag explicitly on the source page: the EV-41 causal-story correction (the six extra fails come from head `test/stub-child.test.ts` vs base `test/stub-child.ts`, enabled by an unrecorded `extensions/retry.ts` transplant; `test/ev40-harness/` and `ev41-tui.py` are inert in that configuration — per the Skeptic's transplant table in FLLWUP-47 step 4).
+6. Add a lineage note on the new concept page (not on the EPIC-9 ledger page): "Wiki-ingest was declined at EPIC-9's step-13 gate (2026-09-16), re-offered as a separate follow-up at FLLWUP-47 R6 (2026-09-17), confirmed by `product-owner` job-20, and executed by FLLWUP-54."
+7. Step-8 report: pages created (2), pages updated (6 + index + log = 8), contradictions flagged (1, the EV-41 causal correction).
+
+Card remains `In Progress` until the gate set (`bunx tsc --noEmit`, `bun test`, `python3 council/validate.py`) is green on the worktree branch and merged-SHA CI is re-verified.
+
+**Applied:** the steer is binding and covers the step-2 gate in full — the write phase
+proceeds with the owner executing Ingest steps 3–8 per the execution packet, no element
+re-opened.
