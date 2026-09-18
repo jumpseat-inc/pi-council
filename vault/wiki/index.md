@@ -84,6 +84,7 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[per-attempt-provenance]] — one job id/manifest/row per retried dispatch, with an `attempt` field, carried cumulative usage, and per-attempt session pointers.
 - [[figure-scoped-disclosure]] — a usage qualifier applies to a figure: `partial` iff a figure exists and an attempt is unaccounted; `n/a` alone when the figure is absent.
 - [[test-suite-budget]] — the measured default-`bun test` wall-clock envelope (FLLWUP-48, ≈94s): per-file live-arm table, ceiling-vs-budget distinction, 180s drift threshold (not a budget), re-measure command, standing maintenance rules.
+- [[retired-path-tokens]] — FLLWUP-59's derived token set: test 6's list comes from git HEAD ancestry (never hand-maintained), pinned emission/matching rules, composed shallow+canary loud-fail, three owned narrowings, red-base falsifier at `323abdc`.
 - [[red-base evidence]] — The convention fixing what a falsifier's red-at-base evidence record must contain (seven fields) and how records compare (comparison triple; skeptic-derived two-class mechanism-absent boundary; head half green).
 
 ## Comparisons
