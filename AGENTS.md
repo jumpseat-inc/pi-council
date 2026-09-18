@@ -19,6 +19,8 @@ bun test test/hub.test.ts   # single file
 bunx tsc --noEmit    # typecheck (strict)
 ```
 
+CI-timeout policy (the gates `bun test` backstop): `vault/wiki/test-suite-budget.md`.
+
 The integration test performs a real model dispatch and needs network +
 OpenRouter credentials: `COUNCIL_INTEGRATION=1 bun test test/integration.test.ts`.
 

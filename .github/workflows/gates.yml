@@ -15,4 +15,5 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bunx tsc --noEmit
       - run: bun test
+        timeout-minutes: 60
       - run: python3 council/validate.py
