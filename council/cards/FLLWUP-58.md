@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-58
 title: Runaway timeout-minutes backstop on the gates CI job
-state: Ready
+state: Deliberating
 owner: null
 epic: EPIC-9
 goal: The gates workflow fails bounded on a runaway test step via a loose timeout-minutes, sized so it never pre-empts an arm's own ceiling, with the CI-timeout policy documented.
