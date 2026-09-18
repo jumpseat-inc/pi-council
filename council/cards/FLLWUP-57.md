@@ -125,6 +125,76 @@ job-5.1  turns=50 tokens=in 99724/out 24773/cR 2266496/cW 0/reason 16402/total 2
 
 Card set `In Review` (sole precondition: open PR, observed).
 
+### Step 9 — Skeptic NO-BLOCK at head 5b5e9c9 (verify cycle 1 of ≤3)
+
+Skeptic (job-5.2) verified at the pinned subject — head SHA
+`5b5e9c9e60e618f8965ad000220eb1424d5f8d4a`, head worktree
+`.worktrees/fllwup-57` — with the loop frame stated (step 9 precedes step 10
+judging and step 11's facilitator-executed mechanical merge). Verdict:
+**`NO-BLOCK`**, eight objections, all `closed-green`, each with a real run
+at the head:
+
+1. **Masking-luck finding confirmed, not confabulated.** Base
+   (`77bab89`) `afterEach` was a bare `delete process.env.COUNCIL_EVAL_MODEL`
+   — the mask is real: base natural full-suite under a catalogue-valid V1
+   ambient is green (894/0), while shield-bypassed probes go red (below).
+2. **Probe values genuinely catalogue-valid.**
+   `openrouter/qwen/qwen3.8-flash` present in pi's catalogue
+   (`openai-completions/qwen/qwen3.8-flash/id` in the openrouter provider
+   data); both V1 and V2 (`…:high`) resolve through `resolveEffectiveModel`
+   — not the loud-refusal path.
+3. **Red-at-base records (FLLWUP-47 convention, both rows complete):**
+   base `/tmp/fllwup57-base` detached worktree, bare copy, probe commands
+   identical base↔head. Row 1 (V1, `-t "omitted override falls back"`):
+   `expect(received).toBeFalsy()` → Received `true` at
+   `override.test.ts:253`, 1 fail at base; head 1 pass / 0 fail. Row 2 (V2,
+   `-t "D2: grader dispatch"`): Expected `"openrouter/grader/m1"` Received
+   `"openrouter/grader/m1:high"` at `override.test.ts:354` (the ambient's
+   `:thinking` suffix composed into the effective model), 1 fail at base;
+   head pass. Mechanism-absent reds; copy-set has zero dependent reds.
+4. **Fix semantics exact.** Capture-at-module-load + `beforeEach` clear +
+   `afterEach` restore confirmed; deterministic restore proven with a
+   `zz_`-sorted probe file (bun runs files sequentially in one process, so
+   it sorts after `override.test.ts` and observes the restored shell value);
+   throw path covered (`shutdownHub()` cannot skip the restore;
+   `SAME_FILE_AFTER=shellX3` probe). FLLWUP-40 files byte-identical
+   base↔head (empty diff).
+5. **Three-state determinism.** `bun test` at the committed head: unset /
+   V1 / V2 all **894 pass / 2 skip / 0 fail / 5649 expect()**, per-test
+   result lines byte-identical across states (timing-normalized; only `[ms]`
+   and filler whitespace differ). Owner counts exactly reproduced — the
+   owner's `git restore` deviation is closed by these being committed-tree
+   runs (worktree clean throughout).
+6. **Structural audit — no uncontrolled ambient reader anywhere.** Engine
+   reads the ambient in exactly two places (`dispatch.ts:55`,
+   `hub-tools.ts:174` — the mechanism itself). Test readers confined to
+   `override.test.ts` (now shielded file-wide), `eval-runner.test.ts`
+   (self-pins + `finally`), `job-retry.test.ts` (`withAmbientEvalModelCleared`
+   wrapper); other mentions are string/argv assertions, no execute path.
+   This is the seal for "for every catalogue-valid value".
+7. **Diff scope; no assertion touched.** Exactly `test/override.test.ts`
+   (+21/−2: import line + bare-delete rewrite) + plan doc (+65, new file);
+   `expect(` count 72 base == 72 head; no engine file.
+8. **Gate integrity at head, each proven fallible.** tsc (TS2322 named
+   injection → red → removed); bun test (`expect(1).toBe(2)` named probe →
+   red → removed); validate.py (tampered `/tmp` COPY → `FAIL: FLLWUP-57:
+   missing required key 'state'`, exit 1; real `council/` untouched). Final
+   clean-tree re-run restored 894/2/0/5649.
+
+Non-blocking artifact recorded: preflight branch-freshness FAIL
+(`local history does not descend from origin/main`) — the documented
+FLLWUP-27 artifact, no gate weakened. Cleanup confirmed: base worktree and
+all probes removed, head worktree clean at the pinned SHA, main checkout
+untouched, `validate.py` clean.
+
+Skeptic usage (verbatim, job-5.2):
+
+```
+job-5.2  turns=57 tokens=in 60244/out 50291/cR 3586048/cW 0/reason 35549/total 3696583 cost≈$0.0527 (catalogue)
+```
+
+Verify cycles used: 1 of ≤3; no fix cycle needed.
+
 ### Step 8a — diverged-`main` union reconcile at the record push
 
 The step-8 record push was rejected — `origin/main` had advanced with two
