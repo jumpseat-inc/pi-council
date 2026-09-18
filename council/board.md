@@ -43,13 +43,13 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-59 — Mechanically derive or police the shape witness's token allowlist
 - FLLWUP-61 — Worktree-seat cwd discipline for edit/write tools
 - EPIC-10 — Fewer follow-up cards by merging near-duplicates, and unattended wiki ingest at every run completion
-- EV-45 — Unattended ingest of a run's own ledger, without the human steer turn
 - EV-46 — Ingest at every single-card /council completion, attended or container-run
 - EV-47 — Ingest the whole run when /features-deliver reaches its run ledger
 
 ## Ready
 
 - EV-44 — Merge near-duplicate follow-up candidates before a card is drafted
+- EV-45 — Unattended ingest of a run's own ledger, without the human steer turn
 
 ## In Progress
 
