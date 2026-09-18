@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-56
 title: Saturate the seat-dispatch provider-error arm onto a config-injected faux provider
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-9
 goal: A falsifier exists for the seat child's own provider-error path — the parent-turn offline faux-provider harness reaching a real seat child — and its live-arm budget is accounted for in the suite-cost measurement.
@@ -767,4 +767,78 @@ evidence obligations. **The card proceeds to step 7.**
 23.3), `principal` (23.2, 23.4), `skeptic` (23.5), `consolidator` (23.6); two
 exchange rounds (under the ≤3 cap). All 6 jobs settled `done` on first
 attempt; no stall, timeout, or re-dispatch.
+
+
+### Step 8 — owner plans, then implements (facilitator, observed artifacts)
+
+The owner needed four bounded dispatches (two cut by this facilitator's
+window misconfiguration — see the deviation note below):
+
+- **`job-23.7`** — 15.2m / 29 turns, `timeout` (`stopReason=toolUse`), cut by
+  the **default 15-minute window**: this facilitator dispatched the
+  implementation without the procedure-mandated `timeout_minutes: 45`.
+  Deliverable not landed; commit 1 (plan doc, `eb58e00`) landed in the
+  worktree, `extension.ts` modified uncommitted. Cancelled per the bounded
+  rule.
+- **`job-23.8`** — re-dispatch, 15.3m / 36 turns, `timeout` — **same window
+  misconfiguration** (still the default ceiling). Deliverable not landed;
+  `extension.ts`/`harness.ts` modified, `test/ev41-seat-child-live.test.ts`
+  drafted uncommitted. **Facilitator deviation recorded honestly:** this job
+  was cancelled late and **`job-23.9`'s timeout was never cancelled** — one
+  or both lingering processes kept writing to the branch, which is why the
+  final owner found "mid-session commits" it attributed (wrongly, see below)
+  to "the human."
+- **`job-23.9`** — dispatched with the correct 45m ceiling, settled `done`
+  **prematurely** (4.8m / 16 turns): its report ended mid-investigation of
+  the jiti alias mis-resolution (`pi-ai/dist/compat.js/utils/uuid` from a
+  nested `require()` inside the jiti-transformed shim), no PR, no gates.
+  Treated as an unsettled implementation dispatch; one re-dispatch.
+- **`job-23.10`** — 19.6m / 51 turns, settled `done` with the deliverable
+  landed. It identified the root cause (nested `require()` re-resolves
+  through jiti's sync pipeline where the file-valued alias prefix-matches a
+  subpath; `await import()` bypasses it) and shipped the **primary
+  dynamic-`await import()` shim** — fallback B (byte-copy) NOT needed, no
+  escalations. It also recorded a **mechanism finding**: pi's project-
+  extension discovery is **not `-a`-gated** — the print-mode parent
+  auto-loads the shim too, so the shim gates on the child discriminator
+  (`--session-id` in argv) and is a no-op in the parent.
+
+**Provenance correction (facilitator, observed artifacts):** the owner's
+report attributes commits `ad96c4f`/`36e0ad9` to "the human." Observed
+first-hand: all four branch commits carry the same author identity as every
+other seat commit in this repo (`Batista Harahap <batista@bango29.com>`), and
+their timestamps (18:40–18:47Z) fall inside the owner jobs' own dispatch
+windows. The mid-session commits are the **owner seat's own work** — written
+by lingering processes of the un-cancelled timed-out jobs above — not a
+human's. No human was present. No content of unknown provenance exists on
+the branch; the diff (`eb58e00..a2f14ba`) is exactly the spec's deliverable
+set: `test/ev41-seat-child-live.test.ts` (new, 349 lines), `extension.ts`/
+`harness.ts` additive plumbing, budget docs (`AGENTS.md`, `README.md`,
+`vault/wiki/test-suite-budget.md`), plan doc. Every forbidden file untouched.
+
+**Observed artifacts (facilitator-read first-hand):** `gh pr view 75` →
+`state: OPEN`, `headRefName: fllwup-56`, `headRefOid
+a2f14ba62e61edab7d663dfed062a61207ffe5b5`, `baseRefName: main`; branch
+pushed (`origin/fllwup-56` = `a2f14ba`); no lingering seat processes
+(ps-verified). **The PR is open — per council.md step 8 the card transitions
+to `In Review` on that observable fact alone.**
+
+**Owner's claim set (recorded as its report, subject to step-9
+verification):** gates in order on `a2f14ba` — preflight `PASS: preflight
+clean`; `bunx tsc --noEmit` exit 0; `bun test` → `933 pass / 2 skip / 0 fail`
+(101.32s); `validate.py` → `All council artifacts valid`. Perturbation red
+recorded: shim write omitted → fails in 2.1s naming the model (`Model
+"ev40/ev40-model" not found`) surfaced via the wait toolResult as
+`state=failed` — never a timeout, exactly as spec §5 requires. Budget
+re-measurement (provenance: Linux 6.12.24-Unraid container, 2026-09-18
+18:42Z, `ad96c4f`/`36e0ad9`, `bun install` first, `time bun test` + per-arm
+loop): full suite **101.3s** (935 tests / 81 files), new file **6.0s** (arms
+3.37s + 2.14s), Live-arm share 15→**17** (78.3s ≈ 77%), under the 180s drift
+threshold; wiki ceiling-site count corrected 11→13.
+
+**Throughput/usage (step 8):** 4 owner dispatches (23.7, 23.8, 23.9, 23.10) —
+two settled `done` (one prematurely), two `timeout` (both window
+misconfigurations, facilitator-owned). The bounded rule was applied: no seat
+was dispatched more than once past a genuine failed settlement without
+progress; `23.10` settled with the deliverable verified on the branch.
 
