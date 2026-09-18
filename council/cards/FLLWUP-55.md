@@ -240,3 +240,35 @@ Driver docstring `:13-16` replace:
 **Tradeoffs accepted:** one extra `class Screen` definition in the smoke forever (the cost of self-containment; shape test pins it as a known residual); smoke `Session` divergence from the kit's is the same drift shape that motivated FLLWUP-49, but contained in one file with one greppable claim, and the smoke lives under `smoke/` where the shape test does not reach.
 
 **Blind spots:** cannot run the smoke; the coupling argument was originally about the TS runner, not the py kit — the layering argument is *philosophical*, not *mechanical*; has not read EV-41/42/43 card bodies end-to-end; the shape test's 2-file expectation is a current contract either branch must track in lockstep.
+
+### Step 3 — bounded exchange (round 2)
+
+Re-dispatched each generator with the others' round-1 positions. Jobs:
+`designer` `job-20.6` (15.5m, 2 turns, `done`); `owner` `job-20.4` (timed out
+at 15.5m, 9 turns, `stopReason=toolUse`, no position delivered — cancelled per
+the dispatch discipline and re-dispatched once); `principal` `job-20.5`
+(15.5m, 13 turns, `stopReason=error` — provider error mid-turn, no substantive
+position delivered — re-dispatched once). The re-dispatches receive
+`designer`'s round-2 position below.
+
+#### Round 2 — `designer` (job-20.6)
+
+**Design position — concede to SHARE, conditioned on a witness test.** I withdraw the no-share recommendation. Round-1 evidence settles the mechanical questions: the kit carries no pi coupling (`harness.ts:26` is the resolver; `pty_kit.py:13-22` is stdlib-only), the Docker path sees `test/` (`smoke/run.sh:30` bind-mounts `$REPO_ROOT:/pkg`), the boundary I appealed to is documented nowhere authoritative, and the O2 drift class the steward named as residual is exactly what the second copy produced. My layering argument — "smoke → test/ is the wrong direction" — is a preference about who maintains what, not a principle that holds against a demonstrated maintenance cost. The right way to settle my execution-gulf concern is not to refuse the share but to install a **forcing function** that holds the kit stdlib-only in the gate.
+
+**Gulf closed — execution gulf, for the contributor who later edits the kit.** Under no-share, a non-stdlib import added to `pty_kit.py` is silently fine for the smoke because the smoke doesn't import the kit. Under share-without-witness, the same import silently lands in the release gate's import surface. Under share-with-witness, that import breaks `test/faux-provider-shape.test.ts` (or a sibling) before the smoke ever runs. The witness moves "remember the smoke" from contributor discipline (knowledge in the head) to a gate-enforced property (knowledge in the world).
+
+**Principle and evidence.** The instrument is the **forcing function**, not the README claim. Owner's drafted README wording asserts a greppable claim — that is a *signifier pointed at a grep the reader can run*, not a guarantee the gate enforces. The guarantee needs a test. Where it must live: extend `test/faux-provider-shape.test.ts` with an assertion that `test/faux-provider/pty_kit.py` contains zero non-stdlib `import`/`from` lines. The assertion must be **red-at-base with per-failure text naming the offending import** and **green at head** — the same red-base record discipline owner proposed for the smoke-shape assertion, applied to the kit-side of the share.
+
+**Comprehension contracts under owner's drafted wording:** my round-1 "one-grep loss" claim is too literal. The reader's grep property is preserved, just pointed at a different literal. What the reader genuinely loses is the signifier "authored in the driver" as a unit-of-self-containment cue. What they gain is a richer prose contract naming what stays driver-authored (byte table, frame assertions, session policy: 28×80, `mark()`, SIGTERM, `OPENROUTER_API_KEY` pass-through) and what becomes shared (the screen parser). Net: more informative for a reader who already knows the kit; higher first-pass friction for a first-time reader.
+
+**Wording — drafted-share vs. my round-1 share wording.** Their drafted wording (owner) serves the reader better than mine. Mine carries a defensive hedge which ages as documentation debt; theirs is a positive claim. The session-policy enumeration is the strongest single piece of the wording. **The wording is open judgment.** No test can settle prose; what a test can settle is the underlying claim the prose asserts. The drafted strings escalate to a copy ruling either way — flagged, not relitigated here.
+
+**Falsifiable predictions.** (1) At base the extended witness test reds naming the driver's own `class Screen`/`class Session`; at head, `0 fail`. (2) After the share, the witness reports `^class Screen` count = 1 and `^class Session` count = 1 (kit only); before, both are 2. (3) Inside the Docker mount, the import probe prints the class. (4) The owed `bash smoke/search-smoke/run.sh` re-run returns `SMOKE PASS` after the share — the live-path falsifier for the four Session-policy axes. (5) A later PR that adds `import requests` to `pty_kit.py` fails the witness test in CI with a message naming the offending line — the layering argument translated from contributor-discipline into a CI signal.
+
+**Tradeoffs accepted.** Conceding no-share gives up the philosophical self-containment of the smoke in exchange for closing the O2 drift class for both `Screen` and `Session`. The env-semantics delta (ambient-minus-council-vars → explicit `{PATH, HOME, TERM, env_extra}`) is strictly stronger isolation and is validated by the live smoke re-run.
+
+**Concessions from round 1.** (a) The layering argument was philosophical, not mechanical. (b) The one-grep property is reframed, not lost. (c) Their drafted wording is the cleaner copy. (d) The right forcing function is a CI test, not a README hedge.
+
+**Defenses from round 1.** (a) The execution-gulf concern was correct in mechanism; closed by the witness test, not by refusing the share. (b) The card's framing of `pty_kit.py` as resolving dev-installed pi was misattributed. (c) The boundary is undocumented; FLLWUP-49's residual language leaves the question open.
+
+**Preferences, ranked last.** A small retained preference for the *middle* position (share `Screen`, keep `Session`), dominated by the simplicity argument and by the kit's `env_extra` policy being *strictly stronger* isolation. If the live smoke re-run reveals that the env isolation breaks something, the position reverts to the middle. That is a falsifiable commitment, not a hedge.
