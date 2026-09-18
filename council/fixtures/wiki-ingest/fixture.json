@@ -2,7 +2,7 @@
 	"schemaVersion": 1,
 	"taskId": "wiki-ingest",
 	"name": "Ingest a pinned raw source into the LLM wiki",
-	"fixtureVersion": "1.1.0",
+	"fixtureVersion": "1.2.0",
 	"kind": "procedure",
 	"target": {
 		"type": "procedure",
@@ -13,7 +13,7 @@
 	},
 	"seed": {
 		"dir": "seed",
-		"treeDigest": "sha256:a44cc55a4bcd98e2cae8c8ebbfcc3f79d194b60be8a3ee1e5ee87759c019b1ef"
+		"treeDigest": "sha256:09a2b74bbeb7b4c8ff4a6a0c2657b03d74ae266cd62df6696453c175c9bae9ab"
 	},
 	"env": {
 		"TZ": "UTC"

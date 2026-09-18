@@ -8,7 +8,9 @@
  * 8 seeds; T4 pins the key-separator negative; T5 pins digest + version
  * discipline; T6 is the engine-testable prefix of the judge-reads leg;
  * T7 pins the documented wrap residual (a line break ends the value —
- * product-owner R1: no wrap-FAIL ships in this change); T8 is the
+ * product-owner R1: no wrap-FAIL ships in this change) — **flipped by
+ * FLLWUP-51**: the loader now refuses the wrap (parse raises, validate
+ * exits 1); T8 is the
  * engine-testable prefix of the R4 single-cell smoke (the live judge
  * dispatch on board-create-card is the council-runner's verification step,
  * not a bun:test call — ESC-1 residual).
@@ -162,11 +164,11 @@ test("T4: `goal:no-space-after-key` still FAILs `missing required key 'goal'`", 
 
 // ---- T5 (digest + version discipline) ----
 
-test("T5: the 8 seeded fixtures pin the updated seed digest and carry fixtureVersion 1.1.0", () => {
+test("T5: the 8 seeded fixtures pin the updated seed digest and carry fixtureVersion 1.2.0", () => {
 	for (const task of TASKS) {
 		const dir = path.join(PKG_ROOT, "council", "fixtures", task);
 		const fixture = JSON.parse(fs.readFileSync(path.join(dir, "fixture.json"), "utf-8"));
-		expect(fixture.fixtureVersion, `${task} fixtureVersion`).toBe("1.1.0");
+		expect(fixture.fixtureVersion, `${task} fixtureVersion`).toBe("1.2.0");
 		expect(fixture.seed.treeDigest, `${task} treeDigest`).toBe(sha256Tree(path.join(dir, "seed")));
 	}
 });
@@ -191,14 +193,16 @@ test("T6: a treatment card's parsed goal carries PROVIDER_FINISH_REASON_ERROR; a
 	expect(control.includes(LITERAL)).toBe(false);
 });
 
-// ---- T7 (wrap residual pin, documentation test per product-owner R1) ----
+// ---- T7 (flipped by FLLWUP-51: the wrap is now refused — the loud gate) ----
 
-test("T7: a wrapped goal parses to its first line and validates clean — documented hazard, pinned", () => {
-	expect(parseGoal("---\ngoal: first part\n second part\n---\n")).toBe("first part");
+test("T7: a wrapped goal is refused — parse raises, validate exits 1 (FLLWUP-51)", () => {
+	// parse refuses: the loader raises, it never returns the truncated first line
+	expect(() => parseGoal("---\ngoal: first part\n second part\n---\n")).toThrow();
 	const root = councilTree("goal: first part", " second part");
-	// R1: the wrap is a documented residual — no wrap-FAIL ships in this change.
-	const { status } = runValidate(root);
-	expect(status).toBe(0);
+	// validate refuses with a named structural FAIL (R1 in test/fllwup51-gate.test.ts)
+	const { status, stdout } = runValidate(root);
+	expect(status).toBe(1);
+	expect(stdout).toContain("FAIL: EV-901:");
 });
 
 // ---- T8 (rubric smoke, engine-testable prefix per product-owner R4) ----
