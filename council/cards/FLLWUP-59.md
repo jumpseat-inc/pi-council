@@ -1234,3 +1234,34 @@ dir set exactly; (2) the gates.yml change is one `fetch-depth: 0` setting
 across two physical YAML lines (`with:` parent key); (3) the witness header
 gained an FLLWUP-59 paragraph (the old header's "pure filesystem reads" claim
 became false). Step-9 skeptic dispatched next at the pinned subject.
+
+### Step 9 — skeptic verification at the branch head (`job-26.10`) — PASS
+
+`skeptic` settled `done` (9.2m, 50 turns) at the pinned subject (PR #76, head
+`6579d68`, fresh detached worktree). **Verdict: PASS — no open objections,
+nothing red, nothing open-untested.** All ten probe families plus the three
+deviations `closed-green`, each with real output: full gate set re-run at
+head (tsc 0; `bun test` 940/2/0 across 81 files at 104.41s; validate.py
+clean; preflight PASS) with all four gates failure-injection-proven and
+restored; independent checker at head `[]` (15 retired paths, 35 fragments,
+dir set exactly the spec's example set); headline catch reproduced (`:325`
+reverted → test 6 red naming `test/ev41-tui.py` file+token; restored →
+green); three tripwires red with token and file named; red-base re-run at
+`323abdc` (transplanted head witness → exactly one mechanism-absent red
+naming `test/ev41-tui.py`; head half 19/0; comparison triple reproduces the
+PR record exactly, `1cf907f`-not-in-ancestry independently confirmed);
+shallow loud-fail (depth-1 clone → named shallow error) and canary loud-fail
+(live `git filter-branch` truncation, is-shallow false → named canary error)
+both never-green; re-fixture two-sided; arm counts 3/5/5/2 + 2 identical
+main-vs-head with the five arm files byte-identical; scope exactly the five
+claimed files; gates.yml parses with `fetch-depth: 0` on the checkout step;
+D3 edits limited as claimed; **D1 settled by data** — the owner's
+retired-ancestor-dir-only emission reading is the only one that keeps §8.1
+green (the counterfactual all-ancestor-dirs reading produces 13 real reds at
+HEAD). One wording observation, non-blocking: the wiki caveat (a) says the
+base smoke driver "does not exist" while it actually exists with pre-kit
+content (copy-set-dependent fail, not a missing-file error) — classification
+unaffected. **No blocking Skeptic objection — deterministic merge check
+criterion 3 holds.** Verify-cycle counter: **1 of 3** used, no fix cycle.
+
+### Step 10 — judge verdict (`job-26.11`) — PENDING (dispatched next)
