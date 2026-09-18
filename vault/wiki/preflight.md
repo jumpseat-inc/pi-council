@@ -4,9 +4,9 @@ type: concept
 summary: The shell+script standard fixture that gates every council run — card-aware checks, MCP registration/auth, superpowers + ask-user-question pins, openrouter auth, and the lock-drift tripwire; any FAIL: line halts startup.
 aliases: [preflight gate]
 tags: [pi-council/concept]
-sources: ["[[2026-08-24-ask-user-question]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]"]
+sources: ["[[2026-08-24-ask-user-question]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-16
+updated: 2026-09-17
 ---
 
 # Preflight
@@ -62,6 +62,12 @@ rebase onto `origin/main`, recorded verbatim elsewhere — confirming the
 recording practice is stable: preflight is the run-start/owner-time gate, and
 the step-11 re-run set is `tsc`/`bun test`/`validate.py`.
 
+  ⚠️ It recurred again through the **EPIC-9 residual run (2026-09-17)** on most
+  cards, and `FLLWUP-49` observed a further edge: on a **detached HEAD** (as in
+  a worktree) `git symbolic-ref` finds no branch, so the freshness check is
+  structurally skipped. Both are the same artifact; FLLWUP-27 remains the
+  owning card.
+
 ## Contract
 
 `FAIL:` **halts the run** verbatim; the script prints no install steps (the
@@ -77,6 +83,8 @@ project-specific extensions, but the shipped check is presence-only).
 - [[2026-09-06-epic6-close-run-ledger]] — the tripwire's motivation (three
   consecutive runs of silently lock-drifted local gates)
 - [[2026-09-11-epic7-run-ledger]] — the branch-freshness artifact (FLLWUP-27)
+- [[2026-09-17-epic9-residual-run-ledger]] — the artifact's recurrence + the
+  detached-HEAD skip
 
 ## Sources
 

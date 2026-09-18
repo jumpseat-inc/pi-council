@@ -4,9 +4,9 @@ type: concept
 summary: The pure predicate that decides retry-vs-terminal for a settled seat job — keyed on stopReason/errorMessage and never on state (a provider-errored child exits 0 and settles done), a deliberate superset of pi's own retryable pattern, verified against pi's installed bundle by a snapshot-drift test.
 aliases: [classifyRetry, retry predicate, retryable provider error, retry classification]
 tags: [pi-council/concept, pi-council/epic9]
-sources: ["[[2026-09-16-epic9-run-ledger]]"]
+sources: ["[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]"]
 created: 2026-09-16
-updated: 2026-09-16
+updated: 2026-09-17
 ---
 
 # Retry Classification
@@ -80,10 +80,14 @@ the installed artifact, not against the config that declares it.**
 - [[parent-turn-continuation]], [[per-attempt-provenance]] — the two loops
 - [[hub-job-supervision]] — the `state=done` trap and the report shape
 - [[deterministic-merge-check]] — the gate that passed the dead branch
-- [[engineering-board]] — the goal-field colon rule that caused it
+- [[engineering-board]] — the goal-field colon rule that caused it; **fixed by
+  FLLWUP-43 (2026-09-17)**, which retracted the colon-space rationale as false
+  (`parse_frontmatter` was always lossless) and made the goal a lossless oracle
+- [[2026-09-17-epic9-residual-run-ledger]] — the run that fixed it
 
 ## Sources
 
 - [[2026-09-16-epic9-run-ledger]]
+- [[2026-09-17-epic9-residual-run-ledger]]
 - `extensions/retry.ts`, `extensions/hub.ts`, `test/retry.test.ts`
 - pi `dist/bundle` (`mapStopReason`, `RETRYABLE_PROVIDER_ERROR_PATTERN`)

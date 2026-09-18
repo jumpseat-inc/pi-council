@@ -4,9 +4,9 @@ type: entity
 summary: The per-card autonomous execution container — dispatched by /features-deliver to run the full /council loop for one card in an isolated context; routes, counts, and writes the board but never decides.
 aliases: [council-runner, runner]
 tags: [pi-council/seat]
-sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]"]
+sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-16
+updated: 2026-09-17
 ---
 
 > ⚠️ Derived from `council/agents/council-runner.md` (captured 2026-08-23). Verify against the seat file.
@@ -211,11 +211,37 @@ reserved powers are re-homed per the authority map in `features-deliver.md`.
   divergences still occurred but were repaired from committed state, and no
   container was anti-stall-killed.
 
+## Lessons from the EPIC-9 residual run
+
+- **Ruling seats return text; the runner holds the pen.** [[product-owner]]
+  appended directly to `FLLWUP-45`'s card (its Write is scoped to `vault/raw/`)
+  and introduced two corruptions — a regression of one ruling phrase and a
+  duplicated list number — which the runner then fixed. The single-writer
+  discipline is the runner's; a ruling seat appends through it, not around it.
+- **Two goal amendments, steward pen, orchestrator execution.** `FLLWUP-43`
+  (a referentially opaque conjunct B) and `FLLWUP-49` (an undecidable
+  seat-dispatch clause) were both amended in place while `Deliberating`, by a
+  [[steward]] ruling with the orchestrator writing the single line
+  ([[engineering-board]]). In both, the shipped design was unchanged — what
+  changed was the judge's only input.
+- **A provider-error owner dispatch recovers by the one re-dispatch rule**
+  (`FLLWUP-45`); a judge's pre-existing full-suite flake
+  (`EV-40 computeBackoffDelay` jitter) was verified as a flake by a fresh run,
+  not re-dispatched as a defect.
+- **`FLLWUP-49` collapsed the faux-provider harness** into `test/faux-provider/`
+  and deleted `ev43/`, holding the run's zero-new-live-arms constraint — the
+  shared kit the EPIC-9 retry falsifiers now import.
+- **The step-12 record push is a privileged write** the runner executes under
+  board discipline; where a ruleset blocks direct updates it needs a recorded
+  authorization — see [[record-push-discipline]].
+
 ## Related
 
 - [[seats]], [[council-loop]]
 - [[engineering-board]], [[hub-job-supervision]], [[preflight]]
 - [[council-config]] — default model/thinking override
+- [[record-push-discipline]] — the step-12 privileged write this seat executes
+- [[run-config-stability]] — mid-run `.council.json` drift
 - [[council models picker]] — the EPIC-5 epic this seat delivered
 - [[union-merge reconcile]] — the diverged-main repair pattern this seat hit twice in EPIC-6
 - [[main-repo immutability]], [[verification-subject pinning]] — the hardening chain this seat now carries

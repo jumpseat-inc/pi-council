@@ -4,9 +4,9 @@ type: concept
 summary: When a squash-merged PR folds a runner's board commits, a local main carrying later record commits diverges — reconcile by union merge keeping both record sides, then verify (validate.py + a conflict-marker sweep); or avoid it by pushing records as they happen.
 aliases: [union merge, diverged main, union-merge reconcile]
 tags: [pi-council/process]
-sources: ["[[2026-09-05-epic6-run-ledger]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]"]
+sources: ["[[2026-09-05-epic6-run-ledger]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]"]
 created: 2026-09-05
-updated: 2026-09-16
+updated: 2026-09-17
 ---
 
 # Union-Merge Reconcile
@@ -55,9 +55,15 @@ then let `validate.py` be the net.
   ended `ahead 10, behind 2` and was reconciled in a worktree branched from
   `origin/main`, pushed fast-forward. The main checkout's local `main` also
   needed a reconcile to pick up EV-40's code. Both repairs were resolved by
-  **inference from this page** — `council.md` step 12 says to stop and surface a
-  non-fast-forward — which carded as FLLWUP-41: the procedure text and the
-  documented practice disagree.
+  **inference from this page** — `council.md` step 12 then said to stop and
+  surface a non-fast-forward. That gap was carded as FLLWUP-41 and **delivered
+  (2026-09-17)**: step 12 now names the documented union-merge reconcile here as
+  the sanctioned non-destructive repair, never-force guard retained.
+- **EPIC-9 residual run** (2026-09-17): one union merge (FLLWUP-43, after its
+  squash folded pre-cut record commits); every other reconcile fast-forwarded.
+  The first merge was announced in-line. ⚠️ The step-12 record pushes themselves
+  used an admin-identity bypass under a ruleset that blocks direct updates —
+  outside the run-scoped merge authorization; see [[record-push-discipline]].
 
 ## Failure mode
 

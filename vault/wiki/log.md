@@ -1,5 +1,23 @@
 # Wiki Log
 
+## [2026-09-17] ingest | EPIC-9 residual run — the record-push gap and the lossless-goal fix
+
+Filed `vault/raw/2026-09-17-epic9-residual-run-ledger.md` (the
+`/features-deliver` run that delivered EPIC-9's nine promoted residuals
+FLLWUP-40–45/47–49; PRs #58–#66, one union merge, two steward goal amendments,
+13 ruling-seat round-trips) and ingested it. Created [[record-push-discipline]]
+and [[run-config-stability]] + the source page. Updated [[engineering-board]]
+(⚠️ the colon-space goal rule is **retracted** — FLLWUP-43; the wrap is the
+real silent-loss path), [[deterministic-merge-check]] (⚠️ the stale "Carded as
+FLLWUP-42" bullet is now delivered; + the `gh run list --commit` merged-SHA
+read gotcha; + the record-push disclosure), [[union-merge-reconcile]] (⚠️ the
+stale "carded as FLLWUP-41" bullet is delivered), [[retry-classification]] (the
+dead-literal cause fixed), [[council-runner]] (ruling-seat pen discipline;
+provider-error re-dispatch; the shared faux-provider kit), [[preflight]]
+(FLLWUP-27 recurred + the detached-HEAD skip), and [[index]]. Contradictions
+flagged explicitly (never silently overwritten): the engineering-board
+colon-space rule (false), and the two stale "carded as FLLWUP-4x" bullets.
+
 ## [2026-09-16] lint | Tag record cleanup — v0.18.0 added, un-prefixed strays renamed
 
 Completed the release tag record flagged by the v0.19.0 entry. Created

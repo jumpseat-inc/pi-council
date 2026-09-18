@@ -4,9 +4,9 @@ type: concept
 summary: Under /features-deliver the human merge gate is replaced by five mechanical criteria — owner gates, gates-SUCCESS on the PR head SHA, no blocking skeptic objection, judge PASS, no open ruling — executed with no discretion, merged with --match-head-commit.
 aliases: [merge gate, deterministic merge, five criteria merge]
 tags: [pi-council/features-deliver, pi-council/process]
-sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]"]
+sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]"]
 created: 2026-09-04
-updated: 2026-09-16
+updated: 2026-09-17
 ---
 
 # Deterministic Merge Check
@@ -119,7 +119,12 @@ silently. A mismatch is a **HALT, not a retry**.
   EV-40 on depended on a human-granted `--admin` bypass (authorised
   run-scoped, never extended). The authority map re-homes the human merge gate
   to the five criteria but says nothing about merge-time protection that itself
-  requires a human act. Carded as FLLWUP-42.
+  requires a human act. **Delivered (FLLWUP-42, 2026-09-17):** the procedure now
+  names `gh pr merge <PR> --squash --admin --match-head-commit <X>` as the
+  sanctioned merge step under a recorded, run-scoped authorization, and an
+  unauthorized ruleset block is a `HALT`. ⚠️ The map's completeness gap extends
+  past the merge row: the step-12 **record push** is a second privileged write it
+  does not re-home — see [[record-push-discipline]].
 - The run's **first autonomous merge was deferred for a human watch and then
   waived** — a third variation on the first-merge practice (EPIC-5 and EPIC-8
   announced in-line; EPIC-9 held the merge, then ran unattended on the human's
@@ -131,6 +136,26 @@ silently. A mismatch is a **HALT, not a retry**.
 - Criterion 5 again did the work: four step-6 escalations (three
   [[product-owner]], one [[steward]] chain) all closed before their merges, plus
   one pre-merge defect ruling after the gate was halted.
+
+## Observed practice (EPIC-9 residual run)
+
+- Nine more merges (PRs #58–#66), squash method, every `--match-head-commit` pin
+  held, under an explicit run-scoped `--admin` authorization
+  ([[record-push-discipline]]); every head-SHA `gates` check `SUCCESS`, every
+  merged-SHA run re-verified. One union merge (FLLWUP-43); no push raced a check.
+- ⚠️ **Merged-SHA CI read.** `gh run list --commit <squashSha>` returns **empty**
+  for a squash-merge commit — the run is associated with the head SHA's
+  `pull_request` event, and the `--commit` filter does not match the push run.
+  "No rows" is not "no run." Reliable reads: `gh pr checks <PR> --json
+  name,state,workflow` (head), `gh api
+  repos/:owner/:repo/commits/<sha>/check-runs` (merged), or `gh run list
+  --workflow gates.yml --branch main`.
+- The run's first merge was announced in-line for a human watch; **criterion 5
+  again paced the run** (13 ruling-seat round-trips across nine cards).
+- ⚠️ **Record-push disclosure.** Every step-12 record commit used an
+  admin-identity bypass **not** covered by the run-scoped merge authorization;
+  steward ruled the past an accepted permanent residual and FLLWUP-60 owed
+  before the next autonomous run ([[record-push-discipline]]).
 
 ## Related
 

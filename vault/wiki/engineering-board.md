@@ -4,9 +4,9 @@ type: concept
 summary: The durable, locally-stored kanban state — council/board.md plus one card file per id, validated by validate.py, and the discipline that everything the Council does starts and records there.
 aliases: [board, card, kanban]
 tags: [pi-council/concept]
-sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]"]
+sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-16
+updated: 2026-09-17
 ---
 
 > ⚠️ Derived from `council/procedures/board-create-card.md`, `features-new.md` and `council/scaffold/council/board.md` @ `8913c6b`/`8f1882b` (captured 2026-08-23). Verify against the procedure files.
@@ -27,13 +27,20 @@ set of markdown files under `council/`:
   `In Review`, `Needs Human`, `Done`), `owner`, `epic` (null or parent epic id),
   `goal`.
 - `goal` must be **one falsifiable, testable sentence** stating what done means —
-  the judge later rules PASS/REJECT from it alone. A `: ` (colon-space) anywhere in
-  the value silently truncates the frontmatter (inline parsing, no YAML quoting),
-  so the goal may never contain a colon-space sequence. ⚠️ That is not only a
-  truncation risk but a **correctness** one (EPIC-9): the goal is the judge's
-  only input, so a goal forced to misspell a literal is a goal that lies. EV-37
-  shipped a dead classifier branch exactly this way
-  ([[retry-classification]]); carded as FLLWUP-43.
+  the judge later rules PASS/REJECT from it alone.
+  ⚠️ **RETRACTED (FLLWUP-43, 2026-09-17).** This page previously said a `: `
+  (colon-space) anywhere in the value silently truncates the frontmatter and
+  "the goal may never contain a colon-space sequence." That rationale was
+  **false**: `parse_frontmatter` splits at the first `: ` and is lossless for
+  the rest of the line — the parser was never the bug, the `": " in goal` FAIL
+  *was* the lossiness — and the FAIL was deleted from all ten `validate.py`
+  copies. A goal may now name an exact literal containing `: ` directly. ⚠️ The
+  real remaining silent-loss path is a **wrapped/continued goal line** (`goal:
+  first` + a second line parses to `first`, `validate.py` exits 0); carded as
+  FLLWUP-51. The correctness lesson stands and is why the fix mattered: the goal
+  is the judge's only input, so a goal forced to misspell a literal is a goal
+  that lies — EV-37 shipped a dead classifier branch exactly this way
+  ([[retry-classification]]).
 
 ## Lifecycle / discipline
 
@@ -93,6 +100,10 @@ set of markdown files under `council/`:
   residuals under the Done epic, none promoted at closure. Two permanent
   residuals recorded without cards (out-of-order `toolResult`; `t`-toggle
   cursor stability).
+- [[2026-09-17-epic9-residual-run-ledger]] — the EPIC-9 **residual run**: nine
+  promoted residuals delivered (PRs #58–#66); the goal field made lossless
+  (FLLWUP-43 — the colon rule above retracted), two goal amendments by steward
+  pen, and the step-12 record-push gap.
 - [[2026-09-16-epic9-run-ledger]] — the board's **fourth epic-card closure**
   (EPIC-9, seven children); FLLWUP-40..45 + 47..49 filed as `Backlog`
   residuals, two drafts declined at the gate, two permanent residuals without
@@ -105,3 +116,4 @@ set of markdown files under `council/`:
 - `council/procedures/board-create-card.md`, `council/procedures/features-new.md`
 - `council/scaffold/council/board.md`, `council/scaffold/council/cards/_template.md`
 - [[2026-09-06-epic6-close-run-ledger]]
+- [[2026-09-17-epic9-residual-run-ledger]]
