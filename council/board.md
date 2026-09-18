@@ -46,12 +46,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Ready
 
-- FLLWUP-60 — Non-admin record-push path for autonomous runs
-
-## Ready
-
-
 ## In Progress
+
+- FLLWUP-60 — Non-admin record-push path for autonomous runs
 
 ## In Review
 
