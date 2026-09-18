@@ -96,3 +96,147 @@ Approved by `product-owner` (job-29) as-is from FLLWUP-49's step-13 draft.
   [[record-push-discipline]]). No card-specific Phase-1 ruling exists beyond
   R2/R3; the orchestrator's card face itself is not a ruling seat's product,
   and its "decide whether" framing is the deliberation's to resolve.
+
+### Step 2 — independent first pass (round 1)
+
+Three generators dispatched in parallel on the card alone (surface-touching
+full council → `designer` seated alongside `owner` + `principal`). Jobs:
+`owner` `job-20.1` (7.7m, 9 turns), `principal` `job-20.2` (7.7m, 11 turns),
+`designer` `job-20.3` (7.7m, 8 turns), all settled `done`. Positions appended
+verbatim.
+
+#### Position — `owner` (job-20.1)
+
+**Position: SHARE — the card's stated coupling fear is factually wrong about `pty_kit.py`; a full collapse is safe with additive kit params, and the one real cost (env semantics) is validated by a mandatory one-time smoke run**
+
+The card's question, answered with tree evidence:
+
+**CAN the driver import the shared kit without coupling the release gate to the dev-installed pi? YES.** Three verified facts:
+
+1. **`pty_kit.py` carries zero pi coupling** (`test/faux-provider/pty_kit.py:8-19`): it imports only `fcntl, json, os, pty, re, select, struct, termios, time` — pure stdlib. The `import.meta.resolve` of the dev-installed pi lives in `test/faux-provider/harness.ts:30-32`, which `driver.py` would **not** import. The card's phrasing "a `test/` module that resolves the dev-installed pi" conflates the directory with the harness. What the share actually creates is a **path dependency** (`driver.py → test/faux-provider/pty_kit.py`), not a pi coupling.
+2. **The Docker container can see `test/`.** `smoke/run.sh` bind-mounts the whole repo (`-v "$REPO_ROOT:/pkg"`), `smoke/driver.sh:124` runs `bash "$PKG/smoke/search-smoke/run.sh"`, whose `REPO_ROOT` resolves to `/pkg`, and step 5 executes `python3 -B "$REPO_ROOT/smoke/search-smoke/driver.py"` — so `../../test/faux-provider/pty_kit.py` = `/pkg/test/faux-provider/pty_kit.py` exists in-container. Host path is symmetric. Also verified: `pi install -l "$REPO_ROOT"` pins the fixture worktree, but the driver is always executed from `$REPO_ROOT` itself — the import surface has exactly one copy in both paths.
+3. **The two `Screen`s are byte-identical in executable logic.** A mechanical diff (run, not recalled) shows the kit/driver `feed`/`_csi`/`lines` bodies differ only in comments and the kit's extra `text()`; the driver's copy already carries the O2 relative-left `D` fix. The demonstrated cost of keeping a second copy is exactly the O2 drift class — nothing pins the smoke copy against future drift.
+
+**The `Session`s are genuinely different — four deltas, all param-expressible without changing existing consumers** (`tui-retry.py:98` and `ev41-tui.py:86` call `Session(argv, work_dir, home, env_extra, path)` positionally):
+
+| Delta | Kit | Driver | Resolution |
+|---|---|---|---|
+| Geometry | 24×80 hardcoded | 28×80 (assertion-bearing: the clip behavior at 28 rows IS frames 2–8) | `rows=ROWS, cols=COLS` params; TIOCSWINSZ + `Screen(rows, cols)` use them |
+| Byte checkpointing | disk bytelog only | in-memory `buf` + `mark()` (load-bearing for frame artifacts and `extract_ids_from_bytes`) | additive `self.buf` in `_feed` + `mark()`; bytelog unchanged |
+| Teardown | SIGKILL(9) | SIGTERM(15) | `term_sig=9` param |
+| Env | explicit allowlist (FLLWUP-21 lesson) | ambient minus council vars | driver passes `env_extra={"OPENROUTER_API_KEY": …}`; council vars are never inherited under the kit's explicit env — **strictly stronger** than the driver's defensive pop |
+
+Two residual mismatches the plan must handle: (a) `wait_stable` defaults differ (kit 6/0.1/15.0 vs driver 3/0.08/8.0) — driver call sites pass its values explicitly to preserve frame timing; (b) `respond_queries` sources differ (kit: last 8 KB of disk bytelog; driver: full in-memory `buf`) — with `buf` added, kit's `respond_queries` should prefer `self.buf` (a strict superset of the disk tail; kit consumers never `mark()`, so their behavior only widens the scan window, same reply). The driver calls it once at boot before any `mark()`, so behavior is preserved exactly.
+
+What changes, file by file:
+
+1. **`test/faux-provider/pty_kit.py`** — additive only: `rows/cols/term_sig` params (defaults 24/80/9 preserve both existing runners bit-for-bit), `buf`+`mark()`, `respond_queries` prefers in-memory bytes. Covered by the existing bun-test live arms.
+2. **`smoke/search-smoke/driver.py`** — delete `class Screen` (~90 lines) and `class Session` (~120 lines); `sys.path.insert` two dirs up + `from pty_kit import Screen, Session, CSI_RE, OSC_RE`; construct `Session(..., rows=28, cols=80, term_sig=15, env_extra={"OPENROUTER_API_KEY": …})` with a `bytes.log` bytelog under the artifact dir. **Keep**: the byte table, `dechrome`/`model_rows`/matchers/walk/Framelog (driver-specific assertion logic — never kit material).
+3. **`smoke/search-smoke/README.md`** — amend (Environment section) the claim to exactly:
+   > `- driver.py imports python3 stdlib plus exactly one repo module — the shared stdlib-only pty substrate test/faux-provider/pty_kit.py (Screen, Session, the ANSI regexes). Neither module imports any pi/extension module (greppable claim: grep -nE '^(import|from)' smoke/search-smoke/driver.py test/faux-provider/pty_kit.py). The byte table, the frame matchers, and the session policy (28×80 winsize, checkpoint-byte mark(), SIGTERM teardown, OPENROUTER_API_KEY pass-through) are authored in the driver; the screen parser is shared with the faux-provider kit so the O2 drift class cannot recur.`
+4. **`driver.py` module docstring** — same amendment (it repeats "stdlib ONLY … authored here").
+5. **`test/faux-provider-shape.test.ts`** — current test 4 scans `test/` only (the card's "repo-wide" phrasing is imprecise) and **stays green either way**; add a test asserting `smoke/search-smoke/driver.py` contains no `^class Screen`/`^class Session` and imports `pty_kit`, with the scope comment updated to note FLLWUP-55 extends the charter to `smoke/`. This is the red-at-base falsifier: at `0b85fd7` (the pre-mechanism base, i.e. current HEAD) it reds with per-failure text naming the driver's own `class Screen`/`class Session` — mechanism-absent, copy-set clean (transplant = the amended witness file alone); at head, `0 fail`.
+
+Gate set: `bash council/preflight.sh FLLWUP-55`, `bunx tsc --noEmit`, `bun test` (≈94s envelope per [[test-suite-budget]]), `python3 council/validate.py` — the standard four. Card-specific probes: (1) red-base record for the witness extension via `bun test test/faux-provider-shape.test.ts` (cheap, both halves); (2) a 5-second container import probe — `docker run --rm -v "$PWD:/pkg" node:24-bookworm python3 -c "import sys; sys.path.insert(0,'/pkg/test/faux-provider'); import pty_kit; print(pty_kit.Screen)"` — proves the mount contract without the full harness; (3) **one host smoke run** `bash smoke/search-smoke/run.sh` (~5–10 min, network: npm install of pinned 0.84.3). Per [[smoke-test]], the smoke is the live-path falsifier, **not a CI gate** — it is a mandatory once-per-card probe here because the env-semantics delta has no other falsifier. Docker `SMOKE_PHASE=6` is optional belt-and-suspenders given probe (2).
+
+Tradeoffs accepted: the env-semantics delta (ambient → explicit allowlist) is the one change only the smoke run can validate — a mandatory 5–10 min network-touching probe for this card rather than a permanent fourth copy of a parser that already drifted once (O2). Kit API growth (three params + `mark`) for one new consumer — accepted because all additions are default-preserving and defensible session primitives; the alternative (Screen-only share) leaves a permanent `Session` residual the steward explicitly declined to accept permanently. The witness charter change (test/-only → includes smoke/) is an explicit amendment FLLWUP-49's record must see named.
+
+Blind spots: the smoke and Docker probe were not executed in this read-only pass — the mount contract is read from `smoke/run.sh`, not exercised. The `respond_queries` bytes-source switch is subtle; it should land with a test. Kit-default `wait_stable` timing is asserted-equivalent, not measured.
+
+**Testable claims**: (1) `pty_kit.py` imports only stdlib — `grep -nE '^(import|from)' test/faux-provider/pty_kit.py` names no non-stdlib module; (2) `/pkg/test/faux-provider/pty_kit.py` imports inside the Docker mount contract — probe (2); (3) at base the extended witness reds naming the driver's own classes, at head `0 fail` — `bun test test/faux-provider-shape.test.ts` at both SHAs; (4) both kit consumers unchanged in behavior — the existing bun-test live arms stay green; (5) the nine frames stay green after the collapse — probe (3).
+
+Wiki used: [[smoke-test]], [[test-suite-budget]], [[red-base-evidence]].
+
+#### Position — `principal` (job-20.2)
+
+## Cross-seam reading — what the contract actually is at HEAD
+
+**Two pty models, and they are not the same kind of object.** `test/faux-provider/pty_kit.py` defines `class Screen:33` and `class Session:119`; `smoke/search-smoke/driver.py` defines `class Screen:66` and `class Session:265`.
+
+- **The `Screen` halves are already semantically identical.** Both `D` clauses are relative-left (`pty_kit.py:92-94`; `driver.py:143-145`), both `K`/`J`/`G`/CUP/UTF-8/OSC handling match, both expose `lines()`. The only deltas are the default `ROWS` (24 vs 28 — both constructors take `rows, cols`, `pty_kit.py:36`) and the kit's extra `text()`. Sharing `Screen` is a zero-behavior-change refactor.
+- **The `Session` halves differ on four policy axes**, not incidentally: env construction (driver `dict(os.environ)` minus council vars + key, `driver.py:272-277`; kit explicit `{PATH,HOME,TERM}` + `env_extra`, `pty_kit.py:132-135`), kill signal (driver SIGTERM 15, `driver.py:348`; kit SIGKILL 9, `pty_kit.py:190`), `wait_stable` defaults (driver `3/0.08/8.0`, `driver.py:313`; kit `6/0.1/15.0`, `pty_kit.py:171`), and byte retention (driver in-memory `buf`/`mark()`; kit bytelog file + `poll`). `driver.py:271`'s `self.outdir` is vestigial.
+
+**The card's coupling premise is misattributed.** The dev-installed-pi resolver is `test/faux-provider/harness.ts:26` (`import.meta.resolve("@earendil-works/pi-coding-agent")`), a TS file. `pty_kit.py:17-25` imports only `fcntl/json/os/pty/re/select/struct/termios/time`. Importing `pty_kit.py` resolves no pi. The card describes `harness.ts`.
+
+**The shape test is `test/`-scoped, not repo-wide.** `test/faux-provider-shape.test.ts:33` sets `TEST_DIR = join(REPO_ROOT,"test")`; test 4 (`:70-71`) counts `^class Screen`/`^class Session` under that root only, and its own header (`:9-11`) names `smoke/search-smoke/driver.py` the out-of-universe residual. Removing the driver's definitions does **not** move it — the card's parenthetical is inverted.
+
+**Docker visibility is not a blocker (read-derived, not run).** `smoke/run.sh:30` bind-mounts `-v "$REPO_ROOT:/pkg"`; `smoke/driver.sh` phase 6 runs `bash "$PKG/smoke/search-smoke/run.sh"`; that script computes `REPO_ROOT` from its own path and invokes `python3 -B "$REPO_ROOT/smoke/search-smoke/driver.py"`; `smoke/Dockerfile` installs `python3`. `/pkg/test/faux-provider/pty_kit.py` is visible and importable on both the host and container paths.
+
+**The boundary is not stated anywhere authoritative.** README pins "python3 stdlib only … no pi/extension module" (`smoke/search-smoke/README.md:114-116`) — nothing about `test/`. `vault/wiki/smoke-test.md` calls search-smoke a sibling; `smoke/driver.sh` phase-6's "imports nothing from this container's pi" is about pi. The "smoke/ → test/ layering inversion" exists only as a seat tradeoff (FLLWUP-49 principal round-1) and the steward's explicit "a scoping decision matching O4, not a permanent portfolio acceptance" — which leaves it open, not prohibited.
+
+**Reframe.** The card's unit of decision is wrong: "the shared pty screen model" is two artifacts with different coupling profiles. `Screen` is pure and pi-version-independent, and already converged — the tree **forces** sharing it; there is no cost to weigh. `Session` owns fork/env/teardown/quiescence policy. Sharing it **changes the release gate's behavior** (env inheritance → explicit isolation, SIGTERM → SIGKILL, tighter → looser quiescence). That is a values call, not a forced move. The card's stated reason to hesitate (dev-pi coupling) is **void**; the Docker path is a non-blocker; and the boundary it appeals to is undocumented.
+
+**Recommendation: share both.** `Screen` is free. `Session`'s four deltas are the FLLWUP-21-hardened explicit-env isolation — exactly what a release gate wants — and they are settled by the live smoke re-run this card already owes (`bash smoke/search-smoke/run.sh` on host and `SMOKE_PHASE=6 bash smoke/run.sh` in Docker). **Fallback if the goal's primary clause is read strictly and no amendment is available:** share `Screen`, keep the driver's `Session`, record the divergence — but then the goal's "class Session" clause is unmet literally and needs a reading. **If no-share is chosen:** the rationale must be the *correct* one (release-gate dependency direction), not the false dev-pi premise.
+
+Files and claims that change: `driver.py` (delete `class Screen` `:66-~180`; `sys.path`-insert `REPO_ROOT/test/faux-provider`; `Screen()` → `Screen(ROWS, COLS)`; construct `pty_kit.Session([pi_bin], work_dir, home, {"OPENROUTER_API_KEY": …}, bytelog_path)`; driver-local offset-based `mark()`; keep `Framelog`, `content_lines`, `dechrome`, `sanitize_line`, matchers; docstring `:12-14` amended). `README.md:114-116` — exact replacement (share):
+> - `driver.py` imports only python3 stdlib modules plus the repo's shared stdlib pty screen model (`test/faux-provider/pty_kit.py` — `Screen` and `Session`) — no pi/extension module, no third-party package (greppable claim). The byte table, the frame assertions, and the frame/query helpers are authored in the driver; the 28×80 screen model and the pty session machinery are the shared kit's (FLLWUP-55).
+
+Exact replacement (no-share):
+> - `driver.py` imports **python3 stdlib only** (`pty`, `fcntl`, `termios`, `select`, `re`, `struct`) — no pi/extension module (greppable claim). The screen model and the byte table are authored in the driver, deliberately: the release gate runs against a pinned external pi 0.84.3 and does not depend on the `test/` harness tree (FLLWUP-55 rationale).
+
+`test/faux-provider-shape.test.ts`: widen the `^class Screen`/`^class Session` count root from `TEST_DIR` to `REPO_ROOT` (now exactly one, `pty_kit.py`); update the header comment (`:9-11`). Keep provider-extension/headless-runner assertions `test/`-scoped. `smoke/driver.sh` phase-6 comment: optionally note the shared-kit import. No `council/cards/**` or `vault/**` write; the `smoke-test.md` update is a step-14 ingest offer.
+
+Testable claims: (1) premise greps — stdlib only / resolver at `harness.ts:26`; (2) shape-test scope `TEST_DIR` → `test/`; (3) Screen identity — feed `ESC[10;20H ESC[5D ESC[2K` + `é` + `ESC[2J` into both, `lines()` identical; (4) Session divergence — the four axes; (5) Docker visibility (NOT RUN — read-derived): container import probe → `24`; (6) release gate green after: `bash smoke/search-smoke/run.sh` → `SMOKE PASS`; `SMOKE_PHASE=6 bash smoke/run.sh` → `SMOKE PASS — phase 6`; (7) README claim grep; (8) shape test after — exactly one file.
+
+Tradeoffs accepted: adopting the kit's explicit env drops ambient inheritance on the host path (declared, gate-verified); the kit's `wait_stable` defaults slow each checkpoint by ~0.3s; the offset-based `mark()` is new driver code; widening the shape test touches a Done card's witness. Blind spot: no shell — Docker probe and live gate unexecuted.
+
+#### Position — `designer` (job-20.3)
+
+**Design position: NO-SHARE (recommended).** The release-gate smoke keeps its own `class Screen`/`class Session`, and the README's `114-116` claim is amended to *name* the residual it carries, not to deny it. The reason is layering, not coupling-today: the smoke is a release-gate runner that installs a **pinned external pi 0.84.3** into a scratch prefix (`run.sh:54-62`, `smoke/Dockerfile:11`) and runs against *that* binary. A `smoke/ → test/` import inverts that boundary; the kit is stdlib-only at HEAD (`pty_kit.py:13-22`), so the *practical* coupling is zero today, but the *philosophical* coupling is real: the smoke stops being self-contained and starts depending on a module the smoke is supposed to help verify. The FLLWUP-49 record explicitly named this residual "a scoping decision matching O4, not a permanent portfolio acceptance" — open, not prohibited. Under no-share the deliverable is: (1) recorded rationale; (2) an amended README claim that keeps both greppable lines **true** and names the kit and the layering argument.
+
+**Gulf closed — evaluation gulf, for the reader at the keyboard:** a person reading the README and running/replaying the smoke must be able to tell where the screen model lives at a glance; at HEAD the grep "authored in the driver" is a one-grep verification. **Execution gulf, for the contributor who later edits the kit:** under no-share a non-stdlib import added to `pty_kit.py` never silently lands in the smoke; under share it does, and "remember the smoke" becomes contributor discipline — knowledge in the head, not knowledge in the world.
+
+**Principle: signifier and knowledge-in-the-world; layering as conceptual model; greppable claims as forcing functions.** The README claim is a greppable contract; the design's job is to keep the signifier and the code in lockstep. The smoke answers "does this package work in a real pinned pi session?"; the kit helps the unit suite answer "does the engine logic do what it says?". A share falsifies the second greppable claim and weakens the discipline.
+
+**Wording drafts (exact, both branches):**
+
+Branch (b) — No-share (recommended), README `:114-116` replace:
+> - `driver.py` imports **python3 stdlib only** (`pty`, `fcntl`, `termios`,
+>   `select`, `re`, `struct`) — no pi/extension module (greppable claim). The
+>   screen model and the byte table are authored in the driver. A shared pty
+>   screen model lives at `test/faux-provider/pty_kit.py` (one source of
+>   truth across the test suite, FLLWUP-49); this driver does not import it.
+>   `smoke/ → test/` would couple the release gate to a module the smoke is
+>   verifying — the kit is stdlib-only at HEAD, but the boundary is
+>   deliberate, not forced.
+
+Driver docstring `:13-16` replace:
+> python3 stdlib ONLY (pty, fcntl, termios, select, struct, re) — no pi/extension
+> module is imported (testable claim 4). The screen model and the byte table are
+> authored here. A shared kit at `test/faux-provider/pty_kit.py` exists; this
+> driver does not import it (smoke → test is a deliberate layering inversion;
+> the kit is stdlib-only today, the smoke stays self-contained).
+
+Branch (a) — Share (admissible, not recommended), README `:114-116` replace:
+> - `driver.py` imports **python3 stdlib only** (`pty`, `fcntl`, `termios`,
+>   `select`, `re`, `struct`, `sys`, `os.path` — `sys`/`os.path` for the
+>   `test/faux-provider/` path shim) — no pi/extension module is imported
+>   (greppable claim; verified by `grep -E "^import " smoke/search-smoke/driver.py`
+>   returning only stdlib identifiers). The screen model and the session
+>   lifecycle are imported from `test/faux-provider/pty_kit.py` (one source
+>   of truth across the test suite and the release gate); the byte table, the
+>   modal-chrome stripping, and the model-id derivation are authored in the
+>   driver. The kit is stdlib-only at HEAD (`grep -E "^import "
+>   test/faux-provider/pty_kit.py` returns only stdlib identifiers); the
+>   `smoke/ → test/` import is a deliberate layering inversion, held open by
+>   a grep witness on the kit's import list — if the kit gains a non-stdlib
+>   import, the smoke's release-gate independence breaks and the witness
+>   fails.
+
+Driver docstring `:13-16` replace:
+> python3 stdlib ONLY at the smoke boundary — `sys` and `os.path` are stdlib
+> and are used solely to put `test/faux-provider/` on the import path. The
+> screen model and the session lifecycle are imported from
+> `test/faux-provider/pty_kit.py` (one source of truth, FLLWUP-49); the byte
+> table, the modal-chrome stripping, and the model-id derivation are authored
+> here. No pi/extension module is imported (testable claim 4). The kit is
+> stdlib-only at HEAD and a grep witness on its import list keeps it so;
+> `smoke/ → test/` is a deliberate layering inversion.
+
+**Comprehension contracts:** no-share keeps the one-grep property (`grep "authored in the driver"` → true claim; `grep "^class Screen" driver.py` → the definition), unchanged replay and smoke runs, and the why-not-imported answer in the README. Share loses the one-grep literal (the claim the README asks the reader to grep no longer exists), adds a `sys.path` shim, and moves the boundary witness to two greps plus a witness-on-the-kit discipline.
+
+**Falsifiable predictions (per branch):** no-share — (1) greping "authored in the driver" after amendment yields a true claim naming the kit and the boundary; (2) a later non-stdlib kit import does not break the smoke; (3) the Docker path runs green with no shim; (4) the shape test still names driver.py the pinned residual. Share — (1) the old greppable literal lies unless amended (wording must distinguish driver-authored vs kit-imported); (2) Docker green requires the shim; (3) kit non-stdlib import breaks release-gate independence unless a grep witness exists; (4) the shape test's expected count moves 2 → 1 in lockstep.
+
+**Tradeoffs accepted:** one extra `class Screen` definition in the smoke forever (the cost of self-containment; shape test pins it as a known residual); smoke `Session` divergence from the kit's is the same drift shape that motivated FLLWUP-49, but contained in one file with one greppable claim, and the smoke lives under `smoke/` where the shape test does not reach.
+
+**Blind spots:** cannot run the smoke; the coupling argument was originally about the TS runner, not the py kit — the layering argument is *philosophical*, not *mechanical*; has not read EV-41/42/43 card bodies end-to-end; the shape test's 2-file expectation is a current contract either branch must track in lockstep.
