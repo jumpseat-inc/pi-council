@@ -1159,3 +1159,66 @@ CI-backstop section with the tripped-failure discriminator; README/AGENTS
 verbatim; zero new live arms; the install/tsc hang gap recorded as
 accepted-and-known; step-naming recorded as unverified working assumption;
 live annotation capture (C8) optional.
+
+### Step 6 (cont.) — ruling received and applied (facilitator)
+
+The orchestrator returned `product-owner`'s full ruling (job-29), committed at
+`vault/raw/2026-09-20-po-fllwup58-gates-backstop.md`. Appended below VERBATIM
+per `<escalation_contract>` step 3; it is binding. OJ-2 (strict/any-arm
+reading), OJ-1 (placement: the `bun test` step), OJ-3 (value: 60) are all
+settled; the card's `goal` text stands unamended; the install/tsc residual is
+temporary and drafted at step 13, not folded in; C8 is not adopted. Deliberation
+is closed — steps 2–6 complete with the ruling on record. Procedure continues at
+step 7 (spec write) on the full-council path.
+
+#### Step 6 (cont.) — verbatim ruling (product-owner, job-29)
+
+**product-owner (job-29) — ruling.** Adopt the **strict/any-arm reading**
+(floor = the default-suite serial census sum, 16 sites, Σ 2585s ≈ 43.1 min);
+ship **exactly one `timeout-minutes: 60` on the `bun test` step**, no job-level
+line; the card's `goal` text stands unamended.
+
+- **OJ-2 (the reading) — strict/any-arm.** "An arm" means every arm-bearing
+  test in the run, including several tripping serially in one run. The suite is
+  serial (Skeptic O3), so a runner-level wedge is realistically a
+  cumulative-trip schedule, and the value protected is attribution: a tripped
+  ceiling names a test, a truncation names nothing and silently un-runs
+  everything after the cut. The wiki must state the adopted reading in the
+  goal's own words and record that the single-arm reading was considered and
+  rejected. Operative floor = default-suite census; the two gated sites
+  (`360_000`, `60_000`) are excluded and reported separately, with the rule
+  that opting any gated site into the default CI run re-derives the floor.
+  Harness-internal `spawnSync` bounds are not summed.
+- **OJ-1 (placement) — the `bun test` step.** A job-level number means
+  `floor + preamble`, and the preamble's `fetch-depth: 0` checkout is pinned
+  verbatim by FLLWUP-59 R2 and only ever grows — so a tripwire asserting
+  `job ≥ derived_sum` would certify a floor the test step no longer receives.
+  The step-level number means permanently what it says. The goal's own wording
+  agrees ("fails bounded on a runaway **test step**" — fails, not cancels).
+- **OJ-3 (the number) — 60.** Clears the operative floor at 1.42× and the
+  gated-inclusive tree-wide sum (50.1 min) at 1.20×; 45 clears the former by
+  only 115s and sits below the latter.
+- **Consequents settled here:** one `timeout-minutes`, on the `bun test` step,
+  asserted by the tree-derived tripwire (recursive `test/**/*.test.ts`,
+  expression-aware, gated sites separate, placement + line↔doc parity
+  asserted, no hardcoded `300_000`/`43`/`60` in the derivation — precedent
+  `vault/wiki/retired-path-tokens.md`); `install`/`tsc` wedge coverage is a
+  **temporary** residual recorded as accepted-and-known with its cheaper fix
+  named (per-step bounds on those deterministic steps), drafted at step 13,
+  **not** folded into this card; live annotation capture (C8) **not adopted** —
+  step-level placement makes it moot; wiki amendments and README/AGENTS
+  `## Commands` pointer only, as agreed.
+
+Options rejected: single-arm reading (floor ≈ 6.7 min, value 15 — costs the
+attribution property and requires narrowing a goal phrase); job-level
+placement (owner's 60 — depends on an unstable job-scoped annotation;
+install/tsc coverage is a different rationale on a card whose text names the
+test step); 45 at step level (1.04× over its floor); 120 / the `≥88` probe
+(retracted; the derived-sum floor supersedes `arms × max`).
+
+Nothing reaches `steward`: goal text unchanged, card not declined, no recorded
+human decision touched, `install`/`tsc` residual temporary with a named
+follow-up. If you conclude coverage must fold into this card instead, that is a
+goal-scope question — escalate it, do not widen the diff.
+
+*(Full ruling text with grounds and grounding: `vault/raw/2026-09-20-po-fllwup58-gates-backstop.md`.)*
