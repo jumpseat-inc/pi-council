@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-51
 title: Loud gate for a goal wrapped onto a second line
-state: Deliberating
+state: In Progress
 owner: null
 epic: EPIC-9
 goal: A wrapped goal, a non-`key: value` line inside the frontmatter block, an unclosed frontmatter block, and a key following `goal:` in the block are each refused by `parse_frontmatter` and reported as a non-zero `council/validate.py` FAIL naming the defect rather than validating green, where a not-`key: value` line's diagnostic names both a wrapped/continued value and a missing closing `---` because the parser cannot tell them apart; single-line goals containing `: ` and cards carrying extra intentional keys before `goal:` parse clean; and the documented residual — a mid-block colon-bearing continuation of a non-goal key — is recorded in copy and pinned by a test but not gated.
@@ -454,3 +454,18 @@ card-domain gate-parity mapping is recorded in the design spec as the working
 interpretation all three seats used, per the consolidator's own note that the
 design does not depend on a ruling). The unclosed-frontmatter/body-fence case
 is closed by PO item 4. Continuing to step 7.
+
+### Step 7 — settled design written and handed to one owner
+
+Spec committed at
+`docs/superpowers/specs/2026-09-18-FLLWUP-51-design.md` (commit `dadf448`).
+Self-review: no placeholder text or TODOs; internally consistent with the
+deliberation record and the PO/steward rulings (residual justification
+carries PO item 1's narrowed wording verbatim; PO item 4's pinned residual
+in §4.2 and R8; PO item 3's five copy deltas in §2 and R11/R12); scoped to
+the amended `goal` (parity mechanics and copy corrections carried as
+governed-by-T3/T5/record, not as oracle claims); unambiguous — an owner
+reading only this file reaches one design (raise in `parse_frontmatter`,
+positional raw-line rule, three structural predicates, exact surfaces and
+test set). Card set `In Progress` on the card and `council/board.md` per
+step 7's both-paths closing; owner handed the spec.

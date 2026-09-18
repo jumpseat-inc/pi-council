@@ -52,9 +52,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- FLLWUP-51 — Loud gate for a goal wrapped onto a second line
-
 ## In Progress
+
+- FLLWUP-51 — Loud gate for a goal wrapped onto a second line
 
 
 ## In Review
