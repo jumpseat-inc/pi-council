@@ -45,9 +45,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Ready
 
-- FLLWUP-57 — Suite determinism under a catalogue-valid ambient COUNCIL_EVAL_MODEL
-
 ## In Progress
+
+- FLLWUP-57 — Suite determinism under a catalogue-valid ambient COUNCIL_EVAL_MODEL
 
 ## In Review
 

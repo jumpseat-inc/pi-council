@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-57
 title: Suite determinism under a catalogue-valid ambient COUNCIL_EVAL_MODEL
-state: Ready
+state: In Progress
 owner: null
 epic: EPIC-9
 goal: A test run of test/ with a catalogue-valid ambient COUNCIL_EVAL_MODEL exported passes, and any test that resolves the ambient as its effective model is isolated or pinned, so bun test is shell-independent for every catalogue-valid value.
@@ -71,3 +71,11 @@ approved from FLLWUP-40's step-13 candidate A.
   the promotion; `steward` job-1 governs the position; R2 governs the later
   merge; R3 governs this record's direct pushes (disclosed per
   [[record-push-discipline]]).
+
+### Step 7 — hand to one owner (mechanical path)
+
+No deliberation ran, so the card itself is the owner's handoff: its `goal`,
+`Intent`, and the FLLWUP-40 pattern it must extend. Card set `In Progress`;
+`python3 council/validate.py` clean at the move; promotion commit `bb5c5e8`
+and this record commit pushed directly to `main` under R3 (disclosed:
+standard ruleset bypass notice). `owner` dispatched (45-minute window).
