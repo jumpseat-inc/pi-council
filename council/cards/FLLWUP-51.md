@@ -512,3 +512,19 @@ base (`3646cd5`) after the PR head was pinned; all content checks in
 preflight pass. This is the known finding class already carded as
 FLLWUP-27 ("Preflight branch-freshness clause vs mid-card record pushes",
 Backlog). No unverified delivery item remains; step 10 proceeds.
+
+### Step 10 — judge verdict (job-9.3)
+
+Dispatch: `judge` job-9.3 (15-min ceiling; settled 2.3m / 13 turns, total
+209618 tok, cost≈$0.0173). Input: the amended `goal` sentence and the
+Skeptic's step-9 evidence, nothing else. Subject pinned (PR #70 head
+`09a8679`, head worktree); frame pinned (step 10 precedes step 11's
+mechanical merge). **Verdict: PASS** — all six goal-enumerated behaviors
+plus both green-side exceptions and the pinned residual verified against
+the branch head: wrapped goal refused naming the wrap (R1/T7); bare
+non-`key: value` line refused with both-hypotheses diagnostic; unclosed
+block distinct FAIL (R8a); key after `goal:` refused (R2′/R3/R4b);
+single-line `: ` goals and extra keys before `goal:` clean (T1/T2/R7);
+mid-block colon-bearing residual recorded in copy, pinned by test, not
+gated (R10). Supporting: 26/26 targeted tests, tsc clean, suite 909/2/0,
+10 copies byte-identical, version 0.20.0, R11 vocabulary pin green.
