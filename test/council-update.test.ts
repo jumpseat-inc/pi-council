@@ -118,7 +118,7 @@ test("T4: TOOLING_FILES ∪ DATA_FILES == the walked scaffold file set, disjoint
 	const classified = [...TOOLING_FILES, ...DATA_FILES].sort();
 	expect(classified).toEqual(walked);
 	expect(new Set([...TOOLING_FILES, ...DATA_FILES]).size).toBe(classified.length);
-	expect(TOOLING_FILES.sort()).toEqual(["council/cards/_template.md", "council/validate.py"]);
+	expect([...TOOLING_FILES].sort()).toEqual(["council/cards/_template.md", "council/validate.py"]);
 	expect(DATA_FILES).toContain("council/preflight.sh"); // data-class by design
 	expect(DATA_FILES).toContain("council/board.md"); // protected class is real
 });
@@ -204,4 +204,189 @@ test("skip filter: record-known deleted files are not silently recreated; plain 
 	const plain = scaffoldInto(root, SCAFFOLD);
 	expect(plain.created).toContain("council/validate.py");
 	expect(fs.existsSync(consumerPath(root, "council/validate.py"))).toBe(true);
+});
+
+// ---------------------------------------------------------------------------
+// Task 2 — refresh engine (council-update.ts)
+// ---------------------------------------------------------------------------
+
+import {
+	applyRefresh,
+	checkToolingDrift,
+	planRefresh,
+	runPostRefreshValidate,
+	type RefreshRow,
+} from "../extensions/council-update.ts";
+
+const TOOLING = ["council/cards/_template.md", "council/validate.py"] as const;
+
+/** Record entries matching the currently-stale consumer bytes. */
+function recordFor(root: string, rel: string): { sha256: string; packageVersion: string } {
+	return { sha256: sha256File(consumerPath(root, rel)), packageVersion: "0.19.0" };
+}
+
+test("T1 bootstrap: no record → diverged plan; consented accept refreshes tooling, touches nothing else, records new digests", () => {
+	const { root, originals } = seedConsumerNoRecord();
+
+	// dry-run: plan reports both tooling files diverged (bootstrap carve), writes nothing
+	const plan = planRefresh(root, SCAFFOLD);
+	const toolingRows = plan.rows.filter((r) => r.tooling);
+	expect(toolingRows.map((r) => r.state).sort()).toEqual(["diverged", "diverged"]);
+	for (const rel of TOOLING) {
+		expect(fs.readFileSync(consumerPath(root, rel), "utf-8")).not.toBe(packagedBytes(rel).toString());
+	}
+
+	// bootstrap consent: both tooling files individually accepted
+	const result = applyRefresh(root, SCAFFOLD, new Set<string>(TOOLING));
+	expect(result.written.sort()).toEqual([...TOOLING].sort());
+	expect(result.skippedDiverged).toEqual([]);
+	expect(result.backups.length).toBe(2);
+
+	for (const rel of TOOLING) {
+		// tooling now byte-equal to council/scaffold/**
+		expect(fs.readFileSync(consumerPath(root, rel), "utf-8")).toBe(packagedBytes(rel).toString());
+	}
+	// protected data untouched, byte-for-byte
+	for (const [rel, digest] of originals) {
+		expect(sha256File(consumerPath(root, rel)), rel).toBe(digest);
+	}
+	// record now carries the new (packaged) digests for the accepted files
+	const record = readScaffoldRecord(root);
+	for (const rel of TOOLING) {
+		expect(record[rel]!.sha256).toBe(sha256Hex(packagedBytes(rel)));
+	}
+	// ...and only for the accepted files (never for refused/skipped data)
+	expect(record["council/preflight.sh"]).toBeUndefined();
+	fs.rmSync(root, { recursive: true, force: true });
+});
+
+test("T3 edit safety: pristine-stale / hand-edited / matches-current emit three distinct statuses; flag-less run changes nothing", () => {
+	const mk = (mutate: (root: string) => void): string => {
+		const root = fs.mkdtempSync(path.join(os.tmpdir(), "fllwup50-t3-"));
+		scaffoldInto(root, SCAFFOLD);
+		mutate(root);
+		return root;
+	};
+	const staleValidate = () =>
+		fs.readFileSync(consumerPath(SCAFFOLD, "council/validate.py"), "utf-8") + "\n# stale copy\n";
+
+	// pristine-stale: bytes == recorded ∧ bytes ≠ packaged
+	const pristine = mk((root) => {
+		fs.writeFileSync(consumerPath(root, "council/validate.py"), staleValidate());
+		writeRecord(root, { "council/validate.py": recordFor(root, "council/validate.py") });
+	});
+	// consumer-edited: bytes ≠ recorded ∧ bytes ≠ packaged (record = pristine digest)
+	const edited = mk((root) => {
+		const stale = staleValidate();
+		fs.writeFileSync(consumerPath(root, "council/validate.py"), stale + "# hand edit\n");
+		writeRecord(root, { "council/validate.py": { sha256: sha256Hex(stale), packageVersion: "0.19.0" } });
+	});
+	// matches-current: bytes == packaged
+	const current = mk((root) => {
+		writeRecord(root, { "council/validate.py": recordFor(root, "council/validate.py") });
+	});
+
+	const stateOf = (root: string): RefreshRow["state"] =>
+		planRefresh(root, SCAFFOLD).rows.find((r) => r.rel === "council/validate.py")!.state;
+	const states = new Set([stateOf(pristine), stateOf(edited), stateOf(current)]);
+	expect(stateOf(pristine)).toBe("behind");
+	expect(stateOf(edited)).toBe("diverged");
+	expect(stateOf(current)).toBe("unchanged");
+	expect(states.size).toBe(3);
+
+	// flag-less run leaves every byte identical
+	for (const root of [pristine, edited, current]) {
+		const before = sha256File(consumerPath(root, "council/validate.py"));
+		planRefresh(root, SCAFFOLD);
+		expect(sha256File(consumerPath(root, "council/validate.py"))).toBe(before);
+		fs.rmSync(root, { recursive: true, force: true });
+	}
+});
+
+test("T5 idempotence: second apply reports nothing written, creates no backup", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "fllwup50-t5-"));
+	scaffoldInto(root, SCAFFOLD);
+	// pristine-stale validate.py with a matching record
+	fs.writeFileSync(consumerPath(root, "council/validate.py"), packagedBytes("council/validate.py").toString() + "\n# stale\n");
+	writeRecord(root, { "council/validate.py": recordFor(root, "council/validate.py") });
+
+	const first = applyRefresh(root, SCAFFOLD);
+	expect(first.written).toEqual(["council/validate.py"]);
+	expect(first.backupDir).not.toBeNull();
+	const backupDir = first.backupDir!;
+
+	const second = applyRefresh(root, SCAFFOLD);
+	expect(second.written).toEqual([]);
+	expect(second.backupDir).toBeNull();
+	expect(fs.existsSync(path.join(backupDir, "council", "validate.py"))).toBe(true);
+	fs.rmSync(root, { recursive: true, force: true });
+});
+
+test("T6 non-clobbering: plain scaffoldInto after a refresh is still a no-op — record and bytes unchanged", () => {
+	const { root } = seedConsumerNoRecord();
+	applyRefresh(root, SCAFFOLD, new Set<string>(TOOLING));
+	const recordBefore = fs.readFileSync(scaffoldRecordPath(root), "utf-8");
+	const validateBefore = sha256File(consumerPath(root, "council/validate.py"));
+
+	const rerun = scaffoldInto(root, SCAFFOLD);
+	const createdFiles = rerun.created.filter((c) => c !== "vault/raw" && c !== "vault/wiki/sources");
+	expect(createdFiles).toEqual([]);
+	expect(rerun.skipped).toContain("council/validate.py");
+	expect(fs.readFileSync(scaffoldRecordPath(root), "utf-8")).toBe(recordBefore);
+	expect(sha256File(consumerPath(root, "council/validate.py"))).toBe(validateBefore);
+	fs.rmSync(root, { recursive: true, force: true });
+});
+
+test("T7 override semantics: local procedure overrides are reported shadowed (matches-packaged | differs) and never written", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "fllwup50-t7-"));
+	scaffoldInto(root, SCAFFOLD);
+	// two local overrides: one differing, one byte-identical to the packaged copy
+	const procDir = path.join(root, CONFIG_DIR_NAME, "council", "procedures");
+	fs.mkdirSync(procDir, { recursive: true });
+	fs.copyFileSync(
+		consumerPath(PKG_ROOT, "council/procedures/council.md"),
+		path.join(procDir, "council.md"),
+	);
+	fs.writeFileSync(path.join(procDir, "council.md"), fs.readFileSync(path.join(procDir, "council.md"), "utf-8") + "\n<!-- local tuning -->\n");
+	fs.copyFileSync(
+		consumerPath(PKG_ROOT, "council/procedures/wiki-query.md"),
+		path.join(procDir, "wiki-query.md"),
+	);
+
+	const plan = planRefresh(root, SCAFFOLD);
+	const shadowed = plan.rows.filter((r) => r.state === "shadowed");
+	expect(shadowed.map((r) => r.rel).sort()).toEqual(
+		[`${CONFIG_DIR_NAME}/council/procedures/council.md`, `${CONFIG_DIR_NAME}/council/procedures/wiki-query.md`].sort(),
+	);
+	expect(shadowed.find((r) => r.rel.endsWith("council.md"))!.matchesPackaged).toBe(false);
+	expect(shadowed.find((r) => r.rel.endsWith("wiki-query.md"))!.matchesPackaged).toBe(true);
+
+	// --apply accepts both tooling files: zero writes under $CONFIG_DIR_NAME/council/procedures/
+	const overrideBytes = new Map<string, string>();
+	for (const f of fs.readdirSync(procDir)) overrideBytes.set(f, sha256File(path.join(procDir, f)));
+	const mcpBefore = sha256File(path.join(root, CONFIG_DIR_NAME, "council", "mcp.json"));
+	applyRefresh(root, SCAFFOLD, new Set<string>(TOOLING));
+	for (const [f, digest] of overrideBytes) expect(sha256File(path.join(procDir, f)), f).toBe(digest);
+	expect(sha256File(path.join(root, CONFIG_DIR_NAME, "council", "mcp.json"))).toBe(mcpBefore);
+	fs.rmSync(root, { recursive: true, force: true });
+});
+
+test("engine: removed and local-only states — a record-known deleted file is reported, never recreated; package-side removals are local-only, never deleted", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "fllwup50-removal-"));
+	scaffoldInto(root, SCAFFOLD);
+	const record = readScaffoldRecord(root);
+	record["council/validate.py"] = { sha256: sha256Hex(packagedBytes("council/validate.py")), packageVersion: "0.19.0" };
+	record["council/gone-file.py"] = { sha256: "abc", packageVersion: "0.19.0" };
+	writeRecord(root, record);
+	// consumer deleted a recorded scaffold file; also still holds a file the package no longer ships
+	fs.rmSync(consumerPath(root, "council/validate.py"));
+	fs.writeFileSync(consumerPath(root, "council/gone-file.py"), "old bytes\n");
+
+	const plan = planRefresh(root, SCAFFOLD, { create: true });
+	expect(plan.rows.find((r) => r.rel === "council/validate.py")!.state).toBe("removed");
+	expect(plan.rows.find((r) => r.rel === "council/gone-file.py")!.state).toBe("local-only");
+	// never recreated, never deleted
+	expect(fs.existsSync(consumerPath(root, "council/validate.py"))).toBe(false);
+	expect(fs.existsSync(consumerPath(root, "council/gone-file.py"))).toBe(true);
+	fs.rmSync(root, { recursive: true, force: true });
 });
