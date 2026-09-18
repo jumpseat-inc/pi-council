@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-50
 title: Supported refresh path for packaged council tooling in initialized consumer repos
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-9
 goal: A consumer repo initialized against an earlier pi-council install is told at session start, non-fatally and no more than once per drift condition (re-arming on new drift), that its packaged council tooling (council/validate.py, _template.md, the procedures, the docstrings) is out of date, and can bring that tooling up to the currently installed package's version through a documented, supported path, without overwriting consumer-edited board, cards, or wiki.
@@ -1052,3 +1052,27 @@ blocker is lifted; all open-judgment items §2.1–§2.8 are now ruled. The
 designer's round-2 use-site reversal (P7) is recorded as a named,
 non-adopted dissent — the notification site is `session_start`, per
 STEWARD Q2.
+
+### Step 7–8 — spec committed; owner implemented; In Review (observed)
+
+- **Spec:** `docs/superpowers/specs/2026-09-19-FLLWUP-50-design.md`,
+  committed `83ea452` (record push under R3, disclosed). Self-review found
+  one R1-vs-R2 copy-truth conflict (R2's sample copy lists `preflight.sh`
+  as updated; R1 makes it data-class/never-written) — resolved in the spec
+  by the copy-truth constraint (R1 governs the copy), not a new ruling.
+- **Owner** (`job-14.1`, 34.6m, 84 turns, total 9417012 tok, cost≈$0.2216):
+  branch `feat/fllwup-50-tooling-refresh`, PR #72, head
+  `d3de2487c262e7e0a7219eb7ac91350a5a43ff63`. Local gates (owner-run, in
+  order): preflight PASS, `tsc --noEmit` clean, `bun test` 928 pass / 2
+  skip / 0 fail, `validate.py` valid. Disclosed: two pre-existing
+  command-count pins updated 14→15 for the new registration (in-change,
+  not suppressed); `docs/gates/GATE-EVIDENCE.md` absent in this repo —
+  authoritative set from the card record + `.github/workflows/gates.yml`
+  used, matches. Two spec-summary ambiguities resolved toward the stricter
+  P5 reading (dry-run writes nothing, including planned creations;
+  `--accept <path>` headless consent as strict superset of the "skipped"
+  floor).
+- **In Review set on the observed artifact** (facilitator-run
+  `gh pr view 72`: OPEN, headRefOid matches the owner's reported head
+  SHA). `python3 council/validate.py` → clean; record commit `242c6bd` +
+  this one pushed under R3.
