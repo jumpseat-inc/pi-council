@@ -182,3 +182,13 @@ the head:
 
 No `open-untested` residual; one non-blocking cosmetic note (a merged long
 line at `council.md:239`, wrap cosmetics only).
+
+### Step 10 — judge PASS (job-10.3)
+
+Judge (0.2m, 3 turns, tokens in 10888 / out 1018 / total 32130,
+cost≈$0.0030 catalogue), input bounded to the card's `goal` + the step-9
+Skeptic evidence. Verdict: **PASS**. Basis: its own grep at the head
+worktree → `GATE-EVIDENCE` zero matches in packaged prose (exit 1); its own
+`bun test test/prose.test.ts` at the head → 17 pass / 0 fail, with the
+widened guard's prior red at `079a014` confirming it actually catches the
+failure class. Both goal clauses satisfied.
