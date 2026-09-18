@@ -33,7 +33,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-37 — Keep the progress keymap header visible when follow-mode content overflows the viewport
 - FLLWUP-38 — Clamp the inline progress transcript header to the granted render width
 - FLLWUP-39 — Dispose the replaced transcript view when the inline progress surface switches sessions
-- FLLWUP-54 — Wiki page for the red-base evidence convention
 - FLLWUP-55 — Collapse the smoke driver's private pty screen model onto the shared kit
 - FLLWUP-56 — Saturate the seat-dispatch provider-error arm onto a config-injected faux provider
 - FLLWUP-58 — Runaway timeout-minutes backstop on the gates CI job
@@ -53,6 +52,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Ready
 
+- FLLWUP-54 — Wiki page for the red-base evidence convention
 - EV-44 — Merge near-duplicate follow-up candidates before a card is drafted
 - EV-45 — Unattended ingest of a run's own ledger, without the human steer turn
 
