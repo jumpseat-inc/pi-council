@@ -64,11 +64,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- FLLWUP-59 — Mechanically derive or police the shape witness's token allowlist
 
 
 ## In Progress
 
+- FLLWUP-59 — Mechanically derive or police the shape witness's token allowlist
 ## In Review
 
 ## Done

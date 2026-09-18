@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-59
 title: Mechanically derive or police the shape witness's token allowlist
-state: Deliberating
+state: In Progress
 owner: null
 epic: EPIC-9
 goal: The shape witness's provider-token list is derived or policed mechanically, so a future token retirement cannot silently create a miss without the hand-maintained regex being updated.
@@ -1191,3 +1191,20 @@ deliberation blind spot, not a step-9 residual — if it still stands at step
 9's exit it is routed per `<step_9_iteration_cap>`). The card proceeds to
 step 7 with no state change here (still `Deliberating`; step 7's opening
 writes `In Progress`).
+
+### Step 7 — spec written and handed to one owner
+
+Spec: `docs/superpowers/specs/2026-09-18-FLLWUP-59-design.md` (full-council
+path — writes up the settled design, does not derive one). Self-review before
+committing: no placeholder text (the wiki page's file name is bounded
+discretion, not an open choice); internally consistent with steps 2–6 and
+both skeptic corrections (O1 base re-identification pinned to `323abdc` with
+the transplant caveats; O2/O9 emission/matching rule pinned to the one
+consistent family the recorded constraints leave); scope bounded to the
+card's `goal` plus the step-1-recorded scope amendment (gates.yml `:11`) and
+the both-seats-endorsed wiki page; §9 names what is out of scope; an owner
+reading only this file cannot reasonably reach two different designs (the
+emission/matching clauses each cite the measured result that forces them).
+Card set `In Progress`; board moved; `validate.py` clean before the owner
+dispatch. Owner dispatched next (step 8) with the spec, the fresh-worktree
+constraint, and the full gate set.
