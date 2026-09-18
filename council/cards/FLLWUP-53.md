@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-53
 title: De-repo-specific council.md step 8's gate-file reference and widen the prose guard
-state: In Review
+state: Done
 owner: null
 epic: EPIC-9
 goal: council.md no longer hard-references a gate document path that does not exist in this repo, and the packaged-prose guard covers every shipped file that could reintroduce one.
@@ -192,3 +192,65 @@ worktree → `GATE-EVIDENCE` zero matches in packaged prose (exit 1); its own
 `bun test test/prose.test.ts` at the head → 17 pass / 0 fail, with the
 widened guard's prior red at `079a014` confirming it actually catches the
 failure class. Both goal clauses satisfied.
+
+### Step 11 — deterministic merge check, merged (R2 applied and cited)
+
+Five criteria executed mechanically at PR #71, head
+`e130d9aaa1cb9ca1f11b840d4261cbc556a9e992`:
+
+1. **Owner gates green in full** — step-9 skeptic re-ran the operative set
+   at the head: `tsc` exit 0, `bun test` 909/2/0, `validate.py` clean;
+   preflight's branch-freshness clause FAIL recorded verbatim per the
+   standing FLLWUP-27 known-artifact note, never reclassified.
+2. **`gates` workflow SUCCESS on the PR head SHA** — `gh pr checks 71
+   --json name,state,workflow` → `[{"name":"gates","state":"SUCCESS",
+   "workflow":"gates"}]`, asserted on the `workflow` field; `headRefOid`
+   re-read immediately before the merge as `e130d9a…` and pinned via
+   `--match-head-commit`.
+3. **No blocking Skeptic objection** — step 9 NO-BLOCK, all eight
+   objections `closed-green`.
+4. **Judge PASS** (job-10.3).
+5. **No `Needs Human` state / outstanding ruling** — card `In Review`,
+   zero escalations; R2/R3 are recorded run-scoped Phase-1 rulings applied
+   and cited, not open rulings.
+
+Merged under R2 (run-scoped `--admin` authorization, cited):
+`gh pr merge 71 --squash --admin --match-head-commit e130d9a…` exit 0 →
+PR #71 **MERGED**, squash commit **`e3b070c03d7addb5b216e7c28916107a14e69cee`**
+on `main`.
+
+### Step 12 — Done
+
+Local `main` fast-forwarded `113068f` → `e3b070c` — clean FF, no union
+merge needed. **CI on the merged SHA observed directly:**
+`gh api repos/.../commits/e3b070c…/check-runs` → `gates` completed
+**success**. `validate.py` clean; card and board set `Done`; record commit
+pushed directly to `main` under R3 (run-scoped authorization, cited;
+disclosed in the report). Verify loop closed at cycle 1 of ≤3 with no
+`open-untested` residual.
+
+### Step 13 — follow-up candidates
+
+**None.** Nothing surfaced that was not done: both goal clauses are
+fixed and Skeptic-verified closed; the widened guard's substring limitation
+(differently-named repo-specific gate paths are not matched) is the card
+Intent's fixed forbidden token, not a deferred idea; the FLLWUP-27
+preflight branch-freshness artifact is already carded; no designer seat, no
+CDP smokes. The skeptic's non-blocking cosmetic note (one merged long line
+at `council.md:239`, wrap cosmetics only, no meaning or pin impact) implies
+no work a card should carry — any future edit to that sentence rewraps it
+for free. Per the Phase-1 follow-up ruling the draft-then-confirm gate
+routes to `product-owner` via the orchestrator: with no candidates drafted,
+there is nothing to confirm (FLLWUP-57 precedent).
+
+### Step 14 — ingest owed (recorded, not hand-edited)
+
+`vault/wiki/sources/2026-08-24-bugfix-seat-prose.md` describes the
+GATE-EVIDENCE guard as per-file ("no `GATE-EVIDENCE.md` in
+`features-deliver.md`") — factually stale as of this card: the guard now
+scans every packaged seat + procedure, and the last two live instances
+(`council.md` step 8, `owner.md`'s `e.g.`) are gone (squash `e3b070c`).
+Per council.md step 14, `vault/` is never hand-edited; the ingest routes to
+the orchestrator's `/wiki-ingest` pass (EV-46/EV-47, Backlog, govern ingest
+at card completion / run ledger). The obligation is recorded here; `vault/`
+was not touched by this run.

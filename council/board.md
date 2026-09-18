@@ -57,11 +57,12 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- FLLWUP-53 — De-repo-specific council.md step 8's gate-file reference and widen the prose guard
 
 ## Needs Human
 
 ## Done
+
+- FLLWUP-53 — De-repo-specific council.md step 8's gate-file reference and widen the prose guard
 
 - FLLWUP-51 — Loud gate for a goal wrapped onto a second line
 
