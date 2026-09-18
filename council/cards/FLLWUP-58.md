@@ -1,8 +1,8 @@
 ---
 id: FLLWUP-58
 title: Runaway timeout-minutes backstop on the gates CI job
-state: Deliberating
-owner: null
+state: In Progress
+owner: worktree (dispatched)
 epic: EPIC-9
 goal: The gates workflow fails bounded on a runaway test step via a loose timeout-minutes, sized so it never pre-empts an arm's own ceiling, with the CI-timeout policy documented.
 ---
@@ -1222,3 +1222,16 @@ follow-up. If you conclude coverage must fold into this card instead, that is a
 goal-scope question — escalate it, do not widen the diff.
 
 *(Full ruling text with grounds and grounding: `vault/raw/2026-09-20-po-fllwup58-gates-backstop.md`.)*
+
+### Step 7 — spec written and committed (facilitator)
+
+Full-council path: the deliberation + the binding ruling are the settled
+design; the spec records it without reopening anything. Written to
+`docs/superpowers/specs/2026-09-20-FLLWUP-58-design.md` and self-reviewed for
+placeholders (none), internal consistency (matches the ruling and the
+Skeptic-tested census), scope (the five deliverables; install/tsc and C8
+explicitly out of scope), and ambiguity (tripwire derivation rule, wiki
+section contents, and the FLLWUP-25 pointer-only constraint are enumerated).
+Card + board set `In Progress`; owner dispatched next with the spec.
+
+### Step 8 — owner

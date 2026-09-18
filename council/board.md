@@ -69,9 +69,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-58 — Show the pi-council version and hash on the first pi run
 ## Deliberating
 
-- FLLWUP-58 — Runaway timeout-minutes backstop on the gates CI job
-
 ## In Progress
+
+- FLLWUP-58 — Runaway timeout-minutes backstop on the gates CI job
 
 ## In Review
 
