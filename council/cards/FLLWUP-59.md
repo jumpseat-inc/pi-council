@@ -1264,4 +1264,18 @@ content (copy-set-dependent fail, not a missing-file error) — classification
 unaffected. **No blocking Skeptic objection — deterministic merge check
 criterion 3 holds.** Verify-cycle counter: **1 of 3** used, no fix cycle.
 
-### Step 10 — judge verdict (`job-26.11`) — PENDING (dispatched next)
+### Step 10 — judge verdict (`job-26.11`) — PASS
+
+`judge` settled `done` (1.5m, 28 turns), input = the card's `goal` verbatim +
+the Skeptic's step-9 evidence, nothing else; subject pinned to PR #76 head
+`6579d68`; frame stated (judging precedes the mechanical merge, which has not
+happened). **Verdict: PASS.** Basis, independently verified at the branch
+head: (1) the hand-maintained regex is replaced by a mechanically derived
+token set (`deriveRetiredPaths`/`deriveRetiredTokens`; a future retirement
+enters the set automatically); (2) the catch works (the `:325` revert reds
+naming `test/ev41-tui.py`, restored green); (3) the composed loud-fail guards
+prevent silent partial sets, with `fetch-depth: 0` landing in the same PR;
+(4) no hand-maintained token list remains — the only hand-maintained artifact
+is the two-path canary, "a minimal invariant the mechanism assumes true about
+the repo's history, not a full token list." **Deterministic merge check
+criterion 4 holds.**
