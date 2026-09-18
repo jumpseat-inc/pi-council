@@ -530,3 +530,297 @@ The tree-side half of the owner's green-at-head claim holds: I find no path-shap
 5. **HEAD-ancestry sufficiency at PR head**: on `refs/pull/N/merge`, `git log --pretty=format: --name-only HEAD` includes both branch and base retirements. Expected: no `--all` needed.
 6. **Two-file diff (owner claim 6 falsifier)**: a shallow-repo CI run reds only after `gates.yml` gains `fetch-depth: 0`; grep `fetch-depth` at `gates.yml:9` is absent at base. Expected: mechanism unshippable without the line.
 7. **`smoke/artifacts/` token existence**: `git log --all --name-only | grep -c '^smoke/artifacts/'` — `.gitignore` tracks `smoke/.artifacts/` (dot), so if this is `0`, the owner's narrative token list names a non-historical path (harmless to the mechanism, but correct the record).
+
+### Step 3 (cont.) — round 3 (final; ≤3-round cap hit) — exchange CLOSED, converged
+
+Re-dispatched each generator with the other's round-2 position. Jobs: `owner`
+`job-26.5` (6.5m, 5 turns), `principal` `job-26.6` (5.4m, 9 turns), both
+settled `done`. Positions appended verbatim. **Closed at 3 rounds with the
+final converged shape both seats sign:**
+
+- **Derive-and-replace**: `deriveRetiredTokens(historyPaths, currentPaths)`
+  fed by **HEAD-ancestry** `git log --no-renames --pretty=format: --name-only
+  HEAD` (`--all` retired by the determinism test — owner conceded point (A)
+  after running it; the principal's argument: no mainline retirement can be
+  missing from HEAD ancestry because AGENTS.md forbids main history
+  rewriting, while `--all` makes the verdict a function of the local ref
+  set).
+- **Path-shaped rule + segment-aligned, collision-checked fragment emission**
+  (collision universe = **all live tracked paths** via `git ls-tree -r HEAD`,
+  not `test/`+`smoke/`); **scan domain stays `TEST_DIR` (test/ only)**
+  byte-identical to today — the owner's round-1 "test/ + smoke/" phrase was a
+  description error, corrected (the FLLWUP-55 `smoke/` extension is tests
+  9–11 via `SMOKE_DRIVER`, never the token scan).
+- **Composed loud-fail guard**: structural shallow check
+  (`git rev-parse --is-shallow-repository` / rev-list floor) **OR**
+  canary-missing → named loud FAIL; **canary asserted on the pre-suppression
+  derived retired-path set** (must contain `test/ev40-harness/` and
+  `test/ev41-tui.py`) — never on the fragment set (`ev41-tui.py` is
+  collision-suppressed and unsatisfiable as a fragment canary); plus
+  **`fetch-depth: 0` at `gates.yml:11`** (line number corrected by the
+  principal — `:9` is `runs-on`, `:11` is the checkout step), same PR.
+- **No carve-out list**; **three owned narrowings pinned two-sided**: bare-dir
+  prose mention (green), bare basename of a relocated path (green), and
+  intentional full-path prose mention (escape = reword, prose discipline).
+- **Red-base falsifier** per the seven-field `[[red-base evidence]]`
+  convention at FLLWUP-49's parent (red naming the `test/ev41-tui.py` full
+  path), green at head.
+- **Diff = two files**: `test/faux-provider-shape.test.ts` + one line at
+  `gates.yml:11`, one PR.
+- **Record correction** (owner round 3, claim 7 reversal): `smoke/artifacts/`
+  (no dot) **is** a genuine historical retired dir token
+  (`smoke/artifacts/.gitkeep` in HEAD ancestry, absent from the tree); the
+  principal's `.gitignore` dot-dir reading didn't make it non-historical.
+  Token kept.
+
+Two residual items both seats assign onward, neither an inter-seat dispute:
+(a) the `gates.yml` line's scope amendment — **facilitator record action,
+taken below** (step-1 surface note amended; no ruling needed, it is a
+bookkeeping correction of this container's own classification note); (b) the
+judge's eventual reading of the three owned narrowings against the goal's
+"cannot silently create a miss" — step-10 territory by construction (the
+judge takes the goal + Skeptic evidence); both seats argue they are
+resolvable-path out-of-scope, not misses, and neither holds a contrary
+position, so there is no open-judgment dispute between seats to route.
+
+#### Round 3 — `owner` (job-26.5)
+
+**Grounding:** this round adds only measured evidence — `git log`/`ls-tree`
+on the real repo (read-only, main checkout untouched), a synthetic repo in
+`/tmp` for the determinism test, and a depth-1 `--no-local` clone. Wiki:
+`vault/wiki/index.md` read; no page covers this witness (nearest
+`test-suite-budget.md`, `smoke-test.md`); the seven-field convention is
+`[[red-base evidence]]` and stays a requirement on the falsifier.
+
+**(A) Enumeration — conceded. HEAD-ancestry wins, and it is settled by the
+test, not by taste.** Ran the principal's claim-4 determinism test rather
+than defending `--all`:
+
+- Synthetic repo: a path that exists and is retired **only** on side branch B
+  — `git log --all --name-only` contains it (**2** lines); `git log --name-only
+  HEAD` does not (**0**). Delete branch B — same tree, `--all` now **0**. Same
+  working tree, two different verdicts, decided solely by the local ref set.
+  That is nondeterminism by construction; the round-1 "negligible false-red"
+  is retired as an argument.
+- On the real repo today the two sets happen to be identical (868 paths, 16
+  retired tokens each, 0 side-only paths across 949 commits — the repo's
+  merge discipline merges everything), so nothing green changes today. But
+  the mechanism must not be correct *by accident of current ref hygiene*;
+  106 refs exist locally and tomorrow's stale branch is the first
+  nondeterministic red. HEAD-ancestry (`git log --pretty=format: --name-only
+  HEAD`, `--no-renames` pinned) is also the *correct* semantics: "retired
+  relative to the state under test." The round-1 tradeoff 3 is dropped
+  entirely and the principal's converged shape adopted on this axis.
+
+**(B) Guard — composed, taking the best of both.** The final guard is
+**`(git rev-parse --is-shallow-repository) == true` OR `canary-missing` →
+named loud FAIL**, two distinct messages, plus `fetch-depth: 0` at
+`gates.yml:9` (owner's line number; the principal corrected to `:11` in its
+round-3 — the principal's reading governs, see below). Measured: a depth-1
+`--no-local` clone reports `is-shallow-repository: true` **and** yields an
+empty HEAD-ancestry retired set — so on the CI failure mode we control,
+*both* halves fire; the shallow check gives the precise diagnostic, the
+canary covers the histories shallow-detection can't see (windowed fetches,
+archive exports, a future workflow edit that truncates without shallowing).
+One load-bearing detail the composition forces: **the canary checks the
+derived retired-token set, not the emitted fragment set** — `test/ev41-tui.py`
+is deliberately *not* emissable as a fragment (basename collides with live
+`test/faux-provider/ev41-tui.py`), so a canary read off the fragment set
+would red on a healthy mechanism. Canary content measured at HEAD:
+`test/ev41-tui.py` retired ✓; `test/ev40-harness/` dir retired with all 3
+historical files absent ✓. "A retired path cannot un-retire" holds at
+full-path granularity (recreating the exact historical path is a
+`tsc`-visible event, not a silent one).
+
+**(C) Confirmed.** Fragment-emission (segment-aligned, collision-checked,
+live-path-aware) and no-carve-out-list (prose-discipline boundary pinned
+two-sided) both stand in the final shape, unchanged from round 2.
+
+**(D) Closed.** Two-file diff (`test/faux-provider-shape.test.ts` + one line
+at `gates.yml:9`→`:11`), same PR; the facilitator's step-1 surface-note
+amendment removes the scope item flagged.
+
+**One record correction — the principal's round-2 claim 7 lands the opposite
+way.** `smoke/artifacts/` (no dot) **is** a historical path:
+`smoke/artifacts/.gitkeep` is in HEAD ancestry and absent from the current
+tree, so `smoke/artifacts/` is a genuine retired dir token and the round-1
+narrative list was correct. (Separately, `smoke/.artifacts/.gitkeep` is
+historical *and live* — correctly not a token.) The principal's `.gitignore`
+reading was right about the dot-dir; the conclusion "non-historical" doesn't
+follow, because both paths exist in history.
+
+**Final converged shape (signature position):**
+`deriveRetiredTokens(historyPaths, currentPaths)` fed by **HEAD-ancestry**
+`git log --pretty=format: --name-only HEAD` with `--no-renames`; path-shaped
+rule with segment-aligned collision-checked fragment emission; no carve-out
+list; guard = is-shallow **OR** canary-missing (canary on the token set:
+`test/ev41-tui.py` / `test/ev40-harness/`), both loud with named errors;
+`fetch-depth: 0` at `gates.yml:11`. Diff = two files, one PR. Red-base
+falsifier per the seven-field convention at FLLWUP-49's parent (red naming
+the `test/ev41-tui.py` full path), green at head.
+
+**Testable claims (new this round)**
+
+1. **Determinism (settles A):** synthetic repo, side-branch-only retired path
+   — `--all` 2 hits / HEAD 0 with branch present; `--all` 0 after branch
+   deletion; HEAD constant 0. Verdict varies with ref set under `--all`,
+   invariant under HEAD-ancestry.
+2. **Today's equality is contingent, not relied on:** real repo, `comm -13`
+   of the two enumerations = 0 lines; noted as context, not a design input.
+3. **Composed guard fires twice on the CI mode:** depth-1 `--no-local` clone
+   → `is-shallow-repository` true AND derived retired set ∅ → both guard
+   halves red; full clone → both false/green.
+4. **Canary/target-set boundary:** derived token set at HEAD contains
+   `test/ev41-tui.py`; emitted fragment set does **not** — canary must read
+   the former.
+5. **Claim-7 reversal:** `grep -c '^smoke/artifacts/'` over HEAD-ancestry
+   paths = **1** (`smoke/artifacts/.gitkeep`, absent from current tree) — the
+   token is historical; the record keeps it.
+
+Nothing remains open for the consolidator on the owner's side.
+
+#### Round 3 — `principal` (job-26.6)
+
+**Cross-seam reading** (files on both sides of the seam, at HEAD)
+
+- The token contract lives at `test/faux-provider-shape.test.ts:124`:
+  `countMatches(TEST_DIR, /ev40-harness\/|ev43\/falsifier|ev43\/ev43-falsifier/)`,
+  with `TEST_DIR = join(REPO_ROOT, "test")` (`:24`). **Test 6 scans `test/`
+  only.** The FLLWUP-55 `smoke/` charter extension is tests 9–11 via
+  `SMOKE_DRIVER` (`:53`); it never touches the token scan. The owner's
+  round-1 phrase "reuses the witness's post-FLLWUP-55 scan domain (`test/` +
+  `smoke/`)" is not what the file does — a description error, not a proposed
+  widening; resolution in (D) below.
+- The CI substrate is `.github/workflows/gates.yml`. The checkout step is
+  **line 11** (`- uses: actions/checkout@v4`); **line 9 is `runs-on:
+  ubuntu-latest`**. Both seats, the card's converged shape, and the
+  scope-amendment request cite `gates.yml:9` for the `fetch-depth` addition.
+  Acting on `:9` would break the job. Correct the citation to `:11`.
+- Tree side: `test/ev40-harness/` absent; `harness-headless.ts` absent
+  repo-wide; `test/faux-provider/ev41-tui.py` live (the basename collision is
+  real); `test/ev41-retry-e2e.test.ts:325` currently names the live path; the
+  only bare `ev43/` in the scan domain is `test/ev43-reachability.test.ts:6`,
+  space-followed, plus live provider ids at `:52–53`. The owner's round-2
+  tree facts hold.
+- Wiki: `vault/wiki/index.md` has no page for this witness (nearest
+  `test-suite-budget.md`, `red-base-evidence.md`); the durable-page note
+  stands.
+
+**Blind spots, named separately**
+
+- *Owner, inside the witness*: sees the regex, the scan, and the fixtures.
+  Cannot see that test 6's actual scan domain is `test/`-only while its own
+  prose says `test/`+`smoke/`; cannot see that the enumeration's verdict
+  depends on the run-time ref set; cannot enumerate collisions without git.
+- *This seat (history vantage)*: reads the tree, not history; every
+  derived-set claim stays second-hand until the skeptic runs it.
+- *CI vantage*: the depth-1 default and `.git/shallow` are visible from the
+  workflow, but the `--all` local-ref dependence is invisible from a single
+  machine.
+- *Card framing*: "provider-token list" names retired *path* tokens; and the
+  recorded surface excludes the one CI file the mechanism's correctness
+  depends on.
+
+**Reframe** — the family is settled; no new reframe is earned. Closing the
+four points:
+
+(A) **HEAD-ancestry wins; `--all` is retired.** The owner held `--all` "as
+owned," which is a stance, not evidence. The burden was a runnable test
+showing a *mainline* retirement that HEAD-ancestry misses — and none can
+exist: AGENTS.md forbids history rewriting on `main`, so every path ever in
+main's history is in HEAD's ancestry. `--all` adds only side-branch-only
+paths, which are not mainline retirements and make the gate's verdict a
+function of the local ref set. A determinism test settles it; no
+counter-evidence was produced. **Enumeration = `git log --no-renames
+--pretty=format: --name-only HEAD`.**
+
+(B) **The two guards compose; canary is primary.** Structural shallow check
+(`.git/shallow`, and a `rev-list --count` floor as a secondary) catches
+truncation with a clear diagnostic; the canary catches the deeper class —
+history present but the retirement absent (grafted/partial, `git replace`, a
+future `fetch-depth` edit). Composition detail that matters: **the canary
+must assert on the derived retired-path set, before fragment emission.**
+`ev41-tui.py` is collision-suppressed from the fragment set, so a canary
+written against fragments would be unsatisfiable. Assert `derivedRetiredPaths
+∋ {test/ev40-harness/, test/ev41-tui.py}`.
+
+(C) **The round-1 window base is fully retired.** Confirmed: HEAD-ancestry at
+full depth is deterministic and catches pre-witness stale comments a window
+would exclude, at zero false-red. No window base.
+
+(D) **Fragment emission: one correction, one added named boundary, both
+testifyable.**
+
+- *Correction*: the scan domain stays `TEST_DIR` (`test/`-only),
+  byte-identical to today. Widening test 6 to `smoke/` is an unrequested
+  coverage change and would itself need a red-base check. The
+  collision/suppression universe, by contrast, should be **all live tracked
+  paths** (`git ls-tree -r HEAD --name-only`), not `test/`+`smoke/` —
+  otherwise a live basename living outside those two dirs fails to suppress a
+  fragment and a legitimate live-path mention in `test/` false-reds.
+- *Added boundary (parallel to the owned bare-dir one)*: a **bare basename of
+  a relocated path** (`ev41-tui.py`, no directory) is unpoliced because the
+  live `test/faux-provider/ev41-tui.py` suppresses it. Same ambiguity class
+  as bare-dir prose: a non-resolvable mention. Named as a third owned
+  narrowing and pinned two-sided (bare green / `test/ev41-tui.py` red / live
+  full path green). Optional strictness the owner may take or decline (not
+  blocked on it): emit the fragment but exempt its occurrence when preceded
+  by the live path — an enhancement, not parity.
+
+**Converged shape both seats can sign**
+
+Derive-replace: `deriveRetiredTokens(historyPaths, currentPaths)` fed by
+HEAD-ancestry, `--no-renames` pinned; path-shaped rule with segment-aligned,
+live-path-collision-checked fragment emission; scan domain = `TEST_DIR`
+(unchanged); canary (pre-suppression) primary plus structural shallow check;
+`fetch-depth: 0` added at **`gates.yml:11`** under a recorded scope
+amendment; the full fragment set green-at-head, red-at-base at FLLWUP-49's
+parent naming the `test/ev41-tui.py` full path; no carve-out list — the three
+named narrowings (bare-dir, bare-basename-of-relocated-path, intentional
+full-path prose) pinned two-sided. Diff = two files.
+
+**Testable claims (new/changed only)**
+
+1. **Scan domain is `test/`-only** — `grep -n actions/checkout
+   .github/workflows/gates.yml` → `11`; and `faux-provider-shape.test.ts:124`
+   passes `TEST_DIR`. Insert `ev40-harness/` into a scratch `smoke/` source
+   and `bun test test/faux-provider-shape.test.ts` stays green (test 6 does
+   not read `smoke/`).
+2. **Enumeration nondeterminism** — create branch B with path
+   `test/zzz-retired.test.ts` not on `main`; delete it on B. `git log --all
+   --name-only | grep -c '^test/zzz-retired.test.ts$'` = 1; `git log --name-only
+   HEAD | grep -c '^test/zzz-retired.test.ts$'` = 0. ⇒ `--all` token set
+   varies with the local ref set.
+3. **Canary pre-suppression** — over real history+tree,
+   `derivedRetiredPaths` contains `test/ev40-harness/` and
+   `test/ev41-tui.py`; the *emitted fragment* set does **not** contain
+   `ev41-tui.py` (live collision) but does contain `harness-headless.ts` and
+   bare `ev40-harness/`. A fragment-based canary on `ev41-tui.py` is
+   therefore unsatisfiable.
+4. **Full fragment set green-at-head** —
+   `retiredPathViolations(src, fullFragmentSet)` over the real `test/` scan
+   domain yields `[]` today; fed `git show ca22360^:test/ev41-retry-e2e.test.ts`
+   it reds naming the `test/ev41-tui.py` full path. (Round-1 claim 1 covered
+   only the path rule; this is the fragment rule's half.)
+5. **Bare-basename narrowing** — scratch mentioning bare `ev41-tui.py` →
+   green (characterized boundary); `test/ev41-tui.py` → red;
+   `test/faux-provider/ev41-tui.py` → green.
+
+**Remaining open for the consolidator**: (a) the `gates.yml` scope amendment
+is procedural and sits with the facilitator/PO record — with the corrected
+line number `:11`; (b) the judge's reading of the three owned narrowings
+against the goal's "cannot silently create a miss" (both seats argue they are
+resolvable-path out-of-scope, not misses).
+
+### Step-1 record amendment (facilitator, bookkeeping — surface note corrected)
+
+The step-1 note "internal test machinery in `test/faux-provider-shape.test.ts`
+(and at most adjacent test files)" is amended per the deliberation: the
+deliverable's diff is **two files** — `test/faux-provider-shape.test.ts` plus
+one line at `.github/workflows/gates.yml:11` (`fetch-depth: 0` on the
+checkout step), same PR. The principal's round-3 falsified the original note
+(and its `:9` line-number guess at `runs-on`); the mechanism's correctness is
+co-owned by the CI checkout depth. Classification itself unchanged: still
+full-council, still not surface-touching (CI workflow depth is not a
+person-visible surface). Recorded here rather than re-opening step 1; no
+ruling required — this corrects this container's own classification prose.
