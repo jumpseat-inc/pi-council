@@ -195,6 +195,24 @@ job-5.2  turns=57 tokens=in 60244/out 50291/cR 3586048/cW 0/reason 35549/total 3
 
 Verify cycles used: 1 of ≤3; no fix cycle needed.
 
+### Step 10 — judge PASS (job-5.3)
+
+Judge dispatched with exactly the card's `goal` (verbatim) + the step-9
+Skeptic evidence, subject pinned (head `5b5e9c9…`, head worktree
+`.worktrees/fllwup-57`), loop frame stated (step 10 precedes step 11's
+mechanical merge, facilitator-executed). Verdict **PASS**, on its own
+re-runs at the pinned head: `bun test` 894/2/0/5649 identical in all three
+ambient states (unset, V1 `openrouter/qwen/qwen3.8-flash`, V2 `…:high`),
+and the structural audit independently confirmed (ambient read only at
+`dispatch.ts:55` / `hub-tools.ts:174`; test references confined to the
+three shielded/pinned locations). No REJECT basis; no goal-text defect.
+
+Judge usage (verbatim, job-5.3):
+
+```
+job-5.3  turns=9 tokens=in 38606/out 2379/cR 79040/cW 0/reason 895/total 120025 cost≈$0.0100 (catalogue)
+```
+
 ### Step 8a — diverged-`main` union reconcile at the record push
 
 The step-8 record push was rejected — `origin/main` had advanced with two
