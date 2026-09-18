@@ -51,9 +51,12 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Ready
 
-- FLLWUP-55 — Collapse the smoke driver's private pty screen model onto the shared kit
 - EV-44 — Merge near-duplicate follow-up candidates before a card is drafted
 - EV-45 — Unattended ingest of a run's own ledger, without the human steer turn
+
+## Deliberating
+
+- FLLWUP-55 — Collapse the smoke driver's private pty screen model onto the shared kit
 
 ## Deliberating
 
