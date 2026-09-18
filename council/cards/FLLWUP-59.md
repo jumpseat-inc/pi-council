@@ -1073,3 +1073,121 @@ merged commit `1cf907f` is *not* in the FLLWUP-49 branch-line ancestry, which
 is why the pre-fix comment survives at `fce0ecb` — worth a one-line note so
 the corrected base doesn't get "fixed" by future readers into another wrong
 sha.
+
+### Step 5 — synthesis (`job-26.8`)
+
+`consolidator` settled `done` (1.1m, 3 turns). Verbatim synthesis below.
+**Facilitator transcription (counting only, deciding nothing):** the sort is
+— settled: seven closed-green objections (O3–O8, O10) each with the test that
+closed it, plus four non-blocking record corrections; **open judgment: none**
+(defended from the record: no seat holds a position against another on any
+values question; both blocking closed-red defects are mechanically
+constrained); open objections: the `git replace`/grafted/archive-export
+`open-untested` blind spot — carried as a named limitation (canary verified
+sound against the real token set; loud, not silent). On O2/O9 the
+consolidator's constraint finding: content-aware emission is ruled out by the
+seats' own anti-decay convergence (owner round 2, principal round 2); plain
+substring for bare dir tokens is ruled out at HEAD (skeptic's run);
+continuation-char matching with the *old* fixture is ruled out by the fixture
+claim — the escape is the skeptic's own noted re-fixture of the FLLWUP-48
+scan-domain test to a full retired path. Classified (iii): an
+implementation-detail step 7's spec must pin and step 9's skeptic verifies.
+
+#### consolidator — step 5 (`job-26.8`) — verbatim
+
+## FLLWUP-59 — Consolidation
+
+### Agreed design (all seats converged)
+
+The seats converged on **derive-and-replace**: delete the hand-maintained
+token regex; replace it with `deriveRetiredTokens(historyPaths, currentPaths)`
+fed by `git log --no-renames --pretty=format: --name-only HEAD`
+(HEAD-ancestry, not `--all`); emit segment-aligned, live-path-collision-checked
+fragment tokens; scan domain stays `TEST_DIR` (`test/`-only); no carve-out
+list; three owned narrowings (bare-dir prose, bare-basename-of-relocated,
+intentional full-path prose) pinned two-sided; composed loud-fail guard
+(structural shallow check OR canary-missing → named FAIL); `fetch-depth: 0`
+at `gates.yml:11`, same PR; diff = two files.
+
+All seats and the Skeptic agree this direction is correct.
+
+### Settled disputes (closed by Skeptic tests that ran)
+
+| # | Objection | Test/result | What it settled |
+|---|-----------|------------|-----------------|
+| **O3** | Shallow-partial failure mode | depth-1 clone → count 1, is-shallow true, log non-empty, retired set ∅ | Emptiness guard insufficient; structural check + canary + `fetch-depth: 0` justified. |
+| **O4** | Enumeration determinism | `--all` varies with ref set; HEAD-ancestry invariant | `--all` retired. |
+| **O5** | Rename trap | default log misses `git mv`; `--no-renames` catches it | Pin mandatory. |
+| **O6** | Historical-miss red | `ca22360^` content → 1 violation naming `test/ev41-tui.py` | Mechanism catches FLLWUP-48's actual miss. |
+| **O7** | Regression-blindness premise | Revert `:325` → 12 pass / 0 fail | Premise confirmed. |
+| **O8** | Scan domain, canary, gates line | all confirmed; two record drifts non-blocking | Confirmed. |
+| **O10** | Zero-new-live-arms | arm counts verified; only `git` argv added | Constraint satisfied. |
+
+**Record corrections (all non-blocking):** `smoke/artifacts/` count 2 (1
+unique path); 16 retired files include 1 bytecode path — 15 non-bytecode
+tokens; 868 paths ✓; `gates.yml:11` ✓; `ca22360^` = `5ac7ea1` ✓; `1cf907f`
+not in FLLWUP-49 branch-line ancestry (why the pre-fix comment survives at
+`fce0ecb`).
+
+### Open judgment — for `product-owner`, escalating to `steward`
+
+**None.** No seat holds a position against another seat's position on any
+values or tradeoff question. The two blocking defects (O1, O2/O9) are
+spec/record defects where the seats' own signed arguments and the Skeptic's
+runs constrain the resolution mechanically — they are not taste disputes.
+
+### Open objections
+
+**O1 — red-base falsifier base identity (`closed-red`, blocking, mechanically
+resolvable).** The defect: base `fce0ecb` predates the retirement → 0
+violations, no red. The red fires at `323abdc` (FLLWUP-49 mechanism merge).
+Constraint: mechanically determined — re-identify to `323abdc` (or
+`a420940`/`f12f3be`), state the transplant caveat (at `323abdc` the entire
+`test/faux-provider/` station is absent — convention fields 5/6). No judgment
+required — step 7's spec pins the SHA and states the caveat.
+
+**O2/O9 — fragment-rule emission/matching universe jointly unsatisfiable as
+signed (`closed-red`, blocking, constrained with one implementation choice).**
+Three combinations tested:
+
+| Universe | Matching | HEAD result | Owner's fixture | Verdict |
+|----------|----------|-------------|-----------------|---------|
+| All live tracked paths | Plain substring | RED on `ev43-reachability.test.ts:6` | RED | HEAD green fails |
+| All live tracked paths | Dir-tokens + continuation char | GREEN | GREEN (old fixture) | Fixture claim fails |
+| Content-aware | Plain substring | GREEN | RED | Reintroduces mention-driven decay |
+
+Ruled out by the record: content-aware emission (both seats' anti-decay
+convergence); continuation-char matching *with the old fixture* (the skeptic's
+noted re-fixture is the escape); plain substring without prose handling (HEAD
+red). Remaining choice is **(iii) an implementation-detail that step 7's spec
+must pin and step 9's Skeptic will verify** — not (ii) open judgment: the
+seats do not disagree on which rule; both accept prose discipline as the
+boundary; the implementer chooses among the remaining consistent rules under
+the recorded constraints.
+
+**Open-untested — `git replace`/grafted/archive-export histories.** Acceptable
+as a named limitation: canary design verified sound against the real token
+set (any truncated history loses both targets and trips loudly). Carry as a
+named limitation; flag for a later harness-hardening card if one exists.
+
+### Ready to hand off?
+
+Yes — but **no open judgment items remain for `product-owner` to rule on; no
+escalation to `steward` is needed.** O1 re-identification and the O2/O9 rule
+pinning are step-7 spec actions; the scope amendment is recorded; the
+`open-untested` blind spot is a named limitation.
+
+### Step 6 — routing (facilitator)
+
+The consolidator sorted **zero open-judgment items and zero open objections
+requiring a ruling seat**. Nothing routes to `product-owner` (and this
+container could not dispatch it anyway per `<escalation_contract>`); nothing
+goes `Needs Human`. The two blocking closed-red defects are settled facts
+whose repairs are mechanically constrained — they are incorporated as spec
+requirements at step 7, and step 9's skeptic verifies against them. The
+`open-untested` blind spot carries as a named design limitation guarded by
+the canary (consolidator's finding, per the record; it is a step-4
+deliberation blind spot, not a step-9 residual — if it still stands at step
+9's exit it is routed per `<step_9_iteration_cap>`). The card proceeds to
+step 7 with no state change here (still `Deliberating`; step 7's opening
+writes `In Progress`).
