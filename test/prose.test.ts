@@ -295,6 +295,44 @@ test("council step 12 names the union-merge reconcile as the sanctioned non-fast
 	expect(step12).toContain("surfaced to the human");
 });
 
+// FLLWUP-60 (Phase-1 ruling R3): council.md step 12 pushes the record
+// commit directly to `main` — a privileged write under a `main` ruleset
+// that requires changes to land through a pull request, and one the
+// authority map does not re-home. The record-push paragraph must require
+// an explicit, run-scoped, human-granted authorization (a Phase-1 ruling
+// on the run's Phase-1 record) to exist before the run's first record
+// push, state that it is not extended to any later run, and make an
+// unauthorized direct record push a HALT surfaced to the human.
+
+test("council step 12 gates the direct record push behind a run-scoped human authorization", () => {
+	const text = fs.readFileSync(
+		path.join(PKG_ROOT, "council", "procedures", "council.md"),
+		"utf-8",
+	);
+	// Whitespace-normalized so the pin survives line wrapping in the prose.
+	const flat = text.replace(/\s+/g, " ");
+	const stepStart = flat.indexOf("## 12. Sync and reconcile");
+	const stepEnd = flat.indexOf("## 13. Card the follow-ups");
+	expect(stepStart).toBeGreaterThan(-1);
+	expect(stepEnd).toBeGreaterThan(stepStart);
+	const step12 = flat.slice(stepStart, stepEnd);
+	// The direct record push is named: the step-12 record commit is pushed
+	// directly to `main` — a privileged write the authority map does not
+	// re-home to any seat.
+	expect(step12).toContain("pushed directly to `main`");
+	expect(step12).toContain("privileged write");
+	expect(step12).toContain("authority map does not re-home");
+	// A recorded, run-scoped, human-granted authorization (a Phase-1 ruling
+	// on the run's Phase-1 record) must exist before the run's first record
+	// push, and is not extended to any later run.
+	expect(step12).toContain("Phase-1 ruling");
+	expect(step12).toContain("before the run's first record push");
+	expect(step12).toContain("not extended to any later run");
+	// An unauthorized direct record push is a HALT surfaced to the human —
+	// not a bypass, never silently executed.
+	expect(step12).toContain("HALT surfaced to the human");
+});
+
 // FLLWUP-47: the red-base evidence convention is one shared block, bracketed
 // by literal HTML-comment markers, that must be byte-identical in the two
 // seats it binds (`owner` records the red-at-base run, `skeptic` reproduces
