@@ -39,12 +39,13 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-54 — Wiki page for the red-base evidence convention
 - FLLWUP-55 — Collapse the smoke driver's private pty screen model onto the shared kit
 - FLLWUP-56 — Saturate the seat-dispatch provider-error arm onto a config-injected faux provider
-- FLLWUP-57 — Suite determinism under a catalogue-valid ambient COUNCIL_EVAL_MODEL
 - FLLWUP-58 — Runaway timeout-minutes backstop on the gates CI job
 - FLLWUP-59 — Mechanically derive or police the shape witness's token allowlist
 - FLLWUP-61 — Worktree-seat cwd discipline for edit/write tools
 
 ## Ready
+
+- FLLWUP-57 — Suite determinism under a catalogue-valid ambient COUNCIL_EVAL_MODEL
 
 ## In Progress
 
