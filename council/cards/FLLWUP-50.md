@@ -4,7 +4,7 @@ title: Supported refresh path for packaged council tooling in initialized consum
 state: Deliberating
 owner: null
 epic: EPIC-9
-goal: A consumer repo initialized against an earlier pi-council install can bring its packaged council tooling (council/validate.py, _template.md, the procedures, the docstrings) up to the currently installed package's version through a documented, supported path, without overwriting consumer-edited board, cards, or wiki.
+goal: A consumer repo initialized against an earlier pi-council install is told at session start, non-fatally and no more than once per drift condition (re-arming on new drift), that its packaged council tooling (council/validate.py, _template.md, the procedures, the docstrings) is out of date, and can bring that tooling up to the currently installed package's version through a documented, supported path, without overwriting consumer-edited board, cards, or wiki.
 ---
 
 ## Intent
@@ -969,3 +969,86 @@ policy (`steward`); §2.8 seat-triggered refresh fenced out of v1
 Card stays `Deliberating`; the run container's turn ends with an ESCALATION
 report carrying these questions as facts. Steps 7+ do not start on a card
 with blocking open judgment.
+
+### Step 6 — ruling-seat rulings applied (ESCALATION resumed, run 2)
+
+The orchestrator obtained rulings from `product-owner` (R1–R6) and
+`steward` (Q2 + lifecycle); `product-owner`'s full reasoning is committed at
+`vault/raw/2026-09-19-po-fllwup50-step6-ruling.md`. Appended verbatim below
+per the escalation contract; applied as binding, not re-asked.
+
+**PO R1 (Q1, blocking — Class-1 consent fork).** Leg B —
+preserve-and-ask, with a three-state record
+(`$CONFIG_DIR_NAME/council/scaffold.json` written by `scaffoldInto` on
+creation only), ask-once bootstrap ("no record ⇒ treated as edited ⇒ ask"),
+plan-granularity consent for `↑ behind`, per-file consent for `~ diverged`,
+and the AGENTS.md convention #5/#6 additions in the same change. Options
+rejected: Leg A overwrite-always (content-compare leaves the
+consumer-edited state undecidable; owner conceded); "always ask forever,
+no record" (non-adoption → back to ESC-3 unbounded skew); engine-resolved
+validation (empirical false-green generator, skeptic O3); a flag on
+`/council-init` (makes "never overwrites" conditional; owner conceded).
+
+**PO R2 (§2.2 — command name + apply mode).** `/council-update` (pairs with
+the `↑` glyph); dry-run/plan default; `--apply` writes all `↑ behind` and
+skips `~ diverged` (per-file accept required for `~ diverged`).
+
+**PO R3 (§2.4, conditional on R1=B — record committed).** Committed by
+default at `<repo>/$CONFIG_DIR_NAME/council/scaffold.json`. Consumer may
+gitignore; the file is consumer data the consumer owns.
+
+**PO R4 (§2.5 — `_template.md`).** V1-refresh as a Class-1 file.
+Reclassification (package-resolved resource) gets its own card — it
+requires new engine work.
+
+**PO R5 (§2.6 — bootstrap friction).** Acceptable. One confirmed two-file
+review with diff shown, then mechanical.
+
+**PO R6 (§2.8 — seat-triggered refresh).** Fenced out of v1.
+
+**STEWARD Q2 (blocking — detection scope + site).** Detection that a
+consumer repo's packaged council tooling has drifted from the installed
+package is IN this card's goal (not a separate card, not silently
+deferrable). Site: a `session_start`, non-fatal check notifying once per
+drift condition (re-arming on new drift). The use-site,
+consequence-coupled notification (designer P7) is REJECTED; the designer's
+round-2 reversal is recorded as a named, non-adopted dissent. Exact final
+`goal` sentence, verbatim, replacing the current frontmatter value:
+
+A consumer repo initialized against an earlier pi-council install is told
+at session start, non-fatally and no more than once per drift condition
+(re-arming on new drift), that its packaged council tooling
+(council/validate.py, _template.md, the procedures, the docstrings) is out
+of date, and can bring that tooling up to the currently installed package's
+version through a documented, supported path, without overwriting
+consumer-edited board, cards, or wiki.
+
+**STEWARD lifecycle policy (non-blocking, §2.7).** Every file shipped into
+`council/scaffold/` is classified at ship time as `tooling`
+(refresh-writable) or `data` (report-only, never written), enforced by the
+converged classification set-equality guard (allowlist ∪ data-class == the
+scaffold-tree file set), so an unclassified scaffold file reds the suite
+and no resource enters the refresh path implicitly. Default for a
+newly-shipped scaffolded resource is `data`; promotion to `tooling` is a
+deliberate change in the same commit that updates the guard test, available
+only when the file has no sanctioned consumer-edit story. The tooling class
+is a shipped constant, not repo-extensible. Additions enter consumer repos
+through `scaffoldInto`-first non-clobbering creation; a package-side
+removal is reported (`local-only`) and never deleted. Any new resource
+*type* additionally follows AGENTS.md #5/#6 — a convention line for the
+type, and the non-clobbering write rule restated.
+
+**Record corrections required before step 7 (mechanical, from Skeptic
+`closed-red`).** (1) The seed tree pins **16** `seed.treeDigest`s, not 8 —
+only 8 seeds ship `seed/council/validate.py`; any re-pin scoping in the
+spec says 16. (2) Designer P4's round-2 "(unchanged)" stamp is false; P4 is
+subsumed by P2-amended. (3) The scaffold tree ships **8** files, not
+designer's round-1 "7."
+
+**Facilitator application notes.** The goal frontmatter is amended to the
+steward's verbatim sentence above (legal while `Deliberating` per
+[[engineering-board]]; the steward ruling is the amendment). The §2.1
+blocker is lifted; all open-judgment items §2.1–§2.8 are now ruled. The
+designer's round-2 use-site reversal (P7) is recorded as a named,
+non-adopted dissent — the notification site is `session_start`, per
+STEWARD Q2.
