@@ -2,7 +2,7 @@
 	"schemaVersion": 1,
 	"taskId": "council-runner",
 	"name": "Execute a done card's final gate and mark it Done",
-	"fixtureVersion": "1.1.0",
+	"fixtureVersion": "1.2.0",
 	"kind": "seat",
 	"target": {
 		"type": "seat",
@@ -11,7 +11,7 @@
 	"inputFile": "input.md",
 	"seed": {
 		"dir": "seed",
-		"treeDigest": "sha256:c778601a190a7a868fc004720ddd2b8b76a4809c7999d7c6468fd40bfa363088"
+		"treeDigest": "sha256:897d3bbff6f01d575094625fdde70f578c67563c5c6aa712f9c1de2c87fbf5c3"
 	},
 	"env": {
 		"TZ": "UTC"

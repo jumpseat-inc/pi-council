@@ -2,7 +2,7 @@
 	"schemaVersion": 1,
 	"taskId": "board-create-card",
 	"name": "Draft one card from a pinned intent, confirm, and land it on the board",
-	"fixtureVersion": "1.1.0",
+	"fixtureVersion": "1.2.0",
 	"kind": "procedure",
 	"target": {
 		"type": "procedure",
@@ -13,7 +13,7 @@
 	},
 	"seed": {
 		"dir": "seed",
-		"treeDigest": "sha256:55abb7acf43cc0504797158afc12be8878d36707a894f46b583cd5a75e02dde8"
+		"treeDigest": "sha256:47ab00d0cd2cd1a89e917474625430ff82558c48f8433228671d0cc693cda8f1"
 	},
 	"env": {
 		"TZ": "UTC"

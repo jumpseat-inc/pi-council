@@ -5,10 +5,14 @@ Checks every card in council/cards/ against:
   - required frontmatter keys
   - id pattern ^(EV|FLLWUP|BUG|EPIC)-[1-9]\d*$, matching the filename
   - state in the allowed set
-  - goal present on a single line; the value is everything after the
-    first `: ` of the line, edge-whitespace-trimmed — a colon-space
-    inside the value does not truncate, and the judge reads the same
-    text
+  - goal present on a single line and last in the block; the value is
+    everything after the first `: ` of the line, edge-whitespace-trimmed —
+    a colon-space inside the value does not truncate, and the judge reads
+    the same text. The loader refuses (named FAIL, not a silent green):
+    a wrapped goal, a key-shaped line after `goal:`, a non-`key: value`
+    line inside the block, and an unclosed block. A not-`key: value`
+    line's diagnostic names both a wrapped/continued value and a missing
+    closing `---` because the parser cannot tell them apart.
   - board.md contains exactly one `- <ID> — <Title>` line per card, under
     the column matching its state, with an em dash (U+2014)
   - board.md contains no orphan lines (entries with no matching card)
@@ -46,28 +50,90 @@ def fail(msg: str) -> None:
     failures.append(msg)
 
 
+class FrontmatterError(Exception):
+    """A structural frontmatter failure (see parse_frontmatter for the
+    grammar). Carries the failing line's number and text, plus the keys
+    parsed before the failure, so main() can keep reporting missing keys
+    and board drift from the partial metadata instead of losing the whole
+    card's report.
+    """
+
+    def __init__(self, message, line_no=None, line_text=None, partial_meta=None):
+        super().__init__(message)
+        self.line_no = line_no
+        self.line_text = line_text
+        self.partial_meta = partial_meta if partial_meta is not None else {}
+
+
 def parse_frontmatter(text: str) -> dict:
-    """Parse plain `key: value` frontmatter: the first `: ` of a line splits
-    key from value, edge whitespace is trimmed, and the value ends at a line
-    break or a bare non-`key: value` line (which ends frontmatter). Colons
-    and colon-spaces inside the value are literal characters.
+    """Parse plain `key: value` frontmatter, refusing a structurally broken
+    leading block instead of silently truncating it.
+
+    Grammar: the leading block (after the opening `---`) is a run of
+    `key: value` lines — the first `: ` of a line splits key from value,
+    edge whitespace is trimmed, and colons/colon-spaces inside the value
+    are literal characters — terminated by a closing `---`. The value ends
+    at a line break (never wrap a value onto a second line); a line without
+    the `key: value` shape inside the block is a parse error, not a block
+    terminator.
+
+    Three structural rules raise FrontmatterError:
+
+      - Positional rule: once a `goal` key has been seen, only blank lines
+        and the closing `---` may follow. A wrapped goal continuation
+        parses as a key, so a key-shaped line after `goal:` is refused.
+      - A non-blank line that is not `key: value`-shaped is refused. The
+        diagnostic names both a wrapped/continued value and a missing
+        closing `---` because they are indistinguishable inside the scan.
+      - A block never terminated by `---` (EOF reached) is refused with a
+        distinct "not closed" message. It is naturally suppressed when the
+        bare-line rule already fired — that raise never returns.
+
+    Scope is the leading block only: the scan stops at the first closing
+    `---`, so body-embedded fences are never parsed.
     """
     meta = {}
     if not text.startswith("---"):
         return meta
     lines = text.splitlines()
-    # skip leading ---
-    i = 1
-    for line in lines[1:]:
+    seen_goal = False
+    closed = False
+    # skip leading ---; physical line numbers start at 2
+    for line_no, line in enumerate(lines[1:], start=2):
         if line.strip() == "---":
+            closed = True
             break
         if ": " in line:
             key, value = line.split(": ", 1)
-            meta[key.strip()] = value.strip()
+            key = key.strip()
+            if seen_goal:
+                raise FrontmatterError(
+                    f"frontmatter line {line_no} '{line.strip()}' comes after "
+                    "'goal' — a wrapped goal continuation parses as a key; "
+                    "keep the goal on one line, and keep goal last in the block.",
+                    line_no=line_no,
+                    line_text=line.strip(),
+                    partial_meta=dict(meta),
+                )
+            meta[key] = value.strip()
+            if key == "goal":
+                seen_goal = True
         elif line.strip():
-            # a bare non-`key: value` line ends frontmatter per convention
-            break
-        i += 1
+            raise FrontmatterError(
+                f"frontmatter line {line_no} '{line.strip()}' is not "
+                "'key: value' — a wrapped/continued value, or the closing "
+                "'---' is missing (a line break ends the value; keep the "
+                "goal on one line).",
+                line_no=line_no,
+                line_text=line.strip(),
+                partial_meta=dict(meta),
+            )
+    if not closed:
+        raise FrontmatterError(
+            "frontmatter block is not closed — the closing '---' is missing "
+            "(a line break ends the value; keep each key on one line).",
+            partial_meta=dict(meta),
+        )
     return meta
 
 
@@ -107,10 +173,18 @@ def main() -> int:
         if path.name == "_template.md":
             continue
         text = path.read_text()
-        meta = parse_frontmatter(text)
+        fname = path.stem
+        meta = {}
+        try:
+            meta = parse_frontmatter(text)
+        except FrontmatterError as exc:
+            # one structural FAIL per card; downstream checks below run
+            # against the partial metadata so the missing-key class and
+            # board checks still report
+            fail(f"{fname}: {exc}")
+            meta = exc.partial_meta
         cid = meta.get("id")
         card_ids.add(cid)
-        fname = path.stem
 
         if cid != fname:
             fail(f"{fname}: frontmatter id {cid!r} does not match filename {fname!r}")
