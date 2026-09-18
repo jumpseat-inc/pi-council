@@ -94,9 +94,9 @@ spec asked for — and then clear all four gates, in order:
 
 Take the exact command and rationale for each gate from this repository's
 own records — do not retype them from memory or improvise a shorter version.
-Where the repo keeps an authoritative gate document (e.g.
-`docs/gates/GATE-EVIDENCE.md`), it outranks the wiki: if a wiki page and
-that file ever disagree, the file wins and the wiki is stale.
+Where the repo keeps an authoritative gate document, it outranks the wiki:
+if a wiki page and that document ever disagree, the document wins and the
+wiki is stale.
 
 The discipline is not optional and does not scale down:
 

@@ -234,10 +234,10 @@ the card's own `Intent`/`goal`) into a plan under
 `docs/superpowers/plans/`, implements it in the worktree, pushes a branch,
 and opens a PR.
 
-The owner then clears **every gate its own agent defines, in full** —
-`docs/gates/GATE-EVIDENCE.md` is the authoritative record of what those
-gates are and how to run them, and the owner's own agent definition already
-carries that discipline. Your job here is to hold the line the owner's agent
+The owner then clears **every gate its own agent defines, in full** — the
+repo's own authoritative gate record, if it keeps one, is the source of
+truth for what those gates are and how to run them, and the owner's own
+agent definition already carries that discipline. Your job here is to hold the line the owner's agent
 already states: all gates clear, in order, no threshold lowered, no finding
 suppressed, regardless of how small the change is — a one-line edit clears
 the same gates as a thousand-line one.

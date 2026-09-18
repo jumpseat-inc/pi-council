@@ -25,12 +25,17 @@ test("no stale `deliver.md` filename in council prose", () => {
 	}
 });
 
-test("features-deliver does not hard-reference the repo-specific gate file", () => {
-	const text = fs.readFileSync(
-		path.join(PKG_ROOT, "council", "procedures", "features-deliver.md"),
-		"utf-8",
-	);
-	expect(text).not.toContain("GATE-EVIDENCE.md");
+test("packaged council prose does not hard-reference the repo-specific gate file", () => {
+	// FLLWUP-53: a repo-specific gate-document path stated as fact in packaged
+	// prose is the failure class this guard exists for — council.md step 8
+	// hard-named `docs/gates/GATE-EVIDENCE.md`, a path that does not exist in
+	// this repo, and the old single-file guard missed it. Every packaged seat
+	// and procedure file is covered so a second naming cannot reintroduce it.
+	for (const [rel, text] of councilMarkdown()) {
+		expect(text, `${rel} hard-references the repo-specific gate file`).not.toContain(
+			"GATE-EVIDENCE.md",
+		);
+	}
 });
 
 test("council prose does not describe seats as a restartable agent registry", () => {
