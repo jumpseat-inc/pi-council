@@ -202,6 +202,27 @@ Skeptic usage (verbatim, job-2.2):
 job-2.2  turns=25 tokens=in 148275/out 24619/cR 887552/cW 0/reason 18109/total 1060446 cost≈$0.0225
 ```
 
+### Step 10 — judge PASS (job-2.3)
+
+Judge dispatched with exactly the card's `goal` (verbatim) + the step-9
+Skeptic evidence, subject pinned (head `c30f7b7…`, head worktree
+`.worktrees/fllwup-60`), loop frame stated (step 10 precedes step 11's
+mechanical merge, facilitator-executed). Verdict **PASS** with a stated
+two-point basis: the authorization paragraph at the pinned head names the
+direct-to-`main` record push as a privileged write outside the (non-vacuous)
+authority map, requires the recorded run-scoped human-granted Phase-1
+authorization before the run's first record push, states non-extension to
+later runs, and makes an unauthorized push a `HALT surfaced to the human`;
+and the gate set is green at head (tsc 0, bun test 894/2/0, validate.py
+clean) with the pin a pure expansion and zero run-specific or tech-stack
+token leakage into `council.md`. No REJECT basis; no goal-text defect.
+
+Judge usage (verbatim, job-2.3):
+
+```
+job-2.3  turns=16 tokens=in 16368/out 3023/cR 193472/cW 0/reason 1373/total 212863 cost≈$0.0140
+```
+
 **Non-goals:** no change to the five deterministic criteria, to
 `--match-head-commit` pinning, to FLLWUP-42's merged merge paragraph, or any
 reopening of FLLWUP-42.
