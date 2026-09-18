@@ -667,3 +667,104 @@ resolution; child failure shape under a leaked knob; the re-measured suite
 total) are live-arm empirical by construction, with the design's escalation
 boundaries already recorded. Proceed to synthesis.
 
+
+### Step 5 — synthesis (`job-23.6`)
+
+1.0m / 4 turns, settled `done`. Dispatched with the full deliberation record
+(steps 2–4). Synthesis appended verbatim.
+
+## Synthesis — FLLWUP-56 (step 5)
+
+**Agreed design (what every seat converged on):**
+
+1. **Drive shape: real parent pi session** — `runHarnessArm({councilExtension:
+   true, arm: "none", fails: 0})` driving a scripted `council_dispatch` →
+   `council_wait` turn. The parent stays alive through the backoff window
+   because `hub.ts:431` (`isSettledForWait`) returns `false` when
+   `job.state === "retrying"`, and `council_wait`'s awaited `execute` holds the
+   turn open. New opt-in knob `EV40_TOOLCALL_WAIT=1` added to
+   `test/faux-provider/extension.ts`.
+2. **File layout: new file** `test/ev41-seat-child-live.test.ts`, two arms
+   (treatment + control). Baseline `3/5/5/2/2`, Live-arm share 15→17. Inner
+   ceilings 0.5min/0.5min per attempt; outer 120s per arm.
+3. **Three required correctness fixes** (principal round 2, confirmed by the
+   Skeptic): **wait step** (O1 closed-green — without `council_wait` the
+   unref'd backoff timer dies with the print-mode parent and attempt 2 never
+   spawns); **attempt-index keying** (O4 closed-green — `COUNCIL_JOB_ID` is the
+   same `jobId` on every attempt; the `-attempt2` suffix lives only in
+   `--session-id` (argv); the shim must key on `process.argv --session-id` or a
+   counter file); **dynamic import** (O5 closed-green — ESM evaluates
+   dependencies before the module body; a static re-export loads the extension
+   before the shim's env write).
+4. **Child knob strip** (owner P7, refined by O7 closed-green): the parent's
+   env leaks `EV40_TOOLCALL_DISPATCH`, `EV40_FAILS`, `EV40_ARM` into the child
+   via `childEnv`'s spread; the shim must strip all `EV40_*` knobs before the
+   child's extension evaluates.
+5. **Perturbation-red, not red-base** (both seats): the mechanism already
+   exists at base; the falsifier is a perturbation (drop the `.pi/extensions`
+   shim ⇒ the child cannot resolve the model ⇒ dispatch fails). The evidence
+   record says so; no base red is manufactured (`red-base-evidence.md`
+   fields 2/6 not invoked).
+6. **Framing = real `council_dispatch` through a real spawned parent** (not
+   the in-process `registerHubTools` drive, which never runs a parent pi
+   session and does not prove what the card exists to prove; principal
+   withdrew the in-process-only recommendation in round 2).
+7. **Escalation boundaries** (both seats): if the wait-scripted parent turn
+   fails empirically, or if neither shim route works without an engine flag,
+   the escalation is explicit (not silent re-scope). `PI_OFFLINE=1` is pi's own
+   documented var; no council-minted flag; no engine change; no preflight.sh
+   string.
+
+**Settled disputes** — each with the Skeptic test that settled it: O1
+(mechanism: real tools + stub child, 2-attempt policy → `done`, 401ms,
+`attempts[]` pairing) closed-green; O2 (control boundary) closed-green; O3
+(carrier = wait toolResult; owner r1 assertion (i) closed-red as record
+correction); O4 (attempt key constant across attempts) closed-green; O5 (ESM
+ordering defeats static re-export) closed-green; O6 (`EV40_TOOLCALL_MODEL` omits
+claim) closed-red as record correction; O7 (leak chain + broader strip)
+closed-green; O8 (all premise facts) closed-green; O9 (budget rules + baseline
+3/5/5/2) closed-green; O10 (record accuracy) closed-green beyond O3/O6.
+
+**Open judgment — for `product-owner`, escalating to `steward`:** **None.**
+Every design question the two seats disagreed on was settled by convergence in
+round 2 and confirmed by the Skeptic. The remaining empirical questions are
+`open-untested`, not open judgment — they route to the implementing pass and
+the step-9 Skeptic, not to a ruling seat.
+
+**Open objections (`open-untested`, non-blocking, each with its named
+escalation boundary):** (1) real scripted print-mode parent liveness across
+the wait — settling test is the live arm itself; if the parent exits at first
+settle, the arm reds on the reachability/respawn assertions and the in-process
+drive is the designated fallback, with escalation; (2) scratch shim loading
+under `-a` before argv-model resolution — fallback A (scratch
+`settings.json` global extension entry, reachability claim narrows, recorded)
+/ fallback B (runtime byte-copy); if neither works without an engine flag,
+escalation; (3) child failure shape under leaked knobs — settling test is the
+live arm with the knob left unstripped; (4) re-measured suite total —
+expected ≈112–124s; implementing pass re-measures with provenance; the 180s
+drift threshold governs (if exceeded, FLLWUP-48 reopens).
+
+**Ready to hand off? Yes — to step 7.** The design is spec-complete: the risks
+are named, the fallbacks and escalation triggers recorded, and the three
+`open-untested` items are implementation-testable claims, not unresolved
+design questions. No ruling-seat escalation is needed; the only escalation
+scenario (neither shim route works without an engine flag) is bounded and
+named.
+
+### Step 6 — routing (facilitator)
+
+Phase-1 rulings checked before any escalation (per `<escalation_contract>`
+step 1): scope (run-2 `FLLWUP-50`–`60`), `steward` job-1 build order (ninth),
+R2 (merge), R3 (record push), step-13 pre-write confirmation re-homed to
+`product-owner`. **None of these answers a design question on this card** —
+the consolidator found **zero open-judgment items**, so there is nothing to
+route to a ruling seat, and no `Needs Human` state arises. The four
+`open-untested` items are non-blocking empirical claims, each with a named
+settling test and escalation boundary; they ride into steps 7–9 as named
+evidence obligations. **The card proceeds to step 7.**
+
+**Throughput/usage (this card so far):** 6 seat dispatches — `owner` (23.1,
+23.3), `principal` (23.2, 23.4), `skeptic` (23.5), `consolidator` (23.6); two
+exchange rounds (under the ≤3 cap). All 6 jobs settled `done` on first
+attempt; no stall, timeout, or re-dispatch.
+
