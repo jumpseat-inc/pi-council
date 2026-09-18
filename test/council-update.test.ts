@@ -93,7 +93,10 @@ function seedConsumerNoRecord(): { root: string; originals: Map<string, string> 
 	fs.writeFileSync(consumerPath(root, "council/validate.py"), staleValidate);
 	fs.writeFileSync(consumerPath(root, "council/cards/_template.md"), staleTemplate);
 
-	// consumer data: edit board + one card + a wiki page
+	// consumer data: edit board + one card + a wiki page; the card carries a
+	// matching board line (appended at EOF → under the last column, Done) so
+	// the seeded tree is a VALID consumer tree before any test corrupts it.
+	fs.appendFileSync(consumerPath(root, "council/board.md"), "- FLLWUP-42 — Consumer card\n");
 	fs.appendFileSync(consumerPath(root, "council/board.md"), "\n<!-- consumer edit -->\n");
 	const card = path.join(root, "council", "cards", "FLLWUP-42.md");
 	fs.writeFileSync(
@@ -388,5 +391,46 @@ test("engine: removed and local-only states — a record-known deleted file is r
 	// never recreated, never deleted
 	expect(fs.existsSync(consumerPath(root, "council/validate.py"))).toBe(false);
 	expect(fs.existsSync(consumerPath(root, "council/gone-file.py"))).toBe(true);
+	fs.rmSync(root, { recursive: true, force: true });
+});
+
+// ---------------------------------------------------------------------------
+// T2 — the false-green trap (engine-resolved validation is forbidden)
+// ---------------------------------------------------------------------------
+
+test("T2 false-green pin: the documented validate invocation FAILs on a corrupted consumer board — never 'All council artifacts valid'", () => {
+	const { root } = seedConsumerNoRecord(); // a VALID consumer tree to start
+	expect(runPostRefreshValidate(root).status).toBe(0);
+	// corrupt the board: drop the card's board line
+	const boardPath = consumerPath(root, "council/board.md");
+	fs.writeFileSync(
+		boardPath,
+		fs
+			.readFileSync(boardPath, "utf-8")
+			.split("\n")
+			.filter((l) => !l.startsWith("- FLLWUP-42"))
+			.join("\n"),
+	);
+	// run the validator exactly the way the documentation instructs
+	const res = spawnSync("python3", [path.join(root, "council", "validate.py")], { cwd: root, encoding: "utf-8" });
+	expect(res.status).not.toBe(0);
+	expect(res.stdout).toContain("FAIL:");
+	expect(res.stdout).not.toContain("All council artifacts valid");
+
+	// the engine's post-refresh runner surfaces the same consumer-root result
+	const post = runPostRefreshValidate(root);
+	expect(post.ran).toBe(true);
+	expect(post.status).not.toBe(0);
+	expect(post.output).toContain("FAIL:");
+	fs.rmSync(root, { recursive: true, force: true });
+});
+
+test("T2b post-refresh runner: consumer-root run of the refreshed validator is green on a clean consumer tree", () => {
+	const { root } = seedConsumerNoRecord();
+	applyRefresh(root, SCAFFOLD, new Set<string>(TOOLING));
+	const post = runPostRefreshValidate(root);
+	expect(post.ran).toBe(true);
+	expect(post.status).toBe(0);
+	expect(post.output).toContain("All council artifacts valid");
 	fs.rmSync(root, { recursive: true, force: true });
 });
