@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-57
 title: Suite determinism under a catalogue-valid ambient COUNCIL_EVAL_MODEL
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-9
 goal: A test run of test/ with a catalogue-valid ambient COUNCIL_EVAL_MODEL exported passes, and any test that resolves the ambient as its effective model is isolated or pinned, so bun test is shell-independent for every catalogue-valid value.
@@ -79,3 +79,48 @@ No deliberation ran, so the card itself is the owner's handoff: its `goal`,
 `python3 council/validate.py` clean at the move; promotion commit `bb5c5e8`
 and this record commit pushed directly to `main` under R3 (disclosed:
 standard ruleset bypass notice). `owner` dispatched (45-minute window).
+
+### Step 8 — owner delivered (job-5.1), PR #68 open
+
+Owner implemented in worktree `.worktrees/fllwup-57` (branch
+`feat/fllwup-57-eval-model-catalogue-valid`, base `origin/main` `77bab89`),
+pushed, PR #68 open at head
+`5b5e9c9e60e618f8965ad000220eb1424d5f8d4a`. Observed directly (not from the
+seat's report): `gh pr view 68` → state OPEN, base `main`,
+`mergeable: MERGEABLE` (mergeStateStatus `BLOCKED` — the ruleset's
+approving-review / PR-only requirement, cleared at merge by R2), headRefOid
+`5b5e9c9…`. Diff scope (observed): `test/override.test.ts` +21/−2 and the
+plan doc `docs/superpowers/plans/2026-09-18-FLLWUP-57-plan.md` +65 — 2
+files, +84/−2. No engine change, no other test file touched.
+
+**The owner's audit finding (recorded as fact; the Skeptic attacks it):**
+the suite was green under a catalogue-valid ambient **only by masking
+luck** — `test/override.test.ts`'s existing `afterEach` *deleted* the
+ambient rather than restoring it, so its own later tests and every test
+file after it ran ambient-less; a catalogue-valid shell value never
+survived into them. Single-test probes bypassing that shield went red with
+real output (fallback test `isError` true under V1; D2 expecting
+`"openrouter/grader/m1:high"` ≠ pinned `"openrouter/grader/m1"` under V2).
+The fix extends FLLWUP-40's invariant file-wide in `override.test.ts`:
+shell value captured at module load, `beforeEach` clears the ambient,
+`afterEach` restores on every path. The FLLWUP-40-fixed files
+(`eval-runner`, `job-retry`) keep their per-test patterns untouched.
+Catalogue-valid values exercised: V1 `openrouter/qwen/qwen3.8-flash`, V2
+`openrouter/qwen/qwen3.8-flash:high` (with `:thinking` suffix). Post-fix:
+`bun test` **894 pass / 2 skip / 0 fail / 5649 expect()** in all three
+states (unset, V1, V2); `bunx tsc --noEmit` exit 0; `validate.py` clean;
+all gates proven fallible with injected-then-restored reds.
+
+**Owner deviation, disclosed:** a gate-integrity probe's `git restore`
+briefly wiped the uncommitted fix in the worktree; re-applied
+byte-identically, committed at `5b5e9c9`, and one full-suite state re-run
+against the committed head. Main repo branch state untouched; work
+confined to `.worktrees/fllwup-57`.
+
+Owner usage (verbatim, job-5.1):
+
+```
+job-5.1  turns=50 tokens=in 99724/out 24773/cR 2266496/cW 0/reason 16402/total 2390993 cost≈$0.0572 (catalogue)
+```
+
+Card set `In Review` (sole precondition: open PR, observed).
