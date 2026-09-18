@@ -239,4 +239,25 @@ Immutable for this run and binding on every seat, `steward` included.
 - **Follow-ups (judgment row).** `council.md` step 13's draft-then-confirm gate
   is re-homed to `product-owner`, which confirms, edits, or drops each
   follow-up draft before the card is written.
-- **Build order — `steward` ruling (job-D1).** _Pending; recorded on return._
+- **Build order — `steward` ruling (job-1).** The human re-homed sequencing to
+  `steward`. Steward ruled a strict serial dispatch order (one runner at a
+  time; no retirements beyond R4's):
+
+  `FLLWUP-60 → FLLWUP-52 → FLLWUP-57 → FLLWUP-51 → FLLWUP-53 → FLLWUP-50 →
+  FLLWUP-54 → FLLWUP-55 → FLLWUP-56 → FLLWUP-59 → FLLWUP-58`
+
+  Rationale (abridged): `FLLWUP-60` first per its own recorded `steward`
+  ruling; `FLLWUP-52` as retirement bookkeeping immediately after; then
+  gate-instrument fidelity (`57`, the FLLWUP-40 successor that makes criterion
+  1 shell-independent), then the validator / goal-oracle net (`51`, FLLWUP-43's
+  successor), then the packaged procedure prose and widened prose guard (`53`,
+  FLLWUP-47's residual, which must land before the cards that add packaged
+  prose); then the refresh path over the settled payload (`50`), then the
+  optional red-base wiki page (`54`) last in the content group; then harness
+  hygiene (`55`, then `56`, whose live arm must precede the budget cards), then
+  the allowlist policing (`59`) over the settled harness, and the CI runaway
+  backstop (`58`) last, sized against the final arm set. Grounding: EPIC-9's
+  prior run build-order ruling, the eleven card faces, `FLLWUP-43/47/48/49`,
+  and the vault pages `deterministic-merge-check.md`, `record-push-discipline.md`,
+  `test-suite-budget.md`, `gate-parity.md`, `non-clobbering-scaffold.md`,
+  `override-resolution.md`, `smoke-test.md`, `llm-wiki.md`.
