@@ -10,6 +10,10 @@
 // contain the path tokens it counts). Scope is `test/` only — the goal's
 // universe; `smoke/search-smoke/driver.py` is the named out-of-universe
 // residual (spec §2).
+//
+// FLLWUP-55 extends the charter to `smoke/`: smoke/search-smoke/driver.py
+// consumes the shared pty kit (no private Screen/Session); test 4's `test/`
+// universe is unchanged.
 import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
@@ -47,6 +51,36 @@ function filesUnder(dir: string): string[] {
 
 function countMatches(dir: string, re: RegExp): string[] {
 	return filesUnder(dir).filter((f) => re.test(readFileSync(f, "utf-8")));
+}
+
+const SMOKE_DRIVER = join(REPO_ROOT, "smoke", "search-smoke", "driver.py");
+
+/**
+ * FLLWUP-55 ban checker: line-anchored regexes over source — comments and
+ * strings do not false-positive (O11). Bans any private Screen/Session
+ * definition (including subclasses) and any screen/session ingest re-entry
+ * (`feed`/`_csi`/`_feed`) in the smoke driver's source.
+ */
+function bannedScreenSessionLines(src: string): string[] {
+	const hits: string[] = [];
+	const lines = src.split("\n");
+	for (let i = 0; i < lines.length; i++) {
+		if (/^class\s+\w*(Screen|Session)\b/.test(lines[i])) hits.push(`line ${i + 1}: ${lines[i]}`);
+		if (/^\s*def (feed|_csi|_feed)\(/.test(lines[i])) hits.push(`line ${i + 1}: ${lines[i]}`);
+	}
+	return hits;
+}
+
+/** FLLWUP-55 charter pin: pty_kit.py stays stdlib-only. */
+const KIT_STDLIB = new Set(["fcntl", "json", "os", "pty", "re", "select", "struct", "termios", "time"]);
+function kitImportViolations(src: string): string[] {
+	const out: string[] = [];
+	for (const line of src.split("\n")) {
+		const m = /^(import|from)\s+([\w.]+)/.exec(line);
+		if (!m) continue;
+		if (!KIT_STDLIB.has(m[2].split(".")[0])) out.push(line);
+	}
+	return out;
 }
 
 describe("faux-provider shape (the goal's committed witness)", () => {
@@ -111,6 +145,35 @@ describe("faux-provider shape (the goal's committed witness)", () => {
 				writeFileSync(join(scratch, "__pycache__", "x.pyc"), "ev40-harness/\0binary payload", "utf-8");
 				const hits = countMatches(scratch, /ev40-harness\//);
 				expect(hits).toEqual([join(scratch, "x.ts")]);
+			} finally {
+				rmSync(scratch, { recursive: true, force: true });
+			}
+		});
+	});
+
+	describe("smoke/ charter extension (FLLWUP-55)", () => {
+		test("9: the search-smoke driver consumes the shared kit — no private Screen/Session", () => {
+			const src = readFileSync(SMOKE_DRIVER, "utf-8");
+			expect(bannedScreenSessionLines(src)).toEqual([]);
+			expect(src).toContain("from pty_kit import");
+		});
+
+		test("10: ban checker is two-sided — a private session subclass reds it", () => {
+			const synthetic = "class SmokeSession(Session):\n    def _csi(self, a, f):\n        pass\n";
+			const hits = bannedScreenSessionLines(synthetic);
+			expect(hits.length).toBe(2); // the class line + the _csi line
+			expect(hits[0]).toContain("class SmokeSession(Session):");
+			expect(hits[1]).toContain("def _csi(");
+		});
+
+		test("11: kit stdlib-only guard (charter pin, green at base and head — never a red-base falsifier)", () => {
+			const kit = readFileSync(join(FAUX, "pty_kit.py"), "utf-8");
+			expect(kitImportViolations(kit)).toEqual([]);
+			// two-sided: the checker reds on a non-stdlib import
+			const scratch = mkdtempSync(join(tmpdir(), "fllwup55-stdlib-"));
+			try {
+				writeFileSync(join(scratch, "x.py"), "import requests\n", "utf-8");
+				expect(kitImportViolations(readFileSync(join(scratch, "x.py"), "utf-8"))).toEqual(["import requests"]);
 			} finally {
 				rmSync(scratch, { recursive: true, force: true });
 			}

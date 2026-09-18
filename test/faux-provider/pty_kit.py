@@ -117,18 +117,20 @@ class Screen:
 
 
 class Session:
-    """One pty session: a forked child on a 24x80 pty, byte-logged."""
+    """One pty session: a forked child on a rows x cols pty (defaults 24x80),
+    byte-logged."""
 
-    def __init__(self, argv, work_dir, home, env_extra, bytelog_path):
+    def __init__(self, argv, work_dir, home, env_extra, bytelog_path, rows=ROWS, cols=COLS, term_sig=9):
         self.bytelog_path = bytelog_path
         self.bytelog = open(bytelog_path, "wb")
-        self.screen = Screen()
+        self.screen = Screen(rows, cols)
+        self.term_sig = term_sig
         # Explicit env: PATH + scratch HOME + harness vars only — nothing
         # ambient inherited (the FLLWUP-21 env-split lesson).
         env = {"PATH": os.environ.get("PATH", "/usr/bin:/bin"), "HOME": home, "TERM": "xterm-256color"}
         env.update(env_extra)
         master, slave = pty.openpty()
-        fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", ROWS, COLS, 0, 0))
+        fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", rows, cols, 0, 0))
         pid = os.fork()
         if pid == 0:
             os.setsid()
@@ -206,7 +208,7 @@ class Session:
 
     def kill(self) -> None:
         try:
-            os.kill(self.pid, 9)
+            os.kill(self.pid, self.term_sig)
         except OSError:
             pass
         try:

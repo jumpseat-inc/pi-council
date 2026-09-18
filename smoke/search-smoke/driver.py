@@ -9,25 +9,24 @@ the ruled copy set byte-exact: (1) seat level, (2) model level pre-press,
 (6) backspace -> cl, (7) zz no-match, (8) Esc-Esc clear-and-stay,
 (9) Down+Esc -> provider level.
 
-python3 stdlib ONLY (pty, fcntl, termios, select, struct, re) — no pi/extension
-module is imported (testable claim 4). The screen model and the byte table are
-authored here.
+python3 stdlib plus one repo module — the shared stdlib-only pty substrate
+test/faux-provider/pty_kit.py (Screen, Session, the ANSI regexes). Neither
+module imports any pi/extension module (testable claim 4). The byte table,
+frame matchers, and session policy (28×80 winsize, checkpoint-byte mark(),
+SIGTERM teardown, wait_stable timing, OPENROUTER_API_KEY pass-through) are
+authored here; the screen parser is shared with the faux-provider kit so the
+O2 drift class cannot recur.
 
 Expects env: PI_BIN, WORK_DIR, HOME, OPENROUTER_API_KEY, TERM. Args: artifact dir.
 Exit 0 iff all frames green; 1 on any red (per-line diffs + artifacts kept).
 """
 
-import fcntl
 import os
-import pty
 import re
-import select
-import struct
 import sys
-import termios
-import time
 
-ROWS, COLS = 28, 80
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir, os.pardir, "test", "faux-provider"))
+from pty_kit import Screen, Session, CSI_RE, OSC_RE
 
 # ---- ruled copy set — byte-exact, source-verified against extensions/model-picker.ts ----
 HEADER = "council models \u2014 pick a model per seat"
@@ -58,98 +57,6 @@ K_UP = b"\x1b[A"
 
 DA_REPLY = b"\x1b[?1;2c"      # primary DA: VT100-with-advanced-video
 KITTY_REPLY = b"\x1b[>1u"     # kitty capability reply: flag 1 (CSI-u printables) only
-
-CSI_RE = re.compile(rb"\x1b\[([0-9;?]*)([ -/]*[A-Za-z])")
-OSC_RE = re.compile(rb"\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)")
-
-
-class Screen:
-    """~150-line pty screen model: a 28x80 cell grid fed raw TUI bytes.
-
-    Handles cursor addressing (CUP/CHA/Up/Down/Left/Right), erase-in-line,
-    UTF-8 multi-byte writes, CR/LF, OSC hyperlink runs, and SGR (ignored —
-    the assertion is on the stripped text). Width-80 truncation is the
-    terminal's, not ours: long rows already arrive truncated.
-    """
-
-    def __init__(self, rows=ROWS, cols=COLS):
-        self.rows = rows
-        self.cols = cols
-        self.cells = [[" "] * cols for _ in range(rows)]
-        self.r = 0
-        self.c = 0
-
-    def feed(self, data: bytes) -> None:
-        i, n = 0, len(data)
-        while i < n:
-            b = data[i]
-            if b == 0x1B:
-                m = OSC_RE.match(data, i)
-                if m:
-                    i = m.end()
-                    continue
-                m = CSI_RE.match(data, i)
-                if m:
-                    args_s, final = m.group(1).decode("latin-1"), m.group(2).decode("latin-1")
-                    i = m.end()
-                    self._csi(args_s, final[-1] if final else "")
-                    continue
-                i += 1  # lone ESC (e.g. alt-screen toggle) — ignore
-                continue
-            if b == 0x0D:  # CR — column 0
-                self.c = 0
-                i += 1
-                continue
-            if b == 0x0A:  # LF
-                self.r = min(self.rows - 1, self.r + 1)
-                i += 1
-                continue
-            width = 1 if b < 0x80 else 2 if b < 0xE0 else 3 if b < 0xF0 else 4
-            chunk = data[i : i + width]
-            try:
-                ch = chunk.decode("utf-8")
-            except UnicodeDecodeError:
-                i += 1
-                continue
-            if ord(ch) >= 0x20:
-                if self.c < self.cols:
-                    self.cells[self.r][self.c] = ch
-                self.c += 1
-            i += width
-
-    def _csi(self, args_s: str, final: str) -> None:
-        if final in "Hf":  # CUP/CHA position
-            parts = args_s.split(";") if args_s else ["1", "1"]
-            self.r = max(0, min(self.rows - 1, int(parts[0] or 1) - 1))
-            self.c = max(0, min(self.cols - 1, int(parts[1] or 1) - 1))
-        elif final == "A":
-            self.r = max(0, self.r - (int(args_s) if args_s else 1))
-        elif final == "B":
-            self.r = min(self.rows - 1, self.r + (int(args_s) if args_s else 1))
-        elif final == "C":
-            self.c = min(self.cols - 1, self.c + (int(args_s) if args_s else 1))
-        elif final == "D":
-            self.c = max(0, self.c - (int(args_s) if args_s else 1))
-        elif final == "G":
-            self.c = max(0, min(self.cols - 1, (int(args_s) if args_s else 1) - 1))
-        elif final == "K":  # erase in line: 0=EOL 1=BOL 2=all
-            mode = int(args_s) if args_s else 0
-            if mode == 0:
-                for x in range(self.c, self.cols):
-                    self.cells[self.r][x] = " "
-            elif mode == 1:
-                for x in range(0, self.c + 1):
-                    self.cells[self.r][x] = " "
-            else:
-                self.cells[self.r] = [" "] * self.cols
-        elif final == "J":  # erase in display — coarse full clear
-            if args_s == "2" or args_s == "3":
-                self.cells = [[" "] * self.cols for _ in range(self.rows)]
-                self.r = self.c = 0
-        # m (SGR), s/u (dec save/restore), ?-prefixed private modes: ignored
-
-    def lines(self):
-        return ["".join(row).rstrip() for row in self.cells]
 
 
 # Belt-and-suspenders: a mid-stream partial row paint can leave an SGR remnant
@@ -262,96 +169,29 @@ class Framelog:
                 f.write("\n".join(screen.lines()) + "\n")
 
 
-class Session:
-    def __init__(self, pi_bin, work_dir, home, outdir):
-        self.master = None
-        self.pid = None
-        self.buf = b""  # bytes since last mark (anything under-out)
-        self.screen = Screen()  # persistent screen state — repaints are incremental
-        self.outdir = outdir
-        env = dict(os.environ)
-        for k in ("COUNCIL_SEAT", "COUNCIL_JOB_ID", "COUNCIL_RUN_ID", "PI_SESSION_FILE"):
-            env.pop(k, None)
-        env["TERM"] = "xterm-256color"
-        env["HOME"] = home
-        env["OPENROUTER_API_KEY"] = os.environ.get("OPENROUTER_API_KEY", "sk-dummy")
-        master, slave = pty.openpty()
-        fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", ROWS, COLS, 0, 0))
-        pid = os.fork()
-        if pid == 0:  # child
-            os.setsid()
-            fcntl.ioctl(slave, termios.TIOCSCTTY, 0)
-            os.dup2(slave, 0)
-            os.dup2(slave, 1)
-            os.dup2(slave, 2)
-            os.chdir(work_dir)
-            os.execve(pi_bin, [pi_bin], env)
-        os.close(slave)
-        self.master = master
-        self.pid = pid
+def mark(session) -> bytes:
+    """Checkpoint read: the bytelog slice since the last mark. Byte-identical
+    to the old in-memory buf-since-last-mark: every byte the session ingests
+    is written+flushed to the bytelog by the kit's _feed in the same read."""
+    size = os.path.getsize(session.bytelog_path)
+    with open(session.bytelog_path, "rb") as f:
+        f.seek(session._offset)
+        out = f.read(size - session._offset)
+    session._offset = size
+    return out
 
-    def send(self, data: bytes) -> None:
-        os.write(self.master, data)
 
-    def _ingest(self, d: bytes) -> None:
-        self.buf += d
-        self.screen.feed(d)
+def answer_queries(session, raw: bytes) -> None:
+    """Boot query reply — full-stream scan (driver policy). The kit's
+    respond_queries stays on its last-8 KB disk tail for the kit's own
+    consumers; the boot scan must see the full stream, so it is driver-local."""
+    if b"\x1b[c" in raw or b"\x1b[?1;2c" in raw or b"\x1b[>7u" in raw:
+        session.send(DA_REPLY)
+        session.send(KITTY_REPLY)
 
-    def drain(self, seconds: float) -> None:
-        end = time.time() + seconds
-        while time.time() < end:
-            r, _, _ = select.select([self.master], [], [], 0.05)
-            if self.master in r:
-                try:
-                    d = os.read(self.master, 65536)
-                except OSError:
-                    return
-                if not d:
-                    return
-                self._ingest(d)
 
-    def wait_stable(self, require=3, quiet=0.08, ceiling=8.0) -> bool:
-        """Drain until `require` consecutive quiet polls; timeout-ceiled."""
-        quiet_count = 0
-        end = time.time() + ceiling
-        while time.time() < end and quiet_count < require:
-            r, _, _ = select.select([self.master], [], [], quiet)
-            if self.master in r:
-                try:
-                    d = os.read(self.master, 65536)
-                except OSError:
-                    return True
-                if not d:
-                    return True
-                self._ingest(d)
-                quiet_count = 0
-            else:
-                quiet_count += 1
-        return quiet_count >= require
-
-    def respond_queries(self) -> None:
-        """Answer deterministic terminal queries (DA + kitty capability)."""
-        if b"\x1b[c" in self.buf or b"\x1b[?1;2c" in self.buf or b"\x1b[>7u" in self.buf:
-            self.send(DA_REPLY)
-            self.send(KITTY_REPLY)
-
-    def mark(self) -> bytes:
-        b = self.buf
-        self.buf = b""
-        return b
-
-    def snap(self):
-        return content_lines(self.screen)
-
-    def kill(self) -> None:
-        try:
-            os.kill(self.pid, 15)
-        except OSError:
-            pass
-        try:
-            os.waitpid(self.pid, 0)
-        except OSError:
-            pass
+def snap(session) -> list:
+    return content_lines(session.screen)
 
 
 def assert_true(cond, msg, flog, name, raw, screen):
@@ -369,10 +209,10 @@ def assert_frame(flog, session, name, matcher):
     against the PERSISTENT screen state (repaints are incremental — rows the
     TUI does not re-send stay from earlier paints). On red keep the raw +
     stripped frame and raise."""
-    ok = session.wait_stable()
-    raw = session.mark()
+    ok = session.wait_stable(3, 0.08, 8.0)
+    raw = mark(session)
     flog.save(name, raw, session.screen)
-    content = session.snap()
+    content = snap(session)
     errors = [] if ok else ["TUI did not reach quiescence in the ceiling"]
     errors += collect(matcher(content))
     if errors:
@@ -404,21 +244,22 @@ def main() -> int:
     work_dir = os.environ["WORK_DIR"]
     home = os.environ["HOME"]
     flog = Framelog(outdir)
-    session = Session(pi_bin, work_dir, home, outdir)
+    session = Session([pi_bin], work_dir, home, {"OPENROUTER_API_KEY": os.environ.get("OPENROUTER_API_KEY", "sk-dummy")}, os.path.join(outdir, "bytes.log"), rows=28, cols=80, term_sig=15)
+    session._offset = 0
     boot_log = open(os.path.join(outdir, "frames", "00-boot.raw"), "wb")
     try:
         # ---- boot: pi emits its kitty negotiation query; answer it ----
         session.drain(5.0)
-        boot_raw = bytes(session.buf)
+        boot_raw = mark(session)
         boot_log.write(boot_raw)
         boot_log.close()
         if b"\x1b[>7u" not in boot_raw:
             raise Failed("boot stream lacks pi's own emitted kitty query \\x1b[>7u (negotiation assertion, objection-7 scope)")
-        session.respond_queries()
+        answer_queries(session, boot_raw)
         session.drain(1.0)
-        if not session.wait_stable():
+        if not session.wait_stable(3, 0.08, 8.0):
             raise Failed("TUI did not settle after the query replies")
-        session.mark()  # drop the boot bytes from the checkpoint stream
+        mark(session)  # advance past the boot+reply bytes (returns empty — same semantics as the old buf-clear)
 
         # ---- F1: seat level ----
         session.send(b"/council-models" + K_CR)
@@ -438,15 +279,15 @@ def main() -> int:
         # reset to index 0: Esc ascends, Enter re-enters the model level
         session.send(K_ESC)
         session.send(K_CR)
-        if not session.wait_stable():
+        if not session.wait_stable(3, 0.08, 8.0):
             raise Failed("TUI did not settle after the walk reset")
 
         # ---- F3: search opens ----
         session.send(K_SLASH)
-        frame3_ok = session.wait_stable()
-        raw3 = session.mark()
+        frame3_ok = session.wait_stable(3, 0.08, 8.0)
+        raw3 = mark(session)
         flog.save("03-search-open", raw3, session.screen)
-        content3 = session.snap()
+        content3 = snap(session)
         line1 = line_under_header(content3)
         errors = [] if frame3_ok else ["no quiescence"]
         errors += collect([
@@ -617,7 +458,7 @@ def walk_universe(session, flog):
     exact for queries whose matches sort deeper than the first window.
     Batches of 10 Downs with a settle poll; stop after 3 batches where the
     selected row's id did not change (bottom reached) or a hard batch cap."""
-    session.mark()
+    mark(session)
     last_id = None
     unchanged = 0
     MAX_BATCHES = 400
@@ -636,7 +477,7 @@ def walk_universe(session, flog):
         else:
             unchanged = 0
             last_id = cur
-    raw = session.mark()
+    raw = mark(session)
     flog.save("12-universe-walk", raw)
     ids = extract_ids_from_bytes(raw)
     # dedupe preserving id-ascending first-seen order
@@ -645,7 +486,7 @@ def walk_universe(session, flog):
 
 def selected_id(session):
     """The currently selected row's id-minus-level from the live screen."""
-    for l in session.snap():
+    for l in snap(session):
         t = l.lstrip()
         if t.startswith("> openrouter/"):
             return id_minus_level(t)
