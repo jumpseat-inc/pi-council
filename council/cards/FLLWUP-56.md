@@ -569,3 +569,101 @@ project-local shim loads under `-a` before argv-model resolution) — these are
 Skeptic/implementation territory, not exchange rounds. No third round needed;
 the ≤3 cap is not reached.
 
+
+### Step 4 — Skeptic attacks and runs tests (`job-23.5`)
+
+9.0m / 14 turns, settled `done`. Subject: the deliberation record and the tree
+it makes claims about at HEAD (`a400d52`, main == origin/main, clean). All
+probes ran from `/tmp` against the repo's real engine modules; no repo writes,
+no worktrees, no branches.
+
+- **O1 — Pivotal round-2 mechanism claim** (`hub.ts:431` holds through
+  `retrying`; the unref'd backoff timer fires in the dispatching process;
+  `council_wait`'s awaited execute hosts attempt 2). Settling test: bun probe
+  wiring the **real** `council_dispatch` + **real** `council_wait` executors
+  with a stub child exiting 0 with the with-colon literal, 2-attempt policy.
+  **`closed-green`:** `WAIT_STATE: done`, elapsed **401 ms** (spawn → error →
+  backoff → respawn → done, one process), manifest `attempts[]` =
+  `[{attempt:1, sessionId:"job-1"}, {attempt:2, sessionId:"job-1-attempt2"]`,
+  wait text `attempts=2/2`. Both seats' convergence is correct. The print-mode
+  outer half (a real scripted dispatch→wait parent turn) is **`open-untested`**
+  — its settling test is the live arm itself.
+- **O2 — In-test control boundary** (`retry.enabled:false` ⇒ one spawn, zero
+  respawns, literal present). Same wiring, `enabled:false`. **`closed-green`:**
+  `CONTROL_SPAWNS: 1 RESPAWNS: 0`, literal present, marker absent, no
+  `attempts` pairing.
+- **O3 — Assertion carrier (principal T4) vs owner round-1 assertion (i).**
+  Probe captured both toolResults verbatim: dispatch text =
+  `"Dispatched agent-s as job-1 … Use council_wait to collect."`, no stub
+  output; wait text carries it with `attempts=2/2`. **`closed-green` for T4;
+  `closed-red` for owner r1 assertion (i) taken literally** — record
+  correction only; the facilitator's close note already carries T4 as settled
+  content.
+- **O4 — `COUNCIL_JOB_ID` is the same jobId on every attempt** (principal fix
+  a). Probe: `SPAWN_COUNCIL_JOB_ID: job-1 RESPAWN_COUNCIL_JOB_ID: job-1 SAME:
+  true`; `SPAWN_SESSION_ID: job-1 RESPAWN_SESSION_ID: job-1-attempt2`. The
+  `-attempt2` suffix exists **only in `--session-id` (argv)**, never in env.
+  **`closed-green`** — argv-keyed or counter-file discriminator required.
+- **O5 — ESM dependency-before-body defeats a static re-export shim**
+  (principal fix b). `/tmp/fllwup56-esm`: static re-export → dep saw
+  `KNOB = unset`; dynamic import → `KNOB = BEFORE`. **`closed-green`** — the
+  fix must be a dynamic import or an ordered side-effect import.
+- **O6 — Owner round-2's "`EV40_TOOLCALL_MODEL` unset ⇒ the dispatch tool call
+  omits the model param."** Source: `extension.ts` has
+  `TOOLCALL_MODEL = process.env.EV40_TOOLCALL_MODEL ?? "ev40/ev40-model"` and
+  `dispatchStep` **always** passes `model:`. **`closed-red`** (record
+  correction; functionally the default is what the design needs anyway).
+- **O7 — P7 child-knob-strip hazard.** Leak chain verified:
+  `runs.ts:225-227` `childEnv` = `{...base, …}`; `hub-tools.ts:240-242`
+  `spawnEnv = {...process.env, COUNCIL_SEAT}`; `harnessEnv` today carries **no**
+  `EV40_TOOLCALL_*` (must be plumbed through `ArmOptions`/`harnessEnv` —
+  principal's change-surface point, also true); `extension.ts:78-80` reads
+  `EV40_TOOLCALL_DISPATCH` at module scope. **`closed-green` on the leak
+  chain** — refinement: the strip must be *broader* than owner P7's single
+  knob (the spread leaks `EV40_FAILS`/`EV40_ARM` too; attempt 1 needs
+  `FAILS=1` written before the extension evaluates — O5's dynamic import
+  again). Per-process `EV40_FAILS` read confirmed. The child's exact failure
+  shape under a leaked knob is `open-untested` (settling test: the live arm
+  with the knob left unstripped).
+- **O8 — Premise facts.** All `closed-green`: `buildChildArgv` has no
+  `-e`/`--provider`/`--offline`, `-a`/`--session-id`/`--model` present (probe C
+  on the real `loadSeat` result); `command: "pi"` at `hub-tools.ts:248`;
+  `childEnv` passthrough; `.pi/extensions` auto-discovery under `-a` (pi's own
+  docs); `classifyRetry` state-independent (with-colon literal → `retry`,
+  `stop` → `terminal`, other error → `undefined`); `spawn("pi", …, shell:false)`
+  bare-name PATH resolution + no pi install in `gates.yml` +
+  `node_modules/.bin/pi` devDependency symlink → the PATH-prepend requirement
+  is real; `PI_OFFLINE=1` is pi's own documented var.
+- **O9 — Budget accounting.** Baseline `3 / 5 / 5 / 2` confirmed.
+  `vault/wiki/test-suite-budget.md` states all four standing rules verbatim,
+  "Live-arm share 15 ≈ 76%", and "180s is the drift threshold, not the budget
+  … any re-measurement above 180s reopens FLLWUP-48"; README + AGENTS figures
+  current. A new live file's re-measure/share obligation is real and
+  documented. **`closed-green` on rules and baseline**; re-measured totals
+  (expected ≈112–124s, `< 180s`) are **`open-untested`** (implementing pass,
+  with provenance per the PO ruling).
+- **O10 — Record accuracy.** Step-1's `8bb64d9` snapshot is point-in-time
+  (tree now `a400d52`, still `main == origin/main`); no other false,
+  overstated, or unsupported claim beyond O3/O6.
+
+**What I ran:** the mechanism/carrier/attempt-key probe (real tools, real hub,
+stub child in finish_error mode, 2-attempt policy — actual output quoted
+above); the control probe; the ESM-ordering probe; the premise probe;
+source reads with line numbers (`hub.ts:431,447,248-258,483-484`;
+`job-retry.ts:38-41,49-50,65-91`; `hub-tools.ts:248,251,273,309,317`;
+`runs.ts:225-227`; `seats.ts:600-621`; `retry.ts`; `extension.ts:60-100,131-165`;
+`harness.ts:120-152`; `test/job-retry.test.ts:236-251`; `test/stub-child.ts`;
+pi `docs/extensions.md`, `docs/settings.md:86`; `gates.yml`; `README.md:315-317`;
+`AGENTS.md:17-19`; `vault/wiki/test-suite-budget.md` in full); arm-count grep
+`3/5/5/2`; wait-knob absence grep; `git status --porcelain` → empty.
+
+**Verdict: no open objections block the design.** The pivotal mechanism
+convergence is `closed-green`; the control boundary behaves as designed; the
+three carried correctness fixes are each confirmed necessary by execution.
+Two `closed-red` items are record corrections already superseded by the
+record's own amendments. The `open-untested` items (real scripted print-mode
+parent liveness across the wait; scratch shim loading under `-a` before model
+resolution; child failure shape under a leaked knob; the re-measured suite
+total) are live-arm empirical by construction, with the design's escalation
+boundaries already recorded. Proceed to synthesis.
+
