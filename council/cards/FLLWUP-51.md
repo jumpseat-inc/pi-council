@@ -553,3 +553,27 @@ single-line `: ` goals and extra keys before `goal:` clean (T1/T2/R7);
 mid-block colon-bearing residual recorded in copy, pinned by test, not
 gated (R10). Supporting: 26/26 targeted tests, tsc clean, suite 909/2/0,
 10 copies byte-identical, version 0.20.0, R11 vocabulary pin green.
+
+### Step 13 — follow-up filed
+
+**FLLWUP-62** ("Gate the mid-block colon-bearing frontmatter continuation
+residual", Backlog, EPIC-9) — drafted and filed under PO item 1's ruling,
+which both names the card and confirms the filing ("stays document-only
+for this card and is filed as a step-13 follow-up card under EPIC-9");
+that ruling was obtained from `product-owner` via the orchestrator per the
+run's re-homed confirmation path. Not new: FLLWUP-27 (Backlog) already
+cards the preflight staleness clause this card's verification re-exposed —
+no duplicate filed. No designer finding went unfolded: all four designer
+predictions were run as suite tests (R1–R12); the vocabulary echo and the
+card-domain gate-parity mapping are recorded in the shipped spec and owed
+to the wiki at step 14.
+
+### Step 14 — ingest owed (recorded, not hand-edited)
+
+Per PO item 2: the new positional rule and the FAIL message must be
+recorded in `vault/wiki/engineering-board.md` — retiring the "real
+remaining silent-loss path" sentence that names this card — via
+`/wiki-ingest`, never hand-edited. In this run that ingest routes to the
+orchestrator (EV-46/EV-47 are Backlog cards governing ingest at card
+completion / run ledger; neither is this run's to hand-edit). The card
+record carries the obligation; `vault/` was not touched.
