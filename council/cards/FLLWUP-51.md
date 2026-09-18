@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-51
 title: Loud gate for a goal wrapped onto a second line
-state: Backlog
+state: Ready
 owner: null
 epic: EPIC-9
 goal: A goal wrapped onto a second line is detected loudly rather than silently truncated to its first line, so a wrapped goal is refused with a diagnostic naming the wrap instead of validating green, proven by a test that fails on today's silent-exit-0 behavior.
