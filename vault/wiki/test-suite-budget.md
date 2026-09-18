@@ -8,12 +8,13 @@ re-measurement ever exceeds the drift threshold below.
 
 ## Measured envelope
 
-- **Total wall clock:** ≈**94.4s** (895 tests across 78 files; 893 pass,
+- **Total wall clock:** ≈**101.2s** (935 tests across 81 files; 933 pass,
   2 skip, 0 fail).
 - **Provenance:**
   - Machine: Linux 6.12.24-Unraid x86_64 (container)
-  - Date: 2026-09-17 18:06 UTC
-  - SHA: `ca22360` (FLLWUP-48 hygiene commit)
+  - Date: 2026-09-18 18:40 UTC
+  - SHA: `ad96c4f` (FLLWUP-56 implementation commit — the seat-child live arm's
+    own accounting, measured by the implementing pass)
   - Exact command (the `bun install` **first** — a tree whose `node_modules`
     predates `@modelcontextprotocol/sdk` is red until installed):
     ```bash
@@ -32,12 +33,13 @@ same provenance as above; command in the next section):
 | File | Arm count | Measured wall |
 |---|---|---|
 | `test/ev41-retry-e2e.test.ts` | 5 | **38.0s** |
-| `test/ev40-live-gates.test.ts` | 5 | **16.5s** |
-| `test/ev40-headless.test.ts` | 3 | **12.8s** |
-| `test/ev43-reachability.test.ts` | 2 | **4.8s** |
-| **Live-arm share** | 15 | **72.1s of 94.4s ≈ 76%** |
+| `test/ev40-live-gates.test.ts` | 5 | **16.6s** |
+| `test/ev40-headless.test.ts` | 3 | **12.9s** |
+| `test/ev43-reachability.test.ts` | 2 | **4.9s** |
+| `test/ev41-seat-child-live.test.ts` | 2 | **5.9s** |
+| **Live-arm share** | 17 | **78.3s of 101.2s ≈ 77%** |
 
-The other ~74 files sum to ≈22s. The suite is serial/additive
+The other ~75 files sum to ≈23s. The suite is serial/additive
 (`package.json`'s `test` script is bare `bun test` — no `--parallel`), so
 per-file times sum to the suite total within run-to-run tolerance.
 
@@ -67,7 +69,7 @@ time bun test
 Per-arm loop:
 
 ```bash
-for f in ev41-retry-e2e ev40-live-gates ev40-headless ev43-reachability; do
+for f in ev41-retry-e2e ev40-live-gates ev40-headless ev43-reachability ev41-seat-child-live; do
   time bun test test/$f.test.ts
 done
 ```
