@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-54
 title: Wiki page for the red-base evidence convention
-state: In Review
+state: Done
 owner: null
 epic: EPIC-9
 goal: vault/wiki carries a red-base-evidence page, produced through /wiki-ingest from the FLLWUP-47 seat-prose convention, that a seat or engineer can cite.
@@ -144,3 +144,15 @@ re-opened.
 ### Step 11 — Deterministic merge check (all five criteria observed) → merge under R2
 
 Executed mechanically per the run-2 Phase-1 rulings (R2 authorizes the run-scoped `--admin` merge under the five deterministic criteria + SHA pin): (1) owner gates green in full — preflight `PASS`, `bunx tsc --noEmit` exit 0, `bun test` 928 pass / 2 skip / 0 fail, `council/validate.py` clean (owner-run at the head, re-run independently by the Skeptic, both recorded); (2) GitHub Actions green on the PR head SHA — observed first-hand: `gh pr checks 73` → `{"name":"gates","state":"SUCCESS","workflow":"gates"}`, and the check-run API binds `conclusion=success` to `head_sha=f8c3f5a30a04dc0219417cc566d6a7aec2d5ae7b`; (3) no blocking Skeptic objection — step-9 verdict CLEAR, zero open objections; (4) judge verdict PASS (step 10); (5) no `Needs Human` state or outstanding ruling — the step-2 steer was ruled by `product-owner` job-18 and applied. Merge command: `gh pr merge 73 --squash --admin --match-head-commit f8c3f5a30a04dc0219417cc566d6a7aec2d5ae7b` (admin bypass disclosed; criteria 1–5 observed before it, SHA pinned).
+
+### Step 12 — Merged, merged-SHA CI green, card `Done`
+
+PR #73 merged at `2026-09-18T14:34:41Z` (observed: `state: MERGED`), squash merge commit `52f21449c3256ece01bedcb7af5a6201feb16c94` (10 files: 2 pages created, 8 updated — 372 insertions, 13 deletions). Local `main` fast-forwarded to `origin/main` (`3a6bd09..52f2144`, no divergence, no union-merge needed). Merged-SHA CI re-verified first-hand: `gates` check-run on `52f21449c3256ece01bedcb7af5a6201feb16c94` → `status=completed`, `conclusion=success`. Both the `Done` transition points (card + board) written from observed artifacts; `council/validate.py` clean. Card recorded as done at merge commit `52f2144`.
+
+### Step 13 — Follow-ups
+
+Nothing new surfaced requiring its own card: the Skeptic's one non-blocking observation (job-number drift `job-18`/`job-20`/`job-17` across the card header, the packet lineage sentence, and the product-owner wiki page) is in the run record's own source material — the deliverable reproduces the binding packet verbatim as steered — and the existing FLLWUP-69 card already pins the step-13 confirmation gate as pre-write. No follow-up filed; nothing drafted requiring pre-write confirmation.
+
+### Step 14 — Persist
+
+The card itself was the persist step: its whole deliverable is a `/wiki-ingest` into `vault/` (one concept page + one source page + six cross-link updates), now merged. No further durable material surfaced beyond the ingest.
