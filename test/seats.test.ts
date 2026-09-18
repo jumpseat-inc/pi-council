@@ -61,7 +61,7 @@ test("designer: minimax m3, high thinking, read/search/write, no bash, no hub", 
 
 test("parses owner seat: model split, tools, no autoloadSkills", () => {
 	const owner = loadSeat(tmpRepo(), "owner");
-	expect(owner.model).toBe("openrouter/deepseek/deepseek-v4-flash-0731");
+	expect(owner.model).toBe("openrouter/z-ai/glm-5.3-flash");
 	expect(owner.thinkingLevel).toBe("high");
 	expect(owner.tools).toEqual(["Read", "Grep", "Glob", "Edit", "Write", "Bash"]);
 	expect((owner as unknown as Record<string, unknown>).autoloadSkills).toBeUndefined();
@@ -245,7 +245,7 @@ test("buildChildArgv produces json print-mode invocation with session persistenc
 		"--session-id",
 		"job-1",
 		"--model",
-		"openrouter/deepseek/deepseek-v4-flash-0731",
+		"openrouter/z-ai/glm-5.3-flash",
 		"--thinking",
 		"high",
 		"--tools",
@@ -288,7 +288,7 @@ function writeConfig(root: string, data: unknown): void {
 
 test("absent .council.json yields no overrides and leaves seat untouched", () => {
 	const owner = loadSeat(tmpRepo(), "owner");
-	expect(owner.model).toBe("openrouter/deepseek/deepseek-v4-flash-0731");
+	expect(owner.model).toBe("openrouter/z-ai/glm-5.3-flash");
 	expect(owner.thinkingLevel).toBe("high");
 });
 
@@ -318,7 +318,7 @@ test("thinking-only override preserves frontmatter model", () => {
 	const root = tmpRepo();
 	writeConfig(root, { council: { owner: { thinking: "off" } } });
 	const owner = loadSeat(root, "owner");
-	expect(owner.model).toBe("openrouter/deepseek/deepseek-v4-flash-0731");
+	expect(owner.model).toBe("openrouter/z-ai/glm-5.3-flash");
 	expect(owner.thinkingLevel).toBe("off");
 });
 
@@ -353,7 +353,7 @@ test("override ooze flows into buildChildArgv --model/--thinking", () => {
 test("config referencing an unknown seat does not affect known seats", () => {
 	const root = tmpRepo();
 	writeConfig(root, { council: { nope: { model: "x/y" } } });
-	expect(loadSeat(root, "owner").model).toBe("openrouter/deepseek/deepseek-v4-flash-0731");
+	expect(loadSeat(root, "owner").model).toBe("openrouter/z-ai/glm-5.3-flash");
 });
 
 test("malformed .council.json throws a useful error", () => {
@@ -368,7 +368,7 @@ test("council section missing means no overrides", () => {
 	const root = tmpRepo();
 	writeConfig(root, { somethingElse: true });
 	expect(loadCouncilConfig(root)).toEqual({});
-	expect(loadSeat(root, "owner").model).toBe("openrouter/deepseek/deepseek-v4-flash-0731");
+	expect(loadSeat(root, "owner").model).toBe("openrouter/z-ai/glm-5.3-flash");
 });
 
 test("buildChildArgv grants hub tools to hub-enabled seats via --tools", () => {

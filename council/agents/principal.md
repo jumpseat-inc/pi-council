@@ -1,6 +1,6 @@
 ---
 name: principal
-model: openrouter/deepseek/deepseek-v4-pro-0813:high
+model: openrouter/deepseek/deepseek-v4.1-flash:high
 description: The cross-cutting principal engineer on the Council. Use during deliberation on cards that span the codebase's seams — the data pipeline, the server/API, the serving layer, and the frontend — where the framing itself may be wrong, or where the owner is stuck or converging too quickly. Reads across the whole codebase. Never implements.
 tools: Read, Grep, Glob
 mcp: [context7, tavily]
