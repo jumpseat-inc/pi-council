@@ -34,7 +34,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-38 — Clamp the inline progress transcript header to the granted render width
 - FLLWUP-39 — Dispose the replaced transcript view when the inline progress surface switches sessions
 - FLLWUP-50 — Supported refresh path for packaged council tooling in initialized consumer repos
-- FLLWUP-53 — De-repo-specific council.md step 8's gate-file reference and widen the prose guard
 - FLLWUP-54 — Wiki page for the red-base evidence convention
 - FLLWUP-55 — Collapse the smoke driver's private pty screen model onto the shared kit
 - FLLWUP-56 — Saturate the seat-dispatch provider-error arm onto a config-injected faux provider
@@ -48,6 +47,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Ready
 
+- FLLWUP-53 — De-repo-specific council.md step 8's gate-file reference and widen the prose guard
 - EV-44 — Merge near-duplicate follow-up candidates before a card is drafted
 - EV-45 — Unattended ingest of a run's own ledger, without the human steer turn
 
