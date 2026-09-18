@@ -45,8 +45,8 @@ per-file times sum to the suite total within run-to-run tolerance.
 
 ## Ceiling vs budget — they are not the same number
 
-- **Per-arm enforced ceilings** (eleven sites: bun third positional args plus
-  the `runHarnessArm`/`spawnSync` `timeoutMs` in
+- **Per-arm enforced ceilings** (thirteen sites: bun third positional args
+  plus the `runHarnessArm`/`spawnSync` `timeoutMs` in
   `test/faux-provider/harness.ts`, default 120s) are **emergency bounds**,
   not budgets — e.g. the TUI pty arm's ceiling is `300_000`
   (`test/ev41-retry-e2e.test.ts:362`) against a ~32s actual. A tripped

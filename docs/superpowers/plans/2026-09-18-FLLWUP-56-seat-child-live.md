@@ -70,7 +70,7 @@ design authority; the plan argues from it).
   `EngineRepoOptions.extraRepoFiles?: Array<{ path: string; body: string }>`.
   With none set, every existing arm's env and argv are byte-identical.
 
-- [ ] **Step 1: extension — the `EV40_TOOLCALL_WAIT` step (knob-gated).**
+- [x] **Step 1: extension — the `EV40_TOOLCALL_WAIT` step (knob-gated).**
 
   In `test/faux-provider/extension.ts`, next to the existing
   `EV40_TOOLCALL_DISPATCH` block: read `TOOLCALL_WAIT` at module scope; when
@@ -80,7 +80,7 @@ design authority; the plan argues from it).
   (`timeout_minutes: 0.5`, `stall_minutes: 0.5`). With no knob set, the
   response list and dispatch step are byte-identical to today.
 
-- [ ] **Step 2: harness — forward the knobs and the scratch substrate.**
+- [x] **Step 2: harness — forward the knobs and the scratch substrate.**
 
   - `ArmOptions` gains `toolcallDispatch`, `toolcallWait`, `extraEnv`,
     `pathPrepend` (all optional; commented FLLWUP-56).
@@ -91,7 +91,7 @@ design authority; the plan argues from it).
   - `EngineRepoOptions` gains `extraRepoFiles`; `writeEngineRepoFiles`
     writes them (relative paths) after the existing `.council.json` write.
 
-- [ ] **Step 3: verify existing arms are untouched.**
+- [x] **Step 3: verify existing arms are untouched.**
 
   Run: `bun test test/ev40-headless.test.ts test/ev43-reachability.test.ts`
   (fast live-arm files) — all green; grep confirms no knob set anywhere
@@ -118,7 +118,7 @@ the dev-installed CLI (FLLWUP-21 env-split lesson); and a scratch repo with
 `.pi/extensions/ev56-shim.ts` (the dynamic-import shim above). Scratch HOME
 (`defaultProjectTrust: "always"`) comes from `prepareHarnessArm` already.
 
-- [ ] **Step 1: write the file** — header states expected wall clock
+- [x] **Step 1: write the file** — header states expected wall clock
   (≈18–30s) + ceiling (120s per arm) verbatim (standing rule 1); two
   `test(...)` arms, third positional arg `120_000`; treatment asserts, in
   order: (1) static preconditions (resolved seat model
@@ -136,19 +136,19 @@ the dev-installed CLI (FLLWUP-21 env-split lesson); and a scratch repo with
   `EV40-SECOND-RESPONSE` in any child-session file, the manifest, or the
   wait toolResult.
 
-- [ ] **Step 2: run the file** — `bun test test/ev41-seat-child-live.test.ts`
+- [x] **Step 2: run the file** — `bun test test/ev41-seat-child-live.test.ts`
   (timeout generous; two live arms ≈18–30s). Iterate only on mechanism bugs
   in the test/harness surface (the spec's named fallbacks if the shim
   doesn't load under `-a`, or the in-process drive if the parent turn dies —
   both are escalations to be reported, never silent).
 
-- [ ] **Step 3: run the shape witness + neighbors** —
+- [x] **Step 3: run the shape witness + neighbors** —
   `bun test test/faux-provider-shape.test.ts test/ev41-retry-e2e.test.ts`
   green (byte-untouched files, witness intact).
 
 ### Task 3: perturbation probe (recorded, not committed)
 
-- [ ] Temporarily omit the `.pi/extensions` shim write (local edit, not
+- [x] Temporarily omit the `.pi/extensions` shim write (local edit, not
   committed) and rerun the treatment arm: expect red **naming the model**
   (`ev40/ev40-model` unresolvable), not a timeout. Revert. Record verbatim
   output in the card report.
@@ -160,10 +160,10 @@ the dev-installed CLI (FLLWUP-21 env-split lesson); and a scratch repo with
   (new per-file row; Live-arm share 15 → 17 re-summed; per-arm loop file
   list gains the new file), `AGENTS.md` (envelope line).
 
-- [ ] **Step 1:** `bun install` first, then `time bun test` (full suite)
+- [x] **Step 1:** `bun install` first, then `time bun test` (full suite)
   and the per-arm loop (`time bun test test/<file>.test.ts` for the five
   live files). Record machine, date, SHA, exact commands.
-- [ ] **Step 2:** write the re-measured figures with full provenance into
+- [x] **Step 2:** write the re-measured figures with full provenance into
   the three sites; 180s stays "drift threshold"; if >180s STOP and report.
 
 ### Task 5: gates + PR
