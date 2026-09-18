@@ -57,12 +57,12 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- FLLWUP-51 — Loud gate for a goal wrapped onto a second line
-
 
 ## Needs Human
 
 ## Done
+
+- FLLWUP-51 — Loud gate for a goal wrapped onto a second line
 
 - FLLWUP-57 — Suite determinism under a catalogue-valid ambient COUNCIL_EVAL_MODEL
 

@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-51
 title: Loud gate for a goal wrapped onto a second line
-state: In Review
+state: Done
 owner: null
 epic: EPIC-9
 goal: A wrapped goal, a non-`key: value` line inside the frontmatter block, an unclosed frontmatter block, and a key following `goal:` in the block are each refused by `parse_frontmatter` and reported as a non-zero `council/validate.py` FAIL naming the defect rather than validating green, where a not-`key: value` line's diagnostic names both a wrapped/continued value and a missing closing `---` because the parser cannot tell them apart; single-line goals containing `: ` and cards carrying extra intentional keys before `goal:` parse clean; and the documented residual — a mid-block colon-bearing continuation of a non-goal key — is recorded in copy and pinned by a test but not gated.
@@ -482,6 +482,31 @@ implementation notes recorded in the owner's report (R3 fires the bare-line
 predicate first, per spec; R5′ scan scoped to leading frontmatter blocks
 because body quotes of `goal:`-shaped lines are legitimate).
 `In Review` set on the card and board from the observed PR artifact.
+
+### Step 11 — deterministic merge check (run-2 R2/R3 substitution)
+
+All five criteria checked directly, mechanically, no discretion: (1) owner
+gates green in full — four gates from the worktree, re-run by the Skeptic
+at head (the recorded environmental staleness red is FLLWUP-27-class,
+content checks OK); (2) `gh pr checks 70` keyed on `workflow`:
+`{"name":"gates","state":"SUCCESS","workflow":"gates"}` on head SHA
+`09a8679`; (3) no blocking Skeptic objection (NO-BLOCK); (4) judge PASS;
+(5) no `Needs Human` state, no outstanding ruling (PO items 1–4 + steward
+item 5 applied and cited). Merged
+`gh pr merge 70 --squash --admin --match-head-commit 09a8679…` under run-2
+R2's run-scoped admin authorization, SHA-pinned; merged SHA `dee64c5`.
+
+### Step 12 — synced, CI green on the merged SHA, card Done
+
+`origin/main` fast-forwarded cleanly to `dee64c5` (no divergence, no
+union-merge needed); local main updated `--ff-only`. Gates workflow on the
+merged SHA `dee64c5`: **completed success** (observed via `gh run list`,
+not a seat report). Card set `Done` on the card and `council/board.md`.
+Step-13 follow-up owed (drafted there): the mid-block colon-bearing
+residual gate card (PO item 1, EPIC-9) and the FLLWUP-27 staleness-clause
+repair this card's verification re-exposed. Step-14 ingest owed: the
+positional rule + FAIL message into `vault/wiki/engineering-board.md` (PO
+item 2, via `/wiki-ingest`, never hand-edited).
 
 ### Step 9 — skeptic verification at the branch head (job-9.2)
 
