@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-55
 title: Collapse the smoke driver's private pty screen model onto the shared kit
-state: In Review
+state: Done
 owner: null
 epic: EPIC-9
 goal: smoke/search-smoke/driver.py consumes the shared pty screen model instead of carrying its own class Screen/class Session, with the release gate's pinned-pi isolation and the README's stdlib-only claim preserved or explicitly amended.
@@ -497,3 +497,33 @@ If the step-8 live smoke reds and the pre-authorized middle-position revert fire
 - Phase-1 rulings applied here (cited, not re-asked): R2 (run-scoped `--admin` merge, five criteria + SHA pin), R3 (run-scoped direct record push, disclosed), `steward` job-1 build order (eighth of eleven), Phase-1 run-2 scope.
 
 Continuing from **step 7** (spec write) with the SHARE design and the ruled copy as settled.
+
+### Step 7 — spec written (facilitator)
+
+`docs/superpowers/specs/2026-09-18-FLLWUP-55-design.md` (committed `d936f80`, R3-disclosed push). Self-reviewed per council.md step 7: no placeholders, internally consistent with the deliberation, within the goal's scope, unambiguous on the mark location (the ruling fixed it driver-local). It carries the consolidator's 12 spec-content requirements, including the pinned red-base rule (base = `3d55ac8235dd8190f94bd98f58e116b48f89f400`), the `_feed(` ban-list closure, the explicit `wait_stable`/boot-scan behavior-preservation rules, and the ruled copy as binding acceptance criteria.
+
+### Step 8 — owner implements (`job-22.1`)
+
+16.9m / 41 turns, settled `done`. Branch `fllwup-55`, PR #74, head `e668ddd7c477f9f5cfadda2701c4fe5afb1b1306`. PR-open fact verified by the facilitator (`gh pr view 74` → OPEN) before `In Review` was written. Owner-reported gates (verified independently at step 9): preflight PASS, `tsc --noEmit` clean, `bun test` 931 pass / 2 skip / 0 fail (96.7s), `validate.py` clean; A1 red-base both halves (11/1 at base naming the four driver artifacts, 12/0 at head); A4 copy byte-exact both places + greppable claim literally true; A5 consumer zero-diff; A7 equivalence probe PASS; A8 container probe PASS; **A9 live smoke PASS — `SMOKE PASS — kitty search-smoke, 9 frames green`** on pinned 0.84.3 (first attempt aborted pre-frames on a host git-identity gap in the scratch fixture commit — environment, not a frame red). The OB2 red branch was **not** triggered; the copy ruling stands unaltered. Owner disclosed a rebase of the branch onto `origin/main` `d936f80` (docs-only record push) to satisfy preflight's descent check; A1 stays pinned at `3d55ac8…`.
+
+### Step 9 — Skeptic verification at the branch (verify-cycle 1 of 3) (`job-22.2`)
+
+26.8m / 54 turns, settled `done`. Subject: PR #74 head `e668ddd…` in its own worktree; loop frame stated (pre-judge, pre-merge, merge not its job). **Every owner claim closed-green**: O1 red-base pair reproduced same-triple (11/1 base with per-failure lines naming `class Screen`(:66)/`def feed`(:82)/`def _csi`(:120)/`class Session`(:265); 12/0 head; mechanism-absent boundary derived independently); O2 tsc; O3 full suite 931/2/0 (96.07s); O4 validate.py; O5 preflight (substance green, F1 below); O6 copy byte-exact (repr-identical incl. × U+00D7) + greppable claim literal; O7 consumer zero-diff, no kit `buf`, last-8KB tail; O8 A7 probe **re-run** (mark byte-identical, no buf, aged query 0 kit replies, driver full-stream 2 replies); O9 A8 container probes **re-run** (`pty_kit.Screen` importable; `driver.Session is pty_kit.Session` in-container); O10 A9 smoke record audited, not re-paid — artifact chain corroborates end-to-end (0.84.3 npm install, decode-parity, R-2 usage line, 11 frames `.raw`+`.txt`, no `diff.txt`, universe 62KB, boot negotiation query); O11 spec-shape invariants (additive kit 24/80/9, no kit `mark()`, test 4 untouched, charter header, four-part ban incl. `def _feed(`, two-sided stdlib guard). Non-blocking findings: **F1** — preflight's origin-freshness check reds today (origin/main advanced 4 commits past the branch post-rebase); proven environmental: merge-base `d936f80`, scratch merge of `e668ddd` into origin/main automatic and conflict-free, merged-tree witness 12/0. **F2** — A10's "no changes under council/" wording is literally inexact (the board/card record writes); the protected blast radius is untouched. **Verdict: NO BLOCK.** No fix loop required — verify-cycle counter: 1 of 3, closed green.
+
+### Step 10 — judge (`job-22.3`)
+
+3.2m / 12 turns. **Verdict: PASS.** Basis: all three goal clauses independently confirmed — (1) `grep -c 'class Screen'`/`'class Session'` on driver.py = 0, kit import with additive default-preserving params, driver-local bytelog-offset checkpointing; (2) neither file imports any pi/extension module, kit stdlib-only; (3) README claim amended, greppable, byte-exact with the actual import lists. Supporting gates self-ran. Card `goal` needed no context beyond itself.
+
+### Steps 11–12 — deterministic merge check, merge, merged-SHA CI (facilitator)
+
+All five criteria observed before merging: (1) owner gates green in full (owner runs + skeptic reruns); (2) `gh pr checks 74 --json name,state,workflow` → `{"name":"gates","state":"SUCCESS","workflow":"gates"}` on PR head `e668ddd…` (the `[code]smith` row is empty-workflow SKIPPED, not a failing check); (3) no blocking Skeptic objection; (4) judge PASS; (5) card in `In Review`, no `Needs Human`, no outstanding ruling (the copy ruling was returned and applied). Merge: `gh pr merge 74 --squash --admin --match-head-commit e668ddd7c477f9f5cfadda2701c4fe5afb1b1306` (R2 run-scoped) → **merged `97f4b6db6a30950164d10bd0cb354b52a0376a30`**; local main fast-forwarded.
+
+**Merged-SHA CI:** first `gates` run (35370659011) → FAILURE in `EV-40 — computeBackoffDelay (pure policy) > jitter honors the maxDelayMs cap` — `test/ev40-parent-retry.test.ts:183` `expect(d).toBeLessThan(7500)` received exactly 7500. That is the **FLLWUP-63 flake class verbatim** (file untouched by this diff; PR-head criterion-2 unaffected). Precedent applied, not re-asked (FLLWUP-50 step-12 record): one disclosed rerun of the failed job on the same commit → **completed success**. CI green on the merged SHA observed; `Done` recorded on that artifact. The recurrence strengthens FLLWUP-63's case (Backlog, outside this run's 50–60 scope).
+
+**Record-push disclosures (R3):** step-7/In-Progress push `d936f80` (admin bypass); step-8 record push first rejected (origin/main had advanced with EPIC-11 work, unrelated), rebased cleanly onto `e63add5` → `eb69254`, pushed (admin bypass). No history rewrite: the remote chain already contained `d936f80`; only the unpushed step-8 record commit was replayed.
+
+### Step 13 — follow-ups
+
+None filed. The flake recurrence is already `FLLWUP-63` (Backlog; outside run-2's 50–60 scope); the F1 origin-freshness class is `FLLWUP-27`'s territory (existing card); F2 is a wording nuance with no deliverable. Step-14 ingest offer passed to the orchestrator: `vault/wiki/smoke-test.md` now mis-describes the smoke boundary (the driver imports the shared kit under SHARE) — offered at run close, not hand-written here.
+
+**Throughput/usage (this container):** 3 seat dispatches, all settled first attempt — `owner` job-22.1 ($0.0804, 41 turns), `skeptic` job-22.2 ($0.0682, 54 turns), `judge` job-22.3 ($0.0268, 12 turns). Verify cycles used: 1 of 3. Exchange rounds: 3 of 3 (prior container). Ruling seats never dispatched by this container.
