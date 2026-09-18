@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-60
 title: Non-admin record-push path for autonomous runs
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-9
 goal: Under the active main ruleset (approving review + linear history + changes must be made through a pull request), an autonomous features-deliver run completes every step-12 record write without an unrecorded privileged bypass — either an explicit, run-scoped, human-recorded authorization for the direct record push exists on the run's Phase-1 record before the run's first record push, the procedure names that authorization explicitly, and an unauthorized push is a HALT surfaced to the human; or the record-push path no longer requires any bypass.
@@ -112,6 +112,39 @@ paragraph, in the same idiom FLLWUP-42's `test/prose.test.ts` pin used.
 No deliberation ran, so the card itself is the owner's handoff: its `goal`,
 `Intent`, the falsifier, the non-goals, and the binding R3 ruling. Card set
 `In Progress`; `validate.py` clean; `owner` dispatched (45-minute window).
+
+### Step 8 — owner delivered (job-2.1), PR #67 open
+
+Owner implemented in worktree `.worktrees/fllwup-60` (branch
+`feat/fllwup-60-record-push-authorization`, base `origin/main` `8e6fe4b`),
+pushed, PR #67 open at head
+`c30f7b7a79c4b89ed13424dd50f7ef9cb7244ad0`. Observed directly (not from the
+seat's report): `gh pr view 67` → state OPEN, base `main`, headRefOid
+`c30f7b7…`, `mergeable: MERGEABLE` (mergeStateStatus `BLOCKED` — the
+ruleset's approving-review / PR-only requirement, the condition this card's
+copy fences a second privileged write against). Diff scope:
+`council/procedures/council.md` +9/−1 (step 12's final paragraph expanded
+into the record-push paragraph), `test/prose.test.ts` +38 (one red-first
+literal-substring pin in the FLLWUP-41/42 idiom), plan doc +73. No engine
+change; `features-deliver.md` untouched; FLLWUP-41's pinned assertions
+preserved.
+
+Owner gates green at head, real output: `bash council/preflight.sh
+FLLWUP-60` → `PASS: preflight clean` (exit 0); `bunx tsc --noEmit` exit 0;
+`bun test` **894 pass / 2 skip / 0 fail** (896 tests, 78 files, 95.82s);
+`python3 council/validate.py` → `All council artifacts valid`. Red-first
+recorded: the new pin FAILs pre-edit (`Expected to contain: "pushed
+directly to \`main\`"`), GREEN after the prose edit (17/17 in that file).
+
+**Owner process deviation, disclosed and verified clean:** the owner's
+first two file writes (plan doc, test edit) briefly resolved against the
+main checkout (session-cwd vs worktree-cwd mismatch) before being
+reverted/relocated within the same turn. Verified by this facilitator:
+main checkout working tree clean, `main` still at `8e6fe4b`, no board/card
+file touched, all work in the worktree commit `c30f7b7`. No harm; noted as
+a candidate for the seat's own guidance at step 13.
+
+Card set `In Review` (sole precondition: open PR, observed).
 
 **Non-goals:** no change to the five deterministic criteria, to
 `--match-head-commit` pinning, to FLLWUP-42's merged merge paragraph, or any
