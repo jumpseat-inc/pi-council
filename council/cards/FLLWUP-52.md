@@ -7,6 +7,22 @@ epic: EPIC-9
 goal: A binding ruling resolves whether the tree row's `attempt N/M` label on a retrying dispatch denotes the pending ordinal (EV-39 R4's letter) or the attempt whose transcript the row tails, and the label's data source matches that ruling in every state.
 ---
 
+## Orchestrator rulings (Phase 1, binding)
+
+Recorded human decisions for this run. Immutable and binding on every seat,
+`steward` included; a runner that hits one applies it and cites the ruling
+rather than re-asking.
+
+- **R4 (retire — keep EV-39 R4's pending ordinal).** EV-39 R4's recorded
+  binding ruling stands unchanged: the retrying job-tree row's `attempt N/M`
+  label denotes the **pending** ordinal (`attempt 2/3` while retrying toward
+  attempt 2), and the FLLWUP-45 shipped split — pending ordinal on the row,
+  shown attempt's ordinal in the progress title — is correct as shipped. No
+  `extensions/navigator.ts` change is made and the FLLWUP-45 progress-title
+  attempt fragment stays. Under this ruling the card's own acceptance sentence
+  "if R4 is left as-is, the card is retired with that ruling recorded"
+  applies: **retire the card**, no PR, no code change.
+
 ## Intent
 
 Filed from FLLWUP-45's step-13 follow-up per the run's Phase-1 ruling

@@ -205,3 +205,38 @@ residual** (no undo, no retro-edit of closed cards) and ruled that the standing
 posture is not acceptable unchanged: the next autonomous run hits this
 deterministically, so `FLLWUP-60` is owed and sequences before the next run's
 first dispatch, ahead of `FLLWUP-50`–`59`.
+
+## Residual run 2 — Phase 1 rulings (features-deliver, FLLWUP-50–60 run)
+
+Human decisions recorded before the first `council-runner` was dispatched.
+Immutable for this run and binding on every seat, `steward` included.
+
+- **Scope.** `FLLWUP-50` through `FLLWUP-60` (eleven `Backlog` residuals under
+  the `Done` epic) are this run's delivery scope. `EPIC-9` itself stays `Done`;
+  these are residual cards, not an epic re-open. `FLLWUP-52` is in scope and is
+  **retired** under R4 below rather than built. `FLLWUP-54` is in scope and is
+  delivered — the optional wiki page is wanted.
+- **Sequencing (strategy row).** Build order is re-homed to `steward`; the
+  orchestrator dispatches one `council-runner` per card in `steward`'s ruled
+  order, never two at once. `FLLWUP-60` sequences **first**, per its own
+  recorded `steward` ruling (owed before the next autonomous run's first
+  dispatch, ahead of `FLLWUP-50`–`59`).
+- **Merge (merge row).** R2 — the human authorized squash merges with
+  `gh pr merge <PR> --squash --admin --match-head-commit <X>` for **this run
+  only**. All five deterministic criteria still hold; `--admin` only clears
+  the ruleset's approving-review / PR-only requirement, and the authorization
+  is run-scoped and not extended to any later run.
+- **Record push (merge row, adjacent).** R3 — the human authorized the step-12
+  record commit to be pushed directly to `main` with the pusher's admin
+  identity for **this run only**, satisfying `FLLWUP-60`'s precondition that
+  an explicit, run-scoped, human-recorded authorization exists on the run's
+  Phase-1 record before the run's first record push. Disclosed in the run
+  ledger (Phase 3). Not extended to any later run.
+- **Label denotation.** R4 on `FLLWUP-52` — EV-39 R4's recorded ruling stands:
+  the retrying row's `attempt N/M` label denotes the **pending** ordinal, and
+  the FLLWUP-45 shipped behavior is correct. No navigator change is made;
+  `FLLWUP-52` is retired under this ruling.
+- **Follow-ups (judgment row).** `council.md` step 13's draft-then-confirm gate
+  is re-homed to `product-owner`, which confirms, edits, or drops each
+  follow-up draft before the card is written.
+- **Build order — `steward` ruling (job-D1).** _Pending; recorded on return._

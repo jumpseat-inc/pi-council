@@ -7,6 +7,28 @@ epic: EPIC-9
 goal: Under the active main ruleset (approving review + linear history + changes must be made through a pull request), an autonomous features-deliver run completes every step-12 record write without an unrecorded privileged bypass — either an explicit, run-scoped, human-recorded authorization for the direct record push exists on the run's Phase-1 record before the run's first record push, the procedure names that authorization explicitly, and an unauthorized push is a HALT surfaced to the human; or the record-push path no longer requires any bypass.
 ---
 
+## Orchestrator rulings (Phase 1, binding)
+
+Recorded human decisions for this run. Immutable and binding on every seat,
+`steward` included; a runner that hits one applies it and cites the ruling
+rather than re-asking.
+
+- **R3 (run-scoped record-push authorization).** For this run only, the human
+  authorized the step-12 record commit to be pushed directly to `main` with
+  the pusher's admin identity, satisfying this card's goal requirement that an
+  explicit, run-scoped, human-recorded authorization exists on the run's
+  Phase-1 record before the run's first record push. The card's deliverable is
+  to make this explicit in the procedure text: `council.md` step 12 must name
+  the run-scoped record-push authorization, and an unauthorized direct push
+  must be a `HALT` surfaced to the human. Recorded run-level as R3 on
+  `EPIC-9`; the authorization is not extended to any later run.
+- **R2 (run-scoped merge authorization).** `gh pr merge <PR> --squash --admin
+  --match-head-commit <X>` is sanctioned for this run only; all five
+  deterministic criteria still hold.
+- **Non-goals apply as written.** No change to the five deterministic criteria,
+  to `--match-head-commit` pinning, to FLLWUP-42's merged merge paragraph, or
+  any reopening of FLLWUP-42.
+
 ## Intent
 
 `council.md` step 12 instructs committing the reconciliation directly to `main`
