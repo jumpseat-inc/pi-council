@@ -57,12 +57,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-## In Progress
-
-- FLLWUP-54 — Wiki page for the red-base evidence convention
-
 ## In Review
 
+- FLLWUP-54 — Wiki page for the red-base evidence convention
 
 ## Needs Human
 

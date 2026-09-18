@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-54
 title: Wiki page for the red-base evidence convention
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-9
 goal: vault/wiki carries a red-base-evidence page, produced through /wiki-ingest from the FLLWUP-47 seat-prose convention, that a seat or engineer can cite.
@@ -128,3 +128,7 @@ Card remains `In Progress` until the gate set (`bunx tsc --noEmit`, `bun test`, 
 **Applied:** the steer is binding and covers the step-2 gate in full — the write phase
 proceeds with the owner executing Ingest steps 3–8 per the execution packet, no element
 re-opened.
+
+### Step 8, dispatch 2 — write phase executed; PR open → `In Review`
+
+`owner` (`job-19.1`, 8.8m, 32 turns, `stopReason=stop`, tokens in 96930 / out 16896 / cR 1729536 / cW 0 / reason 4249 / total 1843362, cost≈$0.0449 catalogue) executed the Ingest write phase in worktree `.worktrees/fllwup-54-red-base-wiki`, branch `feat/fllwup-54-red-base-wiki` cut at `origin/main` @ `314b4e9`. PR #73 open (verified first-hand: `state: OPEN`, head `f8c3f5a30a04dc0219417cc566d6a7aec2d5ae7b`) → `In Review` written from the observed artifact. Step-8 ingest report per the packet: pages created 2 (`red-base-evidence.md` concept with lineage note; source page with the explicit EV-41 contradiction flag), pages updated 8 (owner, skeptic, deterministic-merge-check, gate-parity, main-repo-immutability, product-owner + index + log), contradictions flagged 1 (EV-41 causal correction). Element 4b honored (ledger sentence untouched), 4c honored, lineage note only on the concept page. Owner local gates (verbatim from its report): preflight `PASS: preflight clean`; `bunx tsc --noEmit` exit 0; `bun test` 928 pass / 2 skip / 0 fail across 80 files (96.87s); `council/validate.py` clean. Disclosed incident: two initial `write` calls used session-relative paths and landed in the main checkout; files moved with plain `mv` (no git state change), main checkout `git status --short` clean, gates run after the move against the actual PR tree. Owner did not merge, poll CI, or touch council artifacts.
