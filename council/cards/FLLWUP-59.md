@@ -445,3 +445,88 @@ shallow-independence at the cost of an exclusion list or a ledger whose
 completeness is unverifiable in CI. Derivation-as-generation buys less hand
 maintenance at the cost of making the "byte-stable" binding constraint
 unenforceable.
+
+### Step 3 — bounded exchange (round 2) — positions materially converged, one enumeration point open
+
+Re-dispatched each generator with the other's round-1 position. Jobs: `owner`
+`job-26.3` (7.8m, 7 turns), `principal` `job-26.4` (7.0m, 6 turns), both
+settled `done`. Positions appended verbatim. On the mechanism axis the seats
+**converged on derive-and-replace** (the principal withdrew P2-coverage
+policing: "the regex is gone, so 'coverage policing' names a relation that no
+longer has a right-hand side"; it retired its byte-provenance objection). The
+remaining live divergence is the **enumeration source**: the owner's converged
+shape kept `git log --all`; the principal argues HEAD-ancestry-only
+(determinism) and says the difference is settled by a determinism test, not
+taste. Round 3 (final under the ≤3-round cap) follows to close that point.
+
+#### Round 2 — `owner` (job-26.3)
+
+## Point-by-point engagement
+
+**(i) CI shallow clone — I concede, and my round-1 guard as specified does not cover it.** Measured on a CI-style clone (`git clone --depth 1 --no-local` of this repo): `rev-list --count HEAD` = **1**, `.git/shallow` present, but `git log --all --pretty=format: --name-only` emits **33,035 bytes / 852 path lines — non-empty** (the grafted tip squash-commit's own diff), and `ev40-harness` lines = **0** vs **12** in the full repo. My round-1 guard said "empty or errored history is a named loud FAIL." The failure mode is not empty — it is **silent-partial**: the derived set contains whatever the tip commit touched and looks exactly like a healthy mechanism while missing every earlier retirement, including the one this witness exists to police. An empty-output check cannot fire on it. So the principal is right on both halves, and they are not alternatives: (a) the guard must test shallowness **structurally** — `.git/shallow` existence and/or a `rev-list --count` floor — not output emptiness; (b) `fetch-depth: 0` at `gates.yml:9` is still required, because a mechanism that loud-fails every CI run is an outage, not a witness. The guard's job is every *other* shallow context (archive clones, a future workflow edit); fetch-depth fixes the one we control. One procedural flag: the `gates.yml` line sits outside the card's recorded surface ("internal test machinery in `test/faux-provider-shape.test.ts` and at most adjacent test files") — that needs a recorded scope amendment, not a silent inclusion.
+
+**(ii) Derivation relocates hand judgment — partially concede.** Measured: the only `ev43/` in the live scan domain (`test/ev43-reachability.test.ts:6`) is followed by a space — green under my path-shaped rule (dir token + continuation char). So the principal's claim-4 over-match defeats the *naive shortest-prefix* rule, not mine, and my derived set needs **no carve-out list today**: `ev43/` vs `ev43/falsifier` is defeated by a rule, not by an entry. But the principal's deeper point survives in narrowed form: for an *intentional* path-shaped mention of a retired path, the mechanism's only escape valve is "reword the comment" — a prose discipline, same as `prose.test.ts` forcing `features-deliver.md`. If a future contributor declines, the in-mechanism escape becomes a hand-maintained exclusion list — the decay relocated, exactly as stated. I accept that and pin it as declared discipline with a two-sided test, rather than claim list-freeness forever. The `--all` side-branch tradeoff stands as owned in round 1.
+
+**(iii) P2 vs derive — I hold derive.** The blind-spot classes are *identical* (rename trap, shallowness, scan-domain gaps hit both mechanisms' shared enumeration). The differences are elsewhere. Under police, a **clean** retirement — no stale references — makes CI red until a human widens the regex under red pressure; that hand edit is the decay opportunity (late, wrong, or a future refactor deletes the "annoying" police test and leaves today's naked regex). Under derive, a clean retirement is green and requires nothing, and a stale reference reds at the retirement commit with token and file named; the future-protection the list buys ("token is in the list, so a later regression is caught") is provided statelessly. Once the pins land, I claim derive's silent-miss surface ⊆ police's. Police's one genuine advantage I won't hide: the hand regex is substrate-independent and keeps working where git is unfixably shallow, while derive loud-fails. I reject it as decisive because we own `gates.yml`.
+
+**(iv) Fragment-vs-path — I concede the fixture and repair it mechanically.** `const retired = 'ev40-harness/';` does not red under my round-1 rule (the derived dir token is `test/ev40-harness/`, not bare `ev40-harness/`); the current regex reds. Round-1 principal claim 3 lands. But the reduction need not be hand-fragmented: emit **segment-aligned suffix fragments** of retired paths, each emitted only if it collides with no live path. Measured today: `harness-headless.ts` appears nowhere in `test/`+`smoke/` (emissable); bare `ev40-harness/` appears only in the self-excluded witness (emissable); basename `ev41-tui.py` collides with live `test/faux-provider/ev41-tui.py` (not emissable — live-path mentions stay green while the full retired path `test/ev41-tui.py` reds: the historical miss caught, the live path not false-positived). The residual honesty: the emission criterion sees live *paths*, not prose — a future prose mention of an emitted fragment reds and forces the same reword-or-carve-out choice as (ii). And the owned asymmetry stands: bare-dir whitespace mentions ("the retired ev40-harness/ family") are green under derive, red under today's regex — unpolicable by any mechanical rule, since the principal's own claim 4 proves raw `ev43/` policing reds legitimate prose.
+
+## Converged shape
+
+Derive-replace, upgraded from round 1 with: (1) `--no-renames` pinned enumeration; (2) structural shallow guard **plus** `fetch-depth: 0` in `gates.yml`, with a recorded card-scope amendment; (3) `retiredPathViolations` extended with segment-aligned, collision-checked fragment emission; (4) no carve-out list — the prose-discipline boundary pinned two-sided; (5) red-base falsifier in a worktree at FLLWUP-49's parent (red naming the `test/ev41-tui.py` fragment, green at head), satisfying the seven-field convention. **Open:** (a) the gates.yml scope amendment is procedural and sits with the facilitator/PO record; (b) whether the judge reads the owned bare-dir narrowing as inside the goal's "cannot silently create a miss" — I argue yes (the miss class the mechanism targets is resolvable-path references), but it is the judge's call, not mine to make.
+
+**Tradeoffs accepted** — silent-partial failure mode fully conceded and closed with two independent measures; bare-dir prose and intentional full-path prose are unpolicable and pinned as named, tested boundaries rather than pretended away; derive loud-fails where police would degrade gracefully, accepted because CI is ours to configure; a `git` spawnSync and one CI-config line added, against the zero-new-live-arms constraint (no pi/pty arms).
+
+**Testable claims**
+
+1. **Shallow-partial (measured here, reproducible):** depth-1 `--no-local` clone → `rev-list --count HEAD` = 1, `.git/shallow` present, log output 33,035 bytes/852 lines, `ev40-harness` lines 0 (full repo: 948 commits, 12 lines). Proves the empty-check guard is insufficient.
+2. **Rename trap (measured):** synthetic repo, `git mv old/x.py new/x.py`; `git log --name-only` default shows **only** `new/x.py` in the move commit; with `--no-renames`, both. My round-1 enumeration command verbatim would have been blind to pure-rename retirements — the pin is mandatory.
+3. **Guard (updated):** with `.git/shallow` present (or rev-list count below floor), the witness fails with a named shallow-history error — never green.
+4. **Fragment emission (new):** derived fragment set over real history + live tree contains `harness-headless.ts` and bare `ev40-harness/` but **not** `ev41-tui.py`; scratch source `const retired = 'ev40-harness/';` reds; scratch mentioning `test/faux-provider/ev41-tui.py` greens; scratch mentioning `test/ev41-tui.py` reds.
+5. **Historical miss (unchanged):** `git show ca22360^:test/ev41-retry-e2e.test.ts` fed to the checker yields a violation naming `test/ev41-tui.py` — red-at-base at FLLWUP-49's parent, green at head.
+6. **Current-regex regression blindness (I now adopt the principal's claim 2):** revert `ev41-retry-e2e.test.ts:325` to the retired token; `bun test test/faux-provider-shape.test.ts` is green on today's code — the card's premise, runnable.
+7. **Zero new live arms:** diff touches only the witness + the one `gates.yml` line; arm counts 3/5/5/2 + 2 unchanged; only a `git` argv added to the existing spawn class.
+
+#### Round 2 — `principal` (job-26.4)
+
+**Grounding**: `vault/wiki/index.md` (no page covers this witness — nearest `test-suite-budget.md`, `smoke-test.md`); `test/faux-provider-shape.test.ts`; `.github/workflows/gates.yml`; `council/cards/FLLWUP-48.md:687-709`; `test/ev43-reachability.test.ts:6,52-53`; `.gitignore`. No bash/`git` tool in this seat, so I verified only the tree-side facts directly; history-side facts are cited from FLLWUP-48's record.
+
+## Cross-seam reading
+
+The tree-side half of the owner's green-at-head claim holds: I find no path-shaped occurrence of any of the three hand tokens under `test/`/`smoke/`, witness-excluded — the only `ev40-harness/` occurrences are `faux-provider-shape.test.ts:143,145` (the witness's own fixtures), and `ev43/` appears bare only as retirement prose (`ev43-reachability.test.ts:6`, followed by a space) plus the live provider id `ev43`/`ev43-model` (`:52-53`). The pre-fix miss text is independently on record at `FLLWUP-48.md:708` ("via test/ev41-tui.py"), so the historical-red premise is grounded in the repo, not memory. I could **not** verify the full 16-token derived set green at head without git — that remains Skeptic claim 1.
+
+## Blind spots
+
+- **Owner (inside the test file)**: sees the scan and the tokens; cannot see that the mechanism's *runtime substrate* (git history depth) is set by a file it doesn't touch — `gates.yml`. The mechanism's correctness is co-owned by a line outside its diff.
+- **Principal (this seat)**: I can read the tree but not enumerate history here; every claim about the derived *set* is second-hand until Skeptic runs it.
+- **Facilitator (card framing)**: recorded "not cross-seam … `test/faux-provider-shape.test.ts` (and at most adjacent test files)" — falsified below; the surface note excludes the one file the chosen mechanism depends on.
+
+## Reframe
+
+**The proposed design is sound in family; two mechanical corrections, no reframe of the approach.**
+
+**(i) P2 adds nothing — conceded.** Under derive-and-replace the regex is gone, so "coverage policing" names a relation that no longer has a right-hand side. The only coverage the hand regex has that the derived rule lacks is bare-dir mention, and the owner's charter argument is correct and general: bare `d/` is the canonical *retirement-documentation* form (`ev43-reachability.test.ts:6` *is* that sentence), so it is mechanically indistinguishable from a stale mislead *for every token*, not just `ev43/`. A mechanism that preserves bare-dir coverage must carry a hand carve-out — the decay. I withdraw P2; the owner's narrowing is a correct boundary, not a weakening. One caveat I'd keep visible: it is correct *as an owned semantic choice*, and the owner has already test-pinned both sides (claim 4).
+
+**(ii) Byte-provenance objection retired.** The orchestrator's constraint ("part of the mechanical mechanism, not a manual edit") targeted hand-widening. Removing the regex satisfies the constraint's *intent* more strongly than any byte-stable edit. There is no byte to have provenance for. Conceded.
+
+**(iii) Claim 5's guard is broken as stated, and `fetch-depth: 0` is required, not optional.**
+
+- At `depth=1`, `git log --all --pretty=format: --name-only` is **not empty** — it returns HEAD's tree. So an "empty/errored history → FAIL" guard **does not fire** and the witness passes while policing nothing. That is exactly the silent-miss signature this card exists to kill. The guard must detect *shallowness* (`git rev-parse --is-shallow-repository`) or, better, a **canary**: assert the derived set contains a known-irrevocable retirement (e.g. the `test/ev40-harness/` dir token or `ev41-tui.py`). The canary catches truncated histories that `--is-shallow-repository` misses, is environment-independent, and never needs updating (a retired path cannot un-retire) — a tripwire, not an allowlist.
+- Loud-fail *alone* converts a silent miss into a permanently red gate; that is not a shippable card state. `fetch-depth: 0` at `gates.yml:9` is therefore **required for the mechanism to be shippable**. Owner's claim 6 ("diff touches only `test/faux-provider-shape.test.ts`") is falsified by the mechanism's own substrate: the diff is **two files**. The facilitator's surface note ("at most adjacent test files") is also wrong. Owner of the line: the implementing owner, same PR — not a follow-up card.
+- Also verify claim 5's own boundary: `git rev-parse --is-shallow-repository` on a `--depth 1` clone → `true`; on full → `false`.
+
+**(iv) `--all` is the wrong enumeration; the difference is test-settled, not judgment.** `--all` makes the token set a function of the *local ref set*: a developer with a stale branch containing a retired path gets a red CI does not reproduce (and vice versa). A gate whose verdict depends on which branches exist at run time is not deterministic. **HEAD-ancestry only** (`git log --pretty=format: --name-only HEAD`) is deterministic, and for a `pull_request` checkout (merge commit, ancestry includes base) it already contains main's retirements; the retirement-under-review is on the PR branch, hence in ancestry. No window base is needed, and I'd drop my round-1 "witness creation commit" pin too: full HEAD ancestry is deterministic *and* catches pre-witness stale comments that a window would miss, at zero false-red. The `--all` vs HEAD-ancestry difference is **settled by a determinism test**, not left to taste.
+
+## Converged shape both seats can sign
+
+`deriveRetiredTokens(historyPaths, currentPaths)` fed by **HEAD-ancestry** `git log --name-only` (no `--all`), path-shaped rule unchanged; a **canary** (derived set must contain `test/ev40-harness/` or `ev41-tui.py`) as the loud-fail; and `fetch-depth: 0` at `gates.yml:9`. Diff = two files. If the owner insists on `--all`, that is the one genuinely open item — and it should be defended against the determinism claim, not by "negligible false-red."
+
+**Testable claims**
+
+1. **Depth-1 nondeterminism (owner claim 5 falsifier)**: in `git clone --depth 1`, `git log --all --pretty=format: --name-only | sort -u` is **non-empty** (equals HEAD's tree) → an emptiness guard passes while the retired set is ∅. Expected: guard does not fire ⇒ claim 5 as written is wrong.
+2. **Shallow detection**: `git rev-parse --is-shallow-repository` → `true` at depth 1, `false` at full. Both parse cleanly on the repo's git version.
+3. **Canary**: with a truncated history whose base postdates FLLWUP-49's deletion, the canary (derived ∋ `ev41-tui.py`) reds; at full history it is green. Expected: red/green.
+4. **`--all` environment-dependence**: create branch B with a path not on main; delete it; `git log --all --name-only` includes it, `git log --name-only HEAD` does not. Expected: `--all` superset ⇒ token set varies with ref set.
+5. **HEAD-ancestry sufficiency at PR head**: on `refs/pull/N/merge`, `git log --pretty=format: --name-only HEAD` includes both branch and base retirements. Expected: no `--all` needed.
+6. **Two-file diff (owner claim 6 falsifier)**: a shallow-repo CI run reds only after `gates.yml` gains `fetch-depth: 0`; grep `fetch-depth` at `gates.yml:9` is absent at base. Expected: mechanism unshippable without the line.
+7. **`smoke/artifacts/` token existence**: `git log --all --name-only | grep -c '^smoke/artifacts/'` — `.gitignore` tracks `smoke/.artifacts/` (dot), so if this is `0`, the owner's narrative token list names a non-historical path (harmless to the mechanism, but correct the record).
