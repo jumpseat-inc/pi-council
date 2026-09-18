@@ -482,3 +482,33 @@ implementation notes recorded in the owner's report (R3 fires the bare-line
 predicate first, per spec; R5′ scan scoped to leading frontmatter blocks
 because body quotes of `goal:`-shaped lines are legitimate).
 `In Review` set on the card and board from the observed PR artifact.
+
+### Step 9 — skeptic verification at the branch head (job-9.2)
+
+Dispatch: `skeptic` job-9.2 (30-min ceiling; settled 12.5m / 27 turns,
+total 1586046 tok, cost≈$0.0259). Subject pinned: PR #70 head
+`09a8679d9a873cef3b025b5e358231e84064526f`, head worktree
+`.worktrees/fllwup-51` (never the local `main` checkout); frame pinned:
+step 9 precedes step 10 judging and step 11's mechanical merge. PO process
+requirement applied: all four gates re-run from the head worktree, probes
+against source, never `/tmp` scratch trees for gate results.
+
+**Verdict: NO-BLOCK.** All spot-checks `closed-green`: spec §6 set exists
+and passes (26/26 incl. flipped T7); R2′ raise proven; R4b, R8 three
+shapes, R7, R10, R11, R12 verified by independent black-box probes; PO
+items 1–4 landed verbatim (copy + spec documentation); parity mechanics
+(10 identical copies `882582c9…`, 8 digests @1.2.0, rubric untouched,
+root-only procedure copy); green side from source (root, 8 seeds, smoke
+tree all exit 0; body fences included); version bump + PR-body release
+call-out present. Gate-integrity injection: disabling the bare-line raise
+turns exactly R1/R2′/R3/R8b/R11/R12 red — the tests bite where the
+mechanism lives. `bun test` at head: 909 pass / 2 skip / 0 fail.
+
+One **recorded environmental red, dispositioned not-blocked**: preflight's
+branch-freshness check (`FAIL: local history does not descend from
+origin/main`) is structurally unsatisfiable at the pinned head — the run's
+own step-8 record push (`886fa54`) advanced `origin/main` past the step-7
+base (`3646cd5`) after the PR head was pinned; all content checks in
+preflight pass. This is the known finding class already carded as
+FLLWUP-27 ("Preflight branch-freshness clause vs mid-card record pushes",
+Backlog). No unverified delivery item remains; step 10 proceeds.
