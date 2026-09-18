@@ -4,7 +4,7 @@ title: Cosmetic cleanup of the FLLWUP-50 refresh surface (dead variable, duplica
 state: Backlog
 owner: null
 epic: EPIC-9
-goal: The three non-blocking cosmetic findings the FLLWUP-50 skeptic verified at PR #72 head d3de248 are cleaned without behavior change — the `void recordDirty` dead variable in `applyRefresh` is removed or used; `scaffoldPackageVersion` lives in one place (not duplicated across extensions/scaffold.ts and extensions/council-update.ts); the creationPass filter that is effectively a no-op either does its stated job or is deleted with its comment — and the full gate set stays green with the suite's record-state, notification, and consent pins untouched.
+goal: The three FLLWUP-50 skeptic cosmetic findings (the `void recordDirty` dead variable in `applyRefresh`, the `scaffoldPackageVersion` duplication across `extensions/scaffold.ts` and `extensions/council-update.ts`, and the no-op `creationPass` filter with its comment) are cleaned without behavior change, and the full gate set stays green with the record-state, notification, and consent pins untouched.
 ---
 
 ## Intent

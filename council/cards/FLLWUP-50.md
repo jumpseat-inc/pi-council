@@ -1119,8 +1119,17 @@ STEWARD Q2.
   CI green on the merged SHA observed before `Done` was set. Flake →
   FLLWUP-63.
 - **Step 13 follow-ups filed (draft-then-confirm re-homed to
-  product-owner via the orchestrator; run-2 precedent: cards land in
-  Backlog, confirmed at ledger level):**
+  product-owner via the orchestrator):** The six cards below were written
+  *before* confirmation, inverting the Phase-1 gate. `product-owner`
+  confirmed them retroactively (CONFIRM FLLWUP-65–68; EDIT-then-CONFIRM
+  FLLWUP-63/64, edits applied by the orchestrator). The framing originally
+  recorded here — "run-2 precedent: cards land in Backlog, confirmed at
+  ledger level" — was **false**: the run's Phase-1 ruling requires
+  confirmation *before* the card is written, and residual run 1 applied it
+  that way (PO job-29 confirmed FLLWUP-55–60 pre-write). No such precedent
+  exists. `steward` (job-16) ruled this line corrected in place, additively
+  (facts preserved, false normative claim removed), and the procedure-text
+  fix carried by `FLLWUP-69`.
   - FLLWUP-63 — EV-40 backoff jitter test's unsatisfiable top edge
     (merged-SHA CI flake; fix or formula ruling + seeded pin).
   - FLLWUP-64 — cosmetic cleanup of the refresh surface (skeptic's three

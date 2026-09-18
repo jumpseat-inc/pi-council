@@ -4,7 +4,7 @@ title: Fix the EV-40 backoff jitter test's unsatisfiable top edge (merged-SHA CI
 state: Backlog
 owner: null
 epic: EPIC-9
-goal: The EV-40 policy test "jitter honors the maxDelayMs cap" (test/ev40-parent-retry.test.ts) no longer flakes by asserting an envelope that matches the shipped formula — `Math.round` over the docstring-pinned `[0.5, 1.5) × cap` multiplier makes the result interval closed at the top (`≤ 1.5 × cap`), so the strict `toBeLessThan(7500)` assertion is unsatisfiable with certainty at `rand ≥ 0.9999` (~2% flake per run at 200 iterations); the test (or the formula's rounding, per EV-40's spec §2.1 whichever side the fix card settles) is corrected deterministically, and the flake class is pinned by a seeded adversarial case.
+goal: The EV-40 `computeBackoffDelay` jitter test is corrected to assert an envelope matching the shipped `Math.round`-over-`[0.5, 1.5) × cap` formula (closed at the top edge) rather than a strict half-open `toBeLessThan(7500)`, with the flake class pinned by a seeded adversarial case at `rand ≥ 0.9999`.
 ---
 
 ## Intent
