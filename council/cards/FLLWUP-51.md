@@ -4,7 +4,7 @@ title: Loud gate for a goal wrapped onto a second line
 state: Deliberating
 owner: null
 epic: EPIC-9
-goal: A goal wrapped onto a second line is detected loudly rather than silently truncated to its first line, so a wrapped goal is refused with a diagnostic naming the wrap instead of validating green, proven by a test that fails on today's silent-exit-0 behavior.
+goal: A wrapped goal, a non-`key: value` line inside the frontmatter block, an unclosed frontmatter block, and a key following `goal:` in the block are each refused by `parse_frontmatter` and reported as a non-zero `council/validate.py` FAIL naming the defect rather than validating green, where a not-`key: value` line's diagnostic names both a wrapped/continued value and a missing closing `---` because the parser cannot tell them apart; single-line goals containing `: ` and cards carrying extra intentional keys before `goal:` parse clean; and the documented residual — a mid-block colon-bearing continuation of a non-goal key — is recorded in copy and pinned by a test but not gated.
 ---
 
 ## Intent
@@ -414,3 +414,43 @@ Phase-1 rulings checked first (`<escalation_contract>` step 1): run-2 R2 (merge)
 
 The consolidator left the card not ready to hand off. Per `<escalation_contract>` step 2 the facilitator does not dispatch `product-owner` or `steward`; it ends the turn with an `ESCALATION` report carrying facts and no recommendation. The card stays `Deliberating` (these are ruling-seat-addressable, not declined by both ruling seats); no `Needs Human` state is set. Nothing in steps 7–14 has run.
 
+
+### Step 6 (continued) — rulings on the escalation, applied verbatim (`<escalation_contract>` step 3)
+
+The orchestrator obtained rulings from `product-owner` (items 1–4) and
+`steward` (item 5, goal amendment); resumed container appends them verbatim
+and applies them as binding. The amended `goal:` line above replaces the
+card's prior goal (goal-wording authority is `steward`'s, FLLWUP-43 ESC-1 /
+EV-29 precedent; the card was `Deliberating`, so the amendment is legal).
+Explicitly NOT in the oracle: the parity mechanics (10 byte-identical copies,
+8 digest re-pins, `fixtureVersion` 1.1.0 → 1.2.0) and the board-copy
+corrections — those stay governed by T3/T5, AGENTS.md #5, and this record.
+The residual is a recorded stopgap, not permanent; a later card may gate it.
+
+**PO item 1 — documented residual (Skeptic O14).** The residual stays document-only for this card and is filed as a step-13 follow-up card under EPIC-9; the design record's justification is narrowed from "would require vocabulary/order strictness we declined" to the precise parser-character + sub-shape-coverage defense (the cheap predicates catch only the space-bearing sub-shape and would reject whitespace-leading keys the loader currently accepts silently).
+
+**PO item 2 — consumer-population consequence (positional rule, ESC-3).** Red-by-design is acceptable; FLLWUP-50's ESC-3 acceptance shape needs no rider. The new validator is correcting toward a contract the procedure copy has always stated (`board-create-card.md` §3, `_template.md` line 7) — a consumer card with goal-not-last was already outside the documented contract. ESC-3's "without overwriting" language governs content preservation, not validation strictness. Communication owed: step-14 wiki ingest must record the new positional rule and the FAIL message in `vault/wiki/engineering-board.md`; release notes must call out that `goal:` is now positional and that consumer cards must conform.
+
+**PO item 3 — FAIL-copy deltas (all card-level, binding):**
+1. Quote the offending line's text in the FAIL message.
+2. The bare-line FAIL names both hypotheses — "wrapped value, or the closing `---` is missing" — because they are indistinguishable from inside the scan.
+3. Express the rule as "line after `goal`" rather than "last parsed key".
+4. One structural FAIL per card — suppress the "not closed" message when a bare-line FAIL already fired.
+5. Vocabulary echo is required, with a suite pin — the FAIL MUST contain at least one of {wrap, second line, line break, value} shared with `board-create-card.md`.
+
+**PO item 4 — unclosed frontmatter whose body begins with a bare `---`.** Pin it R8-style AND document it uncaught-by-design in the design record. The implementation adds an R8 test asserting: "leading frontmatter block missing closer + body line 1 is bare `---`" → exit 0 with all 6 keys (silent acceptance today; same under the converged design). The design record calls this out explicitly as a known residual.
+
+**PO process requirement (binding, not a ruling).** Every green attributed to the converged design (O6/O8/O9/O15) came from a Skeptic scratch-tree prototype, not this repo's source. The owner must build against `council/validate.py`; the Skeptic must re-run all four gates plus its probes against the branch head — `bash council/preflight.sh` (prefer rerunning over trusting local-gate evidence, AGENTS.md #13), `bunx tsc --noEmit`, `bun test`, `python3 council/validate.py` — never against `/tmp` scratch trees.
+
+**STEWARD item 5 — goal amended.** Final goal sentence, verbatim, to replace the current `goal:` line in `council/cards/FLLWUP-51.md` (legal because the card is `Deliberating`; goal-wording authority is `steward`'s, FLLWUP-43 ESC-1 / EV-29 precedent):
+
+> A wrapped goal, a non-`key: value` line inside the frontmatter block, an unclosed frontmatter block, and a key following `goal:` in the block are each refused by `parse_frontmatter` and reported as a non-zero `council/validate.py` FAIL naming the defect rather than validating green, where a not-`key: value` line's diagnostic names both a wrapped/continued value and a missing closing `---` because the parser cannot tell them apart; single-line goals containing `: ` and cards carrying extra intentional keys before `goal:` parse clean; and the documented residual — a mid-block colon-bearing continuation of a non-goal key — is recorded in copy and pinned by a test but not gated.
+
+Steward deltas from `product-owner`'s proposed text (only these four): (1) added "and reported as a non-zero `council/validate.py` FAIL … rather than validating green" — the current goal's crux is the silent exit 0, which the proposed sentence dropped entirely; (2) "with a distinct diagnostic" → "naming the defect" plus the both-readings explicitness, since "distinct diagnostic" per defect would be an over-claim; (3) "cards with extra intentional keys" → "before `goal:`", since the unqualified form is false for a key after `goal`; (4) backticks on `parse_frontmatter`. Explicitly NOT in the oracle: the parity mechanics (10 byte-identical copies, 8 digest re-pins, `fixtureVersion` 1.1.0→1.2.0) and the board-copy corrections — those stay governed by T3/T5, AGENTS.md #5, and the card record. The residual is a recorded stopgap, not permanent; the resumed record should say a later card may gate it.
+
+All consolidator open-judgment items 1–4 are now closed by these rulings
+(item 1 → PO item 1; item 2 → PO item 2; item 3 → PO item 3; item 4's
+card-domain gate-parity mapping is recorded in the design spec as the working
+interpretation all three seats used, per the consolidator's own note that the
+design does not depend on a ruling). The unclosed-frontmatter/body-fence case
+is closed by PO item 4. Continuing to step 7.
