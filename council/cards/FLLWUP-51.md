@@ -314,3 +314,38 @@ Unchanged from R1, one line each: no continuation-folding (the goal demands refu
 - Tense of the FAIL verb ("is wrapped" vs. "wraps" vs. "wrapped"). I default to past participle to match `board-create-card.md`'s "never wrap the goal" register. Ungrounded.
 - Whether the positional rule is expressed as a check on the *line after `goal:`* or on the *last parsed key in the block*. The latter is more robust if goal were ever to appear more than once; the former is more local and easier to read in the source. Lean line-after; ungrounded.
 
+
+### Step 4 — Skeptic attacks and runs tests (job-6.7)
+
+Dispatch: `skeptic` job-6.7 (25-min ceiling; settled 12.6m / 30 turns, total 1931922 tok, cost≈$0.0321). Subject: the deliberation record (rounds 1–2) at main `b09bc75` — no branch/PR exists; frame: step 4, before step 5 synthesis and steps 7–11. Read-only on the main repo; scratch trees under `/tmp` only. Verdict: **`no-block`** — every load-bearing factual claim survived its settling test.
+
+## Objection table
+
+| # | Claim attacked | Term | Result |
+|---|---|---|---|
+| O1 | Branch A: bare continuation after `goal` → silent truncation, exit 0 | `closed-green` | parse returns `{"goal": "first part"}`; full-tree validate exit 0 |
+| O2 | Branch B: colon-bearing continuation → spurious key, exit 0 | `closed-green` | spurious key `note`, goal truncated, exit 0 |
+| O3 | Branch C: mid-block wrap → loud missing-key FAIL | `closed-green` for the bare shape; **`closed-red` for the round-1 sentence as stated** | bare wrap → exit 1 missing-key cascade; **colon-bearing** mid-block shape exits 0 silently (spurious key, six keys survive). Record self-corrects in owner round-2's residual; verbatim round-1 copy is inaccurate |
+| O4 | Branch D: unclosed frontmatter, six keys parse → exit 0 | `closed-green` | both sub-shapes exit 0 today |
+| O5 | R4b leg 1: duplicate-goal overwrite → full dict, goal last, exit 0 today | `closed-green` | `goal = "field is wrapped is refused"`, exit 0 |
+| O6 | R4b leg 2: positional raw-line rule catches it | `closed-green` | converged-design validator: exit 1 naming the wrap |
+| O7 | R4b leg 3: withdrawn unknown-key FAIL would NOT catch it; `labels: x` before `goal` WOULD fire it | `closed-green` | dominance argument real: unknown-key misses R4b, false-positives on intentional keys |
+| O8 | Converged design (raise + positional + distinct branch-D + no vocabulary) green on all shipped data | `closed-green` | 114 cards, 8 seed trees, smoke/fixture → all exit 0, including FLLWUP-47/49 body-embedded fences (never scanned; scan ends at first closing `---`) |
+| O9 | Green-side pin: intentional extra key before `goal` → exit 0 | `closed-green` | `labels: x` between `epic` and `goal` → exit 0 |
+| O10 | Single-line goal containing `: ` still validates clean (FLLWUP-43 retraction intact) | `closed-green` | T1-shape and all suite harness blobs parse clean |
+| O11 | Parity mechanics: 10 copies byte-identical; 8 digests @ 1.1.0; T7 pins silent behavior and must flip in the same change | `closed-green` | T3/T3b/T5 pass today; T7's two assertions demonstrably flip under the converged design; T4's missing-key message survives via `partial_meta` |
+| O12 | Nothing else in the suite asserts the silent wrap behavior | `closed-green` | wrap strings only in T7; whole-tree-green assertions elsewhere stay green under the converged design |
+| O13 | Documented residual: mid-block colon-bearing continuation of a non-goal key is silent today AND silent under the converged design | `closed-green` | `owner:` wrapped with ` queue: …` before `goal` → exit 0 both parsers |
+| O14 | "No cheap predicate catches it without the vocabulary/order strictness the council declined" | **`closed-red` as a blanket claim** | for the space-bearing sub-shape (` Rate limited: try again later` mid-block, before goal), a whitespace-in-key check or key-shape regex catches it with zero vocabulary and zero order rule. The council's decision (document, don't gate) remains defensible — those predicates catch only a sub-shape and change the parser's character — but the stated justification is imprecise and must be narrowed in the design record |
+| O15 | Branch D gets a distinct FAIL message (R-positional-F) | `closed-green` | wrap-after-goal vs unclosed-without-body → distinct messages; unclosed-with-body emits the wrap/bare-line message (principal R8's pinned class, confirmed) |
+| O16 | Ancillary facts (preflight doesn't run validate.py; engine never parses card frontmatter; scaffold has no procedures/; etc.) | all `closed-green` | verified by grep/read + preflight run |
+
+Also executed as gate-integrity evidence: `bun test test/fllwup43-goal-oracle.test.ts` → 11 pass (T7 pins silent); full `bun test` → 894 pass / 2 skip / 0 fail; `bunx tsc --noEmit` → clean; `bash council/preflight.sh FLLWUP-51` → PASS; `python3 council/validate.py` → valid.
+
+## Open (no test settles)
+
+- Unclosed frontmatter whose body begins with a bare `---` line: exits 0 under both designs (the grammar cannot distinguish a body fence from the closer); uncaught-by-design, unpinned.
+- Real consumer-repo population (FLLWUP-50's promise): data-greenness was measured on this repo's shipped trees only; a consumer tree with a legal-but-unusual key order (goal not last) goes red by design — documented tradeoff, no test can settle the future population.
+- FAIL-copy vocabulary echo (designer R-positional-E) and one-FAIL-per-card suppression: implementation-time choices, no suite pin.
+- Whether the whitespace-in-key predicate is "worth" gating the residual sub-shape: taste, declined; the decline is defensible, the reason given was only half right (O14).
+
