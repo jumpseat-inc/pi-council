@@ -1257,4 +1257,31 @@ widening. **In Review set from the observed artifact (PR #77, state OPEN,
 head `6704ee7`); CI on the head SHA was `IN_PROGRESS` at transition and is
 the facilitator's to check before the merge gate.**
 
-### Step 9 — skeptic
+`skeptic` verified at the pinned subject (PR #77, head `6704ee7`, fresh
+detached worktree `/tmp/fllwup58-verify`). **First attempt (`job-30.2`)
+never settled** — 30-minute window elapsed twice while the session was wedged
+on a context-length provider 400 (its own 52-turn accumulation, 3.9M
+cache-read); cancelled and **re-dispatched once** per the dispatch discipline
+(`job-30.3`, same input + lean-context caution, settled 5.5m, 25 turns).
+Recorded here because dispatches are bounded and this one was not free.
+
+**Verdict: PASS — no open objections, nothing red, nothing open-untested**
+(closed-green on all seven attack lines, each with real observed output):
+scope audit exactly the five artifacts +312/−11 (gates.yml diff exactly one
+step-level line, `fetch-depth: 0` verbatim, card `goal` byte-identical at
+head); independent census re-derivation matches (16 default + 2 gated, Σ
+2 585 000 / 3 005 000 ms, no hardcoded census constants, known traps
+excluded); four own-mutation reds binding floor/placement/parity, restored
+green; wiki carries every ruling-enumerated element; **full gate set re-run
+at head** (tsc clean; `bun test` 945/2/0, 947 tests / 82 files, 103.48s;
+`validate.py` clean; `preflight FLLWUP-58` PASS) with fail-capability
+proven by injection and restore (tsc type error, corrupt card id, hidden
+bun.lock); zero new live arms (imports only `bun:test`, `node:fs`,
+`node:path`). One **non-blocking residual observation**: compact-closing
+test ceilings (`}, 15_000);` form, 18 more sites, Σ 420 000 ms) are outside
+the converged census scope — under the true-census floor of 52, shipped 60
+still binds; flagged for the eventual step-13 follow-up, not a defect
+against the binding design. **No blocking Skeptic objection — merge check
+criterion 3 holds.** Verify-cycle counter: **1 of 3** used, no fix cycle.
+
+### Step 10 — judge
