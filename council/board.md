@@ -47,7 +47,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Ready
 
-- FLLWUP-53 — De-repo-specific council.md step 8's gate-file reference and widen the prose guard
 - EV-44 — Merge near-duplicate follow-up candidates before a card is drafted
 - EV-45 — Unattended ingest of a run's own ledger, without the human steer turn
 
@@ -55,6 +54,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
+- FLLWUP-53 — De-repo-specific council.md step 8's gate-file reference and widen the prose guard
 
 ## In Review
 

@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-53
 title: De-repo-specific council.md step 8's gate-file reference and widen the prose guard
-state: Ready
+state: In Progress
 owner: null
 epic: EPIC-9
 goal: council.md no longer hard-references a gate document path that does not exist in this repo, and the packaged-prose guard covers every shipped file that could reintroduce one.
@@ -94,3 +94,9 @@ keeps one) and widen the guard to all packaged seat + procedure prose, rewording
   merge; R3 governs this run's record pushes (run-scoped, disclosed);
   step-13 follow-up confirmation is re-homed to `product-owner`. No
   card-specific Phase-1 ruling beyond R2/R3 (per the dispatch input).
+
+### Step 7 — hand to one owner (mechanical path)
+
+No deliberation ran, so the card itself is the owner's handoff: its `goal`,
+`Intent`, and the step-1 grounded facts. Card set `In Progress`;
+`validate.py` clean; `owner` dispatched (45-minute window).
