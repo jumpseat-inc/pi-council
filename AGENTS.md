@@ -14,7 +14,7 @@ they are the product.
 
 ```bash
 bun install          # set up deps
-bun test             # full suite (≈94s); integration/context7 probes opt-in via COUNCIL_INTEGRATION=1 and COUNCIL_MCP_INTEGRATION=1
+bun test             # full suite (≈101s); integration/context7 probes opt-in via COUNCIL_INTEGRATION=1 and COUNCIL_MCP_INTEGRATION=1
 bun test test/hub.test.ts   # single file
 bunx tsc --noEmit    # typecheck (strict)
 ```

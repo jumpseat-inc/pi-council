@@ -36,6 +36,15 @@
 //                       engine spawns a real hub job via the council's own Hub,
 //                       so the `council` widget + inline tree widget render.
 //   EV40_TOOLCALL_SEAT / EV40_TOOLCALL_MODEL  the dispatched seat/model override
+//   EV40_TOOLCALL_WAIT  "1" → after the dispatch step the parent's next
+//                       provider call returns a real council_wait tool call
+//                       (FLLWUP-56: job_ids ["job-1"], timeout_minutes 2 —
+//                       the awaited hub.wait holds the print-mode parent's
+//                       turn open through the retry backoff window and
+//                       attempt 2, so the timer-owner process survives to
+//                       respawn). The dispatch step's per-attempt ceilings
+//                       drop to the FLLWUP-56 inner bounds (0.5/0.5) under
+//                       this knob. The child shim strips this knob.
 //   EV40_OPEN_TREE      "1" → dispatch the real /council-tree command at
 //                       session_start to open the inline tree widget (P6).
 import { appendFileSync } from "node:fs";
@@ -78,6 +87,10 @@ const SETTLE_LOG = process.env.EV40_SETTLE_LOG;
 const TOOLCALL_DISPATCH = process.env.EV40_TOOLCALL_DISPATCH === "1";
 const TOOLCALL_SEAT = process.env.EV40_TOOLCALL_SEAT ?? "skeptic";
 const TOOLCALL_MODEL = process.env.EV40_TOOLCALL_MODEL ?? "ev40/ev40-model";
+/** FLLWUP-56: script a council_wait step after the dispatch step — the wait's
+ * awaited execute holds the print-mode parent alive through the backoff window
+ * (hub.ts isSettledForWait returns false while the job is retrying). */
+const TOOLCALL_WAIT = process.env.EV40_TOOLCALL_WAIT === "1";
 /** Designer P6: dispatch the REAL /council-tree command at session_start so the
  * inline tree widget (navigator.ts COUNCIL_TREE_WIDGET_KEY) is active. */
 const OPEN_TREE = process.env.EV40_OPEN_TREE === "1";
@@ -116,8 +129,21 @@ const dispatchStep = fauxAssistantMessage(
 		seat: TOOLCALL_SEAT,
 		input: "EV40-P6 live active job (no-op; the PATH pi stub hangs)",
 		model: TOOLCALL_MODEL,
-		timeout_minutes: 30,
+		// FLLWUP-56: under the wait knob the turn runs the seat-dispatch retry
+		// chain, so the per-attempt ceilings are the card's inner bounds
+		// (0.5 min = 30 s each) instead of the P6 widget-arm's 30-min ceiling.
+		timeout_minutes: TOOLCALL_WAIT ? 0.5 : 30,
+		...(TOOLCALL_WAIT ? { stall_minutes: 0.5 } : {}),
 	}),
+	{ stopReason: "toolUse" },
+);
+// FLLWUP-56 (opt-in): the council_wait step that keeps the dispatching parent
+// alive across the retry backoff window — the wait toolResult is the carrier
+// that collects the job's final report (the dispatch result returns
+// immediately and never carries the child output). timeout_minutes 2 covers
+// two 30 s child attempts plus the backoff with margin.
+const waitStep = fauxAssistantMessage(
+	fauxToolCall("council_wait", { job_ids: ["job-1"], timeout_minutes: 2 }),
 	{ stopReason: "toolUse" },
 );
 const failStep = (n: number) =>
@@ -130,6 +156,7 @@ const successStep = (_context: unknown, _options: unknown, state: { callCount: n
 
 faux.setResponses([
 	...(TOOLCALL_DISPATCH ? [dispatchStep] : []),
+	...(TOOLCALL_DISPATCH && TOOLCALL_WAIT ? [waitStep] : []),
 	...Array.from({ length: FAILS }, (_, i) => failStep(i)),
 	successStep,
 	successStep,

@@ -78,6 +78,21 @@ export interface ArmOptions {
 	 * (unset) preserves the extension's with-colon literal byte-for-byte. */
 	errorMessage?: string;
 	timeoutMs?: number;
+	// FLLWUP-56 (opt-in, knob-gated): the scripted council_dispatch → council_wait
+	// parent turn for the seat-child live arm. With none set, every existing
+	// arm's env and argv are byte-identical.
+	/** "1" ⇒ the extension's first provider call is a real council_dispatch tool call. */
+	toolcallDispatch?: boolean;
+	/** "1" ⇒ a council_wait tool-call step follows the dispatch step (the wait
+	 * holds the print-mode parent's turn open through the retry backoff window). */
+	toolcallWait?: boolean;
+	/** Extra env entries appended to the arm's env (spread LAST — e.g.
+	 * `{ PI_OFFLINE: "1" }` for arms whose children have no --offline argv). */
+	extraEnv?: Record<string, string>;
+	/** Directories prepended to the arm's PATH (e.g. a scratch `pi` launcher
+	 * shim dir that resolves the hub's hardcoded `command: "pi"` to the
+	 * dev-installed CLI — the FLLWUP-21 env-split lesson). */
+	pathPrepend?: string[];
 }
 
 /** Parsed session JSONL entry (message subset the harness asserts on). */
@@ -133,8 +148,15 @@ export function findSessionJsonl(sessionsDir: string): string | undefined {
 	return walk(sessionsDir);
 }
 
-const harnessEnv = (opts: ArmOptions, home: string, contextLog: string, payloadLog: string, settleLog: string): Record<string, string> => ({
-	PATH: process.env.PATH ?? "/usr/bin:/bin",
+const harnessEnv = (
+	opts: ArmOptions,
+	home: string,
+	contextLog: string,
+	payloadLog: string,
+	settleLog: string,
+	pathPrepend: string[] = [],
+): Record<string, string> => ({
+	PATH: [...pathPrepend, process.env.PATH ?? "/usr/bin:/bin"].join(":"),
 	HOME: home,
 	TERM: "xterm-256color",
 	// harness-only extras; nothing else inherited (FLLWUP-21 env-split lesson)
@@ -147,22 +169,38 @@ const harnessEnv = (opts: ArmOptions, home: string, contextLog: string, payloadL
 	...(opts.contextLog ? { EV40_CONTEXT_LOG: contextLog } : {}),
 	...(opts.payloadLog ? { EV40_PAYLOAD_LOG: payloadLog } : {}),
 	...(opts.errorMessage ? { EV40_ERROR_MESSAGE: opts.errorMessage } : {}),
+	// FLLWUP-56 (opt-in): the scripted dispatch → wait turn. Knob-gated: with
+	// neither set these keys are absent and the env is byte-identical to today.
+	...(opts.toolcallDispatch ? { EV40_TOOLCALL_DISPATCH: "1" } : {}),
+	...(opts.toolcallWait ? { EV40_TOOLCALL_WAIT: "1" } : {}),
+	// Spread LAST so an arm can override any base entry (e.g. PI_OFFLINE=1 for
+	// arms whose child has no --offline argv — pi's own documented var).
+	...(opts.extraEnv ?? {}),
 });
 
 /** Extra scratch-repo files the engine runs need (retry policy + a marker-
  * stamping procedure). Written into `workDir` when `engineRepo` is set. */
-function writeEngineRepoFiles(workDir: string, retryPolicy: unknown, procedureBody: string): void {
+function writeEngineRepoFiles(workDir: string, retryPolicy: unknown, procedureBody: string, extraRepoFiles: Array<{ path: string; body: string }> = []): void {
 	writeFileSync(join(workDir, ".council.json"), JSON.stringify(retryPolicy, null, 2));
 	mkdirSync(join(workDir, ".pi", "council", "procedures"), { recursive: true });
 	writeFileSync(
 		join(workDir, ".pi", "council", "procedures", "ev40-probe.md"),
 		`---\ndescription: EV-40 engine probe — stamps an invocation marker and sends the probe turn\n---\n${procedureBody}\n`,
 	);
+	for (const f of extraRepoFiles) {
+		const target = join(workDir, f.path);
+		mkdirSync(dirname(target), { recursive: true });
+		writeFileSync(target, f.body);
+	}
 }
 
 export interface EngineRepoOptions {
 	retryPolicy: unknown;
 	procedureBody: string;
+	/** FLLWUP-56 (opt-in): extra scratch-repo files (relative paths), written
+	 * after the existing `.council.json` — e.g. the seat file to shadow and the
+	 * project-local extension shim. Never clobbers the two engine-carried writes. */
+	extraRepoFiles?: Array<{ path: string; body: string }>;
 }
 
 /** The scratch substrate of one arm (dirs, env, argv). Shared by the sync and
@@ -195,9 +233,9 @@ export function prepareHarnessArm(
 	const settleLog = join(scratchRoot, `${opts.label}-settle.log`);
 	const contextLog = join(scratchRoot, `${opts.label}-context.log`);
 	const payloadLog = join(scratchRoot, `${opts.label}-payload.log`);
-	if (engineRepo) writeEngineRepoFiles(workDir, engineRepo.retryPolicy, engineRepo.procedureBody);
+	if (engineRepo) writeEngineRepoFiles(workDir, engineRepo.retryPolicy, engineRepo.procedureBody, engineRepo.extraRepoFiles);
 
-	const env = harnessEnv(opts, home, contextLog, payloadLog, settleLog);
+	const env = harnessEnv(opts, home, contextLog, payloadLog, settleLog, opts.pathPrepend ?? []);
 
 	const args = [
 		CLI_PATH,
