@@ -73,7 +73,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- FLLWUP-58 — Runaway timeout-minutes backstop on the gates CI job
 
 ## Done
 
@@ -88,6 +87,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Needs Human
 
 ## Done
+
+- FLLWUP-58 — Runaway timeout-minutes backstop on the gates CI job
 
 - FLLWUP-55 — Collapse the smoke driver's private pty screen model onto the shared kit
 - FLLWUP-50 — Supported refresh path for packaged council tooling in initialized consumer repos

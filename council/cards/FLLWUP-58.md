@@ -1,8 +1,8 @@
 ---
 id: FLLWUP-58
 title: Runaway timeout-minutes backstop on the gates CI job
-state: In Review
-owner: worktree (dispatched)
+state: Done
+owner: PR #77 (merged 3ffb7d0)
 epic: EPIC-9
 goal: The gates workflow fails bounded on a runaway test step via a loose timeout-minutes, sized so it never pre-empts an arm's own ceiling, with the CI-timeout policy documented.
 ---
@@ -1284,4 +1284,92 @@ still binds; flagged for the eventual step-13 follow-up, not a defect
 against the binding design. **No blocking Skeptic objection — merge check
 criterion 3 holds.** Verify-cycle counter: **1 of 3** used, no fix cycle.
 
-### Step 10 — judge
+`judge` settled `done` (`job-30.4`, 3.1m, 27 turns), input = the card's `goal`
+verbatim + the Skeptic's step-9 evidence, nothing else; subject pinned to PR
+#77 head `6704ee7`; frame stated (judging precedes the mechanical merge,
+which has not happened). **Verdict: PASS.** Basis, independently verified at
+the branch head: (1) the step-level `timeout-minutes: 60` is correctly sized
+against the runtime-derived census (floor 45, shipped 60 ≥ 45; backstop
+exceeds the worst-case serial census so it cannot pre-empt any arm); (2)
+full suite clean at head (945/2/0, 103.48s; tsc 0; `validate.py` clean;
+preflight PASS); (3) the CI-timeout policy is documented (wiki section with
+reading, floors/ratios, ladder, discriminator, re-derivation rule; README/AGENTS
+pointers; no new live arms). **Criterion 4 holds.**
+
+### Step 11 — merge gate (autonomous, deterministic check)
+
+All five criteria checked by this facilitator from observed artifacts, in
+order: (1) owner gates green in full — owner ran all four on the final tree;
+skeptic independently re-ran all four at head and proved each capable of
+failing by injection and restore; (2) CI green on the PR head SHA —
+`gh pr checks 77 --json name,state,workflow` →
+`[{"name":"gates","state":"SUCCESS","workflow":"gates"},{"name":"[code]smith","state":"SKIPPED","workflow":""}]`,
+keyed on the `workflow` field per the run ruling (the SKIPPED `[code]smith`
+row has an empty `workflow` and is not a failing or required check); head
+SHA re-read immediately before merge = `6704ee77515a7616ede1e1c4391a5f888f72d949`
+— matched; (3) no blocking Skeptic objection (step 9 PASS); (4) judge PASS
+(step 10); (5) no `Needs Human` state and no outstanding ruling on the card.
+Merging pinned per **R2**: `gh pr merge 77 --squash --admin --match-head-commit
+6704ee77515a7616ede1e1c4391a5f888f72d949` → **MERGED**, squash commit
+`3ffb7d0167b70958fc2813c2cef7904f66680a79`.
+
+### Step 12 — sync, reconcile, Done (facilitator, observed artifacts)
+
+Local `main` fast-forwarded cleanly from `origin/main` (`git pull --ff-only`
+→ `3ffb7d0`; no union-merge repair needed this turn — the concurrent-run
+union-merge risk did not materialize on the pull, and the record pushes below
+were pushed cleanly). **CI on the merged SHA confirmed green before this
+transition: the `gates` workflow ran `completed/success` at `3ffb7d0` on
+`main` (run 35404526577)** — observed directly, never from a seat report.
+The interleaved record pushes also ran `gates` green (run 35404269809 at
+`19e2f1cc` completed success). The known merged-SHA EV-40 backoff-jitter
+flake (FLLWUP-63, untouched file) did not recur; no rerun was used. Card set
+`Done` in frontmatter and on the board; `python3 council/validate.py` →
+clean; record committed and pushed. Owner's implementation worktree removed.
+
+### Step 13 — follow-up drafts (drafted only; pre-write confirmation re-homed to `product-owner`)
+
+Per the run-wide ruling this container drafts and writes **nothing** to
+`council/cards/` unapproved, and never dispatches `product-owner`. The
+binding ruling itself mandates the first draft; the second is the step-9
+skeptic's flagged residual. Both carried in the runner report for
+ruling-seat confirmation:
+
+1. **Per-step `timeout-minutes` on the deterministic `install`/`tsc` gates
+   steps** (ruling-mandated draft; the accepted-and-known temporary residual
+   from OJ-1): a wedged `bun install` / `bunx tsc` is today bounded only by
+   the platform 360-min job default, because the backstop is step-level on
+   `bun test` only. Named fix: tight per-step bounds on those two steps
+   (install ~30–60 s, tsc ~10–20 s measured locally) plus the corresponding
+   wiki clause. Distinct CI-timeout rationale, distinct decision — exactly
+   the path FLLWUP-48 ruling 2 and the FLLWUP-58 ruling both point to.
+2. **Compact-closing ceiling sites in the census scope** (step-9 skeptic
+   residual, non-blocking): the converged census/tripwire scans
+   standalone-line ceilings only; compact-form third-positional-arg
+   ceilings (`}, 15_000);`, 18 sites, Σ 420 000 ms) are invisible to it, so
+   the re-derivation promise does not cover an arm written in that form,
+   and the wiki's "18 tree-wide" is the converged census, not the true
+   ceiling count (36). Non-load-bearing today (true-census floor 52 <
+   shipped 60). A small falsifier card could widen the derivation or
+   `product-owner` may drop as over-engineering.
+
+Also surfaced, not card-worthy: the §2.2.2 gated-promotion fidelity note (folded
+into the wiki's re-derivation rule verbatim); the first skeptic attempt's
+context-wedge (`job-30.2`) — environment, not mechanism; the re-dispatch with a
+lean-context caution settled in 5.5m.
+
+### Step 14 — persistence
+
+The durable artifact is itself wiki material —
+`vault/wiki/test-suite-budget.md` was amended in PR #77 (census correction,
+FLLWUP-48 ruling 2 amendment, new CI-timeout backstop section) as a card
+deliverable, so no further `/wiki-ingest` offering is needed from this card.
+
+### R3 record-push disclosure (this card)
+
+Record pushes made directly to `main` with the pusher's admin identity under
+run-2 ruling **R3**, each disclosed: `0c69017` (step 6 cont. — ruling
+appended), `0b46c9a` (step 7 — spec + In Progress), step-8 `In Review` push,
+`19e2f1c` (step 9), the step-10 push, plus the step-12 Done record (this
+commit). R2 was used for the merge (disclosed above). Not extended to any
+later run.
