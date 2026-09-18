@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-56
 title: Saturate the seat-dispatch provider-error arm onto a config-injected faux provider
-state: Deliberating
+state: In Progress
 owner: null
 epic: EPIC-9
 goal: A falsifier exists for the seat child's own provider-error path — the parent-turn offline faux-provider harness reaching a real seat child — and its live-arm budget is accounted for in the suite-cost measurement.

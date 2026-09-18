@@ -65,9 +65,10 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- FLLWUP-56 — Saturate the seat-dispatch provider-error arm onto a config-injected faux provider
 
-## In Review
+## In Progress
+
+- FLLWUP-56 — Saturate the seat-dispatch provider-error arm onto a config-injected faux provider
 
 ## Done
 
