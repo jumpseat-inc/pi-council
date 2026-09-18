@@ -69,3 +69,34 @@ it. Filing it is optional — if not wanted, the card is simply not promoted.
   by-construction artifact once a facilitator record commit advances `origin/main` past a
   branch cut; recorded verbatim, never reclassified, never used to weaken a criterion; the
   step-11 re-run set is `tsc` / `bun test` / `validate.py`.
+
+### Step 7–8, dispatch 1 — takeaways packet derived; **steer gate reached → `ESCALATION`**
+
+`owner` (`job-17.1`, 5.1m, 20 turns, `stopReason=stop`, tokens in 277411 / out 8146 / cR
+1033472 / cW 0 / reason 3176 / total 1319029, cost≈$0.0460 catalogue) was dispatched with the
+card only, instructed to derive the Ingest step-2 takeaways packet from first-hand reads (the
+raw source, both seat files' marked blocks, `council/cards/FLLWUP-47.md`, `vault/CLAUDE.md`,
+index/log, and the cross-link pages) and to **stop before any write**. It did: zero files
+written, created, or edited; main checkout untouched.
+
+Its takeaways packet (carried to the orchestrator verbatim in the `ESCALATION`): proposes one
+concept page (`Red-Base Evidence`, `vault/wiki/red-base-evidence.md`) plus one source summary
+page (`vault/wiki/sources/2026-09-17-po-fllwup47-step6-ruling.md`), six targeted updates
+(owner, skeptic, deterministic-merge-check, gate-parity, main-repo-immutability,
+product-owner), bidirectional cross-links, and three flagged conflicts — chief of which: no
+wiki page carries the known-wrong harness-copy cause, so the true EV-41 causal story lands as
+the source page's correction story; and the EPIC-9 run-ledger page's "declined by the human at
+the step-13 gate" sentence is an apparent-not-real conflict needing a lineage clarification on
+the new page (not an edit to the ledger page). Four open questions it left to steer:
+
+1. One concept page vs three (owner recommends one, facets as sections).
+2. Canonical term (owner proposes "Red-Base Evidence", aliases "red-at-base evidence",
+   "red-base convention").
+3. Update-set breadth: six pages vs trimmed to owner/skeptic/index/log.
+4. The "earlier decline ≠ standing decline" lineage sentence on the new page (owner
+   recommends yes; no edit to the ledger page).
+
+No Phase-1 ruling names the Ingest step-2 steer gate; per the authority map the judgment
+re-homes to `product-owner` via the orchestrator. This container escalates rather than
+self-steers. Card remains `In Progress` pending the ruling; the write phase (Ingest steps 3–8,
+in a worktree branch, then the three-gate set) is scoped and awaits steer.
