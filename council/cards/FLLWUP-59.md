@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-59
 title: Mechanically derive or police the shape witness's token allowlist
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-9
 goal: The shape witness's provider-token list is derived or policed mechanically, so a future token retirement cannot silently create a miss without the hand-maintained regex being updated.
@@ -1208,3 +1208,29 @@ emission/matching clauses each cite the measured result that forces them).
 Card set `In Progress`; board moved; `validate.py` clean before the owner
 dispatch. Owner dispatched next (step 8) with the spec, the fresh-worktree
 constraint, and the full gate set.
+
+### Step 8 — owner implemented (`job-26.9`, PR #76)
+
+`owner` settled `done` (27.6m, 42 turns). Observed artifacts (facilitator-
+verified, not taken from the seat report): **PR #76 open** at
+`https://github.com/jumpseat-inc/pi-council/pull/76`, branch
+`fllwup59-derived-token-set`, head SHA `6579d683a5df46f726870f7bb2f1b33897a36e41`;
+changed files `gh pr view 76 --json files`: `.github/workflows/gates.yml`,
+`docs/superpowers/plans/2026-09-18-FLLWUP-59-derived-token-set.md`,
+`test/faux-provider-shape.test.ts`, `vault/wiki/index.md`,
+`vault/wiki/retired-path-tokens.md`. **State set `In Progress`→`In Review` on
+the sole step-8 condition: a branch exists with an open PR.** Owner-reported
+gate evidence (subject to step-9 verification): tsc clean; `bun test`
+940 pass / 2 skip / 0 fail (81 files, 102.7s); validate.py clean; preflight
+PASS. §8 acceptance evidence in the PR body, including the headline
+regression catch (`:325` reverted → test 6 red naming `test/ev41-tui.py`;
+restored → green), red-base at `323abdc` (transplanted witness: test 6 red
+mechanism-absent; test 9 fail is the recorded transplant caveat), shallow and
+canary loud-fails, re-fixture two-sided, zero-new-arms. Three disclosed,
+grounded deviations: (1) dir-token emission reads "ancestor dirs of retired
+paths that are themselves retired" — suffix fragments of *live* ancestor dirs
+would red legitimate prose at HEAD (measured); reproduces the spec's example
+dir set exactly; (2) the gates.yml change is one `fetch-depth: 0` setting
+across two physical YAML lines (`with:` parent key); (3) the witness header
+gained an FLLWUP-59 paragraph (the old header's "pure filesystem reads" claim
+became false). Step-9 skeptic dispatched next at the pinned subject.
