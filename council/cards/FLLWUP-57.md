@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-57
 title: Suite determinism under a catalogue-valid ambient COUNCIL_EVAL_MODEL
-state: In Review
+state: Done
 owner: null
 epic: EPIC-9
 goal: A test run of test/ with a catalogue-valid ambient COUNCIL_EVAL_MODEL exported passes, and any test that resolves the ambient as its effective model is isolated or pinned, so bun test is shell-independent for every catalogue-valid value.
@@ -212,6 +212,76 @@ Judge usage (verbatim, job-5.3):
 ```
 job-5.3  turns=9 tokens=in 38606/out 2379/cR 79040/cW 0/reason 895/total 120025 cost≈$0.0100 (catalogue)
 ```
+
+### Step 11 — deterministic merge check, merged
+
+Five criteria executed mechanically at PR head
+`5b5e9c9e60e618f8965ad000220eb1424d5f8d4a`:
+
+1. **Owner gates green in full.** Re-run by the facilitator at the head in
+   `.worktrees/fllwup-57`: `bunx tsc --noEmit` exit 0; `bun test` **894
+   pass / 2 skip / 0 fail / 5649 expect()** both with `env -u
+   COUNCIL_EVAL_MODEL` and with `COUNCIL_EVAL_MODEL="openrouter/qwen/qwen3.8-flash:high"`
+   exported (94.89s / 95.04s); `python3 council/validate.py` → `All council
+   artifacts valid`. The step-11 re-run set is `tsc` / `bun test` /
+   `validate.py` (recorded FLLWUP-27 practice; preflight is the
+   run-start/owner-time gate, its verification-time red line the documented
+   branch-freshness artifact — never weakened).
+2. **`gates` workflow SUCCESS on the PR head SHA.**
+   `gh pr checks 68 --json name,state,workflow` →
+   `[{"name":"gates","state":"SUCCESS","workflow":"gates"}]`, asserted on
+   the `workflow` field. `headRefOid` re-read immediately before the merge
+   as `5b5e9c9…` and asserted equal to the checked SHA.
+3. **No blocking Skeptic objection** — step 9 NO-BLOCK, all eight
+   objections `closed-green` (one non-blocking by-design artifact,
+   FLLWUP-27).
+4. **Judge PASS** (job-5.3).
+5. **No `Needs Human` / outstanding ruling** — card `In Review`, zero
+   escalations. R2 is the recorded run-scoped merge authorization, R3 the
+   record-push one — recorded human decisions applied and cited, not open
+   rulings.
+
+Merged under R2: `gh pr merge 68 --squash --admin --match-head-commit
+5b5e9c9e60e618f8965ad000220eb1424d5f8d4a` exit 0 → PR #68 **MERGED**
+(mergedAt 2026-09-18T09:04:32Z), squash commit
+**`89d0fe401a7e7c825ce5b12cafe2e7f197577771`** on `main`.
+
+### Step 12 — Done
+
+Local `main` fast-forwarded to `89d0fe4` — clean FF, no forced resolution,
+no union merge needed (the step-8a union reconcile already had the diverged
+side integrated). **CI on the merged SHA:**
+`gh api repos/:owner/:repo/commits/89d0fe4…/check-runs` → `gates`
+completed **success** (observed directly, after merge; the squash-merge
+`--commit`-filter empty-read hazard anticipated per
+[[deterministic-merge-check]] by using check-runs). `validate.py` clean;
+board and card set `Done`; reconciliation committed and pushed directly to
+`main` under R3 (disclosed in the run-close report). Card closes with **no
+open-untested step-9 residual** — the verify loop ran once (NO-BLOCK at
+cycle 1 of ≤3).
+
+### Step 13 — follow-up candidates
+
+**None.** Nothing surfaced but was not done: the masking-luck defect class
+this card targeted is fixed and Skeptic-verified closed; the owner's
+declared deviation (a gate-integrity `git restore` briefly wiping the
+uncommitted fix) was closed by committed-tree verification, shipped no
+defect, and its adjacent hazard (edit/write tool cwd resolution in worktree
+seats) is already carded as `FLLWUP-61`; the FLLWUP-27 preflight
+branch-freshness artifact is already carded. No designer seat, no CDP
+smokes. Per the Phase-1 follow-up ruling this draft-then-confirm gate
+routes to `product-owner` via the orchestrator: with no candidates drafted,
+there is nothing to confirm.
+
+### Step 14 — owed to `/wiki-ingest` (never hand-edited under `vault/`)
+
+This card's closure material for the orchestrator's ingest pass:
+[[test-suite-budget]]'s envelope is unchanged (94.6–95.0s measured at head,
+within the ≈94s budget); the masking-luck finding (an `afterEach` that
+deletes rather than restores an env carrier can mask suite-wide
+shell-dependence) is a candidate pattern note for
+[[deterministic-merge-check]]'s criterion-1 discussion or a test-hygiene
+page — orchestrator's call.
 
 ### Step 8a — diverged-`main` union reconcile at the record push
 

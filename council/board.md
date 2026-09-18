@@ -56,11 +56,12 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- FLLWUP-57 — Suite determinism under a catalogue-valid ambient COUNCIL_EVAL_MODEL
 
 ## Needs Human
 
 ## Done
+
+- FLLWUP-57 — Suite determinism under a catalogue-valid ambient COUNCIL_EVAL_MODEL
 
 - FLLWUP-52 — Evolve EV-39 R4 — retrying row label denotation
 
