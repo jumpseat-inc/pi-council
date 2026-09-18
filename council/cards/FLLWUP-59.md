@@ -824,3 +824,252 @@ co-owned by the CI checkout depth. Classification itself unchanged: still
 full-council, still not surface-touching (CI workflow depth is not a
 person-visible surface). Recorded here rather than re-opening step 1; no
 ruling required — this corrects this container's own classification prose.
+
+### Step 4 — Skeptic attacks and runs tests (`job-26.7`)
+
+`skeptic` (5.8m, 20 turns) built the signed mechanism faithfully in /tmp and
+ran every claim plus blind-spot attacks. Full report below. **Facilitator
+transcription (counting only): ten objections — six `closed-green` (O3–O8,
+O10), three `closed-red` (O1, O2, O9 — all spec/record defects, all
+"amendable, not mechanism-death" per the skeptic), and one `open-untested`
+(live reproduction of `git replace`/grafted/archive histories — canary design
+verified sound against the real token set). Verdict: blocks, two items.**
+
+- **O1 (`closed-red`)** — the recorded red-base falsifier's base is
+  misidentified: FLLWUP-49's parent `fce0ecb` predates the retirement
+  (`test/ev41-tui.py` live, `test/ev40-harness/` 3 live files) → 0
+  violations, no red. The red fires at the FLLWUP-49 mechanism merge
+  `323abdc` itself: violations `test/ev41-retry-e2e.test.ts ('frag',
+  'test/ev41-tui.py')` + `test/ev43-reachability.test.ts ('frag','ev43/')`.
+  Re-identify the base as `323abdc` (or `a420940`/`f12f3be`) and state the
+  transplant caveat. Record defect, not mechanism defect.
+- **O2 (`closed-red`)** — the signed fragment rule is jointly unsatisfiable
+  with green-at-head and the record's own two-sided nibbles: with collision
+  universe = all live tracked paths, bare `ev43/` is emitted (0 collisions)
+  and plain-substring-matches `test/ev43-reachability.test.ts:6` ("the
+  retired ev43/ scratch extension") → **1 violation at HEAD** (first CI run
+  red). With dir-tokens-only matching (continuation-char rule), HEAD is
+  green but the owner's fixture claim — scratch `const retired =
+  'ev40-harness/';` reds — goes GREEN (apostrophe is not a continuation
+  char). No single stated rule satisfies both; only the content-aware
+  emission universe the principal's round-3 rejected fits both, and that
+  re-introduces mention-driven decay.
+- **O9 (`closed-red`)** — bare `ev40-harness/` is not derivable from the
+  stated rules (ancestor dirs are `test/` and `test/ev40-harness/`; a
+  root-level `ev40-harness/` never existed in 868 historical paths); emitting
+  it requires an unstated dir-suffix rule, which then forces the O2
+  inconsistency on `ev43/`. Claim 3's "contains bare `ev40-harness/`" is
+  false under the signed derivation.
+- **O3–O8, O10 (`closed-green`)** — shallow-partial failure mode confirmed
+  (emptiness guard cannot fire; structural + canary + `fetch-depth: 0`
+  justified); enumeration determinism confirmed (`--all` verdict varies with
+  ref set, HEAD-ancestry invariant; today's equality contingent); rename trap
+  confirmed; historical-miss red confirmed (`ca22360^` = `5ac7ea1` carries
+  the pre-fix text; checker reds naming `('frag','test/ev41-tui.py')`);
+  regression-blindness premise confirmed (reverting `:325` → real suite
+  **12 pass / 0 fail**); scan domain test/-only confirmed; canary
+  pre-suppression confirmed (token set has both targets; fragment set
+  suppresses `ev41-tui.py` — fragment canary unsatisfiable); zero-new-arms
+  green on what is runnable.
+- **Record corrections (non-blocking):** `smoke/artifacts/` grep count is 2
+  not 1 (1 unique path — token historicity holds); "16 retired files" = 16
+  including a retired `council/__pycache__/validate.cpython-314.pyc` — **15
+  non-bytecode tokens** (the design excludes bytecode); 868 paths ✓;
+  `gates.yml:11` ✓; `ca22360^` = `5ac7ea1` ✓; note that FLLWUP-48's merged
+  commit `1cf907f` is *not* in the FLLWUP-49 branch-line ancestry (why the
+  pre-fix comment survives at `fce0ecb`) — recorded so the corrected base
+  doesn't get "re-fixed" into another wrong sha.
+- **Blind spots:** `git replace`/grafted/archive-export histories —
+  `open-untested` as live reproduction (not cheaply runnable), canary design
+  verified sound against the real token set (any truncated history loses
+  both canary targets and trips loudly). Witness self-exclusion under the
+  new design — `closed-green` by code read; casualty noted: the FLLWUP-48
+  scan-domain test's fixture (`'ev40-harness/';`) stops redding under any
+  consistent rule and must be re-fixture'd by the implementation.
+
+**Step-4 result: the converged design as signed carries two blocking closed-red
+defects (O1, O2/O9).** Both are spec-level, with the discriminating probes
+already run. Step 5 consolidator next.
+
+#### skeptic — step 4 (`job-26.7`) — verbatim
+
+## Skeptic report — FLLWUP-59 (full council, step 4)
+
+I read the card in full, built the mechanism faithful to the signed spec in
+/tmp, and ran every claim plus the blind-spot attacks. Two blocking
+objections, both settled by runs.
+
+### Objections
+
+**O1 — The recorded red-base falsifier's base is misidentified (the claimed
+red cannot fire there).** The converged shape's seven-field base is
+"FLLWUP-49's parent" = `fce0ecb` (`323abdc^`). At that tree,
+`test/ev41-tui.py` is **live** (1 tree hit) and `test/ev40-harness/` still
+has 3 live files — the retirement the falsifier is priced on had not happened
+yet. Derived retired-set at `fce0ecb` contains no `test/ev41-tui.py`;
+violations over the scan domain = **0**. The red does fire — at the FLLWUP-49
+mechanism merge `323abdc` itself: violations
+`[test/ev41-retry-e2e.test.ts ('frag','test/ev41-tui.py'),
+test/ev43-reachability.test.ts ('frag','ev43/')]`. The record must
+re-identify the base as `323abdc` (or `a420940`/`f12f3be`) and re-state the
+selection rule; at `fce0ecb` the transplant also lacks the entire
+`test/faux-provider/` station, which the record never stated (convention
+field 5/6 violation). The *mechanism* is fine; the *recorded evidence* is
+invalid as written. Status: **closed-red** (record defect — the falsifier at
+the stated base produces no red).
+
+**O2 — Green-at-head for the signed fragment rule fails; the record's own
+two-sided nibbles are jointly unsatisfiable as signed.** Under the round-3
+signed emission spec (segment-aligned suffix fragments + bare dir fragments,
+collision universe = all live tracked paths via `ls-tree`), bare `ev43/` has
+**0 live-path collisions** → emitted → plain-substring match on
+`test/ev43-reachability.test.ts:6` ("the retired ev43/ scratch extension") →
+**1 violation at HEAD**. This is exactly the naive over-match the record
+claims is "defeated by a rule." The alternative matching (dir tokens only via
+the continuation-char rule) gives 0 violations at HEAD but leaves the owner's
+own fixture claim — scratch `const retired = 'ev40-harness/';` **reds** —
+**GREEN** (apostrophe is not `[A-Za-z0-9_]`). No single rule instantiation
+satisfies the record's claims jointly; only a *content-aware* emission
+universe (owner's round-2 measurement language: "appears only in the
+self-excluded witness (emissable)") fits — the exact universe the principal's
+round-3 correction rejected, and which re-introduces the mention-driven decay
+the card exists to kill. Status: **closed-red** (design-as-signed, first CI
+run would be red on `:6`).
+
+**O3 — Shallow-partial failure mode (claim 2)** — **closed-green** (claim
+holds): depth-1 `--no-local` clone → `rev-list --count HEAD` = 1,
+`is-shallow-repository` = true, `.git/shallow` present, `log --all` non-empty
+(33,035 B / 852 lines), `ev40-harness` lines 0, HEAD-ancestry retired set ∅.
+The emptiness guard cannot fire; the structural check + canary composition is
+justified, and `fetch-depth: 0` is required.
+
+**O4 — Enumeration determinism (claim 1)** — **closed-green**: synthetic
+side-branch-only retired path, measured at the *main* tip: `--all`=2 / HEAD=0
+with branch present; `--all`=0 / HEAD=0 after branch deletion. Verdict varies
+with ref set under `--all`, invariant under HEAD-ancestry. Real repo
+`comm -13` (HEAD vs `--all`) = 0 today — the equality is real but contingent.
+
+**O5 — Rename trap (claim 8)** — **closed-green**: synthetic
+`git mv old/x.py new/x.py` — default `log --name-only` shows only
+`new/x.py`; `--no-renames` shows both. The pin is mandatory.
+
+**O6 — Historical-miss red (claim 5a)** — **closed-green**: `ca22360` exists,
+its parent (`5ac7ea1`) carries the pre-fix `:325` text, and feeding that
+content to the checker with today's tokens yields exactly 1 violation naming
+the `test/ev41-tui.py` fragment — the mechanism would have caught FLLWUP-48's
+actual miss.
+
+**O7 — Regression-blindness premise (claim 5b)** — **closed-green**: reverting
+`:325` to `via test/ev41-tui.py` in a HEAD worktree and running the real
+suite: **12 pass / 0 fail** — today's regex cannot detect a regression of its
+own known miss.
+
+**O8 — Scan domain, canary, gates line (claims 3, 6, 9)** — **closed-green**,
+two record drifts: `:124` passes `TEST_DIR`; scratch `smoke/` file carrying a
+retired full path → witness still **12 pass / 0 fail** (test 6 never reads
+`smoke/`); `grep -n actions/checkout → 11` (line 9 is `runs-on` — the
+record's correction is right); canary targets both present in the
+*pre-suppression* token set (`test/ev41-tui.py` ✓, `test/ev40-harness/` dir ✓)
+while the emitted fragment set contains `harness-headless.ts` ✓ but **not**
+`ev41-tui.py` ✓ (live `test/faux-provider/ev41-tui.py` suppresses it — a
+fragment canary on `ev41-tui.py` would indeed be unsatisfiable). Drifts:
+owner's verbatim `grep -c '^smoke/artifacts/'` = **2** (path touched at 2
+commits), not 1 — `sort -u` gives the 1 unique path, so the token's
+historicity holds; "16 retired files" = 16 *including* the retired
+`council/__pycache__/validate.cpython-314.pyc` — 15 non-bytecode tokens (the
+design excludes bytecode). Both non-blocking.
+
+**O9 — "Bare `ev40-harness/`" is not derivable from the stated rules.**
+Ancestor dirs of the retired files are `test/` and `test/ev40-harness/`; a
+root-level `ev40-harness/` never existed in 868 historical paths, so no
+suffix/ancestor rule emits it. Emitting it (per claim 3/4) requires an
+unstated dir-suffix rule, which then forces the O2 inconsistency on `ev43/`.
+Status: **closed-red** (claim 3's "contains … bare `ev40-harness/`" is false
+under the signed derivation; record/spec contradiction).
+
+**O10 — Zero-new-live-arms (claim 10)** — **closed-green** on what is
+runnable pre-implementation: arm counts 3/5/5/2 + 2 verified; the only spawn
+in the file is the benign `python3` `spawnSync` (test 8); the design statement
+adds only a `git` argv, no pi/pty spawn. The two-file diff (`gates.yml:11`) is
+prospective — design-consistent, not runnable yet.
+
+**Blind spots the seats didn't claim** — `git replace`/grafted/archive-export
+histories: **open-untested** as a live reproduction (not cheaply runnable
+here), but the canary's design is verified sound against the real token set —
+any truncated history loses `test/ev41-tui.py`/`test/ev40-harness/` from the
+derived set and trips the canary loudly. Witness self-exclusion under the new
+design: **closed-green** by code read — the `endsWith(WITNESS)` exclusion is
+unchanged, its fixture tokens stay inside the excluded file, and the scratch
+`.pyc`/dir tests write under `mkdtemp` outside `test/`; the one casualty is
+the FLLWUP-48 scan-domain test's *fixture* (`'ev40-harness/';` stops redding
+— see O2), which the implementation must re-fixture.
+
+### What I ran (real output, verbatim where decisive)
+
+- **O1 base check** — `git worktree add --detach /tmp/fllwup59-wt-base
+  fce0ecb`; `git ls-tree -r fce0ecb | grep -c '^test/ev41-tui.py$'` → `1`;
+  `...test/ev40-harness/` → `3`; `REPO=<wt> python3 /tmp/fllwup59/checker.py
+  A` → `retired_files: 8 / dir_tokens: ['smoke/artifacts/'] /
+  green-at-head violations: 0`. Same command in the `323abdc` worktree →
+  `retired_files: 15`, violations list:
+  `test/ev41-retry-e2e.test.ts ('frag', 'test/ev41-tui.py')` /
+  `test/ev43-reachability.test.ts ('frag', 'ev43/')`.
+- **O2** — checker over HEAD: `green-at-head violations: 1 →
+  test/ev43-reachability.test.ts ('frag','ev43/')`. Nibble probes (variant
+  A): `fixture 'ev40-harness/;'` → GREEN; `"the retired ev43/ scratch
+  extension"` → RED; `"see ev43/falsifier-headless.ts"` → RED;
+  `"test/faux-provider/ev41-tui.py"` → GREEN; `"via test/ev41-tui.py"` → RED.
+  Variant B: `fixture 'ev40-harness/;'` → GREEN (owner claims RED); HEAD
+  violations → `[]`.
+- **O3** — `git clone --depth 1 --no-local … /tmp/fllwup59-shallow` →
+  `rev-list --count HEAD: 1 / is-shallow: true / .git/shallow: yes /
+  log --all 33035B 852 lines / ev40-harness lines: 0 / HEAD-ancestry retired
+  set: 0`.
+- **O4** — synthetic repo, measured at main tip: `--all: 2 HEAD: 0`; after
+  `git branch -D B`: `--all: 0 HEAD: 0`. Real repo `comm -13 HEAD-vs--all` =
+  `0`.
+- **O5** — synthetic: default log rename commit shows only `new/x.py`;
+  `--no-renames` shows `new/x.py` + `old/x.py`.
+- **O6** — `git show ca22360^:test/ev41-retry-e2e.test.ts | sed -n 325p` →
+  `// (c) Parent-turn falsifier — TUI branch (pty, via test/ev41-tui.py)`;
+  checker on that content → `1 violation, naming ('frag','test/ev41-tui.py')`.
+- **O7** — reverted `:325` in a detached HEAD worktree; `bun test
+  test/faux-provider-shape.test.ts` → `12 pass / 0 fail` (test 6 green).
+- **O8** — `grep -n actions/checkout .github/workflows/gates.yml` →
+  `11: - uses: actions/checkout@v4`; scratch `smoke/scratch-skeptic.test.ts`
+  containing `test/ev40-harness/ev41-tui.py` → witness `12 pass / 0 fail`;
+  `grep -c '^smoke/artifacts/'` (HEAD-ancestry) → `2`, `sort -u` → 1 path
+  (`smoke/artifacts/.gitkeep`); historical unique paths = 868; retired files
+  16 incl. / 15 excl. bytecode.
+- **O10** — `grep -c '^\s*test('` → ev40-headless 3, ev40-live-gates 5,
+  ev41-retry-e2e 5, ev43-reachability 2, ev41-seat-child-live 2.
+
+All worktrees removed; main checkout untouched (read-only commands only).
+
+### Verdict — **blocks**
+
+Two items block; both are amendable specs, not mechanism-death:
+
+1. **Red-base falsifier base identity (O1)**: `fce0ecb` yields 0 violations —
+   the seven-field record as stated is void. Must re-identify the base as the
+   FLLWUP-49 mechanism merge `323abdc` (or `a420940`/`f12f3be`), where the
+   red names the token — and state the transplant's missing-station caveat if
+   the parent is retained for any other purpose.
+2. **Fragment-rule green-at-head + nibble set (O2/O9)**: as signed
+   (path-only collision universe), bare `ev43/` is emitted and reds
+   `ev43-reachability.test.ts:6` — the first CI run of the implemented
+   witness is red, and the record simultaneously claims the `'ev40-harness/';`
+   fixture reds, which no single matching rule permits. The seats must
+   reconcile the collision universe (path-only vs the content-aware form the
+   owner actually measured) and re-pin the two-sided fixtures to one
+   consistent rule before implementation; until then, both "green-at-head"
+   (both seats' central claim) and the fixture tripwire are false as written.
+
+Record corrections (non-blocking): `smoke/artifacts/` count is 2 not 1 (1
+unique path); the 4th "retired file" is a bytecode path the design excludes
+(15 tokens); `868` paths ✓; `gates.yml:11` ✓ as already corrected in the
+record; `ca22360^` = `5ac7ea1` confirmed as the pre-fix tree; FLLWUP-48's
+merged commit `1cf907f` is *not* in the FLLWUP-49 branch-line ancestry, which
+is why the pre-fix comment survives at `fce0ecb` — worth a one-line note so
+the corrected base doesn't get "fixed" by future readers into another wrong
+sha.
