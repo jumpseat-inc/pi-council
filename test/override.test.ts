@@ -15,7 +15,7 @@
  * (the same way runChildMode re-inits per child), so manifests land in one
  * run dir with parentJobId-chained ids.
  */
-import { test, expect, afterEach } from "bun:test";
+import { test, expect, afterEach, beforeEach } from "bun:test";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
@@ -100,9 +100,26 @@ function makeDispatcher(root: string, catalogue: string[]): {
 	};
 }
 
+// The ambient COUNCIL_EVAL_MODEL must not change what any test in this file
+// expects: several dispatch-driving tests pass no model param, so an exported
+// ambient value legitimately resolves as the effective model (a catalogue-valid
+// one resolves instead of loud-refusing — FLLWUP-57). Every test therefore
+// starts with the ambient cleared, and the SHELL's original value (captured at
+// module load, before any test runs) is restored after every test, on every
+// path — afterEach runs even when a test fails. Restoring (not deleting) keeps
+// the rest of the suite shell-independent too: no later file may rely on this
+// file having deleted the ambient. FLLWUP-40 established the per-test pattern;
+// FLLWUP-57 extends it file-wide.
+const SHELL_COUNCIL_EVAL_MODEL = process.env.COUNCIL_EVAL_MODEL;
+
+beforeEach(() => {
+	delete process.env.COUNCIL_EVAL_MODEL;
+});
+
 afterEach(() => {
 	shutdownHub();
-	delete process.env.COUNCIL_EVAL_MODEL;
+	if (SHELL_COUNCIL_EVAL_MODEL === undefined) delete process.env.COUNCIL_EVAL_MODEL;
+	else process.env.COUNCIL_EVAL_MODEL = SHELL_COUNCIL_EVAL_MODEL;
 });
 
 // ================= B1 — pure precedence (spec §10 B1) =================
