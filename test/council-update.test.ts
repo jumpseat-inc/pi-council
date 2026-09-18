@@ -482,3 +482,28 @@ test("T9b drift: a fully-current consumer repo never notifies and leaves no stat
 	expect(res.message).toBeNull();
 	fs.rmSync(root, { recursive: true, force: true });
 });
+
+// ---------------------------------------------------------------------------
+// T10 — the documented path: README row + copy-truthful command description
+// ---------------------------------------------------------------------------
+
+test("T10 README: /council-update has a command-table row with refresh semantics (dry-run default, protected class)", () => {
+	const readme = fs.readFileSync(path.join(PKG_ROOT, "README.md"), "utf-8");
+	expect(readme).toContain("| `/council-update`");
+	const row = readme.split("\n").find((l) => l.includes("| `/council-update`"))!;
+	expect(row.toLowerCase()).toContain("dry-run");
+	expect(row.toLowerCase()).toContain("board, cards, or wiki");
+});
+
+test("T10b command description teaches the protected class and never claims to update preflight.sh", () => {
+	const indexSrc = fs.readFileSync(path.join(PKG_ROOT, "extensions", "index.ts"), "utf-8");
+	const descStart = indexSrc.indexOf('pi.registerCommand("council-update"');
+	expect(descStart).toBeGreaterThan(0);
+	const desc = indexSrc.slice(descStart, descStart + 800);
+	expect(desc).toContain("council/validate.py");
+	expect(desc).toContain("council/cards/_template.md");
+	expect(desc.toLowerCase()).toContain("never touches your board, cards, or wiki");
+	expect(desc.toLowerCase()).toContain("dry-run by default");
+	// copy-truth (R1 governs R2's sample): preflight.sh is reported, never written
+	expect(desc.toLowerCase()).not.toContain("updates preflight");
+});

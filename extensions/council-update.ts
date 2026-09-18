@@ -262,6 +262,73 @@ export function runPostRefreshValidate(repoRoot: string): { ran: boolean; status
 	}
 }
 
+export interface DiffLine {
+	kind: "add" | "del" | "same";
+	line: string;
+}
+
+/**
+ * Line diff for the consent surface (LCS; scaffold files are small). Runs of
+ * unchanged lines beyond 2 lines of context around a change are collapsed to
+ * a single `same` marker line, and the whole diff is capped at `maxLines`.
+ */
+export function diffLines(before: string, after: string, maxLines = 120): DiffLine[] {
+	const a = before.split("\n");
+	const b = after.split("\n");
+	const n = a.length;
+	const m = b.length;
+	const dp: number[][] = Array.from({ length: n + 1 }, () => new Array<number>(m + 1).fill(0));
+	for (let i = n - 1; i >= 0; i--) {
+		for (let j = m - 1; j >= 0; j--) {
+			dp[i]![j] = a[i] === b[j] ? dp[i + 1]![j + 1]! + 1 : Math.max(dp[i + 1]![j]!, dp[i]![j + 1]!);
+		}
+	}
+	const raw: DiffLine[] = [];
+	let i = 0;
+	let j = 0;
+	while (i < n && j < m) {
+		if (a[i] === b[j]) {
+			raw.push({ kind: "same", line: a[i]! });
+			i++;
+			j++;
+		} else if (dp[i + 1]![j]! >= dp[i]![j + 1]!) {
+			raw.push({ kind: "del", line: a[i]! });
+			i++;
+		} else {
+			raw.push({ kind: "add", line: b[j]! });
+			j++;
+		}
+	}
+	while (i < n) raw.push({ kind: "del", line: a[i++]! });
+	while (j < m) raw.push({ kind: "add", line: b[j++]! });
+
+	// keep ≤2 unchanged context lines around each change; collapse the rest
+	const keep = new Array<boolean>(raw.length).fill(false);
+	raw.forEach((d, idx) => {
+		if (d.kind === "same") return;
+		for (let k = Math.max(0, idx - 2); k <= Math.min(raw.length - 1, idx + 2); k++) keep[k] = true;
+	});
+	const out: DiffLine[] = [];
+	let omit = 0;
+	for (let idx = 0; idx < raw.length; idx++) {
+		if (keep[idx] || raw[idx]!.kind !== "same") {
+			if (omit > 0) {
+				out.push({ kind: "same", line: `… ${omit} unchanged line${omit === 1 ? "" : "s"} omitted` });
+				omit = 0;
+			}
+			out.push(raw[idx]!);
+		} else {
+			omit++;
+		}
+	}
+	if (omit > 0) out.push({ kind: "same", line: `… ${omit} unchanged line${omit === 1 ? "" : "s"} omitted` });
+	if (out.length > maxLines) {
+		const dropped = out.length - maxLines;
+		return [...out.slice(0, maxLines), { kind: "same", line: `… ${dropped} more diff line(s) omitted` }];
+	}
+	return out;
+}
+
 /** Persisted drift-notification state: the last-notified condition hash. */
 function driftStatePath(repoRoot: string): string {
 	return path.join(repoRoot, CONFIG_DIR_NAME, "council", "tooling-drift.state.json");

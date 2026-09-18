@@ -195,6 +195,7 @@ plain text (they carry no color to go stale).
 | Command                            | What it does                                                              |
 | ---------------------------------- | ------------------------------------------------------------------------- |
 | `/council-init`                    | Scaffold the council/ + vault/ trees (never overwrites); installs superpowers + ask-user-question project-locally |
+| `/council-update`                  | Update packaged council tooling (`validate.py`, `_template.md`) to the installed version — never touches your board, cards, or wiki; dry-run by default |
 | `/council [card-id]`               | Run the full deliberation → owner → verify → judge loop on a card         |
 | `/board-create-card <desc>`        | Draft a new board card, confirm with you, file it                         |
 | `/features-new <feature>`          | The feature is deliberated by product-owner, designer, principal, and skeptic in a bounded three-wave session; nothing reaches the board until you approve the draft set |
