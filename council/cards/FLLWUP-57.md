@@ -124,3 +124,20 @@ job-5.1  turns=50 tokens=in 99724/out 24773/cR 2266496/cW 0/reason 16402/total 2
 ```
 
 Card set `In Review` (sole precondition: open PR, observed).
+
+### Step 8a — diverged-`main` union reconcile at the record push
+
+The step-8 record push was rejected — `origin/main` had advanced with two
+commits this container did not author (`a4e78cd`, `1e4e8d0`): a concurrent
+EPIC-10 decomposition run (`feat(council):` record commits, EPIC-10 +
+EV-44/45/46/47 cards, based on this run's own `77bab89`). That side's copy
+of `FLLWUP-57.md` was this card's stale step-7 state — it did not modify
+this card; only my step-8 record was the newer side. Repaired per
+council.md step 12 / [[union-merge-reconcile]]: union-merge `origin/main`
+(git auto-resolved; both sides touched different regions), union-keep both
+record sides, board's exactly-once invariant governing FLLWUP-57's row
+(single-writer: `In Review`), conflict-marker sweep clean (grep hits were
+historical card prose only), `python3 council/validate.py` → `All council
+artifacts valid`, pushed as `9f1b8f7` under R3. Local `main` ==
+`origin/main` == `9f1b8f7` before the Skeptic dispatch. No side discarded,
+no force used.
