@@ -320,6 +320,47 @@ export function runHarnessArm(opts: ArmOptions, scratchRoot: string, engineRepo?
 	);
 }
 
+/** Run one arm ASYNCHRONOUSLY — same env/argv as runHarnessArm (shared
+ * prepareHarnessArm/finalizeArm, so the invocation is byte-identical), but
+ * the bun event loop stays live while the CLI child runs. Required by any arm
+ * whose engine must reach an in-test-process HTTP server (the EV-66 falsifier's
+ * loopback decisions stub): a spawnSync arm blocks the loop and the server can
+ * never answer. */
+export async function runHarnessArmAsync(
+	opts: ArmOptions,
+	scratchRoot: string,
+	engineRepo?: EngineRepoOptions,
+): Promise<ArmResult> {
+	const prepared = prepareHarnessArm(opts, scratchRoot, engineRepo);
+	const child = spawn(resolveNode(), prepared.args, {
+		cwd: prepared.workDir,
+		env: prepared.env,
+		stdio: ["ignore", "pipe", "pipe"],
+	});
+	let stdout = "";
+	let stderr = "";
+	child.stdout.on("data", (chunk: Buffer) => (stdout += chunk.toString("utf-8")));
+	child.stderr.on("data", (chunk: Buffer) => (stderr += chunk.toString("utf-8")));
+	const { code, signal } = await new Promise<{ code: number | null; signal: NodeJS.Signals | null }>((resolve) => {
+		const timer = setTimeout(() => {
+			try {
+				child.kill("SIGKILL");
+			} catch {
+				// already gone
+			}
+		}, opts.timeoutMs ?? 120_000);
+		timer.unref?.();
+		child.on("close", (code, signal) => {
+			clearTimeout(timer);
+			resolve({ code, signal });
+		});
+	});
+	let fullStdout = stdout;
+	let fullStderr = stderr;
+	if (code === null && signal) fullStderr += `\n[harness] arm exceeded ${opts.timeoutMs ?? 120_000} ms and was ${signal}ed`;
+	return finalizeArm(prepared, opts.label, code, signal, fullStdout, fullStderr);
+}
+
 /** Run one arm asynchronously, signalling the child (SIGINT) once a stdout
  * trigger line appears — the T-H1 shape (a signal mid-backoff, which a
  * synchronous spawnSync cannot express).
