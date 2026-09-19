@@ -130,9 +130,26 @@ into this ledger's per-card entry.
 
 This is what replaces the human at the merge gate. It is executed
 mechanically, with no discretion — no seat, including `product-owner` and
-`steward`, may substitute judgment for any of the five criteria below, and
-none may be skipped because the change is small or the run is confident.
-All five must hold:
+`steward`, may substitute judgment for any criterion below, and none may be
+skipped because the change is small or the run is confident.
+
+**The criteria are keyed to the card's execution mode (EV-69).** Read the
+mode mechanically before the check — call `council_route` with `op:
+"authority"` and the run id plus the card's council-runner ROOT dispatch id
+(the run substrate, never a seat's report). The mode decides which criteria
+hold:
+
+| Mode | Criteria |
+|---|---|
+| Deliberate | All five criteria below, verbatim. |
+| Verify | **All five hold**, with criterion 3's basis mode-scoped to the **single** Verify skeptic dispatch (there is no step-4 attack round to draw objections from). |
+| Direct | Criteria 1, 2, and 5 only — no skeptic and no judge are dispatched; the test suite is that mode's only gate. |
+
+A card with no recorded execution mode HALTs rather than merging — that HALT
+line and the Direct fixture are EV-70's; EV-69 guarantees Verify cards
+always have both a recorded mode and a judge dispatch.
+
+For a `Deliberate` card, all five must hold:
 
 1. Every owner gate green, in full.
 2. **GitHub Actions green on the PR head SHA.**

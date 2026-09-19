@@ -6,6 +6,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Backlog
 
+- FLLWUP-71 — Add the user-visibility question to the gate question set — let a recorded Verify re-route on a surface-touching card
 - EPIC-1 — omp-themed council theme for pi, configurable from the scaffold .council.json
 - EPIC-2 — Inline council job tree beneath the input bar
 - EPIC-3 — Council-decomposed features-new with a bounded session
@@ -64,7 +65,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Ready
 
-- EV-69 — Deterministic routing to Verify mode
 - EV-44 — Merge near-duplicate follow-up candidates before a card is drafted
 - EV-45 — Unattended ingest of a run's own ledger, without the human steer turn
 - EV-48 — Packaged seat-tier map with repo-local merge override
@@ -73,10 +73,12 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
+
 ## In Progress
 
-
 ## In Review
+
+- EV-69 — Deterministic routing to Verify mode
 
 ## Needs Human
 

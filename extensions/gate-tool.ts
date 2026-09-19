@@ -35,6 +35,7 @@ import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-a
 import { Type } from "typebox";
 import { loadGateDecision, loadGatePolicy, loadGateQuestions } from "./gate.ts";
 import { buildGateState, type ParsedCard } from "./gate-state.ts";
+import { normalizeCardInput } from "./gate-route.ts";
 import { runGate, type GateRunResult } from "./gate-run.ts";
 
 /** The in-flight widget key — distinct from the always-on jobs widget
@@ -84,40 +85,15 @@ interface GateCardParam {
 }
 
 /** Tool-boundary card validation: fail loud naming the field, BEFORE any
- * loading, fetching, writing, or widget work. Mirrors buildGateState's own
- * contract (gate-state.ts is NOT touched) so the packer never sees a
- * malformed card; a clearer intake error names the offending cards[i] slot.
- * R(c): an absent touchedFiles carries NO touched-file claim — the call site
- * passes `[]` (the contract has no absent slot); it is never described as
- * "touches nothing". */
+ * loading, fetching, writing, or widget work. EV-69 shared extractor: the
+ * normalization collapsed onto gate-route.ts's `normalizeCardInput` so
+ * intake and routing parse one artifact (spec §3.1) — the messages and the
+ * `touchedFiles ?? []` contract are byte-identical to the pre-EV-69 tool, so
+ * the EV-66 tool tests legitimately stay put. R(c): an absent touchedFiles
+ * carries NO touched-file claim — the call site passes `[]` (the contract
+ * has no absent slot); it is never described as "touches nothing". */
 function validateCardParam(card: GateCardParam, index: number): ParsedCard {
-	const slot = `cards[${index}]`;
-	for (const field of ["id", "title", "goal", "acceptance"] as const) {
-		const v = card[field];
-		if (typeof v !== "string" || v.trim() === "") {
-			throw new Error(`gate: ${slot}.${field} must be a non-empty string, found ${JSON.stringify(v)}`);
-		}
-	}
-	if (card.touchedFiles !== undefined) {
-		if (!Array.isArray(card.touchedFiles)) {
-			throw new Error(`gate: ${slot}.touchedFiles must be an array of { path, linesChanged }, found ${JSON.stringify(card.touchedFiles)}`);
-		}
-		card.touchedFiles.forEach((t, i) => {
-			if (typeof t?.path !== "string" || t.path.trim() === "") {
-				throw new Error(`gate: ${slot}.touchedFiles[${i}].path must be a non-empty string, found ${JSON.stringify(t?.path)}`);
-			}
-			if (typeof t?.linesChanged !== "number" || !Number.isInteger(t.linesChanged) || t.linesChanged <= 0) {
-				throw new Error(`gate: ${slot}.touchedFiles[${i}].linesChanged must be a positive integer, found ${JSON.stringify(t?.linesChanged)}`);
-			}
-		});
-	}
-	return {
-		id: card.id,
-		title: card.title,
-		goal: card.goal,
-		acceptance: card.acceptance,
-		touchedFiles: card.touchedFiles ?? [],
-	};
+	return normalizeCardInput(card, `cards[${index}]`);
 }
 
 /** Register the advisory gate's parent-session tool. Its OWN registration —
