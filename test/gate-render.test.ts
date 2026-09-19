@@ -11,8 +11,20 @@
 // byte-identical to the pre-gate rendering, and the render's only
 // contribution is the one mode line.
 import { describe, expect, test } from "bun:test";
-import { decisionLine, type GateLedgerRecord } from "../extensions/gate-ledger.ts";
-import { GATE_RENDER_FALLBACK, renderGateLines, type GateRenderCardInput } from "../extensions/gate-render.ts";
+import { createHash } from "node:crypto";
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
+import * as os from "node:os";
+import * as path from "node:path";
+import { CONFIG_DIR_NAME, type ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import { appendGateCall, decisionLine, type GateLedgerRecord } from "../extensions/gate-ledger.ts";
+import {
+	GATE_RENDER_FALLBACK,
+	GATE_RENDER_PARAMS,
+	registerGateRenderTool,
+	renderGateLines,
+	renderGateLinesFromRepo,
+	type GateRenderCardInput,
+} from "../extensions/gate-render.ts";
 
 const EM_DASH = "\u2014"; // U+2014 — the pinned separator character
 
@@ -217,5 +229,132 @@ describe("EV-67 renderGateLines — the five-cell table", () => {
 		expect(line).toBe(decisionLine(records[1]!));
 		// the pre-gate composition is recoverable by deleting exactly the line
 		expect(POST_GATE.replace("\n" + line + "\n", "\n")).toBe(PRE_GATE);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// The parent tool — council_gate_render (schema, posture, registration)
+// ---------------------------------------------------------------------------
+
+/** Recursive sha256 over every file of a tree, keyed by slash-relative path
+ * (the ev66 falsifier's helper, compacted). */
+function sha256Tree(root: string): Map<string, string> {
+	const out = new Map<string, string>();
+	const walk = (dir: string, rel: string): void => {
+		let items;
+		try {
+			items = readdirSync(dir, { withFileTypes: true });
+		} catch {
+			return;
+		}
+		for (const e of [...items].sort((a, b) => (a.name < b.name ? -1 : 1))) {
+			const relPath = rel ? `${rel}/${e.name}` : e.name;
+			const abs = path.join(dir, e.name);
+			if (e.isDirectory()) walk(abs, relPath);
+			else if (e.isFile()) out.set(relPath, createHash("sha256").update(readFileSync(abs)).digest("hex"));
+		}
+	};
+	walk(root, "");
+	return out;
+}
+
+describe("EV-67 council_gate_render — the parent tool", () => {
+	test("schema takes no card text — the cards items' properties are exactly { id, callId, status }", () => {
+		// The construction that makes the byte-identity golden cheap and
+		// load-bearing: the render cannot alter a card body because it never
+		// sees one — no title/goal/acceptance/body field in the schema.
+		const cards = (GATE_RENDER_PARAMS as Record<string, any>).properties.cards;
+		const item = cards.items;
+		expect(Object.keys(item.properties).sort()).toEqual(["callId", "id", "status"]);
+		for (const banned of ["title", "goal", "acceptance", "body", "intent", "text"]) {
+			expect(banned in item.properties, `schema must not carry card text: ${banned}`).toBe(false);
+		}
+		// callId is string-or-null (cell B's shape is a first-class input).
+		expect(item.properties.callId.anyOf ?? item.properties.callId).toBeDefined();
+	});
+
+	test("behavioral: zero writes (tree sha256 unchanged) and no policy load (succeeds with no policy file present)", () => {
+		const repo = mkdtempSync(path.join(os.tmpdir(), "ev67-render-tool-"));
+		try {
+			const ledgerPath = path.join(repo, CONFIG_DIR_NAME, "council", "gate-ledger.jsonl");
+			appendGateCall(
+				{
+					stateHash: "h1",
+					questionSetVersion: "v1",
+					questionIds: [],
+					answers: {},
+					resolvedMode: "Direct",
+					policyVersion: "p1",
+					basis: "composite 3.70 ≥ direct threshold 3.40",
+					callId: "c7",
+				},
+				repo,
+				ledgerPath,
+			);
+			// The repo has NO gate policy file at all — a loadGatePolicy call on
+			// this path would throw (or worse, create one); the render must
+			// succeed with the file absent.
+			const policyPath = path.join(repo, CONFIG_DIR_NAME, "council", "gate", "policy.json");
+			expect(existsSync(policyPath)).toBe(false);
+
+			const before = sha256Tree(repo);
+			const out = renderGateLinesFromRepo(
+				[
+					{ id: "EV-1", callId: "c7", status: "ok" },
+					{ id: "EV-2", callId: null, status: "failed" },
+					{ id: "EV-3", callId: "zzz", status: "ok" },
+				],
+				repo,
+			);
+			expect(out).toEqual([
+				{ id: "EV-1", modeLine: "Mode: Direct \u2014 composite 3.70 ≥ direct threshold 3.40" },
+				{ id: "EV-2", modeLine: "Mode: Deliberate \u2014 gate call failed before recording a verdict" },
+				{ id: "EV-3", modeLine: "Mode: Deliberate \u2014 recorded gate call not found in ledger" },
+			]);
+			// zero writes: the tree is byte-identical after the render
+			expect(sha256Tree(repo)).toEqual(before);
+			// and the render did not conjure a policy file
+			expect(existsSync(policyPath)).toBe(false);
+		} finally {
+			rmSync(repo, { recursive: true, force: true });
+		}
+	});
+
+	test("source canary: gate-render.ts is a pure leaf — no append accessor, no policy load, no widget, no write API", () => {
+		const src = readFileSync(path.join(import.meta.dir, "..", "extensions", "gate-render.ts"), "utf-8");
+		for (const banned of ["appendGateCall", "appendGateOutcome", "loadGatePolicy", "setWidget", "appendFileSync", "writeFileSync", "mkdirSync"]) {
+			expect(src.includes(banned), `gate-render.ts must not reference ${banned}`).toBe(false);
+		}
+	});
+
+	test("registration is parent-mode-only: index.ts wires registerGateRenderTool after registerGateTool; hub-tools.ts and child.ts never mention it", () => {
+		const extDir = path.join(import.meta.dir, "..", "extensions");
+		const idx = readFileSync(path.join(extDir, "index.ts"), "utf-8");
+		const gateToolPos = idx.indexOf("registerGateTool(pi, repoRoot)");
+		const renderPos = idx.indexOf("registerGateRenderTool(pi, repoRoot)");
+		expect(gateToolPos).toBeGreaterThan(-1);
+		expect(renderPos).toBeGreaterThan(gateToolPos);
+		for (const f of ["hub-tools.ts", "child.ts"]) {
+			const src = readFileSync(path.join(extDir, f), "utf-8");
+			expect(src.includes("gate-render"), `${f} must not reference the render module`).toBe(false);
+		}
+	});
+
+	test("off-mode defensive shape: the registered tool invoked with an empty array returns { cards: [] } — even on a repo with no ledger at all", async () => {
+		let registered: { name: string; execute: (...a: unknown[]) => Promise<{ details: unknown }> } | null = null;
+		const pi = {
+			registerTool: (t: unknown) => {
+				registered = t as typeof registered;
+			},
+		} as unknown as ExtensionAPI;
+		const emptyRepo = mkdtempSync(path.join(os.tmpdir(), "ev67-render-empty-"));
+		try {
+			registerGateRenderTool(pi, emptyRepo);
+			expect(registered!.name).toBe("council_gate_render");
+			const res = await registered!.execute("t1", { cards: [] }, undefined, undefined, {});
+			expect(res.details).toEqual({ cards: [] });
+		} finally {
+			rmSync(emptyRepo, { recursive: true, force: true });
+		}
 	});
 });

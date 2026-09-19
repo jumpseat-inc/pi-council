@@ -16,8 +16,8 @@
 // It takes NO card text — the tool schema carries no title/goal/acceptance —
 // so the render function cannot alter the card body because it never sees
 // it; that is what makes the byte-identity test cheap and load-bearing. Zero
-// writes, zero policy loads (loadGatePolicy is never referenced), no widget
-// calls, no prompt vocabulary.
+// writes, zero policy loads (the gate policy loader is never referenced), no
+// widget calls, no prompt vocabulary.
 //
 // Join key: callId ONLY — never stateHash (identical draft text in two runs
 // collides in a committed, append-only file, and the hash moves if wiki/ or
@@ -26,7 +26,6 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
 import { decisionLine, readGateLedger, type GateLedgerRecord } from "./gate-ledger.ts";
-
 /** The TS-authored fallback-literal basis constants (cells B and C) — the
  * ruling's J2: fallbacks are basis-slot text fed through decisionLine with
  * resolvedMode "Deliberate", never a separate format branch, never an
@@ -91,5 +90,58 @@ export function renderGateLines(cards: readonly GateRenderCardInput[], records: 
 		}
 		// Cells A / A′: the record renders itself, whatever it records.
 		return { id: card.id, modeLine: decisionLine(record) };
+	});
+}
+
+// ---------------------------------------------------------------------------
+// The parent-session tool — council_gate_render
+// ---------------------------------------------------------------------------
+
+/** The tool's whole input: the mechanical step-3 result's per-card array.
+ * NO card text — no `title`, no `goal`, no `acceptance` (the schema is
+ * pinned by test; that is the construction that makes the render unable to
+ * alter a card body — it never sees one). */
+export const GATE_RENDER_PARAMS = Type.Object({
+	cards: Type.Array(
+		Type.Object({
+			id: Type.String({ description: "The drafted card's id, as the council_gate result reported it" }),
+			callId: Type.Union([Type.String(), Type.Null()], {
+				description: "The ledger callId from the council_gate result; null when the call failed before recording",
+			}),
+			status: Type.String({ description: "The council_gate per-card status, verbatim" }),
+		}),
+		{ description: "The per-card mechanical entries from the council_gate result, in draft order" },
+	),
+});
+
+/** One `readGateLedger(repoRoot)` pass joined against the cards — the tool's
+ * whole body. Zero writes (readGateLedger reads the ledger and never writes
+ * anything) and zero policy loads (no gate policy loader on this path — the
+ * render runs
+ * with no gate policy file present at all). */
+export function renderGateLinesFromRepo(cards: readonly GateRenderCardInput[], repoRoot: string): GateRenderCardOutput[] {
+	const { calls } = readGateLedger(repoRoot);
+	return renderGateLines(cards, calls);
+}
+
+/** Register the render tool on the PARENT path only — called from index.ts's
+ * parent block, after registerGateTool, never folded into registerHubTools
+ * (which child.ts also calls for hub-granted seats). */
+export function registerGateRenderTool(pi: ExtensionAPI, repoRoot: string): void {
+	pi.registerTool({
+		name: "council_gate_render",
+		label: "Council Gate Render",
+		description:
+			"Render the advisory gate's recorded decision lines for the drafted cards at the draft-then-confirm presentation step. " +
+			"Invoke ONCE with the per-card { id, callId, status } entries exactly as the council_gate result reported them, in draft order. " +
+			"Returns one line per card, in input order; print each line verbatim under its card. " +
+			"Zero writes, loads no policy; with the gate off this tool is not invoked at all.",
+		parameters: GATE_RENDER_PARAMS,
+		async execute(_id, params, _signal, _onUpdate, _ctx) {
+			const out: { cards: GateRenderCardOutput[] } = {
+				cards: renderGateLinesFromRepo(params.cards as GateRenderCardInput[], repoRoot),
+			};
+			return { content: [{ type: "text", text: JSON.stringify(out) }], details: out };
+		},
 	});
 }
