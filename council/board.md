@@ -72,10 +72,10 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- EV-69 — Deterministic routing to Verify mode
 
 ## In Progress
 
+- EV-69 — Deterministic routing to Verify mode
 
 ## In Review
 
