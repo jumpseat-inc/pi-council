@@ -76,9 +76,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- EV-65 — One-call decisions transport with fail-closed posture
-
 ## In Progress
+
+- EV-65 — One-call decisions transport with fail-closed posture
 
 
 ## In Review
