@@ -53,3 +53,27 @@ change is only effective when a pre-registration record naming the evidence that
 motivated it is present; the decision function is provable offline from fixtures
 with no network in the default suite; and no call is ever made to the
 `chat/completions` path with the pinned decisions model.
+
+## Phase 1 Rulings (recorded before dispatch — binding for this run)
+
+- **R1 — merge authorization, every card in this run.** The human authorized
+  the run-scoped admin bypass: the merge is `gh pr merge <PR> --squash --admin
+  --match-head-commit <X>`, where `<X>` is the exact head SHA the `gates`
+  workflow `SUCCESS` (merge-check criterion 2) was read against. This
+  authorization is for this run only and is not extended to any later run; a
+  SHA mismatch is a HALT, not a retry.
+- **R2 — run scope and order.** The human ruled: deliver the full epic, all 13
+  child cards, in dependency order — EV-60, EV-61, EV-62, EV-63, EV-64, EV-65,
+  EV-68, EV-66, EV-67, EV-69, EV-70, EV-71, EV-72. No card is retired or
+  descoped without a steward ruling via the escalation contract.
+- **R3 — packaged gate default.** The packaged `council/gate/policy.json` ships
+  `mode: "off"` (no gate call, no ledger line by default); consumers opt in per
+  repo via a repo-local `policy.json`. Tests that exercise the gate set the
+  mode explicitly; the default is never relied on to be on.
+- **R4 — panel seat inclusion.** Verify = owner + skeptic + judge (an explicit
+  adversary and ruling authority, plus the fresh-context goal evaluation; no
+  branch-verification dispatch, principal, consolidator, or designer). Direct =
+  owner only; the test suite is its only gate. Deliberate = the full panel.
+  These sets satisfy EV-63's constraints: every set contains the owner, every
+  reduced set contains an adversary and a ruling authority, and Direct contains
+  no judge.
