@@ -79,6 +79,26 @@ If `state` is not `Ready`, say exactly what is missing (e.g. "state is
 guess at what the human meant; a card outside `Ready` has not earned a
 Council run.
 
+**Before judging, read the recorded routing (EV-69).** Call `council_route`
+with `op: "route"` and this card's path. If it returns a **recorded** mode —
+a ledger decision whose packed-state hash matches this card's current packed
+state — **that recorded mode is authoritative and the full-vs-mechanical
+judgment below is not made**: `Deliberate` runs steps 2–14; `Verify` runs
+steps 7–12 (one owner, one skeptic, one judge — no deliberation dispatch);
+`Direct` runs the owner-only path (EV-70). Pass the returned mode as the
+`mode` of the card's dispatches, and seat per the returned `include` roster.
+If it returns a fallback or unpackable result, proceed with step 1's own
+judgment below — the judgment is the fallback for cards with no matching
+record (gate off, changed card state, no record), never an override of one;
+a step-1 judgment that disagrees with a matching record does not reopen the
+routing — it is filed as a follow-up card at step 13.
+
+**The surface-touching bit is recorded REGARDLESS of recorded mode.** It
+feeds step-13 designer routing and — on the Verify path — the skeptic's
+step-9 dispatch input, so branch verification looks at the rendered surface.
+On the fallback path the bit still gates `designer` seating as described
+below.
+
 Decide whether the card earns a full council or is mechanical work. A full
 council is for work that is cross-seam (touches more than one of the import
 pipeline, the server/API, the tiles, or the frontend), spec-ambiguous (the
@@ -256,6 +276,15 @@ a "done" that leaves any gate unmet.
 
 ## 9. Verify by acting
 
+**Before dispatching the skeptic, re-check the recorded routing against the
+observed branch (EV-69).** Call `council_route` with `op: "recheck"` and the
+branch's head SHA — the pinned verification subject. If the re-check
+re-routes the card — a hard override fired on the observed state — proceed to
+the **Re-route block** below and do not dispatch the skeptic yet. On the
+Verify path, the step-9 dispatch input includes the surface-touching bit
+step 1 recorded regardless of recorded mode, so branch verification looks at
+the rendered surface.
+
 Dispatch `skeptic` at the branch. It treats every claim of "done" on that
 branch as unverified until its own tests say otherwise, including the
 owner's report that its gates are clear.
@@ -264,6 +293,28 @@ If the Skeptic blocks, return the card to `In Progress` and hand its
 specific red or unverified items back to the owner — do not restate its
 objection more softly and do not decide yourself whether the block is
 warranted.
+
+**Re-route block (the observed-set re-check re-routed the card to the full
+path).** This block runs instead of the step-9 dispatch that triggered it,
+and it RESUMES AT STEP 3 — step 2 is not re-run.
+
+- The owner's **first-pass record is its pushed step-8 branch**: the
+  already-settled owner dispatch is not repeated, and nothing on it is
+  re-implemented here.
+- The block's roster is `principal` + `designer` per rule — `designer`
+  seated when step 1 recorded the card surface-touching. No seat is dropped
+  from steps 3–12: the consolidator, the skeptic, and the judge all run as
+  usual.
+- Resume at **step 3** (bounded exchange) with those generators against the
+  owner's first-pass record; then step 4 (skeptic attack), step 5
+  (synthesis), and step 6 (routing) as written.
+- Write the spec at step 7 from that deliberation.
+- Re-dispatch the owner at step 8 **only if the deliberation overturns the
+  design** — then against the existing branch, same run; if the design
+  confirms the branch work, that dispatch verifies rather than
+  re-implements.
+- Continue through steps 9–12 as usual; the re-check at the step-8→9
+  boundary runs again against the re-routed card's recorded state.
 
 ## 10. Judge the stop condition
 
