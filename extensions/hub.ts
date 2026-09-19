@@ -1,6 +1,6 @@
 import { spawn } from "node:child_process";
 import * as fs from "node:fs";
-import { type Usage, writeManifest } from "./runs.ts";
+import { type DispatchMode, type Usage, writeManifest } from "./runs.ts";
 import type { RetrySupervisorHandle } from "./job-retry.ts";
 
 export type JobState =
@@ -49,6 +49,11 @@ export interface Job {
 	/** EV-39 — the settle hook + timer owner for this dispatch (the Hub imports
 	 * no policy concern — it only consults the hook). */
 	retry?: RetrySupervisorHandle;
+	/** EV-68 — card execution mode carried on the ROOT dispatch; set only when
+	 * the caller supplied it, never inherited, never copied into childEnv.
+	 * Carried across respawn unchanged (a fact about the dispatch, not the
+	 * attempt). */
+	mode?: DispatchMode;
 }
 
 export interface JobReport {
@@ -135,6 +140,9 @@ export class Hub {
 			// would be a lie: {attempt: 2, sessionId: <attempt 1's id>}).
 			...(job.attempt !== undefined && job.attempt > 1 && job.attempts ? { attempts: job.attempts } : {}),
 			...(job.nextAttemptAt !== undefined ? { nextAttemptAt: job.nextAttemptAt } : {}),
+			// EV-68 — spread-gate: absent key when the dispatch carries no mode
+			// (byte-identical to pre-EV-68 output); written last, existing keys never move.
+			...(job.mode !== undefined ? { mode: job.mode } : {}),
 		});
 	}
 
@@ -153,6 +161,9 @@ export class Hub {
 		sessionId?: string;
 		/** EV-39 — the settle hook + timer owner for retryable dispatches. */
 		retry?: RetrySupervisorHandle;
+		/** EV-68 — card execution mode; recorded on this dispatch's manifest
+		 * only when supplied. Never inherited by sub-dispatches. */
+		mode?: DispatchMode;
 	}): Job {
 		const id = opts.id;
 		const now = Date.now();
@@ -184,6 +195,7 @@ export class Hub {
 			// spawn proves only that attempt 1 started, settle proves it completed).
 			attempts: [{ attempt: 1, sessionId: opts.sessionId ?? id }],
 			retry: opts.retry,
+			mode: opts.mode,
 		};
 		this.spawnProcess(job, opts);
 		this.jobs.set(id, job);
