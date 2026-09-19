@@ -81,6 +81,17 @@ and every child — complete frontmatter, \`Intent\` section, and \`##
 Acceptance\` section, exactly as each would be written to disk — to the
 human in one pass.
 
+The gate's recorded verdict renders here as information. After presenting
+the drafts, invoke the \`council_gate_render\` tool ONCE with the per-card
+\`{ id, callId, status }\` array exactly as step 3's \`council_gate\` result
+reported it, then print each returned \`modeLine\` verbatim, exactly once,
+immediately below that card's body and above the approve/edit/drop prompt.
+Add no words around a mode line, reformat nothing, and write nothing to
+disk — the verdict line is presented, never written (the third member of
+the presented-never-written pattern, after the Part 2 ledger surface and
+the gate's record). Under the packaged default the gate is off, step 3's
+result carries no \`cards\`, this tool is never invoked, and no line renders.
+
 The human may edit any card, drop any child, or approve the set as-is.
 **Write nothing to disk until the human approves.** There is no default
 approval, no timeout that counts as consent, and no proceeding on the
@@ -224,13 +235,12 @@ test("features-new step 2 session status line sits in the Part 2 paragraph, adja
 	expect(statusIdx).toBeGreaterThan(flat.indexOf("**Attribution and the disagreement ledger**"));
 	expect(statusIdx).toBeLessThan(flat.indexOf("**Part 1 card drafts must be attribution-free.**"));
 	// Adjacent to the existing guard, not mere file-wide co-occurrence. The
-	// O9 disambiguation (below) sits between the two guard occurrences, so the
-	// anchor is the NEAREST one — the tolerance itself is unchanged.
-	const guardIdx = flat.indexOf("presented, never written");
-	const nearestGuard = Math.min(
-		Math.abs(statusIdx - guardIdx),
-		Math.abs(statusIdx - flat.lastIndexOf("presented, never written")),
-	);
+	// anchor is the NEAREST guard occurrence — robust to how many guards the
+	// file carries (EV-66 added the status line's own; EV-67's step-4 block
+	// adds a third, far away). The 200-char tolerance itself is unchanged.
+	const guards = [...flat.matchAll(/presented, never written/g)].map((m) => m.index!);
+	expect(guards.length).toBeGreaterThan(0);
+	const nearestGuard = Math.min(...guards.map((g) => Math.abs(statusIdx - g)));
 	expect(nearestGuard).toBeLessThanOrEqual(200);
 	// Skeptic O9: the deliberation ledger is disambiguated from the gate's
 	// committed gate-ledger.jsonl (same word, different artifacts).
