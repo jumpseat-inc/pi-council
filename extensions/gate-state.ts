@@ -477,13 +477,48 @@ interface RulingCandidate {
 	summary: string;
 }
 
+/** Rulings (§6): candidates are vault/wiki/sources/ pages whose tags include
+ * pi-council/ruling. Relevance: shares a non-namespace tag leaf with a
+ * selected wiki page, OR aliases/summary match a card term. Ordering settled
+ * by direct measurement (O2): rank by the same card-term scorer, tie-break
+ * date descending (the corpus's date field is tie-dominated; date-first
+ * ordering measured mean top-6 relevance 1.00 vs 3.17 for scorer-then-date),
+ * final tie-break slug ascending for a total order. */
 function selectRulingCandidates(
 	repoRoot: string,
 	terms: string[],
 	docMap: DocMap,
 	wikiTagLeaves: string[],
 ): RulingCandidate[] {
-	return [];
+	const scored: (RulingCandidate & { score: number })[] = [];
+	for (const p of listWikiPages(repoRoot)) {
+		if (!p.slug.startsWith("sources/")) continue;
+		const { fm } = parseFrontmatter(fs.readFileSync(p.file, "utf8"));
+		const tags = asStringArray(fm.tags);
+		if (!tags.includes("pi-council/ruling")) continue;
+		const title = typeof fm.title === "string" ? fm.title : "";
+		const summary = typeof fm.summary === "string" ? fm.summary : "";
+		const aliases = asStringArray(fm.aliases);
+		const paths: string[] = [];
+		for (const [token, slugs] of docMap) if (slugs.includes(p.slug)) paths.push(token);
+		const sharedTag = tags.some((t) => wikiTagLeaves.includes(t.includes("/") ? t.slice(t.lastIndexOf("/") + 1) : t));
+		const termMatch = terms.some(
+			(t) => aliases.some((a) => a.toLowerCase().includes(t)) || summary.toLowerCase().includes(t),
+		);
+		if (!sharedTag && !termMatch) continue;
+		const date = typeof fm.updated === "string" ? fm.updated : typeof fm.created === "string" ? fm.created : "";
+		scored.push({
+			slug: p.slug,
+			date,
+			title,
+			summary,
+			score: scorePage(terms, { title, summary, aliases, tags, paths }),
+		});
+	}
+	return scored
+		.sort((a, b) =>
+			a.score !== b.score ? b.score - a.score : a.date !== b.date ? b.date.localeCompare(a.date) : pathCompare(a.slug, b.slug))
+		.map(({ slug, date, title, summary }) => ({ slug, date, title, summary }));
 }
 
 function selectTestCandidates(repoRoot: string, card: ParsedCard): string[] {

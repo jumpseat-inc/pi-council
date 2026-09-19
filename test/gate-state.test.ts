@@ -165,11 +165,12 @@ function wikiPage(root: string, rel: string, fm: Record<string, string>, body = 
 	fs.writeFileSync(file, `---\n${lines.join("\n")}\n---\n${body}`);
 }
 
-const WIKI_CARD = () =>
+const WIKI_CARD = (overrides: Partial<ParsedCard> = {}) =>
 	makeCard({
 		title: "Fix the gate packer",
 		goal: "Pack gate state deterministically under budget",
 		acceptance: "bytes identical across calls and drops recorded",
+		...overrides,
 	});
 
 test("wiki selection is deterministic: two calls, byte-identical state and hash", () => {
@@ -264,4 +265,90 @@ test("doc-to-page map: a live-tree path reference outscores a ghost path and a p
 	// page-b-live: +2 for the live path → first. page-a-plain and page-c-ghost
 	// tie at the summary-only score → lexicographic (plain before ghost).
 	expect(slugs).toEqual(["page-b-live", "page-a-plain", "page-c-ghost"]);
+});
+
+// ---------------------------------------------------------------------------
+// Rulings section (§6) — scorer-then-date ordering over ruling-tagged
+// sources/ pages.
+// ---------------------------------------------------------------------------
+
+const RULINGS_TREE = () => {
+	const root = tmpRepo();
+	// A selected wiki page tagged epic9 (term-matched, so it is a candidate).
+	wikiPage(root, "epic9-page.md", { title: "Epic9 Fixture", summary: "about gate work", tags: "[pi-council/concept, pi-council/epic9]" });
+	// Older term-matched ruling (epic5).
+	const oldRuling = path.join(root, "vault", "wiki", "sources", "r-old-ruling.md");
+	fs.mkdirSync(path.dirname(oldRuling), { recursive: true });
+	fs.writeFileSync(
+		oldRuling,
+		"---\ntitle: Gate Ruling Old\nsummary: gate packing rules for the packer\naliases: [gate ruling]\ntags: [pi-council/ruling, pi-council/epic5]\ncreated: 2026-09-01\nupdated: 2026-09-01\n---\nbody\n",
+	);
+	// Newer tag-only ruling (epic9): relevant only via the shared tag leaf.
+	const newRuling = path.join(root, "vault", "wiki", "sources", "r-new-ruling.md");
+	fs.writeFileSync(
+		newRuling,
+		"---\ntitle: Unrelated Ruling New\nsummary: entirely unrelated words here\ntags: [pi-council/ruling, pi-council/epic9]\ncreated: 2026-09-20\nupdated: 2026-09-20\n---\nbody\n",
+	);
+	return root;
+};
+
+test("ruling ordering red/green: a term-matched older ruling outranks a tag-only newer one", () => {
+	const parsed = parseState(buildGateState(WIKI_CARD(), RULINGS_TREE()).stateBytes);
+	const slugs = (parsed.rulings as { slug: string }[]).map((r) => r.slug);
+	expect(slugs).toEqual(["sources/r-old-ruling", "sources/r-new-ruling"]);
+});
+
+test("ruling candidates: only sources/ pages tagged pi-council/ruling; others never appear", () => {
+	const root = RULINGS_TREE();
+	// Term-matched source page WITHOUT the ruling tag.
+	wikiPage(root, "sources/plain-source.md", { title: "Plain Source Gate", summary: "gate words", tags: "[pi-council/source]" });
+	// Ruling-tagged page OUTSIDE sources/ (may appear in the wiki section, never in rulings).
+	wikiPage(root, "rogue-ruling.md", { title: "Rogue Gate Ruling", summary: "gate words", tags: "[pi-council/ruling]" });
+	const parsed = parseState(buildGateState(WIKI_CARD(), root).stateBytes);
+	const rulingSlugs = (parsed.rulings as { slug: string }[]).map((r) => r.slug);
+	expect(rulingSlugs).not.toContain("sources/plain-source");
+	expect(rulingSlugs).not.toContain("rogue-ruling");
+	expect(rulingSlugs).toContain("sources/r-old-ruling");
+});
+
+test("ruling relevance: no shared tag leaf and no term match ⇒ absent; term match alone admits one", () => {
+	const root = RULINGS_TREE();
+	// Shares nothing with any selected wiki page and matches no card term.
+	const stranger = path.join(root, "vault", "wiki", "sources", "r-stranger.md");
+	fs.writeFileSync(
+		stranger,
+		"---\ntitle: Stranger Ruling\nsummary: quantum ferrofluids unsui tabled\ntags: [pi-council/ruling, pi-council/epic4]\nupdated: 2026-09-20\n---\nbody\n",
+	);
+	// Term match alone (no shared tag leaf) — admitted via aliases.
+	const termOnly = path.join(root, "vault", "wiki", "sources", "r-term-only.md");
+	fs.writeFileSync(
+		termOnly,
+		"---\ntitle: Term Only Ruling\nsummary: about gate matters\ntags: [pi-council/ruling, pi-council/epic3]\nupdated: 2026-09-20\n---\nbody\n",
+	);
+	const parsed = parseState(buildGateState(WIKI_CARD({ title: "gate budget" }), root).stateBytes);
+	const slugs = (parsed.rulings as { slug: string }[]).map((r) => r.slug);
+	expect(slugs).not.toContain("sources/r-stranger");
+	expect(slugs).toContain("sources/r-term-only");
+});
+
+test("ruling shape and date: { slug, date, title, summary } with updated (fallback created)", () => {
+	const parsed = parseState(buildGateState(WIKI_CARD(), RULINGS_TREE()).stateBytes);
+	const entry = (parsed.rulings as Record<string, unknown>[])[0];
+	expect(Object.keys(entry).sort()).toEqual(["date", "slug", "summary", "title"]);
+	expect(entry.date).toBe("2026-09-01");
+});
+
+test("ruling date tie-break: equal scores order by date descending", () => {
+	const root = tmpRepo();
+	wikiPage(root, "epic7-page.md", { title: "Epic7 Fixture", summary: "about gate work", tags: "[pi-council/epic7]" });
+	for (const [name, date] of [
+		["r-late.md", "2026-09-20"],
+		["r-early.md", "2026-09-01"],
+	] as const) {
+		const f = path.join(root, "vault", "wiki", "sources", name);
+		fs.mkdirSync(path.dirname(f), { recursive: true });
+		fs.writeFileSync(f, `---\ntitle: Tie Ruling ${date}\nsummary: unrelated words\ntags: [pi-council/ruling, pi-council/epic7]\nupdated: ${date}\n---\nbody\n`);
+	}
+	const parsed = parseState(buildGateState(WIKI_CARD(), root).stateBytes);
+	expect((parsed.rulings as { slug: string }[]).map((r) => r.slug)).toEqual(["sources/r-late", "sources/r-early"]);
 });
