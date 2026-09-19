@@ -231,6 +231,23 @@ export function rederiveResolvedMode(record: GateLedgerRecord, decide: DecideFn)
 	return decide(record.answers, record.policyVersion);
 }
 
+// EV-67 — the one decision-line format. The doc comment on `basis` above
+// staked the byte-equality claim; this function makes it executable: the
+// render is EXACTLY the record's two fields, never prose authored at render
+// time, so the line a person reads and the ledger record they can audit
+// cannot drift apart. gate-ledger.ts is the ONLY module in the repo owning a
+// `Mode: `-prefixed format expression.
+//
+// A′ (the ruling's addendum): a v1 ledger line carries no `basis` — the
+// nullish-coalescing fold renders the mode token ALONE, so no `undefined`,
+// `null`, or `NaN` byte can ever appear (an empty string is treated as
+// absent for the same reason: a dangling separator is a lie about a basis
+// that is not there).
+export function decisionLine(record: { resolvedMode: string; basis?: string }): string {
+	const basis = record.basis ?? "";
+	return basis === "" ? `Mode: ${record.resolvedMode}` : `Mode: ${record.resolvedMode} — ${basis}`;
+}
+
 export interface ReadGateLedgerResult {
 	calls: GateLedgerRecord[];
 	/** Outcome lines whose callId has no matching call in the file. */

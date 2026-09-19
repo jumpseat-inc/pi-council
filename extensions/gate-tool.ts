@@ -14,8 +14,8 @@
 // modelDrift, or include; no verdict token (Deliberate|Verify|Direct|Mode:)
 // appears in any returned string, including error and status strings; the
 // tool never passes opts.callId (the default randomUUID keeps the callId
-// uncorrelatable by the reading model); a thrown pre-POST guard or
-// appendGateCall failure is caught and re-surfaced as a GENERIC message,
+// uncorrelatable by the reading model); a thrown pre-POST guard or a failed
+// ledger append is caught and re-surfaced as a GENERIC message,
 // never runGate's own policy-mode / noul-join text. The gate verdict is
 // RECORDED, never printed — the printed verdict line belongs to EV-67.
 //
