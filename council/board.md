@@ -80,12 +80,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-65 — One-call decisions transport with fail-closed posture
-
 ## Needs Human
 
 ## Done
 
+- EV-65 — One-call decisions transport with fail-closed posture
 - EV-64 — Budget-bounded gate state packing
 - EV-63 — Pure decide() mode and seat-inclusion function with offline fixtures
 - EV-62 — Packaged-and-overridable gate policy and question set
