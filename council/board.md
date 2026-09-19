@@ -58,7 +58,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-59 — End-to-end falsifier for the first-run identity line
 - EPIC-12 — pi-council version and git hash on the first pi run
 - EPIC-13 — Metered deliberation routing — a System One gate decides Deliberate, Verify, or Direct per card
-- EV-66 — Advisory gate at features-new intake
 - EV-67 — Gate verdict rendered as information at the step-3 approval gate
 - EV-69 — Deterministic routing to Verify mode
 - EV-70 — Direct mode and the mode-aware merge check
@@ -75,9 +74,13 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
+
 ## In Progress
 
+
 ## In Review
+
+- EV-66 — Advisory gate at features-new intake
 
 ## Needs Human
 

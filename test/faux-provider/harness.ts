@@ -86,6 +86,12 @@ export interface ArmOptions {
 	/** "1" ⇒ a council_wait tool-call step follows the dispatch step (the wait
 	 * holds the print-mode parent's turn open through the retry backoff window). */
 	toolcallWait?: boolean;
+	// EV-66 (opt-in, knob-gated): a scripted council_gate parent step after the
+	// dispatch/wait steps. With none set, every existing arm's env stays
+	// byte-identical.
+	/** "1" ⇒ a council_gate tool-call step (GATE_CARDS) follows the
+	 * dispatch/wait steps. */
+	toolcallGate?: boolean;
 	/** Extra env entries appended to the arm's env (spread LAST — e.g.
 	 * `{ PI_OFFLINE: "1" }` for arms whose children have no --offline argv). */
 	extraEnv?: Record<string, string>;
@@ -173,6 +179,9 @@ const harnessEnv = (
 	// neither set these keys are absent and the env is byte-identical to today.
 	...(opts.toolcallDispatch ? { EV40_TOOLCALL_DISPATCH: "1" } : {}),
 	...(opts.toolcallWait ? { EV40_TOOLCALL_WAIT: "1" } : {}),
+	// EV-66 (opt-in): the scripted council_gate step. Knob-gated: with the
+	// flag unset the key is absent and the env is byte-identical to today.
+	...(opts.toolcallGate ? { EV40_TOOLCALL_GATE: "1" } : {}),
 	// Spread LAST so an arm can override any base entry (e.g. PI_OFFLINE=1 for
 	// arms whose child has no --offline argv — pi's own documented var).
 	...(opts.extraEnv ?? {}),
@@ -309,6 +318,47 @@ export function runHarnessArm(opts: ArmOptions, scratchRoot: string, engineRepo?
 		result.stdout ?? "",
 		result.stderr ?? "",
 	);
+}
+
+/** Run one arm ASYNCHRONOUSLY — same env/argv as runHarnessArm (shared
+ * prepareHarnessArm/finalizeArm, so the invocation is byte-identical), but
+ * the bun event loop stays live while the CLI child runs. Required by any arm
+ * whose engine must reach an in-test-process HTTP server (the EV-66 falsifier's
+ * loopback decisions stub): a spawnSync arm blocks the loop and the server can
+ * never answer. */
+export async function runHarnessArmAsync(
+	opts: ArmOptions,
+	scratchRoot: string,
+	engineRepo?: EngineRepoOptions,
+): Promise<ArmResult> {
+	const prepared = prepareHarnessArm(opts, scratchRoot, engineRepo);
+	const child = spawn(resolveNode(), prepared.args, {
+		cwd: prepared.workDir,
+		env: prepared.env,
+		stdio: ["ignore", "pipe", "pipe"],
+	});
+	let stdout = "";
+	let stderr = "";
+	child.stdout.on("data", (chunk: Buffer) => (stdout += chunk.toString("utf-8")));
+	child.stderr.on("data", (chunk: Buffer) => (stderr += chunk.toString("utf-8")));
+	const { code, signal } = await new Promise<{ code: number | null; signal: NodeJS.Signals | null }>((resolve) => {
+		const timer = setTimeout(() => {
+			try {
+				child.kill("SIGKILL");
+			} catch {
+				// already gone
+			}
+		}, opts.timeoutMs ?? 120_000);
+		timer.unref?.();
+		child.on("close", (code, signal) => {
+			clearTimeout(timer);
+			resolve({ code, signal });
+		});
+	});
+	let fullStdout = stdout;
+	let fullStderr = stderr;
+	if (code === null && signal) fullStderr += `\n[harness] arm exceeded ${opts.timeoutMs ?? 120_000} ms and was ${signal}ed`;
+	return finalizeArm(prepared, opts.label, code, signal, fullStdout, fullStderr);
 }
 
 /** Run one arm asynchronously, signalling the child (SIGINT) once a stdout

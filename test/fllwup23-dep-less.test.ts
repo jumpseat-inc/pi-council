@@ -11,7 +11,7 @@
 // docs/superpowers/plans/2026-09-05-FLLWUP-23-plan.md.
 import { afterAll, describe, expect, test } from "bun:test";
 import { execFileSync, spawnSync } from "node:child_process";
-import { cpSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -43,6 +43,16 @@ function explicitEnv(home: string, extra: Record<string, string> = {}): Record<s
 	return { PATH: process.env.PATH ?? "", HOME: home, NO_COLOR: "1", ...extra };
 }
 
+/** The REAL node_modules tree: REPO_ROOT's may itself be a symlink (a git
+ * worktree sharing the main checkout's node_modules). `cp -a` does not
+ * dereference the top-level symlink — copying it verbatim would make the
+ * scratch's rmSync below delete the SHARED tree's packages through the link
+ * (observed: node_modules/@modelcontextprotocol deleted out from under the
+ * suite). Dereference once; inside, the hardlink copy stays intact. */
+function realNodeModules(): string {
+	return realpathSync(join(REPO_ROOT, "node_modules"));
+}
+
 /** Shape (A) — self-contained SDK-free scratch. */
 function buildDepLessScratch(): string {
 	const scratch = makeScratch();
@@ -50,9 +60,9 @@ function buildDepLessScratch(): string {
 	cpSync(join(REPO_ROOT, "themes"), join(scratch, "themes"), { recursive: true });
 	cpSync(join(REPO_ROOT, "council"), join(scratch, "council"), { recursive: true });
 	try {
-		execFileSync("cp", ["-al", join(REPO_ROOT, "node_modules"), join(scratch, "node_modules")]);
+		execFileSync("cp", ["-al", realNodeModules(), join(scratch, "node_modules")]);
 	} catch {
-		cpSync(join(REPO_ROOT, "node_modules"), join(scratch, "node_modules"), { recursive: true });
+		cpSync(realNodeModules(), join(scratch, "node_modules"), { recursive: true });
 	}
 	rmSync(join(scratch, "node_modules", SDK), { recursive: true, force: true });
 	cpSync(DRIVER_SRC, join(scratch, "driver.ts"));
@@ -60,7 +70,8 @@ function buildDepLessScratch(): string {
 }
 
 function restoreSdk(scratch: string): void {
-	cpSync(join(REPO_ROOT, "node_modules", SDK), join(scratch, "node_modules", SDK), { recursive: true });
+	const real = realNodeModules();
+	cpSync(join(real, SDK), join(scratch, "node_modules", SDK), { recursive: true });
 }
 
 interface DriverOut {
