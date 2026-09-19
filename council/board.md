@@ -75,10 +75,10 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-67 — Gate verdict rendered as information at the draft-then-confirm approval gate
 
 ## In Review
 
+- EV-67 — Gate verdict rendered as information at the draft-then-confirm approval gate
 ## Needs Human
 
 ## Done
