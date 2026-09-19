@@ -70,12 +70,16 @@ test("council prose does not pin a specific tech stack", () => {
 	}
 });
 
-const STEP3_FIXTURE = `## 3. Draft-then-confirm — every card, no exceptions
+// EV-66 amended the settled block (the advisory gate step was inserted as
+// step 3, renumbering draft-then-confirm to step 4, and the draft shape now
+// carries the `## Acceptance` section) — the pin moves with the settled text.
+const STEP4_FIXTURE = `## 4. Draft-then-confirm — every card, no exceptions
 
 Reuse \`/board-create-card\`'s draft-then-confirm gate **for every card this
 command produces, the epic included.** Present the full draft of the epic
-and every child — complete frontmatter and \`Intent\` section, exactly as each
-would be written to disk — to the human in one pass.
+and every child — complete frontmatter, \`Intent\` section, and \`##
+Acceptance\` section, exactly as each would be written to disk — to the
+human in one pass.
 
 The human may edit any card, drop any child, or approve the set as-is.
 **Write nothing to disk until the human approves.** There is no default
@@ -84,17 +88,17 @@ assumption that silence means yes.
 
 `;
 
-test("features-new step 3 is byte-identical to the settled draft-then-confirm block", () => {
+test("features-new step 4 is byte-identical to the settled draft-then-confirm block", () => {
 	const text = fs.readFileSync(
 		path.join(PKG_ROOT, "council", "procedures", "features-new.md"),
 		"utf-8",
 	);
-	const start = text.indexOf("## 3. Draft-then-confirm");
-	const end = text.indexOf("## 4. On approval");
-	expect(start, "step-3 heading must exist").toBeGreaterThan(-1);
-	expect(end, "step-4 heading must exist").toBeGreaterThan(start);
+	const start = text.indexOf("## 4. Draft-then-confirm");
+	const end = text.indexOf("## 5. On approval");
+	expect(start, "step-4 heading must exist").toBeGreaterThan(-1);
+	expect(end, "step-5 heading must exist").toBeGreaterThan(start);
 	const shippedBlock = text.slice(start, end);
-	expect(shippedBlock).toEqual(STEP3_FIXTURE);
+	expect(shippedBlock).toEqual(STEP4_FIXTURE);
 });
 
 test("features-new step 2 mandates attribution-free Part 1 card drafts", () => {
@@ -219,8 +223,19 @@ test("features-new step 2 session status line sits in the Part 2 paragraph, adja
 	const statusIdx = flat.indexOf("Session status: Non-converged after 3 rounds");
 	expect(statusIdx).toBeGreaterThan(flat.indexOf("**Attribution and the disagreement ledger**"));
 	expect(statusIdx).toBeLessThan(flat.indexOf("**Part 1 card drafts must be attribution-free.**"));
-	// Adjacent to the existing guard, not mere file-wide co-occurrence.
-	expect(Math.abs(statusIdx - flat.indexOf("presented, never written"))).toBeLessThanOrEqual(200);
+	// Adjacent to the existing guard, not mere file-wide co-occurrence. The
+	// O9 disambiguation (below) sits between the two guard occurrences, so the
+	// anchor is the NEAREST one — the tolerance itself is unchanged.
+	const guardIdx = flat.indexOf("presented, never written");
+	const nearestGuard = Math.min(
+		Math.abs(statusIdx - guardIdx),
+		Math.abs(statusIdx - flat.lastIndexOf("presented, never written")),
+	);
+	expect(nearestGuard).toBeLessThanOrEqual(200);
+	// Skeptic O9: the deliberation ledger is disambiguated from the gate's
+	// committed gate-ledger.jsonl (same word, different artifacts).
+	expect(flat).toContain("not the gate's record");
+	expect(flat).toContain("same word, different artifact");
 	// The post-Wave-3 seam block carries neither the status line nor a guard
 	// restatement.
 	const seam = flat.slice(flat.indexOf("**Wave 3 —"), flat.indexOf("**Aggregation.**"));

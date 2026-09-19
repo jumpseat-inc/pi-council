@@ -34,7 +34,10 @@ child's slice of it — but you do not draft it. The epic goal is authored in
 wave 1 of step 2 by `principal` as a one-line transcription of the human's
 intake (`$ARGUMENTS`): the human is the author of what the product is for,
 and principal transcribes it into the goal field. `epic: null` on the epic
-card itself — only children point up at it.
+card itself — only children point up at it. The epic card also carries a
+`## Acceptance` section, authored in wave 1 alongside the epic goal (the
+same pass drafts it) — the epic card is a drafted card like any other and
+the step-3 gate call records it too.
 
 ## 2. Decompose into child cards
 
@@ -59,11 +62,17 @@ allowed in the value), `epic:` set to the epic's id, `state` `Ready` only if the
 child is already detailed enough for the Council to deliberate on without
 further clarification (otherwise `Backlog`), and the user-visible surface,
 if any, named in the child's `Intent` — which screen, which copy, which
-state. Principal's output, in its native `Reframe` format:
+state. Every card the pass drafts — the epic card and every child — also
+carries a seat-authored `## Acceptance` section: the testable bar the card
+must meet, written as a falsifiable statement (mechanical where a test in
+the consuming repo can decide it). The gate call in step 3 packs this text;
+a card without it cannot be recorded. Principal's output, in its native
+`Reframe` format:
 
 - the **child decomposition** — the slicing, with per-child `goal`, `state`
-  (proposed `Backlog` or `Ready`), and surface flag;
-- the **epic goal** — a one-line transcription of the human's intake.
+  (proposed `Backlog` or `Ready`), surface flag, and `## Acceptance` text;
+- the **epic goal** — a one-line transcription of the human's intake — and
+  the **epic card's `## Acceptance`**.
 
 **Wave 2 — `skeptic` + `designer` attack in parallel.**
 
@@ -98,7 +107,8 @@ collides with a seat's own body:
 Dispatch `product-owner` with the amended draft + the disagreement ledger.
 Ruling-only:
 
-- ratify or amend the **epic goal** and each child's **`state`**;
+- ratify or amend the **epic goal**, each child's **`state`**, and each
+  card's **`## Acceptance`** text (the epic card's included);
 - rule each open-judgment dispute the attackers surfaced, **dissent named**,
   in its `Ruling` / `Options rejected` / `Grounding` / `Reversibility`
   format;
@@ -118,13 +128,13 @@ judgments remain after wave 3, where open means unruled by product-owner
 and not settled by a runnable check; a named dissent is not
 non-convergence, and a named, ruled dissent is a converged run. An
 escalated, unruled item is non-converged by construction and is the
-fallback's canonical content — it rides to the step-3 gate as an
+fallback's canonical content — it rides to the step-4 gate as an
 unresolved disagreement for the human. If the cap is hit
 without convergence, the facilitator drafts the decomposition anyway: the
 fallback draft is the mechanical verbatim aggregate of all recorded
 contributions, including wave 3's amendments — never facilitator-authored
 synthesis, never a most-advanced-seat position as base. Every open
-disagreement is carried into the step-3 draft pass labeled unresolved, for
+disagreement is carried into the step-4 draft pass labeled unresolved, for
 the human to settle at the existing approval gate — no new gate, no
 `Needs Human` stop. The dispatch discipline's double-fail stop is an
 incomplete-run outcome, not the fallback.
@@ -135,9 +145,12 @@ agreeing elements drafted from the agreement and attributed to the seats
 whose text produced them, single-source elements attributed to their
 proposer, and every conflicting position recorded as a **named
 disagreement** with both sides and their job ids. Never paraphrase a seat's
-line and never resolve a disagreement. You author nothing at any step.
+line and never resolve a disagreement. You author nothing at any step. The
+aggregated draft of every card — the epic card and every child — carries
+its frontmatter, `Intent`, and the `## Acceptance` text the waves settled
+on.
 
-**Attribution and the disagreement ledger** live at the step-3 gate
+**Attribution and the disagreement ledger** live at the step-4 gate
 presentation and the `runs/` transcript, **never in card files**. The gate
 presentation has two clearly-separated parts: (1) the card text exactly as
 it will be written, and (2) a clearly-separate, never-written ledger
@@ -148,10 +161,13 @@ two-line note naming the seat and the dimension (scope, testability,
 surface, state-assignment), verbatim or a faithful ≤2-line restatement;
 and a `Decision: unresolved — your call` marker on every line of the
 disagreement block. The ledger is **presented, never written** — it does
-not survive onto the on-disk card. Session status: Non-converged after 3
-rounds — this is a fallback draft. The unresolved items below are for your
-decision at the existing approval gate. Ledger only — presented, never
-written.
+not survive onto the on-disk card. (This disagreement ledger is not the
+gate's record: the advisory gate call in step 3 writes a separate,
+committed ledger at `.pi/council/gate-ledger.jsonl` — same word, different
+artifact; you never write or edit that file.) Session status:
+Non-converged after 3 rounds — this is a fallback draft. The unresolved
+items below are for your decision at the existing approval gate. Ledger
+only — presented, never written.
 
 **Part 1 card drafts must be attribution-free.** The card text presented
 "exactly as each would be written to disk" carries no seat names, no wave
@@ -173,19 +189,43 @@ note the returned job id → `council_wait` with a window → on stall, cancel
 + one re-dispatch with the same input → on double-fail, stop and surface to
 the human. Job ids are on record.
 
-## 3. Draft-then-confirm — every card, no exceptions
+## 3. Record the advisory gate call
+
+Before presenting anything, record the gate's verdict on the draft set:
+invoke the `council_gate` tool ONCE, with the epic card and every drafted
+child card, in draft order. Per card pass `{ id, title, goal, acceptance,
+touchedFiles? }` verbatim from the aggregated draft — `acceptance` is the
+card's `## Acceptance` text; omit `touchedFiles` unless the draft's
+`Intent` names concrete files, because intake makes no touched-file claim
+(the tool records no claim, and the card's execution re-checks the observed
+set). With the packaged default the tool is a mechanical no-op; when the
+repo's gate policy enables it, one ledger line is recorded per card in
+`.pi/council/gate-ledger.jsonl` — a file the tool writes and you never
+write or edit.
+
+The gate's verdict is **recorded, never acted on**: the tool result names
+nothing but mechanical facts, and nothing about how the council runs here
+changes — same seats, same dispatches, same card text. Do not re-draft,
+re-order, or drop a card because of the call, and do not print the
+recorded verdict — the human sees the card text at the step-4 gate, not
+the gate's verdict. If the tool reports a per-card failure, name it at the
+step-4 gate as mechanical bookkeeping (a label that did not land); do not
+re-run the call.
+
+## 4. Draft-then-confirm — every card, no exceptions
 
 Reuse `/board-create-card`'s draft-then-confirm gate **for every card this
 command produces, the epic included.** Present the full draft of the epic
-and every child — complete frontmatter and `Intent` section, exactly as each
-would be written to disk — to the human in one pass.
+and every child — complete frontmatter, `Intent` section, and `##
+Acceptance` section, exactly as each would be written to disk — to the
+human in one pass.
 
 The human may edit any card, drop any child, or approve the set as-is.
 **Write nothing to disk until the human approves.** There is no default
 approval, no timeout that counts as consent, and no proceeding on the
 assumption that silence means yes.
 
-## 4. On approval, write and validate
+## 5. On approval, write and validate
 
 Only after explicit approval:
 
@@ -197,7 +237,7 @@ Only after explicit approval:
    until it prints `All council artifacts valid` — do not move on while any
    `FAIL:` line remains.
 
-## 5. Commit
+## 6. Commit
 
 Commit the epic card, every child card, and the updated `council/board.md`
 together, in one commit — the board and its cards must never land as
