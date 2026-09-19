@@ -135,9 +135,8 @@ export function loadGatePolicy(repoRoot: string): GatePolicy {
 	return { policyVersion, mode, model, endpoint };
 }
 
-const ALLOWED_POLICY_KEYS: Record<string, true> = {
-	policyVersion: true,
-	mode: true,
-	model: true,
-	endpoint: true,
-};
+const POLICY_KEYS = ["mode", "policyVersion", "model", "endpoint"] as const;
+
+const ALLOWED_POLICY_KEYS: Record<string, true> = Object.fromEntries(
+	POLICY_KEYS.map((k) => [k, true as const]),
+);
