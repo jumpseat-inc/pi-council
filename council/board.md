@@ -79,7 +79,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-## In Progress
+## In Review
 
 - EV-62 — Packaged-and-overridable gate policy and question set
 
