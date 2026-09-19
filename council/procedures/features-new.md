@@ -207,10 +207,10 @@ The gate's verdict is **recorded, never acted on**: the tool result names
 nothing but mechanical facts, and nothing about how the council runs here
 changes — same seats, same dispatches, same card text. Do not re-draft,
 re-order, or drop a card because of the call, and do not print the
-recorded verdict — the human sees the card text at the step-4 gate, not
-the gate's verdict. If the tool reports a per-card failure, name it at the
-step-4 gate as mechanical bookkeeping (a label that did not land); do not
-re-run the call.
+recorded verdict here — the verdict is rendered as one informational
+line at the step-4 approval gate (step 4). If the tool reports a per-card
+failure, name it at the step-4 gate as mechanical bookkeeping (a label
+that did not land); do not re-run the call.
 
 ## 4. Draft-then-confirm — every card, no exceptions
 
@@ -219,6 +219,17 @@ command produces, the epic included.** Present the full draft of the epic
 and every child — complete frontmatter, `Intent` section, and `##
 Acceptance` section, exactly as each would be written to disk — to the
 human in one pass.
+
+The gate's recorded verdict renders here as information. After presenting
+the drafts, invoke the `council_gate_render` tool ONCE with the per-card
+`{ id, callId, status }` array exactly as step 3's `council_gate` result
+reported it, then print each returned `modeLine` verbatim, exactly once,
+immediately below that card's body and above the approve/edit/drop prompt.
+Add no words around a mode line, reformat nothing, and write nothing to
+disk — the verdict line is presented, never written (the third member of
+the presented-never-written pattern, after the Part 2 ledger surface and
+the gate's record). Under the packaged default the gate is off, step 3's
+result carries no `cards`, this tool is never invoked, and no line renders.
 
 The human may edit any card, drop any child, or approve the set as-is.
 **Write nothing to disk until the human approves.** There is no default

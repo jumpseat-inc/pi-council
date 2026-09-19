@@ -363,26 +363,52 @@ describe("EV-66 advisory intake — unit section", () => {
 		expect(text).toContain("`##\nAcceptance` section, exactly as each");
 	});
 
-	test("ledger-source canary: outside gate-ledger.ts no extensions/ module references the ledger, and gate-ledger.ts is imported only by gate-run.ts", () => {
+	test("ledger-source canary (EV-67 §4 amended): the ledger's accessors are role-enumerated — gate-run.ts writes, gate-ledger.ts owns, gate-render.ts presents — the read-only posture preserved in strength, and nothing on an execution path imports the renderer", () => {
 		const dir = path.join(import.meta.dir, "..", "extensions");
 		const modules = readdirSync(dir).filter((f) => f.endsWith(".ts")).sort();
-		const ledgerRefOffenders = modules
-			.filter((f) => f !== "gate-ledger.ts")
-			.filter((f) => {
-				const src = readFileSync(path.join(dir, f), "utf-8");
-				return src.includes("readGateLedger") || src.includes("gate-ledger.jsonl");
-			});
-		expect(ledgerRefOffenders, "no extensions/ module outside gate-ledger.ts references the ledger").toEqual([]);
-		// gate-ledger.ts's only runtime importer is gate-run.ts (the writer).
-		const importOffenders = modules
+		const srcOf = (f: string) => readFileSync(path.join(dir, f), "utf-8");
+		// Role-enumerated accessor allowlist (the EV-67 amendment; sanctioned by
+		// the EV-67 spec §4): the WRITER (gate-run.ts) references the append
+		// accessors; the PRESENTATION leaf (gate-render.ts) references the
+		// reader accessors and the format string; the OWNER (gate-ledger.ts)
+		// defines all of them. Any OTHER module referencing any ledger accessor
+		// is an offender.
+		const writerAccessors = ["appendGateCall", "appendGateOutcome"];
+		const readerAccessors = ["readGateLedger", "gate-ledger.jsonl", "decisionLine"];
+		const writerOffenders = modules
 			.filter((f) => f !== "gate-ledger.ts" && f !== "gate-run.ts")
+			.filter((f) => writerAccessors.some((sym) => srcOf(f).includes(sym)));
+		expect(writerOffenders, "only gate-run.ts (the writer) references the append accessors").toEqual([]);
+		const readerOffenders = modules
+			.filter((f) => f !== "gate-ledger.ts" && f !== "gate-render.ts")
+			.filter((f) => readerAccessors.some((sym) => srcOf(f).includes(sym)));
+		expect(readerOffenders, "only gate-render.ts (the presentation) references the reader accessors").toEqual([]);
+		// Preserved in strength (1) — read-only posture: no module outside
+		// gate-run.ts references the append accessors, and gate-render.ts
+		// references NEITHER (it reads, never writes).
+		const renderSrc = srcOf("gate-render.ts");
+		for (const sym of writerAccessors) {
+			expect(renderSrc.includes(sym), `gate-render.ts must not reference ${sym}`).toBe(false);
+		}
+		// Preserved in strength (2) — import directionality: no execution-path
+		// module imports gate-render.ts (the recorded line makes no policy
+		// change effective). index.ts is the one sanctioned edge — the
+		// composition root that registers the parent tool, not a step on the
+		// record/decide/dispatch path.
+		const importRenderOffenders = modules
+			.filter((f) => f !== "gate-render.ts" && f !== "index.ts")
 			.filter((f) => {
-				// A RUNTIME import ("import {...}") — `import type` is the sanctioned
-				// type-only edge (gate.ts, gate-transport.ts) and never flagged.
-				const src = readFileSync(path.join(dir, f), "utf-8");
-				return (src.match(/^import(?! type)[^\n]*\.\/gate-ledger\.ts/gm) ?? []).length > 0;
+				// A RUNTIME import ("import {...}") — `import type` is never an
+				// execution-path edge.
+				return (srcOf(f).match(/^import(?! type)[^\n]*\.\/gate-render\.ts/gm) ?? []).length > 0;
 			});
-		expect(importOffenders, "gate-ledger.ts is imported only by gate-run.ts").toEqual([]);
+		expect(importRenderOffenders, "no execution-path module imports gate-render.ts").toEqual([]);
+		// EV-67 §1: gate-ledger.ts is the ONLY module owning a `Mode: `-prefixed
+		// format expression — the byte-equality claim stays executable.
+		const modeFormatOffenders = modules
+			.filter((f) => f !== "gate-ledger.ts")
+			.filter((f) => /`Mode: |"Mode: "/.test(srcOf(f)));
+		expect(modeFormatOffenders, "gate-ledger.ts is the only module owning a 'Mode: '-prefixed format expression").toEqual([]);
 	});
 
 	test("steering-branch predicate: fires on any verdict token, never on the mechanical result shape (the branch that would dispatch a different seat set)", () => {

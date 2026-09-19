@@ -358,3 +358,61 @@ describe("EV-67 council_gate_render — the parent tool", () => {
 		}
 	});
 });
+
+// ---------------------------------------------------------------------------
+// Prose pins + ordering fence — features-new.md (spec §3, tests 9 & 10)
+// ---------------------------------------------------------------------------
+
+describe("EV-67 prose pins — features-new.md", () => {
+	const PROC = path.join(import.meta.dir, "..", "council", "procedures", "features-new.md");
+	const read = () => readFileSync(PROC, "utf-8");
+	/** Wrap-normalized view: pins the words, tolerant of line re-wrapping. */
+	const norm = (s: string) => s.replace(/\n/g, " ");
+
+	test("step 3: the inverted clause is gone and the render-at-step-4 mandate present", () => {
+		const text = norm(read());
+		expect(text).not.toContain("the human sees the card text at the step-4 gate, not the gate's verdict");
+		expect(text).toContain("do not print the recorded verdict here");
+		expect(text).toContain("the verdict is rendered as one informational line at the step-4 approval gate");
+	});
+
+	test("step 3: 'recorded, never acted on' byte-preserved; the mechanical-bookkeeping instruction intact; ## 3. heading before ## 4.", () => {
+		const text = read();
+		const h3 = text.indexOf("## 3. Record the advisory gate call");
+		const h4 = text.indexOf("## 4. Draft-then-confirm");
+		expect(h3).toBeGreaterThan(-1);
+		expect(h4).toBeGreaterThan(h3);
+		// byte-for-byte within its line
+		expect(text).toContain("recorded, never acted on");
+		expect(norm(text)).toContain("name it at the step-4 gate as mechanical bookkeeping (a label that did not land); do not re-run the call.");
+	});
+
+	test("step 4: the pre-existing presentation sentences are byte-unchanged (wrap-normalized)", () => {
+		const text = read();
+		const step4 = text.slice(text.indexOf("## 4. Draft-then-confirm"));
+		const n = norm(step4);
+		expect(n).toContain(
+			"Present the full draft of the epic and every child — complete frontmatter, `Intent` section, and `## Acceptance` section, exactly as each would be written to disk — to the human in one pass.",
+		);
+		expect(n).toContain("The human may edit any card, drop any child, or approve the set as-is.");
+		expect(n).toContain("Write nothing to disk until the human approves.");
+	});
+
+	test("step 4: the additive gate-verdict-line block pins verbatim-once, placement, add-no-words, presented-never-written, off-skip", () => {
+		const n = norm(read().slice(read().indexOf("## 4. Draft-then-confirm")));
+		expect(n).toContain("council_gate_render");
+		expect(n).toContain("invoke the `council_gate_render` tool ONCE");
+		expect(n).toContain("exactly as step 3's `council_gate` result reported it");
+		expect(n).toContain("print each returned `modeLine` verbatim, exactly once, immediately below that card's body and above the approve/edit/drop prompt");
+		expect(n).toContain("Add no words around a mode line");
+		expect(n).toContain("presented, never written");
+		expect(n).toContain("this tool is never invoked, and no line renders");
+	});
+
+	test("ordering fence: features-new.md contains no council_dispatch / council_wait occurrence after the ## 3. heading", () => {
+		const text = read();
+		const tail = text.slice(text.indexOf("## 3. Record the advisory gate call"));
+		expect(tail).not.toContain("council_dispatch");
+		expect(tail).not.toContain("council_wait");
+	});
+});
