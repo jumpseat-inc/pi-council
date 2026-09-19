@@ -404,3 +404,149 @@ test("tests section: absent test/ directory yields an empty section without cras
 	const parsed = parseState(buildGateState(makeCard(), tmpRepo()).stateBytes);
 	expect(parsed.tests).toEqual([]);
 });
+
+// ---------------------------------------------------------------------------
+// Budget binding and the drop rule (§7, O7) — the card's demanded tests.
+// ---------------------------------------------------------------------------
+
+/** Fixture with an oversized rulings section: `n` ruling-tagged sources
+ * pages, each summary ~357 measured tokens. */
+function rulingsFixture(policy: Record<string, unknown>): string {
+	const root = tmpRepo(policy);
+	wikiPage(root, "epic9-page.md", { title: "Epic9 Fixture", summary: "about gate work", tags: "[pi-council/epic9]" });
+	const t = (rel: string) => {
+		const f = path.join(root, "test", rel);
+		fs.mkdirSync(path.dirname(f), { recursive: true });
+		fs.writeFileSync(f, "test(\"x\", () => {});\n");
+	};
+	t("gate.test.ts");
+	t("other.test.ts");
+	for (let i = 0; i < 30; i++) {
+		const f = path.join(root, "vault", "wiki", "sources", `r-${String(i).padStart(2, "0")}.md`);
+		fs.mkdirSync(path.dirname(f), { recursive: true });
+		fs.writeFileSync(
+			f,
+			`---\ntitle: Ruling ${i}\nsummary: gate ${"filler ".repeat(160)}\ntags: [pi-council/ruling, pi-council/epic9]\nupdated: 2026-09-20\n---\nbody\n`,
+		);
+	}
+	return root;
+}
+
+test("oversized recent-rulings tail-drop: earlier sections byte-identical to the untruncated pack, drop recorded", () => {
+	const root = rulingsFixture({ gateStateBudgetTokens: 6000 }); // below the 19000 cap sum
+	const truncated = buildGateState(WIKI_CARD(), root);
+	const full = buildGateState(WIKI_CARD(), rulingsFixture({ gateStateBudgetTokens: 1000000 }));
+	const t = parseState(truncated.stateBytes);
+	const f = parseState(full.stateBytes);
+	// Earlier sections byte-identical (canonical re-serialization of parsed sections).
+	expect(JSON.stringify(t.card)).toBe(JSON.stringify(f.card));
+	expect(JSON.stringify(t.touchedFiles)).toBe(JSON.stringify(f.touchedFiles));
+	expect(JSON.stringify(t.wiki)).toBe(JSON.stringify(f.wiki));
+	const rulingDrops = truncated.drops.find((d) => d.section === "rulings");
+	expect(rulingDrops).toMatchObject({ truncated: "budget" });
+	expect((t.rulings as unknown[]).length).toBe((rulingDrops as { kept: number }).kept);
+	expect((f.rulings as unknown[]).length).toBeGreaterThan((t.rulings as unknown[]).length);
+	// Tail rule: the section after the budget cut is dropped entirely.
+	expect(truncated.drops.find((d) => d.section === "tests")).toMatchObject({ truncated: "budget", kept: 0 });
+	expect(t.tests).toEqual([]);
+	expect(estimateTokens(truncated.stateBytes)).toBeLessThanOrEqual(6000);
+});
+
+test("budget-only change moves the cut, never the prefix", () => {
+	const root = rulingsFixture({ gateStateBudgetTokens: 4000 });
+	const low = buildGateState(WIKI_CARD(), rulingsFixture({ gateStateBudgetTokens: 4000 }));
+	const mid = buildGateState(WIKI_CARD(), rulingsFixture({ gateStateBudgetTokens: 6000 }));
+	const lt = parseState(low.stateBytes);
+	const mt = parseState(mid.stateBytes);
+	expect(JSON.stringify(lt.card)).toBe(JSON.stringify(mt.card));
+	expect(JSON.stringify(lt.touchedFiles)).toBe(JSON.stringify(mt.touchedFiles));
+	expect(JSON.stringify(lt.wiki)).toBe(JSON.stringify(mt.wiki));
+	expect((mt.rulings as unknown[]).length).toBeGreaterThan((lt.rulings as unknown[]).length);
+});
+
+test("drop-shape sufficiency: present bytes reconstruct from the drop record + declared section tuple", () => {
+	const truncated = buildGateState(WIKI_CARD(), rulingsFixture({ gateStateBudgetTokens: 6000 }));
+	const full = parseState(buildGateState(WIKI_CARD(), rulingsFixture({ gateStateBudgetTokens: 1000000 })).stateBytes);
+	expect(truncated.drops.map((d) => d.section)).toEqual([...GATE_SECTIONS]);
+	const pick = (section: string, kept: number): unknown => {
+		const value = full[section];
+		if (section === "card") {
+			const o: Record<string, unknown> = {};
+			for (const [k, v] of Object.entries(value as Record<string, unknown>).slice(0, kept)) o[k] = v;
+			return o;
+		}
+		return (value as unknown[]).slice(0, kept);
+	};
+	const reconstructed: Record<string, unknown> = {};
+	for (const [i, s] of [...GATE_SECTIONS].entries()) reconstructed[s] = pick(s, truncated.drops[i].kept);
+	expect(Buffer.from(truncated.stateBytes).toString("utf8")).toBe(JSON.stringify(reconstructed));
+});
+
+test("cap-trim and budget-drop are distinguishable mechanisms in the same pack", () => {
+	// wiki oversized over its 4000 cap (cap-trim) + budget 6000 cutting rulings (budget-drop).
+	const root = rulingsFixture({ gateStateBudgetTokens: 6000 });
+	// Inflate one wiki page so the wiki section alone exceeds its cap.
+	const f = path.join(root, "vault", "wiki", "big-page.md");
+	fs.writeFileSync(f, `---\ntitle: Big Fixture Gate\nsummary: gate ${"filler ".repeat(2100)}\ntags: [pi-council/epic9]\n---\nbody\n`);
+	const state = buildGateState(WIKI_CARD(), root);
+	const wikiDrop = state.drops.find((d) => d.section === "wiki");
+	const rulingDrop = state.drops.find((d) => d.section === "rulings");
+	const testDrop = state.drops.find((d) => d.section === "tests");
+	expect(wikiDrop).toMatchObject({ truncated: "cap" });
+	expect(rulingDrop).toMatchObject({ truncated: "budget" });
+	expect(testDrop).toMatchObject({ truncated: "budget", kept: 0 });
+});
+
+test("pathological all-over-cap fixture: everything dropped, state still within budget, card named first", () => {
+	const root = tmpRepo({ gateStateBudgetTokens: 32000 });
+	// Every candidate entry alone exceeds its section cap.
+	wikiPage(root, "huge-wiki.md", { title: "Huge", summary: `gate ${"filler ".repeat(2100)}`, tags: "[pi-council/epic9]" }); // > 4000 tokens
+	const f = path.join(root, "vault", "wiki", "sources", "huge-ruling.md");
+	fs.mkdirSync(path.dirname(f), { recursive: true });
+	fs.writeFileSync(f, `---\ntitle: Huge Ruling\nsummary: gate ${"filler ".repeat(4100)}\ntags: [pi-council/ruling, pi-council/epic9]\nupdated: 2026-09-20\n---\nbody\n`); // > 8000 tokens
+	const card = makeCard({
+		id: "E".repeat(16000), // > 4000 tokens alone
+		title: "gate",
+		goal: "g",
+		acceptance: "a",
+		touchedFiles: [{ path: "x/".repeat(3600) + "a.ts", linesChanged: 1 }], // > 2000 tokens
+	});
+	const state = buildGateState(card, root);
+	expect(estimateTokens(state.stateBytes)).toBeLessThanOrEqual(32000);
+	const parsed = parseState(state.stateBytes);
+	expect(parsed.card).toEqual({});
+	expect(parsed.touchedFiles).toEqual([]);
+	expect(parsed.wiki).toEqual([]);
+	expect(parsed.rulings).toEqual([]);
+	expect(state.drops[0]).toMatchObject({ section: "card", truncated: "cap", kept: 0 });
+	for (const d of state.drops.slice(0, 4)) expect(d).toMatchObject({ truncated: "cap", kept: 0 });
+});
+
+test("packer fails loud when the resolved policy omits gateStateBudgetTokens — never assumes a default", () => {
+	const root = tmpRepo();
+	const file = path.join(root, CONFIG_DIR_NAME, "council", "gate", "policy.json");
+	fs.writeFileSync(file, JSON.stringify({ policyVersion: "p", mode: "off", model: "m", endpoint: "https://x/" }));
+	let msg = "";
+	try {
+		buildGateState(makeCard(), root);
+	} catch (e) {
+		msg = (e as Error).message;
+	}
+	expect(msg).toBe(
+		`FAIL: ${file} has an invalid gateStateBudgetTokens — the key is absent — packing needs a positive integer token budget (an off-mode policy may omit it, but then no gate state is ever built) — set a valid value`,
+	);
+	expect(msg).not.toMatch(/32000/);
+	expect(msg).not.toMatch(/remove the key/);
+});
+
+test("frame guard: a budget below the empty frame's measure fails loud, never silently over-budget", () => {
+	const root = tmpRepo({ gateStateBudgetTokens: 1 });
+	let msg = "";
+	try {
+		buildGateState(makeCard(), root);
+	} catch (e) {
+		msg = (e as Error).message;
+	}
+	expect(msg).toMatch(/frame alone measures \d+ tokens, exceeding the gateStateBudgetTokens budget 1/);
+	expect(msg).not.toMatch(/\n/);
+});
