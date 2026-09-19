@@ -77,3 +77,9 @@ with no network in the default suite; and no call is ever made to the
   These sets satisfy EV-63's constraints: every set contains the owner, every
   reduced set contains an adversary and a ruling authority, and Direct contains
   no judge.
+- **R5 — promotion cadence (product-owner, escalated by the EV-60 runner).**
+  Chain-promotion, not bulk: EV-60 was promoted to `Ready` now as chain head;
+  each later `Backlog` child promotes the moment its predecessor in R2's order
+  has its merge SHA on local `main` and `python3 council/validate.py` is clean,
+  in one commit with its board row. EV-65 and EV-68 stay `Ready` as recorded.
+  Full ruling: `vault/raw/2026-09-20-po-epic13-promotion-ruling.md`.
