@@ -4,7 +4,7 @@ import * as path from "node:path";
 import { CONFIG_DIR_NAME, type ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
 import { Hub, type JobReport, type JobState } from "./hub.ts";
-import { type RunManifest, readManifests } from "./runs.ts";
+import { type DispatchMode, type RunManifest, readManifests } from "./runs.ts";
 import { buildChildArgv, buildSystemPrompt, DEFAULT_RETRY_POLICY, loadSeat, proceduresDir, resolveEffectiveModel } from "./seats.ts";
 import type { RetryPolicy } from "./seats.ts";
 import { childEnv, ensureRunDir, mintRunId } from "./runs.ts";
@@ -146,6 +146,11 @@ export function registerHubTools(pi: ExtensionAPI, repoRoot: string, opts: HubTo
 			model: Type.Optional(Type.String({ description: "Override this dispatch's model (provider/id or provider/id:thinking). Wins over COUNCIL_EVAL_MODEL, .council.json, and frontmatter — nothing is written to disk." })),
 			thinking: Type.Optional(Type.String({ description: "Override this dispatch's thinking level (off|minimal|low|medium|high|xhigh|max). Wins over the model's :thinking suffix." })),
 			cellId: Type.Optional(Type.String({ description: "Eval cell id this dispatch belongs to — the harness passes it on grader dispatches; the verdict record carries it." })),
+			mode: Type.Optional(Type.Union([
+				Type.Literal("Deliberate"),
+				Type.Literal("Verify"),
+				Type.Literal("Direct"),
+			], { description: "EV-68 — card execution mode, decided from the ledger; recorded on this dispatch's ROOT manifest. Omit for ordinary sub-dispatches — mode is never inherited." })),
 		}),
 		async execute(_id, params, _signal, _onUpdate, ctx) {
 			if (opts.allowedSeats && !opts.allowedSeats.includes(params.seat)) {
@@ -253,6 +258,7 @@ export function registerHubTools(pi: ExtensionAPI, repoRoot: string, opts: HubTo
 				stallMs,
 				sessionId: jobId,
 				cleanup: onceCleanup,
+				mode: params.mode,
 			};
 			// EV-39 — arm the retry supervisor only when the injected policy wants
 			// more than one attempt. The supervisor owns the chain: on a retryable

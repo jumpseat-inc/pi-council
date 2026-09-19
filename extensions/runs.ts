@@ -38,6 +38,12 @@ export interface Usage {
 /** Numeric metrics only — the two string-valued fields cannot be summed. */
 export type UsageMetric = Exclude<keyof Usage, "costBasis" | "usageSource">;
 
+/** EV-68 — the card execution mode, decided from the ledger and carried into
+ * the dispatch that executes a card. Single literal source: EV-69/EV-70 import
+ * this union, they never re-declare it. (Execution-mode namespace — distinct
+ * from navigator's `ctx.mode` TUI-surface strings.) */
+export type DispatchMode = "Deliberate" | "Verify" | "Direct";
+
 export interface RunManifest {
 	id: string;
 	seat: string;
@@ -65,6 +71,10 @@ export interface RunManifest {
 	/** EV-39 — epoch ms of the next scheduled attempt; present only while the
 	 * dispatch is between attempts (state retrying). */
 	nextAttemptAt?: number;
+	/** EV-68 — card execution mode recorded on the ROOT dispatch manifest.
+	 * Optional: absent on pre-EV-68 manifests and on every dispatch whose
+	 * caller did not supply it. Never inherited by sub-dispatches. */
+	mode?: DispatchMode;
 }
 
 export interface RunInfo {
