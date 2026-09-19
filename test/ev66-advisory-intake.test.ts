@@ -17,50 +17,56 @@
 //
 // RED-BASE RECORD (red-base-evidence, seven fields; FLLWUP-56/ev68 precedent):
 //
-// 1. Base identity: 9966ffe6996354025cf3bf66d8750ff18215cf16 — the commit
+// 1. Base identity: 9966ffefcff6cb809eaf2df5ad0dd071d53066eb — the commit
 //    immediately preceding EV-66's first mechanism merge (f5477a9, the
 //    council_gate tool + in-flight render); base role: required.
 // 2. Transplant identity: test/ev66-advisory-intake.test.ts plus the harness
 //    knob diff (test/faux-provider/harness.ts + test/faux-provider/
 //    extension.ts — the EV40_TOOLCALL_GATE knob and the GATE_CARDS gate step),
-//    copied from head sha 57ef46a6ff2b912ce0ab71360f04e7c19ccbc755. At base
-//    the falsifier file does not exist and the knob is absent.
+//    copied from head sha ecd728d798fbba9593b3c1107b1238f082a34d39 (the
+//    falsifier commit; this file's content is what ran at both halves). At
+//    base the falsifier file does not exist and the knob is absent.
 // 3. Exact command (verbatim, both halves): bun test test/ev66-advisory-intake.test.ts
 // 4. Raw red output (verbatim, from the base worktree run — per-failure
-//    lines first, then the runner's own counts):
+//    lines and the runner's own counts, unparaphrased):
 //
-//    (fail) EV-66 advisory intake — unit: ledger-source canary [0.31s]
-//    error: gate-run.ts: imports gate-ledger
-//    expect(received).toBe(expected)
-//    Expected: false
-//    Received: true
-//    (fail) EV-66 advisory intake — the two-arm headless falsifier [9.21s]
-//    error: "no council_gate toolResult found in the parent session JSONL"
+//    (fail) EV-66 advisory intake — unit section > features-new places the gate step between aggregation and the draft-then-confirm heading [0.26ms]
+//    error: expect(received).toBeGreaterThan(expected)
+//    Expected: > 6976
+//    Received: -1
+//    (fail) EV-66 advisory intake — the two-arm headless falsifier > arm A (loopback success, primary) + arm B (credential-less failure): the ledger is the only engine-written diff; dispatch sets equal; arm B zero POSTs [4268.06ms]
+//    error: expect(received).toBe(expected)
+//    Expected: 3
+//    Received: 0
 //
-//    4 pass, 2 fail, 24 expect() calls
-//    Ran 6 tests across 1 file. [9.84s]
+//    2 pass
+//    2 fail
+//    13 expect() calls
+//    Ran 4 tests across 1 file. [4.78s]
 //
-//    Mechanism-absent boundary (skeptic-derived at verification): the
-//    canary red names the mechanism's writer edge (gate-run.ts importing
-//    gate-ledger.ts — the ledger write path absent at base), and the
-//    two-arm red names the council_gate toolResult carrier (the tool is
-//    unregistered at base; pi returns an immediate "Tool council_gate not
-//    found" toolResult — skeptic O11 — so no council_gate toolResult message
-//    ever lands in the session JSONL). No per-failure line names a
-//    transplant/copy-set artifact: the harness files transplant cleanly and
-//    every arm process ran to its assertion (fail-loud, deterministic, no
-//    hang).
+//    Mechanism-absent boundary (skeptic-derived at verification): both reds
+//    name mechanism artifacts absent at base — the "## 3. Record the advisory
+//    gate call" step (the gate seam in the procedure) and the ZERO gate POSTs
+//    (the unregistered council_gate tool: at base pi returns an immediate
+//    "Tool council_gate not found" toolResult — skeptic O11 — so the gate
+//    step executes nothing and the stub receives no POST). No per-failure
+//    line names a transplant/copy-set artifact: the harness files transplant
+//    cleanly (the passing canary and steering-branch tests prove the copy
+//    resolves) and both arm processes ran to their assertions — fail-loud,
+//    deterministic, no hang. The two greens at base are exactly the two
+//    tests that do not depend on the mechanism.
 // 5. Worktree provenance: detached checkout of 9966ffe at
 //    /tmp/ev66-redbase-worktree (git worktree add --detach), separate from
 //    the main checkout; the main checkout was never touched; the worktree
-//    was removed after the run.
+//    was removed after the run (verified: no /tmp/ev66-redbase-worktree in
+//    git worktree list afterward).
 // 6. Copy set (affirmative): the transplant (the falsifier file + the two
 //    harness files) plus a node_modules symlink (the EV-68 precedent — the
 //    base tree has no node_modules and bun resolves the dev deps through
 //    it). Bare copy otherwise.
-// 7. Head half: head sha 57ef46a6ff2b912ce0ab71360f04e7c19ccbc755 (the
-//    harness-knob commit; the falsifier content that ran at base is this
-//    file's content), same exact command verbatim, 0 fail.
+// 7. Head half: head sha ecd728d798fbba9593b3c1107b1238f082a34d39, same
+//    exact command verbatim, 0 fail (4 pass, 0 fail — observed on this tree
+//    before the record was written; re-verified after).
 //
 // Suite budget (FLLWUP-58): the two offline arms measure ≈10s together; the
 // per-test ceiling below carries headroom against the 60-minute CI backstop
