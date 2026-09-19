@@ -2,7 +2,7 @@
 title: Red-Base Evidence
 type: concept
 summary: The convention fixing what a falsifier's red-at-base evidence record must contain (seven fields) and how records are compared across cards (the comparison triple gates count comparison; the mechanism-absent boundary is skeptic-derived, never owner-written).
-aliases: ["red-at-base evidence", "red-base convention"]
+aliases: ["red-at-base evidence", "red-base convention", "red-base evidence"]
 tags: [pi-council/concept, pi-council/process, pi-council/epic9]
 sources: ["[[2026-09-17-po-fllwup47-step6-ruling]]"]
 created: 2026-09-18

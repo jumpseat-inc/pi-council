@@ -1,3 +1,14 @@
+---
+title: Retired-Path Tokens
+type: concept
+summary: The shape witness's retired-path token list is derived from git HEAD ancestry, not hand-maintained — a retirement enters the set automatically and a stale reference reds with the token and file named.
+aliases: [retired-path tokens, token allowlist, shape witness tokens, derived token set]
+tags: [pi-council/concept, pi-council/smoke-test]
+sources: ["[[2026-09-19-po-fllwup59-step13-ruling]]", "[[2026-09-18-epic9-residual-run-2-ledger]]"]
+created: 2026-09-18
+updated: 2026-09-19
+---
+
 # Retired-Path Tokens
 
 FLLWUP-59. The shape witness's token list is **derived, not hand-maintained**.
@@ -124,9 +135,11 @@ Positive tripwires (all red): `see ev43/falsifier-headless.ts`,
    worktree; main checkout untouched; removed after the run.
 6. **Copy set**: the transplanted witness file only (bare copy otherwise).
    **Transplant caveats**: (a) at `323abdc` the `test/faux-provider/` station
-   exists but the FLLWUP-55 `smoke/` driver does not — the transplanted
-   witness's tests 9–11 error there (copy-set-dependent, not
-   mechanism-absent); (b) FLLWUP-48's merged commit `1cf907f` is NOT in the
+   exists **and** `smoke/search-smoke/driver.py` exists with pre-kit content (it
+   does not yet import `pty_kit`; FLLWUP-55 collapsed it later) — so the
+   transplanted witness's tests 9–11 fail as content assertions on a file that
+   is present, not as missing-file errors; either way copy-set-dependent, not
+   mechanism-absent; (b) FLLWUP-48's merged commit `1cf907f` is NOT in the
    FLLWUP-49 branch-line ancestry, which is why the pre-fix `:325` comment
    survives at the base — do not "fix" the base SHA on that account.
 7. **Head half**: same command at the FLLWUP-59 head, `0 fail`.
@@ -134,4 +147,10 @@ Positive tripwires (all red): `see ev43/falsifier-headless.ts`,
 **Named limitation**: `git replace`/grafted/archive-export histories are
 guarded by the canary (any truncated history loses both targets and trips
 loudly); live reproduction of that failure class was not cheaply runnable at
-implementation time and is deferred — the miss class is loud, not silent.
+implementation time and is deferred — the miss class is **loud, not silent**.
+The limitation stays named deliberately (no quiet upgrade to "verified for all
+classes"). **Re-card trigger** (FLLWUP-59 R2, 2026-09-19): a non-zero/non-full
+fetch depth anywhere in a workflow (which would make the canary CI-load-bearing
+yet unreliable), or any report of a silently-partial derived set — then a
+falsifier card closes the class. See
+[[2026-09-19-po-fllwup59-step13-ruling]].

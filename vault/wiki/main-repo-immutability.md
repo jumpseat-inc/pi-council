@@ -2,7 +2,7 @@
 title: Main-Repo Immutability
 type: concept
 summary: No seat and no runner may run git checkout/switch/reset against the main repository path — branch state changes happen only in a dedicated worktree — enforced at three layers after two incidents corrupted board records.
-aliases: [main repo immutability, branch-state immutability, worktree-only rule]
+aliases: [main repo immutability, branch-state immutability, worktree-only rule, main-repo immutability]
 tags: [pi-council/concept, pi-council/process]
 sources: ["[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]"]
 created: 2026-09-06

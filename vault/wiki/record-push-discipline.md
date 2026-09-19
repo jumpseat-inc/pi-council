@@ -1,12 +1,12 @@
 ---
 title: Record-Push Discipline
 type: concept
-summary: The step-12 direct-to-main record push is a privileged write the features-deliver authority map does not re-home; under a ruleset that blocks direct updates it needs its own recorded, run-scoped authorization or a non-bypass path (FLLWUP-60).
+summary: The step-12 direct-to-main record push is a privileged write the features-deliver authority map does not re-home; FLLWUP-60 closed the gap by naming a run-scoped authorization in the procedure and fencing an unauthorized push as a HALT.
 aliases: [record push, step-12 push, admin bypass, record-push authorization]
 tags: [pi-council/concept, pi-council/features-deliver]
-sources: ["[[2026-09-17-epic9-residual-run-ledger]]"]
+sources: ["[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]"]
 created: 2026-09-17
-updated: 2026-09-17
+updated: 2026-09-18
 ---
 
 # Record-Push Discipline
@@ -51,6 +51,23 @@ bypass** — either a recorded, run-scoped authorization named explicitly in the
 procedure (an unauthorized push is a `HALT` surfaced to the human), or a
 record-push path that no longer requires any bypass.
 
+## Closed (2026-09-18, FLLWUP-60, `aa1923fe`)
+
+**Superseded in part.** `FLLWUP-60` shipped in EPIC-9 residual run 2 and closed
+the gap above: `council/procedures/council.md` step 12 now names the run-scoped
+record-push authorization explicitly — a direct-to-`main` record push is a
+privileged write the authority map does not re-home, so it requires a recorded,
+run-scoped, human-granted **Phase-1** authorization **before** the run's first
+record push; the authorization is never extended to a later run; and an
+**unauthorized push is a `HALT` surfaced to the human**, never silently
+executed. A prose pin (`test/prose.test.ts`, the FLLWUP-42 idiom) fixes the
+clause.
+
+The run-2 ledger's `R3` is the first authorization granted under the new clause.
+The `steward` ruling's accepted permanent residual for the 2026-09-17 pushes
+still stands (no undo) — what changed is the standing posture, not the past.
+See [[2026-09-18-epic9-residual-run-2-ledger]].
+
 ## Why it matters
 
 A protection the human put in place should yield only to a recorded, run-scoped
@@ -68,5 +85,6 @@ unreliable and is invisible in the very board it is writing.
 ## Sources
 
 - [[2026-09-17-epic9-residual-run-ledger]]
+- [[2026-09-18-epic9-residual-run-2-ledger]] — the closure
 - `council/procedures/council.md` step 12, `council/procedures/features-deliver.md`
 - `council/cards/FLLWUP-42.md`, `council/cards/FLLWUP-60.md`

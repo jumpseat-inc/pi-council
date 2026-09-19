@@ -1,3 +1,14 @@
+---
+title: Test Suite Budget
+type: concept
+summary: The default bun test suite's measured wall-clock envelope, the live-arm files that carry it, the ceiling-vs-budget distinction, the CI-timeout backstop, and the rules that keep the numbers honest.
+aliases: [suite budget, test suite cost, drift threshold, CI timeout backstop]
+tags: [pi-council/concept, pi-council/smoke-test]
+sources: ["[[2026-09-19-po-fllwup48-test-suite-budget]]", "[[2026-09-18-po-fllwup56-step13-ruling]]", "[[2026-09-20-po-fllwup58-gates-backstop]]", "[[2026-09-20-po-fllwup58-step13-confirmation]]", "[[2026-09-18-epic9-residual-run-2-ledger]]"]
+created: 2026-09-17
+updated: 2026-09-20
+---
+
 # Test Suite Budget
 
 FLLWUP-48. The default `bun test` suite's measured wall-clock envelope, the
@@ -152,6 +163,39 @@ Shipped backstop value (machine-parity marker): `timeout-minutes: 60` on the `bu
 gated-site promotion re-derives the floor; the tripwire reds on violation.
 Shrinking the shipped value also requires re-derivation.
 
+## Shell independence (FLLWUP-57)
+
+The suite is **shell-independent**: `test/override.test.ts` captures and
+restores the ambient `COUNCIL_EVAL_MODEL` around each test, so an exported
+catalogue-valid value can no longer change a later test's effective model. The
+pre-fix green was **masking luck**, not correctness — an `afterEach` *deleted*
+the ambient instead of restoring it, so the value never survived into later
+tests. Criterion 1's local gate evidence is now deterministic for every
+catalogue-valid ambient value. See [[2026-09-18-epic9-residual-run-2-ledger]].
+
+## Census correction (FLLWUP-58 step-13 confirmation, 2026-09-20)
+
+⚠️ **Supersedes the census and ratios stated above.** The converged
+census/tripwire scans **standalone-line** ceilings only. **Compact-form
+third-positional-arg ceilings** (`}, 15_000);`) are invisible to it — **19
+such sites, Σ 420 000 ms**, all in non-gated files. Consequences:
+
+| Census | Count | Floor | Against shipped 60 min |
+|---|---|---|---|
+| Converged default suite (above) | 16 sites | 43.1 min | 1.42× |
+| **Widened default suite (true floor)** | 16 + 19 = 35 sites | **≈ 52 min** | **1.15×** |
+| Tree-wide true ceiling count | **37 sites** | — | — |
+
+So the shipped `timeout-minutes: 60` still binds (52 ≤ 60), but the **honest
+headroom is ~1 minute, not 10**, and a single gated promotion puts the floor at
+**59**. The page previously **over-claimed its own safety margin**. The fix —
+widen the derivation to every writing form and pin these census figures to it,
+plus per-step bounds on **every** non-test step (`bun install`, `bunx tsc`, and
+`python3 council/validate.py` are all un-bounded; the tripwire's "exactly one
+`timeout-minutes`" assertion must be **re-expressed**, not loosened, in the same
+commit) — is carded as **`FLLWUP-70`**. See
+[[2026-09-20-po-fllwup58-step13-confirmation]].
+
 ## Re-measure command
 
 ```bash
@@ -170,7 +214,15 @@ done
 ## Standing maintenance rules
 
 1. **Any new live arm must state its expected wall clock and its ceiling in
-   its test header.**
+   its test header.** ️ **Clarified (FLLWUP-56 R1, 2026-09-18):** the header
+   carries the **design-time expected** figure plus the ceiling — both are what
+   the design knew when the header was written. The header is **not** a
+   measurement record and is not rewritten by the implementing pass. The
+   **measured** figure has exactly one authoritative home: this page's per-file
+   row. A header estimate beaten by measurement is **not a defect** (an
+   estimate wrong in the safe direction), and a per-arm number stated anywhere
+   else is a restatement, not a source. See
+   [[2026-09-18-po-fllwup56-step13-ruling]].
 2. **The README/wiki figures are re-measured** when an arm changes, or when
    the drift threshold trips.
 3. **`bun install` first** on any tree whose `node_modules` predates

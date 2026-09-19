@@ -1,12 +1,12 @@
 ---
 title: Smoke Test
 type: concept
-summary: The definitive, unattended end-to-end test — Phases 0–5 drive a real /council loop, a /features-deliver epic, the /council-eval matrix, /council-leaderboard, and /council-models in an isolated container, re-running gates itself; standing discipline: the first Council command without an end-to-end falsifier is a defect.
+summary: The definitive, unattended end-to-end test — Phases 0–5 drive a real /council loop, a /features-deliver epic, the /council-eval matrix, /council-leaderboard, and /council-models in an isolated container, re-running gates itself; the search-smoke driver now shares the test suite's stdlib-only pty kit; standing discipline: the first Council command without an end-to-end falsifier is a defect.
 aliases: [smoke, unattended smoke test, smoke test]
 tags: [pi-council/smoke-test]
-sources: ["[[2026-08-24-unattended-smoke-test-design]]", "[[2026-08-24-unattended-smoke-test-plan]]", "[[2026-08-25-smoke-test-bugfixes]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-04-epic5-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]"]
+sources: ["[[2026-08-24-unattended-smoke-test-design]]", "[[2026-08-24-unattended-smoke-test-plan]]", "[[2026-08-25-smoke-test-bugfixes]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-04-epic5-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]"]
 created: 2026-08-25
-updated: 2026-09-06
+updated: 2026-09-18
 ---
 
 # Smoke Test
@@ -134,6 +134,21 @@ verdict. Its discovery (a zero-command state on 0.85.0) seeded the
 contamination-proof by construction; the probe that ran outside it was
 not.
 
+**The screen model is shared, not private (EPIC-9, FLLWUP-55).**
+`smoke/search-smoke/driver.py` no longer carries its own `class Screen`/
+`class Session`: it imports the shared stdlib-only pty substrate
+`test/faux-provider/pty_kit.py` (`Screen`, `Session`, the ANSI regexes). The
+second private copy had **already drifted** a second time, which is the
+argument that settled the share. What stays **driver-authored**: the byte table,
+the frame matchers, and the session policy (28×80 winsize, checkpoint-byte
+`mark()`, `SIGTERM` teardown, `wait_stable` timing, `OPENROUTER_API_KEY`
+pass-through). A two-sided stdlib-only guard in the shape test keeps the release
+gate's pinned-pi isolation honest. The README and the driver docstring were
+amended to match (greppable: `grep -nE '^(import|from)'` on both files).
+⚠️ This is a **`smoke/ → test/` path dependency** — a layering inversion held
+open by that guard, not a pi coupling. See
+[[2026-09-18-epic9-residual-run-2-ledger]].
+
 ## Related
 
 - [[headless-pi]] — the operating-mode rules the driver depends on
@@ -142,6 +157,7 @@ not.
 - [[env-split contract]] — the contamination discipline the harnesses follow
 - [[2026-09-05-epic6-run-ledger]] — the SMOKE_PHASE selector
 - [[2026-09-06-epic6-close-run-ledger]] — the kitty search-smoke sibling
+- [[2026-09-18-epic9-residual-run-2-ledger]] — the shared pty kit (FLLWUP-55)
 - [[2026-08-24-unattended-smoke-test-design]], [[2026-08-24-unattended-smoke-test-plan]]
 
 ## Sources

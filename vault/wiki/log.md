@@ -1,5 +1,42 @@
 # Wiki Log
 
+## [2026-09-18] ingest | EPIC-9 residual run 2 — ledger, rulings, and the stale-claim correction pass
+
+Ingested the EPIC-9 residual run 2 (`FLLWUP-50`–`60`) and its ruling docs.
+Laid down `vault/raw/2026-09-18-epic9-residual-run-2-ledger.md` (the run's
+source of record, mirroring run 1) and its source page, plus source pages for
+`2026-09-18-design-fllwup50-refresh-path`, `2026-09-18-po-fllwup56-step13-ruling`,
+`2026-09-19-po-fllwup48-test-suite-budget`, `2026-09-19-po-fllwup50-step6-ruling`,
+`2026-09-19-po-fllwup59-step13-ruling`, `2026-09-20-po-fllwup58-gates-backstop`,
+and `2026-09-20-po-fllwup58-step13-confirmation` (8 source pages created; 1 raw
+source added).
+
+Updated: [[headless-pi]] (⚠️ project-extension discovery is **not `-a`-gated**),
+[[council-theme]] (the jiti nested-`require()` mis-resolution; `await import()`
+b bypasses it), [[test-suite-budget]] (missing frontmatter added; the FLLWUP-56
+header rule; the FLLWUP-57 shell-independence note; ️ **census correction** —
+compact-form ceilings make the true default floor **52**, not 43, so the shipped
+`60` has ~1 minute of headroom, not 10), [[engineering-board]] (⚠️ `goal:` is now
+**positional**; the pre-write step-13 gate inversion corrected and carded), 
+[[record-push-discipline]] (⚠️ **gap closed** by FLLWUP-60),
+[[deterministic-merge-check]] (run-2 observed practice; ⚠️ merged-SHA CI can flake
+on an untouched file), [[union-merge-reconcile]] (concurrent board writers are a
+second divergence trigger), [[smoke-test]] (the driver now shares the pty kit),
+[[retired-path-tokens]] (missing frontmatter added; ⚠️ caveat (a) corrected —
+the driver exists with pre-kit content), [[sources/2026-08-24-bugfix-seat-prose]]
+(⚠️ the GATE-EVIDENCE guard was widened to all seats+procedures by FLLWUP-53),
+[[index]].
+
+Contradictions flagged explicitly (5): (1) `record-push-discipline`'s "FLLWUP-60
+is owed" is false as of `aa1923fe`; (2) `test-suite-budget`'s advertised 1.42×
+ratio over-claims — the true ratio is 1.15×; (3) `retired-path-tokens` caveat
+(a)'s "does not exist" is false — and the imprecision originated in the card's
+spec, so an ingest re-deriving from the spec would re-import it; (4)
+`engineering-board`'s "wrapped goal is the silent-loss path" is superseded by the
+loud positional gate; (5) `sources/2026-08-24-bugfix-seat-prose`'s
+`GATE-EVIDENCE` fix was scoped to one file and a second naming survived until
+FLLWUP-53. Deferred: FLLWUP-50's refresh-path page set is carded as `FLLWUP-67`.
+
 ## [2026-09-18] ingest | FLLWUP-47 product-owner step-6 ruling — the red-base evidence convention
 
 Ingested `vault/raw/2026-09-17-po-fllwup47-step6-ruling.md` (the R1–R6

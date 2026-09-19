@@ -4,7 +4,7 @@ type: concept
 summary: Under /features-deliver the human merge gate is replaced by five mechanical criteria — owner gates, gates-SUCCESS on the PR head SHA, no blocking skeptic objection, judge PASS, no open ruling — executed with no discretion, merged with --match-head-commit.
 aliases: [merge gate, deterministic merge, five criteria merge]
 tags: [pi-council/features-deliver, pi-council/process]
-sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]"]
+sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-18-epic9-residual-run-2-ledger]]"]
 created: 2026-09-04
 updated: 2026-09-18
 ---
@@ -124,7 +124,10 @@ silently. A mismatch is a **HALT, not a retry**.
   sanctioned merge step under a recorded, run-scoped authorization, and an
   unauthorized ruleset block is a `HALT`. ⚠️ The map's completeness gap extends
   past the merge row: the step-12 **record push** is a second privileged write it
-  does not re-home — see [[record-push-discipline]].
+  does not re-home — see [[record-push-discipline]]. **Closed (FLLWUP-60,
+  `aa1923fe`, 2026-09-18):** `council.md` step 12 now names the run-scoped
+  record-push authorization explicitly, requires it **before** a run's first
+  record push, and fences an unauthorized push as a `HALT` — no silent bypass.
 - The run's **first autonomous merge was deferred for a human watch and then
   waived** — a third variation on the first-merge practice (EPIC-5 and EPIC-8
   announced in-line; EPIC-9 held the merge, then ran unattended on the human's
@@ -156,6 +159,31 @@ silently. A mismatch is a **HALT, not a retry**.
   admin-identity bypass **not** covered by the run-scoped merge authorization;
   steward ruled the past an accepted permanent residual and FLLWUP-60 owed
   before the next autonomous run ([[record-push-discipline]]).
+
+## Observed practice (EPIC-9 residual run 2, 2026-09-18)
+
+- Ten more merges (PRs #67–#77), squash method, every `--match-head-commit` pin
+  re-read and held, under the run-scoped R2 `--admin` authorization; every
+  head-SHA `gates` check `SUCCESS` keyed on the `workflow` field, every
+  merged-SHA run re-verified. One card retired (`FLLWUP-52`, R4) — no PR. No
+  `HALT`, no denied merge.
+- ️ **Merged-SHA CI can flake on an untouched file.** The pre-existing `EV-40
+  computeBackoffDelay` jitter test reddened the merged-SHA CI on `FLLWUP-50`
+  and `FLLWUP-55` while both PR-head checks were green; each was healed by one
+  **disclosed same-commit rerun** — never a rerun of the PR-head check. The
+  flake is carded as `FLLWUP-63`; the recurrence is evidence for the fix, not a
+  gate relaxation.
+- ⚠️ **Criterion 2's reading is `workflow: gates` on the PR head SHA.**
+  `gh pr checks` returns other check-runs too (e.g. a skipped `[code]smith` with
+  an empty `workflow`); asserting only "nothing failing" is not enough — the
+  `gates` workflow must **appear** with `state: SUCCESS`.
+- **Concurrent runs share the board.** EPIC-10/11/12 wrote `council/board.md`
+  mid-run; two sanctioned [[union-merge reconcile|union merges]] (FLLWUP-57,
+  FLLWUP-58), every other push a fast-forward, no history rewrite.
+- **Escalation paced the run again** — six escalations across eleven cards
+  (`product-owner` 3/7/12/15/18/21/24/25/27/29/31; [[steward]] 1/8/13/16), two
+  of them goal/scope rulings (`FLLWUP-51` goal amendment; `FLLWUP-50` detection
+  scope) and two copy/mechanism items (`FLLWUP-55`, `FLLWUP-58`).
 
 ## Red-base falsifiers and the merge gate
 
@@ -208,3 +236,6 @@ attestation about the merge window. One enforcement, not two.
 - [[2026-09-15-epic8-run-ledger]] — four more (PRs #47–#50), the first
   merge announced in-line, five in-card escalations, one union merge,
   EPIC-8 closed Done.
+- [[2026-09-18-epic9-residual-run-2-ledger]] — ten more (PRs #67–#77), one
+  R4 retirement, the R2/SHA-pin discipline held, the merged-SHA flake
+  disclosure, and the record-push closure (`FLLWUP-60`).
