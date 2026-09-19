@@ -1,0 +1,14 @@
+{
+	"version": "gate-decision-1",
+	"weights": { "reversible": 1, "publicContract": 1, "blastRadius": 1, "decidablyTestable": 1 },
+	"mechanical": { "reversible": "yes", "publicContract": "no", "blastRadius": "no", "decidablyTestable": "yes" },
+	"floors": { "choice": 0.7, "score": 0.7 },
+	"noulThreshold": 0.6,
+	"noulProbabilityOf": "yes",
+	"thresholds": { "verify": 2.6, "direct": 3.4 },
+	"overrides": [
+		{ "question": "reversible", "option": "no", "basis": "one-way door" },
+		{ "question": "publicContract", "option": "yes", "basis": "public contract or data change" },
+		{ "question": "blastRadius", "option": "yes", "basis": "cross-module blast radius" }
+	]
+}
