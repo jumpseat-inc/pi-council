@@ -31,6 +31,8 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { CONFIG_DIR_NAME } from "@earendil-works/pi-coding-agent";
+import type { GateAnswer } from "./gate-ledger.ts";
+export type { GateAnswer } from "./gate-ledger.ts";
 import { PKG_ROOT } from "./seats.ts";
 
 /** Versioned model pin — NEVER the alias `~typesafe/jev-latest`. */
@@ -345,6 +347,8 @@ export function loadGateDecision(repoRoot: string): GateDecisionPolicy {
 			throw gateFail(file, `weights.${id}`, `expected a positive finite number, found ${JSON.stringify(w)}`);
 		}
 	}
+	const typedWeights: Record<string, number> = {};
+	for (const id of weightIds) typedWeights[id] = weights[id] as number;
 	if (typeof raw.mechanical !== "object" || raw.mechanical === null || Array.isArray(raw.mechanical)) {
 		throw gateFail(file, "mechanical", "expected a record keyed by question id");
 	}
@@ -356,6 +360,8 @@ export function loadGateDecision(repoRoot: string): GateDecisionPolicy {
 	for (const id of mechIds) {
 		nonEmptyString(file, `mechanical.${id}`, mechanical[id]);
 	}
+	const typedMechanical: Record<string, string> = {};
+	for (const id of mechIds) typedMechanical[id] = mechanical[id] as string;
 	if (typeof raw.floors !== "object" || raw.floors === null || Array.isArray(raw.floors)) {
 		throw gateFail(file, "floors", "expected an object with choice and score floors");
 	}
@@ -373,8 +379,10 @@ export function loadGateDecision(repoRoot: string): GateDecisionPolicy {
 			throw gateFail(file, `thresholds.${t}`, `expected a finite non-negative number, found ${JSON.stringify(thresholds[t])}`);
 		}
 	}
-	if (thresholds.verify > thresholds.direct) {
-		throw gateFail(file, "thresholds", `verify must be ≤ direct, found verify ${thresholds.verify} > direct ${thresholds.direct}`);
+	const verifyThreshold = thresholds.verify as number;
+	const directThreshold = thresholds.direct as number;
+	if (verifyThreshold > directThreshold) {
+		throw gateFail(file, "thresholds", `verify must be ≤ direct, found verify ${verifyThreshold} > direct ${directThreshold}`);
 	}
 	if (!Array.isArray(raw.overrides)) {
 		throw gateFail(file, "overrides", "expected an array of override rules");
@@ -394,12 +402,157 @@ export function loadGateDecision(repoRoot: string): GateDecisionPolicy {
 	}
 	return {
 		version,
-		weights,
-		mechanical,
+		weights: typedWeights,
+		mechanical: typedMechanical,
 		floors: { choice: choiceFloor, score: scoreFloor },
 		noulThreshold,
 		noulProbabilityOf,
-		thresholds: { verify: thresholds.verify as number, direct: thresholds.direct as number },
+		thresholds: { verify: verifyThreshold, direct: directThreshold },
 		overrides,
+	};
+}
+
+/** The gate's decision: how the card runs (`mode`), which roles run
+ * (`include`), and the deterministic one-line reason (`basis`). */
+export interface GateDecision {
+	mode: GateDecisionMode;
+	include: readonly string[];
+	basis: string;
+}
+
+/** Two fixed decimals — the basis line must be byte-stable across calls and
+ * across re-derivations from the ledger, so float formatting is pinned. */
+function fmt(v: number): string {
+	return v.toFixed(2);
+}
+
+/** The probability of one criterion option side for an answer.
+ * choice/score: the transport's `probabilities` map (keyed by option label or
+ * criterion index). noul: the answer's `probability` is P(noulProbabilityOf);
+ * the opposite side is 1 - p. */
+function sideProbability(answer: GateAnswer, id: string, option: string, policy: GateDecisionPolicy): number {
+	if (answer.type === "noul") {
+		const p = answer.probability;
+		if (typeof p !== "number" || !Number.isFinite(p) || p < 0 || p > 1) {
+			throw new Error(`gate: decide — answer ${id} of type noul is missing a usable probability (expected a number in [0, 1])`);
+		}
+		return option === policy.noulProbabilityOf ? p : 1 - p;
+	}
+	const probs = answer.probabilities;
+	const v = probs && typeof probs === "object" ? (probs as Record<string, unknown>)[option] : undefined;
+	return typeof v === "number" && Number.isFinite(v) ? v : 0;
+}
+
+/** Whether a hard override fires for this answer: deterministic on the ANSWER
+ * itself (chosen label / score index / favored noul side), never on a
+ * probability comparison a model could re-argue. */
+function overrideFires(answer: GateAnswer, id: string, option: string, policy: GateDecisionPolicy): boolean {
+	switch (answer.type) {
+		case "choice":
+			return answer.value === option;
+		case "score":
+			return String(answer.score) === option;
+		case "noul":
+			return sideProbability(answer, id, option, policy) > 0.5;
+		default:
+			throw new Error(`gate: decide — answer ${id} has unknown type ${JSON.stringify(answer.type)}`);
+	}
+}
+
+/** The pure decision function (EV-63): a function of the transport's answers
+ * and the decision policy ONLY — no fs, no network, no model call, no loop.
+ * Order is fixed and load-bearing:
+ *   1. hard deterministic overrides — one-way doors, public contracts and
+ *      data changes, cross-module blast radius bypass the model entirely and
+ *      return Deliberate regardless of what the answers say;
+ *   2. confidence floors — choice/score answers below their floor escalate
+ *      rather than guess; a noul answer has NO confidence field, so its
+ *      certainty max(p, 1-p) is compared against the policy's own noul
+ *      threshold instead of being silently treated as confident;
+ *   3. the weighted composite — a reduced mode (Verify/Direct) requires
+ *      POSITIVE evidence (composite ≥ threshold), not the absence of a
+ *      warning; unanswered questions contribute 0 (raw sum, no
+ *      normalization), so missing evidence drags toward Deliberate, the safe
+ *      side, never toward a cheaper mode.
+ * Skipping deliberation is the dangerous error and deliberating
+ * unnecessarily is only expensive — every branch resolves toward safety.
+ * Returns the mode AND the seat-inclusion set: metering panel composition
+ * and metering the mode are the same decision, and splitting them would
+ * create two sources of truth for the roster (R4 mapping via MODE_PANELS:
+ * the owner is never removed; every reduced set that dispatches seats keeps
+ * an adversary and a ruling authority; Direct's only gate is the test suite). */
+export function decide(
+	answers: Record<string, GateAnswer | null>,
+	policy: GateDecisionPolicy,
+): GateDecision {
+	// 1. Hard overrides — bypass the model entirely, in declared order.
+	for (const rule of policy.overrides) {
+		const answer = answers[rule.question];
+		if (!answer) continue; // an unanswered question fires nothing
+		if (overrideFires(answer, rule.question, rule.option, policy)) {
+			return {
+				mode: "Deliberate",
+				include: MODE_PANELS.Deliberate,
+				basis: `${rule.question}? ${rule.option} (${rule.basis})`,
+			};
+		}
+	}
+	// 2. Confidence floors and the noul threshold — escalate rather than guess.
+	// First failure in Object.keys(answers) order wins (deterministic).
+	for (const id of Object.keys(answers)) {
+		const answer = answers[id];
+		if (!answer) continue; // asked-but-unanswered: absent, never a zero
+		if (answer.type === "choice" || answer.type === "score") {
+			const floor = policy.floors[answer.type];
+			const confidence = answer.confidence;
+			if (typeof confidence !== "number" || !Number.isFinite(confidence)) {
+				throw new Error(`gate: decide — answer ${id} of type ${answer.type} is missing a numeric confidence`);
+			}
+			if (confidence < floor) {
+				return {
+					mode: "Deliberate",
+					include: MODE_PANELS.Deliberate,
+					basis: `${id}: confidence ${fmt(confidence)} < ${answer.type} floor ${fmt(floor)}`,
+				};
+			}
+		} else if (answer.type === "noul") {
+			const p = sideProbability(answer, id, policy.noulProbabilityOf, policy); // validates shape
+			const certainty = Math.max(p, 1 - p);
+			if (certainty < policy.noulThreshold) {
+				return {
+					mode: "Deliberate",
+					include: MODE_PANELS.Deliberate,
+					basis: `${id}: certainty ${fmt(certainty)} < noul threshold ${fmt(policy.noulThreshold)}`,
+				};
+			}
+		} else {
+			throw new Error(`gate: decide — answer ${id} has unknown type ${JSON.stringify(answer.type)}`);
+		}
+	}
+	// 3. The weighted composite — a reduced mode needs positive evidence.
+	let composite = 0;
+	for (const id of Object.keys(policy.weights)) {
+		const answer = answers[id];
+		if (!answer) continue; // missing evidence contributes 0 → drags toward Deliberate
+		composite += policy.weights[id] * sideProbability(answer, id, policy.mechanical[id], policy);
+	}
+	if (composite >= policy.thresholds.direct) {
+		return {
+			mode: "Direct",
+			include: MODE_PANELS.Direct,
+			basis: `composite ${fmt(composite)} ≥ direct threshold ${fmt(policy.thresholds.direct)}`,
+		};
+	}
+	if (composite >= policy.thresholds.verify) {
+		return {
+			mode: "Verify",
+			include: MODE_PANELS.Verify,
+			basis: `composite ${fmt(composite)} ≥ verify threshold ${fmt(policy.thresholds.verify)}`,
+		};
+	}
+	return {
+		mode: "Deliberate",
+		include: MODE_PANELS.Deliberate,
+		basis: `composite ${fmt(composite)} < verify threshold ${fmt(policy.thresholds.verify)}`,
 	};
 }
