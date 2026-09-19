@@ -71,7 +71,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Ready
 
-- EV-60 — Cost-per-card and cost-per-epic baseline from existing run manifests
 - EV-44 — Merge near-duplicate follow-up candidates before a card is drafted
 - EV-45 — Unattended ingest of a run's own ledger, without the human steer turn
 - EV-48 — Packaged seat-tier map with repo-local merge override
@@ -83,6 +82,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Deliberating
 
 ## In Progress
+
+- EV-60 — Cost-per-card and cost-per-epic baseline from existing run manifests
 
 ## In Review
 
