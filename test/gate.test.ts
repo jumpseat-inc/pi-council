@@ -39,12 +39,14 @@ test("a repo-local policy.json shadows the packaged default whole-file", () => {
 		mode: "active",
 		model: "typesafe/jev-1.13-test",
 		endpoint: "https://example.test/decisions",
+		gateStateBudgetTokens: 32000,
 	});
 	expect(loadGatePolicy(root)).toEqual({
 		policyVersion: "test-policy-9",
 		mode: "active",
 		model: "typesafe/jev-1.13-test",
 		endpoint: "https://example.test/decisions",
+		gateStateBudgetTokens: 32000,
 	});
 });
 
@@ -79,7 +81,7 @@ test("an unknown key throws the FAIL line naming the key", () => {
 	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
 	const file = repoPolicy(root, { policyVersion: "p", mode: "off", model: "m", endpoint: "https://x/", bogus: 1 });
 	expect(() => loadGatePolicy(root)).toThrow(
-		`FAIL: ${file} has an invalid bogus — unknown key; expected one of mode, policyVersion, model, endpoint — set a valid value or remove the key to use the packaged default`,
+		`FAIL: ${file} has an invalid bogus — unknown key; expected one of mode, policyVersion, model, endpoint, gateStateBudgetTokens — set a valid value or remove the key to use the packaged default`,
 	);
 });
 
@@ -177,4 +179,72 @@ test("an invalid empty model value throws the FAIL line naming the key", () => {
 	expect(() => loadGatePolicy(root)).toThrow(
 		`FAIL: ${file} has an invalid model — expected a non-empty string, found "" — set a valid value or remove the key to use the packaged default`,
 	);
+});
+
+// ---------------------------------------------------------------------------
+// EV-64 — gateStateBudgetTokens (PO ruling Q1, three binding clauses).
+// ---------------------------------------------------------------------------
+
+const failOf = (run: () => unknown): string => {
+	try {
+		run();
+	} catch (e) {
+		return (e as Error).message;
+	}
+	throw new Error("expected a throw");
+};
+
+test("clause 1: a present gateStateBudgetTokens is validated in every mode — off included", () => {
+	for (const v of [0, -1, 1.5, "32k"]) {
+		const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+		repoPolicy(root, { policyVersion: "p", mode: "off", model: "m", endpoint: "https://x/", gateStateBudgetTokens: v });
+		const msg = failOf(() => loadGatePolicy(root));
+		expect(msg).toMatch(/^FAIL: .*policy\.json has an invalid gateStateBudgetTokens — expected a positive integer, found /);
+		expect(msg).not.toMatch(/\n/);
+	}
+});
+
+test("clause 2: absent gateStateBudgetTokens FAILs on the advisory path, without the remove-the-key advice", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	repoPolicy(root, { policyVersion: "p", mode: "advisory", model: "m", endpoint: "https://x/" });
+	const msg = failOf(() => loadGatePolicy(root));
+	expect(msg).toBe(
+		`FAIL: ${path.join(root, CONFIG_DIR_NAME, "council", "gate", "policy.json")} has an invalid gateStateBudgetTokens — the key is absent but the resolved mode is "advisory" (an off-mode policy may omit it) — set a valid value`,
+	);
+	expect(msg).not.toMatch(/remove the key/);
+});
+
+test("clause 2: absent on the active path fails the same way", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	repoPolicy(root, { policyVersion: "p", mode: "active", model: "m", endpoint: "https://x/" });
+	expect(() => loadGatePolicy(root)).toThrow(/has an invalid gateStateBudgetTokens/);
+});
+
+test("absent gateStateBudgetTokens resolves cleanly on the off path and is truly absent", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	repoPolicy(root, { policyVersion: "p", mode: "off", model: "m", endpoint: "https://x/" });
+	const policy = loadGatePolicy(root);
+	expect(policy.mode).toBe("off");
+	expect(policy.gateStateBudgetTokens).toBeUndefined();
+	expect("gateStateBudgetTokens" in policy).toBe(false);
+});
+
+test("a live-mode policy with a valid key loads with it", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	repoPolicy(root, {
+		policyVersion: "p",
+		mode: "active",
+		model: "m",
+		endpoint: "https://x/",
+		gateStateBudgetTokens: 32000,
+	});
+	const policy = loadGatePolicy(root);
+	expect(policy.mode).toBe("active");
+	expect(policy.gateStateBudgetTokens).toBe(32000);
+});
+
+test("the packaged default ships mode off and the budget key at 32000", () => {
+	const policy = loadGatePolicy("/nonexistent-repo-root-ev64");
+	expect(policy.mode).toBe("off");
+	expect(policy.gateStateBudgetTokens).toBe(32000);
 });
