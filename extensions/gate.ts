@@ -140,3 +140,93 @@ const POLICY_KEYS = ["mode", "policyVersion", "model", "endpoint"] as const;
 const ALLOWED_POLICY_KEYS: Record<string, true> = Object.fromEntries(
 	POLICY_KEYS.map((k) => [k, true as const]),
 );
+
+const QUESTION_KEYS = ["type", "instructions", "criteria"] as const;
+const ALLOWED_QUESTION_KEYS: Record<string, true> = Object.fromEntries(
+	QUESTION_KEYS.map((k) => [k, true as const]),
+);
+const QUESTION_SET_KEYS = ["version", "questions"] as const;
+const ALLOWED_QUESTION_SET_KEYS: Record<string, true> = Object.fromEntries(
+	QUESTION_SET_KEYS.map((k) => [k, true as const]),
+);
+const QUESTION_TYPES = ["choice", "noul", "score"] as const;
+
+/** Load the gate's question set: repo-local override whole-file, else the
+ * packaged default. The `criteria` shape is per-type and never smoothed:
+ * option→description record for `choice`/`noul`, ordered criterion strings
+ * for `score` (EV-65's request shape, validated here at the data surface). */
+export function loadGateQuestions(repoRoot: string): GateQuestionSet {
+	const { file, value } = readGateFile(gateDirs(repoRoot), "questions.json");
+	if (typeof value !== "object" || value === null || Array.isArray(value)) {
+		throw gateFail(file, "JSON", "root must be a JSON object");
+	}
+	const raw = value as Record<string, unknown>;
+	for (const key of Object.keys(raw)) {
+		if (!(key in ALLOWED_QUESTION_SET_KEYS)) {
+			throw gateFail(file, key, `unknown key; expected one of ${QUESTION_SET_KEYS.join(", ")}`);
+		}
+	}
+	const version = nonEmptyString(file, "version", raw.version);
+	if (typeof raw.questions !== "object" || raw.questions === null || Array.isArray(raw.questions)) {
+		throw gateFail(file, "questions", "expected a record keyed by question id");
+	}
+	const rawQuestions = raw.questions as Record<string, unknown>;
+	const ids = Object.keys(rawQuestions);
+	if (ids.length === 0) {
+		throw gateFail(file, "questions", "expected at least one question, found 0");
+	}
+	const questions: Record<string, GateQuestion> = {};
+	for (const id of ids) {
+		const q = rawQuestions[id];
+		if (typeof q !== "object" || q === null || Array.isArray(q)) {
+			throw gateFail(file, `questions.${id}`, "expected a question object");
+		}
+		questions[id] = validateGateQuestion(file, `questions.${id}`, q as Record<string, unknown>);
+	}
+	return { version, questions };
+}
+
+function validateGateQuestion(file: string, keyPrefix: string, raw: Record<string, unknown>): GateQuestion {
+	for (const key of Object.keys(raw)) {
+		if (!(key in ALLOWED_QUESTION_KEYS)) {
+			throw gateFail(file, `${keyPrefix}.${key}`, `unknown key; expected one of ${QUESTION_KEYS.join(", ")}`);
+		}
+	}
+	if (typeof raw.type !== "string" || !QUESTION_TYPES.includes(raw.type as GateQuestionType)) {
+		throw gateFail(
+			file,
+			`${keyPrefix}.type`,
+			`expected one of ${QUESTION_TYPES.map((t) => JSON.stringify(t)).join(", ")}, found ${JSON.stringify(raw.type)}`,
+		);
+	}
+	const type = raw.type as GateQuestionType;
+	const instructions = nonEmptyString(file, `${keyPrefix}.instructions`, raw.instructions);
+	const criteriaKey = `${keyPrefix}.criteria`;
+	let criteria: Record<string, string> | string[];
+	if (type === "score") {
+		if (!Array.isArray(raw.criteria) || raw.criteria.length === 0 || raw.criteria.some((c) => typeof c !== "string" || c.trim() === "")) {
+			throw gateFail(file, criteriaKey, `expected an ordered array of criterion strings, found ${describeShape(raw.criteria)}`);
+		}
+		criteria = raw.criteria as string[];
+	} else {
+		if (typeof raw.criteria !== "object" || raw.criteria === null || Array.isArray(raw.criteria)) {
+			throw gateFail(file, criteriaKey, `expected an option-to-description record, found ${describeShape(raw.criteria)}`);
+		}
+		const rec = raw.criteria as Record<string, unknown>;
+		const options = Object.keys(rec);
+		if (options.length === 0) {
+			throw gateFail(file, criteriaKey, "expected at least one criterion, found 0");
+		}
+		for (const opt of options) {
+			nonEmptyString(file, `${criteriaKey}.${opt}`, rec[opt]);
+		}
+		criteria = rec as Record<string, string>;
+	}
+	return { type, instructions, criteria };
+}
+
+function describeShape(v: unknown): string {
+	if (Array.isArray(v)) return `an array of length ${v.length}`;
+	if (typeof v === "object" && v !== null) return "an object";
+	return JSON.stringify(v);
+}

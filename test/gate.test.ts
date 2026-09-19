@@ -3,7 +3,7 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { CONFIG_DIR_NAME } from "@earendil-works/pi-coding-agent";
-import { loadGatePolicy } from "../extensions/gate.ts";
+import { loadGatePolicy, loadGateQuestions } from "../extensions/gate.ts";
 
 function repoGateFile(root: string, name: string, body: string): string {
 	const dir = path.join(root, CONFIG_DIR_NAME, "council", "gate");
@@ -88,6 +88,86 @@ test("an invalid mode value throws the FAIL line naming the key and what was fou
 	const file = repoPolicy(root, { policyVersion: "p", mode: "on", model: "m", endpoint: "https://x/" });
 	expect(() => loadGatePolicy(root)).toThrow(
 		`FAIL: ${file} has an invalid mode — expected one of "off", "advisory", "active", found "on" — set a valid value or remove the key to use the packaged default`,
+	);
+});
+
+test("packaged question set loads with a version and well-typed questions", () => {
+	const qs = loadGateQuestions("/nonexistent-repo-root-ev62");
+	expect(qs.version.length).toBeGreaterThan(0);
+	expect(Object.keys(qs.questions).length).toBeGreaterThan(0);
+	for (const q of Object.values(qs.questions)) {
+		expect(["choice", "noul", "score"]).toContain(q.type);
+	}
+});
+
+test("a repo-local questions.json shadows the packaged set whole-file", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	repoGateFile(root, "questions.json", JSON.stringify({
+		version: "test-questions-9",
+		questions: {
+			probe: { type: "noul", instructions: "Probe.", criteria: { yes: "Yes.", no: "No." } },
+		},
+	}));
+	const qs = loadGateQuestions(root);
+	expect(qs.version).toBe("test-questions-9");
+	expect(Object.keys(qs.questions)).toEqual(["probe"]);
+});
+
+test("a malformed repo questions.json throws a single FAIL line naming the file", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	const file = repoGateFile(root, "questions.json", "{");
+	let msg = "";
+	try {
+		loadGateQuestions(root);
+	} catch (e) {
+		msg = (e as Error).message;
+	}
+	expect(msg).not.toMatch(/\n/);
+	expect(msg).toMatch(
+		new RegExp(
+			`^FAIL: ${file.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")} has an invalid JSON — not parseable as JSON: .+ — set a valid value or remove the key to use the packaged default$`,
+		),
+	);
+});
+
+test("an empty questions record is an invalid value, not a vacuous pass", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	const file = repoGateFile(root, "questions.json", JSON.stringify({ version: "v", questions: {} }));
+	expect(() => loadGateQuestions(root)).toThrow(
+		`FAIL: ${file} has an invalid questions — expected at least one question, found 0 — set a valid value or remove the key to use the packaged default`,
+	);
+});
+
+test("a question with an empty criteria record throws the FAIL line", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	const file = repoGateFile(root, "questions.json", JSON.stringify({
+		version: "v",
+		questions: { probe: { type: "choice", instructions: "Probe.", criteria: {} } },
+	}));
+	expect(() => loadGateQuestions(root)).toThrow(
+		`FAIL: ${file} has an invalid questions.probe.criteria — expected at least one criterion, found 0 — set a valid value or remove the key to use the packaged default`,
+	);
+});
+
+test("an unknown question type throws the FAIL line naming the nested key", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	const file = repoGateFile(root, "questions.json", JSON.stringify({
+		version: "v",
+		questions: { probe: { type: "yesno", instructions: "Probe.", criteria: { yes: "y", no: "n" } } },
+	}));
+	expect(() => loadGateQuestions(root)).toThrow(
+		`FAIL: ${file} has an invalid questions.probe.type — expected one of "choice", "noul", "score", found "yesno" — set a valid value or remove the key to use the packaged default`,
+	);
+});
+
+test("a score question with object criteria throws the FAIL line", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	const file = repoGateFile(root, "questions.json", JSON.stringify({
+		version: "v",
+		questions: { probe: { type: "score", instructions: "Probe.", criteria: { a: "A" } } },
+	}));
+	expect(() => loadGateQuestions(root)).toThrow(
+		`FAIL: ${file} has an invalid questions.probe.criteria — expected an ordered array of criterion strings, found an object — set a valid value or remove the key to use the packaged default`,
 	);
 });
 
