@@ -550,3 +550,28 @@ test("frame guard: a budget below the empty frame's measure fails loud, never si
 	expect(msg).toMatch(/frame alone measures \d+ tokens, exceeding the gateStateBudgetTokens budget 1/);
 	expect(msg).not.toMatch(/\n/);
 });
+
+// ---------------------------------------------------------------------------
+// PO ruling Q2 wording pins — grep-falsifiable, read from shipped source.
+// ---------------------------------------------------------------------------
+
+const MODULE_SRC = fs.readFileSync(new URL("../extensions/gate-state.ts", import.meta.url), "utf8");
+const GATE_SRC = fs.readFileSync(new URL("../extensions/gate.ts", import.meta.url), "utf8");
+
+test("estimator wording: an estimate, not uniformly conservative, with direction and provenance", () => {
+	expect(MODULE_SRC).toContain("an estimate, not uniformly conservative");
+	expect(MODULE_SRC).toContain("o200k_base");
+	expect(MODULE_SRC).toContain("+45.8%"); // ASCII prose direction
+	expect(MODULE_SRC).toContain("−35.9%"); // dense code direction
+});
+
+test("grep-falsifiable: 'conservative' survives only inside the sanctioned phrase", () => {
+	expect(MODULE_SRC.replaceAll("not uniformly conservative", "").includes("conservative")).toBe(false);
+	expect(GATE_SRC.includes("conservative")).toBe(false);
+});
+
+test("no context-window fit claim and no code-side 32000 anywhere in shipped source", () => {
+	expect(MODULE_SRC).not.toMatch(/context window/);
+	expect(MODULE_SRC).not.toMatch(/32000/);
+	expect(GATE_SRC).not.toMatch(/32000/);
+});

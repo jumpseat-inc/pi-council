@@ -31,8 +31,8 @@ const SECTION_CAPS: Record<GateSection, number> = {
 	tests: 1000,
 };
 
-/** The pinned token estimator (PO ruling Q2): an ESTIMATE, not uniformly
- * conservative. It is ceil(utf8 byteLength / 3.5). Against the o200k_base
+/** The pinned token estimator (PO ruling Q2): it is an estimate, not uniformly conservative —
+ * ceil(utf8 byteLength / 3.5). Against the o200k_base
  * reference tokenizer it over-counts ASCII prose (reference probe +45.8%)
  * and under-counts dense code (−35.9%), rare CJK such as 龘 (−13.3%), and
  * emoji (−17.2%). "Measured token count" everywhere in this module means
