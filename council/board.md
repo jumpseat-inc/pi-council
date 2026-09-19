@@ -81,14 +81,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-62 — Packaged-and-overridable gate policy and question set
-
-## In Review
-
 ## Needs Human
 
 ## Done
 
+- EV-62 — Packaged-and-overridable gate policy and question set
 - EV-61 — Durable gate ledger with a recomputable decision record
 - EV-60 — Cost-per-card and cost-per-epic baseline from existing run manifests
 - FLLWUP-59 — Mechanically derive or police the shape witness's token allowlist
