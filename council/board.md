@@ -74,9 +74,10 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- EV-66 — Advisory gate at features-new intake
 
 ## In Progress
+
+- EV-66 — Advisory gate at features-new intake
 
 ## In Review
 
