@@ -84,15 +84,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-61 — Durable gate ledger with a recomputable decision record
-
-
-## In Review
-
 ## Needs Human
 
 ## Done
 
+- EV-61 — Durable gate ledger with a recomputable decision record
 - EV-60 — Cost-per-card and cost-per-epic baseline from existing run manifests
 - FLLWUP-59 — Mechanically derive or police the shape witness's token allowlist
 - FLLWUP-56 — Saturate the seat-dispatch provider-error arm onto a config-injected faux provider
