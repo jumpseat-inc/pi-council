@@ -76,7 +76,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## In Progress
 
 
-## In Review
+## In Progress
 
 - EV-69 — Deterministic routing to Verify mode
 ## Needs Human
