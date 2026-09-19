@@ -29,7 +29,7 @@
 // normalization below — so the intake↔routing state-hash join cannot drift
 // apart by construction.
 import { execFileSync } from "node:child_process";
-import { readManifests, type DispatchMode } from "./runs.ts";
+import { readManifests, type DispatchMode, type RunManifest } from "./runs.ts";
 import {
 	GATE_DECISION_MODES,
 	MODE_PANELS,
@@ -355,29 +355,29 @@ export function observedTouchedEntries(repoRoot: string, headSha: string): Parse
  * set-difference derivation would misclassify an escalated Verify card. */
 const GENERATOR_SEATS: readonly string[] = ["principal", "designer", "consolidator"];
 
-/** The mode authority for the merge check: a card-scoped subtree read over
- * the run's manifests. Locate the ROOT manifest(s) with `id === runnerJobId`
- * (escalation re-entry dispatches a fresh runner, so a card may have several
- * ROOTs — pass them all; a single id is the common case), union ONLY those
- * subtrees (a /council-eval stray dispatch or a sibling card's forest is
- * structurally excluded), and resolve: Deliberate iff the union contains ≥1
- * generator dispatch; otherwise the strongest ROOT mode stands (multiple
- * ROOTs fail toward the stronger mode). ROOT absent ⇒ throw with a named
- * basis — a fail-safe HALT/full for the merge check, never a reduced
- * fallback. Pure over readManifests; reads nothing else. */
-export function effectiveModeForCard(
-	repoRoot: string,
-	runId: string,
-	runnerJobIds: string | readonly string[],
-): DispatchMode {
-	const ids = typeof runnerJobIds === "string" ? [runnerJobIds] : [...runnerJobIds];
-	const manifests = readManifests(repoRoot, runId);
-	const roots = manifests.filter((m) => ids.includes(m.id));
-	if (roots.length === 0) {
-		throw new Error(
-			`gate-route: authority — no ROOT manifest for runnerJobId(s) ${ids.join(", ")} in run ${runId} — the merge check cannot read a recorded execution mode`,
-		);
-	}
+/** The outcome of the card-scoped mode read: a present mode, or the two
+ * absence reasons distinguished — `no-root` (the fail-safe EV-69 throw) vs
+ * `no-recorded-mode` (EV-70's merge-check HALT for an uninferrable mode).
+ * The EV-70 merge check needs the distinction WITHOUT string-matching an
+ * error message, so the pure core returns it. */
+export type CardModeRead =
+	| { present: true; mode: DispatchMode }
+	| { present: false; reason: "no-root" | "no-recorded-mode" };
+
+/** The pure core of the mode authority for the merge check: a card-scoped
+ * subtree read over the run's manifests (pass readManifests' output). Locate
+ * the ROOT manifest(s) with `id === runnerJobId` (escalation re-entry
+ * dispatches a fresh runner, so a card may have several ROOTs — pass them
+ * all; a single id is the common case), union ONLY those subtrees (a
+ * /council-eval stray dispatch or a sibling card's forest is structurally
+ * excluded), and resolve: Deliberate iff the union contains ≥1 generator
+ * dispatch; otherwise the strongest ROOT mode stands (multiple ROOTs fail
+ * toward the stronger mode). Absent ROOT or absent mode ⇒ the named absence
+ * reason — a fail-safe for the merge check, never a reduced fallback. Pure
+ * over the manifest list; reads nothing else. */
+export function readCardMode(manifests: readonly RunManifest[], runnerJobIds: readonly string[]): CardModeRead {
+	const roots = manifests.filter((m) => runnerJobIds.includes(m.id));
+	if (roots.length === 0) return { present: false, reason: "no-root" };
 	const inSubtree = new Set<string>();
 	const collect = (id: string): void => {
 		if (inSubtree.has(id)) return;
@@ -386,15 +386,32 @@ export function effectiveModeForCard(
 	};
 	for (const root of roots) collect(root.id);
 	if (manifests.some((m) => inSubtree.has(m.id) && GENERATOR_SEATS.includes(m.seat))) {
-		return GATE_DECISION_MODES[0];
+		return { present: true, mode: GATE_DECISION_MODES[0] };
 	}
 	const rootModes = roots
 		.map((r) => r.mode)
 		.filter((m): m is DispatchMode => m !== undefined && (GATE_DECISION_MODES as readonly string[]).includes(m));
-	if (rootModes.length === 0) {
+	if (rootModes.length === 0) return { present: false, reason: "no-recorded-mode" };
+	return { present: true, mode: rootModes.reduce((a, b) => strongest(a as GateDecisionMode, b as GateDecisionMode)) };
+}
+
+/** The mode authority for the merge check: the disk-path wrapper over
+ * readCardMode. ROOT absent ⇒ throw with a named basis — a fail-safe
+ * HALT/full for the merge check, never a reduced fallback. */
+export function effectiveModeForCard(
+	repoRoot: string,
+	runId: string,
+	runnerJobIds: string | readonly string[],
+): DispatchMode {
+	const ids = typeof runnerJobIds === "string" ? [runnerJobIds] : [...runnerJobIds];
+	const read = readCardMode(readManifests(repoRoot, runId), ids);
+	if (read.present) return read.mode;
+	if (read.reason === "no-root") {
 		throw new Error(
-			`gate-route: authority — no recorded execution mode on any ROOT for runnerJobId(s) ${ids.join(", ")} in run ${runId}`,
+			`gate-route: authority — no ROOT manifest for runnerJobId(s) ${ids.join(", ")} in run ${runId} — the merge check cannot read a recorded execution mode`,
 		);
 	}
-	return rootModes.reduce((a, b) => strongest(a as GateDecisionMode, b as GateDecisionMode));
+	throw new Error(
+		`gate-route: authority — no recorded execution mode on any ROOT for runnerJobId(s) ${ids.join(", ")} in run ${runId}`,
+	);
 }
