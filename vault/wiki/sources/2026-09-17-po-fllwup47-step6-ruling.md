@@ -6,7 +6,7 @@ aliases: ["2026-09-17-po-fllwup47-step6-ruling", "FLLWUP-47 step-6 ruling", "po-
 tags: [pi-council/ruling, pi-council/epic9]
 sources: ["[[2026-09-17-po-fllwup47-step6-ruling]]"]
 created: 2026-09-18
-updated: 2026-09-18
+updated: 2026-09-20
 ---
 
 # FLLWUP-47 — product-owner step-6 ruling (2026-09-17)
@@ -16,7 +16,7 @@ skeptic objections (O1–O8, all closed), ten convergence-settled items, six
 open-judgment items, zero blocking objections. Source:
 [[2026-09-17-po-fllwup47-step6-ruling]]. The deliverable it ruled on is the
 [[red-base evidence]] convention, shipped via FLLWUP-47 (PR #64, merged at
-`a1d805a`).
+`216ea34`; `a1d805a` was the branch head used for `--match-head-commit`).
 
 ## R1–R6 (the six open-judgment items)
 

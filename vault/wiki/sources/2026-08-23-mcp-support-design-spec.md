@@ -6,10 +6,10 @@ aliases: []
 tags: [pi-council/source]
 sources: []
 created: 2026-08-23
-updated: 2026-08-23
+updated: 2026-09-20
 ---
 
-> ⚠️ Derived from `docs/superpowers/specs/2026-06-25-mcp-support-design.md` @ `9457278` (captured 2026-06-25).
+> ⚠️ Derived from `docs/superpowers/specs/2026-08-23-mcp-support-design.md` @ `9457278` (captured 2026-08-23).
 > Status: approved design, pending implementation plan (for v0.2.0).
 
 The MCP support design — it defines how the Council's seats consume tools from

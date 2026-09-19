@@ -2,11 +2,11 @@
 title: Lock-Drift Tripwire
 type: concept
 summary: Local gate evidence is only as good as the tree it ran on — council/check-pi-drift.sh compares the installed pi-coding-agent version against bun.lock and fails with both versions and the remedy BEFORE preflight's frozen-lockfile self-heal can silently fix it.
-aliases: [lock drift, check-pi-drift, drift tripwire, installed vs locked]
+aliases: [lock-drift tripwire, lock drift, check-pi-drift, drift tripwire, installed vs locked]
 tags: [pi-council/concept, pi-council/process]
 sources: ["[[2026-09-06-epic6-close-run-ledger]]"]
 created: 2026-09-06
-updated: 2026-09-06
+updated: 2026-09-20
 ---
 
 # Lock-Drift Tripwire

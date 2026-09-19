@@ -2,11 +2,11 @@
 title: 2026-08-24 ask-user-question dependency
 type: source
 summary: The addition of the rpiv-ask-user-question extension as a second project-local dependency — superpowers.ts generalized into a COUNCIL_DEPENDENCIES list, /council-init installs both, and preflight asserts both.
-aliases: [ask-user-question addition, rpiv-ask-user-question]
+aliases: [ask-user-question addition]
 tags: [pi-council/source]
 sources: []
 created: 2026-08-24
-updated: 2026-08-24
+updated: 2026-09-20
 ---
 
 > ⚠️ Derived from the uncommitted working-tree change over `extensions/dependencies.ts`

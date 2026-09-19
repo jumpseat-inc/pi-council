@@ -2,11 +2,11 @@
 title: Run Transcripts
 type: concept
 summary: The on-disk substrate that makes every council run navigable — per-job manifests and seat session JSONL under .pi/council/runs/, a job forest built from manifests, and the /council-tree + ctrl+shift+t live surface that reads it (inline below-editor as of EPIC-2).
-aliases: [runs, run manifests, transcript viewer, council-tree, session jsonl]
+aliases: [run transcripts, runs, run manifests, transcript viewer, session jsonl]
 tags: [pi-council/concept]
 sources: ["[[2026-08-25-smoke-test-bugfixes]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]"]
 created: 2026-08-25
-updated: 2026-09-15
+updated: 2026-09-20
 ---
 
 # Run Transcripts

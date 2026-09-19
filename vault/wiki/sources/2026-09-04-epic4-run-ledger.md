@@ -6,13 +6,13 @@ aliases: [epic4 ledger, model eval harness run record]
 tags: [pi-council/epic4, pi-council/run-ledger]
 sources: []
 created: 2026-09-04
-updated: 2026-09-04
+updated: 2026-09-20
 ---
 
 # EPIC-4 Run Ledger (2026-09-03/04)
 
-Raw record of the `/features-deliver EPIC-4` run that shipped the [[model
-eval harness]]. Six PRs, each merged on the [[deterministic merge check]]
+Raw record of the `/features-deliver EPIC-4` run that shipped the
+[[model-eval-harness]]. Six PRs, each merged on the [[deterministic merge check]]
 with `--match-head-commit` and CI re-verified green on the merged SHA:
 
 - EV-16 (PR #11, `d7f97d8`) — the design spec; R-1/R-2 rulings; E1/E2/E3

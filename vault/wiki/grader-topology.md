@@ -2,11 +2,11 @@
 title: Grader Topology
 type: concept
 summary: The grader is a harness-dispatched sibling of the cell (not a descendant), linked by explicit cellId — cell-invariance is honored by topology, so no cost-exclusion rule exists anywhere.
-aliases: [grader placement, sibling grader, option A topology]
+aliases: [grader topology, grader placement, sibling grader, option A topology]
 tags: [pi-council/epic4]
 sources: ["[[2026-09-03-po-ev16-grader-topology]]"]
 created: 2026-09-04
-updated: 2026-09-04
+updated: 2026-09-20
 ---
 
 # Grader Topology

@@ -2,11 +2,11 @@
 title: Override Resolution
 type: concept
 summary: How repo-local resources shadow packaged defaults — seats at `<repo>/$CONFIG_DIR_NAME/agents/` and procedures at `…/council/procedures/` by filename, plus mergeable model-floors, committable mcp.json, and the field-level `.council.json` seat override. The tuning mechanisms that make forking unnecessary.
-aliases: [overrides, repo-override]
+aliases: [override resolution, overrides, repo-override]
 tags: [pi-council/concept]
 sources: ["[[2026-08-23-council-json-override]]", "[[2026-08-24-bugfix-seat-prose]]"]
 created: 2026-08-23
-updated: 2026-09-04
+updated: 2026-09-20
 ---
 
 # Override Resolution

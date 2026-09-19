@@ -2,11 +2,11 @@
 title: Council Loop
 type: concept
 summary: The facilitator-run deliberation → implement → verify → judge loop over a board card, bounded by round caps, token ceilings, gate discipline, and a human merge gate.
-aliases: [council run, deliberation loop]
+aliases: [council loop, council run, deliberation loop]
 tags: [pi-council/concept]
 sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-04-epic5-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-11
+updated: 2026-09-20
 ---
 
 > ⚠️ Derived from `council/procedures/council.md` + `council-runner.md` (captured 2026-08-23). Verify against the procedure files.
@@ -70,6 +70,24 @@ disputes; ruling seats decide judgment; the human decides the rest.
 - **The card's goal can be the defect** — the EV-29 goal named a unit the
   provider does not produce; [[steward]] amended it. A goal found wrong is not
   a fold-in; it routes to the portfolio seat.
+
+## Autonomous-run refinements (EPIC-9 residual runs)
+
+- **Step 12's record push is privileged.** The direct-to-`main` record commit
+  is not re-homed by the authority map; an autonomous `/features-deliver` run
+  pushes it only under an explicit, run-scoped, human-granted Phase-1
+  authorization. Without one, the push must not happen — executing it anyway
+  is a **HALT surfaced to the human**, not a bypass (FLLWUP-60, `aa1923fe`).
+  See [[record-push-discipline]].
+- **A diverged `main` is repaired by the union-merge reconcile**, never a
+  force-push: union-keep both record sides, `validate.py` clean, sweep for
+  conflict markers (FLLWUP-61). See [[union-merge-reconcile]].
+- **The autonomous merge step names the run-scoped `--admin` bypass** where a
+  branch-protection rule would otherwise block the facilitator's non-seat
+  merge (FLLWUP-42). See [[deterministic-merge-check]].
+- **The step-13 follow-up gate is pre-write**: the ruling seat confirms, edits,
+  or drops each draft before the card is written (run-2 inversion corrected;
+  `FLLWUP-69`).
 
 ## Guards
 

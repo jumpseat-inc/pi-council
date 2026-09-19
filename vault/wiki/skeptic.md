@@ -6,12 +6,12 @@ aliases: [skeptic seat]
 tags: [pi-council/seat]
 sources: ["[[2026-08-23-pi-council-design-spec]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]"]
 created: 2026-08-23
-updated: 2026-09-18
+updated: 2026-09-20
 ---
 
 > ⚠️ Derived from `council/agents/skeptic.md` (captured 2026-08-23). Verify against the seat file.
 
-**Model:** `openrouter/deepseek/deepseek-v4-flash:high`.
+**Model:** `openrouter/deepseek/deepseek-v4-flash-0731:high`.
 **Tools:** Read, Grep, Glob, Bash (no Write — must not build, only attack).
 **MCP tools:** `[context7, tavily]`.
 **Superpowers pointers:** systematic-debugging, writing-plans,
@@ -45,8 +45,8 @@ In `/features-new`'s [[three-wave-decomposition]], the wave-2 skeptic attacks
 completeness **only in falsifiable form** (stub-satisfiability, unfalsifiable
 output formats, Ready-vs-Backlog bar) — observational missing-child arguments
 belong to [[principal]]/[[designer]] in their native formats. The EPIC-3
-smoke run verified the scoping held under parallel dispatch: 4 objections,
-all falsifiable, zero observational (see [[2026-09-04-epic3-run-ledger]]).
+smoke run verified the scoping held under parallel dispatch — every objection
+falsifiable, none observational (see [[2026-09-04-epic3-run-ledger]]).
 The scoping keeps the skeptic's attack runnable without stretching its
 charter into the other seats' observational territory.
 

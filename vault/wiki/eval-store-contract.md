@@ -2,11 +2,11 @@
 title: Eval Store Contract
 type: concept
 summary: The on-disk eval results contract — ResultRecord and VerdictRecord keyed on full tuples (cellId, repeat, scoredUnder/gradedBy, fixtureVersion, rubricVersion), append-only, first-write-wins per tuple, scoredUnder "self" for gate-only, divergent payload throws.
-aliases: [eval results store, resultrecord, verdictrecord, eval store]
+aliases: [eval store contract, eval results store, resultrecord, verdictrecord, eval store]
 tags: [pi-council/epic4]
 sources: ["[[2026-09-03-po-ev19-resultrecord-key]]", "[[2026-09-03-po-ev16-grader-topology]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]"]
 created: 2026-09-04
-updated: 2026-09-11
+updated: 2026-09-20
 ---
 
 # Eval Store Contract

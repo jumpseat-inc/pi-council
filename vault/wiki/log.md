@@ -1,5 +1,72 @@
 # Wiki Log
 
+## [2026-09-20] ingest | Backfill — 16 un-ingested raw sources get source pages
+
+Created the 16 source pages the lint flagged as missing (raw files present,
+no `sources/` page): [[2026-design-ev10-round2]], [[2026-09-03-po-ev12-j1-ruling]],
+[[2026-09-04-po-epic5-ruling]], [[2026-09-04-po-epic6-ruling]],
+[[2026-09-05-design-ev27-round2]], [[2026-09-15-design-ev36-round1]],
+[[2026-09-15-po-epic8-ruling]], [[2026-09-16-design-ev42-partial-legend]],
+[[2026-09-16-po-epic9-retry-ruling]], [[2026-09-16-po-ev37-merge-gate-defect]],
+[[2026-09-16-po-ev39-step6-ruling]], [[2026-09-17-po-ev40-ruling]],
+[[2026-09-17-po-ev42-step6-ruling]], [[2026-09-17-po-fllwup43-step6-rulings]],
+[[2026-09-19-po-epic11-decomposition-ruling]],
+[[2026-09-20-po-epic12-decomposition-ruling]]. Each is a faithful summary of
+its raw and cross-links the concept pages it affects; [[index]] Sources updated.
+No raw files moved (vault/raw stays immutable).
+
+Also this session, outside the wiki: deduplicated `council/board.md` to the
+canonical seven columns (it carried three `## Done` and two `## In Review`
+headers; `validate.py` clean, 151 cards) and added `mcp` to AGENTS.md
+convention #2's seat-schema field list.
+
+- **Created:** 16 source pages
+- **Updated:** index, log
+- **Contradictions flagged:** 0
+
+## [2026-09-20] lint | Link repair + repo-state drift sweep + authorized re-ingest
+
+Ran the Lint operation at HEAD `675c1bf`, then applied the human-authorized
+corrections.
+
+**Mechanical link repair:** added the missing spaced-form aliases that ~40
+`[[natural title]]` links required (24 concept pages) — clearing the 5 strict
+orphans ([[cell-aggregation]], [[env-split-contract]], [[grader-topology]],
+[[lock-drift-tripwire]], [[verification-subject-pinning]]); de-ambiguated 3
+colliding aliases (`council-tree`, `promotion cadence`,
+`rpiv-ask-user-question`); repaired a line-wrapped `[[model eval harness]]`
+link. Result: **0 orphans, 0 ambiguous aliases, 0 unresolved links** except the
+one known un-ingested raw below.
+
+**Factual corrections:** [[2026-09-17-po-fllwup47-step6-ruling]] merge SHA
+`a1d805a` → `216ea34` (`a1d805a` was the branch head); [[pi-council-overview]]
+install URL `tistaharahap` → `jumpseat-inc` and `COUNCIL_SOURCE` →
+`COUNCIL_SEAT`; [[2026-08-23-mcp-support-design-spec]] provenance path/date;
+[[main-repo-immutability]] FLLWUP-24 → FLLWUP-13 card citation;
+[[council-config]]'s FLLWUP-10 seam marked closed; [[principal]]'s output-floor
+sentence; [[test-suite-budget]] counts 935/81 → 947/82 (re-measured);
+[[2026-09-20-po-fllwup58-gates-backstop]] superseded-in-part note;
+[[smoke-test]] SMOKE_PHASE 5-or-6; [[skeptic]]'s unverifiable "4 objections"
+count; overview commit count.
+
+**Authorized re-ingest:** synced 7 stale seat model pins; recorded v0.20.0
+(untagged) and EPIC-10..13 with 5 new pages ([[council-update]],
+[[council-setup]], [[version-on-first-run]], [[metered-deliberation-routing]],
+[[followup-merge-and-auto-ingest]]); refreshed [[2026-08-23-agents]]
+(conventions #5/#6) and [[2026-08-23-readme]] (install URL, `/council-update`,
+theme, git table), the 9 seat entity pages, and [[council-loop]] /
+[[engineering-board]] against current files; re-pinned 16 `.repo-docs.tsv`
+entries to `675c1bf`.
+
+⚠️ **Open gaps (deferred):** 16 raw sources still lack source pages;
+`[[2026-09-04-po-epic6-ruling]]` remains a dangling link to one of them;
+`council/board.md` carries duplicate `## Done`/`## In Review` headers
+(`validate.py` still clean).
+
+- **Created:** council-update, council-setup, version-on-first-run, metered-deliberation-routing, followup-merge-and-auto-ingest
+- **Updated:** 24 concept pages (aliases), 7 seat pages (models), AGENTS/README + 2 source pages (factual), council-config, principal, test-suite-budget, smoke-test, council-loop, engineering-board, pi-council-overview, index, .repo-docs.tsv
+- **Contradictions flagged:** 6 → resolved
+
 ## [2026-09-18] ingest | EPIC-9 residual run 2 — ledger, rulings, and the stale-claim correction pass
 
 Ingested the EPIC-9 residual run 2 (`FLLWUP-50`–`60`) and its ruling docs.

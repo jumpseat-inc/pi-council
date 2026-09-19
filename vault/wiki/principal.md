@@ -6,13 +6,12 @@ aliases: [principal seat]
 tags: [pi-council/seat]
 sources: []
 created: 2026-08-23
-updated: 2026-09-04
+updated: 2026-09-20
 ---
 
 > ⚠️ Derived from `council/agents/principal.md` (captured 2026-08-23). Verify against the seat file.
 
-**Model:** `openrouter/deepseek/deepseek-v4-pro-0813:high` — the same model the
-output floor exists for.
+**Model:** `openrouter/deepseek/deepseek-v4.1-flash:high`.
 **Tools:** Read, Grep, Glob (read-only across the whole codebase).
 **MCP:** `[context7, tavily]`.
 **Superpowers pointers:** writing-plans.
@@ -46,7 +45,7 @@ a contract the other side never gets to look at. It is:
 ## Related
 
 - [[seats]], [[council-loop]]
-- [[model-output-floors]] — its model is the floor example
+- [[model-output-floors]] — the min-token floor data (its former model, `deepseek/deepseek-v4-pro-0813`, is still the sole floor entry)
 - [[owner]], [[designer]]
 - [[council-config]] — its model is a config-overridable default
 - [[2026-09-04-epic3-run-ledger]] — the wave-1 authorship ruling

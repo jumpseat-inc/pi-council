@@ -2,11 +2,11 @@
 title: Two-Bit Focus Machine
 type: concept
 summary: The modal key-handling pattern from EV-27 — a level carries two bits (searchActive × inputFocused), Esc routes on inputFocused (clear-and-stay in the input, level-ascend elsewhere), and an unstated third key (Down) transitions focus out to make the Esc-elsewhere branch reachable.
-aliases: [focus machine, two-bit state machine, search focus]
+aliases: [two-bit focus machine, focus machine, two-bit state machine, search focus]
 tags: [pi-council/concept, pi-council/surface]
 sources: ["[[2026-09-05-epic6-run-ledger]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-09-06-epic6-close-run-ledger]]"]
 created: 2026-09-05
-updated: 2026-09-06
+updated: 2026-09-20
 ---
 
 # Two-Bit Focus Machine

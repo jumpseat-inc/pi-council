@@ -6,7 +6,7 @@ aliases: [main repo immutability, branch-state immutability, worktree-only rule,
 tags: [pi-council/concept, pi-council/process]
 sources: ["[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]"]
 created: 2026-09-06
-updated: 2026-09-18
+updated: 2026-09-20
 ---
 
 # Main-Repo Immutability
@@ -52,7 +52,7 @@ differently:
 
 When board/card faces revert anyway (a new violation class, a crash): the
 record commits are intact objects — restore main from the reflog, verify
-`council/validate.py` clean, then continue. FLLWUP-24's card record
+`council/validate.py` clean, then continue. FLLWUP-13's card record
 documents the drill; it was executed twice this run and both times lost
 nothing but time.
 

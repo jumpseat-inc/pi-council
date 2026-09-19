@@ -44,6 +44,12 @@ The step-level number means permanently what it says, and the goal's own wording
 value thin above its own floor makes the tripwire red-prone and therefore
 deletable.
 
+> ⚠️ **Superseded in part** ([[2026-09-20-po-fllwup58-step13-confirmation]]):
+> the census was later re-derived — 19 compact-form ceiling sites make the true
+> default-suite floor **52 min**, not 43.1, so the honest ratio for `60` is
+> **1.15×**, not the 1.42× tabulated above. This page records the ruling as
+> issued.
+
 ## Consequents
 
 `install`/`tsc` wedge coverage is a **temporary** residual (a per-step bound on

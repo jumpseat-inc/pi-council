@@ -55,8 +55,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-54 — Documentation of the interview, the tier map, and seat-emphasis notes
 - EV-55 — Per-card-class optional-seat seating with the frozen roster
 - EV-56 — End-to-end falsifier for headless /council-init non-clobber
-
-
 - EV-59 — End-to-end falsifier for the first-run identity line
 - EPIC-12 — pi-council version and git hash on the first pi run
 - EPIC-13 — Metered deliberation routing — a System One gate decides Deliberate, Verify, or Direct per card
@@ -71,6 +69,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-70 — Direct mode and the mode-aware merge check
 - EV-71 — Decisions-aware gate spend accounting
 - EV-72 — Pre-registered threshold tuning from the ledger
+
 ## Ready
 
 - EV-44 — Merge near-duplicate follow-up candidates before a card is drafted
@@ -78,24 +77,12 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-48 — Packaged seat-tier map with repo-local merge override
 - EV-65 — One-call decisions transport with fail-closed posture
 - EV-68 — Card execution mode recorded on the run manifest
-
-
 - EV-57 — Resolve the running pi-council identity from the package root
 - EV-58 — Show the pi-council version and hash on the first pi run
+
 ## Deliberating
 
 ## In Progress
-
-## In Review
-
-
-## Done
-
-- FLLWUP-59 — Mechanically derive or police the shape witness's token allowlist
-
-- FLLWUP-56 — Saturate the seat-dispatch provider-error arm onto a config-injected faux provider
-
-- FLLWUP-54 — Wiki page for the red-base evidence convention
 
 ## In Review
 
@@ -103,36 +90,28 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Done
 
+- FLLWUP-59 — Mechanically derive or police the shape witness's token allowlist
+- FLLWUP-56 — Saturate the seat-dispatch provider-error arm onto a config-injected faux provider
+- FLLWUP-54 — Wiki page for the red-base evidence convention
 - FLLWUP-58 — Runaway timeout-minutes backstop on the gates CI job
-
 - FLLWUP-55 — Collapse the smoke driver's private pty screen model onto the shared kit
 - FLLWUP-50 — Supported refresh path for packaged council tooling in initialized consumer repos
 - FLLWUP-53 — De-repo-specific council.md step 8's gate-file reference and widen the prose guard
-
 - FLLWUP-51 — Loud gate for a goal wrapped onto a second line
-
 - FLLWUP-57 — Suite determinism under a catalogue-valid ambient COUNCIL_EVAL_MODEL
-
 - FLLWUP-52 — Evolve EV-39 R4 — retrying row label denotation
-
 - FLLWUP-60 — Non-admin record-push path for autonomous runs
 - FLLWUP-48 — Suite-cost budget for the live pty and -p falsifier arms
-
 - FLLWUP-49 — Promote the offline faux-provider harness into a shared smoke helper
-
 - FLLWUP-47 — Documented red-base convention for falsifier evidence
-
 - FLLWUP-45 — Navigator attempt-awareness for retried dispatches
-
 - FLLWUP-44 — Name the provider failure before the backoff countdown
 - FLLWUP-41 — Reconcile council.md step 12's non-fast-forward wording with the union-merge repair
 - FLLWUP-42 — Make the deterministic merge check independent of a human-granted admin bypass
 - FLLWUP-43 — Make the goal field a lossless oracle for the judge
 - EPIC-9 — Provider-error retry with exponential backoff under a .council.json policy
 - EV-41 — End-to-end falsifier for provider-error retry on both paths
-
 - EV-42 — Per-attempt identity for a retried dispatch in the run substrate
-
 - EV-39 — Hub-level retry of a seat dispatch with exponential backoff
 - EV-40 — Automatic continuation of a parent turn that ends in a provider error
 - EV-43 — Reachability falsifier for parent-turn continuation
@@ -140,47 +119,31 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-37 — Retry classification predicate for settled job reports
 - EV-36 — Transcript legibility at the one-row progress floor
 - EV-35 — Transcript interaction model — visible focus, honest keymap, visible toggles
-
 - EV-34 — Compose each tool call and its result into one rendered unit
-
 - EV-33 — Transcript parser preserves tool-call identity, error state, and one shared argument summary
 - EPIC-8 — Elegant tool-call and transcript rendering in the /council-tree inline progress view
 - EPIC-7 — Token and cost usage accounting for autonomous council invocations
 - EV-29 — Provider-reported actual cost and per-component divergence from the estimate
 - EV-32 — Usage reported at every autonomous entry point
-
 - EV-31 — Durable usage store outside the pruned run directory, with session provenance
-
 - EV-30 — Invocation-scoped spend record from the invoking session plus its job subtree
-
 - EV-28 — Full usage tuple and cost provenance in the hub usage record
 - FLLWUP-25 — Wiki source page matches AGENTS.md hard-conventions count
 - FLLWUP-40 — Isolate COUNCIL_EVAL_MODEL from the eval-runner dispatch-primitive test
-
 - FLLWUP-24 — Local gates refuse to run when installed deps drift from bun.lock
-
 - FLLWUP-23 — Named failure for pi-council installs missing node_modules
 - FLLWUP-22 — Theme token drift vs pi 0.85.x grounds the devDependency upper bound
 - FLLWUP-21 — Restore pi-council extension load on stock pi 0.85.0 and pin the devDependency
-
 - FLLWUP-14 — Kitty-protocol terminal smoke for the model search input
 - EPIC-6 — /council-models model-name search filter in the model selection modal
-
 - FLLWUP-15 — Search-mode modal frame fits the terminal at full window height
 - FLLWUP-18 — Judge dispatch inputs pin the verification subject and loop frame
 - FLLWUP-19 — Skeptic dispatch inputs pin the verification subject and loop frame
 - FLLWUP-20 — Judge seat guidance names the runner-pinned verification subject
-
-## Done
-
 - FLLWUP-17 — Main-repo immutability constraint in the working seats' own guidance
-
 - FLLWUP-16 — Seat dispatch inputs forbid main-repo branch-state mutation
-
 - FLLWUP-13 — No-match state names how to leave search mode
-
 - BUG-1 — Backspace deletion in the model search input and a first-use `/` filter hint
-
 - FLLWUP-11 — Smoke phase selector for the /council-models Phase 5 falsifier
 - FLLWUP-10 — Writer thinking preservation matches loader resolution for object-form model overrides
 - EV-27 — `/`-triggered search input in the model selection modal
@@ -200,13 +163,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-16 — Design the council model eval system
 - EV-10 — features-new decomposition dispatches the council
 - EV-9 — Open the selected subagent's progress from the inline tree
-
 - EV-8 — Bidirectional arrow-key focus navigation between the input bar and the inline tree
-
 - EV-7 — Render the job tree inline beneath the input bar with per-row last activity
-
 - EV-4 — Theme compliance and live repaint of council surfaces
-
 - EV-1 — Port the oh-my-pi palette to a shipped pi theme
 - EV-6 — Add the gates GitHub Actions workflow
 - EV-5 — Document the council theme system

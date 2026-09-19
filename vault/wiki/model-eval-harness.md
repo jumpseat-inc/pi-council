@@ -2,11 +2,11 @@
 title: Model Eval Harness
 type: concept
 summary: The EPIC-4 subsystem — /council-eval runs a task×model×repeat matrix over shipped fixtures in isolated scratch trees and writes durable records; /council-leaderboard reads them back as per-command and per-seat rankings; evidence replaces guesswork for seat model pins.
-aliases: [eval harness, council-eval, council-leaderboard]
+aliases: [model eval harness, council leaderboard, eval harness, council-eval, council-leaderboard]
 tags: [pi-council/epic4]
 sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-03-po-ev21-ruling]]"]
 created: 2026-09-04
-updated: 2026-09-04
+updated: 2026-09-20
 ---
 
 # Model Eval Harness

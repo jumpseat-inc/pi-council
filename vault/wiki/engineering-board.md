@@ -2,11 +2,11 @@
 title: Engineering Board
 type: concept
 summary: The durable, locally-stored kanban state — council/board.md plus one card file per id, validated by validate.py, and the discipline that everything the Council does starts and records there.
-aliases: [board, card, kanban]
+aliases: [engineering board, board, card, kanban]
 tags: [pi-council/concept]
 sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-18
+updated: 2026-09-20
 ---
 
 > ⚠️ Derived from `council/procedures/board-create-card.md`, `features-new.md` and `council/scaffold/council/board.md` @ `8913c6b`/`8f1882b` (captured 2026-08-23). Verify against the procedure files.
@@ -15,7 +15,7 @@ The board is the source of truth for what the Council is building. It is a git-t
 set of markdown files under `council/`:
 
 - **`council/board.md`** — a kanban-board listing cards in state columns.
-- **`council/cards/<id>.md`** — one file per card, frontmatter + `Intent` section.
+- **`council/cards/<id>.md`** — one file per card, frontmatter + `Intent` and `Acceptance` sections.
 - **`council/cards/_template.md`** — the shape template.
 - **`council/validate.py`** — a validator run after every board/card write;
   clean output is a hard requirement before proceeding.

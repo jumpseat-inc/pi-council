@@ -54,7 +54,7 @@ docs/superpowers/    design spec + implementation plan (read before big changes)
    that `buildSystemPrompt` appends from the consuming repo's wiki and
    source. Do not reintroduce a hardcoded product domain into seat bodies.
 2. **Seat schema is fixed**: frontmatter fields are `name`, `description`,
-   `model` (optional `:thinking` suffix), `tools`, `spawns`. There is no
+   `model` (optional `:thinking` suffix), `tools`, `spawns`, `mcp`. There is no
    `autoloadSkills` — grounding comes from the `<repository_grounding>` block
    that `buildSystemPrompt` appends. Do not reintroduce a skill mechanism.
 3. **No hardcoded `.pi`.** Repo-local paths must use `CONFIG_DIR_NAME` from

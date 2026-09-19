@@ -2,11 +2,11 @@
 title: Procedure Commands
 type: concept
 summary: The scanned, override-aware slash-command set — seven packaged procedures plus engine commands; EPIC-4 added the first non-procedure product commands (/council-eval, /council-leaderboard).
-aliases: [procedures, slash commands, commands]
+aliases: [procedure commands, procedures, slash commands, commands]
 tags: [pi-council/concept]
 sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-04-epic4-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-04
+updated: 2026-09-20
 ---
 
 # Procedure Commands

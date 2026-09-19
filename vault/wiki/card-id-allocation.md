@@ -2,11 +2,11 @@
 title: Card ID Allocation
 type: concept
 summary: Board ids (EV-/FLLWUP-/BUG-/EPIC-) are allocated at fetched HEAD, never from a stale clone's memory — the EPIC-3/EPIC-4 collision lesson, with union-merge reconciliation and validate.py as the net.
-aliases: [id allocation, id collision, numbering discipline]
+aliases: [card id allocation, id allocation, id collision, numbering discipline]
 tags: [pi-council/concept, pi-council/board]
 sources: ["[[2026-09-04-epic3-run-ledger]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]"]
 created: 2026-09-04
-updated: 2026-09-06
+updated: 2026-09-20
 ---
 
 # Card ID Allocation

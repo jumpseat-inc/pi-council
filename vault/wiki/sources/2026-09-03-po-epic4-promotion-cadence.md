@@ -2,11 +2,11 @@
 title: PO EPIC-4 Promotion Cadence Ruling
 type: source
 summary: Binding P1–P5 ruling — the EPIC-4 child cards promote Backlog→Ready by an automated chain (fixtures → rubric → matrix → leaderboard), applied by the orchestrator without re-asking as each predecessor's merge lands.
-aliases: [promotion cadence, P1-P5 ruling]
+aliases: [P1-P5 ruling]
 tags: [pi-council/epic4, ruling]
 sources: []
 created: 2026-09-04
-updated: 2026-09-04
+updated: 2026-09-20
 ---
 
 # PO EPIC-4 Promotion Cadence Ruling (2026-09-03)

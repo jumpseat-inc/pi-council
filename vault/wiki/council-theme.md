@@ -2,11 +2,11 @@
 title: Council Theme
 type: concept
 summary: The oh-my-pi-palette theme subsystem for pi-council — a pinned dark/light theme pair, a repo-level .council.json recolor surface, session-start activation with a strict name namespace, and a token-only drawing rule for all council-drawn UI.
-aliases: [theme, pi-council theme, council theme system, theme-section]
+aliases: [council theme, theme, pi-council theme, council theme system, theme-section]
 tags: [pi-council/concept]
 sources: ["[[2026-08-25-design-ev1-round2]]", "[[2026-08-25-po-ev1-escalation]]", "[[2026-08-25-design-ev3]]", "[[2026-08-25-design-ev3-round2]]", "[[2026-08-25-design-ev4-round1]]", "[[2026-08-26-smoke-v0.12.0]]", "[[2026-08-26-theme-module-resolution-fix]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-18-po-fllwup56-step13-ruling]]"]
 created: 2026-08-25
-updated: 2026-09-18
+updated: 2026-09-20
 ---
 
 # Council Theme

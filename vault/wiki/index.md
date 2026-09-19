@@ -7,10 +7,11 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 
 - [[pi-council-overview]] — Pi-council as an installable package: the Council
   + wiki workflow, two engine halves, the loop, and the release version arc
-  (through v0.19.0: EPIC-6 closed, EPIC-7's honest usage accounting landed on
-  main, EPIC-8's elegant transcript rendering closed Done, EPIC-9's
-  provider-error retry closed Done and was released, and EPIC-9's nine promoted
-  standing-machinery/residual cards were delivered in a follow-up run).
+  (through v0.20.0, untagged; latest release v0.19.0. EPIC-6 closed, EPIC-7's
+  honest usage accounting landed on main, EPIC-8's elegant transcript rendering
+  closed Done, EPIC-9's provider-error retry closed Done and was released. The
+  EPIC-9 residual runs delivered FLLWUP-40–49, then FLLWUP-50–60. EPIC-10..13
+  are decomposed and Backlog).
 
 ## Entities
 
@@ -86,6 +87,11 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[test-suite-budget]] — the measured default-`bun test` wall-clock envelope (≈101s): per-file live-arm table, ceiling-vs-budget distinction, 180s drift threshold (not a budget), the FLLWUP-58 CI-timeout backstop, the FLLWUP-56 header rule, and the 2026-09-20 census correction (compact-form ceilings make the true floor 52, not 43).
 - [[retired-path-tokens]] — FLLWUP-59's derived token set: test 6's list comes from git HEAD ancestry (never hand-maintained), pinned emission/matching rules, composed shallow+canary loud-fail, three owned narrowings, red-base falsifier at `323abdc`.
 - [[red-base evidence]] — The convention fixing what a falsifier's red-at-base evidence record must contain (seven fields) and how records compare (comparison triple; skeptic-derived two-class mechanism-absent boundary; head half green).
+- [[council-update]] — FLLWUP-50's consent-gated refresh path for packaged council tooling (`/council-update`, the `scaffold.json` provenance record, the session-start drift notice).
+- [[council-setup]] — EPIC-11 (Backlog): grounded, interview-driven `/council-setup` that writes a fitted configuration.
+- [[version-on-first-run]] — EPIC-12 (Backlog): show the pi-council version + latest git hash on the first pi run.
+- [[metered-deliberation-routing]] — EPIC-13 (Backlog): a System One gate routes each card to Deliberate/Verify/Direct.
+- [[followup-merge-and-auto-ingest]] — EPIC-10 (Backlog): merge near-duplicate follow-ups + autonomous wiki ingest at run completion.
 
 ## Comparisons
 
@@ -148,4 +154,20 @@ _(none yet)_
 - [[2026-09-03-design-ev20]] — Designer r1 on /council-eval: three gulfs, TS-handler-not-procedure scope decision, echo as forcing function.
 - [[2026-09-04-design-ev20-round2]] — Designer r2: matrix pseudo-row dropped (no second progress widget), transcript lines + echo-then-run stay, one shared pure renderer.
 - [[2026-09-03-po-ev21-ruling]] — /council-leaderboard name; CONFIRM-2 fold-in; σ not VARIANCE; four-state empty spectrum; Phase-4 smoke mandatory; kind limitation accepted.
+- [[2026-design-ev10-round2]] — Designer r2 on EV-10: attribution on the step-3 gate presentation (never card files); generate-then-attack on seat-charter-fit grounds.
+- [[2026-09-03-po-ev12-j1-ruling]] — EV-12 J1: reconciling the README "Prompt Then Get Prompted" prose is in scope, as a bounded framing correction.
+- [[2026-09-04-po-epic5-ruling]] — EPIC-5 wave-3: EV-23's foreign-ANSI test, EV-25's TUI wiring proof, EV-22's data contract, echo-then-run over two-Enter, EV-24's byte/SHA contract, notify-only reload.
+- [[2026-09-04-po-epic6-ruling]] — EPIC-6 wave-3: Esc clears the search text; input below the top row; `qualifiedId`-only substring; `/` typeable; no-match copy to Phase 1; FLLWUP-9/10/11 reassigned.
+- [[2026-09-05-design-ev27-round2]] — Designer r2 on EV-27: filter at `currentRows()`, two-bit `(searchActive, inputFocused)` with Up/Down focus-out, superset cache key, Enter preserves the query, kitty-helper names fabricated.
+- [[2026-09-15-design-ev36-round1]] — Designer r1 on EV-36: at one row the visible line is the focused unit's composed head; one slice-anchor branch.
+- [[2026-09-15-po-epic8-ruling]] — EPIC-8 wave-3: EV-33 demoted to Backlog (single-accessor + out-of-order fixture), EV-34/35/36 ratified, the modal declared dead code.
+- [[2026-09-16-design-ev42-partial-legend]] — Designer r1 on EV-42: retire `final-attempt-only` from display, one new literal, migrate legacy on read, grammar-identity preserved.
+- [[2026-09-16-po-epic9-retry-ruling]] — EPIC-9 wave-3: pi's pattern misses the Intake's error; all six children demoted with quantified goals; EV-43 reachability falsifier added.
+- [[2026-09-16-po-ev37-merge-gate-defect]] — EV-37 merge-gate: the colon-free literal branch is dead; the Intent binds the literal; owner-routable fold-in; no merge at `17b5a7f`.
+- [[2026-09-16-po-ev39-step6-ruling]] — EV-39 step-6: inject the `RetryPolicy` snapshot, 2 s tick, escalate EV-42's premise + the final-attempt-only figure to steward; silent partial forbidden.
+- [[2026-09-17-po-ev40-ruling]] — EV-40 Q1–Q6: input-bar `CustomEditor`, Enter re-arms, headless SIGINT, interactive backoff, exit 75; P1/D1 gate before implementation.
+- [[2026-09-17-po-ev42-step6-ruling]] — EV-42 J1: `partial` is figure-scoped; the all-unaccounted shape carries no `partial`; `attempts-unaccounted`; legacy byte-identical.
+- [[2026-09-17-po-fllwup43-step6-rulings]] — FLLWUP-43 step-6: retract the colon-space ban, document the wrap residual (gate-parity), drop the rephrase advice, single-cell eval smoke; three steward escalations.
+- [[2026-09-19-po-epic11-decomposition-ruling]] — EPIC-11 wave-3: chain-promotion states, cost dropped from tier predicates, diversity floor 3, fail-loud tier parse, hasUI headless seam, `(Recommended)` grammar, EV-56 falsifier.
+- [[2026-09-20-po-epic12-decomposition-ruling]] — EPIC-12 wave-3: once per process, literal identity line, one-shot notify when `hasUI`, no "compare to latest" child; EV-57/58/59 amended goals.
 

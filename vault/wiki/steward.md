@@ -6,12 +6,12 @@ aliases: [steward seat]
 tags: [pi-council/seat]
 sources: ["[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-16
+updated: 2026-09-20
 ---
 
 > ⚠️ Derived from `council/agents/steward.md` (captured 2026-08-23). Verify against the seat file.
 
-**Model:** `openrouter/deepseek/deepseek-v4-pro:high`.
+**Model:** `openrouter/deepseek/deepseek-v4.1-flash:high`.
 **Tools:** Read, Grep, Glob.
 **MCP:** `[context7]`.
 **Superpowers pointers:** none.

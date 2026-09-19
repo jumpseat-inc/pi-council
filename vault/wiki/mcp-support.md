@@ -2,11 +2,11 @@
 title: MCP Support
 type: concept
 summary: The engine subsystem that lets seats use tools from registered MCP servers — split storage (committable config vs 0600 secrets), oauth via loopback or copy-paste remote login, sandboxed seat grants.
-aliases: [mcp, model context protocol]
+aliases: [mcp support, mcp, model context protocol]
 tags: [pi-council/concept]
 sources: ["[[2026-08-25-remote-mcp-oauth]]"]
 created: 2026-08-23
-updated: 2026-08-26
+updated: 2026-09-20
 ---
 
 # MCP Support

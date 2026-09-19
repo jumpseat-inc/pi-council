@@ -2,15 +2,15 @@
 title: pi-council Overview
 type: overview
 summary: pi-council is an installable pi package pairing a multi-agent Council deliberation/implementation loop with an LLM-maintained wiki — the workflow's opinions are the product.
-aliases: [pi-council, council, the Council]
+aliases: [pi-council, council, the Council, pi-council overview]
 tags: [pi-council/overview]
 sources: ["[[2026-08-23-readme]]", "[[2026-08-23-pi-council-design-spec]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]", "[[2026-09-03-v0.14.0-domain-neutral-stack-agnostic]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-16
+updated: 2026-09-20
 ---
 
-`pi-council` (v0.19.0) is an installable [pi](https://pi.dev) package, distributed
-as `pi install git:github.com/tistaharahap/pi-council`. Installing it once and
+`pi-council` (v0.20.0; latest tag `v0.19.0`) is an installable [pi](https://pi.dev) package, distributed
+as `pi install git:github.com/jumpseat-inc/pi-council`. Installing it once and
 running `/council-init` gives **any** repository the same opinionated workflow:
 a facilitator-driven Council of specialized seats that deliberates, implements,
 verifies, and judges work on a card board — backed by an LLM-maintained wiki
@@ -31,7 +31,7 @@ packaged one), never by forking the package.
   commands), the hub tools, the shared widget, and the output-token floor patch.
 - **Child mode** — a seat dispatched by `council_dispatch` runs as an isolated
   headless `pi` process (`--mode json -p`), sandboxed to its granted tools,
-  supervised by the hub. `COUNCIL_SOURCE` selects the seat.
+  supervised by the hub. `COUNCIL_SEAT` selects the seat.
 
 ## The loop
 
@@ -46,7 +46,7 @@ See [[council-loop]], [[engineering-board]], and the nine [[seats]]+s.
 ## Versions
 
 The release arc (from the git log on `main`) shows how quickly the engine
-matured — the current count is 200+ commits, following
+matured — the current count is ~980 commits, following
 **[Conventional Commits]** with the `version` bumped in the same commit as each
 behavior change:
 
@@ -84,6 +84,7 @@ behavior change:
 | EPIC-8 (main) | **Elegant transcript rendering** — the composed tool-call unit ([[transcript-unit-rendering]]), the honest-keymap fix ([[honest-keymap]]), and the one-row floor projection ([[one-row-floor]]). Four gated merges (PRs #47–#50); the parser-fidelity child came first because the renderer could not pair a call with its own result. EPIC-8 closed `Done` (third epic-card closure). Landed on `main`; version stays **v0.18.0** | [[2026-09-15-epic8-run-ledger]] |
 | EPIC-9 (main) | **Provider-error retry with exponential backoff** — the pure [[retry-classification]] predicate, the `.council.json` [[retry-policy]], the parent-turn continuation ([[parent-turn-continuation]]), hub retry with [[per-attempt-provenance]], and [[figure-scoped-disclosure]]. Seven gated merges (PRs #51–#57); the merge gate caught a dead literal branch ([[deterministic-merge-check]]). EPIC-9 closed `Done` (fourth epic-card closure). Landed on `main`; version stays **v0.18.0** | [[2026-09-16-epic9-run-ledger]] |
 | v0.19.0 | **EPIC-9 release** — `package.json` 0.18.0 → 0.19.0; `v0.19.0` tagged and `latest` moved, carrying the accumulated EPIC-7/8/9 behavior changes under one release. The tag record was completed in the same pass: **`v0.18.0` added** (it had been bumped in source but never tagged) and the un-prefixed strays `0.6.2`/`0.17.1` renamed to `v0.6.2`/`v0.17.1`, so every release 0.1.0 → 0.19.0 now carries exactly one `vX.Y.Z` tag | [[2026-09-16-epic9-run-ledger]] |
+| v0.20.0 (untagged) | **FLLWUP-51 breaking gate** — `package.json` 0.19.0 → 0.20.0 (`09a8679`): `validate.py` now hard-fails a wrapped `goal:` / broken frontmatter block; the `goal` is parsed positionally and is no longer silently truncated by a colon-space. **No `v0.20.0` tag exists yet** | [[engineering-board]], [[2026-09-18-epic9-residual-run-2-ledger]] |
 
 The wiki scaffold shipped in the same commit as the council scaffold — the
 wiki is not an add-on. The full arc and commit-message discipline live in the
@@ -125,7 +126,9 @@ git log; this table is a secondary summary that can drift.
 - [[headless-pi]] — the print-mode rules EPIC-9 extended
 - [[2026-09-11-epic7-run-ledger]] — the preceding autonomous run
 - [[test-suite-budget]], [[retired-path-tokens]] — the EPIC-9 residual-run concepts (suite budget + CI backstop; the derived token set)
+- [[council-update]] — the FLLWUP-50 consent-gated packaged-tooling refresh path (the `scaffold.json` provenance record)
 - [[engineering-board]], [[record-push-discipline]] — hardened by the residual runs (positional `goal:` + the pre-write follow-up gate; the record-push authorization)
+- [[council-setup]], [[version-on-first-run]], [[metered-deliberation-routing]], [[followup-merge-and-auto-ingest]] — the Backlog epics (EPIC-10..13)
 - [[2026-09-17-epic9-residual-run-ledger]], [[2026-09-18-epic9-residual-run-2-ledger]] — the EPIC-9 residual runs (FLLWUP-40–60)
 
 ## Sources

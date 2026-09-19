@@ -6,12 +6,12 @@ aliases: [owner seat]
 tags: [pi-council/seat]
 sources: ["[[2026-08-23-pi-council-design-spec]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]"]
 created: 2026-08-23
-updated: 2026-09-18
+updated: 2026-09-20
 ---
 
 > ⚠️ Derived from `council/agents/owner.md` @ `df3...` (captured 2026-08-23). Verify against the seat file.
 
-**Model:** `openrouter/deepseek/deepseek-v4-flash-0731:high`.
+**Model:** `openrouter/z-ai/glm-5.3-flash:high`.
 **Tools:** Read, Grep, Glob, Edit, Write, Bash (full implementer).
 **MCP:** `[context7, tavily]`.
 **Superpowers pointers:** writing-plans, test-driven-development, using-git-worktrees,

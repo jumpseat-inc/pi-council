@@ -2,11 +2,11 @@
 title: Procedures vs Commands
 type: comparison
 summary: Markdown procedures (scanned, LLM-facilitated) vs TypeScript-registered commands (engine-owned loops) — when each is the right surface, learned from /council-eval and /council-leaderboard.
-aliases: [procedure vs command, ts command, markdown procedure]
+aliases: [procedures vs commands, procedure vs command, ts command, markdown procedure]
 tags: [pi-council/architecture]
 sources: ["[[2026-09-03-design-ev20]]", "[[2026-09-03-po-ev21-ruling]]"]
 created: 2026-09-04
-updated: 2026-09-04
+updated: 2026-09-20
 ---
 
 # Procedures vs Commands

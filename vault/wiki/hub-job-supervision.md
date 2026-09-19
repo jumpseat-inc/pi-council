@@ -2,11 +2,11 @@
 title: Hub Job Supervision
 type: concept
 summary: The battle-tested engine that spawns, monitors, stalls, times out, and sweeps seat subprocesses — the hub table, pid file, anti-stall kill, and the dispatch/wait/cancel tools.
-aliases: [hub, job table, council_dispatch]
+aliases: [hub job supervision, hub, job table, council_dispatch]
 tags: [pi-council/concept]
 sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-16
+updated: 2026-09-20
 ---
 
 # Hub Job Supervision

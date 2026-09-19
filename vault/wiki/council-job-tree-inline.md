@@ -2,11 +2,11 @@
 title: Council Job Tree (inline)
 type: concept
 summary: EPIC-2's replacement for the /council-tree modal — an inline below-editor panel pushed up by the input bar, with per-row last activity, editor-driven arrow-key focus, and Enter opening the selected subagent's live inline progress expansion whose tool calls compose with their own results (EPIC-8).
-aliases: [council-tree, inline job tree, council tree inline, job tree]
+aliases: [council job tree inline, council-tree, inline job tree, council tree inline, job tree]
 tags: [pi-council/concept]
 sources: ["[[2026-08-26-design-ev8]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-design-ev9]]", "[[2026-08-26-design-ev9-round2]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]", "[[2026-09-15-epic8-run-ledger]]"]
 created: 2026-08-26
-updated: 2026-09-15
+updated: 2026-09-20
 ---
 
 The subject of EPIC-2: `/council-tree` (and `ctrl+shift+t`) renders the live

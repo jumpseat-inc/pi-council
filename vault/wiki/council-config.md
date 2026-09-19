@@ -2,11 +2,11 @@
 title: Council Config
 type: concept
 summary: The committed `.council.json` at the repo root — a per-seat `council` block overriding model/thinking, PLUS sibling top-level `theme` and `retry` sections giving per-repo control of the council palette and of provider-error retry policy. Frontmatter, shipped palette, and shipped retry defaults stay the defaults; the file shadows them. Seeded non-clobberingly by /council-init.
-aliases: [.council.json, council.json, agent overrides, seat model override, seat config]
+aliases: [council config, .council.json, council.json, agent overrides, seat model override, seat config]
 tags: [pi-council/concept]
 sources: ["[[2026-08-23-council-json-override]]", "[[2026-08-25-design-ev3]]", "[[2026-08-25-design-ev3-round2]]"]
 created: 2026-08-23
-updated: 2026-09-16
+updated: 2026-09-20
 ---
 
 # Council Config
@@ -110,9 +110,9 @@ seats, unknown keys, and indentation byte-identical, and validation is
 gate-parity-strict ([[gate parity]]): model-presence in the catalogue
 plus `THINKING_LEVELS` grammar, nothing more — capability is the
 picker's job ([[council models picker]]). Clearing an override is a
-distinct affordance (FLLWUP-9), not silent absence. Known seam: the
-writer's `existingThinking` misses an object-form `model` `:suffix`
-(FLLWUP-10, tracked).
+distinct affordance (FLLWUP-9), not silent absence. The object-form
+`model` `:suffix` preservation seam (`existingThinking`) is **closed** —
+FLLWUP-10 fixed it (2026-09-05); see [[council config writer]].
 
 ## Relation to other mechanisms
 

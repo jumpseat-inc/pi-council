@@ -2,11 +2,11 @@
 title: Chain Promotion
 type: concept
 summary: Backlog→Ready promotion for a dependent card chain is bound once as an automated cadence — the orchestrator promotes each card the moment its predecessor's merge SHA is on local main and validate.py is clean, without re-asking.
-aliases: [promotion cadence, automated promotion, P1-P5]
+aliases: [chain promotion, promotion cadence, automated promotion, P1-P5]
 tags: [pi-council/features-deliver, pi-council/process]
 sources: ["[[2026-09-03-po-epic4-promotion-cadence]]", "[[2026-09-11-epic7-run-ledger]]"]
 created: 2026-09-04
-updated: 2026-09-11
+updated: 2026-09-20
 ---
 
 # Chain Promotion

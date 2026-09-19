@@ -2,11 +2,11 @@
 title: Verification-Subject Pinning
 type: concept
 summary: Judge and skeptic dispatch inputs must name the exact verification subject (PR head SHA + head worktree path) and the loop frame (judging/verification precede the mechanical merge the facilitator executes) — an empty or vague subject produces verdicts about the wrong tree.
-aliases: [subject pinning, judge dispatch subject, skeptic dispatch subject, verification subject]
+aliases: [verification-subject pinning, verification subject pinning, subject pinning, judge dispatch subject, skeptic dispatch subject, verification subject]
 tags: [pi-council/concept, pi-council/process]
 sources: ["[[2026-09-06-epic6-close-run-ledger]]"]
 created: 2026-09-06
-updated: 2026-09-06
+updated: 2026-09-20
 ---
 
 # Verification-Subject Pinning

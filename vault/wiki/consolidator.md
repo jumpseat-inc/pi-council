@@ -6,12 +6,12 @@ aliases: [consolidator seat]
 tags: [pi-council/seat]
 sources: []
 created: 2026-08-23
-updated: 2026-08-25
+updated: 2026-09-20
 ---
 
 > ⚠️ Derived from `council/agents/consolidator.md` (captured 2026-08-23). Verify against the seat file.
 
-**Model:** `openrouter/z-ai/glm-5.2:high`.
+**Model:** `openrouter/xiaomi/mimo-v2.5:high`.
 **Tools:** Read (read-only).
 **Superpowers pointers:** none (judgment role, no skills needed).
 

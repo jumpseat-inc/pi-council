@@ -19,13 +19,13 @@ re-measurement ever exceeds the drift threshold below.
 
 ## Measured envelope
 
-- **Total wall clock:** ≈**101.2s** (935 tests across 81 files; 933 pass,
+- **Total wall clock:** ≈**101.2s** (947 tests across 82 files; 945 pass,
   2 skip, 0 fail).
 - **Provenance:**
   - Machine: Linux 6.12.24-Unraid x86_64 (container)
-  - Date: 2026-09-18 18:40 UTC
-  - SHA: `ad96c4f` (FLLWUP-56 implementation commit — the seat-child live arm's
-    own accounting, measured by the implementing pass)
+  - Date: 2026-09-20 (re-measured at HEAD)
+  - SHA: `675c1bf` (the `ad96c4f` FLLWUP-56 pass first recorded this envelope at
+    935 tests / 81 files; the suite has since grown)
   - Exact command (the `bun install` **first** — a tree whose `node_modules`
     predates `@modelcontextprotocol/sdk` is red until installed):
     ```bash
@@ -38,8 +38,8 @@ re-measurement ever exceeds the drift threshold below.
 
 ## Per-file table (live arms)
 
-The live spawning arm files, measured individually (same machine, same pass,
-same provenance as above; command in the next section):
+The live spawning arm files, measured individually (same machine, measured in
+the `ad96c4f` pass; command in the next section):
 
 | File | Arm count | Measured wall |
 |---|---|---|

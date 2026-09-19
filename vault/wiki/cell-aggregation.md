@@ -2,11 +2,11 @@
 title: Cell Aggregation
 type: concept
 summary: The shared pure aggregate — aggregateCell computes mean (Bessel σ) over graded repeats with E1 CI-on-mean-difference triage, E2 length-never-zero, E3 terminal histogram; the live summary and the leaderboard must be byte-identical over the same records.
-aliases: [aggregateCell, compareCellTriage, summarizeStore, eval aggregation]
+aliases: [cell aggregation, aggregateCell, compareCellTriage, summarizeStore, eval aggregation]
 tags: [pi-council/epic4]
 sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-03-po-ev21-ruling]]"]
 created: 2026-09-04
-updated: 2026-09-04
+updated: 2026-09-20
 ---
 
 # Cell Aggregation

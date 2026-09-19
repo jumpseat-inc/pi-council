@@ -2,11 +2,11 @@
 title: Env-Split Contract
 type: concept
 summary: pi-council's parent/child mode split is keyed on the COUNCIL_SEAT env var and is version-independent — clean env registers all parent-mode commands, COUNCIL_SEAT set registers zero — proven by a two-pole verification after a "0.85.0 regression" proved to be probe contamination.
-aliases: [env split, mode split, COUNCIL_SEAT, parent child mode split, env-keyed mode split]
+aliases: [env-split contract, env split, mode split, COUNCIL_SEAT, parent child mode split, env-keyed mode split]
 tags: [pi-council/concept, pi-council/testing]
 sources: ["[[2026-09-06-epic6-close-run-ledger]]"]
 created: 2026-09-06
-updated: 2026-09-06
+updated: 2026-09-20
 ---
 
 # Env-Split Contract

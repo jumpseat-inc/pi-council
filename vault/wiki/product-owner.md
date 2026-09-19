@@ -6,12 +6,12 @@ aliases: [product-owner seat]
 tags: [pi-council/seat]
 sources: ["[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]"]
 created: 2026-08-23
-updated: 2026-09-18
+updated: 2026-09-20
 ---
 
 > ⚠️ Derived from `council/agents/product-owner.md` (captured 2026-08-23). Verify against the seat file.
 
-**Model:** `openrouter/minimax/minimax-m3:high`.
+**Model:** `openrouter/qwen/qwen3.8-flash:high`.
 **Tools:** Read, Grep, Glob, Write (Write scoped to `vault/raw/` only).
 **MCP:** none.
 **Superpowers pointers:** none (judgment seat).
