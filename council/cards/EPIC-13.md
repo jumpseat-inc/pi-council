@@ -83,3 +83,10 @@ with no network in the default suite; and no call is ever made to the
   has its merge SHA on local `main` and `python3 council/validate.py` is clean,
   in one commit with its board row. EV-65 and EV-68 stay `Ready` as recorded.
   Full ruling: `vault/raw/2026-09-20-po-epic13-promotion-ruling.md`.
+- **R6 — run-scoped record push (corrected mid-run).** The human authorized
+  this run's direct step-12 record commit to `main` on the admin identity
+  (card `Done` + board transition), per `council.md` step 12. Recorded after the
+  run had already performed two such pushes (EV-60 `b6d5ce5`, EV-61 `1fdc2de`) —
+  a Phase-1 omission now corrected; this ruling covers those two and the rest of
+  the run. Run-scoped, not extended to any later run. Force-push, rewind, and
+  discarding a side remain forbidden.
