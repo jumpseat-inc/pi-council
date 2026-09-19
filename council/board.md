@@ -58,7 +58,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-59 — End-to-end falsifier for the first-run identity line
 - EPIC-12 — pi-council version and git hash on the first pi run
 - EPIC-13 — Metered deliberation routing — a System One gate decides Deliberate, Verify, or Direct per card
-- EV-61 — Durable gate ledger with a recomputable decision record
 - EV-62 — Packaged-and-overridable gate policy and question set
 - EV-63 — Pure decide() mode and seat-inclusion function with offline fixtures
 - EV-64 — Budget-bounded gate state packing
@@ -71,6 +70,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Ready
 
+- EV-61 — Durable gate ledger with a recomputable decision record
 - EV-44 — Merge near-duplicate follow-up candidates before a card is drafted
 - EV-45 — Unattended ingest of a run's own ledger, without the human steer turn
 - EV-48 — Packaged seat-tier map with repo-local merge override
