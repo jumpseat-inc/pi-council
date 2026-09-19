@@ -80,10 +80,10 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-64 — Budget-bounded gate state packing
 
 ## In Review
 
+- EV-64 — Budget-bounded gate state packing
 ## Needs Human
 
 ## Done
