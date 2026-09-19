@@ -1,12 +1,12 @@
 ---
 title: Headless Pi
 type: concept
-summary: pi's non-interactive operating modes (-p / --mode json / --mode rpc) and their distinct rules — no trust prompt, single-shot teardown, stale ctx after session replacement, and the waitForIdle pattern for command-dispatch turns.
+summary: pi's non-interactive operating modes (-p / --mode json / --mode rpc) and their distinct rules — no trust prompt, project-extension discovery that is not -a-gated, single-shot teardown, stale ctx after session replacement, and the waitForIdle pattern for command-dispatch turns.
 aliases: [print mode, pi -p, headless mode, non-interactive pi]
 tags: [pi-council/concept]
-sources: ["[[2026-08-25-smoke-test-bugfixes]]", "[[2026-09-16-epic9-run-ledger]]"]
+sources: ["[[2026-08-25-smoke-test-bugfixes]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-18-po-fllwup56-step13-ruling]]"]
 created: 2026-08-25
-updated: 2026-09-16
+updated: 2026-09-18
 ---
 
 # Headless Pi
@@ -29,6 +29,16 @@ protocol mode. All three are non-interactive.
   (`ask`/`always`/`never` in `~/.pi/agent/settings.json`); `--approve`/`-a`
   overrides for one run. Project-local extensions and settings load only when
   trusted.
+- **Project-extension discovery is *not* `-a`-gated (EPIC-9, FLLWUP-56).**
+  `-a`/`--approve` answers the trust question for one run; it is **not** the
+  switch that turns project-local extension loading on and off. A print-mode
+  parent loads its cwd's `.pi/extensions` on its own, so a scratch-repo shim
+  placed there to reach a **seat child** is **also** loaded by the parent. Such
+  a shim must gate itself on the child discriminator (`--session-id` in
+  `process.argv`) and be a no-op otherwise — the guard is load-bearing, not
+  cosmetic. This is why FLLWUP-56's seat-child falsifier needed no engine
+  change: the same rule that makes the shim reachable from the child reaches
+  it from the parent. See [[2026-09-18-po-fllwup56-step13-ruling]].
 - **Single-shot teardown.** After the initial prompt resolves, the runtime is
   disposed. Any async work started by a command handler must be **awaited to
   completion inside the handler** or it dies with the process. The extension
@@ -80,3 +90,4 @@ headlessly before v0.10.0.
 - pi docs `docs/usage.md` (Modes, Project Trust), `docs/settings.md`
 - pi source `dist/modes/print-mode.js`, `dist/core/agent-session.js`
 - `extensions/index.ts` (the mode-aware handler fix)
+- [[2026-09-18-po-fllwup56-step13-ruling]] — the `-a`/project-extension finding

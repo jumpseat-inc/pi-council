@@ -4,9 +4,9 @@ type: concept
 summary: The durable, locally-stored kanban state — council/board.md plus one card file per id, validated by validate.py, and the discipline that everything the Council does starts and records there.
 aliases: [board, card, kanban]
 tags: [pi-council/concept]
-sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]"]
+sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-17
+updated: 2026-09-18
 ---
 
 > ⚠️ Derived from `council/procedures/board-create-card.md`, `features-new.md` and `council/scaffold/council/board.md` @ `8913c6b`/`8f1882b` (captured 2026-08-23). Verify against the procedure files.
@@ -41,11 +41,33 @@ set of markdown files under `council/`:
   is the judge's only input, so a goal forced to misspell a literal is a goal
   that lies — EV-37 shipped a dead classifier branch exactly this way
   ([[retry-classification]]).
+  ✅ **FLLWUP-51 delivered (2026-09-18, `dee64c5a`).** The wrap is now a **loud
+  FAIL**, not silent loss, and `goal:` is **positional**: the frontmatter block
+  must carry `goal:` as its **last key**, and a wrapped/continued value, a
+  non-`key: value` line inside the block, an unclosed block, and a key after
+  `goal:` are each refused by `parse_frontmatter` with a distinct
+  `council/validate.py` FAIL **naming the defect** rather than validating green.
+  The bare-line diagnostic names **both** readings ("wrapped value, or the
+  closing `---` is missing") because the parser cannot tell them apart. Green
+  side preserved: single-line goals containing `: `, and cards carrying extra
+  intentional keys **before** `goal:`, parse clean. ⚠️ **This is a
+  consumer-visible breaking change** — a leg-but-unusual key order now goes red
+  by design; release notes carry the call-out. One residual stays
+  document-and-pin-not-gate: a mid-block colon-bearing continuation of a
+  **non-goal** key (`FLLWUP-62`). See
+  [[2026-09-18-epic9-residual-run-2-ledger]].
 
 ## Lifecycle / discipline
 
 - **Draft-then-confirm is a hard gate** — nothing reaches the board without the
-  human approving the exact card.
+  human approving the exact card. For the step-13 **follow-up** gate, the
+  confirmation is **pre-write**: the ruling seat confirms, edits, or drops each
+  draft **before** the card is written. A run-2 `council-runner` inverted this
+  ("cards land in Backlog, confirmed at ledger level") and wrote six cards
+  before confirmation; [[steward]] ruled the framing a **false precedent**, had
+  the line corrected on the card face, and carded `FLLWUP-69` to pin the
+  pre-write gate in `council.md` §13 and `features-deliver.md` Phase 1. See
+  [[2026-09-18-epic9-residual-run-2-ledger]].
 - Board and cards must **never land as separate commits** (a board that disagrees
   with its cards is the inconsistency `validate.py` exists to catch).
 - Card **goal text is immutable** once a card is `In Progress` — any work needing
@@ -104,6 +126,10 @@ set of markdown files under `council/`:
   promoted residuals delivered (PRs #58–#66); the goal field made lossless
   (FLLWUP-43 — the colon rule above retracted), two goal amendments by steward
   pen, and the step-12 record-push gap.
+- [[2026-09-18-epic9-residual-run-2-ledger]] — the EPIC-9 **residual run 2**:
+  the remaining eleven residuals (PRs #67–#77, one R4 retirement); `goal:` made
+  positional and the wrap gate loud; the pre-write step-13 gate inversion
+  corrected and carded (`FLLWUP-69`); the record-push gap closed.
 - [[2026-09-16-epic9-run-ledger]] — the board's **fourth epic-card closure**
   (EPIC-9, seven children); FLLWUP-40..45 + 47..49 filed as `Backlog`
   residuals, two drafts declined at the gate, two permanent residuals without
@@ -117,3 +143,4 @@ set of markdown files under `council/`:
 - `council/scaffold/council/board.md`, `council/scaffold/council/cards/_template.md`
 - [[2026-09-06-epic6-close-run-ledger]]
 - [[2026-09-17-epic9-residual-run-ledger]]
+- [[2026-09-18-epic9-residual-run-2-ledger]]

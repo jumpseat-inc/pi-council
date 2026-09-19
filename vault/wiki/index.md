@@ -59,7 +59,7 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[cell-aggregation]] — The shared pure aggregate: mean/Bessel σ, E1 CI-on-difference triage, E2 length-never-zero, E3 histogram; same-function-both-sides byte-identity; the CONFIRM-2 version-blindness lesson.
 - [[grader-topology]] — Grader as harness-dispatched sibling linked by cellId; cell-invariance by topology, three cost columns, no exclusion rule.
 - [[deterministic-merge-check]] — The features-deliver merge gate: five mechanical criteria observed directly, merged --match-head-commit, Done only after gates green on the merged SHA.
-- [[record-push-discipline]] — The step-12 direct-to-main record push is a privileged write the authority map does not re-home; under a ruleset blocking direct updates it needs a recorded, run-scoped authorization or a non-bypass path (FLLWUP-60).
+- [[record-push-discipline]] — The step-12 direct-to-main record push is a privileged write the authority map does not re-home; **closed by FLLWUP-60** (`aa1923fe`, 2026-09-18) — the procedure names a run-scoped authorization and fences an unauthorized push as a HALT.
 - [[run-config-stability]] — A mid-run `.council.json` seat-model change silently alters which models later dispatches use; scope-pure commits + a Phase-0 stability check.
 - [[two-bit-focus-machine]] — The modal key-handling pattern from EV-27: searchActive × inputFocused, Esc routed on inputFocused, Down as the focus-out edge; ▌ signifier + capture-by-construction trigger; backspace-as-delete added by BUG-1.
 - [[env-split contract]] — The parent/child mode split is keyed on COUNCIL_SEAT and version-independent; two-pole verified; the "0.85.0 regression" was probe contamination; the fallthrough-to-model-dispatch hazard documented.
@@ -83,7 +83,7 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[parent-turn-continuation]] — the `agent_settled` + `sendUserMessage` resume loop: input-bar countdown, Esc/Enter semantics, headless SIGINT/exit-75, and the event-ctx gap.
 - [[per-attempt-provenance]] — one job id/manifest/row per retried dispatch, with an `attempt` field, carried cumulative usage, and per-attempt session pointers.
 - [[figure-scoped-disclosure]] — a usage qualifier applies to a figure: `partial` iff a figure exists and an attempt is unaccounted; `n/a` alone when the figure is absent.
-- [[test-suite-budget]] — the measured default-`bun test` wall-clock envelope (FLLWUP-48, ≈94s): per-file live-arm table, ceiling-vs-budget distinction, 180s drift threshold (not a budget), re-measure command, standing maintenance rules.
+- [[test-suite-budget]] — the measured default-`bun test` wall-clock envelope (≈101s): per-file live-arm table, ceiling-vs-budget distinction, 180s drift threshold (not a budget), the FLLWUP-58 CI-timeout backstop, the FLLWUP-56 header rule, and the 2026-09-20 census correction (compact-form ceilings make the true floor 52, not 43).
 - [[retired-path-tokens]] — FLLWUP-59's derived token set: test 6's list comes from git HEAD ancestry (never hand-maintained), pinned emission/matching rules, composed shallow+canary loud-fail, three owned narrowings, red-base falsifier at `323abdc`.
 - [[red-base evidence]] — The convention fixing what a falsifier's red-at-base evidence record must contain (seven fields) and how records compare (comparison triple; skeptic-derived two-class mechanism-absent boundary; head half green).
 
@@ -93,6 +93,14 @@ _(none yet)_
 
 ## Sources
 
+- [[2026-09-18-epic9-residual-run-2-ledger]] — The EPIC-9 residual run 2: the remaining eleven residuals (FLLWUP-50–60) delivered (PRs #67–#77) plus one R4 retirement; `goal:` made positional, the pre-write step-13 gate inversion corrected, the record-push gap closed, and two pi-runtime mechanism findings.
+- [[2026-09-18-po-fllwup56-step13-ruling]] — PO drops both FLLWUP-56 drafts: the live-arm header rule, and two pi-runtime findings routed to [[headless-pi]] and [[council-theme]].
+- [[2026-09-18-design-fllwup50-refresh-path]] — The designer's round-1 position on the packaged-tooling refresh path: three moments, two gulfs, five cold-read predictions, seven open mechanism choices.
+- [[2026-09-19-po-fllwup59-step13-ruling]] — PO drops both FLLWUP-59 drafts: the retired-path caveat correction (and the spec-is-the-source-of-the-error warning), and the truncated-history residual with a re-card trigger.
+- [[2026-09-19-po-fllwup50-step6-ruling]] — The ruling that settled the refresh mechanism: leg-B preserve-and-ask, `/council-update`, a committed scaffold.json record, `_template.md` v1-refreshed, seats fenced out.
+- [[2026-09-19-po-fllwup48-test-suite-budget]] — The ruling that created [[test-suite-budget]]: the figure is a measurement with provenance, 180s is a drift threshold, document-only ratified.
+- [[2026-09-20-po-fllwup58-gates-backstop]] — The CI-timeout policy ruling: strict/any-arm reading, one `timeout-minutes: 60` on the `bun test` step, never job-level.
+- [[2026-09-20-po-fllwup58-step13-confirmation]] — The census re-derivation: 19 compact-form sites, true floor 52, ~1-minute headroom, merged into card FLLWUP-70.
 - [[2026-09-17-po-fllwup47-step6-ruling]] — The FLLWUP-47 product-owner ruling that settled the red-base evidence convention (R1–R6) and carried the true EV-41 causal story; the source of [[red-base evidence]].
 - [[2026-08-23-readme]] — README: makes the author's "prompted instead of prompting" project.
 - [[2026-08-23-agents]] — AGENTS.md: the 13 hard conventions + repo operating rules.

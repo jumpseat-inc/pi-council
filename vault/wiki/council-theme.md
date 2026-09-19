@@ -4,9 +4,9 @@ type: concept
 summary: The oh-my-pi-palette theme subsystem for pi-council — a pinned dark/light theme pair, a repo-level .council.json recolor surface, session-start activation with a strict name namespace, and a token-only drawing rule for all council-drawn UI.
 aliases: [theme, pi-council theme, council theme system, theme-section]
 tags: [pi-council/concept]
-sources: ["[[2026-08-25-design-ev1-round2]]", "[[2026-08-25-po-ev1-escalation]]", "[[2026-08-25-design-ev3]]", "[[2026-08-25-design-ev3-round2]]", "[[2026-08-25-design-ev4-round1]]", "[[2026-08-26-smoke-v0.12.0]]", "[[2026-08-26-theme-module-resolution-fix]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]"]
+sources: ["[[2026-08-25-design-ev1-round2]]", "[[2026-08-25-po-ev1-escalation]]", "[[2026-08-25-design-ev3]]", "[[2026-08-25-design-ev3-round2]]", "[[2026-08-25-design-ev4-round1]]", "[[2026-08-26-smoke-v0.12.0]]", "[[2026-08-26-theme-module-resolution-fix]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-18-po-fllwup56-step13-ruling]]"]
 created: 2026-08-25
-updated: 2026-09-15
+updated: 2026-09-18
 ---
 
 # Council Theme
@@ -94,6 +94,22 @@ identity (internal helpers optional) on bun-binary installs.
 **Reusable invariant:** from any extension, resolve pi's internals via
 `getPackageDir()` + a walk into `dist/…`, never a bare-specifier
 `import.meta.resolve` — pi's extension remap does not cover it at runtime.
+
+**The same asymmetry's other face (FLLWUP-56, 2026-09-18).** The remap/raw-walk
+split above is about **resolution paths**; a second, related jiti behaviour bites
+inside an extension's own body: a **nested `require()` inside a jiti-transformed
+extension re-resolves through jiti's synchronous pipeline**, where a
+**file-valued alias prefix-matches a subpath and mis-resolves**
+(`pi-ai/dist/compat.js/utils/uuid`, observed live in a scratch-repo shim)
+— while **`await import()` bypasses that pipeline and resolves correctly**. That
+is why the shipped seat-child shim is a dynamic-import shim and a byte-copy
+fallback was never needed. Rule of thumb for a future test-shim author: inside a
+jiti-transformed extension, prefer dynamic `await import()` over a nested
+`require()` of an aliased package's subpath; and prefer an **env write before**
+the dynamic import over a static re-export, since ESM evaluates dependencies
+before the module body. Paired finding: project-extension discovery is not
+`-a`-gated — see [[headless-pi]]. Source:
+[[2026-09-18-po-fllwup56-step13-ruling]].
 
 ## Token-only drawing rule (AGENTS.md 9.6)
 

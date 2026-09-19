@@ -124,6 +124,9 @@ git log; this table is a secondary summary that can drift.
 - [[retry-classification]], [[retry-policy]], [[parent-turn-continuation]], [[per-attempt-provenance]], [[figure-scoped-disclosure]] — the EPIC-9 provider-error-retry concepts
 - [[headless-pi]] — the print-mode rules EPIC-9 extended
 - [[2026-09-11-epic7-run-ledger]] — the preceding autonomous run
+- [[test-suite-budget]], [[retired-path-tokens]] — the EPIC-9 residual-run concepts (suite budget + CI backstop; the derived token set)
+- [[engineering-board]], [[record-push-discipline]] — hardened by the residual runs (positional `goal:` + the pre-write follow-up gate; the record-push authorization)
+- [[2026-09-17-epic9-residual-run-ledger]], [[2026-09-18-epic9-residual-run-2-ledger]] — the EPIC-9 residual runs (FLLWUP-40–60)
 
 ## Sources
 

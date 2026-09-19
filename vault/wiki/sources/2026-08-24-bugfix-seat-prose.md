@@ -1,12 +1,12 @@
 ---
 title: 2026-08-24 seat/procedure mechanism-reference hygiene (bugfix)
 type: source
-summary: A working-tree bugfix pass that purges extraction-era leftovers from packaged pi-council — the stale `deliver.md` filename, a repo-specific `GATE-EVIDENCE.md` gate path, a hardcoded `.pi`, and the pre-packaged "agent registry / restart" framing — locked in with regression tests.
+summary: A working-tree bugfix pass that purges extraction-era leftovers from packaged pi-council — the stale `deliver.md` filename, a repo-specific `GATE-EVIDENCE.md` gate path, a hardcoded `.pi`, and the pre-packaged "agent registry / restart" framing — locked in with regression tests. Its guard was widened to every packaged seat and procedure in 2026-09-18 (FLLWUP-53), after a second gate-path naming survived in `council.md`.
 aliases: [bugfix seat prose, mechanism-reference hygiene, deliver.md fix]
 tags: [pi-council/source]
-sources: []
+sources: ["[[2026-09-18-epic9-residual-run-2-ledger]]"]
 created: 2026-08-24
-updated: 2026-08-24
+updated: 2026-09-18
 ---
 
 > ⚠️ Derived from the uncommitted working-tree diff over `council/agents/council-runner.md`,
@@ -26,6 +26,16 @@ resources resolved from disk — not pi agents loaded into a startup registry.
    `/features-deliver` deterministic merge check — that gate file is
    source-repo-specific and not shipped; criterion 1 is now "every owner gate green,
    in full" (the owner seat body defines its own gates).
+   ️ **Superseded in part (FLLWUP-53, 2026-09-18, `e3b070c0`).** This fix
+   covered **`features-deliver.md` alone**, and a **second naming survived
+   unguarded**: `council.md` step 8 presented the same source-repo-specific
+   `docs/gates/GATE-EVIDENCE.md` path as fact (and `owner.md` carried it as an
+   `e.g.`). FLLWUP-53 replaced it with consumer-neutral phrasing ("the repo's own
+   authoritative gate record, if it keeps one"), reworded `owner.md`'s example,
+   and **widened the guard from `features-deliver.md` to every packaged seat and
+   procedure** (`councilMarkdown()` enumeration). Lesson: a guard scoped to one
+   file does not cover a second emitter of the same defect class. See
+   [[2026-09-18-epic9-residual-run-2-ledger]].
 3. **Hardcoded `.pi` → `CONFIG_DIR_NAME`** in the [[procedure-commands]] scan
    loop (`extensions/index.ts`), consistent with AGENTS.md convention #3 and
    [[override-resolution]].
