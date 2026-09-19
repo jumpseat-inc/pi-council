@@ -79,11 +79,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-68 — Card execution mode recorded on the run manifest
 ## Needs Human
 
 ## Done
 
+- EV-68 — Card execution mode recorded on the run manifest
 - EV-65 — One-call decisions transport with fail-closed posture
 - EV-64 — Budget-bounded gate state packing
 - EV-63 — Pure decide() mode and seat-inclusion function with offline fixtures
