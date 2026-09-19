@@ -352,3 +352,55 @@ test("ruling date tie-break: equal scores order by date descending", () => {
 	const parsed = parseState(buildGateState(WIKI_CARD(), root).stateBytes);
 	expect((parsed.rulings as { slug: string }[]).map((r) => r.slug)).toEqual(["sources/r-late", "sources/r-early"]);
 });
+
+// ---------------------------------------------------------------------------
+// Tests section (§3 table row 5) — covering test names by stem/path affinity.
+// ---------------------------------------------------------------------------
+
+test("tests section: stem affinity outranks path affinity; ties break lexicographically", () => {
+	const root = tmpRepo();
+	const t = (rel: string) => {
+		const f = path.join(root, "test", rel);
+		fs.mkdirSync(path.dirname(f), { recursive: true });
+		fs.writeFileSync(f, "test(\"x\", () => {});\n");
+	};
+	t("gate.test.ts"); // stem match with touched extensions/gate.ts → 2
+	t("other.test.ts"); // no affinity → 0... but it must still be a candidate; entries ranked, packer fills
+	t("mcp/deep.test.ts"); // path segment affinity only if a touched dir segment matches
+	const parsed = parseState(
+		buildGateState(
+			makeCard({ touchedFiles: [{ path: "extensions/gate.ts", linesChanged: 12 }] }),
+			root,
+		).stateBytes,
+	);
+	const tests = parsed.tests as string[];
+	expect(tests[0]).toBe("gate.test.ts");
+	expect(tests).toContain("mcp/deep.test.ts"); // "extensions" ∉ path → score 0 but still ranked
+	expect(tests).toContain("other.test.ts");
+	// score-0 ties break lexicographically: deep.test.ts < other.test.ts
+	expect(tests.indexOf("mcp/deep.test.ts")).toBeLessThan(tests.indexOf("other.test.ts"));
+});
+
+test("tests section: path-affinity scores 1 and ranks between stem match and no match", () => {
+	const root = tmpRepo();
+	const t = (rel: string) => {
+		const f = path.join(root, "test", rel);
+		fs.mkdirSync(path.dirname(f), { recursive: true });
+		fs.writeFileSync(f, "test(\"x\", () => {});\n");
+	};
+	t("gate.test.ts"); // stem "gate" → 2
+	t("extensions-probe.test.ts"); // touched dirname segment "extensions" in rel path → 1
+	t("zzz.test.ts"); // → 0
+	const parsed = parseState(
+		buildGateState(
+			makeCard({ touchedFiles: [{ path: "extensions/gate.ts", linesChanged: 12 }] }),
+			root,
+		).stateBytes,
+	);
+	expect(parsed.tests as string[]).toEqual(["gate.test.ts", "extensions-probe.test.ts", "zzz.test.ts"]);
+});
+
+test("tests section: absent test/ directory yields an empty section without crashing", () => {
+	const parsed = parseState(buildGateState(makeCard(), tmpRepo()).stateBytes);
+	expect(parsed.tests).toEqual([]);
+});

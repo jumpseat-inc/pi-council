@@ -521,6 +521,48 @@ function selectRulingCandidates(
 		.map(({ slug, date, title, summary }) => ({ slug, date, title, summary }));
 }
 
+/** Tests section (§3): names of existing tests covering the touched area,
+ * by stem/path affinity. Candidates are every *.test.ts under repoRoot/test
+ * (recursive); entry = path relative to test/. Affinity per test file, max
+ * over touched files: 2 if the touched file's basename stem appears in the
+ * test file's name; else 1 if any ≥3-char directory segment of a touched
+ * file's dirname appears in the test file's relative path; else 0. Ranked
+ * score-descending, tie-break lexicographic ascending. A repo without a
+ * test/ directory yields an empty section. */
 function selectTestCandidates(repoRoot: string, card: ParsedCard): string[] {
-	return [];
+	const base = path.join(repoRoot, "test");
+	if (!fs.existsSync(base)) return [];
+	const files: { rel: string; file: string }[] = [];
+	const walk = (dir: string, rel: string): void => {
+		let items: fs.Dirent[];
+		try {
+			items = fs.readdirSync(dir, { withFileTypes: true });
+		} catch {
+			return;
+		}
+		for (const e of items) {
+			const relPath = rel ? `${rel}/${e.name}` : e.name;
+			if (e.isDirectory()) walk(path.join(dir, e.name), relPath);
+			else if (e.isFile() && e.name.endsWith(".test.ts")) files.push({ rel: relPath, file: path.join(dir, e.name) });
+		}
+	};
+	walk(base, "");
+	const stems = card.touchedFiles.map((t) => {
+		const base2 = path.basename(t.path);
+		const dot = base2.lastIndexOf(".");
+		return dot > 0 ? base2.slice(0, dot) : base2;
+	});
+	const segments = card.touchedFiles
+		.flatMap((t) => path.dirname(t.path).split(/[\\/]/))
+		.filter((s) => s.length >= 3);
+	const scoreOf = (rel: string, name: string): number => {
+		const lowerRel = rel.toLowerCase();
+		if (stems.some((s) => s.length >= 3 && name.toLowerCase().includes(s.toLowerCase()))) return 2;
+		if (segments.some((s) => lowerRel.includes(s.toLowerCase()))) return 1;
+		return 0;
+	};
+	return files
+		.map((f) => ({ rel: f.rel, score: scoreOf(f.rel, path.basename(f.rel)) }))
+		.sort((a, b) => (a.score !== b.score ? b.score - a.score : pathCompare(a.rel, b.rel)))
+		.map((f) => f.rel);
 }
