@@ -80,10 +80,10 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-63 — Pure decide() mode and seat-inclusion function with offline fixtures
 
 ## In Review
 
+- EV-63 — Pure decide() mode and seat-inclusion function with offline fixtures
 ## Needs Human
 
 ## Done
