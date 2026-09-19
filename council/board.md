@@ -75,9 +75,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-70 — Direct mode and the mode-aware merge check
 ## In Review
 
+- EV-70 — Direct mode and the mode-aware merge check
 ## Needs Human
 
 ## Done
