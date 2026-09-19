@@ -152,3 +152,116 @@ test("degenerate case: an over-budget card section truncates per field and stays
 	expect(parsed.touchedFiles).toEqual([{ path: "extensions/gate.ts", linesChanged: 12 }]);
 	expect(estimateTokens(state.stateBytes)).toBeLessThanOrEqual(1000000);
 });
+
+// ---------------------------------------------------------------------------
+// Wiki section (§5) — deterministic matcher, exclusions, doc-to-page map.
+// ---------------------------------------------------------------------------
+
+/** Flat-frontmatter wiki page fixture. */
+function wikiPage(root: string, rel: string, fm: Record<string, string>, body = ""): void {
+	const file = path.join(root, "vault", "wiki", rel);
+	fs.mkdirSync(path.dirname(file), { recursive: true });
+	const lines = Object.entries(fm).map(([k, v]) => `${k}: ${v}`);
+	fs.writeFileSync(file, `---\n${lines.join("\n")}\n---\n${body}`);
+}
+
+const WIKI_CARD = () =>
+	makeCard({
+		title: "Fix the gate packer",
+		goal: "Pack gate state deterministically under budget",
+		acceptance: "bytes identical across calls and drops recorded",
+	});
+
+test("wiki selection is deterministic: two calls, byte-identical state and hash", () => {
+	const root = tmpRepo();
+	for (const name of ["gate-parity-fixture", "unrelated-beta", "smoke-fixture", "council-loop-fixture", "budget-note", "misc-page"]) {
+		wikiPage(root, `${name}.md`, {
+			title: `Fixture ${name}`,
+			summary: name === "gate-parity-fixture" ? "about gate packing under budget" : "nothing relevant here",
+			aliases: name === "gate-parity-fixture" ? "[gate packer]" : "[]",
+			tags: "[pi-council/concept]",
+		});
+	}
+	const a = buildGateState(WIKI_CARD(), root);
+	const b = buildGateState(WIKI_CARD(), root);
+	expect(Buffer.compare(Buffer.from(a.stateBytes), Buffer.from(b.stateBytes))).toBe(0);
+	expect(a.stateHash).toBe(b.stateHash);
+	const parsed = parseState(a.stateBytes);
+	expect((parsed.wiki as { slug: string }[]).map((p) => p.slug)).toContain("gate-parity-fixture");
+});
+
+test("exclusions as tested rules: index.md and sources/** never appear in the wiki section", () => {
+	const root = tmpRepo();
+	// Both exclusion-class pages outscore the ordinary page on the card terms.
+	wikiPage(root, "index.md", { title: "Gate Fixture Index", summary: "gate gate gate master catalog" });
+	wikiPage(root, "sources/2026-09-20-po-gate-ruling.md", {
+		title: "Gate Ruling Source",
+		summary: "gate ruling with sources",
+		tags: "[pi-council/ruling]",
+	});
+	wikiPage(root, "ordinary-page.md", { title: "Ordinary", summary: "mentions gate once", tags: "[pi-council/concept]" });
+	const parsed = parseState(buildGateState(WIKI_CARD(), root).stateBytes);
+	const slugs = (parsed.wiki as { slug: string }[]).map((p) => p.slug);
+	expect(slugs).toContain("ordinary-page");
+	expect(slugs).not.toContain("index");
+	expect(slugs.some((s) => s.startsWith("sources/"))).toBe(false);
+});
+
+test("wiki entries carry exactly { slug, title, summary, aliases }", () => {
+	const root = tmpRepo();
+	wikiPage(root, "shaped-page.md", {
+		title: "Shaped",
+		summary: "a gate page",
+		aliases: "[shaped gate]",
+		tags: "[pi-council/concept]",
+	});
+	const parsed = parseState(buildGateState(WIKI_CARD(), root).stateBytes);
+	const entry = (parsed.wiki as Record<string, unknown>[])[0];
+	expect(Object.keys(entry).sort()).toEqual(["aliases", "slug", "summary", "title"]);
+	expect(entry.slug).toBe("shaped-page");
+});
+
+test("wiki selection is fill-to-cap in score order with lexicographic tie-break", () => {
+	const root = tmpRepo();
+	// 14 equal-score pages with ~340-token summaries each: the 4000-token wiki
+	// cap keeps only the lexicographically-first prefix that fits.
+	for (let i = 0; i < 14; i++) {
+		const name = `page-${String(i).padStart(2, "0")}`;
+		wikiPage(root, `${name}.md`, {
+			title: `Fixture ${name}`,
+			summary: `about gate ${"filler ".repeat(160)}`,
+			tags: "[pi-council/concept]",
+		});
+	}
+	const state = buildGateState(WIKI_CARD(), root);
+	const parsed = parseState(state.stateBytes);
+	const wiki = parsed.wiki as { slug: string }[];
+	// The kept set is exactly the lexicographic prefix that fits the cap.
+	expect(wiki.length).toBeGreaterThan(0);
+	expect(wiki.length).toBeLessThan(14);
+	for (let i = 0; i < wiki.length; i++) {
+		expect(wiki[i].slug).toBe(`page-${String(i).padStart(2, "0")}`);
+	}
+	const cap = 4000;
+	const nextName = `page-${String(wiki.length).padStart(2, "0")}`;
+	const nextEntry = { slug: nextName, title: `Fixture ${nextName}`, summary: `about gate ${"filler ".repeat(160)}`, aliases: [] };
+	expect(estimateTokens(JSON.stringify(wiki))).toBeLessThanOrEqual(cap);
+	expect(estimateTokens(JSON.stringify([...wiki, nextEntry]))).toBeGreaterThan(cap);
+	const drops = state.drops.find((d) => d.section === "wiki");
+	expect(drops).toMatchObject({ truncated: "cap" });
+});
+
+test("doc-to-page map: a live-tree path reference outscores a ghost path and a plain page", () => {
+	const root = tmpRepo();
+	fs.mkdirSync(path.join(root, "docs"), { recursive: true });
+	fs.mkdirSync(path.join(root, "extensions"), { recursive: true });
+	fs.writeFileSync(path.join(root, "extensions", "gate.ts"), "export {};\n"); // live path
+	wikiPage(root, "page-b-live.md", { title: "Fixture B", summary: "about gate" }, "see extensions/gate.ts for details\n");
+	wikiPage(root, "page-a-plain.md", { title: "Fixture A", summary: "about gate" }, "no references at all\n");
+	wikiPage(root, "page-c-ghost.md", { title: "Fixture C", summary: "about gate" }, "see docs/ghost.ts nowhere\n");
+	const parsed = parseState(buildGateState(WIKI_CARD(), root).stateBytes);
+	const slugs = (parsed.wiki as { slug: string }[]).map((p) => p.slug);
+	// page-b-live: +2 for the live path → first. page-a-plain and page-c-ghost
+	// tie at the summary-only score → lexicographic (plain before ghost).
+	expect(slugs).toEqual(["page-b-live", "page-a-plain", "page-c-ghost"]);
+});

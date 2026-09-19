@@ -184,6 +184,7 @@ export function buildGateState(card: ParsedCard, repoRoot: string): GateState {
 
 	const terms = extractCardTerms(card);
 	const docMap = deriveDocToPageMap(repoRoot);
+	const wikiCandidates = selectWikiCandidates(repoRoot, terms, docMap);
 
 	// Full frame first: every measurement below is a measurement of a
 	// complete five-section state, so the final state's measured token count
@@ -220,7 +221,7 @@ export function buildGateState(card: ParsedCard, repoRoot: string): GateState {
 		{
 			section: "wiki",
 			entries: () =>
-				selectWikiCandidates(repoRoot, terms, docMap).map((p) => ({
+				wikiCandidates.map((p) => ({
 					value: { slug: p.slug, title: p.title, summary: p.summary, aliases: p.aliases },
 				})),
 		},
@@ -267,7 +268,7 @@ export function buildGateState(card: ParsedCard, repoRoot: string): GateState {
 				kept: capFilled.length,
 				measuredTokens: fragTokens(capFilled),
 			});
-			if (section === "wiki") selectedWikiTagLeaves = capFilled.flatMap((e) => tagLeaves(e.value as WikiCandidate));
+			if (section === "wiki") selectedWikiTagLeaves = wikiCandidates.slice(0, capFilled.length).flatMap(tagLeaves);
 			continue;
 		}
 
@@ -290,9 +291,123 @@ export function buildGateState(card: ParsedCard, repoRoot: string): GateState {
 }
 
 // ---------------------------------------------------------------------------
-// Selection stubs — filled by the matcher tasks (deterministic, no model,
-// no network). See the design spec §5–§6.
+// Deterministic wiki matcher (§5) — no model, no network. Fixed a repo tree,
+// selection is deterministic: stopword-extracted card terms scored against
+// each page's own frontmatter and the live-tree paths it references.
+//
+// Recorded limitation (O3, quantified in the card record): this is a
+// term-overlap matcher, and on some goals its top picks are term-adjacent
+// rather than topically right. Determinism is the contract; selection
+// precision rides the model, not the packer.
 // ---------------------------------------------------------------------------
+
+const STOPWORDS = new Set([
+	"the", "a", "an", "and", "or", "of", "to", "in", "for", "on", "is", "are", "with",
+	"as", "by", "that", "this", "it", "be", "at", "from", "has", "have", "was", "were",
+	"will", "their", "they", "then", "these", "which", "its", "but", "so", "than", "per",
+	"there", "not", "into",
+]);
+const MIN_TERM_LEN = 3;
+
+/** Card terms: stopword-extracted lowercase tokens from title+goal+acceptance. */
+function extractCardTerms(card: ParsedCard): string[] {
+	const text = `${card.title} ${card.goal} ${card.acceptance}`.toLowerCase();
+	const out: string[] = [];
+	for (const t of text.split(/[^a-z0-9]+/)) {
+		if (t.length < MIN_TERM_LEN || STOPWORDS.has(t)) continue;
+		if (!out.includes(t)) out.push(t);
+	}
+	return out;
+}
+
+interface ParsedFrontmatter {
+	fm: Record<string, string | string[]>;
+	body: string;
+}
+
+/** Minimal flat frontmatter parser (no YAML dependency): `key: value` and
+ * `key: [a, b]` lines between the first two `---` markers. Multi-line block
+ * scalars are unsupported — a page using them yields empty fields, never a
+ * crash. A page with no frontmatter parses as body-only. */
+function parseFrontmatter(text: string): ParsedFrontmatter {
+	const m = /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/.exec(text);
+	if (!m) return { fm: {}, body: text };
+	const fm: Record<string, string | string[]> = {};
+	for (const line of m[1].split(/\r?\n/)) {
+		const i = line.indexOf(":");
+		if (i <= 0) continue;
+		const key = line.slice(0, i).trim();
+		const v = line.slice(i + 1).trim();
+		if (v.startsWith("[") && v.endsWith("]")) {
+			const inner = v.slice(1, -1).trim();
+			fm[key] = inner === "" ? [] : inner.split(",").map((s) => s.trim().replace(/^["']+|["']+$/g, "")).filter((s) => s !== "");
+		} else {
+			fm[key] = v.replace(/^["']+|["']+$/g, "");
+		}
+	}
+	return { fm, body: text.slice(m[0].length) };
+}
+
+function asStringArray(v: string | string[] | undefined): string[] {
+	if (v === undefined) return [];
+	return Array.isArray(v) ? v : [v];
+}
+
+interface PageOnDisk {
+	slug: string; // vault/wiki-relative path without the .md extension
+	rel: string;
+	file: string;
+}
+
+function listWikiPages(repoRoot: string): PageOnDisk[] {
+	const base = path.join(repoRoot, "vault", "wiki");
+	if (!fs.existsSync(base)) return [];
+	const out: PageOnDisk[] = [];
+	const walk = (dir: string, rel: string): void => {
+		let items: fs.Dirent[];
+		try {
+			items = fs.readdirSync(dir, { withFileTypes: true });
+		} catch {
+			return;
+		}
+		for (const e of [...items].sort((a, b) => pathCompare(a.name, b.name))) {
+			const relPath = rel ? `${rel}/${e.name}` : e.name;
+			if (e.isDirectory()) walk(path.join(dir, e.name), relPath);
+			else if (e.isFile() && e.name.endsWith(".md")) out.push({ slug: relPath.slice(0, -3), rel: relPath, file: path.join(dir, e.name) });
+		}
+	};
+	walk(base, "");
+	return out;
+}
+
+/** Path-like tokens: words ending in a code/doc extension. Only tokens that
+ * EXIST in the live tree index — a reference to a file that isn't there
+ * carries no evidence. */
+const PATH_TOKEN_RE = /[A-Za-z0-9_][A-Za-z0-9_./-]*\.(?:ts|tsx|js|mjs|cjs|json|md|py|sh|ya?ml)\b/g;
+
+type DocMap = Map<string, string[]>; // live-tree path token → slugs referencing it
+
+/** Doc-to-page map: derived per call from every page's frontmatter and body
+ * — never hand-maintained (the FLLWUP-59 lesson). ~80 pages; per-call
+ * derivation is cheap. */
+function deriveDocToPageMap(repoRoot: string): DocMap {
+	const map: DocMap = new Map();
+	for (const p of listWikiPages(repoRoot)) {
+		let text: string;
+		try {
+			text = fs.readFileSync(p.file, "utf8");
+		} catch {
+			continue;
+		}
+		for (const token of new Set(text.match(PATH_TOKEN_RE) ?? [])) {
+			if (!fs.existsSync(path.join(repoRoot, token))) continue;
+			const slugs = map.get(token) ?? [];
+			if (!slugs.includes(p.slug)) slugs.push(p.slug);
+			map.set(token, slugs);
+		}
+	}
+	return map;
+}
 
 interface WikiCandidate {
 	slug: string;
@@ -302,22 +417,57 @@ interface WikiCandidate {
 	tags: string[];
 }
 
+interface ScoredPage extends WikiCandidate {
+	paths: string[];
+	score: number;
+}
+
+/** Weighted field scoring — pinned constants (a pinning detail, not a second
+ * knob): per card term, alias hit +3, title +2, tag +2, summary +1, live-tree
+ * path hit +2. */
+function scorePage(terms: string[], page: { title: string; summary: string; aliases: string[]; tags: string[]; paths: string[] }): number {
+	let score = 0;
+	for (const t of terms) {
+		if (page.aliases.some((a) => a.toLowerCase().includes(t))) score += 3;
+		if (page.title.toLowerCase().includes(t)) score += 2;
+		if (page.tags.some((g) => g.toLowerCase().includes(t))) score += 2;
+		if (page.summary.toLowerCase().includes(t)) score += 1;
+		if (page.paths.some((p) => p.toLowerCase().includes(t))) score += 2;
+	}
+	return score;
+}
+
+/** Wiki candidates: every markdown page under vault/wiki EXCEPT
+ * vault/wiki/index.md (cheap insurance, tested rule) and everything under
+ * vault/wiki/sources/ (tested rule — with sources in the candidate set they
+ * take top slots and ruling pages double-dip into the wiki section). Ranked
+ * score-descending, tie-break lexicographic by page filename; the cap fill
+ * happens in the packer, so k is emergent from the cap, not a second knob. */
+function selectWikiCandidates(repoRoot: string, terms: string[], docMap: DocMap): WikiCandidate[] {
+	const scored: ScoredPage[] = [];
+	for (const p of listWikiPages(repoRoot)) {
+		if (p.slug === "index" || p.slug.startsWith("sources/")) continue;
+		const { fm, body } = parseFrontmatter(fs.readFileSync(p.file, "utf8"));
+		void body;
+		// A page's paths are the live-tree tokens THIS page references (the map
+		// is frontmatter+body derived and live-validated, per page).
+		const paths: string[] = [];
+		for (const [token, slugs] of docMap) if (slugs.includes(p.slug)) paths.push(token);
+		const title = typeof fm.title === "string" ? fm.title : "";
+		const summary = typeof fm.summary === "string" ? fm.summary : "";
+		const aliases = asStringArray(fm.aliases);
+		const tags = asStringArray(fm.tags);
+		scored.push({ slug: p.slug, title, summary, aliases, tags, paths, score: scorePage(terms, { title, summary, aliases, tags, paths }) });
+	}
+	return scored
+		.sort((a, b) => (a.score !== b.score ? b.score - a.score : pathCompare(a.slug, b.slug)))
+		.map((p) => ({ slug: p.slug, title: p.title, summary: p.summary, aliases: p.aliases, tags: p.tags }));
+}
+
+/** Non-namespace tag leaf: the part after the last `/` (pi-council/epic9 →
+ * epic9). Ruling relevance shares these with selected wiki pages. */
 function tagLeaves(page: WikiCandidate): string[] {
 	return page.tags.map((t) => (t.includes("/") ? t.slice(t.lastIndexOf("/") + 1) : t));
-}
-
-function extractCardTerms(card: ParsedCard): string[] {
-	return [];
-}
-
-type DocMap = Map<string, string[]>;
-
-function deriveDocToPageMap(repoRoot: string): DocMap {
-	return new Map();
-}
-
-function selectWikiCandidates(repoRoot: string, terms: string[], docMap: DocMap): WikiCandidate[] {
-	return [];
 }
 
 interface RulingCandidate {
