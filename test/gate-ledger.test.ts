@@ -203,3 +203,35 @@ test("a write failure throws naming the absolute target path", () => {
 		new RegExp(target.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
 	);
 });
+
+// ---------------------------------------------------------------------------
+// Task 3: reader discipline + no-network source pins
+// ---------------------------------------------------------------------------
+
+test("the reader never reads the pruned run directory and performs no network call", () => {
+	const moduleUrl = fileURLToPath(import.meta.resolve("../extensions/gate-ledger.ts"));
+	const source = fs.readFileSync(moduleUrl, "utf-8");
+	// Run-directory discipline: no run-substrate accessors, no runs/ references.
+	expect(source).not.toContain("./runs.ts");
+	expect(source).not.toContain("runsDir");
+	expect(source).not.toContain("readManifests");
+	expect(source).not.toContain("pruneRuns");
+	expect(source).not.toContain("runs/");
+	// No network anywhere in the module.
+	expect(source).not.toContain("fetch(");
+	expect(source).not.toContain("openrouter");
+	// No hardcoded .pi — the config dir comes from the package.
+	expect(source).not.toContain('".pi"');
+});
+
+test("the module's imports are exactly the stdlib plus the pi-coding-agent package", () => {
+	const moduleUrl = fileURLToPath(import.meta.resolve("../extensions/gate-ledger.ts"));
+	const source = fs.readFileSync(moduleUrl, "utf-8");
+	const imports = [...source.matchAll(/(?:^|\n)import\s[^;]*from\s*"([^"]+)";/g)].map((m) => m[1]);
+	expect(imports.sort()).toEqual([
+		"@earendil-works/pi-coding-agent",
+		"node:crypto",
+		"node:fs",
+		"node:path",
+	]);
+});

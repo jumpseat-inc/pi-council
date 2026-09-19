@@ -165,10 +165,10 @@ export interface ReadGateLedgerResult {
 }
 
 /** Read the ledger, never throwing: blank and unparseable (torn-tail) lines
- * are skipped (the readManifests precedent), unrecognized `kind`s are
- * ignored (future record shapes never strand the file), and each call's
- * last follow-on outcome is joined onto its record. Reads ONLY the ledger
- * path — never the pruned run directory. */
+ * are skipped (the tolerant read precedent of the run-manifest reader),
+ * unrecognized `kind`s are ignored (future record shapes never strand the
+ * file), and each call's last follow-on outcome is joined onto its record.
+ * Reads ONLY the ledger path — never the pruned run directory. */
 export function readGateLedger(repoRoot: string, ledgerPath: string = gateLedgerPath(repoRoot)): ReadGateLedgerResult {
 	const calls: GateLedgerRecord[] = [];
 	const orphanOutcomes: GateOutcomeRecord[] = [];
