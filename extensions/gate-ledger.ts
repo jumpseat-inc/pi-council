@@ -143,6 +143,58 @@ export function appendGateOutcome(input: GateOutcomeInput, repoRoot: string, led
 	return record;
 }
 
+// ---------------------------------------------------------------------------
+// Reader + re-derivation seam
+// ---------------------------------------------------------------------------
+
+/** The seam EV-63's pure `decide` plugs into: a pure function of the stored
+ * answers and the policy version, with no fs and no network. Re-derivation
+ * never re-runs the model — the line is the record. */
+export type DecideFn = (answers: Record<string, GateAnswer | null>, policyVersion: string) => string;
+
+/** Re-derive a recorded call's resolved mode from ONLY the stored line:
+ * the answers (absent as `null`) and the policyVersion. Pure. */
+export function rederiveResolvedMode(record: GateLedgerRecord, decide: DecideFn): string {
+	return decide(record.answers, record.policyVersion);
+}
+
+export interface ReadGateLedgerResult {
+	calls: GateLedgerRecord[];
+	/** Outcome lines whose callId has no matching call in the file. */
+	orphanOutcomes: GateOutcomeRecord[];
+}
+
+/** Read the ledger, never throwing: blank and unparseable (torn-tail) lines
+ * are skipped (the readManifests precedent), unrecognized `kind`s are
+ * ignored (future record shapes never strand the file), and each call's
+ * last follow-on outcome is joined onto its record. Reads ONLY the ledger
+ * path — never the pruned run directory. */
+export function readGateLedger(repoRoot: string, ledgerPath: string = gateLedgerPath(repoRoot)): ReadGateLedgerResult {
+	const calls: GateLedgerRecord[] = [];
+	const orphanOutcomes: GateOutcomeRecord[] = [];
+	if (!fs.existsSync(ledgerPath)) return { calls, orphanOutcomes };
+	for (const line of fs.readFileSync(ledgerPath, "utf-8").split("\n")) {
+		if (line.trim() === "") continue;
+		let rec: unknown;
+		try {
+			rec = JSON.parse(line);
+		} catch {
+			continue; // torn tail / corrupt line → skip, never throw
+		}
+		if (!rec || typeof rec !== "object" || !("kind" in rec)) continue;
+		if (rec.kind === "call") {
+			calls.push(rec as unknown as GateLedgerRecord);
+		} else if (rec.kind === "outcome") {
+			const out = rec as unknown as GateOutcomeRecord;
+			const call = calls.find((c) => c.callId === out.callId);
+			if (call) call.outcome = out.outcome; // last outcome wins
+			else orphanOutcomes.push(out);
+		}
+		// unrecognized kind → tolerated, ignored
+	}
+	return { calls, orphanOutcomes };
+}
+
 function appendLine(ledgerPath: string, record: GateLedgerRecord | GateOutcomeRecord): void {
 	fs.mkdirSync(path.dirname(ledgerPath), { recursive: true });
 	const line = JSON.stringify(record) + "\n";

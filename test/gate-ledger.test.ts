@@ -9,6 +9,9 @@ import {
 	appendGateCall,
 	appendGateOutcome,
 	gateLedgerPath,
+	readGateLedger,
+	rederiveResolvedMode,
+	type DecideFn,
 } from "../extensions/gate-ledger.ts";
 
 function tmpRepo(): string {
@@ -84,6 +87,112 @@ test("two appends produce two lines, appended never rewritten", () => {
 test("gateLedgerPath derives from CONFIG_DIR_NAME, never a hardcoded .pi", () => {
 	const repo = tmpRepo();
 	expect(gateLedgerPath(repo)).toBe(path.join(repo, CONFIG_DIR_NAME, "council", "gate-ledger.jsonl"));
+});
+
+// ---------------------------------------------------------------------------
+// Task 2: tolerant reader + re-derivation seam
+// ---------------------------------------------------------------------------
+
+/** A stand-in for EV-63's pure decide(): floors confidence, escalates nulls.
+ * Respects the transport's type shapes — a `noul` answer carries no
+ * `confidence` field by design (it faces the policy's noul threshold, not a
+ * floor), so only types that report one are floored. */
+const floorDecide: DecideFn = (answers) => {
+	const list = Object.values(answers);
+	if (list.some((a) => a === null)) return "Deliberate";
+	for (const a of list) {
+		if (a!.type === "noul") continue; // no confidence to floor; threshold test is EV-63's
+		if (typeof a!.confidence !== "number") throw new Error("answer missing confidence");
+		if (a!.confidence < 0.7) return "Deliberate";
+	}
+	return "Verify";
+};
+
+test("two calls with the same stateHash and policyVersion re-derive the identical resolvedMode", () => {
+	const repo = tmpRepo();
+	const answers = {
+		"q-reversible": { type: "choice", value: "yes", probabilities: { yes: 0.95, no: 0.05 }, confidence: 0.9 },
+		"q-noul": { type: "noul", probability: 0.02 },
+	};
+	for (const stateHash of ["s-1", "s-1"]) {
+		appendGateCall(callInput({ stateHash, questionIds: ["q-reversible", "q-noul"], answers, resolvedMode: "Verify" }), repo);
+	}
+	const { calls } = readGateLedger(repo);
+	expect(calls.length).toBe(2);
+	const modes = calls.map((c) => rederiveResolvedMode(c, floorDecide));
+	expect(modes[0]).toBe(modes[1]);
+	expect(modes[0]).toBe(calls[0]!.resolvedMode);
+});
+
+test("a recorded call's mode is re-derivable from the committed file alone, offline", () => {
+	const repo = tmpRepo();
+	appendGateCall(
+		callInput({
+			answers: { "q-x": { type: "choice", value: "yes", probabilities: { yes: 0.9, no: 0.1 }, confidence: 0.95 } },
+			questionIds: ["q-x"],
+			resolvedMode: "Verify",
+		}),
+		repo,
+	);
+	const { calls } = readGateLedger(repo);
+	expect(rederiveResolvedMode(calls[0]!, floorDecide)).toBe("Verify");
+});
+
+test("the line alone suffices: stripping confidence from a stored line breaks re-derivation", () => {
+	const repo = tmpRepo();
+	appendGateCall(
+		callInput({
+			questionIds: ["q-x"],
+			answers: { "q-x": { type: "choice", value: "yes", probabilities: { yes: 0.9, no: 0.1 }, confidence: 0.95 } },
+		}),
+		repo,
+	);
+	const parsed = JSON.parse(fs.readFileSync(gateLedgerPath(repo), "utf-8").trim());
+	delete parsed.answers["q-x"].confidence;
+	expect(() => rederiveResolvedMode(parsed as never, floorDecide)).toThrow(/missing confidence/);
+});
+
+test("a null (absent) answer re-derives to Deliberate through the seam", () => {
+	const repo = tmpRepo();
+	appendGateCall(callInput(), repo); // q-blast has no answer → null
+	const { calls } = readGateLedger(repo);
+	expect(rederiveResolvedMode(calls[0]!, floorDecide)).toBe("Deliberate");
+});
+
+test("an outcome joins its call as a follow-on line; the call line is never rewritten", () => {
+	const repo = tmpRepo();
+	const rec = appendGateCall(callInput(), repo);
+	const before = fs.readFileSync(gateLedgerPath(repo), "utf-8");
+	appendGateOutcome({ callId: rec.callId, outcome: { cardId: "EV-9", landed: true } }, repo);
+	const after = fs.readFileSync(gateLedgerPath(repo), "utf-8");
+	expect(after.startsWith(before)).toBe(true); // append-only: the call line is byte-frozen
+	const { calls } = readGateLedger(repo);
+	expect(calls[0]!.outcome).toEqual({ cardId: "EV-9", landed: true });
+});
+
+test("an orphan outcome is tolerated and reported, never fatal", () => {
+	const repo = tmpRepo();
+	appendGateOutcome({ callId: "no-such-call", outcome: { x: 1 } }, repo);
+	const { calls, orphanOutcomes } = readGateLedger(repo);
+	expect(calls).toEqual([]);
+	expect(orphanOutcomes.length).toBe(1);
+	expect(orphanOutcomes[0]!.outcome).toEqual({ x: 1 });
+});
+
+test("the reader tolerates a torn trailing line, a blank line, and an unknown kind", () => {
+	const repo = tmpRepo();
+	appendGateCall(callInput(), repo);
+	fs.appendFileSync(gateLedgerPath(repo), "\n");
+	fs.appendFileSync(gateLedgerPath(repo), JSON.stringify({ schemaVersion: 99, kind: "future-thing" }) + "\n");
+	fs.appendFileSync(gateLedgerPath(repo), '{"kind":"call","callId":"torn"'); // no newline, mid-write tail
+	const { calls, orphanOutcomes } = readGateLedger(repo);
+	expect(calls.length).toBe(1);
+	expect(orphanOutcomes).toEqual([]);
+});
+
+test("readGateLedger of a missing file is empty, never a throw", () => {
+	const repo = tmpRepo();
+	expect(readGateLedger(repo)).toEqual({ calls: [], orphanOutcomes: [] });
 });
 
 test("a write failure throws naming the absolute target path", () => {
