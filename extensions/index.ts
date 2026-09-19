@@ -6,6 +6,7 @@ import { Hub } from "./hub.ts";
 import { getHub, initHubIdentity, pidFilePath, registerHubTools, shutdownHub } from "./hub-tools.ts";
 import { registerGateTool } from "./gate-tool.ts";
 import { registerGateRenderTool } from "./gate-render.ts";
+import { registerRouteTool } from "./gate-route-tool.ts";
 import { PKG_ROOT, listSeatNames, loadSeat, loadCouncilConfig, loadThemeConfig, loadRetryConfig, proceduresDir, parseQualifiedModel, DEFAULT_RETRY_POLICY, type RetryPolicy } from "./seats.ts";
 import { activateTheme } from "./theme-activation.ts";
 import { watchCouncilConfig, type CouncilConfigWatcher } from "./theme-watcher.ts";
@@ -618,6 +619,9 @@ export default async function (pi: ExtensionAPI) {
 	// EV-67: the render tool's own parent-path registration — never folded
 	// into registerHubTools, so child mode structurally never sees it.
 	registerGateRenderTool(pi, repoRoot);
+	// EV-69: the routing tool's own parent-path registration — never folded
+	// into registerHubTools, so child mode structurally never sees it.
+	registerRouteTool(pi, repoRoot);
 	registerNavigator(
 		pi,
 		repoRoot,

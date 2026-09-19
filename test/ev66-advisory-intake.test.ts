@@ -371,8 +371,13 @@ describe("EV-66 advisory intake — unit section", () => {
 		// the EV-67 spec §4): the WRITER (gate-run.ts) references the append
 		// accessors; the PRESENTATION leaf (gate-render.ts) references the
 		// reader accessors and the format string; the OWNER (gate-ledger.ts)
-		// defines all of them. Any OTHER module referencing any ledger accessor
-		// is an offender.
+		// defines all of them. EV-69 amendment (deliberate): the ROUTING READ
+		// (gate-route.ts) and its tool (gate-route-tool.ts) also reference the
+		// reader accessors — the routing read consumes recorded decisions; the
+		// import fence keeps it off the execution path (no runGate/transport/
+		// render edge, pinned by the T1 canary in test/gate-route.test.ts), and
+		// the routing read never renders. Any OTHER module referencing any
+		// ledger accessor is an offender.
 		const writerAccessors = ["appendGateCall", "appendGateOutcome"];
 		const readerAccessors = ["readGateLedger", "gate-ledger.jsonl", "decisionLine"];
 		const writerOffenders = modules
@@ -380,9 +385,9 @@ describe("EV-66 advisory intake — unit section", () => {
 			.filter((f) => writerAccessors.some((sym) => srcOf(f).includes(sym)));
 		expect(writerOffenders, "only gate-run.ts (the writer) references the append accessors").toEqual([]);
 		const readerOffenders = modules
-			.filter((f) => f !== "gate-ledger.ts" && f !== "gate-render.ts")
+			.filter((f) => f !== "gate-ledger.ts" && f !== "gate-render.ts" && f !== "gate-route.ts" && f !== "gate-route-tool.ts")
 			.filter((f) => readerAccessors.some((sym) => srcOf(f).includes(sym)));
-		expect(readerOffenders, "only gate-render.ts (the presentation) references the reader accessors").toEqual([]);
+		expect(readerOffenders, "only gate-render.ts (the presentation) and the EV-69 routing read reference the reader accessors").toEqual([]);
 		// Preserved in strength (1) — read-only posture: no module outside
 		// gate-run.ts references the append accessors, and gate-render.ts
 		// references NEITHER (it reads, never writes).

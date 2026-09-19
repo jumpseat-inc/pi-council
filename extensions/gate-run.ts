@@ -78,6 +78,15 @@ export interface RunGateOpts {
 	callId?: string;
 	/** Ledger path override (default gateLedgerPath(repoRoot)). */
 	ledgerPath?: string;
+	/** EV-69 (spec §5) — the escalation-only ratchet note, appended into the
+	 * appended line's `basis` when present. An option on the input, NOT a new
+	 * line field: still one write, one line, schemaVersion 2, and the line's
+	 * `resolvedMode` stays the verdict verbatim (recomputeable). Either a
+	 * static string (owed only when the caller already knows the verdict) or
+	 * a post-decide hook — the re-check's ratchet note depends on the verdict,
+	 * which exists only after decide() runs inside the single call. Absent ⇒
+	 * byte-identical to the pre-EV-69 basis. */
+	basisSuffix?: string | ((decision: GateDecision) => string | undefined);
 }
 
 export interface GateRunResult {
@@ -162,6 +171,14 @@ export async function runGate(
 	const timeoutMs = opts.timeoutMs ?? GATE_CALL_TIMEOUT_MS;
 	const advisory = policy.mode === "advisory";
 
+	/** EV-69 §5: the basis with the optional suffix folded in — one line, the
+	 * verdict verbatim, the ratchet note riding the same write. Absent opt ⇒
+	 * the decision's own basis, byte-identical to pre-EV-69. */
+	const lineBasis = (decision: GateDecision): string => {
+		const suffix = typeof opts.basisSuffix === "function" ? opts.basisSuffix(decision) : opts.basisSuffix;
+		return suffix !== undefined && suffix !== "" ? `${decision.basis} — ${suffix}` : decision.basis;
+	};
+
 	/** The one failure append: exactly ONE v2 call line — all asked ids
 	 * null, the machine class on the line, the verbatim reason exactly once
 	 * inside basis. No outcome line is ever written by this module. */
@@ -179,7 +196,7 @@ export async function runGate(
 				answers: {},
 				resolvedMode: decision.mode,
 				policyVersion: policy.policyVersion,
-				basis: decision.basis,
+				basis: lineBasis(decision),
 				failureClass: f.class,
 				drops: state.drops,
 				advisory,
@@ -249,7 +266,7 @@ export async function runGate(
 				answers,
 				resolvedMode: decision.mode,
 				policyVersion: policy.policyVersion,
-				basis: decision.basis,
+				basis: lineBasis(decision),
 				model: parsed.model,
 				provider: parsed.provider,
 				usage: parsed.usage,
