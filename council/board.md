@@ -73,9 +73,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- EV-67 — Gate verdict rendered as information at the step-3 approval gate
 ## In Progress
 
+- EV-67 — Gate verdict rendered as information at the draft-then-confirm approval gate
 
 ## In Review
 
