@@ -48,11 +48,20 @@ the `ad96c4f` pass; command in the next section):
 | `test/ev40-headless.test.ts` | 3 | **12.9s** |
 | `test/ev43-reachability.test.ts` | 2 | **4.9s** |
 | `test/ev41-seat-child-live.test.ts` | 2 | **5.9s** |
+| `test/gate-run-live.test.ts` (EV-65) | 3 | not yet measured — gated behind `COUNCIL_INTEGRATION=1`; design-time expected ≈10s (test header; the measured figure lands here at the next re-measurement) |
 | **Live-arm share** | 17 | **78.3s of 101.2s ≈ 77%** |
 
 The other ~75 files sum to ≈23s. The suite is serial/additive
 (`package.json`'s `test` script is bare `bun test` — no `--parallel`), so
 per-file times sum to the suite total within run-to-run tolerance.
+
+The EV-65 live arm (`test/gate-run-live.test.ts`, added 2026-09-20) is
+**gated** (reported separately, never summed into the default-suite floor,
+like the other gated sites) and is **not yet measured** — its design-time
+expected wall clock (≈10s) and its per-test ceiling (120_000ms) live in the
+test header per standing rule 1; the measured figure lands in the table at
+the next re-measurement. It makes **no** default-suite wall-clock claim —
+the arm is skipped entirely without `COUNCIL_INTEGRATION=1`.
 
 ## Ceiling vs budget — they are not the same number
 

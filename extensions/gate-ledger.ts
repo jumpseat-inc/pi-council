@@ -25,9 +25,20 @@
 // outcome arriving after the call cannot be spliced into the call's line.
 // The outcome joins the call's record as a FOLLOW-ON `kind: "outcome"` line
 // keyed on `callId`; the reader attaches it to the matching call record
-// (the last outcome for a callId wins). The call line itself stays
-// byte-frozen forever. The reader also tolerates unrecognized `kind`s so
+// (the last outcome for a callId wins). The outcome line stays what EV-61
+// built it to be: the follow-on record for what happened after the card ran
+// (EV-65's product-owner ruling Q1: no card puts a call-time fact at
+// `record.outcome.*`). The reader also tolerates unrecognized `kind`s so
 // future record shapes never strand the file.
+//
+// Call-line shape (EV-65, PO ruling Q1): schemaVersion is 2. The call-time
+// union — basis, the versioned reported model, provider, usage, generation
+// id, failure {class}, drops, advisory, unknownAnswerIds — rides the call
+// line ATOMICALLY in the one appendGateCall write; EV-65's runGate writes
+// exactly ONE ledger line per call and NO outcome line. The bump is
+// additive and the reader stays tolerant: no schemaVersion validation, no
+// rewrite or re-serialization of existing lines; mixed v1/v2 files read
+// with identical rederiveResolvedMode (kept as a test, not an assumption).
 //
 // The record carries the goal's fields verbatim — stateHash,
 // questionSetVersion, every answer with its probabilities and confidence
@@ -40,13 +51,30 @@ import * as path from "node:path";
 import { randomUUID } from "node:crypto";
 import { CONFIG_DIR_NAME } from "@earendil-works/pi-coding-agent";
 
-export const GATE_LEDGER_SCHEMA_VERSION = 1;
+export const GATE_LEDGER_SCHEMA_VERSION = 2;
 
 /** The transport's answer, stored verbatim: the answer-type discriminator
  * plus the rest of the payload (chosen label, score, legend, `probabilities`
  * keyed by option or index, `confidence`, or a bare `probability`) as
  * unknown fields. The ledger never smooths the differing answer shapes. */
 export type GateAnswer = { type: string } & Record<string, unknown>;
+
+/** EV-65 v2 call-line usage block (provider-reported; null = not carried). */
+export interface GateUsage {
+	input_tokens: number | null;
+	output_tokens: number | null;
+	cost: number | null;
+}
+
+/** EV-65 v2 call-line drop record — structurally identical to
+ * gate-state.ts's DropRecord (the type-only import edge forbids importing
+ * it here). */
+export interface GateDropRecord {
+	section: string;
+	truncated: false | "cap" | "budget";
+	kept: number;
+	measuredTokens: number;
+}
 
 export interface GateLedgerRecord {
 	schemaVersion: number; // GATE_LEDGER_SCHEMA_VERSION; self-describing standalone
@@ -66,6 +94,29 @@ export interface GateLedgerRecord {
 	policyVersion: string;
 	/** ISO-8601 write clock. */
 	recordedAt: string;
+	// --- EV-65 v2 call-time union (PO ruling Q1): additive, written by
+	// runGate's single append, all optional-tolerant on read. ---
+	/** The decision basis: the decide()-derived composite on success,
+	 * `"gate call failed: " + <verbatim transport reason>` on failure. The
+	 * verbatim reason occurs EXACTLY ONCE in the record — there is no
+	 * `failure.reason` field (only `failure {class}`).
+	 * `"Mode: " + resolvedMode + " — " + basis` byte-equals EV-67's pinned
+	 * render. */
+	basis?: string;
+	/** The versioned model the response reported. */
+	model?: string | null;
+	provider?: string | null;
+	usage?: GateUsage | null;
+	generationId?: string | null;
+	/** The machine failure-class tag — present only on a failed call. */
+	failure?: { class: string };
+	/** The state packer's drop records (the estimator's measuredTokens next
+	 * to the provider's usage.input_tokens on the same line). */
+	drops?: GateDropRecord[];
+	/** Advisory-mode marker (the gate ran in advisory mode). */
+	advisory?: boolean;
+	/** Response answer ids not in the question set (dropped from answers). */
+	unknownAnswerIds?: string[];
 	/** Joined at read time from the call's follow-on outcome line(s) — never
 	 * rewritten into this line. */
 	outcome?: Record<string, unknown>;
@@ -100,6 +151,17 @@ export interface GateCallInput {
 	now?: () => string;
 	/** Injectable identity (default randomUUID). */
 	callId?: string;
+	// --- EV-65 v2 call-time union (all optional; written by runGate). ---
+	basis?: string;
+	model?: string | null;
+	provider?: string | null;
+	usage?: GateUsage | null;
+	generationId?: string | null;
+	/** The machine failure-class tag, present only on a failed call. */
+	failureClass?: string;
+	drops?: GateDropRecord[];
+	advisory?: boolean;
+	unknownAnswerIds?: string[];
 }
 
 /** Append one call record. Fully pre-serialized, then a single append write;
@@ -120,6 +182,17 @@ export function appendGateCall(input: GateCallInput, repoRoot: string, ledgerPat
 		policyVersion: input.policyVersion,
 		recordedAt: (input.now ?? (() => new Date().toISOString()))(),
 	};
+	// EV-65 v2 union — written ATOMICALLY with the v1 fields in the one
+	// append below; absent optional fields stay absent (never null-filled).
+	if (input.basis !== undefined) record.basis = input.basis;
+	if (input.model !== undefined) record.model = input.model;
+	if (input.provider !== undefined) record.provider = input.provider;
+	if (input.usage !== undefined) record.usage = input.usage;
+	if (input.generationId !== undefined) record.generationId = input.generationId;
+	if (input.failureClass !== undefined) record.failure = { class: input.failureClass };
+	if (input.drops !== undefined) record.drops = input.drops;
+	if (input.advisory !== undefined) record.advisory = input.advisory;
+	if (input.unknownAnswerIds !== undefined) record.unknownAnswerIds = input.unknownAnswerIds;
 	appendLine(ledgerPath, record);
 	return record;
 }

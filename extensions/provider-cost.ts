@@ -2,10 +2,11 @@
 // injected-transport fetch. No ctx, no hub import (convention 7: hub.ts is
 // untouched). The only filesystem access is reading each job's already-
 // resolved session JSONL (resolved parent-side through runs.ts per
-// convention 12). The production HTTP transport is the ONLY network-touching
-// code and is never reached by the default test suite (tests inject a
-// FetchGeneration double; the live surface is probed only under
-// COUNCIL_INTEGRATION=1).
+// convention 12). This module's OpenRouter generation transport is one of
+// the engine's exactly TWO sanctioned network surfaces — the other, since
+// EV-65, is extensions/gate-transport.ts's decisions transport — and neither
+// is reached by the default test suite (tests inject transport doubles; the
+// live surfaces are probed only under COUNCIL_INTEGRATION=1).
 //
 // Granularity honesty (steward A): the provider's fetchable surface reports
 // generation-level dollars (total_cost, upstream_inference_cost, BYOK-only
