@@ -82,9 +82,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 - EV-65 — One-call decisions transport with fail-closed posture
 
-
-## In Review
-
 ## Needs Human
 
 ## Done
