@@ -49,6 +49,11 @@ export interface GatePolicy {
 	mode: GateMode;
 	model: string;
 	endpoint: string;
+	/** EV-64: packed gate-state token budget. Present ⇒ a validated positive
+	 * integer in every mode; absent ⇒ legal only when the resolved mode is
+	 * off (PO ruling Q1). Never defaulted in code — the packaged data file
+	 * carries the value. */
+	gateStateBudgetTokens?: number;
 }
 
 export type GateQuestionType = "choice" | "noul" | "score";
@@ -120,6 +125,18 @@ export function loadGatePolicy(repoRoot: string): GatePolicy {
 			throw gateFail(file, key, `unknown key; expected one of ${Object.keys(ALLOWED_POLICY_KEYS).join(", ")}`);
 		}
 	}
+	// EV-64 (PO ruling Q1 clause 1): present ⇒ validated unconditionally, in
+	// every mode — an invalid value must never lie dormant waiting to become
+	// live when the consumer flips the mode on. This runs BEFORE mode
+	// resolution can short-circuit anything.
+	let gateStateBudgetTokens: number | undefined;
+	if (raw.gateStateBudgetTokens !== undefined) {
+		const v = raw.gateStateBudgetTokens;
+		if (typeof v !== "number" || !Number.isInteger(v) || v <= 0) {
+			throw gateFail(file, "gateStateBudgetTokens", `expected a positive integer, found ${JSON.stringify(v)}`);
+		}
+		gateStateBudgetTokens = v;
+	}
 	const policyVersion = nonEmptyString(file, "policyVersion", raw.policyVersion);
 	const model = nonEmptyString(file, "model", raw.model);
 	const endpoint = nonEmptyString(file, "endpoint", raw.endpoint);
@@ -134,10 +151,22 @@ export function loadGatePolicy(repoRoot: string): GatePolicy {
 		}
 		mode = raw.mode as GateMode;
 	}
-	return { policyVersion, mode, model, endpoint };
+	// EV-64 (PO ruling Q1 clause 2): the key is legal in its absence only on
+	// the off path. The copy drops the template's "remove the key" advice —
+	// wrong for an absent key under whole-file shadowing (removing the key
+	// from a repo-local file cannot summon the packaged value; first-hit
+	// whole-file means no merge).
+	if (gateStateBudgetTokens === undefined && mode !== "off") {
+		throw new Error(
+			`FAIL: ${file} has an invalid gateStateBudgetTokens — the key is absent but the resolved mode is "${mode}" (an off-mode policy may omit it) — set a valid value`,
+		);
+	}
+	return gateStateBudgetTokens === undefined
+		? { policyVersion, mode, model, endpoint }
+		: { policyVersion, mode, model, endpoint, gateStateBudgetTokens };
 }
 
-const POLICY_KEYS = ["mode", "policyVersion", "model", "endpoint"] as const;
+const POLICY_KEYS = ["mode", "policyVersion", "model", "endpoint", "gateStateBudgetTokens"] as const;
 
 const ALLOWED_POLICY_KEYS: Record<string, true> = Object.fromEntries(
 	POLICY_KEYS.map((k) => [k, true as const]),

@@ -2,5 +2,6 @@
 	"policyVersion": "gate-policy-1",
 	"mode": "off",
 	"model": "typesafe/jev-1.13",
-	"endpoint": "https://openrouter.ai/api/alpha/decisions"
+	"endpoint": "https://openrouter.ai/api/alpha/decisions",
+	"gateStateBudgetTokens": 32000
 }
