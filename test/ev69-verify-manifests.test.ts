@@ -14,6 +14,23 @@
 //
 // Red at base: nothing wrote `mode` and nothing routed when this falsifier
 // was authored (see the red-base record in the PR description).
+//
+// CI-hermeticity (fix cycle 1): the re-gate-bearing arms (re-route, ratchet)
+// drive the REAL council_route recheck, whose runGate resolves the OpenRouter
+// credential from ambient state (env → stored credential) when no explicit
+// apiKey is passed. On CI nothing resolves, the re-gate fail-closes with
+// "no OpenRouter API key resolved", and every re-gate verdict degrades to
+// Deliberate — exactly the red seen at ab13a4c. Locally the ambient key
+// masked it. The gate POSTs to the scratch policy's loopback stub, so the
+// key value is never exercised — a dummy default suffices (the ev66
+// precedent: OPENROUTER_API_KEY: "ev66-dummy-key" at
+// test/ev66-advisory-intake.test.ts:456). The re-gate here runs IN-PROCESS
+// (registerRouteTool → recheck → runGate in this bun process), so the
+// per-arm child-env shape of ev66 becomes a module-level default. `??=`: a
+// real ambient key wins and is equally fine; no arm in this file asserts
+// the key-absent fail-closed basis.
+if (!process.env.OPENROUTER_API_KEY) process.env.OPENROUTER_API_KEY = "ev69-dummy-key";
+
 import { test, expect, afterAll } from "bun:test";
 import { execFileSync } from "node:child_process";
 import * as fs from "node:fs";
