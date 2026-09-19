@@ -45,6 +45,10 @@
 //                       respawn). The dispatch step's per-attempt ceilings
 //                       drop to the FLLWUP-56 inner bounds (0.5/0.5) under
 //                       this knob. The child shim strips this knob.
+//   EV40_TOOLCALL_GATE  "1" → a council_gate tool-call step (GATE_CARDS: one
+//                       epic + two children) follows the dispatch/wait steps
+//                       (EV-66: the advisory gate's parent turn). The knob is
+//                       inert for every existing arm.
 //   EV40_OPEN_TREE      "1" → dispatch the real /council-tree command at
 //                       session_start to open the inline tree widget (P6).
 import { appendFileSync } from "node:fs";
@@ -94,6 +98,10 @@ const TOOLCALL_WAIT = process.env.EV40_TOOLCALL_WAIT === "1";
 /** Designer P6: dispatch the REAL /council-tree command at session_start so the
  * inline tree widget (navigator.ts COUNCIL_TREE_WIDGET_KEY) is active. */
 const OPEN_TREE = process.env.EV40_OPEN_TREE === "1";
+/** EV-66 (opt-in): script a real council_gate parent step after the
+ * dispatch/wait steps — the advisory gate's tool call through the parent
+ * engine, exactly as the /features-new facilitator invokes it. */
+const TOOLCALL_GATE = process.env.EV40_TOOLCALL_GATE === "1";
 
 function log(file: string | undefined, line: string): void {
 	if (!file) return;
@@ -146,6 +154,38 @@ const waitStep = fauxAssistantMessage(
 	fauxToolCall("council_wait", { job_ids: ["job-1"], timeout_minutes: 2 }),
 	{ stopReason: "toolUse" },
 );
+// EV-66 (opt-in): the scripted council_gate parent step — one epic + two
+// children, a static module constant so the card set is byte-identical across
+// arms (only the repo-local gate policy differs). `touchedFiles` is omitted:
+// intake makes no touched-file claim (R(c) — the tool carries `[]` in a
+// contract with no absent slot; EV-69's re-check is the enforcement).
+export const GATE_CARDS = [
+	{
+		id: "EPIC-66T",
+		title: "EV-66 falsifier epic",
+		goal: "Carry the advisory-gate falsifier's epic card through the scripted gate call",
+		acceptance:
+			"The falsifier run records exactly one advisory ledger line for this epic card, byte-identical script across arms.",
+	},
+	{
+		id: "EV-66T-1",
+		title: "First falsifier child",
+		goal: "Carry the first scripted child card through the gate call",
+		acceptance:
+			"The falsifier run records exactly one advisory ledger line for this child, carrying its resolved mode and basis.",
+	},
+	{
+		id: "EV-66T-2",
+		title: "Second falsifier child",
+		goal: "Carry the second scripted child card through the gate call",
+		acceptance:
+			"The falsifier run records exactly one advisory ledger line for this child, and the per-card resolved modes are not all identical.",
+	},
+] as const;
+const gateStep = fauxAssistantMessage(
+	fauxToolCall("council_gate", { cards: GATE_CARDS.map((c) => ({ ...c })) }),
+	{ stopReason: "toolUse" },
+);
 const failStep = (n: number) =>
 	fauxAssistantMessage(
 		PARTIAL ? [fauxText(`${PARTIAL_MARKER} call=${n + 1} partial tokens before the provider died`)] : [],
@@ -157,6 +197,7 @@ const successStep = (_context: unknown, _options: unknown, state: { callCount: n
 faux.setResponses([
 	...(TOOLCALL_DISPATCH ? [dispatchStep] : []),
 	...(TOOLCALL_DISPATCH && TOOLCALL_WAIT ? [waitStep] : []),
+	...(TOOLCALL_GATE ? [gateStep] : []),
 	...Array.from({ length: FAILS }, (_, i) => failStep(i)),
 	successStep,
 	successStep,

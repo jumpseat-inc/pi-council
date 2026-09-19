@@ -86,6 +86,12 @@ export interface ArmOptions {
 	/** "1" ⇒ a council_wait tool-call step follows the dispatch step (the wait
 	 * holds the print-mode parent's turn open through the retry backoff window). */
 	toolcallWait?: boolean;
+	// EV-66 (opt-in, knob-gated): a scripted council_gate parent step after the
+	// dispatch/wait steps. With none set, every existing arm's env stays
+	// byte-identical.
+	/** "1" ⇒ a council_gate tool-call step (GATE_CARDS) follows the
+	 * dispatch/wait steps. */
+	toolcallGate?: boolean;
 	/** Extra env entries appended to the arm's env (spread LAST — e.g.
 	 * `{ PI_OFFLINE: "1" }` for arms whose children have no --offline argv). */
 	extraEnv?: Record<string, string>;
@@ -173,6 +179,9 @@ const harnessEnv = (
 	// neither set these keys are absent and the env is byte-identical to today.
 	...(opts.toolcallDispatch ? { EV40_TOOLCALL_DISPATCH: "1" } : {}),
 	...(opts.toolcallWait ? { EV40_TOOLCALL_WAIT: "1" } : {}),
+	// EV-66 (opt-in): the scripted council_gate step. Knob-gated: with the
+	// flag unset the key is absent and the env is byte-identical to today.
+	...(opts.toolcallGate ? { EV40_TOOLCALL_GATE: "1" } : {}),
 	// Spread LAST so an arm can override any base entry (e.g. PI_OFFLINE=1 for
 	// arms whose child has no --offline argv — pi's own documented var).
 	...(opts.extraEnv ?? {}),
