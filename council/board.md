@@ -77,10 +77,10 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- EV-64 — Budget-bounded gate state packing
 
 ## In Progress
 
+- EV-64 — Budget-bounded gate state packing
 
 ## In Review
 
