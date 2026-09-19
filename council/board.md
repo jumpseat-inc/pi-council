@@ -83,7 +83,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-60 — Cost-per-card and cost-per-epic baseline from existing run manifests
 
 ## In Review
 
@@ -91,6 +90,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Done
 
+- EV-60 — Cost-per-card and cost-per-epic baseline from existing run manifests
 - FLLWUP-59 — Mechanically derive or police the shape witness's token allowlist
 - FLLWUP-56 — Saturate the seat-dispatch provider-error arm onto a config-injected faux provider
 - FLLWUP-54 — Wiki page for the red-base evidence convention
