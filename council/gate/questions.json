@@ -1,0 +1,37 @@
+{
+	"version": "gate-questions-1",
+	"questions": {
+		"reversible": {
+			"type": "noul",
+			"instructions": "Would the change be straightforward to revert after it lands?",
+			"criteria": {
+				"yes": "A revert is a small, contained follow-up change.",
+				"no": "A revert would be costly, lossy, or require coordinated migration — a one-way door."
+			}
+		},
+		"publicContract": {
+			"type": "noul",
+			"instructions": "Does the change alter a public contract — an exported API, a persisted schema or data format, or a documented interface that other consumers depend on?",
+			"criteria": {
+				"yes": "The change touches an exported, persisted, or documented surface that others build on.",
+				"no": "The change is internal to this codebase's implementation."
+			}
+		},
+		"blastRadius": {
+			"type": "noul",
+			"instructions": "Could a defect in this change surface outside the files it touches — behavior another module or consumer depends on?",
+			"criteria": {
+				"yes": "The change crosses module boundaries or alters shared behavior.",
+				"no": "A defect would be contained within the touched files."
+			}
+		},
+		"decidablyTestable": {
+			"type": "choice",
+			"instructions": "Can the card's success be decided by an automated test in this repository?",
+			"criteria": {
+				"yes": "A test in the repo's suite can decide the card's acceptance.",
+				"no": "Acceptance requires judgment no automated test in the repo can decide."
+			}
+		}
+	}
+}
