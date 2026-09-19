@@ -80,12 +80,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-66 — Advisory gate at features-new intake
-
 ## Needs Human
 
 ## Done
 
+- EV-66 — Advisory gate at features-new intake
 - EV-68 — Card execution mode recorded on the run manifest
 - EV-65 — One-call decisions transport with fail-closed posture
 - EV-64 — Budget-bounded gate state packing
