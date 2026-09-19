@@ -70,7 +70,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Ready
 
-- EV-61 — Durable gate ledger with a recomputable decision record
 - EV-44 — Merge near-duplicate follow-up candidates before a card is drafted
 - EV-45 — Unattended ingest of a run's own ledger, without the human steer turn
 - EV-48 — Packaged seat-tier map with repo-local merge override
@@ -82,6 +81,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Deliberating
 
 ## In Progress
+
+- EV-61 — Durable gate ledger with a recomputable decision record
 
 
 ## In Review
