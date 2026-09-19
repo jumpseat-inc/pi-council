@@ -77,9 +77,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-68 — Card execution mode recorded on the run manifest
 ## In Review
 
+- EV-68 — Card execution mode recorded on the run manifest
 ## Needs Human
 
 ## Done
