@@ -78,11 +78,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-67 — Gate verdict rendered as information at the draft-then-confirm approval gate
 ## Needs Human
 
 ## Done
 
+- EV-67 — Gate verdict rendered as information at the draft-then-confirm approval gate
 - EV-66 — Advisory gate at features-new intake
 - EV-68 — Card execution mode recorded on the run manifest
 - EV-65 — One-call decisions transport with fail-closed posture
