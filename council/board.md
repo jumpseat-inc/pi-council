@@ -89,9 +89,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Deliberating
 
 ## In Progress
+- EV-77 — Document the gate's `.council.json` surface, its command, and the decide() basis vocabulary
 
 ## In Review
-- EV-77 — Document the gate's `.council.json` surface, its command, and the decide() basis vocabulary
 
 ## Needs Human
 
