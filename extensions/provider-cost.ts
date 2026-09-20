@@ -370,6 +370,105 @@ export async function fetchProviderReport(input: FetchProviderReportInput): Prom
 	};
 }
 
+// ---------------------------------------------------------------------------
+// EV-71 — the separate gate-spend reconciliation. This module stays
+// ledger-agnostic BY CONSTRUCTION: there is no import of gate-ledger.ts —
+// the caller (usage-store's flush) reads the ledger and passes the windowed
+// call lines in. The gate result NEVER enters ProviderCostReport: no
+// `generations[]` entry, no effect on `totalCost`, `routedMultiset`,
+// `partial`, or `status` — the seat path is byte-identical whether or not
+// gate calls are reconciled alongside it.
+// ---------------------------------------------------------------------------
+
+/** The structural slice of a gate-ledger call line the reconciliation needs
+ * (a GateLedgerRecord is assignable; the type is local so this module never
+ * imports gate-ledger). `generationId` null/absent = a failed call — it
+ * counts in `callsInWindow` and is never looked up. `usage.cost` is the
+ * ledger's verbatim figure; null/absent contributes nothing to the Σ
+ * (absent, never zero-derived). */
+export interface GateLedgerCallLine {
+	callId: string;
+	generationId?: string | null;
+	usage?: { cost: number | null } | null;
+}
+
+/** The ledger-authoritative gate Σ (EV-71): Σ of finite `usage.cost` over
+ * the given call lines; absent / null / non-finite contribute nothing; null
+ * iff none carried; never zero-derived from absence (a failed call, a v1
+ * line, and a carried 0 are three different things — only the last is a
+ * number). Pure. */
+export function sumGateSpend(calls: GateLedgerCallLine[]): number | null {
+	let sum: number | null = null;
+	for (const c of calls) {
+		const v = c.usage?.cost;
+		if (typeof v === "number" && Number.isFinite(v)) sum = (sum ?? 0) + v;
+	}
+	return sum;
+}
+
+/** The reconciliation result that becomes the persisted record's top-level
+ * `gate` sibling (parallel to `provider`, never nested inside it).
+ * `totalCost` is LEDGER-AUTHORITATIVE; `lookupCost` is the independent
+ * verification figure over the generation lookups — deliberately a separate
+ * observable field so a verification can disagree with the ledger (a
+ * mismatch is record-only, never rendered — the block names the exclusion,
+ * the ledger is the trace). */
+export interface GateSpendReport {
+	/** Windowed gate call lines (the call-claim count; a failed call counts). */
+	callsInWindow: number;
+	/** Ledger-authoritative Σ (sumGateSpend semantics). */
+	totalCost: number | null;
+	/** Σ over looked-up generations' reported `total_cost` — a distinct
+	 * observable field, never folded into any seat figure. */
+	lookupCost: number | null;
+	/** Lookups that timed out or returned a non-OK/erroring response. A failed
+	 * gate lookup never poisons anything else — the ledger carries the cost. */
+	failedLookups: number;
+}
+
+export interface ReconcileGateSpendInput {
+	/** The windowed gate call lines, passed in by the caller (values, not a
+	 * ledger read — the source pin "ids enter only through the ledger-sourced
+	 * input" is structural). */
+	gateCalls?: GateLedgerCallLine[];
+	/** The same injected transport seam the seat reconciliation uses. */
+	fetchGeneration: FetchGeneration;
+	/** null = no credential ⇒ no lookup is attempted (the mirror of the seat
+	 * path's no-api-key return); the ledger still carries the cost, so nothing
+	 * is unaccounted. */
+	apiKey: string | null;
+	now?: () => string; // default ISO wall clock
+	timeoutMs?: number; // default 5000 (AbortSignal.timeout)
+}
+
+/** Reconcile gate spend (EV-71): look up each windowed call's ledger-sourced
+ * decision generation id through the injected transport and report the gate
+ * figures. `api_type` is inert — GenerationResponse does not carry it, it is
+ * never read, and a double returning it changes no byte of the result. Never
+ * throws for a failed lookup (it lands in `failedLookups`); the ledger is the
+ * authoritative total either way. */
+export async function reconcileGateSpend(input: ReconcileGateSpendInput): Promise<GateSpendReport> {
+	const calls = input.gateCalls ?? [];
+	const totalCost = sumGateSpend(calls);
+	let lookupCost: number | null = null;
+	let failedLookups = 0;
+	if (input.apiKey !== null) {
+		const timeoutMs = input.timeoutMs ?? 5_000;
+		for (const c of calls) {
+			if (typeof c.generationId !== "string" || c.generationId.length === 0) continue;
+			const signal = AbortSignal.timeout(timeoutMs);
+			try {
+				const gen = await input.fetchGeneration(c.generationId, signal);
+				const v = num(gen.total_cost);
+				if (v !== null) lookupCost = (lookupCost ?? 0) + v;
+			} catch {
+				failedLookups += 1; // never poisons anything else — the ledger carries the cost
+			}
+		}
+	}
+	return { callsInWindow: calls.length, totalCost, lookupCost, failedLookups };
+}
+
 /** Credential resolution (production default only): the provider env key
  * first (OPENROUTER_API_KEY — the C3-ruled var; pi-ai's getEnvApiKey is not
  * exposed by its exports map), then the stored api_key credential; neither

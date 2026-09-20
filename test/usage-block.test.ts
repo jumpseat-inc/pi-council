@@ -651,3 +651,161 @@ test("EV-42 J3: an unknown partial literal fails closed to the generic fallback 
 	expect(out).toContain("usage  partial = figure is not whole");
 	expect(out).toContain("usage  partial"); // the qualifier is never silently dropped
 });
+
+// ---------------------------------------------------------------------------
+// EV-71 — the gate legend (spec §1.5): a conditional legend LAST in the stack
+// (reported → partial → n/a → gate), present iff the record's `gate` sibling
+// carries ≥1 gate call in the invocation window, and granted after the
+// whole-block state line in `no usage recorded` and `accounting boundary
+// unresolved` (PO J2, framing B — an application of R-6, not an amendment);
+// denied in `accounting failed`. Gate-absent renders stay byte-identical to
+// the pre-EV-71 render.
+//
+// Grammar scoping (product-owner ruling 2026-09-21, verbatim — binds EVERY
+// golden below):
+// "The block's grammar is unchanged" means row grammar and state exclusivity,
+// not line count. A render is grammar-preserving iff, for every input: (1)
+// every emitted line is one of the three bound whole-block state lines (or
+// the usage  accounting failed — <reason> prefix line) or a row carrying the
+// literal "usage  " prefix; (2) every row keeps its ruled key and "key = short
+// definition" shape, label column unpadded as ruled; (3) row order is the
+// ruled order and each conditional legend keeps its slot, the stack reading
+// reported → partial → n/a → gate with gate last; (4) at most one whole-block
+// state line appears, never two, precedence failed > unresolved > empty
+// unchanged, and the state line is always the block's first line; (5) with
+// zero gate calls in window the block is byte-identical to the pre-EV-71
+// render.
+//
+// Docstring note landed with the implementation: block = exclusion surface,
+// ledger = trace surface — the legend's job is the exclusion; the ledger is
+// the audit trace.
+// ---------------------------------------------------------------------------
+
+import { appendGateCall } from "../extensions/gate-ledger.ts";
+import type { GateSpendReport } from "../extensions/provider-cost.ts";
+
+const GATE_LEGEND_LINE = "usage  gate = excluded from this total";
+function gateSpend(over: Partial<GateSpendReport> = {}): GateSpendReport {
+	return { callsInWindow: 1, totalCost: 0.0042, lookupCost: 0.0042, failedLookups: 0, ...over };
+}
+
+// Grammar-scoped golden (see section header): row order + gate last.
+test("EV-71 item 5: reported + partial + n/a + gate — the exact seven-row block in canonical order", () => {
+	const rep = providerReport({
+		status: "unavailable",
+		reason: "fetch-failed:boom",
+		partial: "attempts-unaccounted",
+	});
+	const noGate = formatUsageBlock({ record: measuredRecord, provider: rep });
+	const withGate = formatUsageBlock({ record: measuredRecord, provider: rep, gate: gateSpend() });
+	const lines = withGate.split("\n");
+	expect(lines).toHaveLength(7);
+	expect(lines).toEqual([
+		"usage  ownSession  basis=session-reconciled  turns=1 tokens=in 10/out 20/cR 5/cW 1/reason 4/total 36 cost≈$0.0123 (catalogue)",
+		"usage  subtree     basis=stream-assistant  turns=4 tokens=in 9000/out 2100/cR 44000/cW 800/reason 700/total 55900 cost=n/a",
+		"usage  boundary=session=sess-x entries=e1..e9 jobs=3",
+		"usage  reported  cost=$0.0042 (reported) routed=Infermaticx1",
+		"usage  partial = reported figure excludes unaccounted attempts",
+		"usage  n/a = provider figure unavailable",
+		GATE_LEGEND_LINE,
+	]);
+	// grammar-scoping clause 5 in reverse: the first six rows are byte-identical
+	// to the pre-EV-71 render — the gate legend is appended, nothing rewritten
+	expect(lines.slice(0, 6).join("\n")).toBe(noGate);
+});
+
+// Grammar-scoped golden (see section header): PO J2 — state line THEN gate
+// legend in the empty state (two lines), never a measurement row.
+test("EV-71 item 6: 'no usage recorded' + ≥1 gate call → state line, then the gate legend", () => {
+	const out = formatUsageBlock({ record: zeroRecord, gate: gateSpend() });
+	expect(out).toBe("usage  no usage recorded\n" + GATE_LEGEND_LINE);
+	// zero gate calls in window → byte-identical to the pre-EV-71 state line
+	expect(formatUsageBlock({ record: zeroRecord, gate: gateSpend({ callsInWindow: 0 }) })).toBe(
+		"usage  no usage recorded",
+	);
+});
+
+// Grammar-scoped golden (see section header): PO J2 — same relaxation for the
+// unresolved state; the state line stays the block's first line (clause 4).
+test("EV-71 item 7: 'accounting boundary unresolved' + ≥1 gate call → unresolved line, then the gate legend", () => {
+	const out = formatUsageBlock({ record: unresolvedRecord, gate: gateSpend() });
+	expect(out).toBe("usage  accounting boundary unresolved\n" + GATE_LEGEND_LINE);
+	expect(out.split("\n")[0]).toBe("usage  accounting boundary unresolved");
+	expect(formatUsageBlock({ record: unresolvedRecord, gate: gateSpend({ callsInWindow: 0 }) })).toBe(
+		"usage  accounting boundary unresolved",
+	);
+});
+
+// Grammar-scoped golden (see section header): the { failed } variant is a
+// named, chosen exception — single line, never a legend.
+// Decision: chosen: no persisted record to render from
+test("EV-71 item 8: 'accounting failed' stays single-line — never a gate legend", () => {
+	const out = formatUsageBlock({ failed: "write failed for /abs/store/x.json: EACCES" });
+	expect(out).toBe("usage  accounting failed \u2014 write failed for /abs/store/x.json: EACCES");
+	expect(out.split("\n")).toHaveLength(1);
+	expect(out.includes("gate")).toBe(false);
+});
+
+// Grammar-scoped golden (see section header): clause 5 — gate-absent renders
+// are byte-identical to the pre-EV-71 render (explicit undefined AND a
+// zero-count sibling).
+test("EV-71 item 9: gate absent (undefined or callsInWindow 0) → byte-identical to the pre-EV-71 render", () => {
+	const pre = formatUsageBlock({ record: measuredRecord, provider: providerReport() });
+	expect(formatUsageBlock({ record: measuredRecord, provider: providerReport(), gate: undefined })).toBe(pre);
+	expect(
+		formatUsageBlock({ record: measuredRecord, provider: providerReport(), gate: gateSpend({ callsInWindow: 0 }) }),
+	).toBe(pre);
+	const plain = formatUsageBlock({ record: measuredRecord });
+	expect(formatUsageBlock({ record: measuredRecord, gate: gateSpend({ callsInWindow: 0 }) })).toBe(plain);
+});
+
+// Grammar-scoped golden (see section header): the legend renders without any
+// provider sibling — the gate sibling is independent of `provider`.
+test("EV-71 item 10: provider absent + gate.callsInWindow > 0 → the legend renders, no reported row, no n/a", () => {
+	const out = formatUsageBlock({ record: measuredRecord, gate: gateSpend() });
+	const lines = out.split("\n");
+	expect(lines).toHaveLength(4);
+	expect(lines[0]).toBe("usage  ownSession  basis=session-reconciled  turns=1 tokens=in 10/out 20/cR 5/cW 1/reason 4/total 36 cost≈$0.0123 (catalogue)");
+	expect(lines[1]).toBe("usage  subtree     basis=stream-assistant  turns=4 tokens=in 9000/out 2100/cR 44000/cW 800/reason 700/total 55900 cost≈$0.2010 (catalogue)");
+	expect(lines[2]).toBe("usage  boundary=session=sess-x entries=e1..e9 jobs=3");
+	expect(lines[3]).toBe(GATE_LEGEND_LINE);
+	expect(out).not.toContain("reported ");
+	expect(out).not.toContain("provider figure unavailable");
+});
+
+// Grammar-scoped golden (see section header): the block is the exclusion
+// surface — a record-only mismatch between the ledger Σ and the lookup Σ
+// changes no bytes; the ledger is the trace surface.
+test("EV-71 item 17 (render half): divergent totalCost vs lookupCost — the render is unaffected (record-only)", () => {
+	const agreeing = formatUsageBlock({ record: measuredRecord, gate: gateSpend({ totalCost: 0.0042, lookupCost: 0.0042 }) });
+	const divergent = formatUsageBlock({ record: measuredRecord, gate: gateSpend({ totalCost: 0.0042 - 0.001, lookupCost: 9.99 }) }); // O-C: one float path, never hand-written
+	expect(divergent).toBe(agreeing);
+});
+
+// Item 19 — block purity: the legend's predicate is the PERSISTED record's
+// gate sibling, never an fs read at render time. A real ledger file with gate
+// calls exists on disk; the render from a record lacking `gate` emits no
+// legend.
+test("EV-71 item 19: a ledger file on disk + a record lacking gate → no legend (predicate is persisted, never fs-read)", () => {
+	const repo = fs.mkdtempSync(path.join(os.tmpdir(), "ev71-purity-"));
+	appendGateCall(
+		{
+			stateHash: "s",
+			questionSetVersion: "q1",
+			questionIds: [],
+			answers: {},
+			resolvedMode: "Verify",
+			policyVersion: "p1",
+			usage: { input_tokens: 1, output_tokens: 1, cost: 0.0042 },
+			generationId: "gen-dec-1",
+			now: () => "2026-09-21T00:00:00.000Z",
+		},
+		repo,
+	);
+	expect(fs.existsSync(path.join(repo, ".pi", "council", "gate-ledger.jsonl"))).toBe(true);
+	const out = formatUsageBlock({ record: measuredRecord });
+	expect(out).not.toContain("gate =");
+	expect(out).toBe("usage  ownSession  basis=session-reconciled  turns=1 tokens=in 10/out 20/cR 5/cW 1/reason 4/total 36 cost≈$0.0123 (catalogue)\n" +
+		"usage  subtree     basis=stream-assistant  turns=4 tokens=in 9000/out 2100/cR 44000/cW 800/reason 700/total 55900 cost≈$0.2010 (catalogue)\n" +
+		"usage  boundary=session=sess-x entries=e1..e9 jobs=3");
+});
