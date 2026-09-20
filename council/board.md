@@ -73,10 +73,10 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- EV-71 — Decisions-aware gate spend accounting
-
 
 ## In Progress
+
+- EV-71 — Decisions-aware gate spend accounting
 
 ## In Review
 
