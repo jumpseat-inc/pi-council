@@ -358,3 +358,104 @@ test("a malformed gate section is gate-scoped: other loaders are untouched, the 
 	expect(() => loadGateQuestions(root)).not.toThrow(); // questions.json never reads .council.json
 	expect(() => loadGatePolicy(root)).toThrow(/^FAIL: .*\.council\.json has an invalid JSON/);
 });
+
+// ---------------------------------------------------------------------------
+// FLLWUP-74 — the four refusal classes in loadGateDecision (EV-73).
+// ---------------------------------------------------------------------------
+
+import { loadGateDecision } from "../extensions/gate.ts";
+
+const repoDecision = (root: string, body: unknown): string =>
+	repoGateFile(root, "decision.json", typeof body === "string" ? body : JSON.stringify(body));
+
+const baseDecision = (): Record<string, unknown> =>
+	JSON.parse(fs.readFileSync(path.join(PKG_ROOT, "council", "gate", "decision.json"), "utf-8"));
+
+test("class 1: thresholds.verify = 0 is refused (direct keeps >= 0)", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	const d = baseDecision();
+	(d.thresholds as Record<string, unknown>).verify = 0;
+	const file = repoDecision(root, d);
+	const msg = failOf(() => loadGateDecision(root));
+	expect(msg).toBe(
+		`FAIL: ${file} has an invalid thresholds.verify — expected a finite number > 0, found 0 — set a valid value or remove the key to use the packaged default`,
+	);
+	// direct = 0 alone is still legal when it does not break verify <= direct
+	const root2 = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	const d2 = baseDecision();
+	(d2.thresholds as Record<string, unknown>).verify = 1;
+	(d2.thresholds as Record<string, unknown>).direct = 1;
+	expect(() => loadGateDecision(root2)).not.toThrow();
+	const root3 = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	const d3 = baseDecision();
+	(d3.thresholds as Record<string, unknown>).direct = 0;
+	const file3 = repoDecision(root3, d3);
+	expect(() => loadGateDecision(root3)).toThrow(
+		`FAIL: ${file3} has an invalid thresholds — verify must be ≤ direct, found verify 2.6 > direct 0 — set a valid value or remove the key to use the packaged default`,
+	);
+});
+
+test("class 2: an unknown floors or thresholds sub-key FAILs naming the parent's own allowed set", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	const d = baseDecision();
+	(d.floors as Record<string, unknown>).bogus = 0.5;
+	const file = repoDecision(root, d);
+	expect(() => loadGateDecision(root)).toThrow(
+		`FAIL: ${file} has an invalid floors.bogus — unknown sub-key; expected one of choice, score — set a valid value or remove the key to use the packaged default`,
+	);
+	const root2 = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	const d2 = baseDecision();
+	(d2.thresholds as Record<string, unknown>).bogus = 1;
+	const file2 = repoDecision(root2, d2);
+	expect(() => loadGateDecision(root2)).toThrow(
+		`FAIL: ${file2} has an invalid thresholds.bogus — unknown sub-key; expected one of verify, direct — set a valid value or remove the key to use the packaged default`,
+	);
+});
+
+test("class 3: an override.question absent from weights FAILs naming overrides.<i>.question", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	const d = baseDecision();
+	d.overrides = [{ question: "nope", option: "yes", basis: "b" }];
+	const file = repoDecision(root, d);
+	const msg = failOf(() => loadGateDecision(root));
+	expect(msg).toBe(
+		`FAIL: ${file} has an invalid overrides.0.question — question id "nope" is not declared in weights (expected one of reversible, publicContract, blastRadius, decidablyTestable) — set a valid value or remove the key to use the packaged default`,
+	);
+});
+
+test("class 4: a line break in any of the three basis-rendered strings is refused with the pinned bytes, never sanitized", () => {
+	for (const [key, value] of [
+		["question", "reversible\n2"],
+		["option", "no\rno"],
+		["basis", "one-way door\nsecond line"],
+	] as const) {
+		const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+		const d = baseDecision();
+		(d.overrides as Array<Record<string, unknown>>)[0][key] = value;
+		const file = repoDecision(root, d);
+		const msg = failOf(() => loadGateDecision(root));
+		expect(msg).toBe(`FAIL: ${file} has an invalid overrides.0.${key} — value contains a line break; basis lines must be single-line`);
+		expect(msg).not.toMatch(/\n/);
+		expect(msg).not.toContain("set a valid value"); // the tail is deliberately dropped
+	}
+});
+
+test("class 4 shape checks precede the class-3 referential check within an override rule", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	const d = baseDecision();
+	d.overrides = [{ question: "undeclared\nid", option: "yes", basis: "b" }];
+	repoDecision(root, d);
+	// the newline defect wins over the absent-from-weights defect
+	expect(() => loadGateDecision(root)).toThrow(/value contains a line break/);
+});
+
+test("the packaged decision.json validates clean under all four refusal classes", () => {
+	const policy = loadGateDecision("/nonexistent-repo-root-ev73");
+	expect(policy.thresholds.verify).toBeGreaterThan(0);
+	expect(Object.keys(policy.floors).sort()).toEqual(["choice", "score"]);
+	expect(Object.keys(policy.thresholds).sort()).toEqual(["direct", "verify"]);
+	for (const o of policy.overrides) {
+		expect(o.question in policy.weights).toBe(true);
+		for (const v of [o.question, o.option, o.basis]) expect(v).not.toMatch(/[\r\n]/);
+	}
+});
