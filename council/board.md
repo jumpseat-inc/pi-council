@@ -80,7 +80,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EPIC-12 — pi-council version and git hash on the first pi run
 
 ## Ready
-- EV-77 — Document the gate's `.council.json` surface, its command, and the decide() basis vocabulary
+- FLLWUP-93 — Consumer-repo-safe protection for wiki-cited code paths (the T1-class check beyond this repo)
+- FLLWUP-94 — Consider naming the config home in the /council-gate status read literal
 - EV-44 — Merge near-duplicate follow-up candidates before a card is drafted
 - EV-45 — Unattended ingest of a run's own ledger, without the human steer turn
 - EV-48 — Packaged seat-tier map with repo-local merge override
@@ -92,7 +93,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## In Progress
 
 ## In Review
-
+- EV-77 — Document the gate's `.council.json` surface, its command, and the decide() basis vocabulary
 
 ## Needs Human
 

@@ -88,7 +88,7 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[council-update]] — FLLWUP-50's consent-gated refresh path for packaged council tooling (`/council-update`, the `scaffold.json` provenance record, the session-start drift notice).
 - [[council-setup]] — EPIC-11 (Backlog): grounded, interview-driven `/council-setup` that writes a fitted configuration.
 - [[version-on-first-run]] — EPIC-12 (Backlog): show the pi-council version + latest git hash on the first pi run.
-- [[metered-deliberation-routing]] — EPIC-13 (shipped v0.28.0): a typed System One gate routes each card to Deliberate/Verify/Direct; packaged default `mode: "off"`.
+- [[metered-deliberation-routing]] — EPIC-13 (shipped v0.28.0): a typed System One gate routes each card to Deliberate/Verify/Direct; **`off` routes every card to the full Deliberate panel** (maximum scrutiny); enablement lives in `.council.json`'s top-level `gate` section — packaged default `mode: "off"`.
 - [[followup-merge-and-auto-ingest]] — EPIC-10 (Backlog): merge near-duplicate follow-ups + autonomous wiki ingest at run completion.
 
 ## Comparisons
