@@ -1,0 +1,29 @@
+{
+	"version": "followup-questions-1",
+	"questions": {
+		"duplicate": {
+			"type": "noul",
+			"instructions": "Is this card substantially the same work as an open card or a same-run sibling — work already underway elsewhere on the board?",
+			"criteria": {
+				"yes": "An open card or a same-run sibling already covers this work.",
+				"no": "No open card or same-run sibling covers this work."
+			}
+		},
+		"alreadyDone": {
+			"type": "noul",
+			"instructions": "Is the work this card describes already resolved or marked obsolete on the board?",
+			"criteria": {
+				"yes": "The described work is already resolved or marked obsolete on the board.",
+				"no": "The described work is still outstanding."
+			}
+		},
+		"actionable": {
+			"type": "choice",
+			"instructions": "Is there a concrete change a card could carry here?",
+			"criteria": {
+				"yes": "A concrete, describable change would move the work forward.",
+				"no": "No concrete change is available; there is nothing actionable to carry."
+			}
+		}
+	}
+}

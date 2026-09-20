@@ -120,11 +120,14 @@ export function loadGateConfig(repoRoot: string): { mode: GateMode } {
 	return { mode: section.mode as GateMode };
 }
 
-/** Repo override first, packaged default second — the seatDirs pattern. */
-function gateDirs(repoRoot: string): string[] {
+/** Repo override first, packaged default second — the seatDirs pattern.
+ * EV-78: optional sub-path segments generalize the dir pair to sibling data
+ * surfaces (`gateDirs(repoRoot, "followup")`); the default empty keeps the
+ * existing callers byte-identical. */
+function gateDirs(repoRoot: string, ...sub: string[]): string[] {
 	return [
-		path.join(repoRoot, CONFIG_DIR_NAME, "council", "gate"),
-		path.join(PKG_ROOT, "council", "gate"),
+		path.join(repoRoot, CONFIG_DIR_NAME, "council", "gate", ...sub),
+		path.join(PKG_ROOT, "council", "gate", ...sub),
 	];
 }
 
@@ -275,17 +278,26 @@ export function loadGateQuestions(repoRoot: string): GateQuestionSet {
 	return { version, questions };
 }
 
-function validateGateQuestion(file: string, keyPrefix: string, raw: Record<string, unknown>): GateQuestion {
+/** EV-78: `allowedTypes` parameterizes the admitted type set INSIDE the
+ * validator (never in a wrapper, which would leak the gate's three-value
+ * expected-list into a sibling's FAIL copy). The default keeps the card
+ * gate's call sites byte-identical. */
+function validateGateQuestion(
+	file: string,
+	keyPrefix: string,
+	raw: Record<string, unknown>,
+	allowedTypes: readonly GateQuestionType[] = QUESTION_TYPES,
+): GateQuestion {
 	for (const key of Object.keys(raw)) {
 		if (!(key in ALLOWED_QUESTION_KEYS)) {
 			throw gateFail(file, `${keyPrefix}.${key}`, `unknown key; expected one of ${QUESTION_KEYS.join(", ")}`);
 		}
 	}
-	if (typeof raw.type !== "string" || !QUESTION_TYPES.includes(raw.type as GateQuestionType)) {
+	if (typeof raw.type !== "string" || !allowedTypes.includes(raw.type as GateQuestionType)) {
 		throw gateFail(
 			file,
 			`${keyPrefix}.type`,
-			`expected one of ${QUESTION_TYPES.map((t) => JSON.stringify(t)).join(", ")}, found ${JSON.stringify(raw.type)}`,
+			`expected one of ${allowedTypes.map((t) => JSON.stringify(t)).join(", ")}, found ${JSON.stringify(raw.type)}`,
 		);
 	}
 	const type = raw.type as GateQuestionType;
@@ -536,6 +548,301 @@ export function loadGateDecision(repoRoot: string): GateDecisionPolicy {
 		noulThreshold,
 		noulProbabilityOf,
 		thresholds: { verify: verifyThreshold, direct: directThreshold },
+		overrides,
+	};
+}
+
+// ---------------------------------------------------------------------------
+// EV-78 — the follow-up review's data surface: its typed question set and
+// decision policy as packaged, repo-overridable data under
+// `council/gate/followup/` (EPIC-10). Sibling loaders to the card gate's,
+// mirroring them arm for arm: the same first-hit whole-file resolution over
+// `gateDirs(repoRoot, "followup")` and the same fail-loud single-line
+// posture. The domain deltas are the binding ruling's (2026-09-21):
+//  - a three-value disposition vocabulary `File|Merge|Drop` — File is the
+//    composite's else-arm, never declared in data;
+//  - `countedOption` (renamed from the gate's `mechanical`): the
+//    redundant-evidence option, so the composite drives AWAY from File as
+//    redundancy rises — the inverse of the gate's valence. A followup policy
+//    carrying `mechanical` is an unknown-key FAIL — the rename is real, not
+//    an alias;
+//  - `thresholds` is the named-key `{merge, drop}` object with a STRICT
+//    `merge < drop` ordering (equality would empty the Merge band) — the
+//    array shape fails loud on the shape line;
+//  - override dispositions are restricted to `{Merge, Drop}` — File is
+//    unreachable by override (the floors and the below-merge composite arm
+//    own it); the FAIL's expected list names exactly "Merge", "Drop".
+// No `followup/policy.json` ever: the followup shares
+// `GATE_PINNED_MODEL`/endpoint, and the one on-disk budget stays
+// `council/gate/policy.json` via `loadGatePolicy` (EV-80's seam). The
+// behavioral exactly-one partition proof is `decideFollowup`'s (EV-79);
+// this surface ships resolution + structural validation only.
+// ---------------------------------------------------------------------------
+
+/** The followup disposition vocabulary, spelled exactly this (EV-82 renders
+ * these strings). File is never declared in data — it is the else-arm. */
+export const FOLLOWUP_DISPOSITIONS = ["File", "Merge", "Drop"] as const;
+export type FollowupDisposition = (typeof FOLLOWUP_DISPOSITIONS)[number];
+
+/** Ruling Q2: the override lane's disposition is a declared subset — File is
+ * unreachable by override. */
+export type FollowupOverrideDisposition = Exclude<FollowupDisposition, "File">;
+
+/** The override lane admits only the destructive dispositions (Q2). */
+const FOLLOWUP_OVERRIDE_DISPOSITIONS = ["Merge", "Drop"] as const;
+
+/** The followup's admitted question types: `score` is refused — the
+ * followup's floors vocabulary covers `choice` only, and a score question's
+ * ordered legend has no reader in this domain. */
+const FOLLOWUP_QUESTION_TYPES: readonly GateQuestionType[] = ["choice", "noul"];
+
+/** A hard deterministic followup override: when the named question's answer
+ * selects the named option, the composite is bypassed for the named
+ * disposition (Merge or Drop only — Q2). */
+export interface FollowupOverrideRule {
+	question: string;
+	option: string;
+	/** Short human reason for the basis line, e.g. "already resolved". */
+	basis: string;
+	disposition: FollowupOverrideDisposition;
+}
+
+export interface FollowupDecisionPolicy {
+	version: string;
+	/** question id → composite weight (positive). */
+	weights: Record<string, number>;
+	/** question id → the criterion option that counts as redundant evidence
+	 * (renamed from the gate's `mechanical`; the valence is inverted — the
+	 * composite drives away from File as redundancy rises). */
+	countedOption: Record<string, string>;
+	/** Confidence floors for the followup's floored answer types — exactly
+	 * `choice` (`noul` carries noulThreshold instead, as shipped). */
+	floors: { choice: number };
+	/** Certainty floor for noul answers (they carry no confidence). */
+	noulThreshold: number;
+	/** The criterion option whose probability a noul answer's `probability`
+	 * field carries. */
+	noulProbabilityOf: string;
+	/** Merge/Drop thresholds over the raw weighted composite. File =
+	 * composite < merge (the else-arm, never declared); Merge =
+	 * [merge, drop); Drop = ≥ drop. Strict `merge < drop` — equality would
+	 * empty the Merge band. */
+	thresholds: { merge: number; drop: number };
+	overrides: FollowupOverrideRule[];
+}
+
+const FOLLOWUP_DECISION_KEYS = [
+	"version",
+	"weights",
+	"countedOption",
+	"floors",
+	"noulThreshold",
+	"noulProbabilityOf",
+	"thresholds",
+	"overrides",
+] as const;
+const ALLOWED_FOLLOWUP_DECISION_KEYS: Record<string, true> = Object.fromEntries(
+	FOLLOWUP_DECISION_KEYS.map((k) => [k, true as const]),
+);
+
+const FOLLOWUP_OVERRIDE_KEYS = ["question", "option", "basis", "disposition"] as const;
+
+/** Load the followup question set: the card gate's parse with the type set
+ * restricted to choice/noul — a `score` question FAILs with the restricted
+ * expected-list (O5). */
+export function loadFollowupQuestions(repoRoot: string): GateQuestionSet {
+	const { file, value } = readGateFile(gateDirs(repoRoot, "followup"), "questions.json");
+	if (typeof value !== "object" || value === null || Array.isArray(value)) {
+		throw gateFail(file, "JSON", "root must be a JSON object");
+	}
+	const raw = value as Record<string, unknown>;
+	for (const key of Object.keys(raw)) {
+		if (!(key in ALLOWED_QUESTION_SET_KEYS)) {
+			throw gateFail(file, key, `unknown key; expected one of ${QUESTION_SET_KEYS.join(", ")}`);
+		}
+	}
+	const version = nonEmptyString(file, "version", raw.version);
+	if (typeof raw.questions !== "object" || raw.questions === null || Array.isArray(raw.questions)) {
+		throw gateFail(file, "questions", "expected a record keyed by question id");
+	}
+	const rawQuestions = raw.questions as Record<string, unknown>;
+	const ids = Object.keys(rawQuestions);
+	if (ids.length === 0) {
+		throw gateFail(file, "questions", "expected at least one question, found 0");
+	}
+	const questions: Record<string, GateQuestion> = {};
+	for (const id of ids) {
+		const q = rawQuestions[id];
+		if (typeof q !== "object" || q === null || Array.isArray(q)) {
+			throw gateFail(file, `questions.${id}`, "expected a question object");
+		}
+		questions[id] = validateGateQuestion(file, `questions.${id}`, q as Record<string, unknown>, FOLLOWUP_QUESTION_TYPES);
+	}
+	return { version, questions };
+}
+
+/** Load the followup decision policy: the card gate's parse mirrored arm for
+ * arm, with the ruling's deltas (see the section comment above). */
+export function loadFollowupDecision(repoRoot: string): FollowupDecisionPolicy {
+	const { file, value } = readGateFile(gateDirs(repoRoot, "followup"), "decision.json");
+	if (typeof value !== "object" || value === null || Array.isArray(value)) {
+		throw gateFail(file, "JSON", "root must be a JSON object");
+	}
+	const raw = value as Record<string, unknown>;
+	for (const key of Object.keys(raw)) {
+		if (!(key in ALLOWED_FOLLOWUP_DECISION_KEYS)) {
+			throw gateFail(file, key, `unknown key; expected one of ${FOLLOWUP_DECISION_KEYS.join(", ")}`);
+		}
+	}
+	const version = nonEmptyString(file, "version", raw.version);
+	// weights — the gate's parse verbatim.
+	if (typeof raw.weights !== "object" || raw.weights === null || Array.isArray(raw.weights)) {
+		throw gateFail(file, "weights", "expected a record keyed by question id");
+	}
+	const weights = raw.weights as Record<string, unknown>;
+	const weightIds = Object.keys(weights);
+	if (weightIds.length === 0) {
+		throw gateFail(file, "weights", "expected at least one weighted question, found 0");
+	}
+	for (const id of weightIds) {
+		const w = weights[id];
+		if (typeof w !== "number" || !Number.isFinite(w) || w <= 0) {
+			throw gateFail(file, `weights.${id}`, `expected a positive finite number, found ${JSON.stringify(w)}`);
+		}
+	}
+	const typedWeights: Record<string, number> = {};
+	for (const id of weightIds) typedWeights[id] = weights[id] as number;
+	// countedOption — the gate's `mechanical` shape with the ruling's O4
+	// subject split: an EXTRA id fails naming `countedOption.<id>`; a MISSING
+	// weighted id fails naming `countedOption`.
+	if (typeof raw.countedOption !== "object" || raw.countedOption === null || Array.isArray(raw.countedOption)) {
+		throw gateFail(file, "countedOption", "expected a record keyed by question id");
+	}
+	const countedOption = raw.countedOption as Record<string, unknown>;
+	const countedIds = Object.keys(countedOption);
+	for (const id of countedIds) {
+		if (!(id in weights)) {
+			throw gateFail(
+				file,
+				`countedOption.${id}`,
+				`unknown question id; expected one of ${weightIds.join(", ")}, found ${JSON.stringify(id)}`,
+			);
+		}
+	}
+	if (countedIds.length !== weightIds.length) {
+		throw gateFail(
+			file,
+			"countedOption",
+			`expected exactly the weighted question ids (${weightIds.join(", ")}), found ${countedIds.join(", ") || "none"}`,
+		);
+	}
+	for (const id of countedIds) {
+		nonEmptyString(file, `countedOption.${id}`, countedOption[id]);
+	}
+	const typedCountedOption: Record<string, string> = {};
+	for (const id of countedIds) typedCountedOption[id] = countedOption[id] as string;
+	// floors — exactly `choice` (the followup's only floored type).
+	if (typeof raw.floors !== "object" || raw.floors === null || Array.isArray(raw.floors)) {
+		throw gateFail(file, "floors", "expected an object with the choice floor");
+	}
+	const floors = raw.floors as Record<string, unknown>;
+	for (const key of Object.keys(floors)) {
+		if (key !== "choice") {
+			throw gateFail(file, `floors.${key}`, "unknown sub-key; expected one of choice");
+		}
+	}
+	const choiceFloor = unitNumber(file, "floors.choice", floors.choice, 0);
+	const noulThreshold = unitNumber(file, "noulThreshold", raw.noulThreshold, 0);
+	const noulProbabilityOf = nonEmptyString(file, "noulProbabilityOf", raw.noulProbabilityOf);
+	// thresholds — ruling Q1: the named-key object. The Array.isArray guard is
+	// what keeps the JS `typeof [] === "object"` trap handled: an array value
+	// (and a null/string) fails loud on the shape line naming `thresholds`.
+	if (typeof raw.thresholds !== "object" || raw.thresholds === null || Array.isArray(raw.thresholds)) {
+		throw gateFail(file, "thresholds", "expected an object with merge and drop thresholds");
+	}
+	const thresholds = raw.thresholds as Record<string, unknown>;
+	for (const key of Object.keys(thresholds)) {
+		if (key !== "merge" && key !== "drop") {
+			throw gateFail(file, `thresholds.${key}`, "unknown sub-key; expected one of merge, drop");
+		}
+	}
+	// FLLWUP-74 class-1 mirror: merge must be strictly positive — merge 0
+	// would empty File's else-arm (composite < merge). drop keeps ≥ 0.
+	const mergeRaw = thresholds.merge;
+	if (typeof mergeRaw !== "number" || !Number.isFinite(mergeRaw) || mergeRaw <= 0) {
+		throw gateFail(file, "thresholds.merge", `expected a finite number > 0, found ${JSON.stringify(mergeRaw)}`);
+	}
+	const dropRaw = thresholds.drop;
+	if (typeof dropRaw !== "number" || !Number.isFinite(dropRaw) || dropRaw < 0) {
+		throw gateFail(file, "thresholds.drop", `expected a finite non-negative number, found ${JSON.stringify(dropRaw)}`);
+	}
+	// Strict — the shipped `verify ≤ direct` tightened one numeral: equality
+	// would empty the Merge band ([merge, drop)).
+	if (!(mergeRaw < dropRaw)) {
+		throw gateFail(file, "thresholds", `merge must be < drop, found merge ${mergeRaw} ≥ drop ${dropRaw}`);
+	}
+	// overrides — the ruling Q2 lane.
+	if (!Array.isArray(raw.overrides)) {
+		throw gateFail(file, "overrides", "expected an array of override rules");
+	}
+	const overrides: FollowupOverrideRule[] = [];
+	for (const [i, o] of raw.overrides.entries()) {
+		if (typeof o !== "object" || o === null || Array.isArray(o)) {
+			throw gateFail(file, `overrides.${i}`, "expected an override rule object");
+		}
+		const rule = o as Record<string, unknown>;
+		for (const k of Object.keys(rule)) {
+			if (!(FOLLOWUP_OVERRIDE_KEYS as readonly string[]).includes(k)) {
+				throw gateFail(file, `overrides.${i}.${k}`, `unknown key; expected one of ${FOLLOWUP_OVERRIDE_KEYS.join(", ")}`);
+			}
+		}
+		for (const k of ["question", "option", "basis"] as const) {
+			if (typeof rule[k] !== "string" || rule[k].trim() === "") {
+				throw gateFail(file, `overrides.${i}.${k}`, `expected a non-empty string, found ${JSON.stringify(rule[k])}`);
+			}
+			// FLLWUP-74 class 4 BEFORE the class-3 referential check, as shipped:
+			// the shape defect is the more local one and its pinned bytes must win.
+			basisSafeString(file, `overrides.${i}.${k}`, rule[k] as string);
+		}
+		// Ruling Q2: a missing, `File`, or otherwise unknown disposition fails
+		// naming the field, with the expected list exactly "Merge", "Drop" — the
+		// token File is absent (File is the else-arm, never an override).
+		const d = rule.disposition;
+		if (
+			typeof d !== "string" ||
+			d.trim() === "" ||
+			!(FOLLOWUP_OVERRIDE_DISPOSITIONS as readonly string[]).includes(d)
+		) {
+			throw gateFail(
+				file,
+				`overrides.${i}.disposition`,
+				`expected one of ${FOLLOWUP_OVERRIDE_DISPOSITIONS.map((x) => JSON.stringify(x)).join(", ")}, found ${JSON.stringify(d)}`,
+			);
+		}
+		// FLLWUP-74 class 3: a rule whose question id is absent from weights can
+		// never fire — refused, not silently dead.
+		if (!weightIds.includes(rule.question as string)) {
+			throw gateFail(
+				file,
+				`overrides.${i}.question`,
+				`question id ${JSON.stringify(rule.question)} is not declared in weights (expected one of ${weightIds.join(", ")})`,
+			);
+		}
+		overrides.push({
+			question: rule.question as string,
+			option: rule.option as string,
+			basis: rule.basis as string,
+			disposition: d as FollowupOverrideDisposition,
+		});
+	}
+	return {
+		version,
+		weights: typedWeights,
+		countedOption: typedCountedOption,
+		floors: { choice: choiceFloor },
+		noulThreshold,
+		noulProbabilityOf,
+		thresholds: { merge: mergeRaw, drop: dropRaw },
 		overrides,
 	};
 }
