@@ -80,7 +80,7 @@ import * as http from "node:http";
 import * as os from "node:os";
 import * as path from "node:path";
 import { CONFIG_DIR_NAME } from "@earendil-works/pi-coding-agent";
-import { readManifests } from "../extensions/runs.ts";
+import { listRunIds, readManifests } from "../extensions/runs.ts";
 import { readGateLedger } from "../extensions/gate-ledger.ts";
 import { GATE_DECISION_MODES, GATE_PINNED_MODEL } from "../extensions/gate.ts";
 import { runHarnessArmAsync, type ArmOptions, type EngineRepoOptions } from "./faux-provider/harness.ts";
@@ -551,7 +551,10 @@ describe("EV-66 advisory intake — the two-arm headless falsifier", () => {
 				const dispatchB = dispatchSets(workDirB);
 				expect(dispatchA.length).toBeGreaterThan(0);
 				expect(dispatchA).toEqual(dispatchB);
-				const manifestsA = readManifests(workDirA, readdirSync(path.join(workDirA, CONFIG_DIR_NAME, "council", "runs"))[0]!);
+				// Directory-selecting runId: the runs dir carries a self-gitignore
+				// FILE; a raw readdirSync(...)[0] is entry-order dependent and can
+				// hand readManifests ".gitignore" (listRunIds stats for isDirectory).
+				const manifestsA = readManifests(workDirA, listRunIds(workDirA)[0]!);
 				expect(manifestsA.every((m) => m.mode === undefined)).toBe(true);
 
 				// --- Steering-branch opacity: the branch is never taken over the

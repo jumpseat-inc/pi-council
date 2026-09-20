@@ -162,6 +162,9 @@ test("T8: n/a hook — explicit unavailableCost renders cost=n/a in-slot + condi
 });
 
 // --- T10/T11: the runner-shaped block (PO C: no ownSession, one subtree line) ---
+// EV-71 scope pin: the runner form is out of scope for EV-71 — the runner
+// never issues a gate call (council_gate is parent-side registered; no seat
+// grants the gate tool).
 
 function manifestFixture(id: string, over: Partial<RunManifest> = {}): RunManifest {
 	return {
