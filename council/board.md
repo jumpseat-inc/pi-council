@@ -9,6 +9,13 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-72 — Make step 11 execute the merge-check table, not a prose mirror of it
 - FLLWUP-73 — Refresh the deterministic-merge-check wiki page for the mode-aware ruleset
 - FLLWUP-71 — Add the user-visibility question to the gate question set — let a recorded Verify re-route on a surface-touching card
+- FLLWUP-74 — Enforce loadGateDecision's invariants — verify > 0 and the hostile-string cross-checks
+- FLLWUP-75 — Signify a slow advisory gate call without implying deliberation or failure
+- FLLWUP-76 — Document the decide() basis vocabulary, the callId:null fallback, and the intake-vs-dispatch split
+- FLLWUP-77 — Name the excluded gate-call count in the usage legend
+- FLLWUP-78 — Make the gate legend key self-describing (deliberation, not gate)
+- FLLWUP-79 — Signpost the gate ledger from the usage block's exclusion surface
+- FLLWUP-80 — Bound the EV-68 textTree byte-equality flake window
 - EPIC-1 — omp-themed council theme for pi, configurable from the scaffold .council.json
 - EPIC-2 — Inline council job tree beneath the input bar
 - EPIC-3 — Council-decomposed features-new with a bounded session
