@@ -24,7 +24,8 @@ on.
 The gate can be enabled/disabled by a single committed `.council.json` edit and
 by `/council-gate`, both round-trippable with no other top-level key mutated;
 `loadGateConfig` is the one resolver all three runtime mode readers
-(`gate-tool.ts`, `gate-route-tool.ts`, `gate-route.ts`) use; preflight fails loud
-with both remediations when the gate is on and no credential resolves; every
-EPIC-13 follow-up in `FLLWUP-71…80` is folded, retired, or recorded out of scope
-— none silently dropped.
+(`gate-tool.ts`, `gate-route-tool.ts`, `gate-route.ts`) use; the run-start
+preflight (`/features-deliver` Phase 0, `/council` step 0) fails loud with both
+remediations for **every** consumer — not only fresh scaffolds — when the gate is
+on and no credential resolves; every EPIC-13 follow-up in `FLLWUP-71…80` is
+folded, retired, or recorded out of scope — none silently dropped.

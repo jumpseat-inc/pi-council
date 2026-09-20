@@ -9,7 +9,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EPIC-14 — Reuse `.council.json` to enable the decisions gate; add a `/council-gate` toggle; check the OpenRouter credential when the gate is on
 - EV-74 — `/council-gate` to enable or disable the decisions gate
 - EV-75 — Legacy `council/gate/policy.json` cannot silently disagree with `.council.json`
-- EV-76 — Preflight fails loud when the gate is on and no OpenRouter credential resolves
+- EV-76 — Run-start preflight fails loud when the gate is on and no OpenRouter credential resolves
 - EV-77 — Document the gate's `.council.json` surface, its command, and the decide() basis vocabulary
 - FLLWUP-72 — Make step 11 execute the merge-check table, not a prose mirror of it
 - FLLWUP-73 — Refresh the deterministic-merge-check wiki page for the mode-aware ruleset
