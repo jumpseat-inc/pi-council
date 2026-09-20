@@ -76,8 +76,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-71 — Decisions-aware gate spend accounting
-
 
 ## In Review
 
@@ -85,6 +83,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Done
 
+- EV-71 — Decisions-aware gate spend accounting
 - EV-70 — Direct mode and the mode-aware merge check
 - EV-69 — Deterministic routing to Verify mode
 - EV-67 — Gate verdict rendered as information at the draft-then-confirm approval gate
