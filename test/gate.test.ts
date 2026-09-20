@@ -423,6 +423,31 @@ test("class 3: an override.question absent from weights FAILs naming overrides.<
 	);
 });
 
+test("class 3: a prototype-key collision (toString) counts as absent from weights' OWN keys and FAILs", () => {
+	// ("toString" in weights) is true via Object.prototype — the check must see
+	// own keys only, or a mistyped id colliding with a prototype key loads clean.
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	const d = baseDecision();
+	d.overrides = [{ question: "toString", option: "yes", basis: "b" }];
+	const file = repoDecision(root, d);
+	const msg = failOf(() => loadGateDecision(root));
+	expect(msg).toBe(
+		`FAIL: ${file} has an invalid overrides.0.question — question id "toString" is not declared in weights (expected one of reversible, publicContract, blastRadius, decidablyTestable) — set a valid value or remove the key to use the packaged default`,
+	);
+	expect(msg).not.toMatch(/\n/); // single-line FAIL, per the goal's contract
+	// the ordinary absent id keeps the same message shape
+	const root2 = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	const d2 = baseDecision();
+	d2.overrides = [{ question: "nope", option: "yes", basis: "b" }];
+	const file2 = repoDecision(root2, d2);
+	const msg2 = failOf(() => loadGateDecision(root2));
+	expect(msg2).toBe(
+		`FAIL: ${file2} has an invalid overrides.0.question — question id "nope" is not declared in weights (expected one of reversible, publicContract, blastRadius, decidablyTestable) — set a valid value or remove the key to use the packaged default`,
+	);
+	// the packaged decision.json still validates clean
+	expect(() => loadGateDecision("/nonexistent-repo-root-ev73")).not.toThrow();
+});
+
 test("class 4: a line break in any of the three basis-rendered strings is refused with the pinned bytes, never sanitized", () => {
 	for (const [key, value] of [
 		["question", "reversible\n2"],

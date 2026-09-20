@@ -502,8 +502,9 @@ export function loadGateDecision(repoRoot: string): GateDecisionPolicy {
 			basisSafeString(file, `overrides.${i}.${k}`, rule[k] as string);
 		}
 		// FLLWUP-74 class 3: a rule whose question id is absent from weights can
-		// never fire — refused, not silently dead. Weights parse above.
-		if (!((rule.question as string) in weights)) {
+		// never fire — refused, not silently dead. Weights parse above. Own keys
+		// only: `in` would pass prototype-key collisions ("toString", ...) clean.
+		if (!weightIds.includes(rule.question as string)) {
 			throw gateFail(
 				file,
 				`overrides.${i}.question`,
