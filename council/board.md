@@ -70,8 +70,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-45 — Unattended ingest of a run's own ledger, without the human steer turn
 - EV-46 — Ingest at every single-card /council completion, attended or container-run
 - EV-47 — Ingest the whole run when /features-deliver reaches its run ledger
-- EV-79 — Pure follow-up disposition function with a fail-safe File default
-- EV-80 — Follow-up review state packing: candidate + board/open cards + same-run siblings
 - EV-82 — Record and render the follow-up decision at step 13's pre-write confirm gate
 - EV-83 — Route the follow-up decision through /features-deliver Phase 3 and the council-runner escalation path
 - EV-84 — End-to-end falsifier for the Jev-gated follow-up review
@@ -89,6 +87,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Ready
 - EV-81 — Reuse the gate's Jev transport with a human-bound fail-closed posture
+- EV-79 — Pure follow-up disposition function with a fail-safe File default
+- EV-80 — Follow-up review state packing: candidate + board/open cards + same-run siblings
 - EV-48 — Packaged seat-tier map with repo-local merge override
 - EV-57 — Resolve the running pi-council identity from the package root
 - EV-58 — Show the pi-council version and hash on the first pi run
