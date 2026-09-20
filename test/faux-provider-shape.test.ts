@@ -29,9 +29,17 @@ const TEST_DIR = join(REPO_ROOT, "test");
 const FAUX = join(TEST_DIR, "faux-provider");
 const WITNESS = "test/faux-provider-shape.test.ts";
 
+/** Files whose own text necessarily carries the retired tokens as DATA — the
+ * witness's own expected-value strings are the original case. test/
+ev77-gate-docs.test.ts (EV-77) is the second: its wiki-citation exemption keys
+ * must equal the retired tokens byte-for-byte, and each key asserts the path
+ * does NOT exist (a checker key, never a live reference). Same rationale as
+ * the witness's own exclusion — declared here, never scanner-evaded. */
+const SCAN_EXEMPT_SUFFIXES = [WITNESS, "test/ev77-gate-docs.test.ts"];
+
 /**
- * Recursively list every file under dir, excluding the witness itself and any
- * Python bytecode. The witness polices SOURCE, not bytecode: bytecode is
+ * Recursively list every file under dir, excluding the scan-exempt files and
+ * any Python bytecode. The witness polices SOURCE, not bytecode: bytecode is
  * derived, regenerable, gitignored, and re-compiled in-run by test 8 —
  * scanning it adds zero information and lets stale residue (an orphan .pyc
  * compiled from pre-move source) self-arm the witness (FLLWUP-48).
@@ -43,7 +51,7 @@ function filesUnder(dir: string): string[] {
 			const p = join(d, e);
 			if (statSync(p).isDirectory()) {
 				if (e !== "__pycache__") walk(p); // bytecode is derived, never source
-			} else if (!p.endsWith(WITNESS)) {
+			} else if (!SCAN_EXEMPT_SUFFIXES.some((s) => p.endsWith(s))) {
 				if (/\.(pyc|pyo|pyd)$/.test(p)) continue; // bytecode, same rule
 				out.push(p);
 			}
