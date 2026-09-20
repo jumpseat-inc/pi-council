@@ -31,8 +31,8 @@ const LEGEND_LINE = "usage  n/a = provider figure unavailable";
  * this legend's job is the exclusion (gate spend is accounted in the
  * repo-scoped gate ledger, never folded into the halves above — a
  * reported-basis number inside a half labelled `basis=` would assert a
- * provenance it does not have); the ledger (gate-ledger.jsonl, the repo-
- * scoped council ledger) is the audit trace. Predicate = the PERSISTED record's
+ * provenance it does not have); the ledger (the repo-scoped gate ledger
+ * owned by extensions/gate-ledger.ts) is the audit trace. Predicate = the PERSISTED record's
  * `gate` sibling, present iff ≥1 gate call fell in the invocation window —
  * a call-claim, not a spend-claim (a failed call counts; it carries no
  * cost, and the exclusion is true either way). */
