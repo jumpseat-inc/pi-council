@@ -98,13 +98,13 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## In Progress
 
 ## In Review
-- EV-78 — Follow-up disposition decisions as repo-overridable packaged data
 
 
 ## Needs Human
 
 ## Done
 
+- EV-78 — Follow-up disposition decisions as repo-overridable packaged data
 - EPIC-14 — Reuse `.council.json` to enable the decisions gate; add a `/council-gate` toggle; check the OpenRouter credential when the gate is on
 - EV-73 — Gate enablement lives in `.council.json`; the pin stays in code
 - EV-75 — Legacy `council/gate/policy.json` cannot silently disagree with `.council.json`
