@@ -6,7 +6,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Backlog
 
-- EPIC-14 — Reuse `.council.json` to enable the decisions gate; add a `/council-gate` toggle; check the OpenRouter credential when the gate is on
+- FLLWUP-95 — Cut the EPIC-14 release — bump `package.json` past 0.28.0, tag, and move `latest`
 - FLLWUP-93 — Consumer-repo-safe protection for wiki-cited code paths (the T1-class check beyond this repo)
 - FLLWUP-94 — Consider naming the config home in the /council-gate status read literal
 - FLLWUP-89 — Give /features-new a run-start preflight step — its seat dispatches share the gate-credential hole
@@ -99,6 +99,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Done
 
+- EPIC-14 — Reuse `.council.json` to enable the decisions gate; add a `/council-gate` toggle; check the OpenRouter credential when the gate is on
 - EV-73 — Gate enablement lives in `.council.json`; the pin stays in code
 - EV-75 — Legacy `council/gate/policy.json` cannot silently disagree with `.council.json`
 - EV-74 — `/council-gate` to enable or disable the decisions gate

@@ -1,7 +1,7 @@
 ---
 id: EPIC-14
 title: Reuse `.council.json` to enable the decisions gate; add a `/council-gate` toggle; check the OpenRouter credential when the gate is on
-state: Backlog
+state: Done
 owner: null
 epic: null
 goal: Reuse the committed `.council.json` as the decisions gate's enable surface instead of a separate gate policy file, add a `/council-gate` command to enable/disable jev for decisions, make preflight fail loud when the gate is on and no OpenRouter credential resolves, and fold or retire the overlapping EPIC-13 follow-up cards.
@@ -88,3 +88,36 @@ folded, retired, or recorded out of scope — none silently dropped.
   - `FLLWUP-79` — signpost the gate ledger from the usage-block exclusion
     surface.
   - `FLLWUP-80` — bound the EV-68 `textTree` byte-equality flake window.
+
+## Closure
+
+Closed `Done` by `steward` (job-10) on observed acceptance. All four
+acceptance clauses hold on the tree, not merely in the report:
+
+1. **Enablement round-trips.** `.council.json` carries exactly top-level keys
+   `["council","theme"]` (no `gate` section) and `council/gate/policy.json`
+   carries no `mode` key, so the gate resolves byte-identically `off`;
+   `extensions/council-gate-cmd.ts` resolves status/echo through
+   `loadGateConfig` (echo-then-run) and writes via `writeGateMode`.
+2. **Single resolver.** The three runtime readers (`gate-tool.ts:136`,
+   `gate-route-tool.ts:136`, `gate-route.ts:194`) reach mode through
+   `loadGatePolicy`, which resolves it solely via `loadGateConfig`
+   (`gate.ts:171`); `extensions/preflight.ts:45` composes the same resolver.
+   "Use" is transitive; the single-resolution-site canary enforces it.
+3. **Run-start preflight.** `council_preflight` is invoked in
+   `features-deliver.md:38` (Phase 0) and `council.md:64` (step 0); the `FAIL:`
+   names both remediations; off adds nothing.
+4. **FLLWUP-71…80.** `FLLWUP-74`/`76` are `Done` (folded); the other eight are
+   recorded out of scope with per-card reasons. No silent drop.
+
+All five children are `state: Done` in the board's Done column; each merged
+with the `gates` workflow `SUCCESS` on its checked head SHA and its merged SHA.
+
+**Residual (recorded, not silently dropped):** the release is unperformed —
+`package.json` at `0.28.0`, no bump, and the moving `latest` tag is a full epic
+behind `main` (`latest` at v0.19.0; v0.20.0–v0.28.0 untagged). The steward ruled
+this **not** a closure condition and routed it to the human's release path:
+`FLLWUP-95` (Backlog, `epic: EPIC-14`) — executed by the human via `/bump`; the
+semver level is theirs (the steward's reading is minor, `0.28.0 → 0.29.0`).
+
+Run ledger: `docs/superpowers/run-ledger-EPIC-14.md`.
