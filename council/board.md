@@ -94,9 +94,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-58 — Show the pi-council version and hash on the first pi run
 
 ## Deliberating
-- EV-78 — Follow-up disposition decisions as repo-overridable packaged data
 
 ## In Progress
+- EV-78 — Follow-up disposition decisions as repo-overridable packaged data
 
 ## In Review
 
