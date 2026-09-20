@@ -61,11 +61,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-59 — End-to-end falsifier for the first-run identity line
 - EPIC-12 — pi-council version and git hash on the first pi run
 - EPIC-13 — Metered deliberation routing — a System One gate decides Deliberate, Verify, or Direct per card
-- EV-71 — Decisions-aware gate spend accounting
 - EV-72 — Pre-registered threshold tuning from the ledger
 
 ## Ready
 
+- EV-71 — Decisions-aware gate spend accounting
 - EV-44 — Merge near-duplicate follow-up candidates before a card is drafted
 - EV-45 — Unattended ingest of a run's own ledger, without the human steer turn
 - EV-48 — Packaged seat-tier map with repo-local merge override
