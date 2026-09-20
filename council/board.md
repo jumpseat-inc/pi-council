@@ -72,10 +72,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Deliberating
 
 
-## In Review
-
-- EV-72 — Pre-registered threshold tuning from the ledger
-
+## In Progress
 
 ## In Review
 
@@ -83,6 +80,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Done
 
+- EV-72 — Pre-registered threshold tuning from the ledger
 - EV-71 — Decisions-aware gate spend accounting
 - EV-70 — Direct mode and the mode-aware merge check
 - EV-69 — Deterministic routing to Verify mode
