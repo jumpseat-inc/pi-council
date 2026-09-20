@@ -80,7 +80,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EPIC-12 — pi-council version and git hash on the first pi run
 
 ## Ready
-- EV-77 — Document the gate's `.council.json` surface, its command, and the decide() basis vocabulary
 - EV-44 — Merge near-duplicate follow-up candidates before a card is drafted
 - EV-45 — Unattended ingest of a run's own ledger, without the human steer turn
 - EV-48 — Packaged seat-tier map with repo-local merge override
@@ -88,6 +87,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-58 — Show the pi-council version and hash on the first pi run
 
 ## Deliberating
+- EV-77 — Document the gate's `.council.json` surface, its command, and the decide() basis vocabulary
 
 ## In Progress
 
