@@ -16,6 +16,12 @@ Checks every card in council/cards/ against:
   - board.md contains exactly one `- <ID> — <Title>` line per card, under
     the column matching its state, with an em dash (U+2014)
   - board.md contains no orphan lines (entries with no matching card)
+  - gate policy pre-registration: council/gate/policy.json's policyVersion
+    must have a matching entry in council/gate/registrations.jsonl (a
+    version moved with no pre-registration record is a threshold moved by
+    taste). No policy.json, nothing to pre-register (seed/scaffold trees).
+    A torn registrations line or an unreadable policy.json is a named FAIL,
+    never a traceback or a silent skip.
 
 Exits non-zero and prints a FAIL: line per finding. Prints
 `All council artifacts valid` only when clean.
@@ -23,6 +29,7 @@ Exits non-zero and prints a FAIL: line per finding. Prints
 Run from the repo root: `python3 council/validate.py`.
 """
 
+import json
 import re
 import sys
 from pathlib import Path
@@ -30,6 +37,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 CARDS = ROOT / "council" / "cards"
 BOARD = ROOT / "council" / "board.md"
+GATE_POLICY = ROOT / "council" / "gate" / "policy.json"
+GATE_REGISTRATIONS = ROOT / "council" / "gate" / "registrations.jsonl"
 
 ID_RE = re.compile(r"^(EV|FLLWUP|BUG|EPIC)-[1-9]\d*$")
 STATE_COLUMNS = [
@@ -157,6 +166,47 @@ def board_columns(board_text: str) -> dict:
     return columns
 
 
+def check_gate_registrations() -> None:
+    """Every gate policy version needs a pre-registration record (EV-72).
+
+    The FAIL line carries the remedy inline — it names the version, where
+    the entry is added, and what the entry must name — so the maintainer is
+    never sent to open another file to learn what to do.
+    """
+    if not GATE_POLICY.exists():
+        return  # no gate policy → nothing to pre-register
+    try:
+        policy = json.loads(GATE_POLICY.read_text())
+    except (json.JSONDecodeError, OSError) as exc:
+        fail(f"council/gate/policy.json is not readable JSON: {exc}")
+        return
+    if not isinstance(policy, dict) or not policy.get("policyVersion"):
+        fail("council/gate/policy.json has no policyVersion — name the policy version to pre-register it")
+        return
+    version = policy["policyVersion"]
+    registered = False
+    if GATE_REGISTRATIONS.exists():
+        for line_no, line in enumerate(GATE_REGISTRATIONS.read_text().splitlines(), start=1):
+            if not line.strip():
+                continue
+            try:
+                entry = json.loads(line)
+            except json.JSONDecodeError as exc:
+                fail(
+                    f"council/gate/registrations.jsonl line {line_no} {line.strip()!r} is not "
+                    f"valid JSON ({exc}) — one JSON object per line; fix or remove the torn line"
+                )
+                continue
+            if isinstance(entry, dict) and entry.get("policyVersion") == version:
+                registered = True
+    if not registered:
+        fail(
+            f"gate policy version {version} has no pre-registration record in "
+            "council/gate/registrations.jsonl \u2014 add an entry naming that version, "
+            "the coefficient or floor that changed, and the ledger evidence that motivated it"
+        )
+
+
 def main() -> int:
     board_text = ""
     if not BOARD.exists():
@@ -233,6 +283,8 @@ def main() -> int:
             bid = m.group(1)
             if bid not in card_ids:
                 fail(f"board entry {bid} has no matching card file")
+
+    check_gate_registrations()
 
     if failures:
         for f in failures:

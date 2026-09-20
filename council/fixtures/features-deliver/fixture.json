@@ -2,7 +2,7 @@
 	"schemaVersion": 1,
 	"taskId": "features-deliver",
 	"name": "Deliver a three-child epic unattended under recorded delivery rulings",
-	"fixtureVersion": "1.2.0",
+	"fixtureVersion": "1.3.0",
 	"kind": "procedure",
 	"target": {
 		"type": "procedure",
@@ -13,7 +13,7 @@
 	},
 	"seed": {
 		"dir": "seed",
-		"treeDigest": "sha256:ddb9992fa6525a6f600151c09749910a8d31fa5998d53145f9ca02da9a1794fb"
+		"treeDigest": "sha256:a70a3f32965e943a605000ab4669fb684699fbf4293726bf2530d65c2eb5a864"
 	},
 	"env": {
 		"TZ": "UTC",

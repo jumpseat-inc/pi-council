@@ -164,11 +164,11 @@ test("T4: `goal:no-space-after-key` still FAILs `missing required key 'goal'`", 
 
 // ---- T5 (digest + version discipline) ----
 
-test("T5: the 8 seeded fixtures pin the updated seed digest and carry fixtureVersion 1.2.0", () => {
+test("T5: the 8 seeded fixtures pin the updated seed digest and carry fixtureVersion 1.3.0", () => {
 	for (const task of TASKS) {
 		const dir = path.join(PKG_ROOT, "council", "fixtures", task);
 		const fixture = JSON.parse(fs.readFileSync(path.join(dir, "fixture.json"), "utf-8"));
-		expect(fixture.fixtureVersion, `${task} fixtureVersion`).toBe("1.2.0");
+		expect(fixture.fixtureVersion, `${task} fixtureVersion`).toBe("1.3.0");
 		expect(fixture.seed.treeDigest, `${task} treeDigest`).toBe(sha256Tree(path.join(dir, "seed")));
 	}
 });
