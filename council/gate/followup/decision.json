@@ -1,0 +1,13 @@
+{
+	"version": "followup-decision-1",
+	"weights": { "duplicate": 1, "alreadyDone": 1, "actionable": 1 },
+	"countedOption": { "duplicate": "yes", "alreadyDone": "yes", "actionable": "no" },
+	"floors": { "choice": 0.6 },
+	"noulThreshold": 0.6,
+	"noulProbabilityOf": "yes",
+	"thresholds": { "merge": 1.0, "drop": 2.0 },
+	"overrides": [
+		{ "question": "alreadyDone", "option": "yes", "basis": "already resolved or obsolete", "disposition": "Drop" },
+		{ "question": "duplicate", "option": "yes", "basis": "same work as an open card", "disposition": "Merge" }
+	]
+}
