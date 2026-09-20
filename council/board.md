@@ -7,6 +7,10 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Backlog
 
 - EPIC-14 — Reuse `.council.json` to enable the decisions gate; add a `/council-gate` toggle; check the OpenRouter credential when the gate is on
+- FLLWUP-85 — Seed `gate: {"mode": "off"}` in the scaffold `.council.json` and pin a canonical top-level key order
+- FLLWUP-86 — Run-config-stability Phase-0 assertion: gate.mode is a second mid-run-flippable config input
+- FLLWUP-87 — Concurrent-session write discipline for `.council.json`
+- FLLWUP-88 — Theme-watcher: skip the theme reload when a `.council.json` write touched no theme bytes
 - EV-76 — Run-start preflight fails loud when the gate is on and no OpenRouter credential resolves
 - EV-77 — Document the gate's `.council.json` surface, its command, and the decide() basis vocabulary
 - FLLWUP-72 — Make step 11 execute the merge-check table, not a prose mirror of it
@@ -74,7 +78,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EPIC-12 — pi-council version and git hash on the first pi run
 
 ## Ready
-- EV-74 — `/council-gate` to enable or disable the decisions gate
 - EV-44 — Merge near-duplicate follow-up candidates before a card is drafted
 - EV-45 — Unattended ingest of a run's own ledger, without the human steer turn
 - EV-48 — Packaged seat-tier map with repo-local merge override
@@ -83,14 +86,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-
-
 ## In Progress
-
-
 
 ## In Review
 
+- EV-74 — `/council-gate` to enable or disable the decisions gate
 
 ## Needs Human
 

@@ -3,6 +3,8 @@ import * as path from "node:path";
 import { COUNCIL_CONFIG_FILE, THINKING_LEVELS, parseQualifiedModel } from "./seats.ts";
 import type { AgentOverride } from "./seats.ts";
 import type { CatalogueModel } from "./catalogue.ts";
+import { GATE_MODES } from "./gate.ts";
+import type { GateMode } from "./gate.ts";
 
 /**
  * EV-24: the first `.council.json` write path. It validates a seat's (model,
@@ -38,6 +40,11 @@ import type { CatalogueModel } from "./catalogue.ts";
  * NOTHING (a mid-edit or unparseable file must never be clobbered). ONLY
  * filesystem failures throw: an unreadable target or an atomic-rename error
  * (EROFS/ENOSPC, target is a directory).
+ *
+ * EV-74 adds the gate sibling: `writeGateMode` below splices the reserved
+ * top-level `gate.mode` (resolved solely by `loadGateConfig`) with the SAME
+ * private machinery — the mode vocabulary flows only through the GATE_MODES
+ * import from gate.ts, never a local re-declaration.
  */
 export type WriteSeatOverrideResult = { ok: true } | { ok: false; error: string };
 
@@ -511,6 +518,148 @@ export function clearSeatOverride(args: {
 	if (what === "thinking" && edits.length === 0) return { ok: true }; // nothing to clear → no write
 
 	const patched = applyEdits(text, edits);
+	writeAtomic(file, patched, existingMode(file));
+	return { ok: true };
+}
+
+/** Mirror of `loadGateConfig`'s grammar for the `gate` member of an already
+ *  parse-valid, object-rooted doc: absent ⇒ GATE_MODES[0]; a non-object gate,
+ *  an unknown gate key, or an invalid mode value each fail with a single line
+ *  naming the file and key — the writer's refusal matches what the loader
+ *  would throw on the same bytes, before any splice. */
+function resolveGateSection(file: string, parsedDoc: unknown): { mode: GateMode } | { error: string } {
+	const raw = (parsedDoc as Record<string, unknown>).gate;
+	if (raw === undefined) return { mode: GATE_MODES[0] };
+	if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
+		return { error: `${file}: "gate" must be an object` };
+	}
+	const section = raw as Record<string, unknown>;
+	for (const key of Object.keys(section)) {
+		if (key !== "mode") {
+			return { error: `${file}: gate.${key}: unknown key; expected one of mode` };
+		}
+	}
+	if (section.mode === undefined) return { mode: GATE_MODES[0] };
+	if (typeof section.mode !== "string" || !GATE_MODES.includes(section.mode as GateMode)) {
+		return {
+			error: `${file}: gate.mode must be one of ${GATE_MODES.map((m) => JSON.stringify(m)).join(", ")}, found ${JSON.stringify(section.mode)}`,
+		};
+	}
+	return { mode: section.mode as GateMode };
+}
+
+/**
+ * EV-74: the gate sibling write path. Splices the reserved top-level `gate`
+ * section's `mode` in `.council.json` — the ONE enablement key
+ * `loadGateConfig` resolves — reusing this module's string-aware byte-splice
+ * machinery. Only the spliced span changes: the `council` section, `theme`,
+ * unknown top-level keys, the file's own indentation (detectIndentUnit), and
+ * the trailing newline are byte-identical by construction.
+ *
+ * The no-op decision is this writer's own fresh read+parse (never a
+ * command-side pre-read): a file whose resolved mode already equals the
+ * request returns `{ ok: true, unchanged: true }` — no write, mtime untouched.
+ * Greenfield (file absent): the no-op default (GATE_MODES[0]) leaves the file
+ * absent — a redundant set never materializes a gate section — while a real
+ * request creates the canonical `{ "gate": { "mode": ... } }` document
+ * (2-space indent, trailing newline), the same greenfield rule as
+ * `writeSeatOverride`. Duplicate `gate.mode` keys are last-wins per
+ * JSON.parse: the splice targets the winning (LAST) span. A `gate` member
+ * without a mode gets one inserted after its last member (or the empty-object
+ * span re-emitted); a gate-less file gets the section appended after the last
+ * root member. Validation mirrors the loader's grammar exactly (via
+ * `resolveGateSection` above) and runs before any splice; only filesystem
+ * failures throw (the module's failure asymmetry).
+ */
+export function writeGateMode(args: {
+	repoRoot: string;
+	mode: GateMode; // imported from ./gate.ts — GATE_MODES; never re-declared
+}): { ok: true; unchanged?: true } | { ok: false; error: string } {
+	const { repoRoot, mode } = args;
+	const file = path.join(repoRoot, COUNCIL_CONFIG_FILE);
+
+	// ---- 1. Validate (pure, I/O-free; nothing happens on any failure) ----
+	if (!GATE_MODES.includes(mode)) {
+		return {
+			ok: false,
+			error: `writeGateMode: gate mode must be one of ${GATE_MODES.map((m) => JSON.stringify(m)).join(", ")}`,
+		};
+	}
+
+	// ---- 2a. Greenfield: file absent — canonical 2-space + trailing newline ----
+	if (!fs.existsSync(file)) {
+		if (mode === GATE_MODES[0]) return { ok: true, unchanged: true };
+		writeAtomic(file, JSON.stringify({ gate: { mode } }, null, 2) + "\n");
+		return { ok: true };
+	}
+
+	// ---- 2b. Read + parse. Malformed / non-object root → refuse, never write. ----
+	let text: string;
+	try {
+		text = fs.readFileSync(file, "utf-8");
+	} catch (e) {
+		throw e; // filesystem failure — throws by design
+	}
+	let parsedDoc: unknown;
+	try {
+		parsedDoc = JSON.parse(text);
+	} catch (e) {
+		return { ok: false, error: `${file}: malformed JSON — ${e instanceof Error ? e.message : String(e)}` };
+	}
+	if (typeof parsedDoc !== "object" || parsedDoc === null || Array.isArray(parsedDoc)) {
+		return { ok: false, error: `${file}: root must be a JSON object` };
+	}
+
+	// ---- 3. Resolve from the file's own bytes per loadGateConfig's grammar ----
+	const resolved = resolveGateSection(file, parsedDoc);
+	if ("error" in resolved) return { ok: false, error: resolved.error };
+	if (resolved.mode === mode) return { ok: true, unchanged: true };
+
+	// ---- 4. Splice: only the target span changes ----
+	const root = parseValue(text, skipSpace(text, 0)).node;
+	const rootMembers = root.kind === "object" ? (root.members ?? []) : [];
+	const gateMember = rootMembers.find((m) => m.key === "gate");
+	const quotedMode = JSON.stringify(mode);
+
+	let patched: string;
+	if (gateMember !== undefined) {
+		const gateNode = gateMember.value;
+		const modeMembers = (gateNode.members ?? []).filter((m) => m.key === "mode");
+		if (modeMembers.length > 0) {
+			// Replace the LAST mode value span — duplicate keys are last-wins per
+			// JSON.parse, so the winning span is the splice target.
+			const member = modeMembers[modeMembers.length - 1];
+			patched = text.slice(0, member.value.start) + quotedMode + text.slice(member.value.end);
+		} else if (gateNode.members !== undefined && gateNode.members.length > 0) {
+			// Gate object with members but no mode — insert after the last member.
+			const last = gateNode.members[gateNode.members.length - 1];
+			const insertIndent = lineIndentAt(text, last.keyStart);
+			patched =
+				text.slice(0, last.value.end) + `,\n${insertIndent}"mode": ${quotedMode}` + text.slice(last.value.end);
+		} else {
+			// Empty gate object — re-emit its span fully formed.
+			const gateKeyIndent = lineIndentAt(text, gateMember.keyStart);
+			const unit = detectIndentUnit(text);
+			const memberIndent = gateKeyIndent + unit;
+			patched =
+				text.slice(0, gateNode.start) +
+				`{\n${memberIndent}"mode": ${quotedMode}\n${gateKeyIndent}}` +
+				text.slice(gateNode.end);
+		}
+	} else {
+		const unit = detectIndentUnit(text);
+		if (rootMembers.length > 0) {
+			// Append-after-last: no scaffold-order rule is invented here.
+			const last = rootMembers[rootMembers.length - 1];
+			const insertIndent = lineIndentAt(text, last.keyStart);
+			const memberIndent = insertIndent + unit;
+			const insertion = `,\n${insertIndent}"gate": {\n${memberIndent}"mode": ${quotedMode}\n${insertIndent}}`;
+			patched = text.slice(0, last.value.end) + insertion + text.slice(last.value.end);
+		} else {
+			// Empty root object — re-emit as a fresh structure at the file's unit.
+			patched = `{\n${unit}"gate": {\n${unit}${unit}"mode": ${quotedMode}\n${unit}}\n}`;
+		}
+	}
 	writeAtomic(file, patched, existingMode(file));
 	return { ok: true };
 }
