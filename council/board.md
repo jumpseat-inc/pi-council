@@ -7,6 +7,10 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Backlog
 
 - EPIC-14 — Reuse `.council.json` to enable the decisions gate; add a `/council-gate` toggle; check the OpenRouter credential when the gate is on
+- FLLWUP-85 — Seed `gate: {"mode": "off"}` in the scaffold `.council.json` and pin a canonical top-level key order
+- FLLWUP-86 — Run-config-stability Phase-0 assertion: gate.mode is a second mid-run-flippable config input
+- FLLWUP-87 — Concurrent-session write discipline for `.council.json`
+- FLLWUP-88 — Theme-watcher: skip the theme reload when a `.council.json` write touched no theme bytes
 - EV-76 — Run-start preflight fails loud when the gate is on and no OpenRouter credential resolves
 - EV-77 — Document the gate's `.council.json` surface, its command, and the decide() basis vocabulary
 - FLLWUP-72 — Make step 11 execute the merge-check table, not a prose mirror of it
