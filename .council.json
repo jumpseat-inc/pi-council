@@ -40,5 +40,8 @@
   "theme": {
     "enabled": true,
     "variant": "auto"
+  },
+  "gate": {
+    "mode": "active"
   }
 }
