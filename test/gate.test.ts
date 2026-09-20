@@ -459,3 +459,38 @@ test("the packaged decision.json validates clean under all four refusal classes"
 		for (const v of [o.question, o.option, o.basis]) expect(v).not.toMatch(/[\r\n]/);
 	}
 });
+
+// ---------------------------------------------------------------------------
+// EV-73 — single-resolution-site canary (spec §6): only extensions/gate.ts
+// touches .council.json's gate key; the readers keep exactly one
+// loadGatePolicy call each and their off short-circuit precedes any state
+// build (skeptic O5: the recheck body's precedence is TRANSITIVE via
+// resolveRoute — buildGateState textually precedes its own loadGatePolicy
+// there, so the transitive form is the pinned one).
+// ---------------------------------------------------------------------------
+
+test("single resolution site: only extensions/gate.ts touches .council.json's gate key; readers keep exactly one loadGatePolicy call each", () => {
+	const srcOf = (name: string) => fs.readFileSync(path.join(PKG_ROOT, "extensions", name), "utf-8");
+	for (const reader of ["gate-tool.ts", "gate-route-tool.ts", "gate-route.ts", "gate-run.ts"]) {
+		const src = srcOf(reader);
+		expect(src.match(/\.council\.json|COUNCIL_CONFIG_FILE/g), `${reader} must not read the config file directly`).toEqual(null);
+	}
+	for (const reader of ["gate-tool.ts", "gate-route-tool.ts", "gate-route.ts"]) {
+		const src = srcOf(reader);
+		const calls = src.match(/loadGatePolicy\(/g) ?? [];
+		expect(calls.length, `${reader} has exactly one loadGatePolicy call site`).toBe(1);
+	}
+	// gate-tool.ts and gate-route.ts: loadGatePolicy textually precedes any
+	// buildGateState call (the off short-circuit ordering, preserved).
+	for (const reader of ["gate-tool.ts", "gate-route.ts"]) {
+		const src = srcOf(reader);
+		expect(src.indexOf("loadGatePolicy(")).toBeGreaterThan(-1);
+		expect(src.indexOf("loadGatePolicy(")).toBeLessThan(src.indexOf("buildGateState("));
+	}
+	// gate-route-tool.ts recheck body: resolveRoute( precedes buildGateState(
+	// inside recheck — the transitive precedence form (skeptic O5).
+	const src = srcOf("gate-route-tool.ts");
+	const recheck = src.slice(src.indexOf("async function recheck"));
+	expect(recheck.indexOf("resolveRoute(")).toBeGreaterThan(-1);
+	expect(recheck.indexOf("resolveRoute(")).toBeLessThan(recheck.indexOf("buildGateState("));
+});
