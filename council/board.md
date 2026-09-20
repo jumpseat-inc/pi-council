@@ -19,6 +19,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-78 — Make the gate legend key self-describing (deliberation, not gate)
 - FLLWUP-79 — Signpost the gate ledger from the usage block's exclusion surface
 - FLLWUP-80 — Bound the EV-68 textTree byte-equality flake window
+- FLLWUP-81 — Eliminate gate-state.ts's duplicated lenient policy read — resolve the budget through the validated loader or pin the load-order invariant
+- FLLWUP-82 — Every gate question id is single-line and cross-referenced across questions.json and decision.json
+- FLLWUP-83 — Own-key membership for loadGateDecision's mechanical-record check — close the pre-existing prototype-chain `in` leak
 - EPIC-1 — omp-themed council theme for pi, configurable from the scaffold .council.json
 - EPIC-2 — Inline council job tree beneath the input bar
 - EPIC-3 — Council-decomposed features-new with a bounded session
