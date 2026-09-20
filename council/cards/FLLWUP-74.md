@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-74
 title: Enforce loadGateDecision's invariants — verify > 0 and the hostile-string cross-checks
-state: Backlog
+state: Done
 owner: null
 epic: EPIC-13
 goal: extensions/gate.ts's loadGateDecision requires thresholds.verify to be greater than 0 (the existing verify <= direct rule then makes direct greater than 0 follow), and refuses floors/thresholds sub-keys that are not declared keys, override.question ids that are not declared in weights, and any basis-affecting string whose content can render a multi-line basis, each failure a single-line FAIL naming the offending file and key; and a test proves a verify:0 policy, an unknown floors sub-key, an unknown override.question id, and a newline-bearing override id each throw naming the file and key, while the packaged council/gate/policy.json validates clean.
@@ -41,3 +41,12 @@ unconditionally. This card closes the precondition.
 - `decide()`/`loadGateDecision` behavior on every valid policy is unchanged
   (byte-identical `basis` and mode for the packaged fixture set).
 - No consumer carries a second copy of the predicate.
+## Folded into EPIC-14
+
+Folded into `EV-73` (`EPIC-14`) by the EPIC-14 wave-3 product-owner ruling
+(job-33): the same `loadGateDecision`/`loadGatePolicy` surface is rewritten by
+the enablement relocation, so shipping this separately would re-open the
+`verify > 0` / hostile-string loader defect under a new source. All four refusal
+classes (including the multi-line-`basis` class and its newline-override-id
+test) ride `EV-73`'s goal and Acceptance — not three, as the wave-1 fold first
+proposed.

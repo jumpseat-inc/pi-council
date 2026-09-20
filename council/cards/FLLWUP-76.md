@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-76
 title: Document the decide() basis vocabulary, the callId:null fallback, and the intake-vs-dispatch split
-state: Backlog
+state: Done
 owner: null
 epic: EPIC-13
 goal: vault/ holds a durable page, new or a named section of the metered-deliberation-routing page, that documents the decide() basis vocabulary (composite and comparison strings, threshold names, the one-way-door phrase), the meaning of the callId:null fallback cell as a tool short-circuit rather than a corrupted ledger, and that the rendered line describes the recorded intake-time decision while EV-69 re-checks at dispatch; every claim cites its implementing code or a run record, and a test or lint check confirms each cited path exists.
@@ -31,3 +31,9 @@ re-check — not a live re-derivation.
   EV-69's re-check.
 - Every cited code path and run record exists (checked mechanically).
 - The page is reached from the routed wiki index, not orphaned.
+## Folded into EPIC-14
+
+Folded into `EV-77` (`EPIC-14`) by the EPIC-14 wave-3 product-owner ruling
+(job-33): both cards document the same reader-facing `metered-deliberation-routing`
+page, which EPIC-14 must edit anyway to describe the new `.council.json` gate
+surface and the `/council-gate` toggle. `EV-77` carries this card's full scope.
