@@ -4,7 +4,7 @@ type: concept
 summary: The step-12 direct-to-main record push is a privileged write the features-deliver authority map does not re-home; FLLWUP-60 closed the gap by naming a run-scoped authorization in the procedure and fencing an unauthorized push as a HALT — EPIC-13 then showed the ordering (`before` the first push) is the load-bearing word.
 aliases: [record push, step-12 push, admin bypass, record-push authorization]
 tags: [pi-council/concept, pi-council/features-deliver]
-sources: ["[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]"]
+sources: ["[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]"]
 created: 2026-09-17
 updated: 2026-09-21
 ---
@@ -101,5 +101,8 @@ unreliable and is invisible in the very board it is writing.
 - [[2026-09-17-epic9-residual-run-ledger]]
 - [[2026-09-18-epic9-residual-run-2-ledger]] — the closure
 - [[2026-09-21-epic13-run-ledger]] — the authorization-ordering recurrence
+- [[2026-09-21-epic14-run-ledger]] — authorization recorded at Phase 1 before the
+  first push; no recurrence of the gap (two runners left record edits uncommitted
+  in the main checkout, cleared before merge)
 - `council/procedures/council.md` step 12, `council/procedures/features-deliver.md`
 - `council/cards/FLLWUP-42.md`, `council/cards/FLLWUP-60.md`

@@ -4,7 +4,7 @@ type: concept
 summary: The house forcing function for destructive or committing actions — quote the exact resolved selection back and require one confirming Enter before acting; the echo and the executed write are the same object by construction.
 aliases: [echo then run, confirm echo, echo-then-run confirmation]
 tags: [pi-council/concept]
-sources: ["[[2026-09-04-design-ev20-round2]]", "[[2026-09-04-epic5-run-ledger]]"]
+sources: ["[[2026-09-04-design-ev20-round2]]", "[[2026-09-04-epic5-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]"]
 created: 2026-09-04
 updated: 2026-09-04
 ---
@@ -45,14 +45,27 @@ state, it must quote the *effective* value, never a blank.
 - **Copy honesty** — the echo lines double as documentation of the
   write's timing ("takes effect at the next dispatch").
 
+## Application: `/council-gate` (EPIC-14)
+
+The `/council-gate` command is a direct application: one token sets the gate
+mode, and the write is echoed through **`loadGateConfig`** — the same resolver
+`council_route`, the gate tool, and the preflight read — so the printed value
+cannot drift from what dispatch resolves. A redundant set echoes the no-op line.
+This is the strongest form of the pattern: the echo is not a copy of the value,
+it is a second call to the resolver the runtime uses.
+
 ## Related
 
 - [[council models picker]] — the modal confirm application
 - [[council config writer]] — the write being confirmed
+- [[metered-deliberation-routing]] — the `/council-gate` resolver (EPIC-14)
+- [[gate-parity]] — the echo==write doctrine's placement rule
 - [[designer]] — the forcing-function doctrine this implements
 - [[2026-09-04-epic5-run-ledger]] — the J-1 sub-ruling (one Enter vs two)
+- [[2026-09-21-epic14-run-ledger]] — the `/council-gate` application
 
 ## Sources
 
 - [[2026-09-04-design-ev20-round2]] — the original echo-then-run precedent
 - [[2026-09-04-epic5-run-ledger]]
+- [[2026-09-21-epic14-run-ledger]] — the `/council-gate` resolver echo

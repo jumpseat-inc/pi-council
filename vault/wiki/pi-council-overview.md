@@ -4,12 +4,12 @@ type: overview
 summary: pi-council is an installable pi package pairing a multi-agent Council deliberation/implementation loop with an LLM-maintained wiki — the workflow's opinions are the product.
 aliases: [pi-council, council, the Council, pi-council overview]
 tags: [pi-council/overview]
-sources: ["[[2026-08-23-readme]]", "[[2026-08-23-pi-council-design-spec]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]", "[[2026-09-03-v0.14.0-domain-neutral-stack-agnostic]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]"]
+sources: ["[[2026-08-23-readme]]", "[[2026-08-23-pi-council-design-spec]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]", "[[2026-09-03-v0.14.0-domain-neutral-stack-agnostic]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]"]
 created: 2026-08-23
 updated: 2026-09-21
 ---
 
-`pi-council` (v0.28.0; latest tag `v0.19.0`) is an installable [pi](https://pi.dev) package, distributed
+`pi-council` (v0.28.0; latest tag `v0.19.0`, a full epic behind `main`) is an installable [pi](https://pi.dev) package, distributed
 as `pi install git:github.com/jumpseat-inc/pi-council`. Installing it once and
 running `/council-init` gives **any** repository the same opinionated workflow:
 a facilitator-driven Council of specialized seats that deliberates, implements,
@@ -86,6 +86,7 @@ behavior change:
 | v0.19.0 | **EPIC-9 release** — `package.json` 0.18.0 → 0.19.0; `v0.19.0` tagged and `latest` moved, carrying the accumulated EPIC-7/8/9 behavior changes under one release. The tag record was completed in the same pass: **`v0.18.0` added** (it had been bumped in source but never tagged) and the un-prefixed strays `0.6.2`/`0.17.1` renamed to `v0.6.2`/`v0.17.1`, so every release 0.1.0 → 0.19.0 now carries exactly one `vX.Y.Z` tag | [[2026-09-16-epic9-run-ledger]] |
 | v0.20.0 (untagged) | **FLLWUP-51 breaking gate** — `package.json` 0.19.0 → 0.20.0 (`09a8679`): `validate.py` now hard-fails a wrapped `goal:` / broken frontmatter block; the `goal` is parsed positionally and is no longer silently truncated by a colon-space. **No `v0.20.0` tag exists yet** | [[engineering-board]], [[2026-09-18-epic9-residual-run-2-ledger]] |
 | v0.21.0–v0.28.0 (main, untagged) | **EPIC-13: metered deliberation routing** — the System One gate ([[metered-deliberation-routing]]), its mode-aware consumer ([[deterministic-merge-check]]), the v2 gate ledger, and the usage-block gate-exclusion legend ([[usage-block]]). Thirteen chain-promoted children (PRs #79–#91); EPIC-13 closed `Done` — the **fifth epic-card closure**. Version bumps rode each card; a concurrent external commit added the `/bump` skill at v0.22.0. **No `v0.21.0`+ tag exists yet** | [[2026-09-21-epic13-run-ledger]] |
+| v0.28.0 (main, untagged) | **EPIC-14: gate enablement re-homed** — the decisions gate's `mode` moved from `council/gate/policy.json` to `.council.json`'s reserved top-level `gate` section ([[council-config]]), the `/council-gate` operator command shipped, and the run-start `council_preflight` credential check landed on a packaged path ([[preflight]]). Five chain-promoted children (PRs #92–#96); EPIC-14 closed `Done` — the **sixth epic-card closure**. **No version bump** (declined as a closure condition; [[steward]] carded it as `FLLWUP-95`) | [[2026-09-21-epic14-run-ledger]] |
 
 The wiki scaffold shipped in the same commit as the council scaffold — the
 wiki is not an add-on. The full arc and commit-message discipline live in the
@@ -103,6 +104,8 @@ git log; this table is a secondary summary that can drift.
 - [[model-eval-harness]] — the EPIC-4 subsystem (v0.15.0/v0.16.0): /council-eval + /council-leaderboard
 - [[deterministic-merge-check]] — the five-criterion autonomous merge gate
 - [[chain-promotion]] — the automated Backlog→Ready cadence
+- [[2026-09-21-epic13-run-ledger]] — the routing-gate epic (fifth closure)
+- [[2026-09-21-epic14-run-ledger]] — the gate-enablement epic (sixth closure)
 - [[2026-09-04-epic4-run-ledger]] — the EPIC-4 run record
 - [[smoke-test]] — the unattended end-to-end test (the v0.12.0 run was a clean green)
 - [[2026-08-26-smoke-v0.12.0]] — the v0.12.0 smoke-test record

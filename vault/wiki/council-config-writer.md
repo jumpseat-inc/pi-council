@@ -1,12 +1,12 @@
 ---
 title: Council Config Writer
 type: entity
-summary: The .council.json write path (EV-24) — a byte-region patcher with three regimes (replace/insert/greenfield) that field-level merges one seat's council.<seat> object, validating model-presence and thinking grammar and preserving every other byte; FLLWUP-10 fixed the object-form :suffix preservation seam, FLLWUP-9 added clearSeatOverride.
-aliases: [council config writer, council-config-writer, writeSeatOverride, clearSeatOverride, config writer, .council.json writer]
+summary: The .council.json write path (EV-24) — a byte-region patcher with three regimes (replace/insert/greenfield) that field-level merges one seat's council.<seat> object, validating model-presence and thinking grammar and preserving every other byte; FLLWUP-10 fixed the object-form :suffix preservation seam, FLLWUP-9 added clearSeatOverride, EPIC-14 added writeGateMode for the gate section.
+aliases: [council config writer, council-config-writer, writeSeatOverride, clearSeatOverride, writeGateMode, config writer, .council.json writer]
 tags: [pi-council/entity, pi-council/epic5, pi-council/epic6]
-sources: ["[[2026-09-04-epic5-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]"]
+sources: ["[[2026-09-04-epic5-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]"]
 created: 2026-09-04
-updated: 2026-09-05
+updated: 2026-09-21
 ---
 
 # Council Config Writer
@@ -81,14 +81,29 @@ explicit-clear affordance EV-24 deliberately deferred exists as a writer
 option only — no modal UI and no user-visible copy (Phase-1 ruling
 FLLWUP-9 R-1, writer-surface scope per the decomposition's S-2).
 
+## writeGateMode (EPIC-14, EV-74)
+
+The writer gained a second target key. `writeGateMode` writes only the `mode`
+key inside `.council.json`'s reserved top-level `gate` section, through the same
+byte-region splicer, so every other byte and every other top-level key stays
+byte-identical; a write whose requested mode already resolves leaves the file
+**byte-identical**. It is the write half of `/council-gate`; the command echoes
+the result through `loadGateConfig` — the same resolver the runtime reads
+([[echo-then-run]], [[metered-deliberation-routing]]). The pre-existing
+concurrent-session lost-update hazard (tmp+rename is last-writer-wins) is known
+and carded (`FLLWUP-87`); the theme watcher still fires on any write, carded
+(`FLLWUP-88`).
+
 ## Related
 
 - [[council config]] — the file, its shape and read path
 - [[gate parity]] — why validation stops at model-presence + grammar
 - [[council models picker]] — the surface that calls it
+- [[metered-deliberation-routing]] — the `gate.mode` target (EPIC-14)
 - [[non-clobbering-scaffold]] — the file's seeding discipline
 - [[2026-09-04-epic5-run-ledger]]
 - [[2026-09-05-epic6-run-ledger]] — FLLWUP-10 fix + FLLWUP-9 clear
+- [[2026-09-21-epic14-run-ledger]] — `writeGateMode` (EV-74)
 
 ## Sources
 

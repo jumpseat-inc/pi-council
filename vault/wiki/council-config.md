@@ -1,12 +1,12 @@
 ---
 title: Council Config
 type: concept
-summary: The committed `.council.json` at the repo root — a per-seat `council` block overriding model/thinking, PLUS sibling top-level `theme` and `retry` sections giving per-repo control of the council palette and of provider-error retry policy. Frontmatter, shipped palette, and shipped retry defaults stay the defaults; the file shadows them. Seeded non-clobberingly by /council-init.
+summary: The committed `.council.json` at the repo root — a per-seat `council` block overriding model/thinking, PLUS sibling top-level `theme`, `retry`, and `gate` sections giving per-repo control of the council palette, provider-error retry policy, and decisions-gate enablement. Frontmatter, shipped palette, retry, and gate defaults stay the defaults; the file shadows them. Seeded non-clobberingly by /council-init.
 aliases: [council config, .council.json, council.json, agent overrides, seat model override, seat config]
 tags: [pi-council/concept]
-sources: ["[[2026-08-23-council-json-override]]", "[[2026-08-25-design-ev3]]", "[[2026-08-25-design-ev3-round2]]"]
+sources: ["[[2026-08-23-council-json-override]]", "[[2026-08-25-design-ev3]]", "[[2026-08-25-design-ev3-round2]]", "[[2026-09-21-epic14-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-20
+updated: 2026-09-21
 ---
 
 # Council Config
@@ -29,8 +29,11 @@ sibling of `council` that recolors the council palette per-repo (see
 [[council-theme]]). Since EPIC-9 it carries a third sibling, **`retry`**, holding
 the provider-error retry policy — `enabled`, `maxAttempts`, `baseDelayMs`,
 `maxDelayMs`, `jitter` — with shipped defaults seeded into the scaffold
-([[retry-policy]]). The siblings parse through separate loaders; `theme` and
-`retry` are reserved keys, never per-seat overrides.
+([[retry-policy]]). Since **EPIC-14** it carries a fourth sibling, **`gate`**,
+holding the decisions gate's enablement (`mode`), which EPIC-13 had kept in
+`council/gate/policy.json` (see [[metered-deliberation-routing]]). The siblings
+parse through separate loaders; `theme`, `retry`, and `gate` are reserved keys,
+never per-seat overrides.
 
 ## File & shape
 
@@ -83,6 +86,34 @@ guard, a `council.theme` entry would parse as a phantom seat override).
 See [[council-theme]] for the full activation four-state table, name
 namespace, and token-only drawing rule.
 
+## The `gate` section (EPIC-14 sibling)
+
+The decisions gate's **enablement** lives in a reserved top-level `gate` section,
+a sibling of `council`/`theme`/`retry`, resolved by `loadGateConfig`
+(`extensions/gate.ts`) — the single resolver all three runtime mode readers and
+the run-start preflight use:
+
+```json
+{ "gate": { "mode": "off" | "advisory" | "active" } }
+```
+
+- An absent `gate` section, an absent `.council.json`, and `gate: {}` all resolve
+  `mode: "off"` byte-identically. **`off` is not "less rigor"** — there are no
+  recorded decisions, so every card falls back to the full Deliberate panel
+  ([[metered-deliberation-routing]]).
+- The mode is read lazily at gate-tool-call time, never eagerly, so a mid-run
+  flip is visible to the current dispatch's next gate read (see
+  [[run-config-stability]]).
+- `mode` is no longer an accepted `council/gate/policy.json` key; a policy file
+  still carrying it fails loud with a dedicated migration line (file + key +
+  `gate.mode`). The `typesafe/jev-1.13` model pin and decisions endpoint stay
+  **code constants**, never user config.
+- The write surface is **`/council-gate`** (`extensions/council-gate-cmd.ts`),
+  sharing [[council config writer]]'s byte-region splice so every other
+  top-level key and byte is preserved; a redundant set is a byte-identical
+  no-op (see [[echo-then-run]]). The scaffold does **not** yet seed a `gate`
+  section (`FLLWUP-85`).
+
 ## Precedence
 
 Inside an override:
@@ -122,6 +153,7 @@ FLLWUP-10 fixed it (2026-09-05); see [[council config writer]].
 | **`.council.json` field override** | `model`, `thinking` per seat | yes — independent fallback |
 | **`.council.json` theme section** | `vars`/`colors` per variant | yes — over shipped palette base |
 | **`.council.json` retry section** | `enabled`/`maxAttempts`/`baseDelayMs`/`maxDelayMs`/`jitter` | yes — full policy over shipped defaults |
+| **`.council.json` gate section** | `mode` (`off`/`advisory`/`active`) | no — the section is resolved wholesale per key |
 | Model output floors (`model-floors.json`) | token ceilings per model | yes (merge) |
 
 The mechanisms compose: path shadowing picks which seat body runs, then the
@@ -144,11 +176,13 @@ consumer's edits ([[non-clobbering-scaffold]]).
 - [[gate parity]] — the writer's validation boundary
 - [[council-theme]] — the palette subsystem the `theme` section drives
 - [[retry-policy]] — the `retry` sibling (EPIC-9)
+- [[metered-deliberation-routing]] — the `gate` sibling's subsystem (EPIC-14)
 - [[seats]] — the schema fields the config overrides
 - [[override-resolution]] — filename shadowing, the sibling mechanism
 - [[non-clobbering-scaffold]], [[model-output-floors]]
 - [[2026-08-23-council-json-override]] — the source ingest
 - [[2026-09-04-epic5-run-ledger]] — the run that added the writer
+- [[2026-09-21-epic14-run-ledger]] — the run that added the `gate` sibling
 
 ## Sources
 
@@ -160,3 +194,4 @@ consumer's edits ([[non-clobbering-scaffold]]).
 - [[2026-08-25-design-ev3]], [[2026-08-25-design-ev3-round2]]
 - [[2026-09-04-epic5-run-ledger]]
 - [[2026-09-16-epic9-run-ledger]] — the `retry` sibling
+- [[2026-09-21-epic14-run-ledger]] — the `gate` sibling and `/council-gate`

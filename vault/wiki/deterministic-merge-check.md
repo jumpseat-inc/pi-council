@@ -4,7 +4,7 @@ type: concept
 summary: Under /features-deliver the human merge gate is replaced by five mechanical criteria — owner gates, gates-SUCCESS on the PR head SHA, no blocking skeptic objection, judge PASS, no open ruling — keyed since EPIC-13 by the card's recorded execution mode, merged with --match-head-commit.
 aliases: [deterministic merge check, merge gate, deterministic merge, five criteria merge]
 tags: [pi-council/features-deliver, pi-council/process]
-sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]"]
+sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]"]
 created: 2026-09-04
 updated: 2026-09-21
 ---
@@ -281,3 +281,7 @@ attestation about the merge window. One enforcement, not two.
   disclosure, and the record-push closure (`FLLWUP-60`).
 - [[2026-09-21-epic13-run-ledger]] — thirteen more (PRs #79–#91); the mode-aware
   ruleset first merged under, and the reset-vs-union reconcile contradiction.
+- [[2026-09-21-epic14-run-ledger]] — five more (PRs #92–#96), every card recorded
+  **Deliberate** (the gate off routes to the full panel), all five criteria
+  satisfied each time; no HALT, no denied merge, the admin bypass pinned with
+  `--match-head-commit` every time.

@@ -4,7 +4,7 @@ type: concept
 summary: The default bun test suite's measured wall-clock envelope, the live-arm files that carry it, the ceiling-vs-budget distinction, the CI-timeout backstop, and the rules that keep the numbers honest.
 aliases: [suite budget, test suite cost, drift threshold, CI timeout backstop]
 tags: [pi-council/concept, pi-council/smoke-test]
-sources: ["[[2026-09-19-po-fllwup48-test-suite-budget]]", "[[2026-09-18-po-fllwup56-step13-ruling]]", "[[2026-09-20-po-fllwup58-gates-backstop]]", "[[2026-09-20-po-fllwup58-step13-confirmation]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]"]
+sources: ["[[2026-09-19-po-fllwup48-test-suite-budget]]", "[[2026-09-18-po-fllwup56-step13-ruling]]", "[[2026-09-20-po-fllwup58-gates-backstop]]", "[[2026-09-20-po-fllwup58-step13-confirmation]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-21-epic14-run-ledger]]"]
 created: 2026-09-17
 updated: 2026-09-21
 ---
@@ -27,6 +27,11 @@ re-measurement ever exceeds the drift threshold below.
   threshold. The figure above remains the pinned measurement with provenance;
   re-measure for the exact post-EPIC-13 number at the next pass. See
   [[2026-09-21-epic13-run-ledger]].
+- ⚠️ **Grown again (EPIC-14, 2026-09-21):** **1286 tests across 103 files,
+  ≈110s** — the gate-enablement cards (EV-73…EV-77) added ~73 tests and 3
+  files (the `/council-gate` command suite, the run-start preflight suite, and
+  the `test/ev77-gate-docs.test.ts` wiki pin). Still inside the 180s
+  threshold. See [[2026-09-21-epic14-run-ledger]].
 - **Provenance:**
   - Machine: Linux 6.12.24-Unraid x86_64 (container)
   - Date: 2026-09-20 (re-measured at HEAD)
@@ -245,3 +250,11 @@ done
    long-lived ancestor installs — the suite is red until installed).
 4. **Budget ≠ ceiling:** the docs above keep the two numbers distinct; a new
    arm's ceiling is an emergency bound, never written into the envelope.
+5. **A docs card may ship test files** (EPIC-14 J2,
+   [[2026-09-21-po-ev77-j1-j2-ruling]]). A card whose deliverable is a wiki page
+   satisfies a "cited code paths resolve mechanically" acceptance with bun tests
+   over the real `vault/wiki/*.md` (e.g. `test/fllwup25-agents-page.test.ts`,
+   `test/fllwup58-gates-backstop.test.ts`, `test/ev77-gate-docs.test.ts`) —
+   **in `test/`, never in `council/validate.py`**, which is packaged tooling and
+   would hardcode this repo's layout into consumer repos. A new live-arm file
+   owes the header rule above.

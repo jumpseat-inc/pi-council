@@ -4,7 +4,7 @@ type: concept
 summary: The durable, locally-stored kanban state — council/board.md plus one card file per id, validated by validate.py, and the discipline that everything the Council does starts and records there.
 aliases: [engineering board, board, card, kanban]
 tags: [pi-council/concept]
-sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]"]
+sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-po-ev73-step6-ruling]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-21-epic14-run-ledger]]"]
 created: 2026-08-23
 updated: 2026-09-21
 ---
@@ -97,6 +97,23 @@ set of markdown files under `council/`:
   bare reachability probe, and [[product-owner]] ruled naming is a naming
   requirement, not an existence one (Acceptance amended as documentation; the
   goal stood).
+- **The fold-in test** (EPIC-14, [[2026-09-21-po-ev73-step6-ruling]]): a work
+  item belongs to a live card **iff it is needed to honestly meet that card's
+  goal as written**. A `product-owner` ruling refused to ship EV-75's enriched
+  migration `FAIL:` inside EV-73 for two reasons: EV-73's goal names the
+  mechanism but not the copy, and shipping it early would make EV-75's
+  loud-migration falsifier **pass vacuously on code it did not write**. The
+  precedent chain is EV-71 ("P4 and P7 are follow-up cards, not fold-ins — the
+  card's literal is fixed by the goal; the judge reads the goal") and EV-7's
+  OV-2. A fold that moves an acceptance test's target into an earlier card is
+  the failure mode the test exists to catch.
+- **A docs card may ship mechanical pins — in `test/`, not `validate.py`**
+  (EPIC-14 J2, [[2026-09-21-po-ev77-j1-j2-ruling]]). A card whose deliverable is
+  a wiki page satisfies an Acceptance like "cited code paths resolve
+  mechanically" with bun tests (`test/fllwup25-agents-page.test.ts`,
+  `test/fllwup58-gates-backstop.test.ts`, `test/ev77-gate-docs.test.ts`), never
+  by extending `council/validate.py` — that file is packaged tooling and would
+  hardcode this repo's layout into consumer repos. See [[test-suite-budget]].
 - **Id allocation is a HEAD operation** (EPIC-3 collision lesson): a parallel
   session on a stale clone allocated `EPIC-3`/`EV-10..15` to itself and the
   mains diverged; reconciled by union merge, never rewrite. See
@@ -144,6 +161,10 @@ set of markdown files under `council/`:
 - [[2026-09-21-epic13-run-ledger]] — the **fifth epic-card closure** (EPIC-13,
   13 chain-promoted children, PRs #79–#91); the routing gate shipped, the
   mode-aware merge check, the heading-uniqueness gap and the step-13 recurrence.
+- [[2026-09-21-epic14-run-ledger]] — the **sixth epic-card closure** (EPIC-14,
+  five chain-promoted children, PRs #92–#96); gate enablement moved to
+  `.council.json`, `/council-gate` shipped, the handle-any-follow-up state
+  normalization, and the release left pending.
 - [[2026-09-16-epic9-run-ledger]] — the board's **fourth epic-card closure**
   (EPIC-9, seven children); FLLWUP-40..45 + 47..49 filed as `Backlog`
   residuals, two drafts declined at the gate, two permanent residuals without
@@ -156,5 +177,8 @@ set of markdown files under `council/`:
 - `council/procedures/board-create-card.md`, `council/procedures/features-new.md`
 - `council/scaffold/council/board.md`, `council/scaffold/council/cards/_template.md`
 - [[2026-09-06-epic6-close-run-ledger]]
+- [[2026-09-21-po-ev73-step6-ruling]] — the fold-in test
+- [[2026-09-21-po-ev77-j1-j2-ruling]] — docs cards and `test/` pins
+- [[2026-09-21-epic14-run-ledger]]
 - [[2026-09-17-epic9-residual-run-ledger]]
 - [[2026-09-18-epic9-residual-run-2-ledger]]

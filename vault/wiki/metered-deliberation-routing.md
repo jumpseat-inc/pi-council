@@ -4,14 +4,15 @@ type: concept
 summary: EPIC-13, shipped at v0.28.0 — a typed System One gate evaluates a packed card state and routes each card to Deliberate, Verify, or Direct; enablement lives in `.council.json`'s reserved top-level `gate` section, and the packaged default resolves `mode: "off"` — which routes every card to the full Deliberate panel.
 aliases: [metered deliberation, deliberation routing, System One gate, Deliberate Verify Direct, gate]
 tags: [pi-council/concept, pi-council/epic13]
-sources: ["[[2026-09-21-epic13-run-ledger]]"]
+sources: ["[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-21-po-ev73-step6-ruling]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]"]
 created: 2026-09-20
 updated: 2026-09-21
 ---
 
 # Metered Deliberation Routing
 
-> ✅ **Shipped — EPIC-13 closed `Done` at v0.28.0 (2026-09-21).** The gate's
+> ✅ **Shipped — EPIC-13 closed `Done` at v0.28.0 (2026-09-21); EPIC-14 closed
+> `Done` (2026-09-21) re-homing enablement.** The gate's
 > enablement lives in `.council.json`'s reserved top-level `gate` section
 > (`{"mode": "off" | "advisory" | "active"}` — EV-73); with no `gate` section
 > the routing is available but inert, and `council/gate/policy.json` carries
@@ -272,11 +273,14 @@ prose location is this page.
 ## Related
 
 - [[council-loop]] — the Deliberate lane
+- [[council-config]] — the `gate` sibling this page's enablement lives in (EPIC-14)
+- [[preflight]] — the run-start credential check (EV-76)
 - [[deterministic-merge-check]] — its mode-aware consumer
 - [[engineering-board]] — the cards the gate routes
 - [[usage-block]] — the gate-spend exclusion legend
 - [[chain-promotion]] — the adjacent autonomous cadence
 - [[2026-09-21-epic13-run-ledger]] — the run that shipped it
+- [[2026-09-21-epic14-run-ledger]] — the run that re-homed enablement to `.council.json`
 
 ## Sources
 

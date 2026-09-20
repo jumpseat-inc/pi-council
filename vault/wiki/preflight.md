@@ -1,12 +1,12 @@
 ---
 title: Preflight
 type: concept
-summary: The shell+script standard fixture that gates every council run — card-aware checks, MCP registration/auth, superpowers + ask-user-question pins, openrouter auth, and the lock-drift tripwire; any FAIL: line halts startup.
+summary: The shell+script standard fixture that gates every council run — card-aware checks, MCP registration/auth, superpowers + ask-user-question pins, openrouter auth, and the lock-drift tripwire; since EPIC-14 a packaged run-start `council_preflight` tool runs before it and fails loud when the decisions gate is on without an OpenRouter credential. Any FAIL: line halts startup.
 aliases: [preflight gate]
 tags: [pi-council/concept]
-sources: ["[[2026-08-24-ask-user-question]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]"]
+sources: ["[[2026-08-24-ask-user-question]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-17
+updated: 2026-09-21
 ---
 
 # Preflight
@@ -68,6 +68,29 @@ the step-11 re-run set is `tsc`/`bun test`/`validate.py`.
   structurally skipped. Both are the same artifact; FLLWUP-27 remains the
   owning card.
 
+## The packaged run-start gate-credential check (EPIC-14, EV-76)
+
+Since EPIC-14 the run-start sequence is **`council_preflight` then
+`council/preflight.sh`**, invoked by both packaged run-start procedures
+(`council/procedures/council.md` step 0 and `features-deliver.md` Phase 0). The
+tool (`extensions/preflight.ts`, `runStartGatePreflight`) composes
+`loadGateConfig` with `resolveOpenRouterApiKey()` and, when the **resolved gate
+mode is not `off`** and no OpenRouter credential resolves, emits one line:
+
+`FAIL: decisions gate is enabled (mode "<mode>") but no OpenRouter credential resolved — set OPENROUTER_API_KEY, or run /login openrouter in pi to store an openrouter api_key credential, then re-run preflight`
+
+The gate being `off`, or a credential resolving, adds nothing and the existing
+unconditional OpenRouter check's output stays byte-identical.
+
+**Why it is a packaged tool and not a line in `council/preflight.sh`:** the
+scaffold `preflight.sh` is **data-class** ([[non-clobbering-scaffold]],
+[[council-update]]) and is never refreshed, so a check that lives only there
+reaches *fresh* `/council-init` consumers and silently misses every repo already
+initialized. A packaged, override-resolved procedure/tool path is what reaches
+**existing** consumers without a scaffold refresh. This is the standing rule for
+any check that must reach repos already on disk. `FLLWUP-90` is the end-to-end
+falsifier that a stale-`preflight.sh` consumer still hits the FAIL.
+
 ## Contract
 
 `FAIL:` **halts the run** verbatim; the script prints no install steps (the
@@ -79,14 +102,19 @@ project-specific extensions, but the shipped check is presence-only).
 
 - [[council-dependencies]], [[ask-user-question]], [[mcp-support]], [[council-loop]]
 - [[lock-drift tripwire]] — the v0.18.0 tripwire this script hosts
+- [[metered-deliberation-routing]] — the decisions gate the run-start check guards (EV-76)
+- [[non-clobbering-scaffold]], [[council-update]] — why the check is packaged, not in the scaffold script
 - [[2026-08-23-context7-preflight-plan]]
 - [[2026-09-06-epic6-close-run-ledger]] — the tripwire's motivation (three
   consecutive runs of silently lock-drifted local gates)
 - [[2026-09-11-epic7-run-ledger]] — the branch-freshness artifact (FLLWUP-27)
 - [[2026-09-17-epic9-residual-run-ledger]] — the artifact's recurrence + the
   detached-HEAD skip
+- [[2026-09-21-epic14-run-ledger]] — the run-start gate-credential check (EV-76)
 
 ## Sources
 
 - `council/scaffold/council/preflight.sh`, `council/check-pi-drift.sh`
+- `extensions/preflight.ts` (EV-76), `council/procedures/council.md` step 0
 - [[2026-09-06-epic6-close-run-ledger]]
+- [[2026-09-21-epic14-run-ledger]]

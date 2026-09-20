@@ -1,5 +1,34 @@
 # Wiki Log
 
+## [2026-09-21] ingest | EPIC-14 run + EPIC-13 ruling backfill
+
+Ingested the EPIC-14 run (filed `vault/raw/2026-09-21-epic14-run-ledger.md` from
+`docs/superpowers/run-ledger-EPIC-14.md`; created
+[[2026-09-21-po-ev73-step6-ruling]] and, filing the card-only ruling to raw first,
+[[2026-09-21-po-ev77-j1-j2-ruling]]). Backfilled the eight EPIC-13-era raw
+sources left without pages by the EPIC-13 ingest: [[2026-09-20-po-epic13-promotion-ruling]],
+[[2026-09-20-po-ev64-budget-default-and-estimator-ruling]],
+[[2026-09-20-po-ev65-step6-ruling]], [[2026-09-20-po-ev66-step6-ruling]],
+[[2026-09-20-po-ev67-step6-ruling]], [[2026-09-21-ev69-designer-loss-residual]],
+[[2026-09-21-po-ev69-step6-ruling]], [[2026-09-21-po-ev71-step6-ruling]].
+Folded the run's reusable lessons into existing pages rather than new concept
+pages: the `gate` sibling on [[council-config]], the packaged run-start check on
+[[preflight]] (with the scaffold-vs-packaged reach rule on
+[[non-clobbering-scaffold]]), the fold-in test and the docs-card `test/` pin rule
+on [[engineering-board]]/[[test-suite-budget]]/[[product-owner]], `writeGateMode`
+on [[council-config-writer]], `/council-gate` on [[echo-then-run]], the sixth epic
+closure on [[steward]], and the EPIC-14 row on [[pi-council-overview]].
+Contradictions flagged: **EPIC-14 closed without a version bump** (no PR touched
+`package.json`; the steward ruled the bump not a closure condition and carded
+`FLLWUP-95`; `latest` is a full epic behind `main`) against
+[[pi-council-overview]]'s "version bumped in the same commit as each behavior
+change"; and the unlegislated **docs-card-edits-`vault/`** tension (EV-77 hand-edited
+the wiki, which `council.md` step 14 says the facilitator must never do).
+
+- **Created:** 11 source pages
+- **Updated:** council-config, preflight, engineering-board, metered-deliberation-routing, deterministic-merge-check, record-push-discipline, chain-promotion, council-runner, product-owner, echo-then-run, council-config-writer, non-clobbering-scaffold, test-suite-budget, steward, pi-council-overview, index
+- **Contradictions flagged:** 2 — version-bump-not-a-closure-condition vs the overview's same-commit claim; a docs card as a second wiki writer
+
 ## [2026-09-21] ingest | EPIC-13 run — metered deliberation routing shipped
 
 Ingested `vault/raw/2026-09-21-epic13-run-ledger.md` (filed from

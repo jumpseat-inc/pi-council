@@ -4,7 +4,7 @@ type: entity
 summary: The per-card autonomous execution container — dispatched by /features-deliver to run the full /council loop for one card in an isolated context; routes, counts, and writes the board but never decides.
 aliases: [council runner, council-runner, runner]
 tags: [pi-council/seat]
-sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]"]
+sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]"]
 created: 2026-08-23
 updated: 2026-09-21
 ---
@@ -258,6 +258,30 @@ reserved powers are re-homed per the authority map in `features-deliver.md`.
 - **Committed-board-state recovery again carried a killed container** (EV-61),
   with the in-flight child re-run by a fresh runner.
 
+## Lessons from the EPIC-14 run
+
+- **The board-heading guard held.** With the explicit heading-uniqueness guard in
+  every dispatch input, EPIC-14's five runners produced clean boards every time
+  (a contrast with EPIC-13's three corruptions). The guard is now the standing
+  practice; `validate.py` still does not enforce it.
+- **Record location: a new variant.** The EV-73 and EV-75 runners left their
+  board/card record edits **uncommitted in the main checkout** (byte-identical to
+  the branch) instead of only on the branch; the orchestrator cleared them before
+  each fast-forward. EV-76 and EV-77 were clean. Keep records on the branch —
+  and treat a dirty main checkout as a merge-blocking precondition.
+- **Escalations return when the ruling seat is genuinely needed.** Two
+  round-trips (EV-73's migration-copy/class-4 items; EV-77's J1/J2), both
+  open-judgment calls no Phase-1 ruling covered, both resolved in one ruling
+  round. The facts-only packet contract worked.
+- **Follow-up state defaults to `Backlog`.** The EV-77 runner filed its two
+  follow-ups `Ready` (licit under `board-create-card.md` step 4); the
+  orchestrator normalized them to `Backlog`, consistent with every other
+  follow-up card — a confirmer's call, not a runner error.
+- **A docs card is a second writer of `vault/`.** EV-77's deliverable was wiki
+  documentation, so it edited `vault/wiki/` directly, while `council.md` step 14
+  says the facilitator must never hand-edit `vault/`. The exception is real but
+  unlegislated — see [[llm-wiki]].
+
 ## Related
 
 - [[seats]], [[council-loop]]
@@ -272,6 +296,7 @@ reserved powers are re-homed per the authority map in `features-deliver.md`.
 - [[2026-09-06-epic6-close-run-ledger]] — the close run's lessons
 - [[2026-09-11-epic7-run-ledger]] — the EPIC-7 usage-accounting run's lessons
 - [[2026-09-21-epic13-run-ledger]] — the EPIC-13 routing run's lessons
+- [[2026-09-21-epic14-run-ledger]] — the EPIC-14 gate-enablement run's lessons
 
 ## Sources
 

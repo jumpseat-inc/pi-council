@@ -4,7 +4,7 @@ type: entity
 summary: The Council's product-judgment seat — rules open-judgment disputes, fold-in rulings, and mid-flow product decisions; card-level rulings are final among agents; portfolio matters escalate.
 aliases: [product-owner seat]
 tags: [pi-council/seat]
-sources: ["[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]"]
+sources: ["[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-21-po-ev73-step6-ruling]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-21-epic14-run-ledger]]"]
 created: 2026-08-23
 updated: 2026-09-20
 ---
@@ -120,11 +120,26 @@ documents rather than fixes. See [[2026-09-17-po-fllwup47-step6-ruling]].
 Also the seat that confirmed and steered the FLLWUP-54 wiki-ingest that
 executed the offer — the lineage is recorded on [[red-base evidence]].
 
+## Exercised in EPIC-14 (2026-09-21)
+
+- **The fold-in test.** EV-73's step-6 ruling refused to fold EV-75's enriched
+  migration `FAIL:` into EV-73: *a work item folds into a live card iff it is
+  needed to honestly meet that card's goal as written.* Shipping the copy early
+  would make EV-75's loud-migration falsifier pass vacuously on code it did not
+  write. Same shape as EV-71's "P4 and P7 are follow-up cards, not fold-ins — the
+  literal is fixed by the goal; the judge reads the goal" and EV-7's OV-2. See
+  [[2026-09-21-po-ev73-step6-ruling]], [[engineering-board]].
+- **Docs cards and mechanical pins (J2).** The seat ruled a docs card MAY ship
+  test files, but the pins belong in `test/`, never `council/validate.py` —
+  packaged tooling would hardcode this repo's layout into consumer repos. See
+  [[2026-09-21-po-ev77-j1-j2-ruling]], [[test-suite-budget]].
+
 ## Related
 
 - [[seats]], [[council-loop]], [[designer]]/[[consolidator]] — consumers
 - [[steward]] — its escalation target
 - [[council-config]] — model/thinking override
+- [[engineering-board]] — the fold-in test and goal-amendment discipline
 
 ## Sources
 
@@ -133,3 +148,5 @@ executed the offer — the lineage is recorded on [[red-base evidence]].
 - [[2026-09-04-epic3-run-ledger]] — the wave-3 ruling-only precedent + three rulings
 - [[2026-09-11-epic7-run-ledger]] — the goal-as-defect escalation (EV-29) + seven ruling dispatches
 - [[2026-09-17-po-fllwup47-step6-ruling]] — the red-base evidence ruling (R1–R6, incl. the R6 fold-in call)
+- [[2026-09-21-po-ev73-step6-ruling]] — the fold-in test (EPIC-14)
+- [[2026-09-21-po-ev77-j1-j2-ruling]] — docs-card pins in `test/` (EPIC-14)

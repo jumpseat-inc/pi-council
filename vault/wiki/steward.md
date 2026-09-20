@@ -98,12 +98,28 @@ Test: "does this move what the product is for, or just how one part of it works?
   human-granted admin bypass, and a goal format that can make the judge's only
   input a lie.
 
+## Exercised in EPIC-13 and EPIC-14 (2026-09-21)
+
+- **Run closure #5** — ruled EPIC-13 `Done` on observed acceptance (job-29);
+  the thirteen children had shipped and the routing gate closed at v0.28.0.
+- **Run closure #6** — ruled EPIC-14 `Done` on observed acceptance (job-10);
+  it verified all four acceptance clauses on the tree (the enablement
+  round-trip, the single resolver, the packaged run-start preflight, the
+  `FLLWUP-71…80` dispositions), not merely in the report. It again declined to
+  make a **version bump a closure condition** (the EPIC-7 precedent — the release
+  is the human's), and routed the bump to **`FLLWUP-95`** under the Done epic. It
+  surfaced a material release fact: the moving `latest` tag is a full epic behind
+  `main` (`latest` at v0.19.0; v0.20.0–v0.28.0 untagged). See
+  [[2026-09-21-epic14-run-ledger]].
+
 ## Related
 
 - [[seats]], [[council-loop]], [[product-owner]], [[engineering-board]]
 - [[council-config]] — model/thinking override
+- [[2026-09-21-epic14-run-ledger]] — the sixth epic-card closure
 
 ## Sources
 
 - `council/agents/steward.md`, `council/procedures/council.md`
 - [[2026-09-11-epic7-run-ledger]] — goal amendment, eval-boundary mechanism, epic closure
+- [[2026-09-21-epic14-run-ledger]] — Run closure #6 and the release residual

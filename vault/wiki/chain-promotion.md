@@ -4,7 +4,7 @@ type: concept
 summary: Backlog→Ready promotion for a dependent card chain is bound once as an automated cadence — the orchestrator promotes each card the moment its predecessor's merge SHA is on local main and validate.py is clean, without re-asking.
 aliases: [chain promotion, promotion cadence, automated promotion, P1-P5]
 tags: [pi-council/features-deliver, pi-council/process]
-sources: ["[[2026-09-03-po-epic4-promotion-cadence]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]"]
+sources: ["[[2026-09-03-po-epic4-promotion-cadence]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-20-po-epic13-promotion-ruling]]", "[[2026-09-21-epic14-run-ledger]]"]
 created: 2026-09-04
 updated: 2026-09-21
 ---
@@ -64,7 +64,10 @@ first runner correctly refused to promote a `Backlog` card itself, and
   through.
 - [[2026-09-03-po-epic4-promotion-cadence]] — the source ruling.
 - [[2026-09-21-epic13-run-ledger]] — the 13-link chain (EV-60…EV-72).
+- [[2026-09-21-epic14-run-ledger]] — the 5-link chain (EV-73…EV-77).
 
 ## Sources
 
 - [[2026-09-03-po-epic4-promotion-cadence]]
+- [[2026-09-20-po-epic13-promotion-ruling]] — chain-not-bulk, ruled once
+- [[2026-09-21-epic14-run-ledger]]

@@ -7,9 +7,10 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 
 - [[pi-council-overview]] — Pi-council as an installable package: the Council
   + wiki workflow, two engine halves, the loop, and the release version arc
-  (through v0.28.0, untagged; latest release v0.19.0. EPIC-6/7/8/9/13 closed
-  Done; EPIC-13 shipped metered deliberation routing at v0.21.0–v0.28.0, and
-  EPIC-10..12 remain Backlog).
+  (through v0.28.0, untagged; latest release v0.19.0, a full epic behind. EPIC-6/7/8/9/13/14
+  closed Done; EPIC-13 shipped metered deliberation routing at v0.21.0–v0.28.0,
+  EPIC-14 re-homed gate enablement to `.council.json`, and EPIC-10..12 remain
+  Backlog).
 
 ## Entities
 
@@ -20,7 +21,7 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[designer]] — Human-centered design seat (Don Norman tradition).
 - [[consolidator]] — Synthesis voice; names disagreement, never resolves it.
 - [[product-owner]] — Card-level product judgment; escalates to steward.
-- [[steward]] — Portfolio-level authority; the product-owner's escalation target.
+- [[steward]] — Portfolio-level authority; the product-owner's escalation target (EPIC-14 closure ruled the version bump not a closure condition).
 - [[council-runner]] — Autonomous per-card execution container for features-deliver; carries main-repo immutability + pinned verification subjects (v0.18.0).
 - [[council models picker]] — /council-models surface: command, resolver, token-only modal, the `/`-triggered model-name search input (two-bit focus machine, ruled search copy), complete as of v0.18.0 (backspace, pre-press hint, exit hint, frame fit, kitty smoke).
 - [[council config writer]] — the .council.json write path (EV-24): byte-region splice, field-level merge, atomic, gate-parity validation; FLLWUP-10 fixed the `:suffix` seam, FLLWUP-9 added `clearSeatOverride`.
@@ -30,7 +31,7 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[seats]] — The seat abstraction; frontmatter schema, tool-grants, child sandboxing.
 - [[facilitator]] — The routing-and-bookkeeping role that runs the loop and decides nothing.
 - [[council-loop]] — The facilitator-run deliberation → implement → verify → judge loop.
-- [[engineering-board]] — The card board + cards under council/; validate.py discipline.
+- [[engineering-board]] — The card board + cards under council/; validate.py discipline, and the fold-in test (a work item belongs to a live card iff needed to meet its goal as written).
 - [[procedure-commands]] — The scanned, override-aware slash-command set + the 7 procedures.
 - [[repository-grounding]] — The engine-appended prompt block that grounds seats in the wiki/code.
 - [[override-resolution]] — Repo-local resources shadow packaged ones by filename.
@@ -41,10 +42,10 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[hub-job-supervision]] — The job table + spawn/monitor/stall-kill engine and 3 council tools.
 - [[mcp-support]] — Model Context Protocol servers, auth (loopback or copy-paste remote login), and seat grants (tools only).
 - [[remote-oauth-login]] — The copy-paste OAuth pattern for headless/remote agents: print the URL, paste the redirect back, PKCE makes it safe without tunnels.
-- [[preflight]] — The card-aware, fail-fast shell+script gate before every run, now hosting the lock-drift tripwire.
+- [[preflight]] — The card-aware, fail-fast shell+script gate before every run, now hosting the lock-drift tripwire; since EPIC-14 preceded by the packaged `council_preflight` run-start credential check.
 - [[lock-drift tripwire]] — Local gates refuse to run when installed deps drift from bun.lock; the named FAIL fires before the frozen-lockfile self-heal.
 - [[llm-wiki]] — The persistent, compounding knowledge base (sources → wiki → schema).
-- [[council-config]] — The committed `.council.json`; field-level per-seat model/thinking override PLUS top-level `theme` and `retry` sections, scaffold-seeded.
+- [[council-config]] — The committed `.council.json`; field-level per-seat model/thinking override PLUS top-level `theme`, `retry`, and `gate` sections, scaffold-seeded.
 - [[council-theme]] — EPIC-1's omp-palette theme subsystem: pinned dark/light pair, `.council.json` recolor surface, four-state activation, token-only drawing + live repaint (v0.12.1: module located via `getPackageDir()`, not a bare-specifier).
 - [[smoke-test]] — The definitive unattended end-to-end test: Phases 0–5 (council loop, epic, /council-eval matrix, /council-leaderboard, /council-models) in an isolated container, with a SMOKE_PHASE selector (FLLWUP-11) and the kitty search-smoke pty harness (FLLWUP-14) as siblings; standing discipline — the first Council command without an end-to-end falsifier is a defect.
 - [[headless-pi]] — pi's non-interactive modes (-p/json/rpc): no trust prompt, single-shot teardown, stale ctx, the waitForIdle pattern for command turns (but not event contexts), and print mode's stdout takeover + post-settle exit code.
@@ -82,7 +83,7 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[parent-turn-continuation]] — the `agent_settled` + `sendUserMessage` resume loop: input-bar countdown, Esc/Enter semantics, headless SIGINT/exit-75, and the event-ctx gap.
 - [[per-attempt-provenance]] — one job id/manifest/row per retried dispatch, with an `attempt` field, carried cumulative usage, and per-attempt session pointers.
 - [[figure-scoped-disclosure]] — a usage qualifier applies to a figure: `partial` iff a figure exists and an attempt is unaccounted; `n/a` alone when the figure is absent.
-- [[test-suite-budget]] — the measured default-`bun test` wall-clock envelope (≈101s): per-file live-arm table, ceiling-vs-budget distinction, 180s drift threshold (not a budget), the FLLWUP-58 CI-timeout backstop, the FLLWUP-56 header rule, and the 2026-09-20 census correction (compact-form ceilings make the true floor 52, not 43).
+- [[test-suite-budget]] — the measured default-`bun test` wall-clock envelope (≈101s → ≈110s at 1286 tests post-EPIC-14): per-file live-arm table, ceiling-vs-budget distinction, 180s drift threshold (not a budget), the FLLWUP-58 CI-timeout backstop, the FLLWUP-56 header rule, the 2026-09-20 census correction (true floor 52), and the EPIC-14 rule that docs cards ship pins in `test/`, not `validate.py`.
 - [[retired-path-tokens]] — FLLWUP-59's derived token set: test 6's list comes from git HEAD ancestry (never hand-maintained), pinned emission/matching rules, composed shallow+canary loud-fail, three owned narrowings, red-base falsifier at `323abdc`.
 - [[red-base evidence]] — The convention fixing what a falsifier's red-at-base evidence record must contain (seven fields) and how records compare (comparison triple; skeptic-derived two-class mechanism-absent boundary; head half green).
 - [[council-update]] — FLLWUP-50's consent-gated refresh path for packaged council tooling (`/council-update`, the `scaffold.json` provenance record, the session-start drift notice).
@@ -97,6 +98,17 @@ _(none yet)_
 
 ## Sources
 
+- [[2026-09-21-epic14-run-ledger]] — The EPIC-14 run: gate enablement re-homed to `.council.json`'s `gate` section, `/council-gate` shipped, the run-start credential check landed on a packaged path; five Deliberate merges (PRs #92–#96), two product-owner escalations, one steward closure, 15 follow-ups, and a release left pending.
+- [[2026-09-21-po-ev73-step6-ruling]] — The fold-in test (the migration copy belongs to EV-75, not EV-73) and refusal class 4 scoped to `decision.json`'s three override strings.
+- [[2026-09-21-po-ev77-j1-j2-ruling]] — The gateFail-tail sentence is in; docs cards ship mechanical pins in `test/`, never in `council/validate.py`.
+- [[2026-09-20-po-epic13-promotion-ruling]] — EPIC-13's promotion ratification: EV-60 as chain head, chain-not-bulk cadence, EV-65/EV-68 inert.
+- [[2026-09-20-po-ev64-budget-default-and-estimator-ruling]] — `gateStateBudgetTokens` required on gate-capable policies; the token estimator ships unprobed with a self-settling ledger trigger.
+- [[2026-09-20-po-ev65-step6-ruling]] — The v2 call-line ledger bump (call-time union in one append) and the deferred `verify ≤ 0` loader guard.
+- [[2026-09-20-po-ev66-step6-ruling]] — The pending line is EV-66's sole copy; `touchedFiles: []` is a no-claim; `/features-new` must draft `## Acceptance`.
+- [[2026-09-20-po-ev67-step6-ruling]] — The approval-gate locator (heading, not ordinal), the fallback-cell bytes, the gate-enabled goal scoping, and the stale-Intent correction.
+- [[2026-09-21-ev69-designer-loss-residual]] — The Verify designer-review gap: named, temporary, closed by `FLLWUP-71`.
+- [[2026-09-21-po-ev69-step6-ruling]] — The re-route block resumes at step 3, the designer-loss residual is accepted provisionally, and the goal is conditioned on scripted execution.
+- [[2026-09-21-po-ev71-step6-ruling]] — No `costBasis` field (a field needs a named consumer); "grammar unchanged" scopes to row grammar and state exclusivity.
 - [[2026-09-21-epic13-run-ledger]] — The EPIC-13 run: metered deliberation routing shipped (13 gated merges, PRs #79–#91, v0.28.0); the System One gate, the mode-aware merge check, the eight rulings folded in, and the reset-vs-union + stall-window + heading-uniqueness lessons.
 - [[2026-09-18-epic9-residual-run-2-ledger]] — The EPIC-9 residual run 2: the remaining eleven residuals (FLLWUP-50–60) delivered (PRs #67–#77) plus one R4 retirement; `goal:` made positional, the pre-write step-13 gate inversion corrected, the record-push gap closed, and two pi-runtime mechanism findings.
 - [[2026-09-18-po-fllwup56-step13-ruling]] — PO drops both FLLWUP-56 drafts: the live-arm header rule, and two pi-runtime findings routed to [[headless-pi]] and [[council-theme]].
