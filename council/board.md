@@ -83,10 +83,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
+- EV-73 — Gate enablement lives in `.council.json`; the pin stays in code
 
 ## In Review
-
-- EV-73 — Gate enablement lives in `.council.json`; the pin stays in code
 
 ## Needs Human
 
