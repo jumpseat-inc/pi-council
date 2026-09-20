@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-94
 title: Consider naming the config home in the /council-gate status read literal
-state: Ready
+state: Backlog
 owner: null
 epic: EPIC-14
 goal: Decide whether the /council-gate status read literal (gateStatusLine, extensions/council-gate-cmd.ts) should name `.council.json` — the designer's P9 position was that every operator-facing form names the config home, while the converged literal deliberately names only the write/no-op forms — or whether the shipped literal stays and the wiki page's prose location (shipped by EV-77, documented-as-is) remains the canonical pointer; a surface-touching decision, page copy and literal change (if any) pinned in the established test/ev77-gate-docs.test.ts pattern.

@@ -7,6 +7,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Backlog
 
 - EPIC-14 — Reuse `.council.json` to enable the decisions gate; add a `/council-gate` toggle; check the OpenRouter credential when the gate is on
+- FLLWUP-93 — Consumer-repo-safe protection for wiki-cited code paths (the T1-class check beyond this repo)
+- FLLWUP-94 — Consider naming the config home in the /council-gate status read literal
 - FLLWUP-89 — Give /features-new a run-start preflight step — its seat dispatches share the gate-credential hole
 - FLLWUP-90 — End-to-end falsifier — an already-initialized consumer with a stale council/preflight.sh reaches the run-start gate-credential FAIL
 - FLLWUP-91 — Wrapped-tool council_preflight — own the preflight spawn on pass to make run-start single-FAIL mechanical
@@ -80,8 +82,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EPIC-12 — pi-council version and git hash on the first pi run
 
 ## Ready
-- FLLWUP-93 — Consumer-repo-safe protection for wiki-cited code paths (the T1-class check beyond this repo)
-- FLLWUP-94 — Consider naming the config home in the /council-gate status read literal
 - EV-44 — Merge near-duplicate follow-up candidates before a card is drafted
 - EV-45 — Unattended ingest of a run's own ledger, without the human steer turn
 - EV-48 — Packaged seat-tier map with repo-local merge override
@@ -93,7 +93,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## In Progress
 
 ## In Review
-- EV-77 — Document the gate's `.council.json` surface, its command, and the decide() basis vocabulary
+
 
 ## Needs Human
 
@@ -103,6 +103,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-75 — Legacy `council/gate/policy.json` cannot silently disagree with `.council.json`
 - EV-74 — `/council-gate` to enable or disable the decisions gate
 - EV-76 — Run-start preflight fails loud when the gate is on and no OpenRouter credential resolves
+- EV-77 — Document the gate's `.council.json` surface, its command, and the decide() basis vocabulary
 - FLLWUP-74 — Enforce loadGateDecision's invariants — verify > 0 and the hostile-string cross-checks
 - FLLWUP-76 — Document the decide() basis vocabulary, the callId:null fallback, and the intake-vs-dispatch split
 - EPIC-13 — Metered deliberation routing — a System One gate decides Deliberate, Verify, or Direct per card
