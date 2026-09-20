@@ -87,9 +87,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-76 — Run-start preflight fails loud when the gate is on and no OpenRouter credential resolves
-
 ## In Review
+
+- EV-76 — Run-start preflight fails loud when the gate is on and no OpenRouter credential resolves
 
 
 ## Needs Human
