@@ -26,10 +26,13 @@ import {
 import {
 	fetchProviderReport,
 	openRouterGenerationTransport,
+	reconcileGateSpend,
 	resolveOpenRouterApiKey,
 	type FetchGeneration,
+	type GateSpendReport,
 	type ProviderCostReport,
 } from "./provider-cost.ts";
+import { readGateLedger } from "./gate-ledger.ts";
 import { spendRecord, type SpendRecord } from "./spend.ts";
 import { formatUsageBlock } from "./usage-block.ts";
 import { attemptEntries, findSessionFile, readManifests, runsDir } from "./runs.ts";
@@ -72,6 +75,12 @@ export interface StoredUsageRecord {
 	 * when an OpenRouter-modelled seat ran in the invocation window. Absent on
 	 * non-OpenRouter runs and pre-EV-29 v1 records. */
 	provider?: ProviderCostReport;
+	/** EV-71 sibling: the gate-spend reconciliation, present iff ≥1 gate call
+	 * fell in the invocation window, independent of `provider` (which stays
+	 * absent when no seat job ran). `totalCost` is ledger-authoritative; the
+	 * ledger remains the authoritative gate total — this sibling is the
+	 * exclusion disclosure + the independent verification figures. */
+	gate?: GateSpendReport;
 }
 
 /** The ruling's five values; read-time only, never stored. */
@@ -192,6 +201,10 @@ export interface PersistUsageInput {
 	/** EV-29: the provider report, copied only when defined (absent ⇒ a record
 	 * byte-identical to v1 modulo schemaVersion — never fabricated). */
 	provider?: ProviderCostReport;
+	/** EV-71: the gate-spend reconciliation, copied only when the window held
+	 * ≥1 gate call (absent ⇒ a record byte-identical to the pre-EV-71
+	 * shape — never fabricated). */
+	gate?: GateSpendReport;
 	/** Injectable write clock (default wall-clock ISO). */
 	now?: () => string;
 }
@@ -232,6 +245,7 @@ export function persistInvocationUsage(input: PersistUsageInput, storeRoot: stri
 		writtenAt: now(),
 		basis: { trigger: input.trigger, manifestsObserved: input.manifestsObserved },
 		...(input.provider !== undefined ? { provider: input.provider } : {}),
+		...(input.gate !== undefined ? { gate: input.gate } : {}),
 	};
 	const tmp = `${file}.tmp-${process.pid}`;
 	fs.writeFileSync(tmp, JSON.stringify(record, null, "\t") + "\n", { mode: 0o600 });
@@ -377,6 +391,14 @@ export async function flushPendingInvocations(input: {
 	}
 	const outcomes: FlushOutcome[] = [];
 	const remaining: PendingInvocation[] = [];
+	// EV-71: ONE readGateLedger per flush pass — the ledger is repo-scoped, so
+	// the read lives outside the pending loop. Ids enter the reconciliation
+	// ONLY from here (the source pin: no session transcript is ever consulted
+	// for a decision generation id, and no gate call's cost is ever derived
+	// from a catalogue estimate — the figures are the ledger's verbatim
+	// usage.cost and the generation lookup's reported total_cost, nothing
+	// else).
+	const gateLedgerCalls = readGateLedger(input.repoRoot).calls;
 	for (const p of input.pending) {
 		if (p.markerAt === null) {
 			outcomes.push({ markerId: p.markerId, status: "unkeyable" });
@@ -460,6 +482,28 @@ export async function flushPendingInvocations(input: {
 				provider !== null && !hasNewShape && hasLegacyWindowShape
 					? { ...provider, partial: "final-attempt-only" as const }
 					: provider;
+			// EV-71: window the ledger's call lines by the invocation marker's `at`
+			// (lower bound only — O9b settled closed-green that sequential
+			// same-session over-attribution does not occur; the residual drift of
+			// later calls entering an earlier window on a deferred re-read is the
+			// accepted-and-named T8 drift). An unparseable recordedAt parses to NaN,
+			// which fails the predicate — excluded, never fabricated into the
+			// window. The reconciliation runs only when the window held ≥1 call;
+			// `gate` is then present on the record independent of `provider`.
+			const gateCallsInWindow = gateLedgerCalls.filter(
+				(c) => Date.parse(c.recordedAt) >= p.markerAt!,
+			);
+			const gate =
+				gateCallsInWindow.length > 0
+					? await reconcileGateSpend({
+							gateCalls: gateCallsInWindow,
+							fetchGeneration:
+								input.providerDeps?.fetchGeneration ?? openRouterGenerationTransport(apiKey ?? ""),
+							apiKey,
+							now: input.providerDeps?.now,
+							timeoutMs: input.providerDeps?.timeoutMs,
+						})
+					: undefined;
 			const res = persistInvocationUsage(
 				{
 					spend,
@@ -473,6 +517,7 @@ export async function flushPendingInvocations(input: {
 					manifestsObserved: manifests.length,
 					now: input.now,
 					...(providerOut !== null ? { provider: providerOut } : {}),
+					...(gate !== undefined ? { gate } : {}),
 				},
 				storeRoot,
 			);
@@ -481,9 +526,14 @@ export async function flushPendingInvocations(input: {
 			// replaces EV-31's success notify (wording ownership transferred), so
 			// exactly one line-set lands, byte-equal to disk. EV-29: the block is
 			// composed from the PERSISTED record's provider sibling, so "what was
-			// shown" and "what is on disk" are equal by construction. `existing`
-			// stays silent (choose-once already satisfied at a prior settle).
-			notify(formatUsageBlock({ record: res.record.spend, provider: res.record.provider }), "info");
+			// shown" and "what is on disk" are equal by construction. EV-71: the
+			// gate sibling rides the same persisted record (same property — the
+			// legend is composed from what was written, never re-derived).
+			// `existing` stays silent (choose-once already satisfied at a prior settle).
+			notify(
+				formatUsageBlock({ record: res.record.spend, provider: res.record.provider, gate: res.record.gate }),
+				"info",
+			);
 		} catch (e) {
 			const msg = e instanceof Error ? e.message : String(e);
 			outcomes.push({ markerId: p.markerId, status: "failed", file, error: msg });
