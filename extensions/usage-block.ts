@@ -13,7 +13,7 @@
 // job-scope boundary row (formatBoundaryLabel hardcodes jobs=0, which would be
 // false here), with the same prefix, label column, basis field, ordering, and
 // whole-block states.
-import type { ProviderCostReport, ProviderGeneration, ProviderPartialReason } from "./provider-cost.ts";
+import type { GateSpendReport, ProviderCostReport, ProviderGeneration, ProviderPartialReason } from "./provider-cost.ts";
 import type { RunManifest, Usage } from "./runs.ts";
 import { formatBoundaryLabel, accumulateFlat, zeroUsage, NUMERIC_METRICS, type SpendRecord } from "./spend.ts";
 import { formatMoney, formatReportedMoney, formatTokensFragment } from "./usage-format.ts";
@@ -26,6 +26,17 @@ export type Half = "ownSession" | "subtree";
 const NO_USAGE_LINE = "usage  no usage recorded";
 const UNRESOLVED_LINE = "usage  accounting boundary unresolved";
 const LEGEND_LINE = "usage  n/a = provider figure unavailable";
+/** EV-71 — the gate legend, LAST in the conditional stack (reported →
+ * partial → n/a → gate). Block = exclusion surface, ledger = trace surface:
+ * this legend's job is the exclusion (gate spend is accounted in the
+ * repo-scoped gate ledger, never folded into the halves above — a
+ * reported-basis number inside a half labelled `basis=` would assert a
+ * provenance it does not have); the ledger (the repo-scoped gate ledger
+ * owned by extensions/gate-ledger.ts) is the audit trace. Predicate = the PERSISTED record's
+ * `gate` sibling, present iff ≥1 gate call fell in the invocation window —
+ * a call-claim, not a spend-claim (a failed call counts; it carries no
+ * cost, and the exclusion is true either way). */
+const GATE_LEGEND_LINE = "usage  gate = excluded from this total";
 /** EV-42 (J3, binding) — the TOTAL legend map: every known record-only
  * literal renders its ruled copy; an unknown literal (a durable record
  * carrying a literal this build does not know — choose-once records are never
@@ -39,10 +50,17 @@ const PARTIAL_LEGEND_FALLBACK = "usage  partial = figure is not whole";
 const FAILED_PREFIX = "usage  accounting failed \u2014 "; // U+2014
 
 /** The block input (ruling C1): the record variant gains EV-29's optional
- * provider report. Absent `provider` ⇒ byte-identical to the pre-EV-29 render
- * (T-B3/T-B6). The three whole-block states return before any reported row. */
+ * provider report and EV-71's optional gate sibling. Absent `provider` ⇒
+ * byte-identical to the pre-EV-29 render (T-B3/T-B6); absent `gate` (or
+ * zero gate calls in window) ⇒ byte-identical to the pre-EV-71 render. The
+ * three whole-block states return before any reported row; per PO J2 the
+ * `no usage recorded` and `accounting boundary unresolved` states carry the
+ * gate legend AFTER the state line when ≥1 gate call is in window (an
+ * application of R-6 — suppressing it there would assert that nothing was
+ * recorded when something was, and the next invocation's window will not
+ * re-include the call); `accounting failed` never does. */
 export type UsageBlockInput =
-	| { record: SpendRecord; unavailableCost?: Half[]; provider?: ProviderCostReport }
+	| { record: SpendRecord; unavailableCost?: Half[]; provider?: ProviderCostReport; gate?: GateSpendReport }
 	| { failed: string };
 
 /** Every numeric metric of a half is 0. */
@@ -105,8 +123,19 @@ export function formatUsageBlock(input: UsageBlockInput): string {
 		return `${FAILED_PREFIX}${reason}`;
 	}
 	const record = input.record;
-	if (!record.boundary.resolved) return UNRESOLVED_LINE; // state 3
-	if (allZeroUsage(record.ownSession) && allZeroUsage(record.subtree)) return NO_USAGE_LINE; // state 1
+	if (!record.boundary.resolved) {
+		// state 3 (PO J2: the gate legend follows the state line when ≥1 gate
+		// call is in window — the state line stays the block's first line)
+		return input.gate && input.gate.callsInWindow > 0
+			? `${UNRESOLVED_LINE}\n${GATE_LEGEND_LINE}`
+			: UNRESOLVED_LINE;
+	}
+	if (allZeroUsage(record.ownSession) && allZeroUsage(record.subtree)) {
+		// state 1 (same J2 relaxation — legend rows only, never measurement rows)
+		return input.gate && input.gate.callsInWindow > 0
+			? `${NO_USAGE_LINE}\n${GATE_LEGEND_LINE}`
+			: NO_USAGE_LINE;
+	}
 	const unavailable = [...(input.unavailableCost ?? [])];
 	// C4/E: an unavailable provider report marks the SUBTREE half (the reported
 	// figures' half) — cost=n/a + the legend, never a blank.
@@ -127,6 +156,9 @@ export function formatUsageBlock(input: UsageBlockInput): string {
 		rows.push(PARTIAL_LEGENDS[input.provider.partial] ?? PARTIAL_LEGEND_FALLBACK);
 	}
 	if (unavailable.length > 0) rows.push(LEGEND_LINE);
+	// EV-71: the gate legend, LAST in the stack (reported → partial → n/a →
+	// gate), present iff the persisted sibling carries ≥1 gate call in window.
+	if (input.gate && input.gate.callsInWindow > 0) rows.push(GATE_LEGEND_LINE);
 	return rows.join("\n");
 }
 

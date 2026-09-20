@@ -80,7 +80,7 @@ import * as http from "node:http";
 import * as os from "node:os";
 import * as path from "node:path";
 import { CONFIG_DIR_NAME } from "@earendil-works/pi-coding-agent";
-import { readManifests } from "../extensions/runs.ts";
+import { listRunIds, readManifests } from "../extensions/runs.ts";
 import { readGateLedger } from "../extensions/gate-ledger.ts";
 import { GATE_DECISION_MODES, GATE_PINNED_MODEL } from "../extensions/gate.ts";
 import { runHarnessArmAsync, type ArmOptions, type EngineRepoOptions } from "./faux-provider/harness.ts";
@@ -376,8 +376,16 @@ describe("EV-66 advisory intake — unit section", () => {
 		// reader accessors — the routing read consumes recorded decisions; the
 		// import fence keeps it off the execution path (no runGate/transport/
 		// render edge, pinned by the T1 canary in test/gate-route.test.ts), and
-		// the routing read never renders. Any OTHER module referencing any
-		// ledger accessor is an offender.
+		// the routing read never renders. EV-71 amendment (deliberate, settled
+		// spec §1.4): the FLUSH READ (usage-store.ts) also references the reader
+		// accessors — one readGateLedger per flush pass sources the windowed
+		// decision generation ids for the gate-spend reconciliation; it never
+		// touches the writer accessors (the writer allowlist below still fences
+		// it), never imports gate-render.ts (the import fence below still
+		// fences it), and never renders a ledger line — the ids ride the
+		// caller-passed input into provider-cost.ts (no gate-ledger import
+		// there, pinned by test/gate-spend-reconcile.test.ts's source canary).
+		// Any OTHER module referencing any ledger accessor is an offender.
 		const writerAccessors = ["appendGateCall", "appendGateOutcome"];
 		const readerAccessors = ["readGateLedger", "gate-ledger.jsonl", "decisionLine"];
 		const writerOffenders = modules
@@ -385,15 +393,20 @@ describe("EV-66 advisory intake — unit section", () => {
 			.filter((f) => writerAccessors.some((sym) => srcOf(f).includes(sym)));
 		expect(writerOffenders, "only gate-run.ts (the writer) references the append accessors").toEqual([]);
 		const readerOffenders = modules
-			.filter((f) => f !== "gate-ledger.ts" && f !== "gate-render.ts" && f !== "gate-route.ts" && f !== "gate-route-tool.ts")
+			.filter((f) => f !== "gate-ledger.ts" && f !== "gate-render.ts" && f !== "gate-route.ts" && f !== "gate-route-tool.ts" && f !== "usage-store.ts")
 			.filter((f) => readerAccessors.some((sym) => srcOf(f).includes(sym)));
-		expect(readerOffenders, "only gate-render.ts (the presentation) and the EV-69 routing read reference the reader accessors").toEqual([]);
+		expect(readerOffenders, "only gate-render.ts (the presentation), the EV-69 routing read, and the EV-71 flush read reference the reader accessors").toEqual([]);
 		// Preserved in strength (1) — read-only posture: no module outside
 		// gate-run.ts references the append accessors, and gate-render.ts
-		// references NEITHER (it reads, never writes).
+		// references NEITHER (it reads, never writes). The EV-71 flush read is
+		// read-only too: usage-store.ts references no writer accessor.
 		const renderSrc = srcOf("gate-render.ts");
 		for (const sym of writerAccessors) {
 			expect(renderSrc.includes(sym), `gate-render.ts must not reference ${sym}`).toBe(false);
+		}
+		const flushSrc = srcOf("usage-store.ts");
+		for (const sym of writerAccessors) {
+			expect(flushSrc.includes(sym), `usage-store.ts must not reference ${sym} (read-only flush)`).toBe(false);
 		}
 		// Preserved in strength (2) — import directionality: no execution-path
 		// module imports gate-render.ts (the recorded line makes no policy
@@ -538,7 +551,10 @@ describe("EV-66 advisory intake — the two-arm headless falsifier", () => {
 				const dispatchB = dispatchSets(workDirB);
 				expect(dispatchA.length).toBeGreaterThan(0);
 				expect(dispatchA).toEqual(dispatchB);
-				const manifestsA = readManifests(workDirA, readdirSync(path.join(workDirA, CONFIG_DIR_NAME, "council", "runs"))[0]!);
+				// Directory-selecting runId: the runs dir carries a self-gitignore
+				// FILE; a raw readdirSync(...)[0] is entry-order dependent and can
+				// hand readManifests ".gitignore" (listRunIds stats for isDirectory).
+				const manifestsA = readManifests(workDirA, listRunIds(workDirA)[0]!);
 				expect(manifestsA.every((m) => m.mode === undefined)).toBe(true);
 
 				// --- Steering-branch opacity: the branch is never taken over the

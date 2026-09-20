@@ -1168,3 +1168,240 @@ test("EV-39 G3 (gate-closed/written-once): a mid-backoff manifest (exitCode null
 	expect(r3.outcomes[0]!.status).toBe("existing");
 	expect(readUsageRecords(storeRoot)).toHaveLength(1);
 });
+
+// ---------------------------------------------------------------------------
+// EV-71 — the gate sibling on the flush path (spec §1.4): one readGateLedger
+// per flush pass; window predicate `Date.parse(call.recordedAt) >= markerAt`
+// (lower bound only); reconcileGateSpend with ids sourced ONLY from the
+// ledger; record.gate present iff callsInWindow > 0, independent of
+// `provider`; the write-transition notify composes the block from the
+// PERSISTED record. Grammar-scoped goldens carry the ruling wording verbatim
+// in test/usage-block.test.ts (§ EV-71) — this file asserts the persisted
+// record and the flush semantics.
+// ---------------------------------------------------------------------------
+
+import { appendGateCall, type GateCallInput } from "../extensions/gate-ledger.ts";
+
+function gateCallIn(repo: Repo, t: number, over: Partial<GateCallInput> = {}) {
+	return appendGateCall(
+		{
+			stateHash: "s-hash",
+			questionSetVersion: "q1",
+			questionIds: [],
+			answers: {},
+			resolvedMode: "Verify",
+			policyVersion: "p1",
+			now: () => iso(t),
+			...over,
+		},
+		repo.root,
+	);
+}
+
+const GATE_LEGEND_LINE = "usage  gate = excluded from this total";
+
+// Items 13 + 14 + 20 — the acceptance property end to end: a ledger-sourced
+// gen-dec- id is looked up through the injected double exactly once (after
+// the seat ids), its reported total_cost resolves into the persisted
+// record.gate, and the write-transition notify composes the block from the
+// PERSISTED record.
+test("EV-71 items 13/14/20: flush looks up the ledger-sourced gen-dec- id once, persists record.gate, and the notify equals the persisted block", async () => {
+	const s = openRouterFlushSetup();
+	gateCallIn(s.repo, T0 + 5000, {
+		callId: "call-gate-1",
+		generationId: "gen-dec-1",
+		usage: { input_tokens: 10, output_tokens: 5, cost: 0.0042 },
+	});
+	const storeRoot = tmpDir("ev71-store-");
+	const t = keyedTransport({ "gen-f1": 0.0042, "gen-dec-1": 0.0042 });
+	const notes: string[] = [];
+	const r = await flushPendingInvocations({
+		repoRoot: s.repo.root,
+		entries: s.entries,
+		leafId: s.leafId,
+		sessionId: SID,
+		pending: s.pending,
+		trigger: "agent-settled",
+		storeRoot,
+		notify: (m) => notes.push(m),
+		providerDeps: { fetchGeneration: t.fetchGeneration, apiKey: "k" },
+	});
+	expect(r.outcomes[0]!.status).toBe("written");
+	// item 14: seat-transcript silence — the double saw exactly the seat id
+	// harvested from the session file and the ONE ledger-sourced decision id;
+	// no gen-dec- id is ever synthesized from a transcript source
+	expect(t.calls).toEqual(["gen-f1", "gen-dec-1"]);
+	const [record] = readUsageRecords(storeRoot);
+	expect(record!.schemaVersion).toBe(2); // additive sibling; no schema bump
+	expect(record!.gate).toEqual({ callsInWindow: 1, totalCost: 0.0042, lookupCost: 0.0042, failedLookups: 0 });
+	expect(record!.provider!.status).toBe("reported"); // seat path intact
+	// item 20: the notify is the block composed from the PERSISTED record
+	expect(notes).toHaveLength(1);
+	expect(notes[0]).toBe(
+		formatUsageBlock({ record: record!.spend, provider: record!.provider, gate: record!.gate }),
+	);
+	expect(notes[0].split("\n").at(-1)).toBe(GATE_LEGEND_LINE);
+});
+
+// Item 11 (principal T1) — a gate-only window with NO seat job: `provider`
+// stays absent (byte-structural no-fold-in) while the gate sibling is set,
+// and the seat halves keep their real measured catalogue figures (never n/a).
+test("EV-71 item 11: gate-only window, no seat job — no provider field, gate present, real catalogue cost intact", async () => {
+	const s = flushSetup();
+	gateCallIn(s.repo, T0 + 5000, {
+		callId: "call-gate-1",
+		generationId: "gen-dec-1",
+		usage: { input_tokens: 10, output_tokens: 5, cost: 0.0042 },
+	});
+	// a non-OpenRouter seat job ran: its manifest usage is real and measured
+	writeManifest(
+		s.repo.root,
+		s.repo.runId,
+		manifest("job-1", { model: "p/m", startedAt: T0 + 1500, exitCode: 0, state: "done", usage: flatUsage({ input: 30, totalTokens: 30, cost: 3, turns: 1 }) }),
+	);
+	const storeRoot = tmpDir("ev71-store-");
+	const seen: string[] = [];
+	const notes: string[] = [];
+	await flushPendingInvocations({
+		repoRoot: s.repo.root,
+		entries: s.entries,
+		leafId: s.leafId,
+		sessionId: SID,
+		pending: s.pending,
+		trigger: "agent-settled",
+		storeRoot,
+		notify: (m) => notes.push(m),
+		providerDeps: {
+			fetchGeneration: async (id: string) => {
+				seen.push(id);
+				return { total_cost: 0.0042, provider_name: "Typesafe" };
+			},
+			apiKey: "k",
+		},
+	});
+	const [record] = readUsageRecords(storeRoot);
+	expect("provider" in record!).toBe(false); // structural: no seat report to fold into
+	expect(record!.gate).toEqual({ callsInWindow: 1, totalCost: 0.0042, lookupCost: 0.0042, failedLookups: 0 });
+	expect(seen).toEqual(["gen-dec-1"]); // only the ledger-sourced id
+	// the seat half keeps its real measured catalogue figure (never n/a)
+	expect(record!.spend.subtree.cost).toBe(3);
+	expect(notes[0]).toBe(
+		formatUsageBlock({ record: record!.spend, provider: record!.provider, gate: record!.gate }),
+	);
+	expect(notes[0]).toContain(GATE_LEGEND_LINE);
+	expect(notes[0]).toContain("cost≈$3.0000 (catalogue)"); // real, not n/a
+	expect(notes[0]).not.toContain("n/a =");
+});
+
+// Item 16 — the window predicate: `Date.parse(recordedAt) >= markerAt`,
+// lower bound only, equality inclusive; a prior invocation's call never
+// contributes to the current flush's record.
+test("EV-71 item 16: window predicate — recordedAt < markerAt excluded, == markerAt included", async () => {
+	const s = flushSetup(); // markerAt = T0 - 100
+	gateCallIn(s.repo, T0 - 6000, {
+		callId: "call-prior",
+		generationId: "gen-dec-prior",
+		usage: { input_tokens: 1, output_tokens: 1, cost: 0.0042 },
+	});
+	gateCallIn(s.repo, T0 - 100, {
+		callId: "call-at-marker",
+		generationId: "gen-dec-at",
+		usage: { input_tokens: 1, output_tokens: 1, cost: 0.001 },
+	});
+	const storeRoot = tmpDir("ev71-store-");
+	const seen: string[] = [];
+	const r = await flushPendingInvocations({
+		repoRoot: s.repo.root,
+		entries: s.entries,
+		leafId: s.leafId,
+		sessionId: SID,
+		pending: s.pending,
+		trigger: "agent-settled",
+		storeRoot,
+		providerDeps: {
+			fetchGeneration: async (id: string) => {
+				seen.push(id);
+				return { total_cost: 0.0042, provider_name: "Typesafe" };
+			},
+			apiKey: "k",
+		},
+	});
+	expect(r.outcomes[0]!.status).toBe("written");
+	expect(seen).toEqual(["gen-dec-at"]); // the prior invocation's call is excluded
+	const [record] = readUsageRecords(storeRoot);
+	expect(record!.gate!.callsInWindow).toBe(1);
+	// O-C: the Σ golden compares through one float path — only the at-marker
+	// call's cost is carried: 0.0042 − 0.001 = 0.0031999999999999997 path NOT
+	// reachable here (one carried value); assert through the single float path
+	expect(record!.gate!.totalCost).toBe(0.001);
+	expect(record!.gate!.lookupCost).toBe(0.0042);
+});
+
+// Item 12 (flush half) — a failed-call-only window still renders the legend:
+// record.gate set (call-claim), zero lookups, totalCost null — never an
+// estimate.
+test("EV-71 item 12: failed-call-only window — record.gate set, zero lookups, totalCost null, legend present", async () => {
+	const s = flushSetup();
+	gateCallIn(s.repo, T0 + 5000, { callId: "call-f", failureClass: "transport" }); // no usage, no generationId
+	const storeRoot = tmpDir("ev71-store-");
+	const seen: string[] = [];
+	const notes: string[] = [];
+	await flushPendingInvocations({
+		repoRoot: s.repo.root,
+		entries: s.entries,
+		leafId: s.leafId,
+		sessionId: SID,
+		pending: s.pending,
+		trigger: "agent-settled",
+		storeRoot,
+		notify: (m) => notes.push(m),
+		providerDeps: {
+			fetchGeneration: async (id: string) => {
+				seen.push(id);
+				return { total_cost: 0.0042 };
+			},
+			apiKey: "k",
+		},
+	});
+	const [record] = readUsageRecords(storeRoot);
+	expect(record!.gate).toEqual({ callsInWindow: 1, totalCost: null, lookupCost: null, failedLookups: 0 });
+	expect(seen).toEqual([]); // zero lookups
+	expect(notes).toHaveLength(1);
+	expect(notes[0].split("\n").at(-1)).toBe(GATE_LEGEND_LINE);
+});
+
+// C7 (owner claim, structural check) — gate spend never folds into the seat
+// path: with vs without a gate ledger call, the persisted `provider` sibling
+// and `spend` are deep-equal; only `gate` appears.
+test("EV-71 C7: with vs without a gate call — provider and spend deep-equal; gate is the only delta", async () => {
+	const run = async (withGate: boolean): Promise<{ provider: unknown; spend: unknown; gate: unknown }> => {
+		const s = openRouterFlushSetup();
+		if (withGate) {
+			gateCallIn(s.repo, T0 + 5000, {
+				callId: "call-gate-1",
+				generationId: "gen-dec-1",
+				usage: { input_tokens: 10, output_tokens: 5, cost: 0.0042 },
+			});
+		}
+		const storeRoot = tmpDir("ev71-store-");
+		const t = recordingTransport();
+		await flushPendingInvocations({
+			repoRoot: s.repo.root,
+			entries: s.entries,
+			leafId: s.leafId,
+			sessionId: SID,
+			pending: s.pending,
+			trigger: "agent-settled",
+			storeRoot,
+			providerDeps: { fetchGeneration: t.fetchGeneration, apiKey: "k", now: () => iso(T0 + 9000) },
+		});
+		const [record] = readUsageRecords(storeRoot);
+		return { provider: record!.provider, spend: record!.spend, gate: record!.gate };
+	};
+	const without = await run(false);
+	const withG = await run(true);
+	expect(withG.provider).toEqual(without.provider);
+	expect(withG.spend).toEqual(without.spend);
+	expect(without.gate).toBeUndefined();
+	expect(withG.gate).toBeDefined();
+});
