@@ -6,6 +6,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Backlog
 
+- FLLWUP-72 — Make step 11 execute the merge-check table, not a prose mirror of it
+- FLLWUP-73 — Refresh the deterministic-merge-check wiki page for the mode-aware ruleset
 - FLLWUP-71 — Add the user-visibility question to the gate question set — let a recorded Verify re-route on a surface-touching card
 - EPIC-1 — omp-themed council theme for pi, configurable from the scaffold .council.json
 - EPIC-2 — Inline council job tree beneath the input bar
