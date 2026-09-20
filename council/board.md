@@ -87,9 +87,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-58 — Show the pi-council version and hash on the first pi run
 
 ## Deliberating
-- EV-77 — Document the gate's `.council.json` surface, its command, and the decide() basis vocabulary
 
 ## In Progress
+- EV-77 — Document the gate's `.council.json` surface, its command, and the decide() basis vocabulary
 
 ## In Review
 
