@@ -7,6 +7,7 @@ import { getHub, initHubIdentity, pidFilePath, registerHubTools, shutdownHub } f
 import { registerGateTool } from "./gate-tool.ts";
 import { registerGateRenderTool } from "./gate-render.ts";
 import { registerRouteTool } from "./gate-route-tool.ts";
+import { registerPreflightTool } from "./preflight.ts";
 import { PKG_ROOT, listSeatNames, loadSeat, loadCouncilConfig, loadThemeConfig, loadRetryConfig, proceduresDir, parseQualifiedModel, DEFAULT_RETRY_POLICY, type RetryPolicy } from "./seats.ts";
 import { activateTheme } from "./theme-activation.ts";
 import { watchCouncilConfig, type CouncilConfigWatcher } from "./theme-watcher.ts";
@@ -623,6 +624,9 @@ export default async function (pi: ExtensionAPI) {
 	// EV-69: the routing tool's own parent-path registration — never folded
 	// into registerHubTools, so child mode structurally never sees it.
 	registerRouteTool(pi, repoRoot);
+	// EV-76: the run-start preflight's own parent-path registration — never
+	// folded into registerHubTools, so child mode structurally never sees it.
+	registerPreflightTool(pi, repoRoot);
 	registerNavigator(
 		pi,
 		repoRoot,
