@@ -46,6 +46,7 @@ import {
 import { listFixtureTasks, loadFixture } from "./eval-fixtures.ts";
 import { renderLeaderboard } from "./eval-leaderboard.ts";
 import { applySeatSelection, buildProviderDisplayNames, openModelPicker, runHeadless } from "./council-models.ts";
+import { runGateCommand } from "./council-gate-cmd.ts";
 import { resolveCatalogue, type CatalogueModel } from "./catalogue.ts";
 import {
 	createOnePassErrorFilter,
@@ -1155,6 +1156,20 @@ export default async function (pi: ExtensionAPI) {
 			} catch (e) {
 				emit(`[council-models] error: ${e instanceof Error ? e.message : String(e)}`);
 			}
+		},
+	});
+
+	// EV-74: the gate toggle — pure command module, no TUI/headless fork (a
+	// three-value toggle needs no modal). Echo resolves through loadGateConfig.
+	pi.registerCommand("council-gate", {
+		description:
+			"Show or set the decisions gate mode in .council.json — usage: /council-gate [off|advisory|active]; no args reads the current mode",
+		handler: async (args, ctx) => {
+			const emit = (line: string) => {
+				if (ctx.hasUI) ctx.ui.notify(line, "info");
+				else console.log(line);
+			};
+			runGateCommand(args, repoRoot, emit);
 		},
 	});
 
