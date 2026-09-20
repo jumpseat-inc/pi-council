@@ -2,7 +2,7 @@
 	"schemaVersion": 1,
 	"taskId": "owner",
 	"name": "Implement a ready card in a pinned consumer repo and mark it Done",
-	"fixtureVersion": "1.2.0",
+	"fixtureVersion": "1.3.0",
 	"kind": "seat",
 	"target": {
 		"type": "seat",
@@ -11,7 +11,7 @@
 	"inputFile": "input.md",
 	"seed": {
 		"dir": "seed",
-		"treeDigest": "sha256:5e193b6478af7efa92175cbd1f74df59626254625022db8e47d72fea688f0117"
+		"treeDigest": "sha256:73dab1d061d694095d2adbb28b9ffe4ea3c95a00e5f5528e63f7e4761e515ff6"
 	},
 	"env": {
 		"TZ": "UTC"

@@ -2,7 +2,7 @@
 	"schemaVersion": 1,
 	"taskId": "council",
 	"name": "Convene the Council on a ready card in a pinned mini project",
-	"fixtureVersion": "1.2.0",
+	"fixtureVersion": "1.3.0",
 	"kind": "procedure",
 	"target": {
 		"type": "procedure",
@@ -13,7 +13,7 @@
 	},
 	"seed": {
 		"dir": "seed",
-		"treeDigest": "sha256:808252eea5fd604b5dceedea77a3a6521e2530db4a0caa2f2c2bdda0597b9be4"
+		"treeDigest": "sha256:b5a6880b6eaefede3d5ecd241bf81d03c8607607140425693c9b870af50a2af3"
 	},
 	"env": {
 		"TZ": "UTC",

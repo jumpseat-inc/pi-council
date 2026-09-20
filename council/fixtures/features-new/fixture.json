@@ -2,7 +2,7 @@
 	"schemaVersion": 1,
 	"taskId": "features-new",
 	"name": "Decompose a pinned feature intent into an epic and child cards",
-	"fixtureVersion": "1.2.0",
+	"fixtureVersion": "1.3.0",
 	"kind": "procedure",
 	"target": {
 		"type": "procedure",
@@ -13,7 +13,7 @@
 	},
 	"seed": {
 		"dir": "seed",
-		"treeDigest": "sha256:ac2b119bb003a1b474c2a1f674fbbdfbba0fc51b5fd5592f2a00bf7dd04f6c20"
+		"treeDigest": "sha256:735d8edec496f79b6e58aa3adbc59ba389ad9f62089ef6bb218f73da7f4845a7"
 	},
 	"env": {
 		"TZ": "UTC"
