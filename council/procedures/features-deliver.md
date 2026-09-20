@@ -35,6 +35,13 @@ open-judgment item.
 
 ## Phase 0 — deterministic preflight
 
+First invoke the `council_preflight` tool on the repo root. It checks the
+repo's decisions-gate mode against the OpenRouter credential resolution.
+Stop on any `FAIL:` line it returns: surface the line verbatim to the human
+and let them apply the remediation it names (set `OPENROUTER_API_KEY`, or
+run `/login openrouter` in pi to store an `openrouter api_key` credential).
+A pass result adds nothing — proceed to the script below.
+
 Run `bash council/preflight.sh` once, at run start, before any card
 container is dispatched. Any `FAIL:` line halts the run — environment repair
 is never autonomous, the same rule `/council` step 0 states for an attended
