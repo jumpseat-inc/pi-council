@@ -101,9 +101,15 @@ the `council_preflight` tool:
 Both remediations are in the line itself: set `OPENROUTER_API_KEY`, or run
 `/login openrouter` in pi to store an openrouter api_key credential — then
 re-run preflight. Wired at `council/procedures/council.md` step 0 and
-`council/procedures/features-deliver.md` Phase 0. A pass is silent when the
-gate is off; when the gate is on and a credential resolves, the tool reports
-`council_preflight: ok — decisions gate off, or an OpenRouter credential resolved`.
+`council/procedures/features-deliver.md` Phase 0. Both pass cases — the gate
+is off, or the gate is on and a credential resolves — report the same single
+ok line at the tool surface (`registerPreflightTool`'s `execute()`):
+
+`council_preflight: ok — decisions gate off, or an OpenRouter credential resolved`
+
+The silent pass is the engine-internal form only: the pure
+`runStartGatePreflight` returns null on a pass; the registered tool never
+does — it always returns content.
 
 ## Reading the `Mode: <mode> — <basis>` line
 

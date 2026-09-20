@@ -44,6 +44,11 @@ const EV75_MIGRATION_LINE =
 const EV76_PREFLIGHT_FAIL_LINE =
 	'FAIL: decisions gate is enabled (mode "<mode>") but no OpenRouter credential resolved — set OPENROUTER_API_KEY, or run /login openrouter in pi to store an openrouter api_key credential, then re-run preflight';
 
+/** EV-76 run-start preflight pass line — the tool's ONLY pass output, in
+ * BOTH pass cases (gate off, or gate on + credential resolved). */
+const EV76_PREFLIGHT_OK_LINE =
+	"council_preflight: ok — decisions gate off, or an OpenRouter credential resolved";
+
 /** `/council-gate` shipped copy lines (`extensions/council-gate-cmd.ts`). */
 const CMD_STATUS_LINE = "[council-gate] gate mode is <mode>.";
 const CMD_SUCCESS_LINE =
@@ -109,6 +114,7 @@ const SOURCE_SEGMENTS: Array<[string, string, string[]]> = [
 		"set OPENROUTER_API_KEY, or run /login openrouter in pi to store an openrouter api_key credential, ",
 		"then re-run preflight",
 	]],
+	["extensions/preflight.ts", EV76_PREFLIGHT_OK_LINE, [EV76_PREFLIGHT_OK_LINE]],
 	["extensions/council-gate-cmd.ts", CMD_STATUS_LINE, templateSegments(CMD_STATUS_LINE)],
 	["extensions/council-gate-cmd.ts", CMD_SUCCESS_LINE, templateSegments(CMD_SUCCESS_LINE)],
 	["extensions/council-gate-cmd.ts", CMD_NOOP_LINE, templateSegments(CMD_NOOP_LINE)],
@@ -259,6 +265,7 @@ test("T3: basis coverage — byte-exact constants present and source-drift-guard
 	for (const literal of [
 		EV75_MIGRATION_LINE,
 		EV76_PREFLIGHT_FAIL_LINE,
+		EV76_PREFLIGHT_OK_LINE,
 		CMD_STATUS_LINE,
 		CMD_SUCCESS_LINE,
 		CMD_NOOP_LINE,
@@ -320,6 +327,10 @@ test("T6: stale-claim guards — FLLWUP-74 closed; policy.json never mode-bearin
 	const residuals = PAGE.slice(PAGE.indexOf("## Residuals"), PAGE.indexOf("## Related"));
 	expect(residuals).toContain("FLLWUP-71");
 	expect(residuals).toContain("FLLWUP-75");
+
+	// the preflight pass is NOT silent at the tool surface (EV-77 cycle-1 red):
+	// both pass cases return the single ok line; silence is engine-internal only
+	expect(PAGE).not.toContain("A pass is silent");
 
 	// policy.json mode-bearing guard: outside the migration section (where the
 	// historical mode key is the subject), every policy.json line must be one
