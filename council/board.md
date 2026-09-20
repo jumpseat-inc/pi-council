@@ -96,9 +96,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Deliberating
 
 ## In Progress
-- EV-78 — Follow-up disposition decisions as repo-overridable packaged data
 
 ## In Review
+- EV-78 — Follow-up disposition decisions as repo-overridable packaged data
 
 
 ## Needs Human
