@@ -117,8 +117,9 @@ Service each runner's report per its `<return_contract>`:
 At the end of the run — whether it closed the whole epic or stopped early —
 report:
 
-- **Every merge**, with its basis: the deterministic merge check's five
-  criteria, satisfied, per card.
+- **Every merge**, with its basis naming the card's recorded execution mode
+  beside the merge check's criteria for that mode, satisfied, per card —
+  e.g. `EV-<n> — mode Direct, criteria 1, 2, 5 satisfied`.
 - **Every follow-up filed** during the run, the same way `/council` step 13
   requires of an attended run: never a prose bullet, always its own card,
   drafted and confirmed before it's written.
@@ -145,9 +146,24 @@ hold:
 | Verify | **All five hold**, with criterion 3's basis mode-scoped to the **single** Verify skeptic dispatch (there is no step-4 attack round to draw objections from). |
 | Direct | Criteria 1, 2, and 5 only — no skeptic and no judge are dispatched; the test suite is that mode's only gate. |
 
-A card with no recorded execution mode HALTs rather than merging — that HALT
-line and the Direct fixture are EV-70's; EV-69 guarantees Verify cards
-always have both a recorded mode and a judge dispatch.
+A card with no recorded execution mode HALTs rather than merging — inferring
+a mode is exactly the discretion the check exists to remove. The HALT line
+names the card and the remedy, and is issued verbatim:
+
+> `HALT: EV-<n> has no recorded execution mode — the merge check cannot infer one; route the card at the approval gate`
+
+A card in a mode that requires a goal evaluation (Deliberate or Verify) with
+no goal-evaluation record — the fresh-context judge's verdict from the
+card's judge dispatch — HALTs the same way; only Direct merges with no judge
+verdict present. The line names the mode it holds for:
+
+> `HALT: EV-<n> — mode <mode> requires a goal evaluation and none is recorded`
+
+Both lines are issued mechanically, under the same `HALT:` line convention
+the gates already use — no seat may soften, reword, or route around them.
+The recorded mode is the authority for the basis a merge lands under:
+execution may be clamped, but the ledger line names the recorded mode
+verbatim.
 
 For a `Deliberate` card, all five must hold:
 

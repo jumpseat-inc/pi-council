@@ -287,6 +287,68 @@ test("features-deliver names the run-scoped --admin bypass as the sanctioned mer
 	expect(mergeCheck).toContain("HALT surfaced to the human");
 });
 
+// EV-70: the deterministic merge check is mode-aware. The recorded execution
+// mode keys the criteria table (EV-69's table, made concrete), a card with no
+// recorded mode HALTs with the verbatim no-inference line, a card in a mode
+// that requires a goal evaluation with no goal-evaluation record HALTs with
+// the verbatim mode-named line, and only Direct merges with no judge verdict
+// present. Criterion 2's workflow-field reading and the --match-head-commit
+// pin stand byte-unchanged in meaning.
+
+test("features-deliver's merge check carries the verbatim mode-aware HALT lines and the Direct no-judge rule", () => {
+	const text = fs.readFileSync(
+		path.join(PKG_ROOT, "council", "procedures", "features-deliver.md"),
+		"utf-8",
+	);
+	// Whitespace-normalized so the pin survives line wrapping in the prose.
+	const flat = text.replace(/\s+/g, " ");
+	const sectionStart = flat.indexOf("## The deterministic merge check");
+	const sectionEnd = flat.indexOf("## Guards");
+	expect(sectionStart).toBeGreaterThan(-1);
+	expect(sectionEnd).toBeGreaterThan(sectionStart);
+	const mergeCheck = flat.slice(sectionStart, sectionEnd);
+	// The two HALT lines, verbatim — each names the card and the remedy.
+	expect(mergeCheck).toContain(
+		"HALT: EV-<n> has no recorded execution mode — the merge check cannot infer one; route the card at the approval gate",
+	);
+	expect(mergeCheck).toContain(
+		"HALT: EV-<n> — mode <mode> requires a goal evaluation and none is recorded",
+	);
+	// The mode is read from the run substrate, never a seat's report (EV-69's pin, kept).
+	expect(mergeCheck).toContain("council_route");
+	expect(mergeCheck).toContain("never a seat's report");
+	// A mode that requires a goal evaluation names the absent judge verdict;
+	// only Direct merges with no judge verdict present.
+	expect(mergeCheck).toContain("goal evaluation");
+	expect(mergeCheck).toContain("only Direct merges with no judge verdict present");
+	// Criterion 2's exact reading and the SHA pin stand unchanged.
+	expect(mergeCheck).toContain("gh pr checks <PR> --json name,state,workflow");
+	expect(mergeCheck).toContain("--match-head-commit <X>");
+	expect(mergeCheck).toContain("a mismatch is a **`HALT`, not a retry**");
+});
+
+// EV-70: the Phase 3 run ledger's per-card merge entry names the card's
+// recorded execution mode beside its merge basis. This is the ONLY Phase 3
+// report change in the epic — the follow-up-filing and usage-carry rows stand.
+
+test("features-deliver's Phase 3 ledger entry names the recorded execution mode beside its merge basis", () => {
+	const text = fs.readFileSync(
+		path.join(PKG_ROOT, "council", "procedures", "features-deliver.md"),
+		"utf-8",
+	);
+	const flat = text.replace(/\s+/g, " ");
+	const phase3Start = flat.indexOf("## Phase 3 — the run ledger");
+	const phase3End = flat.indexOf("## The deterministic merge check");
+	expect(phase3Start).toBeGreaterThan(-1);
+	expect(phase3End).toBeGreaterThan(phase3Start);
+	const phase3 = flat.slice(phase3Start, phase3End);
+	expect(phase3).toContain("recorded execution mode");
+	expect(phase3).toContain("EV-<n> — mode Direct, criteria 1, 2, 5 satisfied");
+	// The only change: the existing follow-up and usage-carry rows stand.
+	expect(phase3).toContain("Every follow-up filed");
+	expect(phase3).toContain("usage block");
+});
+
 // FLLWUP-41 (Phase-1 ruling R1): a literal reading of council.md step 12
 // HALTs a diverged local `main` that the documented union-merge reconcile
 // resolves. Step 12's non-fast-forward paragraph must name the union-merge

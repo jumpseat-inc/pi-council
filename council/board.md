@@ -6,6 +6,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Backlog
 
+- FLLWUP-72 — Make step 11 execute the merge-check table, not a prose mirror of it
+- FLLWUP-73 — Refresh the deterministic-merge-check wiki page for the mode-aware ruleset
 - FLLWUP-71 — Add the user-visibility question to the gate question set — let a recorded Verify re-route on a surface-touching card
 - EPIC-1 — omp-themed council theme for pi, configurable from the scaffold .council.json
 - EPIC-2 — Inline council job tree beneath the input bar
@@ -59,7 +61,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-59 — End-to-end falsifier for the first-run identity line
 - EPIC-12 — pi-council version and git hash on the first pi run
 - EPIC-13 — Metered deliberation routing — a System One gate decides Deliberate, Verify, or Direct per card
-- EV-70 — Direct mode and the mode-aware merge check
 - EV-71 — Decisions-aware gate spend accounting
 - EV-72 — Pre-registered threshold tuning from the ledger
 
@@ -78,6 +79,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
+- EV-70 — Direct mode and the mode-aware merge check
 ## Needs Human
 
 ## Done
