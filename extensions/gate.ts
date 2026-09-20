@@ -21,13 +21,17 @@
 //   FAIL: <file> has an invalid <key> — <what was found> — set a valid value
 //   or remove the key to use the packaged default
 // (newline-sanitized so a raw JSON.parse snippet can never break the line),
-// never a stack trace. R3 (binding): the packaged default ships
-// `mode: "off"` — with the packaged default the gate issues no gate call and
-// writes no ledger line; consumers opt in per repo via a repo-local
-// policy.json. Tests that exercise a non-off mode set it explicitly and never
-// rely on the packaged default being on. The model id is pinned to a
-// versioned id — confidence floors tuned against a version must not silently
-// move when the alias rolls.
+// never a stack trace. Enablement (EV-73) lives in the repo's committed
+// `.council.json` — the reserved top-level `gate` section, resolved solely by
+// loadGateConfig: {"mode": "off" | "advisory" | "active"}, with an absent
+// file/section and `gate: {}` all resolving `off` byte-identically. With the
+// resolved default `off` the gate issues no gate call and writes no ledger
+// line; policy.json is TUNING DATA ONLY and carries no mode (a policy file
+// that still carries one hits the generic unknown-key FAIL — the migration
+// signal). Tests that exercise a non-off mode set it via a `.council.json`
+// gate fixture and never rely on the packaged default being on. The model id
+// is pinned to a versioned id — confidence floors tuned against a version
+// must not silently move when the alias rolls.
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { CONFIG_DIR_NAME } from "@earendil-works/pi-coding-agent";
