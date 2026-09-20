@@ -4,12 +4,12 @@ type: overview
 summary: pi-council is an installable pi package pairing a multi-agent Council deliberation/implementation loop with an LLM-maintained wiki — the workflow's opinions are the product.
 aliases: [pi-council, council, the Council, pi-council overview]
 tags: [pi-council/overview]
-sources: ["[[2026-08-23-readme]]", "[[2026-08-23-pi-council-design-spec]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]", "[[2026-09-03-v0.14.0-domain-neutral-stack-agnostic]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]"]
+sources: ["[[2026-08-23-readme]]", "[[2026-08-23-pi-council-design-spec]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]", "[[2026-09-03-v0.14.0-domain-neutral-stack-agnostic]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-20
+updated: 2026-09-21
 ---
 
-`pi-council` (v0.20.0; latest tag `v0.19.0`) is an installable [pi](https://pi.dev) package, distributed
+`pi-council` (v0.28.0; latest tag `v0.19.0`) is an installable [pi](https://pi.dev) package, distributed
 as `pi install git:github.com/jumpseat-inc/pi-council`. Installing it once and
 running `/council-init` gives **any** repository the same opinionated workflow:
 a facilitator-driven Council of specialized seats that deliberates, implements,
@@ -85,6 +85,7 @@ behavior change:
 | EPIC-9 (main) | **Provider-error retry with exponential backoff** — the pure [[retry-classification]] predicate, the `.council.json` [[retry-policy]], the parent-turn continuation ([[parent-turn-continuation]]), hub retry with [[per-attempt-provenance]], and [[figure-scoped-disclosure]]. Seven gated merges (PRs #51–#57); the merge gate caught a dead literal branch ([[deterministic-merge-check]]). EPIC-9 closed `Done` (fourth epic-card closure). Landed on `main`; version stays **v0.18.0** | [[2026-09-16-epic9-run-ledger]] |
 | v0.19.0 | **EPIC-9 release** — `package.json` 0.18.0 → 0.19.0; `v0.19.0` tagged and `latest` moved, carrying the accumulated EPIC-7/8/9 behavior changes under one release. The tag record was completed in the same pass: **`v0.18.0` added** (it had been bumped in source but never tagged) and the un-prefixed strays `0.6.2`/`0.17.1` renamed to `v0.6.2`/`v0.17.1`, so every release 0.1.0 → 0.19.0 now carries exactly one `vX.Y.Z` tag | [[2026-09-16-epic9-run-ledger]] |
 | v0.20.0 (untagged) | **FLLWUP-51 breaking gate** — `package.json` 0.19.0 → 0.20.0 (`09a8679`): `validate.py` now hard-fails a wrapped `goal:` / broken frontmatter block; the `goal` is parsed positionally and is no longer silently truncated by a colon-space. **No `v0.20.0` tag exists yet** | [[engineering-board]], [[2026-09-18-epic9-residual-run-2-ledger]] |
+| v0.21.0–v0.28.0 (main, untagged) | **EPIC-13: metered deliberation routing** — the System One gate ([[metered-deliberation-routing]]), its mode-aware consumer ([[deterministic-merge-check]]), the v2 gate ledger, and the usage-block gate-exclusion legend ([[usage-block]]). Thirteen chain-promoted children (PRs #79–#91); EPIC-13 closed `Done` — the **fifth epic-card closure**. Version bumps rode each card; a concurrent external commit added the `/bump` skill at v0.22.0. **No `v0.21.0`+ tag exists yet** | [[2026-09-21-epic13-run-ledger]] |
 
 The wiki scaffold shipped in the same commit as the council scaffold — the
 wiki is not an add-on. The full arc and commit-message discipline live in the
@@ -128,8 +129,9 @@ git log; this table is a secondary summary that can drift.
 - [[test-suite-budget]], [[retired-path-tokens]] — the EPIC-9 residual-run concepts (suite budget + CI backstop; the derived token set)
 - [[council-update]] — the FLLWUP-50 consent-gated packaged-tooling refresh path (the `scaffold.json` provenance record)
 - [[engineering-board]], [[record-push-discipline]] — hardened by the residual runs (positional `goal:` + the pre-write follow-up gate; the record-push authorization)
-- [[council-setup]], [[version-on-first-run]], [[metered-deliberation-routing]], [[followup-merge-and-auto-ingest]] — the Backlog epics (EPIC-10..13)
+- [[council-setup]], [[version-on-first-run]], [[followup-merge-and-auto-ingest]] — the Backlog epics (EPIC-10..12); [[metered-deliberation-routing]] shipped (EPIC-13)
 - [[2026-09-17-epic9-residual-run-ledger]], [[2026-09-18-epic9-residual-run-2-ledger]] — the EPIC-9 residual runs (FLLWUP-40–60)
+- [[2026-09-21-epic13-run-ledger]] — the EPIC-13 routing run (v0.21.0→v0.28.0)
 
 ## Sources
 

@@ -1,12 +1,12 @@
 ---
 title: Deterministic Merge Check
 type: concept
-summary: Under /features-deliver the human merge gate is replaced by five mechanical criteria — owner gates, gates-SUCCESS on the PR head SHA, no blocking skeptic objection, judge PASS, no open ruling — executed with no discretion, merged with --match-head-commit.
+summary: Under /features-deliver the human merge gate is replaced by five mechanical criteria — owner gates, gates-SUCCESS on the PR head SHA, no blocking skeptic objection, judge PASS, no open ruling — keyed since EPIC-13 by the card's recorded execution mode, merged with --match-head-commit.
 aliases: [deterministic merge check, merge gate, deterministic merge, five criteria merge]
 tags: [pi-council/features-deliver, pi-council/process]
-sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-18-epic9-residual-run-2-ledger]]"]
+sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]"]
 created: 2026-09-04
-updated: 2026-09-20
+updated: 2026-09-21
 ---
 
 # Deterministic Merge Check
@@ -28,6 +28,28 @@ five must hold:
 3. No blocking Skeptic objection.
 4. Judge verdict PASS.
 5. No `Needs Human` state or outstanding ruling on the card.
+
+## Mode-aware (EPIC-13, v0.28.0) — supersedes "unconditional"
+
+Until EPIC-13 the five criteria were stated as one unconditional ruleset. They
+are now **keyed by the card's recorded execution mode**
+([[metered-deliberation-routing]], written to the root dispatch manifest by
+`EV-68`, read from the **run substrate**, never from a seat's report):
+
+| Mode | Criteria that apply |
+|---|---|
+| **Direct** | 1, 2, 5 only — no judge verdict (the test suite is the gate) |
+| **Verify** | all five; criterion 3 scopes to the single Verify skeptic |
+| **Deliberate** | all five, verbatim |
+
+A card with **no recorded mode HALTs** rather than defaulting, with the pinned
+lines `HALT: EV-<n> has no recorded execution mode — the merge check cannot
+infer one; route the card at the approval gate`, and — for a mode needing a goal
+evaluation with none recorded — `HALT: EV-<n> — mode <mode> requires a goal
+evaluation and none is recorded`. The SHA pin and the `workflow: gates` reading
+are unchanged. The table is a pure function in `extensions/merge-check.ts`; as of
+v0.28.0 it is fixture-consumed only — `FLLWUP-72` makes step 11 *execute* the
+table instead of a prose mirror.
 
 ## The SHA pinning discipline
 
@@ -185,6 +207,24 @@ silently. A mismatch is a **HALT, not a retry**.
   of them goal/scope rulings (`FLLWUP-51` goal amendment; `FLLWUP-50` detection
   scope) and two copy/mechanism items (`FLLWUP-55`, `FLLWUP-58`).
 
+## Observed practice (EPIC-13 run, 2026-09-21)
+
+- Thirteen more merges (PRs #79–#91), squash method, every `--match-head-commit`
+  pin re-read and held under the run-scoped R1 `--admin` authorization; every
+  head-SHA `gates` check `SUCCESS` keyed on the `workflow` field, and every head
+  **independently re-verified by the orchestrator** (preflight + `tsc` + full
+  `bun test` + `validate.py`) before the merge. No `HALT`, no denied merge. The
+  run's first merge (EV-60) was announced in-line and watched.
+- **The ruleset is now mode-aware** (section above) — the first run to merge
+  under it.
+- Criterion 5 again paced the run: seven [[product-owner]] rulings and one
+  [[steward]] closure, every one card-level (none reached a steward chain before
+  closure).
+- ⚠️ **The orchestrator reconciled by `git reset --hard` instead of the
+  [[union-merge reconcile]] union merge**, discarding a local-only ruling doc
+  (recovered from a dangling object). Reset is a rewind and contradicts this
+  repository's never-force rule. See [[2026-09-21-epic13-run-ledger]].
+
 ## Red-base falsifiers and the merge gate
 
 The merge gate is what makes "cannot land red" true: a falsifier that must
@@ -239,3 +279,5 @@ attestation about the merge window. One enforcement, not two.
 - [[2026-09-18-epic9-residual-run-2-ledger]] — ten more (PRs #67–#77), one
   R4 retirement, the R2/SHA-pin discipline held, the merged-SHA flake
   disclosure, and the record-push closure (`FLLWUP-60`).
+- [[2026-09-21-epic13-run-ledger]] — thirteen more (PRs #79–#91); the mode-aware
+  ruleset first merged under, and the reset-vs-union reconcile contradiction.

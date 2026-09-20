@@ -1,5 +1,24 @@
 # Wiki Log
 
+## [2026-09-21] ingest | EPIC-13 run — metered deliberation routing shipped
+
+Ingested `vault/raw/2026-09-21-epic13-run-ledger.md` (filed from
+`docs/superpowers/run-ledger-EPIC-13.md`; the eight PO/steward ruling raws folded
+in). Created [[2026-09-21-epic13-run-ledger]]; rewrote
+[[metered-deliberation-routing]] (planned → shipped v0.28.0) and made
+[[deterministic-merge-check]] mode-aware (Direct = criteria 1/2/5; no recorded
+mode = HALT). Updated [[union-merge-reconcile]] (reset counterexample),
+[[record-push-discipline]] (R6 ordering recurrence), [[hub-job-supervision]]
+(stall window must clear the child window), [[engineering-board]] (heading-
+uniqueness gap; step-13 recurrence), [[council-runner]], [[usage-block]],
+[[chain-promotion]], [[test-suite-budget]], [[pi-council-overview]], index.
+Contradictions flagged: **reset vs union-merge** (the run discarded a local-only
+ruling doc), and the planned→shipped supersession.
+
+- **Created:** 1 source page
+- **Updated:** metered-deliberation-routing, deterministic-merge-check, union-merge-reconcile, record-push-discipline, hub-job-supervision, engineering-board, council-runner, usage-block, chain-promotion, test-suite-budget, pi-council-overview, index
+- **Contradictions flagged:** 2 — reset/union-merge; planned→shipped
+
 ## [2026-09-20] ingest | Backfill — 16 un-ingested raw sources get source pages
 
 Created the 16 source pages the lint flagged as missing (raw files present,

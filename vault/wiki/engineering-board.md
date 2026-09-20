@@ -4,9 +4,9 @@ type: concept
 summary: The durable, locally-stored kanban state — council/board.md plus one card file per id, validated by validate.py, and the discipline that everything the Council does starts and records there.
 aliases: [engineering board, board, card, kanban]
 tags: [pi-council/concept]
-sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]"]
+sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-20
+updated: 2026-09-21
 ---
 
 > ⚠️ Derived from `council/procedures/board-create-card.md`, `features-new.md` and `council/scaffold/council/board.md` @ `8913c6b`/`8f1882b` (captured 2026-08-23). Verify against the procedure files.
@@ -68,6 +68,17 @@ set of markdown files under `council/`:
   the line corrected on the card face, and carded `FLLWUP-69` to pin the
   pre-write gate in `council.md` §13 and `features-deliver.md` Phase 1. See
   [[2026-09-18-epic9-residual-run-2-ledger]].
+  ⚠️ **The class recurred in EPIC-13 (2026-09-21)** — runners pre-wrote
+  `FLLWUP-71/72/73` before the human confirmation; the orchestrator confirmed
+  all ten follow-ups (`FLLWUP-71`–`80`) at run close. The pre-write gate is
+  still not mechanically enforced. See [[2026-09-21-epic13-run-ledger]].
+- **`validate.py` does not check heading uniqueness.** It verifies each card's
+  board line and column, but not that each `## <state>` heading appears exactly
+  once. EPIC-13's runners duplicated or dropped the `## In Progress` / `## In
+  Review` headings three times with `validate.py` green; the orchestrator
+  repaired each and added an explicit guard to the remaining dispatch inputs.
+  A heading-uniqueness check is the obvious hardening. See
+  [[2026-09-21-epic13-run-ledger]].
 - Board and cards must **never land as separate commits** (a board that disagrees
   with its cards is the inconsistency `validate.py` exists to catch).
 - Card **goal text is immutable** once a card is `In Progress` — any work needing
@@ -130,6 +141,9 @@ set of markdown files under `council/`:
   the remaining eleven residuals (PRs #67–#77, one R4 retirement); `goal:` made
   positional and the wrap gate loud; the pre-write step-13 gate inversion
   corrected and carded (`FLLWUP-69`); the record-push gap closed.
+- [[2026-09-21-epic13-run-ledger]] — the **fifth epic-card closure** (EPIC-13,
+  13 chain-promoted children, PRs #79–#91); the routing gate shipped, the
+  mode-aware merge check, the heading-uniqueness gap and the step-13 recurrence.
 - [[2026-09-16-epic9-run-ledger]] — the board's **fourth epic-card closure**
   (EPIC-9, seven children); FLLWUP-40..45 + 47..49 filed as `Backlog`
   residuals, two drafts declined at the gate, two permanent residuals without

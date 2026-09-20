@@ -4,9 +4,9 @@ type: concept
 summary: Backlog→Ready promotion for a dependent card chain is bound once as an automated cadence — the orchestrator promotes each card the moment its predecessor's merge SHA is on local main and validate.py is clean, without re-asking.
 aliases: [chain promotion, promotion cadence, automated promotion, P1-P5]
 tags: [pi-council/features-deliver, pi-council/process]
-sources: ["[[2026-09-03-po-epic4-promotion-cadence]]", "[[2026-09-11-epic7-run-ledger]]"]
+sources: ["[[2026-09-03-po-epic4-promotion-cadence]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]"]
 created: 2026-09-04
-updated: 2026-09-20
+updated: 2026-09-21
 ---
 
 # Chain Promotion
@@ -46,6 +46,16 @@ exist. The cadence held across all five cards (the longest chain it has
 carried), and the run closed EPIC-7 `Done`. See
 [[2026-09-11-epic7-run-ledger]].
 
+## Applied at EPIC-13 — the longest chain yet (2026-09-21)
+
+All 13 children (`EV-60`…`EV-72`) promoted one at a time as each predecessor's
+merge SHA landed on local `main` with `validate.py` clean — the longest chain
+the cadence has carried. Two links (`EV-65`, `EV-68`) were already `Ready` from
+decomposition and skipped. The ruling was obtained as an **escalation**: the
+first runner correctly refused to promote a `Backlog` card itself, and
+[[product-owner]] ruled the whole cadence once. See
+[[2026-09-21-epic13-run-ledger]].
+
 ## Related
 
 - [[deterministic merge check]] — the other automation that makes
@@ -53,6 +63,7 @@ carried), and the run closed EPIC-7 `Done`. See
 - [[engineering board]] — the state columns the cadence moves cards
   through.
 - [[2026-09-03-po-epic4-promotion-cadence]] — the source ruling.
+- [[2026-09-21-epic13-run-ledger]] — the 13-link chain (EV-60…EV-72).
 
 ## Sources
 

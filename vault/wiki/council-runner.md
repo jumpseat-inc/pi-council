@@ -4,9 +4,9 @@ type: entity
 summary: The per-card autonomous execution container — dispatched by /features-deliver to run the full /council loop for one card in an isolated context; routes, counts, and writes the board but never decides.
 aliases: [council runner, council-runner, runner]
 tags: [pi-council/seat]
-sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]"]
+sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-20
+updated: 2026-09-21
 ---
 
 > ⚠️ Derived from `council/agents/council-runner.md` (captured 2026-08-23). Verify against the seat file.
@@ -235,6 +235,29 @@ reserved powers are re-homed per the authority map in `features-deliver.md`.
   board discipline; where a ruleset blocks direct updates it needs a recorded
   authorization — see [[record-push-discipline]].
 
+## Lessons from the EPIC-13 run
+
+- **Board-edit heading corruption is real and unchecked.** Three times a runner
+  edit duplicated or dropped a `## In Progress` / `## In Review` heading while
+  `validate.py` stayed green (it checks card-line/column agreement, not heading
+  uniqueness). The orchestrator repaired each and added an explicit board-heading
+  guard to the dispatch inputs. See [[engineering-board]].
+- **Keep records on the branch when told.** EV-60's runner committed board/card
+  records on the *main* checkout after the PR was pushed, so the final `In Review`
+  state never rode the merge; EV-71 landed as `In Progress` for the same reason.
+  The orchestrator set the final `Done` state each time. [[main-repo immutability]]
+  governs branch state, but the *record location* is a second discipline.
+- **Provider-error and idle-timeout dispatches are survivable.** An owner died
+  mid-implementation and a [[product-owner]] hit an HTTP 429 (settled 3/3); the
+  verified deliverable was kept, not redone, by the one-bounded-re-dispatch rule.
+  See [[retry-policy]], [[per-attempt-provenance]].
+- **The step-13 follow-up gate recurred** — the runner pre-wrote follow-up cards
+  before the human confirmation ([[engineering-board]]).
+- **The parent stall window must clear the child window** — recurrence #4; see
+  [[hub-job-supervision]].
+- **Committed-board-state recovery again carried a killed container** (EV-61),
+  with the in-flight child re-run by a fresh runner.
+
 ## Related
 
 - [[seats]], [[council-loop]]
@@ -248,6 +271,7 @@ reserved powers are re-homed per the authority map in `features-deliver.md`.
 - [[env-split contract]] — why dispatch inputs must control the seat environment
 - [[2026-09-06-epic6-close-run-ledger]] — the close run's lessons
 - [[2026-09-11-epic7-run-ledger]] — the EPIC-7 usage-accounting run's lessons
+- [[2026-09-21-epic13-run-ledger]] — the EPIC-13 routing run's lessons
 
 ## Sources
 

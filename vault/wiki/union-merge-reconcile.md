@@ -1,12 +1,12 @@
 ---
 title: Union-Merge Reconcile
 type: concept
-summary: When a squash-merged PR folds a runner's board commits, a local main carrying later record commits diverges — reconcile by union merge keeping both record sides, then verify (validate.py + a conflict-marker sweep); or avoid it by pushing records as they happen. Concurrent runs writing the shared board are a second trigger.
+summary: When a squash-merged PR folds a runner's board commits, a local main carrying later record commits diverges — reconcile by union merge keeping both record sides, then verify (validate.py + a conflict-marker sweep); or avoid it by pushing records as they happen. A `git reset --hard` on local main is a rewind, not this repair — EPIC-13's counterexample discarded a ruling doc.
 aliases: [union merge, diverged main, union-merge reconcile]
 tags: [pi-council/process]
-sources: ["[[2026-09-05-epic6-run-ledger]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]"]
+sources: ["[[2026-09-05-epic6-run-ledger]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]"]
 created: 2026-09-05
-updated: 2026-09-18
+updated: 2026-09-21
 ---
 
 # Union-Merge Reconcile
@@ -74,6 +74,14 @@ side discarded, no force-push, no history rewrite. The lesson: `board.md` and
 the card files are the run's only durable state, so **any other writer — not
 just the run's own squash — can diverge it**, and the repair is unchanged. See
 [[2026-09-18-epic9-residual-run-2-ledger]].
+- **EPIC-13 (2026-09-21) — the counterexample that is NOT a union merge.** The
+  orchestrator reconciled each squash merge with `git reset --hard origin/main`
+  instead of this pattern. A reset is a **rewind**: it discarded a local-only
+  ruling commit (the EV-66 ruling doc), recovered only because it survived as a
+  dangling object. The never-force/never-discard guard exists for exactly this —
+  the union merge keeps both record sides and lets `validate.py` be the net. The
+  run's own ledger recorded the contradiction. See
+  [[2026-09-21-epic13-run-ledger]].
 
 ## Failure mode
 
@@ -101,3 +109,4 @@ with this) and [[engineering-board]].
 - [[2026-09-05-epic6-run-ledger]]
 - [[2026-09-04-epic4-run-ledger]]
 - [[2026-09-18-epic9-residual-run-2-ledger]] — the concurrent-writer trigger
+- [[2026-09-21-epic13-run-ledger]] — the reset counterexample

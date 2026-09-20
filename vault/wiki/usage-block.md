@@ -4,9 +4,9 @@ type: concept
 summary: The deterministic usage block rendered at five autonomous exits — grammar identity across forms, three whole-block states (failed > unresolved > empty), the conditional `n/a` legend, and the opt-in marker boundary mode.
 aliases: [usage block, usage line, no usage recorded, accounting boundary unresolved]
 tags: [pi-council/concept, pi-council/epic7]
-sources: ["[[2026-09-11-epic7-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]"]
+sources: ["[[2026-09-11-epic7-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]"]
 created: 2026-09-11
-updated: 2026-09-16
+updated: 2026-09-21
 ---
 
 # Usage Block
@@ -63,6 +63,19 @@ carries no `partial` at all — the `n/a` legend *is* the whole disclosure — a
 the legacy window shape (`attempt > 1 && attempts === undefined`) keeps its
 `final-attempt-only` bytes identical.
 
+A **third conditional legend**, `usage  gate = excluded from this total`,
+appears iff at least one gate call falls in the invocation window (EV-71,
+[[metered-deliberation-routing]]). The stack order becomes reported row → partial
+legend → `n/a` legend → `gate` legend, **`gate` last**. EV-71's step-6 ruling
+pinned the "grammar is unchanged" scoping: **row grammar and state exclusivity,
+not line count** — a whole-block state may be followed by conditional *legend*
+rows (and only legend rows), so `no usage recorded` / `accounting boundary
+unresolved` carry the legend after their state line, while `accounting failed`
+stays single-line (its golden comment reads "chosen: no persisted record to
+render from", never "impossible"). The block is the **exclusion** surface; the
+gate ledger is the **trace** surface (`FLLWUP-79` proposes signposting it).
+`FLLWUP-77` proposes a count-bearing form; `FLLWUP-78` a self-describing key.
+
 ## The boundary-mode extension
 
 `/council-eval` is a TS command whose handler awaits and never injects a user
@@ -83,4 +96,5 @@ extension, not a relaxation of the zero-both invariant.
 ## Sources
 
 - [[2026-09-11-epic7-run-ledger]]
+- [[2026-09-21-epic13-run-ledger]] — the gate-exclusion legend and its grammar scoping
 - `extensions/usage-block.ts`, `extensions/usage-format.ts`

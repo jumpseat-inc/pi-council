@@ -7,11 +7,9 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 
 - [[pi-council-overview]] — Pi-council as an installable package: the Council
   + wiki workflow, two engine halves, the loop, and the release version arc
-  (through v0.20.0, untagged; latest release v0.19.0. EPIC-6 closed, EPIC-7's
-  honest usage accounting landed on main, EPIC-8's elegant transcript rendering
-  closed Done, EPIC-9's provider-error retry closed Done and was released. The
-  EPIC-9 residual runs delivered FLLWUP-40–49, then FLLWUP-50–60. EPIC-10..13
-  are decomposed and Backlog).
+  (through v0.28.0, untagged; latest release v0.19.0. EPIC-6/7/8/9/13 closed
+  Done; EPIC-13 shipped metered deliberation routing at v0.21.0–v0.28.0, and
+  EPIC-10..12 remain Backlog).
 
 ## Entities
 
@@ -59,7 +57,7 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[eval-store-contract]] — ResultRecord/VerdictRecord keyed on full tuples (cellId, repeat, scoredUnder/gradedBy, versions), append-only, scoredUnder "self" sentinel, cellScope telemetry stamped at settle.
 - [[cell-aggregation]] — The shared pure aggregate: mean/Bessel σ, E1 CI-on-difference triage, E2 length-never-zero, E3 histogram; same-function-both-sides byte-identity; the CONFIRM-2 version-blindness lesson.
 - [[grader-topology]] — Grader as harness-dispatched sibling linked by cellId; cell-invariance by topology, three cost columns, no exclusion rule.
-- [[deterministic-merge-check]] — The features-deliver merge gate: five mechanical criteria observed directly, merged --match-head-commit, Done only after gates green on the merged SHA.
+- [[deterministic-merge-check]] — The features-deliver merge gate: five mechanical criteria observed directly, keyed since EPIC-13 by the card's recorded execution mode (Direct = 1/2/5; no recorded mode = HALT), merged --match-head-commit, Done only after gates green on the merged SHA.
 - [[record-push-discipline]] — The step-12 direct-to-main record push is a privileged write the authority map does not re-home; **closed by FLLWUP-60** (`aa1923fe`, 2026-09-18) — the procedure names a run-scoped authorization and fences an unauthorized push as a HALT.
 - [[run-config-stability]] — A mid-run `.council.json` seat-model change silently alters which models later dispatches use; scope-pure commits + a Phase-0 stability check.
 - [[two-bit-focus-machine]] — The modal key-handling pattern from EV-27: searchActive × inputFocused, Esc routed on inputFocused, Down as the focus-out edge; ▌ signifier + capture-by-construction trigger; backspace-as-delete added by BUG-1.
@@ -90,7 +88,7 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[council-update]] — FLLWUP-50's consent-gated refresh path for packaged council tooling (`/council-update`, the `scaffold.json` provenance record, the session-start drift notice).
 - [[council-setup]] — EPIC-11 (Backlog): grounded, interview-driven `/council-setup` that writes a fitted configuration.
 - [[version-on-first-run]] — EPIC-12 (Backlog): show the pi-council version + latest git hash on the first pi run.
-- [[metered-deliberation-routing]] — EPIC-13 (Backlog): a System One gate routes each card to Deliberate/Verify/Direct.
+- [[metered-deliberation-routing]] — EPIC-13 (shipped v0.28.0): a typed System One gate routes each card to Deliberate/Verify/Direct; packaged default `mode: "off"`.
 - [[followup-merge-and-auto-ingest]] — EPIC-10 (Backlog): merge near-duplicate follow-ups + autonomous wiki ingest at run completion.
 
 ## Comparisons
@@ -99,6 +97,7 @@ _(none yet)_
 
 ## Sources
 
+- [[2026-09-21-epic13-run-ledger]] — The EPIC-13 run: metered deliberation routing shipped (13 gated merges, PRs #79–#91, v0.28.0); the System One gate, the mode-aware merge check, the eight rulings folded in, and the reset-vs-union + stall-window + heading-uniqueness lessons.
 - [[2026-09-18-epic9-residual-run-2-ledger]] — The EPIC-9 residual run 2: the remaining eleven residuals (FLLWUP-50–60) delivered (PRs #67–#77) plus one R4 retirement; `goal:` made positional, the pre-write step-13 gate inversion corrected, the record-push gap closed, and two pi-runtime mechanism findings.
 - [[2026-09-18-po-fllwup56-step13-ruling]] — PO drops both FLLWUP-56 drafts: the live-arm header rule, and two pi-runtime findings routed to [[headless-pi]] and [[council-theme]].
 - [[2026-09-18-design-fllwup50-refresh-path]] — The designer's round-1 position on the packaged-tooling refresh path: three moments, two gulfs, five cold-read predictions, seven open mechanism choices.

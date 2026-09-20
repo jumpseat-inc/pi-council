@@ -4,9 +4,9 @@ type: concept
 summary: The battle-tested engine that spawns, monitors, stalls, times out, and sweeps seat subprocesses — the hub table, pid file, anti-stall kill, and the dispatch/wait/cancel tools.
 aliases: [hub job supervision, hub, job table, council_dispatch]
 tags: [pi-council/concept]
-sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]"]
+sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-20
+updated: 2026-09-21
 ---
 
 # Hub Job Supervision
@@ -149,9 +149,21 @@ extension, and run as a vanilla hub-tool-less agent — the runner correctly
 `HALT`ed (`Tool council_dispatch not found`). The Phase-0 lesson is to assert
 the dispatch *tools* exist, not just that seat names resolve.
 
+**EPIC-13 recurrence #4 — the window must exceed the longest child, not just
+"the owner ceiling" (2026-09-21):** EV-61's runner was false-killed at step 9
+because the orchestrator's **15-minute stall window sat under the step-9
+skeptic's 30-minute bound**. The generalized invariant is *the no-activity
+window must exceed the longest legitimate silent wait below it* — which, in the
+council loop, is now the 45-minute owner implementation **or** the 30-minute
+skeptic verification, whichever the runner is currently blocked on. Later
+dispatches in the run used 40–45-minute windows and survived; the killed parent's
+in-flight child was orphaned and re-run by a fresh runner from committed board
+state. See [[2026-09-21-epic13-run-ledger]].
+
 ## Related
 
 - [[seats]], [[council-loop]], [[model-output-floors]]
+- [[2026-09-21-epic13-run-ledger]] — recurrence #4 (the child-window ceiling)
 - [[run-transcripts]] — the on-disk manifests + transcript viewer (v0.9.0)
 - [[council models picker]] — delivered by the run that refined this page
 

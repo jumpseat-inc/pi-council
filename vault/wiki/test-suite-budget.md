@@ -4,9 +4,9 @@ type: concept
 summary: The default bun test suite's measured wall-clock envelope, the live-arm files that carry it, the ceiling-vs-budget distinction, the CI-timeout backstop, and the rules that keep the numbers honest.
 aliases: [suite budget, test suite cost, drift threshold, CI timeout backstop]
 tags: [pi-council/concept, pi-council/smoke-test]
-sources: ["[[2026-09-19-po-fllwup48-test-suite-budget]]", "[[2026-09-18-po-fllwup56-step13-ruling]]", "[[2026-09-20-po-fllwup58-gates-backstop]]", "[[2026-09-20-po-fllwup58-step13-confirmation]]", "[[2026-09-18-epic9-residual-run-2-ledger]]"]
+sources: ["[[2026-09-19-po-fllwup48-test-suite-budget]]", "[[2026-09-18-po-fllwup56-step13-ruling]]", "[[2026-09-20-po-fllwup58-gates-backstop]]", "[[2026-09-20-po-fllwup58-step13-confirmation]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]"]
 created: 2026-09-17
-updated: 2026-09-20
+updated: 2026-09-21
 ---
 
 # Test Suite Budget
@@ -21,6 +21,12 @@ re-measurement ever exceeds the drift threshold below.
 
 - **Total wall clock:** ≈**101.2s** (947 tests across 82 files; 945 pass,
   2 skip, 0 fail).
+- ⚠️ **Grown since (EPIC-13, 2026-09-21, `main` at v0.28.0):** **1213 tests
+  across 100 files, ≈107–109s** — the routing-gate cards and their falsifier
+  arms added roughly 4–5s (and ~11 files). Still well inside the 180s drift
+  threshold. The figure above remains the pinned measurement with provenance;
+  re-measure for the exact post-EPIC-13 number at the next pass. See
+  [[2026-09-21-epic13-run-ledger]].
 - **Provenance:**
   - Machine: Linux 6.12.24-Unraid x86_64 (container)
   - Date: 2026-09-20 (re-measured at HEAD)

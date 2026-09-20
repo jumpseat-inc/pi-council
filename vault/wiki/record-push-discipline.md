@@ -1,12 +1,12 @@
 ---
 title: Record-Push Discipline
 type: concept
-summary: The step-12 direct-to-main record push is a privileged write the features-deliver authority map does not re-home; FLLWUP-60 closed the gap by naming a run-scoped authorization in the procedure and fencing an unauthorized push as a HALT.
+summary: The step-12 direct-to-main record push is a privileged write the features-deliver authority map does not re-home; FLLWUP-60 closed the gap by naming a run-scoped authorization in the procedure and fencing an unauthorized push as a HALT — EPIC-13 then showed the ordering (`before` the first push) is the load-bearing word.
 aliases: [record push, step-12 push, admin bypass, record-push authorization]
 tags: [pi-council/concept, pi-council/features-deliver]
-sources: ["[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]"]
+sources: ["[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]"]
 created: 2026-09-17
-updated: 2026-09-18
+updated: 2026-09-21
 ---
 
 # Record-Push Discipline
@@ -68,6 +68,20 @@ The `steward` ruling's accepted permanent residual for the 2026-09-17 pushes
 still stands (no undo) — what changed is the standing posture, not the past.
 See [[2026-09-18-epic9-residual-run-2-ledger]].
 
+## EPIC-13 recurrence (2026-09-21) — right in kind, wrong in sequence
+
+The first autonomous run after FLLWUP-60 got the authorization **in kind** but
+not in **sequence**: the orchestrator performed two direct step-12 record pushes
+(EV-60 `b6d5ce5`, EV-61 `1fdc2de`) *before* recording the run's R6 authorization.
+The omission was surfaced to the human and corrected retroactively (R6), which
+legitimised the completed pushes and covered the rest of the run. The clause's
+phrase **"before the run's first record push"** is the load-bearing word — a
+retroactive grant is a disclosure, not compliance. Two corollary process notes
+from the same run: the runners sometimes committed board/card records on the
+*main* checkout ([[main-repo immutability]] tension), and a post-merge
+`git reset --hard` discarded a local-only ruling doc
+([[union-merge reconcile]]). See [[2026-09-21-epic13-run-ledger]].
+
 ## Why it matters
 
 A protection the human put in place should yield only to a recorded, run-scoped
@@ -86,5 +100,6 @@ unreliable and is invisible in the very board it is writing.
 
 - [[2026-09-17-epic9-residual-run-ledger]]
 - [[2026-09-18-epic9-residual-run-2-ledger]] — the closure
+- [[2026-09-21-epic13-run-ledger]] — the authorization-ordering recurrence
 - `council/procedures/council.md` step 12, `council/procedures/features-deliver.md`
 - `council/cards/FLLWUP-42.md`, `council/cards/FLLWUP-60.md`
