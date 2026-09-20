@@ -174,11 +174,12 @@ async function buildScratch(label: string, canned: Record<string, { answers: Rec
 	const cardPath = path.join(repo, "council", "cards", `${CARD_ID}.md`);
 	fs.mkdirSync(path.dirname(cardPath), { recursive: true });
 	fs.writeFileSync(cardPath, CARD_MD);
+	fs.writeFileSync(path.join(repo, ".council.json"), JSON.stringify({ gate: { mode: "advisory" } }, null, 2));
 	const gateDir = path.join(repo, CONFIG_DIR_NAME, "council", "gate");
 	fs.mkdirSync(gateDir, { recursive: true });
 	fs.writeFileSync(
 		path.join(gateDir, "policy.json"),
-		JSON.stringify({ policyVersion: "ev69-falsifier-1", mode: "advisory", model: GATE_PINNED_MODEL, endpoint: stub.url, gateStateBudgetTokens: 32000 }, null, 2),
+		JSON.stringify({ policyVersion: "ev69-falsifier-1", model: GATE_PINNED_MODEL, endpoint: stub.url, gateStateBudgetTokens: 32000 }, null, 2),
 	);
 	execFileSync("git", ["-C", repo, "init", "-q", "-b", "main"]);
 	execFileSync("git", ["-C", repo, "add", "-A"]);

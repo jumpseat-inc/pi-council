@@ -21,19 +21,23 @@
 //   FAIL: <file> has an invalid <key> — <what was found> — set a valid value
 //   or remove the key to use the packaged default
 // (newline-sanitized so a raw JSON.parse snippet can never break the line),
-// never a stack trace. R3 (binding): the packaged default ships
-// `mode: "off"` — with the packaged default the gate issues no gate call and
-// writes no ledger line; consumers opt in per repo via a repo-local
-// policy.json. Tests that exercise a non-off mode set it explicitly and never
-// rely on the packaged default being on. The model id is pinned to a
-// versioned id — confidence floors tuned against a version must not silently
-// move when the alias rolls.
+// never a stack trace. Enablement (EV-73) lives in the repo's committed
+// `.council.json` — the reserved top-level `gate` section, resolved solely by
+// loadGateConfig: {"mode": "off" | "advisory" | "active"}, with an absent
+// file/section and `gate: {}` all resolving `off` byte-identically. With the
+// resolved default `off` the gate issues no gate call and writes no ledger
+// line; policy.json is TUNING DATA ONLY and carries no mode (a policy file
+// that still carries one hits the generic unknown-key FAIL — the migration
+// signal). Tests that exercise a non-off mode set it via a `.council.json`
+// gate fixture and never rely on the packaged default being on. The model id
+// is pinned to a versioned id — confidence floors tuned against a version
+// must not silently move when the alias rolls.
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { CONFIG_DIR_NAME } from "@earendil-works/pi-coding-agent";
 import type { GateAnswer } from "./gate-ledger.ts";
 export type { GateAnswer } from "./gate-ledger.ts";
-import { PKG_ROOT } from "./seats.ts";
+import { COUNCIL_CONFIG_FILE, PKG_ROOT } from "./seats.ts";
 
 /** Versioned model pin — NEVER the alias `~typesafe/jev-latest`. */
 export const GATE_PINNED_MODEL = "typesafe/jev-1.13";
@@ -69,6 +73,51 @@ export interface GateQuestion {
 export interface GateQuestionSet {
 	version: string;
 	questions: Record<string, GateQuestion>;
+}
+
+/** EV-73 — the ONE resolver of the decisions gate's enablement, from the
+ * reserved top-level `gate` section of the repo's committed `.council.json`
+ * (a sibling invisible to loadCouncilConfig, which reads only `parsed.council`;
+ * like `theme` and `retry` it gets its own independent loader). Absent file,
+ * absent `gate`, and `gate: {}` all resolve `{ mode: "off" }` byte-identically
+ * to the packaged default. Lazy-at-call by construction: this runs inside
+ * loadGatePolicy at gate-tool-call time, never eagerly at parent init — a
+ * malformed `gate` section throws one FAIL at the gate tool call and unrelated
+ * session startup never crashes on it. Named hazard: a mid-run `.council.json`
+ * edit flips routing on the next gate read — the same run-config-stability
+ * class as a seat-model edit. */
+export function loadGateConfig(repoRoot: string): { mode: GateMode } {
+	const file = path.join(repoRoot, COUNCIL_CONFIG_FILE);
+	if (!fs.existsSync(file)) return { mode: "off" };
+	let parsed: unknown;
+	try {
+		parsed = JSON.parse(fs.readFileSync(file, "utf-8"));
+	} catch (e) {
+		throw gateFail(file, "JSON", `not parseable as JSON: ${e instanceof Error ? e.message : String(e)}`);
+	}
+	if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+		throw gateFail(file, "JSON", "root must be a JSON object");
+	}
+	const raw = (parsed as Record<string, unknown>).gate;
+	if (raw === undefined) return { mode: "off" };
+	if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
+		throw gateFail(file, "gate", `expected an object, found ${describeShape(raw)}`);
+	}
+	const section = raw as Record<string, unknown>;
+	for (const key of Object.keys(section)) {
+		if (key !== "mode") {
+			throw gateFail(file, `gate.${key}`, "unknown key; expected one of mode");
+		}
+	}
+	if (section.mode === undefined) return { mode: "off" };
+	if (typeof section.mode !== "string" || !GATE_MODES.includes(section.mode as GateMode)) {
+		throw gateFail(
+			file,
+			"gate.mode",
+			`expected one of ${GATE_MODES.map((m) => JSON.stringify(m)).join(", ")}, found ${JSON.stringify(section.mode)}`,
+		);
+	}
+	return { mode: section.mode as GateMode };
 }
 
 /** Repo override first, packaged default second — the seatDirs pattern. */
@@ -112,9 +161,13 @@ function nonEmptyString(file: string, key: string, v: unknown): string {
 }
 
 /** Load the gate policy: repo-local override whole-file, else the packaged
- * default. An absent `mode` key resolves to `off` (never to the packaged
- * file's literal mode — the repo file is validated and resolved standalone). */
+ * default. EV-73: enablement (`mode`) comes solely from `.council.json`'s
+ * reserved top-level `gate` section via loadGateConfig, resolved BEFORE the
+ * policy file is read; policy.json is tuning data only (model/endpoint/budget)
+ * and carries no mode — a policy file that still carries one hits the generic
+ * unknown-key FAIL (the migration signal; the enriched copy is EV-75's). */
 export function loadGatePolicy(repoRoot: string): GatePolicy {
+	const { mode } = loadGateConfig(repoRoot);
 	const { file, value } = readGateFile(gateDirs(repoRoot), "policy.json");
 	if (typeof value !== "object" || value === null || Array.isArray(value)) {
 		throw gateFail(file, "JSON", "root must be a JSON object");
@@ -140,22 +193,12 @@ export function loadGatePolicy(repoRoot: string): GatePolicy {
 	const policyVersion = nonEmptyString(file, "policyVersion", raw.policyVersion);
 	const model = nonEmptyString(file, "model", raw.model);
 	const endpoint = nonEmptyString(file, "endpoint", raw.endpoint);
-	let mode: GateMode = "off"; // absent mode resolves to off
-	if (raw.mode !== undefined) {
-		if (typeof raw.mode !== "string" || !GATE_MODES.includes(raw.mode as GateMode)) {
-			throw gateFail(
-				file,
-				"mode",
-				`expected one of ${GATE_MODES.map((m) => JSON.stringify(m)).join(", ")}, found ${JSON.stringify(raw.mode)}`,
-			);
-		}
-		mode = raw.mode as GateMode;
-	}
 	// EV-64 (PO ruling Q1 clause 2): the key is legal in its absence only on
 	// the off path. The copy drops the template's "remove the key" advice —
 	// wrong for an absent key under whole-file shadowing (removing the key
 	// from a repo-local file cannot summon the packaged value; first-hit
-	// whole-file means no merge).
+	// whole-file means no merge). `mode` is the RESOLVED config mode, never
+	// re-derived from policy.json (which no longer carries one).
 	if (gateStateBudgetTokens === undefined && mode !== "off") {
 		throw new Error(
 			`FAIL: ${file} has an invalid gateStateBudgetTokens — the key is absent but the resolved mode is "${mode}" (an off-mode policy may omit it) — set a valid value`,
@@ -166,7 +209,7 @@ export function loadGatePolicy(repoRoot: string): GatePolicy {
 		: { policyVersion, mode, model, endpoint, gateStateBudgetTokens };
 }
 
-const POLICY_KEYS = ["mode", "policyVersion", "model", "endpoint", "gateStateBudgetTokens"] as const;
+const POLICY_KEYS = ["policyVersion", "model", "endpoint", "gateStateBudgetTokens"] as const;
 
 const ALLOWED_POLICY_KEYS: Record<string, true> = Object.fromEntries(
 	POLICY_KEYS.map((k) => [k, true as const]),
@@ -347,6 +390,18 @@ function unitNumber(file: string, key: string, v: unknown, min: number): number 
 	return v;
 }
 
+/** FLLWUP-74 class 4 — the three strings decide() interpolates into a basis
+ * line (overrides[i].question/option/basis) must be single-line; the input is
+ * refused, never sanitized, and the message deliberately drops the "set a
+ * valid value" tail (for a multi-line string there is no in-place valid
+ * value). Deliberately NOT gateFail: the raw check runs before any newline
+ * flattener could hide the cause. */
+function basisSafeString(file: string, key: string, v: string): void {
+	if (/[\r\n]/.test(v)) {
+		throw new Error(`FAIL: ${file} has an invalid ${key} — value contains a line break; basis lines must be single-line`);
+	}
+}
+
 /** Load the decision policy: repo-local override whole-file, else the packaged
  * default — the same first-hit resolution and fail-loud single-line posture
  * as the EV-62 policy/question loaders. */
@@ -395,6 +450,11 @@ export function loadGateDecision(repoRoot: string): GateDecisionPolicy {
 		throw gateFail(file, "floors", "expected an object with choice and score floors");
 	}
 	const floors = raw.floors as Record<string, unknown>;
+	for (const key of Object.keys(floors)) {
+		if (key !== "choice" && key !== "score") {
+			throw gateFail(file, `floors.${key}`, "unknown sub-key; expected one of choice, score");
+		}
+	}
 	const choiceFloor = unitNumber(file, "floors.choice", floors.choice, 0);
 	const scoreFloor = unitNumber(file, "floors.score", floors.score, 0);
 	const noulThreshold = unitNumber(file, "noulThreshold", raw.noulThreshold, 0);
@@ -403,13 +463,24 @@ export function loadGateDecision(repoRoot: string): GateDecisionPolicy {
 		throw gateFail(file, "thresholds", "expected an object with verify and direct thresholds");
 	}
 	const thresholds = raw.thresholds as Record<string, unknown>;
-	for (const t of ["verify", "direct"] as const) {
-		if (typeof thresholds[t] !== "number" || !Number.isFinite(thresholds[t]) || thresholds[t] < 0) {
-			throw gateFail(file, `thresholds.${t}`, `expected a finite non-negative number, found ${JSON.stringify(thresholds[t])}`);
+	for (const key of Object.keys(thresholds)) {
+		if (key !== "verify" && key !== "direct") {
+			throw gateFail(file, `thresholds.${key}`, "unknown sub-key; expected one of verify, direct");
 		}
 	}
-	const verifyThreshold = thresholds.verify as number;
-	const directThreshold = thresholds.direct as number;
+	// FLLWUP-74 class 1: verify must be strictly positive — verify 0 lets
+	// decide() re-derive a failed call as Deliberate ("composite 0.00 ≥ verify
+	// threshold 0.00") while the ledger records otherwise. direct keeps >= 0.
+	const v = thresholds.verify;
+	if (typeof v !== "number" || !Number.isFinite(v) || v <= 0) {
+		throw gateFail(file, "thresholds.verify", `expected a finite number > 0, found ${JSON.stringify(v)}`);
+	}
+	const directRaw = thresholds.direct;
+	if (typeof directRaw !== "number" || !Number.isFinite(directRaw) || directRaw < 0) {
+		throw gateFail(file, "thresholds.direct", `expected a finite non-negative number, found ${JSON.stringify(directRaw)}`);
+	}
+	const verifyThreshold = v;
+	const directThreshold = directRaw;
 	if (verifyThreshold > directThreshold) {
 		throw gateFail(file, "thresholds", `verify must be ≤ direct, found verify ${verifyThreshold} > direct ${directThreshold}`);
 	}
@@ -426,6 +497,19 @@ export function loadGateDecision(repoRoot: string): GateDecisionPolicy {
 			if (typeof rule[k] !== "string" || rule[k].trim() === "") {
 				throw gateFail(file, `overrides.${i}.${k}`, `expected a non-empty string, found ${JSON.stringify(rule[k])}`);
 			}
+			// FLLWUP-74 class 4 BEFORE the class-3 referential check: the shape
+			// defect is the more local one and its pinned bytes must win.
+			basisSafeString(file, `overrides.${i}.${k}`, rule[k] as string);
+		}
+		// FLLWUP-74 class 3: a rule whose question id is absent from weights can
+		// never fire — refused, not silently dead. Weights parse above. Own keys
+		// only: `in` would pass prototype-key collisions ("toString", ...) clean.
+		if (!weightIds.includes(rule.question as string)) {
+			throw gateFail(
+				file,
+				`overrides.${i}.question`,
+				`question id ${JSON.stringify(rule.question)} is not declared in weights (expected one of ${weightIds.join(", ")})`,
+			);
 		}
 		overrides.push({ question: rule.question as string, option: rule.option as string, basis: rule.basis as string });
 	}
