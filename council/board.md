@@ -82,11 +82,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- EV-74 — `/council-gate` to enable or disable the decisions gate
-
 ## In Progress
 
-
+- EV-74 — `/council-gate` to enable or disable the decisions gate
 
 ## In Review
 
