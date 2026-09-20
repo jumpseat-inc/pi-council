@@ -79,11 +79,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-70 — Direct mode and the mode-aware merge check
 ## Needs Human
 
 ## Done
 
+- EV-70 — Direct mode and the mode-aware merge check
 - EV-69 — Deterministic routing to Verify mode
 - EV-67 — Gate verdict rendered as information at the draft-then-confirm approval gate
 - EV-66 — Advisory gate at features-new intake
