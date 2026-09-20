@@ -3,7 +3,8 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { CONFIG_DIR_NAME } from "@earendil-works/pi-coding-agent";
-import { loadGatePolicy, loadGateQuestions } from "../extensions/gate.ts";
+import { PKG_ROOT } from "../extensions/seats.ts";
+import { GATE_PINNED_MODEL, loadGateConfig, loadGatePolicy, loadGateQuestions } from "../extensions/gate.ts";
 
 function repoGateFile(root: string, name: string, body: string): string {
 	const dir = path.join(root, CONFIG_DIR_NAME, "council", "gate");
@@ -34,9 +35,9 @@ test("the packaged default ships mode off (R3: no gate call, no ledger line)", (
 
 test("a repo-local policy.json shadows the packaged default whole-file", () => {
 	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	repoCouncilFile(root, { gate: { mode: "active" } });
 	repoPolicy(root, {
 		policyVersion: "test-policy-9",
-		mode: "active",
 		model: "typesafe/jev-1.13-test",
 		endpoint: "https://example.test/decisions",
 		gateStateBudgetTokens: 32000,
@@ -48,16 +49,6 @@ test("a repo-local policy.json shadows the packaged default whole-file", () => {
 		endpoint: "https://example.test/decisions",
 		gateStateBudgetTokens: 32000,
 	});
-});
-
-test("an absent mode key resolves to off, not to the packaged file's literal mode", () => {
-	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
-	repoPolicy(root, {
-		policyVersion: "test-policy-9",
-		model: "typesafe/jev-1.13-test",
-		endpoint: "https://example.test/decisions",
-	});
-	expect(loadGatePolicy(root).mode).toBe("off");
 });
 
 test("a malformed repo policy throws a single FAIL line naming the file", () => {
@@ -79,18 +70,32 @@ test("a malformed repo policy throws a single FAIL line naming the file", () => 
 
 test("an unknown key throws the FAIL line naming the key", () => {
 	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
-	const file = repoPolicy(root, { policyVersion: "p", mode: "off", model: "m", endpoint: "https://x/", bogus: 1 });
+	const file = repoPolicy(root, { policyVersion: "p", model: "m", endpoint: "https://x/", bogus: 1 });
 	expect(() => loadGatePolicy(root)).toThrow(
-		`FAIL: ${file} has an invalid bogus — unknown key; expected one of mode, policyVersion, model, endpoint, gateStateBudgetTokens — set a valid value or remove the key to use the packaged default`,
+		`FAIL: ${file} has an invalid bogus — unknown key; expected one of policyVersion, model, endpoint, gateStateBudgetTokens — set a valid value or remove the key to use the packaged default`,
 	);
 });
 
-test("an invalid mode value throws the FAIL line naming the key and what was found", () => {
+// ---------------------------------------------------------------------------
+// EV-73 — mode leaves policy.json: the generic unknown-key FAIL is the
+// migration signal (ruling job-2 item (a); the enriched copy is EV-75's).
+// ---------------------------------------------------------------------------
+
+test("a policy.json carrying mode fires the generic unknown-key FAIL verbatim — the migration signal — even with config off", () => {
 	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
-	const file = repoPolicy(root, { policyVersion: "p", mode: "on", model: "m", endpoint: "https://x/" });
-	expect(() => loadGatePolicy(root)).toThrow(
-		`FAIL: ${file} has an invalid mode — expected one of "off", "advisory", "active", found "on" — set a valid value or remove the key to use the packaged default`,
+	repoCouncilFile(root, { gate: { mode: "off" } });
+	const file = repoPolicy(root, { policyVersion: "p", mode: "advisory", model: "m", endpoint: "https://x/" });
+	const msg = failOf(() => loadGatePolicy(root));
+	expect(msg).toBe(
+		`FAIL: ${file} has an invalid mode — unknown key; expected one of policyVersion, model, endpoint, gateStateBudgetTokens — set a valid value or remove the key to use the packaged default`,
 	);
+	expect(msg).not.toMatch(/\.council\.json/); // no EV-75 specialization yet
+});
+
+test("the packaged policy.json carries no mode key and still resolves off", () => {
+	const packaged = JSON.parse(fs.readFileSync(path.join(PKG_ROOT, "council", "gate", "policy.json"), "utf-8"));
+	expect("mode" in packaged).toBe(false);
+	expect(loadGatePolicy("/nonexistent-repo-root-ev73").mode).toBe("off");
 });
 
 test("packaged question set loads with a version and well-typed questions", () => {
@@ -175,7 +180,7 @@ test("a score question with object criteria throws the FAIL line", () => {
 
 test("an invalid empty model value throws the FAIL line naming the key", () => {
 	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
-	const file = repoPolicy(root, { policyVersion: "p", mode: "off", model: "", endpoint: "https://x/" });
+	const file = repoPolicy(root, { policyVersion: "p", model: "", endpoint: "https://x/" });
 	expect(() => loadGatePolicy(root)).toThrow(
 		`FAIL: ${file} has an invalid model — expected a non-empty string, found "" — set a valid value or remove the key to use the packaged default`,
 	);
@@ -197,32 +202,40 @@ const failOf = (run: () => unknown): string => {
 test("clause 1: a present gateStateBudgetTokens is validated in every mode — off included", () => {
 	for (const v of [0, -1, 1.5, "32k"]) {
 		const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
-		repoPolicy(root, { policyVersion: "p", mode: "off", model: "m", endpoint: "https://x/", gateStateBudgetTokens: v });
+		repoCouncilFile(root, { gate: { mode: "off" } });
+		repoPolicy(root, { policyVersion: "p", model: "m", endpoint: "https://x/", gateStateBudgetTokens: v });
 		const msg = failOf(() => loadGatePolicy(root));
 		expect(msg).toMatch(/^FAIL: .*policy\.json has an invalid gateStateBudgetTokens — expected a positive integer, found /);
 		expect(msg).not.toMatch(/\n/);
 	}
 });
 
-test("clause 2: absent gateStateBudgetTokens FAILs on the advisory path, without the remove-the-key advice", () => {
+test("clause 2 re-expressed: advisory config + budget-less policy FAILs naming the RESOLVED mode; the identical policy with config off loads clean", () => {
 	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
-	repoPolicy(root, { policyVersion: "p", mode: "advisory", model: "m", endpoint: "https://x/" });
+	repoCouncilFile(root, { gate: { mode: "advisory" } });
+	repoPolicy(root, { policyVersion: "p", model: "m", endpoint: "https://x/" });
 	const msg = failOf(() => loadGatePolicy(root));
 	expect(msg).toBe(
 		`FAIL: ${path.join(root, CONFIG_DIR_NAME, "council", "gate", "policy.json")} has an invalid gateStateBudgetTokens — the key is absent but the resolved mode is "advisory" (an off-mode policy may omit it) — set a valid value`,
 	);
 	expect(msg).not.toMatch(/remove the key/);
+	repoCouncilFile(root, { gate: { mode: "off" } });
+	const policy = loadGatePolicy(root);
+	expect(policy.mode).toBe("off");
+	expect(policy.gateStateBudgetTokens).toBeUndefined();
 });
 
 test("clause 2: absent on the active path fails the same way", () => {
 	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
-	repoPolicy(root, { policyVersion: "p", mode: "active", model: "m", endpoint: "https://x/" });
+	repoCouncilFile(root, { gate: { mode: "active" } });
+	repoPolicy(root, { policyVersion: "p", model: "m", endpoint: "https://x/" });
 	expect(() => loadGatePolicy(root)).toThrow(/has an invalid gateStateBudgetTokens/);
 });
 
 test("absent gateStateBudgetTokens resolves cleanly on the off path and is truly absent", () => {
 	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
-	repoPolicy(root, { policyVersion: "p", mode: "off", model: "m", endpoint: "https://x/" });
+	repoCouncilFile(root, { gate: { mode: "off" } });
+	repoPolicy(root, { policyVersion: "p", model: "m", endpoint: "https://x/" });
 	const policy = loadGatePolicy(root);
 	expect(policy.mode).toBe("off");
 	expect(policy.gateStateBudgetTokens).toBeUndefined();
@@ -231,9 +244,9 @@ test("absent gateStateBudgetTokens resolves cleanly on the off path and is truly
 
 test("a live-mode policy with a valid key loads with it", () => {
 	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	repoCouncilFile(root, { gate: { mode: "active" } });
 	repoPolicy(root, {
 		policyVersion: "p",
-		mode: "active",
 		model: "m",
 		endpoint: "https://x/",
 		gateStateBudgetTokens: 32000,
@@ -243,8 +256,105 @@ test("a live-mode policy with a valid key loads with it", () => {
 	expect(policy.gateStateBudgetTokens).toBe(32000);
 });
 
-test("the packaged default ships mode off and the budget key at 32000", () => {
+test("the packaged default resolves off via the absent gate section and ships the budget key at 32000", () => {
 	const policy = loadGatePolicy("/nonexistent-repo-root-ev64");
 	expect(policy.mode).toBe("off");
 	expect(policy.gateStateBudgetTokens).toBe(32000);
+});
+
+// ---------------------------------------------------------------------------
+// EV-73 — loadGateConfig: the single enablement resolver from .council.json's
+// reserved top-level `gate` section.
+// ---------------------------------------------------------------------------
+
+function repoCouncilFile(root: string, body: unknown): string {
+	const file = path.join(root, ".council.json");
+	fs.writeFileSync(file, typeof body === "string" ? body : JSON.stringify(body));
+	return file;
+}
+
+test("loadGateConfig: absent .council.json, absent gate key, and gate:{} all resolve off identically", () => {
+	expect(loadGateConfig("/nonexistent-repo-root-ev73")).toEqual({ mode: "off" });
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	expect(loadGateConfig(root)).toEqual({ mode: "off" }); // file absent
+	repoCouncilFile(root, { council: {} }); // file present, gate absent
+	expect(loadGateConfig(root)).toEqual({ mode: "off" });
+	repoCouncilFile(root, { gate: {} }); // section present, mode absent
+	expect(loadGateConfig(root)).toEqual({ mode: "off" });
+});
+
+test("loadGateConfig: off, advisory, and active each resolve", () => {
+	for (const mode of ["off", "advisory", "active"] as const) {
+		const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+		repoCouncilFile(root, { gate: { mode } });
+		expect(loadGateConfig(root)).toEqual({ mode });
+	}
+});
+
+test("loadGateConfig: a case-wrong mode FAILs naming gate.mode", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	const file = repoCouncilFile(root, { gate: { mode: "Active" } });
+	const msg = failOf(() => loadGateConfig(root));
+	expect(msg).toBe(
+		`FAIL: ${file} has an invalid gate.mode — expected one of "off", "advisory", "active", found "Active" — set a valid value or remove the key to use the packaged default`,
+	);
+	expect(msg).not.toMatch(/\n/);
+});
+
+test("loadGateConfig: a bare-string gate is refused, never coerced", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	const file = repoCouncilFile(root, `{ "gate": "advisory" }`);
+	expect(() => loadGateConfig(root)).toThrow(
+		`FAIL: ${file} has an invalid gate — expected an object, found "advisory" — set a valid value or remove the key to use the packaged default`,
+	);
+});
+
+test("loadGateConfig: gate null, array, and number are refused like a bare string", () => {
+	for (const body of ['{ "gate": null }', '{ "gate": [] }', '{ "gate": 3 }']) {
+		const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+		const file = repoCouncilFile(root, body);
+		expect(() => loadGateConfig(root)).toThrow(
+			`FAIL: ${file} has an invalid gate — expected an object, found`,
+		);
+	}
+});
+
+test("loadGateConfig: an unknown sub-key inside gate FAILs naming gate.<key>", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	const file = repoCouncilFile(root, { gate: { mod: "active" } });
+	expect(() => loadGateConfig(root)).toThrow(
+		`FAIL: ${file} has an invalid gate.mod — unknown key; expected one of mode — set a valid value or remove the key to use the packaged default`,
+	);
+});
+
+test("loadGateConfig: malformed JSON throws a single FAIL line naming the file", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	const file = repoCouncilFile(root, "{ not json\nwith a newline");
+	const msg = failOf(() => loadGateConfig(root));
+	expect(msg).not.toMatch(/\n/);
+	expect(msg).toMatch(
+		/^FAIL: .*\.council\.json has an invalid JSON — not parseable as JSON: .+ — set a valid value or remove the key to use the packaged default$/,
+	);
+	expect(msg).toContain(file);
+});
+
+test("transitive equality: loadGatePolicy(root).mode === loadGateConfig(root).mode", () => {
+	for (const gate of [undefined, { mode: "off" }, { mode: "advisory" }, { mode: "active" }] as const) {
+		const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+		if (gate) repoCouncilFile(root, { gate });
+		repoPolicy(root, {
+			policyVersion: "p",
+			model: GATE_PINNED_MODEL,
+			endpoint: "https://x/",
+			...(gate && gate.mode !== "off" ? { gateStateBudgetTokens: 32000 } : {}),
+		});
+		expect(loadGatePolicy(root).mode).toBe(loadGateConfig(root).mode);
+	}
+});
+
+test("a malformed gate section is gate-scoped: other loaders are untouched, the throw happens at the gate read", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	repoCouncilFile(root, '{ "gate": { "mode": "advisory" ');
+	expect(() => loadGateQuestions(root)).not.toThrow(); // questions.json never reads .council.json
+	expect(() => loadGatePolicy(root)).toThrow(/^FAIL: .*\.council\.json has an invalid JSON/);
 });

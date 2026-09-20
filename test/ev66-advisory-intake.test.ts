@@ -236,6 +236,7 @@ function cannedAnswers(cardId: string): Record<string, unknown> {
 function engineRepo(policyBody: string): EngineRepoOptions {
 	return {
 		retryPolicy: {
+			gate: { mode: "advisory" }, // EV-73: enablement lives in .council.json's top-level gate section
 			council: { [SEAT]: { model: SEAT_MODEL } },
 			retry: { enabled: false, maxAttempts: 2, baseDelayMs: 200, jitter: false },
 		},
@@ -455,7 +456,6 @@ describe("EV-66 advisory intake — the two-arm headless falsifier", () => {
 			try {
 				const policy = {
 					policyVersion: "ev66-falsifier-policy-1",
-					mode: "advisory",
 					model: GATE_PINNED_MODEL,
 					endpoint: stub.url,
 					gateStateBudgetTokens: 32000,

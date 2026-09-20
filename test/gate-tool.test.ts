@@ -107,11 +107,13 @@ function tmpRepo(): string {
 }
 
 function writePolicy(repo: string, mode: "off" | "advisory" | "active", endpoint: string): void {
+	// EV-73: enablement lives in .council.json's gate section; policy.json is
+	// tuning data only and must not carry a mode key.
+	fs.writeFileSync(path.join(repo, ".council.json"), JSON.stringify({ gate: { mode } }, null, 2));
 	const dir = path.join(repo, CONFIG_DIR_NAME, "council", "gate");
 	fs.mkdirSync(dir, { recursive: true });
 	const policy: Record<string, unknown> = {
 		policyVersion: "ev66-tool-test-1",
-		mode,
 		model: GATE_PINNED_MODEL,
 		endpoint,
 	};

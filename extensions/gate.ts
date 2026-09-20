@@ -33,7 +33,7 @@ import * as path from "node:path";
 import { CONFIG_DIR_NAME } from "@earendil-works/pi-coding-agent";
 import type { GateAnswer } from "./gate-ledger.ts";
 export type { GateAnswer } from "./gate-ledger.ts";
-import { PKG_ROOT } from "./seats.ts";
+import { COUNCIL_CONFIG_FILE, PKG_ROOT } from "./seats.ts";
 
 /** Versioned model pin — NEVER the alias `~typesafe/jev-latest`. */
 export const GATE_PINNED_MODEL = "typesafe/jev-1.13";
@@ -69,6 +69,51 @@ export interface GateQuestion {
 export interface GateQuestionSet {
 	version: string;
 	questions: Record<string, GateQuestion>;
+}
+
+/** EV-73 — the ONE resolver of the decisions gate's enablement, from the
+ * reserved top-level `gate` section of the repo's committed `.council.json`
+ * (a sibling invisible to loadCouncilConfig, which reads only `parsed.council`;
+ * like `theme` and `retry` it gets its own independent loader). Absent file,
+ * absent `gate`, and `gate: {}` all resolve `{ mode: "off" }` byte-identically
+ * to the packaged default. Lazy-at-call by construction: this runs inside
+ * loadGatePolicy at gate-tool-call time, never eagerly at parent init — a
+ * malformed `gate` section throws one FAIL at the gate tool call and unrelated
+ * session startup never crashes on it. Named hazard: a mid-run `.council.json`
+ * edit flips routing on the next gate read — the same run-config-stability
+ * class as a seat-model edit. */
+export function loadGateConfig(repoRoot: string): { mode: GateMode } {
+	const file = path.join(repoRoot, COUNCIL_CONFIG_FILE);
+	if (!fs.existsSync(file)) return { mode: "off" };
+	let parsed: unknown;
+	try {
+		parsed = JSON.parse(fs.readFileSync(file, "utf-8"));
+	} catch (e) {
+		throw gateFail(file, "JSON", `not parseable as JSON: ${e instanceof Error ? e.message : String(e)}`);
+	}
+	if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+		throw gateFail(file, "JSON", "root must be a JSON object");
+	}
+	const raw = (parsed as Record<string, unknown>).gate;
+	if (raw === undefined) return { mode: "off" };
+	if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
+		throw gateFail(file, "gate", `expected an object, found ${describeShape(raw)}`);
+	}
+	const section = raw as Record<string, unknown>;
+	for (const key of Object.keys(section)) {
+		if (key !== "mode") {
+			throw gateFail(file, `gate.${key}`, "unknown key; expected one of mode");
+		}
+	}
+	if (section.mode === undefined) return { mode: "off" };
+	if (typeof section.mode !== "string" || !GATE_MODES.includes(section.mode as GateMode)) {
+		throw gateFail(
+			file,
+			"gate.mode",
+			`expected one of ${GATE_MODES.map((m) => JSON.stringify(m)).join(", ")}, found ${JSON.stringify(section.mode)}`,
+		);
+	}
+	return { mode: section.mode as GateMode };
 }
 
 /** Repo override first, packaged default second — the seatDirs pattern. */
@@ -112,9 +157,13 @@ function nonEmptyString(file: string, key: string, v: unknown): string {
 }
 
 /** Load the gate policy: repo-local override whole-file, else the packaged
- * default. An absent `mode` key resolves to `off` (never to the packaged
- * file's literal mode — the repo file is validated and resolved standalone). */
+ * default. EV-73: enablement (`mode`) comes solely from `.council.json`'s
+ * reserved top-level `gate` section via loadGateConfig, resolved BEFORE the
+ * policy file is read; policy.json is tuning data only (model/endpoint/budget)
+ * and carries no mode — a policy file that still carries one hits the generic
+ * unknown-key FAIL (the migration signal; the enriched copy is EV-75's). */
 export function loadGatePolicy(repoRoot: string): GatePolicy {
+	const { mode } = loadGateConfig(repoRoot);
 	const { file, value } = readGateFile(gateDirs(repoRoot), "policy.json");
 	if (typeof value !== "object" || value === null || Array.isArray(value)) {
 		throw gateFail(file, "JSON", "root must be a JSON object");
@@ -140,22 +189,12 @@ export function loadGatePolicy(repoRoot: string): GatePolicy {
 	const policyVersion = nonEmptyString(file, "policyVersion", raw.policyVersion);
 	const model = nonEmptyString(file, "model", raw.model);
 	const endpoint = nonEmptyString(file, "endpoint", raw.endpoint);
-	let mode: GateMode = "off"; // absent mode resolves to off
-	if (raw.mode !== undefined) {
-		if (typeof raw.mode !== "string" || !GATE_MODES.includes(raw.mode as GateMode)) {
-			throw gateFail(
-				file,
-				"mode",
-				`expected one of ${GATE_MODES.map((m) => JSON.stringify(m)).join(", ")}, found ${JSON.stringify(raw.mode)}`,
-			);
-		}
-		mode = raw.mode as GateMode;
-	}
 	// EV-64 (PO ruling Q1 clause 2): the key is legal in its absence only on
 	// the off path. The copy drops the template's "remove the key" advice —
 	// wrong for an absent key under whole-file shadowing (removing the key
 	// from a repo-local file cannot summon the packaged value; first-hit
-	// whole-file means no merge).
+	// whole-file means no merge). `mode` is the RESOLVED config mode, never
+	// re-derived from policy.json (which no longer carries one).
 	if (gateStateBudgetTokens === undefined && mode !== "off") {
 		throw new Error(
 			`FAIL: ${file} has an invalid gateStateBudgetTokens — the key is absent but the resolved mode is "${mode}" (an off-mode policy may omit it) — set a valid value`,
@@ -166,7 +205,7 @@ export function loadGatePolicy(repoRoot: string): GatePolicy {
 		: { policyVersion, mode, model, endpoint, gateStateBudgetTokens };
 }
 
-const POLICY_KEYS = ["mode", "policyVersion", "model", "endpoint", "gateStateBudgetTokens"] as const;
+const POLICY_KEYS = ["policyVersion", "model", "endpoint", "gateStateBudgetTokens"] as const;
 
 const ALLOWED_POLICY_KEYS: Record<string, true> = Object.fromEntries(
 	POLICY_KEYS.map((k) => [k, true as const]),
