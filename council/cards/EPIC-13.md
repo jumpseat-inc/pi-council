@@ -1,7 +1,7 @@
 ---
 id: EPIC-13
 title: Metered deliberation routing — a System One gate decides Deliberate, Verify, or Direct per card
-state: Backlog
+state: Done
 owner: null
 epic: null
 goal: Deliberation becomes a metered, routed resource instead of the default — a typed System One gate routes each card to Deliberate, Verify, or Direct — so the cheap cards stop paying the deliberation tax while spending council tokens becomes a deliberate choice about the cards that actually need judgment.
@@ -90,3 +90,17 @@ with no network in the default suite; and no call is ever made to the
   a Phase-1 omission now corrected; this ruling covers those two and the rest of
   the run. Run-scoped, not extended to any later run. Force-push, rewind, and
   discarding a side remain forbidden.
+
+## Closure
+
+- Closed `Done` by `steward` (job-29) on observed acceptance: all 13 children
+  (EV-60…EV-72) merged and `Done`, each through the deterministic five-criteria
+  merge check; `package.json` at `0.28.0`; suite green (1213 pass / 5 skip /
+  0 fail); `validate.py` clean; packaged gate `mode: "off"` per R3.
+- Ten step-13 follow-ups filed, human-approved, all `epic: EPIC-13` Backlog:
+  FLLWUP-71…80.
+- Named residuals with closing cards: EV-69 designer-review loss (FLLWUP-71),
+  EV-63 `verify > 0` gap (FLLWUP-74), EV-66 static pending window (FLLWUP-75).
+- Documentation residual routed by the ruling: the `metered-deliberation-routing`
+  wiki page and index line still read "Planned — Backlog / not shipped"; fold
+  into the next wiki ingest or FLLWUP-73.

@@ -17,3 +17,8 @@ page still states the unconditional ruleset — stale grounding. Route through
 `/wiki-ingest`; never hand-edit `vault/`. Out of scope: any behavior change;
 the procedure prose at `council/procedures/features-deliver.md` head is the
 authority this page must reflect.
+
+*Steward closure note (EPIC-13 job-29): the same doc-drift class includes
+`vault/wiki/metered-deliberation-routing.md` and its index line, which still read
+"Planned — Backlog / the routing is not shipped" now that the epic has closed.
+Fold that page into this refresh (or the next `/wiki-ingest`).*
