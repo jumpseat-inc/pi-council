@@ -180,7 +180,7 @@ describe("EV-40 — computeBackoffDelay (pure policy)", () => {
 		for (let i = 0; i < 200; i++) {
 			const d = computeBackoffDelay(capped, 6, Math.random);
 			expect(d).toBeGreaterThanOrEqual(2500);
-			expect(d).toBeLessThan(7500); // multiplier is strictly < 1.5
+			expect(d).toBeLessThanOrEqual(7500); // multiplier is strictly < 1.5, but round can reach 1.5 × cap exactly (5000 × 1.4999… rounds to 7500)
 		}
 	});
 });

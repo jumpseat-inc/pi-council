@@ -21,6 +21,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-81 — Eliminate gate-state.ts's duplicated lenient policy read — resolve the budget through the validated loader or pin the load-order invariant
 - FLLWUP-82 — Every gate question id is single-line and cross-referenced across questions.json and decision.json
 - FLLWUP-83 — Own-key membership for loadGateDecision's mechanical-record check — close the pre-existing prototype-chain `in` leak
+- FLLWUP-84 — Own-key membership for loadGatePolicy's unknown-key check — same prototype-chain `in` class as FLLWUP-83, one loader over
 - EPIC-1 — omp-themed council theme for pi, configurable from the scaffold .council.json
 - EPIC-2 — Inline council job tree beneath the input bar
 - EPIC-3 — Council-decomposed features-new with a bounded session
@@ -74,7 +75,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EPIC-12 — pi-council version and git hash on the first pi run
 
 ## Ready
-- EV-75 — Legacy `council/gate/policy.json` cannot silently disagree with `.council.json`
 - EV-44 — Merge near-duplicate follow-up candidates before a card is drafted
 - EV-45 — Unattended ingest of a run's own ledger, without the human steer turn
 - EV-48 — Packaged seat-tier map with repo-local merge override
@@ -84,10 +84,14 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Deliberating
 
 
+
 ## In Progress
 
 
+
 ## In Review
+
+- EV-75 — Legacy `council/gate/policy.json` cannot silently disagree with `.council.json`
 
 
 ## Needs Human

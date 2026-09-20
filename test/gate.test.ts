@@ -77,19 +77,111 @@ test("an unknown key throws the FAIL line naming the key", () => {
 });
 
 // ---------------------------------------------------------------------------
-// EV-73 — mode leaves policy.json: the generic unknown-key FAIL is the
-// migration signal (ruling job-2 item (a); the enriched copy is EV-75's).
+// EV-73/EV-75 — mode leaves policy.json. A mode-bearing policy.json fires
+// the enriched migration FAIL (EV-75's candidate copy): it names the file,
+// the key, and the gate.mode replacement in .council.json.
 // ---------------------------------------------------------------------------
 
-test("a policy.json carrying mode fires the generic unknown-key FAIL verbatim — the migration signal — even with config off", () => {
+test("a policy.json carrying mode fires the migration FAIL verbatim — naming the file, the key, and the gate.mode replacement — even with config off", () => {
 	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
 	repoCouncilFile(root, { gate: { mode: "off" } });
 	const file = repoPolicy(root, { policyVersion: "p", mode: "advisory", model: "m", endpoint: "https://x/" });
 	const msg = failOf(() => loadGatePolicy(root));
 	expect(msg).toBe(
-		`FAIL: ${file} has an invalid mode — unknown key; expected one of policyVersion, model, endpoint, gateStateBudgetTokens — set a valid value or remove the key to use the packaged default`,
+		`FAIL: ${file} has an invalid mode — unknown key; gate enablement moved to gate.mode in ${root}/.council.json — remove this key and set gate.mode there`,
 	);
-	expect(msg).not.toMatch(/\.council\.json/); // no EV-75 specialization yet
+	expect(msg).toMatch(/\.council\.json/); // the migration pointer names the replacement
+});
+
+// T2 — the tuning-only contract: a 4-key policy.json resolves deep-equal in
+// every mode, zero new FAIL diagnostics anywhere.
+test("a tuning-only policy.json resolves unchanged in every mode — no new FAIL line (EV-75 contract)", () => {
+	for (const mode of ["off", "advisory", "active"] as const) {
+		const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+		repoCouncilFile(root, { gate: { mode } });
+		repoPolicy(root, {
+			policyVersion: "tune-only",
+			model: "typesafe/jev-1.13-test",
+			endpoint: "https://example.test/decisions",
+			gateStateBudgetTokens: 32000,
+		});
+		expect(loadGatePolicy(root)).toEqual({
+			policyVersion: "tune-only",
+			mode,
+			model: "typesafe/jev-1.13-test",
+			endpoint: "https://example.test/decisions",
+			gateStateBudgetTokens: 32000,
+		});
+	}
+});
+
+// T3 — the pre-check ordering: `mode` wins over sibling unknown keys
+// regardless of JSON insertion order (an in-loop branch would let a key
+// inserted first mask the migration pointer).
+test("mode wins over sibling unknown keys regardless of JSON insertion order", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	repoCouncilFile(root, { gate: { mode: "off" } });
+	const file = repoPolicy(
+		root,
+		`{ "bogus": 1, "policyVersion": "p", "mode": "advisory", "model": "m", "endpoint": "https://x/" }`,
+	);
+	expect(failOf(() => loadGatePolicy(root))).toBe(
+		`FAIL: ${file} has an invalid mode — unknown key; gate enablement moved to gate.mode in ${root}/.council.json — remove this key and set gate.mode there`,
+	);
+});
+
+// T4 — no auto-migration: the migration FAIL is a pure read path; nothing
+// writes policy.json or .council.json.
+test("the migration FAIL is a pure read path: no auto-migration writes policy.json or .council.json", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	const file = repoPolicy(root, { policyVersion: "p", mode: "advisory", model: "m", endpoint: "https://x/" });
+	const gateDir = path.join(root, CONFIG_DIR_NAME, "council", "gate");
+	const beforeBytes = fs.readFileSync(file, "utf-8");
+	const beforeListing = fs.readdirSync(gateDir).sort();
+	failOf(() => loadGatePolicy(root));
+	expect(fs.readFileSync(file, "utf-8")).toBe(beforeBytes);
+	expect(fs.readdirSync(gateDir).sort()).toEqual(beforeListing);
+	expect(fs.existsSync(path.join(root, ".council.json"))).toBe(false);
+});
+
+// T5 — the kept-green set pinned adjacent to the change: the generic bogus
+// FAIL bytes, the packaged default off, and the packaged policy carrying no
+// mode are all unchanged by EV-75.
+test("EV-75 keeps the kept-green set: generic unknown-key FAIL bytes, packaged default off, packaged policy carries no mode", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	const file = repoPolicy(root, { policyVersion: "p", model: "m", endpoint: "https://x/", bogus: 1 });
+	expect(failOf(() => loadGatePolicy(root))).toBe(
+		`FAIL: ${file} has an invalid bogus — unknown key; expected one of policyVersion, model, endpoint, gateStateBudgetTokens — set a valid value or remove the key to use the packaged default`,
+	);
+	const packaged = JSON.parse(fs.readFileSync(path.join(PKG_ROOT, "council", "gate", "policy.json"), "utf-8"));
+	expect("mode" in packaged).toBe(false);
+	expect(loadGatePolicy("/nonexistent-repo-root-ev75").mode).toBe("off");
+});
+
+// T6 — the O7 characterization: the ALLOWED_POLICY_KEYS membership predicate
+// stays prototype-true ("toString" in ALLOWED_POLICY_KEYS), so a policy
+// carrying toString is silently accepted; if this test's outcome ever
+// changes, the predicate was changed and it must be surfaced, never
+// re-baselined silently.
+test("the membership predicate stays prototype-true: toString is silently accepted (O7 characterization)", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	repoCouncilFile(root, { gate: { mode: "off" } });
+	repoPolicy(root, { policyVersion: "p", model: "m", endpoint: "https://x/", toString: 1 });
+	expect(loadGatePolicy(root)).toEqual({
+		policyVersion: "p",
+		mode: "off",
+		model: "m",
+		endpoint: "https://x/",
+	});
+});
+
+test("mode + toString: the migration FAIL still names mode, never the prototype key", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "council-gate-"));
+	repoCouncilFile(root, { gate: { mode: "off" } });
+	const file = repoPolicy(root, { policyVersion: "p", mode: "advisory", model: "m", endpoint: "https://x/", toString: 1 });
+	expect(failOf(() => loadGatePolicy(root))).toBe(
+		`FAIL: ${file} has an invalid mode — unknown key; gate enablement moved to gate.mode in ${root}/.council.json — remove this key and set gate.mode there`,
+	);
 });
 
 test("the packaged policy.json carries no mode key and still resolves off", () => {

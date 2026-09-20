@@ -27,8 +27,8 @@
 // file/section and `gate: {}` all resolving `off` byte-identically. With the
 // resolved default `off` the gate issues no gate call and writes no ledger
 // line; policy.json is TUNING DATA ONLY and carries no mode (a policy file
-// that still carries one hits the generic unknown-key FAIL — the migration
-// signal). Tests that exercise a non-off mode set it via a `.council.json`
+// that still carries one hits the dedicated EV-75 migration FAIL pointing at
+// gate.mode in .council.json). Tests that exercise a non-off mode set it via a `.council.json`
 // gate fixture and never rely on the packaged default being on. The model id
 // is pinned to a versioned id — confidence floors tuned against a version
 // must not silently move when the alias rolls.
@@ -164,8 +164,9 @@ function nonEmptyString(file: string, key: string, v: unknown): string {
  * default. EV-73: enablement (`mode`) comes solely from `.council.json`'s
  * reserved top-level `gate` section via loadGateConfig, resolved BEFORE the
  * policy file is read; policy.json is tuning data only (model/endpoint/budget)
- * and carries no mode — a policy file that still carries one hits the generic
- * unknown-key FAIL (the migration signal; the enriched copy is EV-75's). */
+ * and carries no mode — a policy file that still carries one hits the
+ * dedicated EV-75 migration FAIL naming the gate.mode replacement in
+ * .council.json. */
 export function loadGatePolicy(repoRoot: string): GatePolicy {
 	const { mode } = loadGateConfig(repoRoot);
 	const { file, value } = readGateFile(gateDirs(repoRoot), "policy.json");
@@ -173,6 +174,20 @@ export function loadGatePolicy(repoRoot: string): GatePolicy {
 		throw gateFail(file, "JSON", "root must be a JSON object");
 	}
 	const raw = value as Record<string, unknown>;
+	// EV-75 — a policy.json that still carries `mode` gets the dedicated
+	// migration FAIL, not the generic unknown-key copy: the message names the
+	// file, the key, and the gate.mode replacement in .council.json. It sits
+	// BEFORE the loop (which is JSON insertion-order dependent, so an in-loop
+	// branch would let a sibling unknown key inserted first mask the pointer)
+	// and before all value validation, and is a bare `new Error`, NOT
+	// gateFail — gateFail's tail ("set a valid value or remove the key to use
+	// the packaged default") is wrong advice for this key. The detail is
+	// newline-sanitized inline like gateFail does; there is no helper.
+	if ("mode" in raw) {
+		const configFile = path.join(repoRoot, COUNCIL_CONFIG_FILE);
+		const detail = `unknown key; gate enablement moved to gate.mode in ${configFile} — remove this key and set gate.mode there`;
+		throw new Error(`FAIL: ${file} has an invalid mode — ${detail.replace(/[\r\n]+/g, " ")}`);
+	}
 	for (const key of Object.keys(raw)) {
 		if (!(key in ALLOWED_POLICY_KEYS)) {
 			throw gateFail(file, key, `unknown key; expected one of ${Object.keys(ALLOWED_POLICY_KEYS).join(", ")}`);
