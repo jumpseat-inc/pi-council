@@ -7,6 +7,10 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Backlog
 
 - EPIC-14 — Reuse `.council.json` to enable the decisions gate; add a `/council-gate` toggle; check the OpenRouter credential when the gate is on
+- FLLWUP-89 — Give /features-new a run-start preflight step — its seat dispatches share the gate-credential hole
+- FLLWUP-90 — End-to-end falsifier — an already-initialized consumer with a stale council/preflight.sh reaches the run-start gate-credential FAIL
+- FLLWUP-91 — Wrapped-tool council_preflight — own the preflight spawn on pass to make run-start single-FAIL mechanical
+- FLLWUP-92 — Align runStartGatePreflight's injected apiKey semantics with the resolver's empty-means-absent rule
 - FLLWUP-85 — Seed `gate: {"mode": "off"}` in the scaffold `.council.json` and pin a canonical top-level key order
 - FLLWUP-86 — Run-config-stability Phase-0 assertion: gate.mode is a second mid-run-flippable config input
 - FLLWUP-87 — Concurrent-session write discipline for `.council.json`
