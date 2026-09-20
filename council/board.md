@@ -15,7 +15,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-86 — Run-config-stability Phase-0 assertion: gate.mode is a second mid-run-flippable config input
 - FLLWUP-87 — Concurrent-session write discipline for `.council.json`
 - FLLWUP-88 — Theme-watcher: skip the theme reload when a `.council.json` write touched no theme bytes
-- EV-77 — Document the gate's `.council.json` surface, its command, and the decide() basis vocabulary
 - FLLWUP-72 — Make step 11 execute the merge-check table, not a prose mirror of it
 - FLLWUP-73 — Refresh the deterministic-merge-check wiki page for the mode-aware ruleset
 - FLLWUP-71 — Add the user-visibility question to the gate question set — let a recorded Verify re-route on a surface-touching card
@@ -81,6 +80,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EPIC-12 — pi-council version and git hash on the first pi run
 
 ## Ready
+- EV-77 — Document the gate's `.council.json` surface, its command, and the decide() basis vocabulary
 - EV-44 — Merge near-duplicate follow-up candidates before a card is drafted
 - EV-45 — Unattended ingest of a run's own ledger, without the human steer turn
 - EV-48 — Packaged seat-tier map with repo-local merge override
@@ -93,8 +93,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-76 — Run-start preflight fails loud when the gate is on and no OpenRouter credential resolves
-
 
 ## Needs Human
 
@@ -103,6 +101,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-73 — Gate enablement lives in `.council.json`; the pin stays in code
 - EV-75 — Legacy `council/gate/policy.json` cannot silently disagree with `.council.json`
 - EV-74 — `/council-gate` to enable or disable the decisions gate
+- EV-76 — Run-start preflight fails loud when the gate is on and no OpenRouter credential resolves
 - FLLWUP-74 — Enforce loadGateDecision's invariants — verify > 0 and the hostile-string cross-checks
 - FLLWUP-76 — Document the decide() basis vocabulary, the callId:null fallback, and the intake-vs-dispatch split
 - EPIC-13 — Metered deliberation routing — a System One gate decides Deliberate, Verify, or Direct per card
