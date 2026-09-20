@@ -66,9 +66,15 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-68 — Cold-read persona smoke on /council-update's output surface (designer P1/P6/P9)
 - FLLWUP-69 — Pin the step-13 follow-up confirmation gate as pre-write and mark ledger-level confirmation unsanctioned
 - FLLWUP-70 — Close the gates CI-timeout residuals — a per-step bound on every non-test step, and a ceiling census that covers every writing form
-- EPIC-10 — Fewer follow-up cards by merging near-duplicates, and unattended wiki ingest at every run completion
+- EPIC-10 — Follow-up review decided by the typed TypeSafe Jev gate
+- EV-45 — Unattended ingest of a run's own ledger, without the human steer turn
 - EV-46 — Ingest at every single-card /council completion, attended or container-run
 - EV-47 — Ingest the whole run when /features-deliver reaches its run ledger
+- EV-79 — Pure follow-up disposition function with a fail-safe File default
+- EV-80 — Follow-up review state packing: candidate + board/open cards + same-run siblings
+- EV-82 — Record and render the follow-up decision at step 13's pre-write confirm gate
+- EV-83 — Route the follow-up decision through /features-deliver Phase 3 and the council-runner escalation path
+- EV-84 — End-to-end falsifier for the Jev-gated follow-up review
 - EPIC-11 — Grounded, interview-driven council setup via /council-setup
 - EV-49 — Profile validator — the hard gate on the interview's model output
 - EV-50 — <seat_emphasis> sibling block and the consumer-side-only resource type
@@ -82,8 +88,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EPIC-12 — pi-council version and git hash on the first pi run
 
 ## Ready
-- EV-44 — Merge near-duplicate follow-up candidates before a card is drafted
-- EV-45 — Unattended ingest of a run's own ledger, without the human steer turn
+- EV-78 — Follow-up disposition decisions as repo-overridable packaged data
+- EV-81 — Reuse the gate's Jev transport with a human-bound fail-closed posture
 - EV-48 — Packaged seat-tier map with repo-local merge override
 - EV-57 — Resolve the running pi-council identity from the package root
 - EV-58 — Show the pi-council version and hash on the first pi run
