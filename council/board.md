@@ -100,11 +100,12 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 
 ## In Review
-- EV-82 — Record and render the follow-up decision at step 13's pre-write confirm gate
+
 
 ## Needs Human
 
 ## Done
+- EV-82 — Record and render the follow-up decision at step 13's pre-write confirm gate
 - EV-81 — Reuse the gate's Jev transport with a human-bound fail-closed posture
 
 - EV-80 — Follow-up review state packing: candidate + board/open cards + same-run siblings
