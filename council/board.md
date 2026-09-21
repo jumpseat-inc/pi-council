@@ -99,12 +99,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-58 — Show the pi-council version and hash on the first pi run
 
 ## Deliberating
-- EV-84 — End-to-end falsifier for the Jev-gated follow-up review
 
 ## In Progress
-
-
-## In Review
+- EV-84 — End-to-end falsifier for the Jev-gated follow-up review
 
 
 ## Needs Human
