@@ -129,7 +129,13 @@ report:
   e.g. `EV-<n> — mode Direct, criteria 1, 2, 5 satisfied`.
 - **Every follow-up filed** during the run, the same way `/council` step 13
   requires of an attended run: never a prose bullet, always its own card,
-  drafted and confirmed before it's written.
+  drafted and confirmed before it's written. Each candidate's disposition is the recorded
+  follow-up decision at step 13's confirm gate — the ledger names the recorded
+  disposition per candidate by its draft title and never re-decides one — and a
+  candidate whose decision failed, did not resolve, or is held awaiting its
+  confirming ruling is **held** by its draft title in this ledger, recorded only
+  through its runner's `ESCALATION` (no card filed, no silent drop), so the next
+  runner can resume it against the same drafted title.
 
 Carry each card's runner usage block verbatim from the `council_wait` report
 into this ledger's per-card entry.

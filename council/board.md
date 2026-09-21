@@ -90,8 +90,10 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-59 — End-to-end falsifier for the first-run identity line
 - EPIC-12 — pi-council version and git hash on the first pi run
 
+## Deliberating
+
+
 ## Ready
-- EV-83 — Route the follow-up decision through /features-deliver Phase 3 and the council-runner escalation path
 - EV-48 — Packaged seat-tier map with repo-local merge override
 - EV-57 — Resolve the running pi-council identity from the package root
 - EV-58 — Show the pi-council version and hash on the first pi run
@@ -99,7 +101,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Deliberating
 
 ## In Progress
-
+- EV-83 — Route the follow-up decision through /features-deliver Phase 3 and the council-runner escalation path
 
 ## In Review
 

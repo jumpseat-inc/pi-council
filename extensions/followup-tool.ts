@@ -1,9 +1,19 @@
 // EV-82 — the followup review's record side: `runFollowupReview`, the ONE
 // engine-side composition that loads both followup files and reaches
 // `buildFollowupState` (FLLWUP-96's composition site — a single function
-// with up to two callers: this tool, and EV-83's runner seam, which imports
-// the exported function, never a tool), plus the thin parent-session
-// `council_followup_gate` tool.
+// with up to two callers: the parent-session gate tool, and EV-83's runner
+// transport), plus two thin tools:
+//
+//   - the parent-session `council_followup_gate` tool (this file, parent
+//     path only), and
+//   - the child-mode `council_followup_review` tool (EV-83): the runner
+//     container's TRANSPORT to the same composition — an LLM container
+//     cannot import TS, so the granted tool is the seam. It is a second
+//     CALLER, never a second composition: `composeFollowupReview` runs
+//     `runFollowupReview` then renders against the ACTUAL result object
+//     (the join is by callId in-process — no model re-transmission of
+//     mechanical facts), so every basis byte in a runner's report is
+//     engine-derived by construction.
 //
 // Spec: docs/superpowers/specs/2026-09-22-EV-82-design.md §2 (settled).
 //
@@ -40,6 +50,7 @@ import { Type } from "typebox";
 import { loadFollowupDecision, loadFollowupQuestions, loadGatePolicy } from "./gate.ts";
 import { buildFollowupState, type FollowupCandidate } from "./followup-state.ts";
 import { runFollowupGate, type RunFollowupOpts } from "./gate-run.ts";
+import { renderFollowupLinesFromRepo } from "./followup-render.ts";
 
 /** The in-flight widget key — the followup sibling of GATE_WIDGET_KEY; three
  * surfaces (jobs widget, tree, this) never fight. */
@@ -144,6 +155,80 @@ export async function runFollowupReview(
 		if (setWidget) setWidget(renderFollowupInFlight(null));
 	}
 	return { mode: policy.mode, candidates: out };
+}
+
+// ---------------------------------------------------------------------------
+// EV-83 — the child-mode runner transport: council_followup_review
+// ---------------------------------------------------------------------------
+
+/** The review tool's result: the record-side mechanical facts plus the
+ * rendered line set — every basis byte a runner's report carries comes from
+ * here, engine-derived, never a model echo. */
+export interface FollowupReviewToolResult {
+	result: FollowupReviewResult;
+	lines: string[];
+}
+
+/** The child-mode tool's whole composition: the ONE followup composition
+ * (`runFollowupReview`) followed by the render half against the ACTUAL
+ * result object — a second caller of both exported halves (FLLWUP-96
+ * intact), never a second composition. `mergeTargets` stays a parameter,
+ * passed through to the render half; this wrapper never absorbs the dedup
+ * pass. Exported so the arm-shape tests can inject a transport. */
+export async function composeFollowupReview(
+	candidates: readonly FollowupCandidate[],
+	repoRoot: string,
+	opts: RunFollowupReviewOpts = {},
+	mergeTargets?: Record<string, string>,
+): Promise<FollowupReviewToolResult> {
+	const result = await runFollowupReview(candidates, repoRoot, opts);
+	const lines = renderFollowupLinesFromRepo(result, repoRoot, mergeTargets);
+	return { result, lines };
+}
+
+/** Register the child-mode review tool — called from runChildMode when the
+ * seat carries the `followup` grant, NEVER from index.ts's parent path (the
+ * parent pair gate/render is the attended surface; this tool is the runner
+ * container's). Its execute guards ctx.hasUI, so headless child sessions
+ * work unchanged. */
+export function registerFollowupReviewTool(pi: ExtensionAPI, repoRoot: string): void {
+	pi.registerTool({
+		name: "council_followup_review",
+		label: "Council Followup Review",
+		description:
+			"Record the follow-up decision for every drafted follow-up candidate in one call and render the recorded lines. " +
+			"Invoke ONCE, with every drafted candidate in draft order; the recorded decision is the only disposition source — never re-decide a candidate the render already answered. " +
+			"Returns the mechanical per-candidate facts plus the rendered line set in draft order: present each per-candidate line verbatim. " +
+			"A failed or unresolved decision is an ESCALATION before any write — never read the gate ledger directly, the tool result is the only interface. " +
+			"With the packaged default (mode off) this is a mechanical no-op rendering the bare off literal.",
+		parameters: Type.Object({
+			candidates: Type.Array(
+				Type.Object({
+					title: Type.String({ description: "The drafted follow-up card's title, verbatim" }),
+					goal: Type.String({ description: "The drafted follow-up card's goal" }),
+				}),
+				{ description: "Every drafted follow-up candidate, in draft order — one call carries all drafts" },
+			),
+			mergeTargets: Type.Optional(
+				Type.Record(Type.String(), Type.String(), {
+					description:
+						"Per-candidate merge-target references (candidate title → the exact open board id or the exact sibling title), produced by the dedup pass",
+				}),
+			),
+		}),
+		async execute(_id, params, _signal, _onUpdate, ctx) {
+			const setWidget = (lines: string[]) => {
+				if (ctx.hasUI) ctx.ui.setWidget(FOLLOWUP_WIDGET_KEY, lines);
+			};
+			const out = await composeFollowupReview(
+				params.candidates as FollowupCandidate[],
+				repoRoot,
+				{ setWidget },
+				params.mergeTargets as Record<string, string> | undefined,
+			);
+			return { content: [{ type: "text", text: JSON.stringify(out) }], details: out };
+		},
+	});
 }
 
 // ---------------------------------------------------------------------------
