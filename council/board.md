@@ -95,9 +95,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Deliberating
 
 ## In Progress
-- EV-79 — Pure follow-up disposition function with a fail-safe File default
 
 ## In Review
+- EV-79 — Pure follow-up disposition function with a fail-safe File default
 
 
 ## Needs Human
