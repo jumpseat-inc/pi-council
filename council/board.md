@@ -105,6 +105,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## In Review
 - EV-84 — End-to-end falsifier for the Jev-gated follow-up review
 
+## Needs Human
+
 ## Done
 - EV-83 — Route the follow-up decision through /features-deliver Phase 3 and the council-runner escalation path
 - EV-82 — Record and render the follow-up decision at step 13's pre-write confirm gate
