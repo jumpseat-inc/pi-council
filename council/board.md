@@ -94,12 +94,12 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 
 ## Ready
-- EV-84 — End-to-end falsifier for the Jev-gated follow-up review
 - EV-48 — Packaged seat-tier map with repo-local merge override
 - EV-57 — Resolve the running pi-council identity from the package root
 - EV-58 — Show the pi-council version and hash on the first pi run
 
 ## Deliberating
+- EV-84 — End-to-end falsifier for the Jev-gated follow-up review
 
 ## In Progress
 
