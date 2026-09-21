@@ -576,9 +576,15 @@ export function builtinToolsFor(seat: Seat): string[] {
 	return out;
 }
 
-export function grantsFor(seat: Seat): { hub: boolean } {
+/** The engine grant keywords, mirroring the omp tool vocabulary: `hub`
+ * gates the dispatch/wait/cancel trio, `followup` (EV-83) gates the
+ * child-mode `council_followup_review` tool. */
+export function grantsFor(seat: Seat): { hub: boolean; followup: boolean } {
 	const t = new Set(seat.tools);
-	return { hub: (t.has("task") || t.has("hub")) && seat.spawns.length > 0 };
+	return {
+		hub: (t.has("task") || t.has("hub")) && seat.spawns.length > 0,
+		followup: t.has("followup"),
+	};
 }
 
 function groundingBlock(repoRoot: string): string {
@@ -613,7 +619,11 @@ export function buildChildArgv(
 	const argv = ["--mode", "json", "-p", "-a", "--session-dir", session.sessionDir, "--session-id", session.sessionId, "--model", seat.model];
 	if (seat.thinkingLevel) argv.push("--thinking", seat.thinkingLevel);
 	const tools = [...builtinToolsFor(seat), ...mcpTools];
-	if (grantsFor(seat).hub) tools.push("council_dispatch", "council_wait", "council_cancel");
+	const grants = grantsFor(seat);
+	if (grants.hub) tools.push("council_dispatch", "council_wait", "council_cancel");
+	// EV-83: the followup grant carries the child-mode review tool only —
+	// the parent-session gate/render pair stays parent-path registered.
+	if (grants.followup) tools.push("council_followup_review");
 	argv.push("--tools", tools.join(","));
 	argv.push("--append-system-prompt", promptFile);
 	argv.push(input);

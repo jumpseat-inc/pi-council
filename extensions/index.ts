@@ -632,8 +632,10 @@ export default async function (pi: ExtensionAPI) {
 	// EV-82: the followup record/render tool pair's own parent-path
 	// registrations — the exact council_gate/council_gate_render posture,
 	// never folded into registerHubTools, so child mode structurally never
-	// sees them (EV-83's runner seam is the exported runFollowupReview, not
-	// a tool).
+	// sees them. EV-83: the composition is the exported runFollowupReview +
+	// renderFollowupLinesFromRepo pair (never a second composition); the
+	// transport into a child container is the followup-granted
+	// council_followup_review tool, registered in runChildMode only.
 	registerFollowupGateTool(pi, repoRoot);
 	registerFollowupRenderTool(pi, repoRoot);
 	registerNavigator(

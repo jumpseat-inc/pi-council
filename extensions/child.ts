@@ -1,6 +1,7 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { builtinToolsFor, grantsFor, loadSeat, type Seat } from "./seats.ts";
 import { initHubIdentity, registerHubTools } from "./hub-tools.ts";
+import { registerFollowupReviewTool } from "./followup-tool.ts";
 import { getMcp } from "./mcp-load.ts";
 import { mintRunId } from "./runs.ts";
 
@@ -12,6 +13,9 @@ export function isCallAllowed(seat: Seat, toolName: string): boolean {
 		allowed.add("council_wait");
 		allowed.add("council_cancel");
 	}
+	// EV-83: the followup grant carries exactly the child-mode review tool —
+	// never the hub trio (control: a followup-granted seat cannot dispatch).
+	if (g.followup) allowed.add("council_followup_review");
 	if (allowed.has(toolName)) return true;
 	if (toolName.startsWith("mcp__")) {
 		const server = toolName.slice("mcp__".length).split("__")[0];
@@ -25,6 +29,11 @@ export function runChildMode(pi: ExtensionAPI, repoRoot: string, seatName: strin
 	const seat = loadSeat(repoRoot, seatName); // throws → child exits nonzero → parent sees "failed"
 	if (grantsFor(seat).hub) {
 		registerHubTools(pi, repoRoot, { allowedSeats: seat.spawns });
+	}
+	// EV-83: the followup grant's child-mode tool — the runner's transport to
+	// the one followup composition (runFollowupReview + renderFollowupLinesFromRepo).
+	if (grantsFor(seat).followup) {
+		registerFollowupReviewTool(pi, repoRoot);
 	}
 	// Eager: MCP tools must be registered (and thus advertised) for the seat to
 	// ever call them. Registration happens async; names are already in --tools.

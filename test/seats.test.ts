@@ -56,7 +56,7 @@ test("designer: minimax m3, high thinking, read/search/write, no bash, no hub", 
 	expect(d.model).toBe("openrouter/minimax/minimax-m3");
 	expect(d.thinkingLevel).toBe("high");
 	expect(builtinToolsFor(d)).toEqual(["read", "write", "grep", "find", "ls"]);
-	expect(grantsFor(d)).toEqual({ hub: false });
+	expect(grantsFor(d)).toEqual({ hub: false, followup: false });
 });
 
 test("parses owner seat: model split, tools, no autoloadSkills", () => {
@@ -150,7 +150,7 @@ test("judge seat guidance forbids main-repo branch-state mutation (FLLWUP-17)", 
 test("consolidator is read-only", () => {
 	const c = loadSeat(tmpRepo(), "consolidator");
 	expect(builtinToolsFor(c)).toEqual(["read"]);
-	expect(grantsFor(c)).toEqual({ hub: false });
+	expect(grantsFor(c)).toEqual({ hub: false, followup: false });
 });
 
 test("parseQualifiedModel is exported and splits a known :thinking suffix", () => {
@@ -381,7 +381,7 @@ test("buildChildArgv grants hub tools to hub-enabled seats via --tools", () => {
 		{ sessionDir: "/r", sessionId: "job-1" },
 	);
 	expect(argv).toContain(
-		"read,bash,edit,write,grep,find,ls,council_dispatch,council_wait,council_cancel",
+		"read,bash,edit,write,grep,find,ls,council_dispatch,council_wait,council_cancel,council_followup_review",
 	);
 });
 
