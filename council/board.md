@@ -6,6 +6,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Backlog
 
+- FLLWUP-104 — Fix the live noul answer-shape drift — the decisions API returns `{"type":"noul","noul":<p>}`, the engine reads `probability`, in both gate domains
 - FLLWUP-103 — Cover the wrapper's advisory arm in EV-83's own suite and pin the two escalation-basis tokens
 - FLLWUP-102 — Make the http-404 unavailability literal claim only what the transport can establish
 - FLLWUP-101 — Cold-read persona smokes on the step-13 follow-up surface (designer P1/P2/P3/P5/P7/P9)

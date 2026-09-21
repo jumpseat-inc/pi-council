@@ -45,6 +45,25 @@ on the failure line, that is a ledger-schema change — a new card, not a fold-i
 the pinned model for a single-question noul set, so "the endpoint can't" is falsified;
 the delta is the packaged question set and the multi-question response.
 
+**Amendment D (EV-84 step-13 ruling) — Amendment A's hypothesis is CONFIRMED; this card's
+remaining question is narrower than drafted.** The wire has been captured:
+`typesafe/jev-1.13-20260917` returns noul answers as `{"type":"noul","noul":<p>}`, while
+`sideProbability`/`followupFloor` read `answer.probability` and `parseDecisionsResponse`
+passes per-question payloads verbatim — so `decide()` receives an answer with no usable
+probability and throws. That key-name mismatch is the cause of every `invalid-response`
+line in the ledger. Of the four drafted causes, **wire shaping is confirmed**; question
+instructions and model behavior are demoted to residual, to be re-examined only if the
+packaged four-question set still fails to produce a usable probability after the shape is
+accepted. **The shape remedy is not this card's** — it is `FLLWUP-104`, which lands first;
+this card's question (does the packaged four-question set ever produce a *reduced* mode
+that `resolveRoute` reads back as `source: "recorded"`) cannot be honestly investigated
+while every call throws. Amendment B's proof and the "outcome named in advance" clause are
+**unchanged**; the goal is unchanged and still cannot be closed by the shape fix alone.
+Amendment C's capture obligation is discharged in its *diagnostic* half by EV-84's raw POST
+(`council/cards/EV-84.md`, step 8 live-arm evidence); this card re-verifies the shape at
+implementation rather than trusting that record, because the wire has already drifted once.
+Source: `vault/raw/2026-09-22-po-ev84-step13-noul-shape-ruling.md`.
+
 **Outcome named in advance.** The fail-closed posture stays byte-identical and no remedy
 may lower scrutiny. The goal is deliberately not softened to "diagnose and report". If
 the diagnosis concludes the pin cannot answer this question set with usable
