@@ -96,8 +96,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- EV-82 — Record and render the follow-up decision at step 13's pre-write confirm gate
-
 ## In Progress
 
 - EV-82 — Record and render the follow-up decision at step 13's pre-write confirm gate
