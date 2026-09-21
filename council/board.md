@@ -97,14 +97,13 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-## In Review
-- EV-81 — Reuse the gate's Jev transport with a human-bound fail-closed posture
 
 
 
 ## Needs Human
 
 ## Done
+- EV-81 — Reuse the gate's Jev transport with a human-bound fail-closed posture
 
 - EV-80 — Follow-up review state packing: candidate + board/open cards + same-run siblings
 - EV-79 — Pure follow-up disposition function with a fail-safe File default

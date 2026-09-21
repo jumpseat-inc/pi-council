@@ -1027,7 +1027,23 @@ function sideProbability(answer: GateAnswer, id: string, option: string, policy:
 	}
 	const probs = answer.probabilities;
 	const v = probs && typeof probs === "object" ? (probs as Record<string, unknown>)[option] : undefined;
-	return typeof v === "number" && Number.isFinite(v) ? v : 0;
+	if (typeof v === "number" && Number.isFinite(v)) {
+		// EV-81 — the probability-range residual (the fold-in ruling's how): a
+		// finite value outside [0, 1] throws naming the question id, the
+		// option, the value, and the expected range. The message is
+		// DOMAIN-NEUTRAL from birth — neither `gate:` nor `followup:` prefixed —
+		// because this helper is shared by both domains' decision functions and
+		// the reason rides verbatim into `gate call failed: <reason>` (EV-82
+		// renders it). Absent or non-numeric still contributes 0 below: missing
+		// evidence drags toward the safe side and must NOT become an error.
+		if (v < 0 || v > 1) {
+			throw new Error(
+				`answer ${id} of type choice: option ${JSON.stringify(option)} carries probability ${JSON.stringify(v)} — expected a number in [0, 1]`,
+			);
+		}
+		return v;
+	}
+	return 0;
 }
 
 /** Whether a hard override fires for this answer: deterministic on the ANSWER
