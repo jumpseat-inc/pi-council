@@ -6,6 +6,8 @@ import { Hub } from "./hub.ts";
 import { getHub, initHubIdentity, pidFilePath, registerHubTools, shutdownHub } from "./hub-tools.ts";
 import { registerGateTool } from "./gate-tool.ts";
 import { registerGateRenderTool } from "./gate-render.ts";
+import { registerFollowupGateTool } from "./followup-tool.ts";
+import { registerFollowupRenderTool } from "./followup-render.ts";
 import { registerRouteTool } from "./gate-route-tool.ts";
 import { registerPreflightTool } from "./preflight.ts";
 import { PKG_ROOT, listSeatNames, loadSeat, loadCouncilConfig, loadThemeConfig, loadRetryConfig, proceduresDir, parseQualifiedModel, DEFAULT_RETRY_POLICY, type RetryPolicy } from "./seats.ts";
@@ -627,6 +629,13 @@ export default async function (pi: ExtensionAPI) {
 	// EV-76: the run-start preflight's own parent-path registration — never
 	// folded into registerHubTools, so child mode structurally never sees it.
 	registerPreflightTool(pi, repoRoot);
+	// EV-82: the followup record/render tool pair's own parent-path
+	// registrations — the exact council_gate/council_gate_render posture,
+	// never folded into registerHubTools, so child mode structurally never
+	// sees them (EV-83's runner seam is the exported runFollowupReview, not
+	// a tool).
+	registerFollowupGateTool(pi, repoRoot);
+	registerFollowupRenderTool(pi, repoRoot);
 	registerNavigator(
 		pi,
 		repoRoot,

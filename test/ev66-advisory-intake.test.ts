@@ -386,6 +386,16 @@ describe("EV-66 advisory intake — unit section", () => {
 		// fences it), and never renders a ledger line — the ids ride the
 		// caller-passed input into provider-cost.ts (no gate-ledger import
 		// there, pinned by test/gate-spend-reconcile.test.ts's source canary).
+		// EV-82 amendment (deliberate, settled spec §2/§3): the FOLLOWUP
+		// PRESENTATION leaf (followup-render.ts) also references the reader
+		// accessors — it is gate-render.ts's posture for the followup decision:
+		// one readGateLedger pass joined by callId, rendered through
+		// decisionLine. The same strength fences hold: it references NEITHER
+		// writer accessor (asserted below), no execution-path module imports it
+		// except the composition root, and it owns no Mode:-prefixed format
+		// expression (its line composes decisionLine(record) + a suffix). It
+		// does not import the render renderer and never renders a card-gate
+		// line (pinned by test/ev82-followup-render.test.ts's source canary).
 		// Any OTHER module referencing any ledger accessor is an offender.
 		const writerAccessors = ["appendGateCall", "appendGateOutcome"];
 		const readerAccessors = ["readGateLedger", "gate-ledger.jsonl", "decisionLine"];
@@ -394,9 +404,9 @@ describe("EV-66 advisory intake — unit section", () => {
 			.filter((f) => writerAccessors.some((sym) => srcOf(f).includes(sym)));
 		expect(writerOffenders, "only gate-run.ts (the writer) references the append accessors").toEqual([]);
 		const readerOffenders = modules
-			.filter((f) => f !== "gate-ledger.ts" && f !== "gate-render.ts" && f !== "gate-route.ts" && f !== "gate-route-tool.ts" && f !== "usage-store.ts")
+			.filter((f) => f !== "gate-ledger.ts" && f !== "gate-render.ts" && f !== "gate-route.ts" && f !== "gate-route-tool.ts" && f !== "usage-store.ts" && f !== "followup-render.ts")
 			.filter((f) => readerAccessors.some((sym) => srcOf(f).includes(sym)));
-		expect(readerOffenders, "only gate-render.ts (the presentation), the EV-69 routing read, and the EV-71 flush read reference the reader accessors").toEqual([]);
+		expect(readerOffenders, "only gate-render.ts (the presentation), the EV-69 routing read, the EV-71 flush read, and the EV-82 followup presentation reference the reader accessors").toEqual([]);
 		// Preserved in strength (1) — read-only posture: no module outside
 		// gate-run.ts references the append accessors, and gate-render.ts
 		// references NEITHER (it reads, never writes). The EV-71 flush read is
@@ -408,6 +418,11 @@ describe("EV-66 advisory intake — unit section", () => {
 		const flushSrc = srcOf("usage-store.ts");
 		for (const sym of writerAccessors) {
 			expect(flushSrc.includes(sym), `usage-store.ts must not reference ${sym} (read-only flush)`).toBe(false);
+		}
+		// EV-82's followup presentation leaf is read-only too.
+		const followupRenderSrc = srcOf("followup-render.ts");
+		for (const sym of writerAccessors) {
+			expect(followupRenderSrc.includes(sym), `followup-render.ts must not reference ${sym} (read-only presentation)`).toBe(false);
 		}
 		// Preserved in strength (2) — import directionality: no execution-path
 		// module imports gate-render.ts (the recorded line makes no policy
