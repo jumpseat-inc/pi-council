@@ -6,6 +6,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Backlog
 
+- FLLWUP-98 — Pin the follow-up headroom probe's tripwire on `truncated === false`
+- FLLWUP-97 — Recency window for the follow-up board section when the cap binds
 - FLLWUP-96 — Fail-loud questions↔weights equality at the gate's and the follow-up's composition sites
 - FLLWUP-95 — Cut the EPIC-14 release — bump `package.json` past 0.28.0, tag, and move `latest`
 - FLLWUP-93 — Consumer-repo-safe protection for wiki-cited code paths (the T1-class check beyond this repo)
