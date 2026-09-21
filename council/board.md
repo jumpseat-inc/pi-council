@@ -87,13 +87,13 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Ready
 - EV-81 — Reuse the gate's Jev transport with a human-bound fail-closed posture
-- EV-79 — Pure follow-up disposition function with a fail-safe File default
 - EV-80 — Follow-up review state packing: candidate + board/open cards + same-run siblings
 - EV-48 — Packaged seat-tier map with repo-local merge override
 - EV-57 — Resolve the running pi-council identity from the package root
 - EV-58 — Show the pi-council version and hash on the first pi run
 
 ## Deliberating
+- EV-79 — Pure follow-up disposition function with a fail-safe File default
 
 ## In Progress
 
