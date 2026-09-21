@@ -97,13 +97,14 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## In Progress
 
 ## In Review
-- EV-79 — Pure follow-up disposition function with a fail-safe File default
+
 
 
 ## Needs Human
 
 ## Done
 
+- EV-79 — Pure follow-up disposition function with a fail-safe File default
 - EV-78 — Follow-up disposition decisions as repo-overridable packaged data
 - EPIC-14 — Reuse `.council.json` to enable the decisions gate; add a `/council-gate` toggle; check the OpenRouter credential when the gate is on
 - EV-73 — Gate enablement lives in `.council.json`; the pin stays in code
