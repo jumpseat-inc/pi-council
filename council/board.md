@@ -91,7 +91,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EPIC-12 — pi-council version and git hash on the first pi run
 
 ## Deliberating
-- EV-83 — Route the follow-up decision through /features-deliver Phase 3 and the council-runner escalation path
+
 
 ## Ready
 - EV-48 — Packaged seat-tier map with repo-local merge override
@@ -102,6 +102,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
+
+## In Progress
+- EV-83 — Route the follow-up decision through /features-deliver Phase 3 and the council-runner escalation path
 
 ## In Review
 
