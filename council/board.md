@@ -94,6 +94,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-58 — Show the pi-council version and hash on the first pi run
 
 ## Deliberating
+
+## In Progress
 - EV-81 — Reuse the gate's Jev transport with a human-bound fail-closed posture
 
 ## In Review
