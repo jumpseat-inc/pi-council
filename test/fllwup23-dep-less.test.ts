@@ -118,13 +118,13 @@ describe("dep-less install named failure (FLLWUP-23, spec §4)", () => {
 		expect(e).toMatch(/pi -ne/);
 	});
 
-	test("healthy control: SDK restored → 16 commands (15 + EV-74's /council-gate), zero errors, no prose anywhere", () => {
+	test("healthy control: SDK restored → 17 commands (16 + D1's /usages), zero errors, no prose anywhere", () => {
 		const scratch = buildDepLessScratch();
 		restoreSdk(scratch);
 		const out = runDriver(scratch);
 		expect(out.error, `driver failed: ${out.error}`).toBeUndefined();
 		expect(out.errors ?? []).toHaveLength(0);
-		expect(out.commands).toBe(16); // 15 + EV-74's /council-gate
+		expect(out.commands).toBe(17); // 16 + D1's /usages
 		expect(JSON.stringify(out)).not.toContain("pi-council could not load");
 	});
 

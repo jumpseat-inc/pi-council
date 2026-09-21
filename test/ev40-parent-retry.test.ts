@@ -7,7 +7,7 @@
 // intake literal PROVIDER_FINISH_REASON_ERROR ("Provider finish_reason: error")
 // — never the colon-less EV-43 falsifier string, which is classify-negative on
 // both clauses and tests nothing (Skeptic O3, standing order).
-import { describe, expect, test } from "bun:test";
+import { beforeEach, describe, expect, test } from "bun:test";
 import { registerMaxTokensFix } from "../extensions/index.ts";
 import type { FilterableMessage } from "../extensions/parent-retry.ts";
 import {
@@ -538,6 +538,13 @@ describe("FLLWUP-44 — the R3-ruled transient failure line", () => {
 });
 
 describe("EV-40 O6 — editor-slot composition (install/restore-if-still-ours)", () => {
+	beforeEach(() => {
+		// Test isolation: a sibling suite (ev40-wiring) drives registerParentTurnRetry
+		// with a fake UI and can leave the module-level retry-editor slot installed in
+		// a shared bun worker. Clear it so these composition tests start pristine.
+		restoreRetryEditor({ getEditorComponent: () => undefined, setEditorComponent: () => {} });
+	});
+
 	class FakeUI {
 		private factory: FocusEditorFactory | undefined;
 		getEditorComponent(): FocusEditorFactory | undefined {

@@ -127,13 +127,16 @@ def wire_tokens(u):
 
 def make_row(source, seat, model, ts, response_id, tokens, catalogue_cost):
     ts = ts or ""
+    # Only OpenRouter generation ids are cross-matchable; other providers
+    # (e.g. llama.cpp's `chatcmpl-...`) contribute catalogue cost only.
+    rid = response_id if isinstance(response_id, str) and response_id.startswith("gen-") else None
     return {
         "source": source,
         "seat": seat or "unknown",
         "model": norm_model(model),
         "timestamp": ts,
         "date": ts[:10] if len(ts) >= 10 else None,
-        "responseId": response_id or None,
+        "responseId": rid,
         "tokens": tokens,
         "catalogueCost": float(catalogue_cost or 0.0),
     }
@@ -406,7 +409,10 @@ def aggregate(rows, exact):
             mm["exactCostUsd"] += cost
 
     finalized = {name: finalize_bucket(b) for name, b in buckets.items()}
-    seat_rows = sorted((v for k, v in finalized.items() if k != "main"), key=lambda x: x["seat"])
+    seat_rows = sorted(
+        (v for k, v in finalized.items() if k != "main" and (v["turns"] or v["catalogueCostUsd"] or v["exactCostUsd"])),
+        key=lambda x: x["seat"],
+    )
     main_row = finalized.get("main") or finalize_bucket(empty_bucket("main"))
 
     totals = empty_bucket("totals")
@@ -466,7 +472,7 @@ def analytics_query(api_base, key, metrics, dimensions, filters, start, end, lim
         "metrics": metrics,
         "dimensions": dimensions,
         "filters": filters,
-        "time_range": {"start": start.strftime("%Y-%m-%dT%H:%M:%SZ"), "end": end.strftime("%Y-%m-%dT%H:%M:%SZ")},
+        "time_range": {"start": start.strftime("%Y-%m-%dT00:00:00Z"), "end": end.strftime("%Y-%m-%dT23:59:59Z")},
         "limit": limit,
     }
     return http_json(f"{api_base}/analytics/query", key, data=body)
@@ -625,7 +631,7 @@ def render_markdown(report):
         lines.append(f"- OpenRouter activity {act['start']}..{act['end']}: ${act['totalUsd']:.4f} (account-wide)")
     else:
         lines.append("- OpenRouter activity: unavailable for this range (retained 30 completed UTC days only)")
-    lines.append(f"- attributed to this repo: ${a['attributedUsd']:.6f}")
+    lines.append(f"- attributed to this repo within the activity window: ${a['attributedUsd']:.6f}")
     if a.get("unattributedUsd") is not None:
         lines.append(f"- unattributed account remainder: ${a['unattributedUsd']:.6f}")
     if a.get("piOriginUsd") is not None:
@@ -660,7 +666,7 @@ def human_summary(report):
         out.append(f"  {row['seat']:<16} turns={row['turns']:<4} in={row['tokens']['input']:<9} out={row['tokens']['output']:<8} exact=${row['exactCostUsd']:.4f} ({row['basis']})")
     a = report["account"]
     if a["activity"]["available"]:
-        out.append(f"  account activity ${a['activity']['totalUsd']:.4f}; attributed ${a['attributedUsd']:.4f}")
+        out.append(f"  account activity ${a['activity']['totalUsd']:.4f}; attributed in window ${a['attributedUsd']:.4f}")
     for lim in report["limitations"]:
         out.append(f"  ! {lim}")
     return "\n".join(out)
@@ -733,7 +739,7 @@ def main(argv=None):
             gen_rows[gid] = r
 
     exact, hits, misses, lim_exact = resolve_exact(args.api_base, key, gen_rows, wins, cache, args.offline)
-    if not args.offline and (hits or not gen_rows):
+    if not args.offline:
         try:
             save_cache(cache_file, cache)
         except OSError as e:
@@ -751,6 +757,7 @@ def main(argv=None):
         "run directories are pruned to the last 15 runs; older seat detail falls back to the durable usage store",
         "OpenRouter activity is account-wide and retained for 30 completed UTC days",
         "analytics queries are capped at 31 days and chunked; failed chunks fall back to catalogue estimates",
+        "the account reconciliation covers completed UTC days only; the current day's cost is in totals but not in attributedUsd",
         "council child session ids are job-N and collide across runs; generations are joined by generation_id",
     ]
     limitations += lim_exact + lim_activity + lim_pi

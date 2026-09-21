@@ -151,9 +151,28 @@ test("T-U4: analytics/activity are queried and reconciled against a local stub",
 		expect(report.account.activity.totalUsd).toBeCloseTo(0.05, 6);
 		expect(seen.some((p) => p.endsWith("/analytics/query"))).toBe(true);
 		expect(seen.some((p) => p.endsWith("/activity"))).toBe(true);
+		// the exact figures are cached for cheap reruns
+		const cached = JSON.parse(fs.readFileSync(path.join(root, "cache.json"), "utf-8"));
+		expect(cached.generations["gen-a"].total_usage).toBeCloseTo(0.004, 6);
 	} finally {
 		server.stop(true);
 	}
+});
+
+test("T-U6: non-OpenRouter response ids are not counted as cross-match misses", () => {
+	const { root, agent } = mkRepo();
+	sessionFile(agent, root, "2026-09-18T10:00:00.000Z", [
+		assistant("2026-09-18T10:00:05.000Z", "chatcmpl-local-1", {
+			input: 100, output: 10, cacheRead: 0, cacheWrite: 0, reasoning: 0, totalTokens: 110,
+			cost: { total: 0.0 },
+		}),
+	]);
+	const res = runTool(root, agent, ["--offline", "--start", "2026-09-18", "--end", "2026-09-18", "--json"]);
+	expect(res.status, res.stderr).toBe(0);
+	const report = JSON.parse(res.stdout);
+	expect(report.main.requests).toBe(0);
+	expect(report.main.basis).toBe("catalogue-estimate");
+	expect(report.limitations.some((l: string) => l.includes("unresolved by analytics"))).toBe(false);
 });
 
 test("T-U5: council seat rows are attributed from run manifests and transcripts", () => {
