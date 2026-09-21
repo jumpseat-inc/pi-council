@@ -6,6 +6,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Backlog
 
+- FLLWUP-96 — Fail-loud questions↔weights equality at the gate's and the follow-up's composition sites
 - FLLWUP-95 — Cut the EPIC-14 release — bump `package.json` past 0.28.0, tag, and move `latest`
 - FLLWUP-93 — Consumer-repo-safe protection for wiki-cited code paths (the T1-class check beyond this repo)
 - FLLWUP-94 — Consider naming the config home in the /council-gate status read literal
