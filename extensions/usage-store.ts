@@ -33,9 +33,9 @@ import {
 	type ProviderCostReport,
 } from "./provider-cost.ts";
 import { readGateLedger } from "./gate-ledger.ts";
-import { spendRecord, type SpendRecord } from "./spend.ts";
+import { spendRecord, zeroUsage, type SpendRecord } from "./spend.ts";
 import { formatUsageBlock } from "./usage-block.ts";
-import { attemptEntries, findSessionFile, readManifests, runsDir } from "./runs.ts";
+import { attemptEntries, findSessionFile, readManifests, runsDir, type Usage } from "./runs.ts";
 
 /** Ruling D: the wrapper's schema gains the EV-29 provider sibling. `spend`
  * is untouched — EV-31's freeze covers `spend`, not the wrapper. */
@@ -81,6 +81,23 @@ export interface StoredUsageRecord {
 	 * ledger remains the authoritative gate total — this sibling is the
 	 * exclusion disclosure + the independent verification figures. */
 	gate?: GateSpendReport;
+	/** D2 (`/usages`) sibling: one row per invocation-window seat manifest, so
+	 * seat history survives run-directory pruning. Additive sibling (the
+	 * provider/gate precedent) — `spend` is untouched and schemaVersion stays 2.
+	 * Absent on records written before this field existed and on invocations
+	 * whose window held no manifests. */
+	seats?: StoredSeatRow[];
+}
+
+/** D2 (`/usages`) — the durable per-seat row. `usage` is the manifest's
+ * catalogue-estimate tuple verbatim; exact provider dollars are recoverable by
+ * joining `jobId` to `provider.generations[].jobId` when that sibling exists. */
+export interface StoredSeatRow {
+	jobId: string;
+	seat: string;
+	model: string;
+	usage: Usage;
+	attempts?: { attempt: number; sessionId: string }[];
 }
 
 /** The ruling's five values; read-time only, never stored. */
@@ -205,6 +222,9 @@ export interface PersistUsageInput {
 	 * ≥1 gate call (absent ⇒ a record byte-identical to the pre-EV-71
 	 * shape — never fabricated). */
 	gate?: GateSpendReport;
+	/** D2: the invocation-window seat rows; copied only when non-empty (absent ⇒
+	 * a record byte-identical to the pre-D2 shape — never fabricated). */
+	seats?: StoredSeatRow[];
 	/** Injectable write clock (default wall-clock ISO). */
 	now?: () => string;
 }
@@ -246,6 +266,7 @@ export function persistInvocationUsage(input: PersistUsageInput, storeRoot: stri
 		basis: { trigger: input.trigger, manifestsObserved: input.manifestsObserved },
 		...(input.provider !== undefined ? { provider: input.provider } : {}),
 		...(input.gate !== undefined ? { gate: input.gate } : {}),
+		...(input.seats !== undefined ? { seats: input.seats } : {}),
 	};
 	const tmp = `${file}.tmp-${process.pid}`;
 	fs.writeFileSync(tmp, JSON.stringify(record, null, "\t") + "\n", { mode: 0o600 });
@@ -504,6 +525,14 @@ export async function flushPendingInvocations(input: {
 							timeoutMs: input.providerDeps?.timeoutMs,
 						})
 					: undefined;
+			const windowManifests = manifests.filter((m) => m.startedAt >= p.markerAt!);
+			const seats: StoredSeatRow[] = windowManifests.map((m) => ({
+				jobId: m.id,
+				seat: m.seat,
+				model: m.model,
+				usage: m.usage ?? zeroUsage("catalogue-estimate", "stream-assistant"),
+				...(m.attempts !== undefined ? { attempts: m.attempts } : {}),
+			}));
 			const res = persistInvocationUsage(
 				{
 					spend,
@@ -518,6 +547,7 @@ export async function flushPendingInvocations(input: {
 					now: input.now,
 					...(providerOut !== null ? { provider: providerOut } : {}),
 					...(gate !== undefined ? { gate } : {}),
+					...(seats.length > 0 ? { seats } : {}),
 				},
 				storeRoot,
 			);

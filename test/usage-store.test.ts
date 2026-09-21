@@ -483,6 +483,41 @@ function flushSetup(): {
 	return { repo, pending, entries, leafId, flush };
 }
 
+// ---------------------------------------------------------------------------
+// D2 (`/usages`) — the durable per-seat sibling
+// ---------------------------------------------------------------------------
+
+test("T-US1: the flush records one seats[] row per settled seat manifest", async () => {
+	const { repo, pending, flush } = flushSetup();
+	const storeRoot = tmpDir("ev31-store-");
+	writeManifest(repo.root, repo.runId, manifest("job-1", { startedAt: T0 + 1500, exitCode: 0, state: "done", settledAt: T0 + 2500, seat: "principal", model: "openrouter/deepseek/deepseek-v4.1-flash", usage: flatUsage({ input: 30, output: 5, totalTokens: 35, cost: 3, turns: 2 }) }));
+	writeManifest(repo.root, repo.runId, manifest("job-2", { startedAt: T0 + 1600, exitCode: 0, state: "done", settledAt: T0 + 2600, seat: "skeptic", model: "openrouter/qwen/qwen3.8-flash", usage: flatUsage({ input: 10, totalTokens: 10, cost: 1, turns: 1 }) }));
+	const { outcomes } = await flush("agent-settled", pending, { storeRoot });
+	expect(outcomes[0]!.status).toBe("written");
+	const [record] = readUsageRecords(storeRoot);
+	expect(record!.seats).toEqual([
+		expect.objectContaining({ jobId: "job-1", seat: "principal", model: "openrouter/deepseek/deepseek-v4.1-flash", usage: expect.objectContaining({ input: 30, output: 5, cost: 3 }) }),
+		expect.objectContaining({ jobId: "job-2", seat: "skeptic", model: "openrouter/qwen/qwen3.8-flash", usage: expect.objectContaining({ input: 10, cost: 1 }) }),
+	]);
+});
+
+test("T-US2: absent seats keeps the record byte-identical to today (regression pin)", () => {
+	const storeRoot = tmpDir("ev31-store-");
+	const res = persistInvocationUsage(persistInput(), storeRoot);
+	expect(res.record.schemaVersion).toBe(2);
+	expect("seats" in res.record).toBe(false);
+});
+
+test("T-US3: seats rows never include manifests outside the invocation window", async () => {
+	const { repo, pending, flush } = flushSetup();
+	const storeRoot = tmpDir("ev31-store-");
+	writeManifest(repo.root, repo.runId, manifest("job-old", { startedAt: T0 - 5000, exitCode: 0, state: "done", settledAt: T0 - 4000, usage: flatUsage({ input: 999, totalTokens: 999, cost: 999 }) }));
+	writeManifest(repo.root, repo.runId, manifest("job-1", { startedAt: T0 + 1500, exitCode: 0, state: "done", settledAt: T0 + 2500, usage: flatUsage({ input: 30, totalTokens: 30, cost: 3 }) }));
+	const { outcomes } = await flush("agent-settled", pending, { storeRoot });
+	expect(outcomes[0]!.status).toBe("written");
+	expect(readUsageRecords(storeRoot)[0]!.seats!.map((s) => s.jobId)).toEqual(["job-1"]);
+});
+
 test("T-U8 run dir removed before the write: exit-time (zero) subtree, manifestsObserved 0, pointer class stated", async () => {
 	const { repo, pending, flush } = flushSetup();
 	writeManifest(repo.root, repo.runId, manifest("job-1", { startedAt: T0 + 1500, exitCode: 0, state: "done" }));
