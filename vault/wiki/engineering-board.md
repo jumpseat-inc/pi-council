@@ -4,9 +4,9 @@ type: concept
 summary: The durable, locally-stored kanban state — council/board.md plus one card file per id, validated by validate.py, and the discipline that everything the Council does starts and records there.
 aliases: [engineering board, board, card, kanban]
 tags: [pi-council/concept]
-sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-po-ev73-step6-ruling]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-21-epic14-run-ledger]]"]
+sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-po-ev73-step6-ruling]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-21
+updated: 2026-09-22
 ---
 
 > ⚠️ Derived from `council/procedures/board-create-card.md`, `features-new.md` and `council/scaffold/council/board.md` @ `8913c6b`/`8f1882b` (captured 2026-08-23). Verify against the procedure files.
@@ -118,6 +118,15 @@ set of markdown files under `council/`:
   session on a stale clone allocated `EPIC-3`/`EV-10..15` to itself and the
   mains diverged; reconciled by union merge, never rewrite. See
   [[card-id-allocation]].
+
+## EPIC-10 (2026-09-22)
+
+The fold-in test was applied throughout — EV-78 (packaged data), EV-80 (state
+packing), EV-81 (transport), EV-83 (routing), EV-84 (falsifier) each stayed their
+own card while residuals were carded (`FLLWUP-96`…`104`). Step 13's follow-up
+confirmation gate was exercised on all seven cards, each candidate held and
+ratified by [[product-owner]] before writing ([[confirmation-authority]]). See
+[[followup-decision-gate]]. Witness: [[2026-09-22-epic10-run-ledger]].
 
 ## Related
 

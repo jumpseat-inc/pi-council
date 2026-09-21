@@ -4,9 +4,9 @@ type: concept
 summary: Board ids (EV-/FLLWUP-/BUG-/EPIC-) are allocated at fetched HEAD, never from a stale clone's memory — the EPIC-3/EPIC-4 collision lesson, with union-merge reconciliation and validate.py as the net.
 aliases: [card id allocation, id allocation, id collision, numbering discipline]
 tags: [pi-council/concept, pi-council/board]
-sources: ["[[2026-09-04-epic3-run-ledger]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]"]
+sources: ["[[2026-09-04-epic3-run-ledger]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]"]
 created: 2026-09-04
-updated: 2026-09-20
+updated: 2026-09-22
 ---
 
 # Card ID Allocation
@@ -54,6 +54,12 @@ consistent.
    the in-flight card's board state (In Progress → Ready); resolution
    rule: the card's own run record is authoritative for its own state.
    Push rejections are routine, not errors — fetch, reconcile, retry.
+
+## EPIC-10 (2026-09-22)
+
+`FLLWUP-96`…`104` were allocated at fetched `main` HEAD and re-checked at write
+time; no collision. Nine [[product-owner]] confirmation rulings wrote nine cards
+across the epic. Witness: [[2026-09-22-epic10-run-ledger]].
 
 ## Related
 

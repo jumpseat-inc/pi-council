@@ -4,9 +4,9 @@ type: concept
 summary: Under /features-deliver the human merge gate is replaced by five mechanical criteria — owner gates, gates-SUCCESS on the PR head SHA, no blocking skeptic objection, judge PASS, no open ruling — keyed since EPIC-13 by the card's recorded execution mode, merged with --match-head-commit.
 aliases: [deterministic merge check, merge gate, deterministic merge, five criteria merge]
 tags: [pi-council/features-deliver, pi-council/process]
-sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]"]
+sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]"]
 created: 2026-09-04
-updated: 2026-09-21
+updated: 2026-09-22
 ---
 
 # Deterministic Merge Check
@@ -50,6 +50,22 @@ evaluation and none is recorded`. The SHA pin and the `workflow: gates` reading
 are unchanged. The table is a pure function in `extensions/merge-check.ts`; as of
 v0.28.0 it is fixture-consumed only — `FLLWUP-72` makes step 11 *execute* the
 table instead of a prose mirror.
+
+## Observed practice (EPIC-10 run)
+
+- Seven more merges (PRs #97–#103: EV-78 `9285538`, EV-79 `ddf9077`, EV-80
+  `e0fd6f5`, EV-81 `690127b`, EV-82 `277036b`, EV-83 `6a5d70c`, EV-84 `03925df`),
+  all routed Deliberate (no recorded decision → fallback), all five criteria each,
+  `--squash --admin --match-head-commit` pinned, `gates` `SUCCESS` on every head and
+  re-verified on every merged SHA.
+- ️ **Process variance — the runner merged itself.** The human's Phase-1 ruling put
+  the deterministic check *and* the merge inside each [[council-runner]] (which then
+  wrote the step-12 `Done` record); the orchestrator independently re-verified every
+  merged SHA and the `gates` check afterward. The historical reading of step 11 places
+  execution with the orchestrator/facilitator — recorded as run variance, not a ruleset
+  change.
+- No push raced a check; no `HALT`; no `Needs Human`. Witness:
+  [[2026-09-22-epic10-run-ledger]].
 
 ## The SHA pinning discipline
 

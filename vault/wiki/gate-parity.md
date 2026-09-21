@@ -4,9 +4,9 @@ type: concept
 summary: A persistence/validation layer may be stricter than the runtime only where an existing downstream gate is also that strict — writer = loader's field-level inverse + dispatch's one failure predicate; capability enforcement lives at selection time, not write time.
 aliases: [gate parity, writer gate parity, gate placement, capability gate placement]
 tags: [pi-council/concept, pi-council/epic5]
-sources: ["[[2026-09-04-epic5-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]"]
+sources: ["[[2026-09-04-epic5-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-22-epic10-run-ledger]]"]
 created: 2026-09-04
-updated: 2026-09-18
+updated: 2026-09-22
 ---
 
 # Gate Parity
@@ -55,6 +55,16 @@ runtime gate (no code path rejects a record that omits or mislabels the
 classification), the exact writer-alone asymmetry this page forbids.
 The record instead provides the raw material; the skeptic derives the
 two-class bit at verification time and carries it in the evidence row.
+
+## EPIC-10 — a declared subset (2026-09-22)
+
+The follow-up loader validates an override rule's `disposition` against a declared
+**subset** `{Merge, Drop}` while the vocabulary stays `File | Merge | Drop`
+([[followup-decision-gate]]). The subset is enforced at the layer that would apply
+it — `File` has its own mechanisms (the floors and the composite else-arm), so a
+`File` override fails loud rather than being silently unrepresentable. This is the
+gate-parity principle: capability lives at selection/validation, not persistence.
+Witness: [[2026-09-22-epic10-run-ledger]].
 
 ## Related
 

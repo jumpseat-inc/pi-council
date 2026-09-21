@@ -4,9 +4,9 @@ type: entity
 summary: The portfolio-authority seat and product-owner's escalation target — rules what the portfolio is for, build order, the order of card retirement, and permanent residuals. Never implements.
 aliases: [steward seat]
 tags: [pi-council/seat]
-sources: ["[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]"]
+sources: ["[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-20
+updated: 2026-09-22
 ---
 
 > ⚠️ Derived from `council/agents/steward.md` (captured 2026-08-23). Verify against the seat file.
@@ -111,6 +111,15 @@ Test: "does this move what the product is for, or just how one part of it works?
   surfaced a material release fact: the moving `latest` tag is a full epic behind
   `main` (`latest` at v0.19.0; v0.20.0–v0.28.0 untagged). See
   [[2026-09-21-epic14-run-ledger]].
+
+## EPIC-10 (2026-09-22) — not reached
+
+The run produced no portfolio-level escalation: no card declined, no residual made
+permanent, no recorded human decision reversed, no goal moved. The
+confirmation-authority question was deliberately ruled card-level, with the
+opposite ruling flagged as the portfolio act ([[confirmation-authority]]).
+[[product-owner]] ratified every follow-up itself. Witness:
+[[2026-09-22-epic10-run-ledger]].
 
 ## Related
 

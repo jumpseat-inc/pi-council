@@ -7,10 +7,10 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 
 - [[pi-council-overview]] — Pi-council as an installable package: the Council
   + wiki workflow, two engine halves, the loop, and the release version arc
-  (through v0.28.0, untagged; latest release v0.19.0, a full epic behind. EPIC-6/7/8/9/13/14
+  (through v0.33.0, untagged; latest release v0.19.0, several epics behind. EPIC-6/7/8/9/13/14
   closed Done; EPIC-13 shipped metered deliberation routing at v0.21.0–v0.28.0,
-  EPIC-14 re-homed gate enablement to `.council.json`, and EPIC-10..12 remain
-  Backlog).
+  EPIC-14 re-homed gate enablement to `.council.json`, and EPIC-10 closed Done at
+  v0.33.0 shipping the typed follow-up review (File/Merge/Drop); EPIC-11/12 remain Backlog).
 
 ## Entities
 
@@ -89,8 +89,11 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[council-update]] — FLLWUP-50's consent-gated refresh path for packaged council tooling (`/council-update`, the `scaffold.json` provenance record, the session-start drift notice).
 - [[council-setup]] — EPIC-11 (Backlog): grounded, interview-driven `/council-setup` that writes a fitted configuration.
 - [[version-on-first-run]] — EPIC-12 (Backlog): show the pi-council version + latest git hash on the first pi run.
-- [[metered-deliberation-routing]] — EPIC-13 (shipped v0.28.0): a typed System One gate routes each card to Deliberate/Verify/Direct; **`off` routes every card to the full Deliberate panel** (maximum scrutiny); enablement lives in `.council.json`'s top-level `gate` section — packaged default `mode: "off"`.
-- [[followup-merge-and-auto-ingest]] — EPIC-10 (Backlog): merge near-duplicate follow-ups + autonomous wiki ingest at run completion.
+- [[metered-deliberation-routing]] — EPIC-13 (shipped v0.28.0): a typed System One gate routes each card to Deliberate/Verify/Direct; **`off` routes every card to the full Deliberate panel** (maximum scrutiny); enablement lives in `.council.json`'s top-level `gate` section — packaged default `mode: "off"`. EPIC-10 (2026-09-22) found the shipped gate inert in production (noul wire-shape drift, dead recorded-decision fast path; FLLWUP-99/100/104).
+- [[followup-decision-gate]] — EPIC-10 (shipped v0.33.0): the follow-up review's typed File/Merge/Drop decision, a sibling of the card gate sharing one `gate.mode`; a failed decision falls back to the human and may never Drop or auto-Merge.
+- [[confirmation-authority]] — Under `active`, a recorded decision is the disposition SOURCE, never the human confirmation; a runner escalates each candidate for ratification by a ruling seat before any write.
+- [[step-13-followup-surface]] — EV-82's step-13 surface: the one-line disposition render, four unavailable-state literals, the unconditional dedup pass, and the hard pre-write pin.
+- [[followup-merge-and-auto-ingest]] — SUPERSEDED (2026-09-22): the pre-cut EPIC-10 plan (merge-before-draft + autonomous ingest); replaced by [[followup-decision-gate]].
 
 ## Comparisons
 
@@ -98,6 +101,7 @@ _(none yet)_
 
 ## Sources
 
+- [[2026-09-22-epic10-run-ledger]] — The EPIC-10 run: the typed follow-up review (File/Merge/Drop) shipped end to end (7 Deliberate merges, PRs #97–#103, v0.28.0→v0.33.0), the confirmation-authority ruling (a recorded decision is the source, never the human confirmation), and the discovery that the shipped card gate is inert in production (noul wire-shape drift, dead recorded-decision fast path).
 - [[2026-09-21-epic14-run-ledger]] — The EPIC-14 run: gate enablement re-homed to `.council.json`'s `gate` section, `/council-gate` shipped, the run-start credential check landed on a packaged path; five Deliberate merges (PRs #92–#96), two product-owner escalations, one steward closure, 15 follow-ups, and a release left pending.
 - [[2026-09-21-po-ev73-step6-ruling]] — The fold-in test (the migration copy belongs to EV-75, not EV-73) and refusal class 4 scoped to `decision.json`'s three override strings.
 - [[2026-09-21-po-ev77-j1-j2-ruling]] — The gateFail-tail sentence is in; docs cards ship mechanical pins in `test/`, never in `council/validate.py`.

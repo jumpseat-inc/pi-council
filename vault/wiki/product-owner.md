@@ -4,9 +4,9 @@ type: entity
 summary: The Council's product-judgment seat — rules open-judgment disputes, fold-in rulings, and mid-flow product decisions; card-level rulings are final among agents; portfolio matters escalate.
 aliases: [product-owner seat]
 tags: [pi-council/seat]
-sources: ["[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-21-po-ev73-step6-ruling]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-21-epic14-run-ledger]]"]
+sources: ["[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-21-po-ev73-step6-ruling]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-20
+updated: 2026-09-22
 ---
 
 > ⚠️ Derived from `council/agents/product-owner.md` (captured 2026-08-23). Verify against the seat file.
@@ -133,6 +133,17 @@ executed the offer — the lineage is recorded on [[red-base evidence]].
   test files, but the pins belong in `test/`, never `council/validate.py` —
   packaged tooling would hardcode this repo's layout into consumer repos. See
   [[2026-09-21-po-ev77-j1-j2-ruling]], [[test-suite-budget]].
+
+## EPIC-10 (2026-09-22) — ratification as a distinct act
+
+This seat ruled eight times in the EPIC-10 run and was never escalated past — no
+[[steward]] dispatch. The run added a distinct mode of invocation:
+**ratification**. Under `gate.mode: active` a recorded follow-up disposition is the
+*source*, not the confirmation, so a runner escalates each candidate for this seat
+to ratify rather than re-decide ([[confirmation-authority]]). The seat also ran the
+fold-in and re-card-trigger discipline (`FLLWUP-96`/`99`/`100`/`104`) and rewrote
+one of its own prior rulings' referents (`FLLWUP-96`'s blocker). Witness:
+[[2026-09-22-epic10-run-ledger]].
 
 ## Related
 

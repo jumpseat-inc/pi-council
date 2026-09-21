@@ -4,9 +4,9 @@ type: concept
 summary: The committed `.council.json` at the repo root — a per-seat `council` block overriding model/thinking, PLUS sibling top-level `theme`, `retry`, and `gate` sections giving per-repo control of the council palette, provider-error retry policy, and decisions-gate enablement. Frontmatter, shipped palette, retry, and gate defaults stay the defaults; the file shadows them. Seeded non-clobberingly by /council-init.
 aliases: [council config, .council.json, council.json, agent overrides, seat model override, seat config]
 tags: [pi-council/concept]
-sources: ["[[2026-08-23-council-json-override]]", "[[2026-08-25-design-ev3]]", "[[2026-08-25-design-ev3-round2]]", "[[2026-09-21-epic14-run-ledger]]"]
+sources: ["[[2026-08-23-council-json-override]]", "[[2026-08-25-design-ev3]]", "[[2026-08-25-design-ev3-round2]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-21
+updated: 2026-09-22
 ---
 
 # Council Config
@@ -168,6 +168,14 @@ frontmatter-derived defaults (model + thinking split out) **and** a `theme`
 section defaulting to the shipped omp palette (documenting the per-variant
 `vars`/`colors` override surface), non-clobbering — re-runs never overwrite a
 consumer's edits ([[non-clobbering-scaffold]]).
+
+## The `gate` section now governs two domains (2026-09-22)
+
+One shared `gate.mode` key governs both the card-dispatch decision gate
+([[metered-deliberation-routing]]) and the follow-up review decision
+([[followup-decision-gate]]); there is no second section and no per-domain key.
+Both domains' `off` arms move toward a human, so one switch never makes the
+product less scrutinised. Witness: [[2026-09-22-epic10-run-ledger]].
 
 ## Related
 

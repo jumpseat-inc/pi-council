@@ -4,9 +4,9 @@ type: concept
 summary: The step-12 direct-to-main record push is a privileged write the features-deliver authority map does not re-home; FLLWUP-60 closed the gap by naming a run-scoped authorization in the procedure and fencing an unauthorized push as a HALT — EPIC-13 then showed the ordering (`before` the first push) is the load-bearing word.
 aliases: [record push, step-12 push, admin bypass, record-push authorization]
 tags: [pi-council/concept, pi-council/features-deliver]
-sources: ["[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]"]
+sources: ["[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]"]
 created: 2026-09-17
-updated: 2026-09-21
+updated: 2026-09-22
 ---
 
 # Record-Push Discipline
@@ -81,6 +81,15 @@ from the same run: the runners sometimes committed board/card records on the
 *main* checkout ([[main-repo immutability]] tension), and a post-merge
 `git reset --hard` discarded a local-only ruling doc
 ([[union-merge reconcile]]). See [[2026-09-21-epic13-run-ledger]].
+
+## EPIC-10 (2026-09-22) — clean sequence
+
+The run recorded **P1-RP** (direct record-push authorization) at Phase 1, before
+any card dispatch and therefore before the first push — compliant with FLLWUP-60's
+"before the run's first record push" clause, and the first run since EPIC-13's
+ordering miss to get the sequence right. All seven cards rode the grant; the nine
+`vault/raw/` ruling docs were untracked until the run's final record. Witness:
+[[2026-09-22-epic10-run-ledger]].
 
 ## Why it matters
 

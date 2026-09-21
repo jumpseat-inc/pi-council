@@ -4,9 +4,9 @@ type: concept
 summary: EPIC-13, shipped at v0.28.0 — a typed System One gate evaluates a packed card state and routes each card to Deliberate, Verify, or Direct; enablement lives in `.council.json`'s reserved top-level `gate` section, and the packaged default resolves `mode: "off"` — which routes every card to the full Deliberate panel.
 aliases: [metered deliberation, deliberation routing, System One gate, Deliberate Verify Direct, gate]
 tags: [pi-council/concept, pi-council/epic13]
-sources: ["[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-21-po-ev73-step6-ruling]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]"]
+sources: ["[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-21-po-ev73-step6-ruling]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-22-epic10-run-ledger]]"]
 created: 2026-09-20
-updated: 2026-09-21
+updated: 2026-09-22
 ---
 
 # Metered Deliberation Routing
@@ -269,6 +269,25 @@ designer is seated in Verify), and the static pending window (`FLLWUP-75`).
 a finite, strictly positive verify threshold at load.) Documented-as-is:
 `/council-gate`'s status line names no file while the write/no-op lines do; the
 prose location is this page.
+
+## EPIC-10 findings (2026-09-22)
+
+The EPIC-10 falsifier reached into this shipped gate and found it **inert in
+production**, in the repo that runs `active`:
+
+- **Noul wire-shape drift.** `typesafe/jev-1.13-20260917` returns noul answers as
+  `{"type":"noul","noul":<p>}` while `sideProbability`/`followupFloor` read
+  `answer.probability`; `parseDecisionsResponse` passes payloads verbatim, so every
+  live call fails closed with `invalid-response`. **Flag:** the claim above that "a
+  `noul` answer carries a probability" is true of the engine's contract and
+  **false of the live wire**. Filed `FLLWUP-104` (EPIC-13).
+- **Dead recorded-decision fast path.** `runGate` writes the tuning `policyVersion`
+  while `resolveRoute` compares the decision policy's version, so every recorded
+  line classifies as `policyDrift` and routes full (`FLLWUP-99`, EPIC-13).
+- **No usable probabilities ever** — 8/8 live card-gate lines died at `decide()`
+  (`FLLWUP-100`, EPIC-13).
+
+The fail-closed direction held in every case. Witness: [[2026-09-22-epic10-run-ledger]].
 
 ## Related
 

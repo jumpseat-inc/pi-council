@@ -4,9 +4,9 @@ type: concept
 summary: The convention fixing what a falsifier's red-at-base evidence record must contain (seven fields) and how records are compared across cards (the comparison triple gates count comparison; the mechanism-absent boundary is skeptic-derived, never owner-written).
 aliases: ["red-at-base evidence", "red-base convention", "red-base evidence"]
 tags: [pi-council/concept, pi-council/process, pi-council/epic9]
-sources: ["[[2026-09-17-po-fllwup47-step6-ruling]]"]
+sources: ["[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-22-epic10-run-ledger]]"]
 created: 2026-09-18
-updated: 2026-09-18
+updated: 2026-09-22
 ---
 
 # Red-Base Evidence
@@ -115,6 +115,15 @@ a separate follow-up at FLLWUP-47 R6 (2026-09-17), confirmed by
 recorded on the EPIC-9 ledger; R6's clarification is that the earlier decline
 was not a standing decline — the offer was simply kept, and this card is its
 exercise.
+
+## EPIC-10 records (2026-09-22)
+
+EV-83 and EV-84 each recorded red-at-base per the seven-field convention. EV-84's
+record is a **behavioral red on a gated arm** (not a mechanism-absent one): the
+live arm failed at base because the wire shape had drifted. Its acceptance
+requires the record to state how the live arm was reached at base (credentials in
+a detached worktree) or name that it could not be. Witness:
+[[2026-09-22-epic10-run-ledger]], [[followup-decision-gate]].
 
 ## Related
 

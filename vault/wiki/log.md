@@ -1,5 +1,32 @@
 # Wiki Log
 
+## [2026-09-22] ingest | EPIC-10 run — typed follow-up review + confirmation authority + inert-gate finding
+
+Ingested the EPIC-10 run (filed `vault/raw/2026-09-22-epic10-run-ledger.md`). The
+re-cut epic shipped the typed follow-up review end to end (7 Deliberate merges,
+PRs #97–#103, v0.28.0→v0.33.0); the run's load-bearing ruling is
+[[confirmation-authority]] (a recorded `active` decision is the disposition
+source, never the human confirmation), and its falsifier found the shipped card
+gate inert in production (noul wire-shape drift, dead recorded-decision fast
+path).
+- **Created:** sources/2026-09-22-epic10-run-ledger, concept
+  [[followup-decision-gate]], concept [[confirmation-authority]], concept
+  [[step-13-followup-surface]].
+- **Updated:** [[followup-merge-and-auto-ingest]] (rewritten as a superseded
+  pointer), [[metered-deliberation-routing]] (Residuals + wire-vs-engine flag),
+  [[deterministic-merge-check]] (EPIC-10 practice + runner-merges variance),
+  [[council-runner]], [[record-push-discipline]] (clean authorization sequence),
+  [[presented-never-written]], [[engineering-board]], [[card-id-allocation]],
+  [[chain-promotion]], [[test-suite-budget]], [[red-base-evidence]],
+  [[union-merge-reconcile]], [[gate-parity]], [[council-config]],
+  [[product-owner]], [[steward]], [[pi-council-overview]], `index.md`.
+- **Contradictions flagged:** `followup-merge-and-auto-ingest` (Backlog /
+  merge-before-draft) superseded by the re-cut; [[metered-deliberation-routing]]'s
+  "a `noul` answer carries a probability" is engine-true and wire-false;
+  [[pi-council-overview]]/`index.md`/[[deterministic-merge-check]] said EPIC-10
+  Backlog and the facilitator merges — both superseded (flagged in-page, not
+  silently overwritten).
+
 ## [2026-09-21] ingest | EPIC-14 run + EPIC-13 ruling backfill
 
 Ingested the EPIC-14 run (filed `vault/raw/2026-09-21-epic14-run-ledger.md` from

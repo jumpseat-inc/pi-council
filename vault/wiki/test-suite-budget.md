@@ -4,9 +4,9 @@ type: concept
 summary: The default bun test suite's measured wall-clock envelope, the live-arm files that carry it, the ceiling-vs-budget distinction, the CI-timeout backstop, and the rules that keep the numbers honest.
 aliases: [suite budget, test suite cost, drift threshold, CI timeout backstop]
 tags: [pi-council/concept, pi-council/smoke-test]
-sources: ["[[2026-09-19-po-fllwup48-test-suite-budget]]", "[[2026-09-18-po-fllwup56-step13-ruling]]", "[[2026-09-20-po-fllwup58-gates-backstop]]", "[[2026-09-20-po-fllwup58-step13-confirmation]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-21-epic14-run-ledger]]"]
+sources: ["[[2026-09-19-po-fllwup48-test-suite-budget]]", "[[2026-09-18-po-fllwup56-step13-ruling]]", "[[2026-09-20-po-fllwup58-gates-backstop]]", "[[2026-09-20-po-fllwup58-step13-confirmation]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]"]
 created: 2026-09-17
-updated: 2026-09-21
+updated: 2026-09-22
 ---
 
 # Test Suite Budget
@@ -230,6 +230,14 @@ for f in ev41-retry-e2e ev40-live-gates ev40-headless ev43-reachability ev41-sea
   time bun test test/$f.test.ts
 done
 ```
+
+## EPIC-10 growth (2026-09-22)
+
+The default suite grew across the epic from ~1331 pass (EV-79) to **1453 pass /
+6 skip / 0 fail** at EV-84, the wall clock rising from ~110s to ~111s. The EV-84
+falsifier's live arm is gated off the default suite (`COUNCIL_JEV_LIVE=1`,
+`COUNCIL_INTEGRATION=1`), preserving the default-suite-stays-offline rule; the
+run added no ungated network arm. Witness: [[2026-09-22-epic10-run-ledger]].
 
 ## Standing maintenance rules
 

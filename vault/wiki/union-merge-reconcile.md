@@ -4,9 +4,9 @@ type: concept
 summary: When a squash-merged PR folds a runner's board commits, a local main carrying later record commits diverges — reconcile by union merge keeping both record sides, then verify (validate.py + a conflict-marker sweep); or avoid it by pushing records as they happen. A `git reset --hard` on local main is a rewind, not this repair — EPIC-13's counterexample discarded a ruling doc.
 aliases: [union merge, diverged main, union-merge reconcile]
 tags: [pi-council/process]
-sources: ["[[2026-09-05-epic6-run-ledger]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]"]
+sources: ["[[2026-09-05-epic6-run-ledger]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]"]
 created: 2026-09-05
-updated: 2026-09-21
+updated: 2026-09-22
 ---
 
 # Union-Merge Reconcile
@@ -92,6 +92,15 @@ cleaned. **Sweep for markers after every reconcile** — a remnant is
 durable-state damage the board discipline exists to prevent. See
 [[card-id-allocation]] (the fetched-HEAD allocation rule that interacts
 with this) and [[engineering-board]].
+
+## EPIC-10 recurrence (2026-09-22)
+
+Recurred on 3 of 7 cards (EV-81, EV-83, EV-84), including the documented
+spurious-conflict class: the squash already carried the pre-branch record commits,
+so the local record side was a strict superset. The repair used a containment
+check plus `git rebase --onto origin/main <pre-branch>` to replay only the
+genuinely-unmerged record commits — never a `reset --hard`. Witness:
+[[2026-09-22-epic10-run-ledger]].
 
 ## Related
 

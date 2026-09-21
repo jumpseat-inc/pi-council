@@ -4,9 +4,9 @@ type: concept
 summary: The /features-new gate presentation is two-part — Part 1 card drafts exactly as they would be written and strictly attribution-free, Part 2 a ledger of contributors, disagreements, and unresolved calls that is presented to the human but never persisted to any card file.
 aliases: [ledger surface, two-part gate presentation, disagreement ledger, attribution-free]
 tags: [pi-council/concept, pi-council/features-new]
-sources: ["[[2026-09-04-epic3-run-ledger]]"]
+sources: ["[[2026-09-04-epic3-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]"]
 created: 2026-09-04
-updated: 2026-09-04
+updated: 2026-09-22
 ---
 
 # Presented Never Written
@@ -51,6 +51,15 @@ pattern: even the session-status signifier is placed **adjacent to** the
 ledger's guard sentence (within ~200 chars), not in the bound-structure
 block — placement follows the presentation/procedure boundary, measured, not
 guessed.
+
+## EPIC-10 extension — the presented follow-up disposition
+
+The step-13 follow-up surface applies the same boundary to the typed decision: the
+rendered `Mode: <disposition> — <basis>` line is **presented, never written** (a
+test asserts the full render appears in no card file), and the applied disposition
+waits on the human / ratifying-seat confirmation
+([[confirmation-authority]]). See [[step-13-followup-surface]]. Witness:
+[[2026-09-22-epic10-run-ledger]].
 
 ## Related
 
