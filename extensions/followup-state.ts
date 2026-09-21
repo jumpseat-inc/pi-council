@@ -78,7 +78,10 @@ export type FollowupSiblingEntry = FollowupCandidate;
  * `section: GateSection` cannot carry "board"/"siblings"); GateDropRecord
  * (gate-ledger.ts, `section: string`) is the precedent, and
  * FollowupState.drops must stay structurally assignable to GateDropRecord[]
- * — pinned by test. */
+ * — pinned by test; runFollowupGate (gate-run.ts, EV-81) is the real
+ * consumer, carrying `state.drops` into the gate ledger's one call-line
+ * append on both arms (the accessor symbol is deliberately not spelled here
+ * — the EV-66 writer-accessor canary enumerates modules by name). */
 export interface FollowupDropRecord {
 	section: FollowupSection;
 	truncated: false | "cap" | "budget";
