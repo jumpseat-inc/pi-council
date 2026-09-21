@@ -1,5 +1,27 @@
 # Wiki Log
 
+## [2026-09-22] ingest | EPIC-11 recut — Jev seat-composition gate domain, under designer attack
+
+Ingested the wave-2 designer attack on the Jev-aware EPIC-11 recut (filed
+`vault/raw/2026-09-22-design-epic11-recut-surface.md`). The recut adds a third
+gate domain (setup seat composition, `Default` fail-safe / `Redefine`) sibling to
+[[metered-deliberation-routing]] and [[followup-decision-gate]]; the attack's
+ranked findings A–J name the literal-copy, `gate.mode` provenance, schema-seam,
+and never-written-pin gaps. Kept minimal per steer — EPIC-11 is unbuilt and the
+concepts may change, so no speculative concept pages were created.
+
+- **Created:** sources/2026-09-22-design-epic11-recut-surface.
+- **Updated:** [[council-setup]] (recut-aware rewrite: third domain,
+  `<seat_emphasis>` persona, profile-citation rule, findings, contradiction
+  flag), [[metered-deliberation-routing]], [[followup-decision-gate]],
+  [[confirmation-authority]], [[gate-parity]] (backlinks), `index.md`.
+- **Contradictions flagged:** [[2026-09-19-po-epic11-decomposition-ruling]] §10
+  ("profile field in the header chip") is malformed for the seat-composition
+  question, whose recommendation is a Jev disposition (Finding A) — flagged on
+  [[council-setup]] and the source page, not overwritten. Also flagged: two raws
+  the source cites (`2026-09-21-design-epic10-re-cut-surface`,
+  `2026-09-22-po-ev84-step13-noul-shape-ruling`) still lack source pages.
+
 ## [2026-09-22] ingest | EPIC-10 run — typed follow-up review + confirmation authority + inert-gate finding
 
 Ingested the EPIC-10 run (filed `vault/raw/2026-09-22-epic10-run-ledger.md`). The

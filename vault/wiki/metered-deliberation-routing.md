@@ -4,7 +4,7 @@ type: concept
 summary: EPIC-13, shipped at v0.28.0 — a typed System One gate evaluates a packed card state and routes each card to Deliberate, Verify, or Direct; enablement lives in `.council.json`'s reserved top-level `gate` section, and the packaged default resolves `mode: "off"` — which routes every card to the full Deliberate panel.
 aliases: [metered deliberation, deliberation routing, System One gate, Deliberate Verify Direct, gate]
 tags: [pi-council/concept, pi-council/epic13]
-sources: ["[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-21-po-ev73-step6-ruling]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-22-epic10-run-ledger]]"]
+sources: ["[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-21-po-ev73-step6-ruling]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-design-epic11-recut-surface]]"]
 created: 2026-09-20
 updated: 2026-09-22
 ---
