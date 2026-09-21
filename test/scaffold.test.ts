@@ -2,9 +2,10 @@ import { test, expect } from "bun:test";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import { scaffoldInto } from "../extensions/scaffold.ts";
+import { scaffoldInto, copyUsagesSkill } from "../extensions/scaffold.ts";
 import { PKG_ROOT } from "../extensions/seats.ts";
 import { loadMcpConfig } from "../extensions/mcp/config.ts";
+import { CONFIG_DIR_NAME } from "@earendil-works/pi-coding-agent";
 import { COUNCIL_CONFIG_FILE, loadCouncilConfig, loadSeat, loadThemeConfig, loadShippedTheme, mergeThemeSection } from "../extensions/seats.ts";
 
 const SCAFFOLD = path.join(PKG_ROOT, "council", "scaffold");
@@ -130,4 +131,19 @@ test("delta acceptance: seeded theme section merges to byte-identical shipped pa
 	expect(mergedLight.vars).toEqual(light.vars);
 	expect(mergedLight.colors).toEqual(light.colors);
 	expect(mergedLight.export).toEqual(light.export);
+});
+
+test("T-USK1: copyUsagesSkill copies the package skill under CONFIG_DIR_NAME, rendering @CONFIG_DIR@, and never clobbers", () => {
+	const root = fs.mkdtempSync(path.join(os.tmpdir(), "usages-skill-"));
+	const first = copyUsagesSkill(root, PKG_ROOT);
+	expect(first.created).toContain("skills/usages/SKILL.md");
+	expect(first.created).toContain("skills/usages/scripts/usages.py");
+	const tool = fs.readFileSync(path.join(root, CONFIG_DIR_NAME, "skills", "usages", "scripts", "usages.py"), "utf-8");
+	expect(tool).not.toContain("@CONFIG_DIR@");
+	// second run: nothing new, consumer edit survives
+	fs.appendFileSync(path.join(root, CONFIG_DIR_NAME, "skills", "usages", "SKILL.md"), "\n<!-- mine -->\n");
+	const second = copyUsagesSkill(root, PKG_ROOT);
+	expect(second.created).toEqual([]);
+	expect(second.skipped).toContain("skills/usages/SKILL.md");
+	expect(fs.readFileSync(path.join(root, CONFIG_DIR_NAME, "skills", "usages", "SKILL.md"), "utf-8")).toContain("<!-- mine -->");
 });

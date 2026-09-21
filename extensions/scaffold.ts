@@ -188,3 +188,43 @@ export function scaffoldInto(repoRoot: string, scaffoldRoot: string, options: Sc
 	}
 	return result;
 }
+
+/** D1 (`/usages`) — copy the package's `council/skills/usages/` payload into
+ * `<repo>/$CONFIG_DIR_NAME/skills/usages/`, non-clobbering, rendering
+ * `@CONFIG_DIR@` at copy time (the same renderer `preflight.sh` uses).
+ * Deliberately OUTSIDE the scaffold tree: engine-synthesized consumer files
+ * like the default mcp.json, so `TOOLING_FILES`/`DATA_FILES`, the T4 guard,
+ * and the scaffold.json provenance record are all untouched. */
+export function copyUsagesSkill(repoRoot: string, pkgRoot: string): ScaffoldResult {
+	const src = path.join(pkgRoot, "council", "skills", "usages");
+	const dstRoot = path.join(repoRoot, CONFIG_DIR_NAME, "skills", "usages");
+	const result: ScaffoldResult = { created: [], skipped: [] };
+	const walk = (rel: string): void => {
+		let entries: fs.Dirent[];
+		try {
+			entries = fs.readdirSync(path.join(src, rel), { withFileTypes: true });
+		} catch {
+			return;
+		}
+		for (const entry of entries) {
+			const childRel = rel ? path.join(rel, entry.name) : entry.name;
+			const srcPath = path.join(src, childRel);
+			const dst = path.join(dstRoot, childRel);
+			const key = toScaffoldRel(path.join("skills", "usages", childRel));
+			if (entry.isDirectory()) {
+				walk(childRel);
+			} else if (entry.isFile()) {
+				if (fs.existsSync(dst)) {
+					result.skipped.push(key);
+				} else {
+					fs.mkdirSync(path.dirname(dst), { recursive: true });
+					const bytes = Buffer.from(renderScaffoldText(fs.readFileSync(srcPath, "utf-8")), "utf-8");
+					fs.writeFileSync(dst, bytes);
+					result.created.push(key);
+				}
+			}
+		}
+	};
+	walk("");
+	return result;
+}

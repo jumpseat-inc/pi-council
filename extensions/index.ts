@@ -21,7 +21,7 @@ import {
 	type PendingInvocation,
 	type UsageTrigger,
 } from "./usage-store.ts";
-import { scaffoldInto, TOOLING_FILES } from "./scaffold.ts";
+import { scaffoldInto, copyUsagesSkill, TOOLING_FILES } from "./scaffold.ts";
 import { installArgsFor, resolveCouncilDependencies } from "./dependencies.ts";
 import { getMcp } from "./mcp-load.ts";
 import { Key, matchesKey } from "@earendil-works/pi-tui";
@@ -930,6 +930,15 @@ export default async function (pi: ExtensionAPI) {
 			messages.push(
 				`\nScaffold created:\n${r.created.map((c) => `  + ${c}`).join("\n") || "  (nothing)"}`,
 				`Scaffold skipped (already present):\n${r.skipped.map((s) => `  = ${s}`).join("\n") || "  (none)"}`,
+			);
+
+			// D1 (`/usages`): the skill/tool payload copies to
+			// <repo>/$CONFIG_DIR_NAME/skills/usages/ — engine-synthesized consumer
+			// files, outside the scaffold tree (no provenance, no refresh path).
+			const skill = copyUsagesSkill(repoRoot, PKG_ROOT);
+			messages.push(
+				`\nUsages skill copied:\n${skill.created.map((c) => `  + ${CONFIG_DIR_NAME}/${c}`).join("\n") || "  (nothing)"}`,
+				`Usages skill skipped (already present):\n${skill.skipped.map((s) => `  = ${CONFIG_DIR_NAME}/${s}`).join("\n") || "  (none)"}`,
 			);
 
 			const msg = messages.join("\n");
