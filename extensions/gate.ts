@@ -847,6 +847,155 @@ export function loadFollowupDecision(repoRoot: string): FollowupDecisionPolicy {
 	};
 }
 
+// EV-79 — the followup's pure decision function: a function of the followup
+// transport's answers and the decision policy ONLY — no fs, no network, no
+// model call (purity is behavioral: two identical calls yield byte-identical
+// output, the shipped `decide()` precedent). The card gate's precedence is
+// INVERTED per the intake R4 ruling — floors → overrides → composite — and
+// the fail-safe arm is stronger: where the gate lets missing evidence drag
+// toward Deliberate with a 0 contribution (its floor loop iterates answers
+// and is structurally blind to absence), the followup HARD-RETURNS File on
+// an unanswered weighted question: Merge and Drop are unreachable on unsure
+// input, so a failed follow-up call resolves to the human-facing side. The
+// loop axis is load-bearing: phase 1 iterates `Object.keys(policy.weights)`
+// — absent, undefined, and null are ONE unanswered state — because the
+// answers map omits unanswered questions entirely (gate-run's knownIds
+// filter). Phase 1b floor-checks every present answer the policy does not
+// count (floor-everything: floor-checking can only move toward File, never
+// violate the fail-safe) in canonical sorted key order, so the basis never
+// depends on answer insertion order (shipped `decide()` is
+// insertion-order-dependent there — the followup need not inherit it).
+// Phase 2 fires overrides in declared order on the answer itself (the same
+// mechanics as `overrideFires`; a score answer can never reach this phase —
+// phase 1 throws on unfloorable types first, and overrides reference
+// weighted ids only). Phase 3 composites the raw weighted sum (no
+// normalization; every weighted id is known answered and on-floor here) and
+// walks the drop arm first — strict `merge < drop` is loader-pinned.
+// Basis lines are single-line and byte-stable: the three interpolated
+// override strings are loader-validated single-line (`basisSafeString`) and
+// `fmt` never emits a newline. Runtime answer validation fails loud naming
+// the question id with a `followup:`-prefixed grammar so the two domains'
+// errors never confound — a score or unknown-type answer is unfloorable
+// here (the followup has no score floor) and R4 forbids proceeding on
+// unfloored input.
+
+/** The followup's decision: the recorded disposition (File|Merge|Drop) and
+ * the deterministic one-line reason. EV-82 prefixes the recorded mode
+ * before this basis when rendering, so the basis itself carries no
+ * disposition tail. */
+export interface FollowupDecision {
+	disposition: FollowupDisposition;
+	basis: string;
+}
+
+/** One present answer's floor arm, shared by phases 1a and 1b: returns the
+ * File decision on a floor breach, null when the answer is on-floor; throws
+ * naming the id on a malformed shape. The [0, 1] probability check is
+ * spelled here (not left to `sideProbability`) so the error grammar stays
+ * `followup:`-prefixed; the helper re-validates, keeping one mechanic. */
+function followupFloor(
+	id: string,
+	answer: GateAnswer,
+	policy: FollowupDecisionPolicy,
+): FollowupDecision | null {
+	if (answer.type === "choice") {
+		const confidence = answer.confidence;
+		if (typeof confidence !== "number" || !Number.isFinite(confidence)) {
+			throw new Error(`followup: decideFollowup — answer ${id} of type choice is missing a numeric confidence`);
+		}
+		if (confidence < policy.floors.choice) {
+			return {
+				disposition: "File",
+				basis: `${id}: confidence ${fmt(confidence)} < choice floor ${fmt(policy.floors.choice)}`,
+			};
+		}
+		return null;
+	}
+	if (answer.type === "noul") {
+		const p = answer.probability;
+		if (typeof p !== "number" || !Number.isFinite(p) || p < 0 || p > 1) {
+			throw new Error(
+				`followup: decideFollowup — answer ${id} of type noul is missing a usable probability (expected a number in [0, 1])`,
+			);
+		}
+		const certainty = Math.max(p, 1 - p);
+		if (certainty < policy.noulThreshold) {
+			return {
+				disposition: "File",
+				basis: `${id}: certainty ${fmt(certainty)} < noul threshold ${fmt(policy.noulThreshold)}`,
+			};
+		}
+		return null;
+	}
+	// The followup admits only choice/noul; a score answer has no floor here
+	// and R4 forbids proceeding on unfloored input.
+	throw new Error(
+		`followup: decideFollowup — answer ${id} has unknown or unfloorable type ${JSON.stringify(answer.type)} (expected choice or noul)`,
+	);
+}
+
+export function decideFollowup(
+	answers: Record<string, GateAnswer | null>,
+	policy: FollowupDecisionPolicy,
+): FollowupDecision {
+	// Phase 1a — unanswered weighted questions: a hard File return before any
+	// override is evaluated. Absent, undefined, and null are ONE state; the
+	// whole sweep runs before any floor so a mixed map always names the
+	// earliest declared unanswered id.
+	for (const id of Object.keys(policy.weights)) {
+		if (!answers[id]) {
+			return { disposition: "File", basis: `${id}: unanswered` };
+		}
+	}
+	// Phase 1a (cont.) — floors over the present weighted answers, first
+	// failure in weights declaration order.
+	for (const id of Object.keys(policy.weights)) {
+		const answer = answers[id];
+		if (!answer) continue; // unreachable: the sweep above returned File
+		const floor = followupFloor(id, answer, policy);
+		if (floor) return floor;
+	}
+	// Phase 1b — floor-everything over the present unweighted answers,
+	// canonical sorted key order, nulls skipped (R4's letter covers weighted
+	// questions); weighted ids are already handled.
+	for (const id of Object.keys(answers).sort()) {
+		if (policy.weights[id] !== undefined) continue;
+		const answer = answers[id];
+		if (!answer) continue;
+		const floor = followupFloor(id, answer, policy);
+		if (floor) return floor;
+	}
+	// Phase 2 — overrides, declared order, fired on the answer itself. Every
+	// present weighted answer is shape-valid and on-floor by phase 1, so an
+	// override whose answer is below its floor never reaches here (a gated
+	// rule, not a dead one).
+	for (const rule of policy.overrides) {
+		const answer = answers[rule.question];
+		if (!answer) continue; // unreachable: phase 1a returned File first
+		if (overrideFires(answer, rule.question, rule.option, policy)) {
+			return {
+				disposition: rule.disposition,
+				basis: `${rule.question}? ${rule.option} (${rule.basis})`,
+			};
+		}
+	}
+	// Phase 3 — the weighted composite: raw sum, no normalization. Every
+	// weighted id is known answered and on-floor by phase 1a.
+	let composite = 0;
+	for (const id of Object.keys(policy.weights)) {
+		const answer = answers[id];
+		if (!answer) continue; // unreachable: phase 1a returned File first
+		composite += policy.weights[id] * sideProbability(answer, id, policy.countedOption[id], policy);
+	}
+	if (composite >= policy.thresholds.drop) {
+		return { disposition: "Drop", basis: `composite ${fmt(composite)} ≥ drop threshold ${fmt(policy.thresholds.drop)}` };
+	}
+	if (composite >= policy.thresholds.merge) {
+		return { disposition: "Merge", basis: `composite ${fmt(composite)} ≥ merge threshold ${fmt(policy.thresholds.merge)}` };
+	}
+	return { disposition: "File", basis: `composite ${fmt(composite)} < merge threshold ${fmt(policy.thresholds.merge)}` };
+}
+
 /** The gate's decision: how the card runs (`mode`), which roles run
  * (`include`), and the deterministic one-line reason (`basis`). */
 export interface GateDecision {
@@ -865,7 +1014,10 @@ function fmt(v: number): string {
  * choice/score: the transport's `probabilities` map (keyed by option label or
  * criterion index). noul: the answer's `probability` is P(noulProbabilityOf);
  * the opposite side is 1 - p. */
-function sideProbability(answer: GateAnswer, id: string, option: string, policy: GateDecisionPolicy): number {
+// The policy parameter is structural: only `noulProbabilityOf` is read, so
+// both the gate's and the followup's decision policies are assignable (EV-79
+// reuses this helper verbatim).
+function sideProbability(answer: GateAnswer, id: string, option: string, policy: { noulProbabilityOf: string }): number {
 	if (answer.type === "noul") {
 		const p = answer.probability;
 		if (typeof p !== "number" || !Number.isFinite(p) || p < 0 || p > 1) {
@@ -881,7 +1033,7 @@ function sideProbability(answer: GateAnswer, id: string, option: string, policy:
 /** Whether a hard override fires for this answer: deterministic on the ANSWER
  * itself (chosen label / score index / favored noul side), never on a
  * probability comparison a model could re-argue. */
-function overrideFires(answer: GateAnswer, id: string, option: string, policy: GateDecisionPolicy): boolean {
+function overrideFires(answer: GateAnswer, id: string, option: string, policy: { noulProbabilityOf: string }): boolean {
 	switch (answer.type) {
 		case "choice":
 			return answer.value === option;
