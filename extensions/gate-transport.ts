@@ -11,7 +11,10 @@
 //
 // Import edge: TYPES ONLY from ./gate.ts and ./gate-ledger.ts — no runtime
 // dependency. The edge is one-way by design: gate.ts and gate-ledger.ts
-// never import this module, and gate-run.ts is the only runtime consumer.
+// never import this module, and gate-run.ts is NOT the only runtime consumer:
+// since EV-81 there are TWO — gate-run.ts (runGate, the card gate) and
+// gate-run.ts's colocated runFollowupGate (the followup arm) — both reusing
+// this seam verbatim; the one-way import edge is intact.
 //
 // Fail-closed posture: the transport NEVER throws — every failure, including
 // a timeout or a network error, is a returned value, which makes runGate's
