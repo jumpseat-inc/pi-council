@@ -93,9 +93,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-58 — Show the pi-council version and hash on the first pi run
 
 ## Deliberating
-- EV-79 — Pure follow-up disposition function with a fail-safe File default
 
 ## In Progress
+- EV-79 — Pure follow-up disposition function with a fail-safe File default
 
 ## In Review
 
