@@ -6,6 +6,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Backlog
 
+- FLLWUP-103 — Cover the wrapper's advisory arm in EV-83's own suite and pin the two escalation-basis tokens
 - FLLWUP-102 — Make the http-404 unavailability literal claim only what the transport can establish
 - FLLWUP-101 — Cold-read persona smokes on the step-13 follow-up surface (designer P1/P2/P3/P5/P7/P9)
 - FLLWUP-100 — Card-gate calls always route full Deliberate — every live ledger line died at decide() on a missing answer probability
@@ -77,7 +78,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-45 — Unattended ingest of a run's own ledger, without the human steer turn
 - EV-46 — Ingest at every single-card /council completion, attended or container-run
 - EV-47 — Ingest the whole run when /features-deliver reaches its run ledger
-- EV-84 — End-to-end falsifier for the Jev-gated follow-up review
 - EPIC-11 — Grounded, interview-driven council setup via /council-setup
 - EV-49 — Profile validator — the hard gate on the interview's model output
 - EV-50 — <seat_emphasis> sibling block and the consumer-side-only resource type
@@ -94,6 +94,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 
 ## Ready
+- EV-84 — End-to-end falsifier for the Jev-gated follow-up review
 - EV-48 — Packaged seat-tier map with repo-local merge override
 - EV-57 — Resolve the running pi-council identity from the package root
 - EV-58 — Show the pi-council version and hash on the first pi run
