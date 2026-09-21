@@ -4,9 +4,9 @@ type: overview
 summary: pi-council is an installable pi package pairing a multi-agent Council deliberation/implementation loop with an LLM-maintained wiki — the workflow's opinions are the product.
 aliases: [pi-council, council, the Council, pi-council overview]
 tags: [pi-council/overview]
-sources: ["[[2026-08-23-readme]]", "[[2026-08-23-pi-council-design-spec]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]", "[[2026-09-03-v0.14.0-domain-neutral-stack-agnostic]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]"]
+sources: ["[[2026-08-23-readme]]", "[[2026-08-23-pi-council-design-spec]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]", "[[2026-09-03-v0.14.0-domain-neutral-stack-agnostic]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-21-usages-design]]"]
 created: 2026-08-23
-updated: 2026-09-22
+updated: 2026-09-21
 ---
 
 `pi-council` (v0.33.0; latest tag `v0.19.0`, several epics behind `main`) is an installable [pi](https://pi.dev) package, distributed
@@ -15,6 +15,10 @@ running `/council-init` gives **any** repository the same opinionated workflow:
 a facilitator-driven Council of specialized seats that deliberates, implements,
 verifies, and judges work on a card board — backed by an LLM-maintained wiki
 under `vault/` so every run's knowledge compounds.
+
+> **Unreleased on local `main` (2026-09-21):** `/usages <time_range>`, a
+> repo-scoped per-seat cost report cross-matched to OpenRouter — see
+> [[usages-report]]. Not yet version-bumped.
 
 The workflow's opinions are deliberate and are the product: the seats'
 procedural doctrine (portfolio authority, gate discipline, adversary
@@ -27,7 +31,7 @@ packaged one), never by forking the package.
 ## The two engine halves
 
 - **Parent mode** — the session that runs a repo. Registers commands
-  (`/council`, `/council-init`, `/council-jobs`, `/mcp …`, the 7 procedure
+  (`/council`, `/council-init`, `/council-jobs`, `/mcp …`, the 8 procedure
   commands), the hub tools, the shared widget, and the output-token floor patch.
 - **Child mode** — a seat dispatched by `council_dispatch` runs as an isolated
   headless `pi` process (`--mode json -p`), sandboxed to its granted tools,

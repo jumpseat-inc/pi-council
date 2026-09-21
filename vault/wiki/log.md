@@ -27,6 +27,32 @@ path).
   Backlog and the facilitator merges — both superseded (flagged in-page, not
   silently overwritten).
 
+## [2026-09-21] ingest | `/usages` procedure — repo-scoped OpenRouter cost cross-match
+
+Ingested the `/usages` design spec (filed `vault/raw/2026-09-21-usages-design.md`).
+A packaged procedure + a `/council-init`-copied skill/tool report one repo's
+per-seat and main-agent token/dollar usage over a time range, cross-matched to
+OpenRouter through the batch `analytics/query` surface. The reusable findings:
+`generation_id` is the only reliable join key (council child `session_id` is
+`job-N` and collides across runs), activity is account-wide (30-day account
+$211.85 vs $1.26 repo-attributed), and seat-level history needed a new durable
+`seats[]` sibling because run dirs prune to 15.
+
+- **Created:** sources/2026-09-21-usages-design, concept [[usages-report]],
+  concept [[openrouter-analytics-surface]].
+- **Updated:** [[usage-accounting]], [[usage-store]] (`seats[]` + `gate`),
+  [[cost-provenance]] (analytics surface + `exact`/`reported` flag),
+  [[procedure-commands]] (7→8 procedures), [[non-clobbering-scaffold]] (the
+  engine-synthesized skill copy), [[run-transcripts]], [[preflight]]
+  (management vs inference key), [[pi-council-overview]] (unreleased note),
+  [[test-suite-budget]] (1463 tests; the test-isolation lesson), `index.md`.
+- **Contradictions flagged:** [[procedure-commands]] said "seven packaged
+  procedures" (now eight); [[usage-store]]'s interface block was stale (missing
+  EV-71's `gate` sibling and the new `seats`); [[cost-provenance]]'s "no
+  four-component dollar split anywhere" is generation-endpoint-true but
+  `/analytics/query` exposes component-ish currency metrics; the new `exact`
+  label vs the canonical `reported` (flagged, `reported` kept as canonical).
+
 ## [2026-09-21] ingest | EPIC-14 run + EPIC-13 ruling backfill
 
 Ingested the EPIC-14 run (filed `vault/raw/2026-09-21-epic14-run-ledger.md` from

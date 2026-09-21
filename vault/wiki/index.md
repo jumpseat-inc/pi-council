@@ -32,7 +32,7 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[facilitator]] — The routing-and-bookkeeping role that runs the loop and decides nothing.
 - [[council-loop]] — The facilitator-run deliberation → implement → verify → judge loop.
 - [[engineering-board]] — The card board + cards under council/; validate.py discipline, and the fold-in test (a work item belongs to a live card iff needed to meet its goal as written).
-- [[procedure-commands]] — The scanned, override-aware slash-command set + the 7 procedures.
+- [[procedure-commands]] — The scanned, override-aware slash-command set + the 8 procedures (incl. `/usages`).
 - [[repository-grounding]] — The engine-appended prompt block that grounds seats in the wiki/code.
 - [[override-resolution]] — Repo-local resources shadow packaged ones by filename.
 - [[non-clobbering-scaffold]] — /council-init; creates files without ever overwriting.
@@ -72,7 +72,7 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[procedures-vs-commands]] — Markdown procedures (LLM judgment is the feature) vs TS commands (LLM obedience is required); the rule of thumb from EPIC-4.
 - [[usage-accounting]] — The EPIC-7 subsystem: the full flat token/cost tuple with `costBasis`/`usageSource` provenance, captured at the hub, recorded, stored, and reported.
 - [[spend-record]] — Invocation-scoped two halves (`ownSession` session-enumeration + `subtree` stream projection), each with its own basis; unresolvable boundary zeroes both.
-- [[usage-store]] — The durable store at `getAgentDir()/council/usage/`: one record per invocation, schema v2, `pointerSurvivable` + `ResolveOutcome`, surviving run pruning.
+- [[usage-store]] — The durable store at `getAgentDir()/council/usage/`: one record per invocation, schema v2, `pointerSurvivable` + `ResolveOutcome`, surviving run pruning; siblings `provider`, `gate`, and (2026-09-21) per-seat `seats[]`.
 - [[usage-block]] — The deterministic block at five autonomous exits: grammar identity across forms, three whole-block states (failed > unresolved > empty), the conditional `n/a` legend.
 - [[cost-provenance]] — pi computes cost from the static catalogue and never reads a provider charge; OpenRouter reports generation-level dollars + a BYOK-only split — no per-component dollars exist.
 - [[transcript-unit-rendering]] — the EPIC-8 composed tool-call unit (`→ <Tool>  <primary-arg>`, indented result, `muted "✗"`); why parser identity came first.
@@ -94,6 +94,8 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[confirmation-authority]] — Under `active`, a recorded decision is the disposition SOURCE, never the human confirmation; a runner escalates each candidate for ratification by a ruling seat before any write.
 - [[step-13-followup-surface]] — EV-82's step-13 surface: the one-line disposition render, four unavailable-state literals, the unconditional dedup pass, and the hard pre-write pin.
 - [[followup-merge-and-auto-ingest]] — SUPERSEDED (2026-09-22): the pre-cut EPIC-10 plan (merge-before-draft + autonomous ingest); replaced by [[followup-decision-gate]].
+- [[usages-report]] — `/usages <time_range>`: a packaged procedure + `/council-init`-copied tool reporting one repo's per-seat / main-agent token+dollar usage, cross-matched to OpenRouter as JSON + Markdown under `.pi/council/usages/`.
+- [[openrouter-analytics-surface]] — OpenRouter's three cost surfaces (account-wide daily `/activity`, per-generation `/generation`, batch `/analytics/query`), their caps, and why `generation_id` is the only reliable join key.
 
 ## Comparisons
 
@@ -101,6 +103,7 @@ _(none yet)_
 
 ## Sources
 
+- [[2026-09-21-usages-design]] — The `/usages` design + build: a packaged procedure plus a `/council-init`-copied skill/tool reporting repo-scoped per-seat spend cross-matched to OpenRouter; the three-surface probe, the `generation_id` join trap, the `seats[]` durability sibling, and the dogfood learnings (end-day window, cache persistence, test-isolation).
 - [[2026-09-22-epic10-run-ledger]] — The EPIC-10 run: the typed follow-up review (File/Merge/Drop) shipped end to end (7 Deliberate merges, PRs #97–#103, v0.28.0→v0.33.0), the confirmation-authority ruling (a recorded decision is the source, never the human confirmation), and the discovery that the shipped card gate is inert in production (noul wire-shape drift, dead recorded-decision fast path).
 - [[2026-09-21-epic14-run-ledger]] — The EPIC-14 run: gate enablement re-homed to `.council.json`'s `gate` section, `/council-gate` shipped, the run-start credential check landed on a packaged path; five Deliberate merges (PRs #92–#96), two product-owner escalations, one steward closure, 15 follow-ups, and a release left pending.
 - [[2026-09-21-po-ev73-step6-ruling]] — The fold-in test (the migration copy belongs to EV-75, not EV-73) and refusal class 4 scoped to `decision.json`'s three override strings.

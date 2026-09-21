@@ -4,9 +4,9 @@ type: concept
 summary: The durable usage store at `getAgentDir()/council/usage/` — one record per invocation keyed on the marker's `at`, wrapping the SpendRecord byte-verbatim, schema v2 with the provider sibling; survives run pruning via write-time `pointerSurvivable` + read-time `ResolveOutcome`.
 aliases: [usage store, durable usage store, StoredUsageRecord, resolveProvenance]
 tags: [pi-council/concept, pi-council/epic7]
-sources: ["[[2026-09-11-epic7-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]"]
+sources: ["[[2026-09-11-epic7-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-21-usages-design]]"]
 created: 2026-09-11
-updated: 2026-09-16
+updated: 2026-09-21
 ---
 
 # Usage Store
@@ -39,6 +39,8 @@ interface StoredUsageRecord {
   runId: string; command: string; repoRoot: string; writtenAt: string;
   basis: { trigger: UsageTrigger; manifestsObserved: number };
   provider?: ProviderCostReport; // EV-29 sibling
+  gate?: GateSpendReport;        // EV-71 sibling
+  seats?: StoredSeatRow[];       // 2026-09-21 sibling — per-seat rows
 }
 ```
 
@@ -75,6 +77,18 @@ Retention/compaction policy (the store grows unboundedly by design) is
 FLLWUP-32; a bounded write-failure retry is FLLWUP-34; a live write-path
 falsifier is FLLWUP-33.
 
+## Per-seat rows (2026-09-21)
+
+Seat-level detail used to die with the run directory — the store held only the
+invocation aggregate, so once `pruneRuns` dropped a run ([[run-transcripts]]),
+no per-seat breakdown survived. The record gained an optional **`seats[]`**
+sibling — one row per invocation-window manifest
+(`{ jobId, seat, model, usage, attempts? }`) — populated from the already-read
+manifests, so exact per-seat dollars remain recoverable by joining `jobId` to
+the existing `provider.generations[]` (when the provider block is present).
+Schema stays **v2** (the additive-sibling precedent); absent on older records.
+This is the durability input for [[usages-report]].
+
 ## Retried dispatches (EPIC-9)
 
 The provider job list is built by matching a manifest's `sessionId` to a
@@ -92,6 +106,7 @@ are preserved verbatim.
 - [[spend-record]] — the frozen payload
 - [[cost-provenance]] — the `provider` sibling
 - [[run-transcripts]] — the pruned run substrate this store outlives
+- [[usages-report]] — the consumer of the `seats[]` durability sibling
 - [[mcp support]] — the `getAgentDir()/council/` 0600 atomic precedent
 
 ## Sources

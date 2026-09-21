@@ -1,19 +1,19 @@
 ---
 title: Procedure Commands
 type: concept
-summary: The scanned, override-aware slash-command set — seven packaged procedures plus engine commands; EPIC-4 added the first non-procedure product commands (/council-eval, /council-leaderboard).
+summary: The scanned, override-aware slash-command set — eight packaged procedures plus engine commands; EPIC-4 added the first non-procedure product commands (/council-eval, /council-leaderboard), and 2026-09-21 added /usages (a packaged procedure whose logic lives in a copied skill).
 aliases: [procedure commands, procedures, slash commands, commands]
 tags: [pi-council/concept]
-sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-04-epic4-run-ledger]]"]
+sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-21-usages-design]]"]
 created: 2026-08-23
-updated: 2026-09-20
+updated: 2026-09-21
 ---
 
 # Procedure Commands
 
 > ⚠️ Derived from `extensions/index.ts` (the directory-scan registration loop) and
-> the seven `council/procedures/*.md` files (captured 2026-08-23). Verify against
-> `extensions/index.ts`.
+> the eight `council/procedures/*.md` files (captured 2026-08-23, count updated
+> 2026-09-21). Verify against `extensions/index.ts`.
 
 Procedures are **markdown files**, registered as slash commands by **directory
 scan**, not a hardcoded list. A file's base filename becomes the command name;
@@ -48,7 +48,7 @@ turn runs, so the handler fires it, polls `ctx.isIdle()`, then awaits
 `ctx.waitForIdle()` — see [[headless-pi]] and
 [[2026-08-25-smoke-test-bugfixes]] bug 1.
 
-## The seven packaged procedures
+## The eight packaged procedures
 
 | Command | Purpose |
 |---|---|
@@ -59,6 +59,7 @@ turn runs, so the handler fires it, polls `ctx.isIdle()`, then awaits
 | `/wiki-ingest <path>` | Ingest a source into the wiki (drives the Ingest op) |
 | `/wiki-query <question>` | Query the wiki with citations |
 | `/wiki-lint` | Health-check the wiki (orphans, contradictions, stale claims) |
+| `/usages <time_range>` | Report repo-scoped per-seat / main-agent token+dollar usage, cross-matched to OpenRouter ([[usages-report]]); its logic lives in a `/council-init`-copied skill, not in the procedure body |
 
 ## The `$COUNCIL_PROCEDURES` path
 

@@ -4,7 +4,7 @@ type: concept
 summary: The shell+script standard fixture that gates every council run — card-aware checks, MCP registration/auth, superpowers + ask-user-question pins, openrouter auth, and the lock-drift tripwire; since EPIC-14 a packaged run-start `council_preflight` tool runs before it and fails loud when the decisions gate is on without an OpenRouter credential. Any FAIL: line halts startup.
 aliases: [preflight gate]
 tags: [pi-council/concept]
-sources: ["[[2026-08-24-ask-user-question]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]"]
+sources: ["[[2026-08-24-ask-user-question]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-21-usages-design]]"]
 created: 2026-08-23
 updated: 2026-09-21
 ---
@@ -90,6 +90,16 @@ initialized. A packaged, override-resolved procedure/tool path is what reaches
 **existing** consumers without a scaffold refresh. This is the standing rule for
 any check that must reach repos already on disk. `FLLWUP-90` is the end-to-end
 falsifier that a stale-`preflight.sh` consumer still hits the FAIL.
+
+## Not the same key as `/usages` (2026-09-21)
+
+The scaffold `preflight.sh`'s OpenRouter check and the packaged run-start check
+both accept the **inference** credential (`OPENROUTER_API_KEY` or a stored
+openrouter `api_key`). [[usages-report]] needs the **management / provisioning**
+key (`OPENROUTER_MANAGEMENT_KEY`) and never accepts the inference key, so it
+carries its own hard gate inside the packaged `/usages` procedure rather than
+riding either preflight. A repo can be fully preflight-clean and still have no
+management key.
 
 ## Contract
 

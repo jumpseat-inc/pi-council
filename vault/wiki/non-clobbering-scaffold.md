@@ -4,7 +4,7 @@ type: concept
 summary: `/council-init` copies the council/ and vault/ data trees and default mcp.json into a consumer repo, never overwriting — re-runs are no-ops and user edits always win.
 aliases: [scaffold, council-init]
 tags: [pi-council/concept]
-sources: ["[[2026-08-23-council-json-override]]", "[[2026-08-24-ask-user-question]]", "[[2026-09-21-epic14-run-ledger]]"]
+sources: ["[[2026-08-23-council-json-override]]", "[[2026-08-24-ask-user-question]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-21-usages-design]]"]
 created: 2026-08-23
 updated: 2026-09-21
 ---
@@ -52,6 +52,33 @@ belongs on a packaged, override-resolved path** — a packaged procedure or tool
 `council/procedures/council.md` step 0 and `features-deliver.md` Phase 0), not in
 a scaffold-copied script. Tooling-class files (`validate.py`, `cards/_template.md`)
 are the consent-gated exception, refreshed only by [[council-update]].
+
+## Engine-synthesized copies: the usages skill (2026-09-21)
+
+Not every consumer file comes from the `council/scaffold/` tree. The default
+`mcp.json` was already synthesized in code; [[usages-report]] added a second
+such path. Its procedure is **packaged** (reaching every consumer through the
+procedure scan), but its skill + Python tool live in the package payload at
+`council/skills/usages/` and `/council-init` copies them to
+`<repo>/$CONFIG_DIR_NAME/skills/usages/` via `copyUsagesSkill`.
+
+Properties that make this the right shape:
+
+- **`CONFIG_DIR_NAME`-built destination** — no hardcoded `.pi` in a filesystem
+  path (AGENTS convention #3); `@CONFIG_DIR@` is rendered at copy time with the
+  same renderer `preflight.sh` uses.
+- **Non-clobbering** — an existing consumer file is skipped, so a consumer can
+  edit the skill without losing it.
+- **Outside the scaffold tree** — deliberately not a `council/scaffold/` entry,
+  so `TOOLING_FILES`/`DATA_FILES`, the T4 set-equality guard, and the
+  `scaffold.json` provenance record are untouched. Like `mcp.json`, it carries
+  no provenance and no [[council-update]] refresh path; refreshing means
+  delete-and-re-run-`/council-init`.
+
+This sharpens the EPIC-14 reach rule rather than contradicting it: **logic that
+must reach existing consumers belongs on a packaged path** (here, the
+procedure); a consumer-editable *copy* is for logic the consumer may own, and
+`/council-init` is the only writer.
 
 ## Related
 

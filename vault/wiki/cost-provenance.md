@@ -4,9 +4,9 @@ type: concept
 summary: pi computes cost from the static catalogue and never reads a provider charge; OpenRouter reports generation-level dollars plus a BYOK-only two-way split and native token counts — so the honest figure is labelled estimate vs reported, and per-component dollars do not exist.
 aliases: [cost provenance, catalogue estimate, reported cost, provider-reported cost]
 tags: [pi-council/concept, pi-council/epic7]
-sources: ["[[2026-09-11-epic7-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]"]
+sources: ["[[2026-09-11-epic7-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-21-usages-design]]"]
 created: 2026-09-11
-updated: 2026-09-16
+updated: 2026-09-21
 ---
 
 # Cost Provenance
@@ -34,6 +34,33 @@ four-component dollar split anywhere**, and cache appears as a token count, not
 a dollar. This is why EV-29's goal had to be amended: naming
 "per-component cost figures reported by the provider" described a unit the
 provider does not produce.
+
+## A third surface: batch analytics (2026-09-21)
+
+EPIC-7 probed the **generation** endpoint. Building [[usages-report]] found a
+third management-API surface, `POST /api/v1/analytics/query`, which batches the
+same generation-level truth: a `generation_id in [...]` filter resolves
+hundreds of generations in one call (dims incl. `generation_id`, `origin`,
+`api_key_id`; metrics incl. `total_usage`, `tokens_prompt/completion`,
+`cached_tokens`, `cache_hit_rate`), capped at 31 days per query. See
+[[openrouter-analytics-surface]] for the full surface table and the
+`generation_id`-is-the-only-join-key trap.
+
+⚠️ **Refinement, not contradiction.** The claim above — "no four-component
+dollar split anywhere" — holds for the **generation** endpoint. The analytics
+endpoint additionally exposes component-ish currency metrics (`usage_cache`,
+`usage_upstream`, `usage_web`, `usage_file`, `byok_fees`). That does not
+resurrect pi's four `cost*` slots (still `catalogue-estimate`); it merely means
+the provider has a broader reporting surface than EPIC-7 probed.
+
+## Two words for one fact (`exact` vs `reported`)
+
+The wiki's canonical term for a provider-reported dollar figure is
+**`reported`** — the shipped engine word (`costBasis`'s sibling label, the
+`(reported)` render, the `provider` sibling). [[usages-report]] labels the same
+fact **`exact`** in its own report schema. Same fact, two words; flag, do not
+silently reconcile. If the vocabulary is ever unified, `reported` is the
+canonical one.
 
 ## The finding that reframed the intake
 
@@ -82,6 +109,8 @@ be the standing-legend principle violated in the symmetric direction). See
 - [[per-attempt-provenance]] — the substrate that makes it whole
 - [[usage-accounting]] — the `costBasis` label this explains
 - [[usage-store]] — the `provider` sibling that carries the reported figures
+- [[openrouter-analytics-surface]] — the three provider surfaces + their caps
+- [[usages-report]] — the consumer that labels provider figures `exact`
 - [[usage-block]] — the coexistence row + `n/a` legend
 - [[model-eval-harness]] — the other consumer of cost columns
 

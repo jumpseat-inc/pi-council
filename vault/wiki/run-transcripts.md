@@ -4,9 +4,9 @@ type: concept
 summary: The on-disk substrate that makes every council run navigable — per-job manifests and seat session JSONL under .pi/council/runs/, a job forest built from manifests, and the /council-tree + ctrl+shift+t live surface that reads it (inline below-editor as of EPIC-2).
 aliases: [run transcripts, runs, run manifests, transcript viewer, session jsonl]
 tags: [pi-council/concept]
-sources: ["[[2026-08-25-smoke-test-bugfixes]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]"]
+sources: ["[[2026-08-25-smoke-test-bugfixes]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-21-usages-design]]"]
 created: 2026-08-25
-updated: 2026-09-20
+updated: 2026-09-21
 ---
 
 # Run Transcripts
@@ -37,7 +37,9 @@ of every seat at any nesting depth, live or after the fact.
   durable [[usage-store]] is the deliberate exception** — its records live at
   `getAgentDir()/council/usage/`, survive pruning, and name the invoking
   session JSONL path + entry range so a spend stays traceable after the run
-  directory is gone.
+  directory is gone. Since 2026-09-21 that exception also carries a per-seat
+  breakdown (`seats[]`), because run pruning otherwise destroys the only
+  seat-level record — see [[usages-report]].
 
 ## The job forest (`extensions/tree.ts`)
 

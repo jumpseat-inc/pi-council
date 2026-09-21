@@ -4,9 +4,9 @@ type: concept
 summary: The EPIC-7 subsystem — the full flat token/cost tuple with `costBasis`/`usageSource` provenance labels, captured at the hub, recorded per invocation, stored durably, and rendered at five autonomous exits.
 aliases: [usage accounting, token accounting, cost accounting, usage tuple]
 tags: [pi-council/concept, pi-council/epic7]
-sources: ["[[2026-09-11-epic7-run-ledger]]"]
+sources: ["[[2026-09-11-epic7-run-ledger]]", "[[2026-09-21-usages-design]]"]
 created: 2026-09-11
-updated: 2026-09-11
+updated: 2026-09-21
 ---
 
 # Usage Accounting
@@ -73,10 +73,25 @@ session enumeration also sees tool-result and compaction usage. EV-30's
 [[spend-record]] labels each half with its own basis rather than summing them
 silently. Per-node subtree reconciliation is deferred (FLLWUP-31).
 
+## Range-scoped cross-match — the `/usages` layer (2026-09-21)
+
+EPIC-7 is **invocation-scoped**: a job tuple, a store record, a block at an
+autonomous exit. The complementary question — *what did this whole repo cost
+over a time range, per seat, against the provider's bill?* — is answered by
+[[usages-report]] (`/usages <time_range>`), which harvests generation ids from
+session JSONL + run transcripts + the durable store and batch-resolves them
+through the provider's analytics surface ([[openrouter-analytics-surface]]).
+
+It shares this page's vocabulary but adds a third dollar basis label:
+`exact` (provider-reported, per generation) alongside `catalogue-estimate` and
+`mixed`. That collides with the `reported` label this chain uses for the same
+fact — see [[cost-provenance]].
+
 ## Related
 
 - [[spend-record]], [[usage-store]], [[usage-block]], [[cost-provenance]] — the
   rest of the chain
+- [[usages-report]] — the range-scoped cross-match layer built on top
 - [[hub-job-supervision]] — the capture seam
 - [[run-transcripts]] — the manifest + session substrate
 - [[eval-store-contract]] — the sibling "keyed records, append-only" discipline

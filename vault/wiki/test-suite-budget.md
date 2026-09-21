@@ -32,6 +32,16 @@ re-measurement ever exceeds the drift threshold below.
   files (the `/council-gate` command suite, the run-start preflight suite, and
   the `test/ev77-gate-docs.test.ts` wiki pin). Still inside the 180s
   threshold. See [[2026-09-21-epic14-run-ledger]].
+- ⚠️ **Grown again (/usages, 2026-09-21, local `main`, unreleased):** **1463
+  tests across 113 files, ≈111s** — the tests for [[usages-report]] (the Python
+  tool's offline + stub-HTTP arms, `test/usage-store.test.ts`'s `seats[]`
+  arms) and the two command-count assertions bumped 16→17. Still inside the
+  180s threshold. **Test-isolation lesson:** adding one test file shifted bun's
+  worker packing and exposed a pre-existing module-state leak between
+  `ev40-wiring` and `ev40-parent-retry` (the single-slot retry editor); the
+  fix is a test-only `beforeEach` reset — a reminder that shared module state
+  in the engine is only as isolated as the worker partition. See
+  [[2026-09-21-usages-design]].
 - **Provenance:**
   - Machine: Linux 6.12.24-Unraid x86_64 (container)
   - Date: 2026-09-20 (re-measured at HEAD)
