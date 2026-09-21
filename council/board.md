@@ -94,8 +94,10 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- EV-80 — Follow-up review state packing: candidate + board/open cards + same-run siblings
 
+## In Progress
+
+- EV-80 — Follow-up review state packing: candidate + board/open cards + same-run siblings
 
 ## In Review
 
