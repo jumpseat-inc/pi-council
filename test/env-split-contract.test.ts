@@ -3,7 +3,7 @@
 // This suite asserts the env-keyed parent/child mode split contract at
 // `extensions/index.ts:117-121` (const seatName = process.env.COUNCIL_SEAT;
 // if (seatName) { runChildMode(...); return; }): pole A — a clean env with no
-// council configuration registers all 16 parent-mode slash commands (15 + EV-74's /council-gate); pole B —
+// council configuration registers all 17 parent-mode slash commands (16 + D1's /usages); pole B —
 // the same env with COUNCIL_SEAT set registers zero slash commands (the red
 // reproduction, version-independent). Every subprocess receives an explicitly
 // constructed env built from scratch (PATH + scratch HOME + optional
@@ -123,13 +123,13 @@ function runCli(home: string, consumer: string, env: Record<string, string>, tim
 }
 
 describe("env-split registration contract (FLLWUP-21, spec §3)", () => {
-	test("M1 pole A: clean env registers all 16 parent-mode commands", () => {
+	test("M1 pole A: clean env registers all 17 parent-mode commands", () => {
 		const home = makeScratch();
 		const out = runDriver(explicitEnv(home));
 		expect(out.error, `driver reported a load error: ${out.error}`).toBeUndefined();
-		// 7 procedure commands + council-init/-update/-jobs/-leaderboard/-models
+		// 8 procedure commands + council-init/-update/-jobs/-leaderboard/-models
 		// + council-eval + council-tree + mcp.
-		expect(out.commands).toBe(16); // 15 + EV-74's /council-gate
+		expect(out.commands).toBe(17); // 16 + D1's /usages
 	});
 
 	test("M1 pole B: COUNCIL_SEAT set registers zero commands (red reproduction)", () => {

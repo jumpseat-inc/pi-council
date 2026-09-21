@@ -203,6 +203,7 @@ plain text (they carry no color to go stale).
 | `/wiki-ingest <source>`            | Ingest a source into the wiki                                             |
 | `/wiki-lint`                       | Health-check the wiki (contradictions, orphans, gaps)                     |
 | `/wiki-query <question>`           | Answer from the wiki with citations                                       |
+| `/usages <time_range>`             | Report this repo's per-seat and main-agent token/dollar usage, cross-matched against OpenRouter billed activity (requires `OPENROUTER_MANAGEMENT_KEY`) |
 | `/council-jobs`                    | Show the background seat job table                                        |
 | `/mcp list`                        | Show registered MCP servers with transport, auth mode, status, tool count |
 | `/mcp add <name> <url> [auth]`     | Register a remote MCP server (`none`/`header`/`oauth`)                    |
