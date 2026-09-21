@@ -197,7 +197,7 @@ test("round-trip: JSON.parse(stateBytes) deep-equals the canonical sections; sou
 describe("hash sensitivity (R0 headline over the discriminating relocated pair)", () => {
 	let root: string;
 	let boardPath: string;
-	let goals: { distinctiveGoal: string; rootGoal: string };
+	let goals: { boardPath: string; distinctiveGoal: string; rootGoal: string };
 	let base: FollowupState;
 	const SIBLING = candidate({ title: "Sibling one", goal: "s1" });
 	const pack = (): FollowupState => buildFollowupState(candidate(), root, [SIBLING], boardPath);
@@ -523,7 +523,7 @@ describe("sibling canonicalization", () => {
 		const boardPath = boardFixture(root, "council/board.md", "council/cards", []);
 		const state = buildFollowupState(candidate(), root, [candidate({ title: "Sibling one", goal: "s1" })], boardPath);
 		const parsed = parseState(state.stateBytes);
-		for (const s of parsed.siblings as unknown[]) expect(Object.keys(s)).toEqual(["title", "goal"]);
+		for (const s of parsed.siblings as Record<string, unknown>[]) expect(Object.keys(s)).toEqual(["title", "goal"]);
 	});
 });
 
@@ -599,13 +599,17 @@ test("Done entries carry exactly {id, title, state}; open entries carry {id, tit
 	]);
 	const state = buildFollowupState(candidate(), root, [], boardPath);
 	const parsed = parseState(state.stateBytes);
-	expect((parsed.board as { id: string }[]).find((e) => e.id === "EV-2")).toEqual({ id: "EV-2", title: "Done card", state: "Done" });
+	expect((parsed.board as { id: string }[]).find((e) => e.id === "EV-2")).toEqual({
+		id: "EV-2",
+		title: "Done card",
+		state: "Done",
+	} as { id: string });
 	expect((parsed.board as { id: string }[]).find((e) => e.id === "EV-1")).toEqual({
 		id: "EV-1",
 		title: "Alpha card",
 		state: "Backlog",
 		goal: "Do EV-1: Alpha card",
-	});
+	} as { id: string });
 });
 
 // ---------------------------------------------------------------------------
