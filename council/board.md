@@ -101,10 +101,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Deliberating
 
 ## In Progress
+
+## In Review
 - EV-84 — End-to-end falsifier for the Jev-gated follow-up review
-
-
-## Needs Human
 
 ## Done
 - EV-83 — Route the follow-up decision through /features-deliver Phase 3 and the council-runner escalation path
