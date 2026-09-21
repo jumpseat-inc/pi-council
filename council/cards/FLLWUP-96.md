@@ -23,9 +23,20 @@ file pair, at the one site that legitimately holds both.
 Explicitly **not** in either loader and **not** in `decideFollowup`/`decide`
 (EV-78 point (9); EV-79 S-R1) — those keep each file independently loadable.
 
-Naming: the followup half is **blocked on EV-81**, which creates that
-composition site; the card-gate half is buildable the day this card is
-promoted (`runGate` composes today). Sequence accordingly.
+**Naming (corrected by the EV-81 step-13 ruling,
+`vault/raw/2026-09-22-po-ev81-step13-confirmation.md`):** EV-81 shipped **no**
+composition site. `runFollowupGate` mirrors `runGate`'s "loads nothing itself"
+posture and receives caller-loaded `questions` and `decisionPolicy`
+(`extensions/gate-run.ts`'s EV-81 section header). The followup half is therefore
+blocked on **the EV-82/EV-83 call site** — whichever of those cards builds the
+engine-side composition that loads both `council/gate/followup/questions.json` and
+`decision.json` and reaches `buildFollowupState`; if neither builds it, this half is
+blocked on a card that does not exist yet and the gap comes back as its own card.
+The card-gate half is buildable the day this card is promoted (`runGate` composes
+today). Sequence accordingly. **Premise to re-examine at promotion:** the Intent's
+"one site that legitimately holds both" is an assumption, not a fact — if EV-82 and
+EV-83 each compose the pair, two call sites sharing one check is the design question
+and it belongs to this card's promotion, not to its implementation.
 
 ## Acceptance
 

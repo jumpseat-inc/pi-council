@@ -6,6 +6,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Backlog
 
+- FLLWUP-100 — Card-gate calls always route full Deliberate — every live ledger line died at decide() on a missing answer probability
+- FLLWUP-99 — Fix the shipped runGate policyVersion writer — lines carry the gate policy's version; the router reads the decision policy's
 - FLLWUP-98 — Pin the follow-up headroom probe's tripwire on `truncated === false`
 - FLLWUP-97 — Recency window for the follow-up board section when the cap binds
 - FLLWUP-96 — Fail-loud questions↔weights equality at the gate's and the follow-up's composition sites
@@ -73,7 +75,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-45 — Unattended ingest of a run's own ledger, without the human steer turn
 - EV-46 — Ingest at every single-card /council completion, attended or container-run
 - EV-47 — Ingest the whole run when /features-deliver reaches its run ledger
-- EV-82 — Record and render the follow-up decision at step 13's pre-write confirm gate
 - EV-83 — Route the follow-up decision through /features-deliver Phase 3 and the council-runner escalation path
 - EV-84 — End-to-end falsifier for the Jev-gated follow-up review
 - EPIC-11 — Grounded, interview-driven council setup via /council-setup
@@ -89,6 +90,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EPIC-12 — pi-council version and git hash on the first pi run
 
 ## Ready
+- EV-82 — Record and render the follow-up decision at step 13's pre-write confirm gate
 - EV-48 — Packaged seat-tier map with repo-local merge override
 - EV-57 — Resolve the running pi-council identity from the package root
 - EV-58 — Show the pi-council version and hash on the first pi run
