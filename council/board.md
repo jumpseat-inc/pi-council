@@ -6,6 +6,10 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Backlog
 
+- EV-85 — Seat-composition decisions as repo-overridable packaged data
+- EV-86 — Pure seat-composition decision function with a fail-safe Default
+- EV-87 — One-call seat-composition orchestration over the shared Jev transport
+- EV-88 — End-to-end falsifier for the Jev seat-composition fail-closed arm
 - FLLWUP-104 — Fix the live noul answer-shape drift — the decisions API returns `{"type":"noul","noul":<p>}`, the engine reads `probability`, in both gate domains
 - FLLWUP-103 — Cover the wrapper's advisory arm in EV-83's own suite and pin the two escalation-basis tokens
 - FLLWUP-102 — Make the http-404 unavailability literal claim only what the transport can establish
