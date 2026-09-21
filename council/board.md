@@ -97,14 +97,13 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-80 — Follow-up review state packing: candidate + board/open cards + same-run siblings
-
 
 
 ## Needs Human
 
 ## Done
 
+- EV-80 — Follow-up review state packing: candidate + board/open cards + same-run siblings
 - EV-79 — Pure follow-up disposition function with a fail-safe File default
 - EV-78 — Follow-up disposition decisions as repo-overridable packaged data
 - EPIC-14 — Reuse `.council.json` to enable the decisions gate; add a `/council-gate` toggle; check the OpenRouter credential when the gate is on
