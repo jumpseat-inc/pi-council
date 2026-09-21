@@ -479,3 +479,161 @@ test("red-base convention vocabulary reaches the skeptic's output format", () =>
 	);
 	expect(format, "output_format carries the head-half clause").toContain("`0 fail`");
 });
+
+// EV-82 (EPIC-10): step 13 records the follow-up decision and renders its
+// disposition line at the pre-write confirm gate. The pins below are the
+// spec §5 prose obligations (items 18–22, incl. the skeptic's O1 anchored
+// scan remedy). R0a: the tests locate the step by its heading, never a line
+// range.
+
+/** council.md step 13, sliced `## 13. Card the follow-ups` → `## 14. Persist`. */
+function step13(): { raw: string; flat: string } {
+	const text = fs.readFileSync(path.join(PKG_ROOT, "council", "procedures", "council.md"), "utf-8");
+	const start = text.indexOf("## 13. Card the follow-ups");
+	const end = text.indexOf("## 14. Persist");
+	expect(start, "step-13 heading must exist").toBeGreaterThan(-1);
+	expect(end, "step-14 heading must exist").toBeGreaterThan(start);
+	const raw = text.slice(start, end);
+	return { raw, flat: raw.replace(/\s+/g, " ") };
+}
+
+test("council step 13 names the followup tool pair, the three enablement states, and the unconditional dedup pass", () => {
+	const { flat } = step13();
+	// The tool pair, in the record-then-render order.
+	expect(flat.indexOf("council_followup_gate")).toBeGreaterThan(-1);
+	expect(flat.indexOf("council_followup_render")).toBeGreaterThan(flat.indexOf("council_followup_gate"));
+	// The three enablement states, each with its settled meaning: off = no
+	// decision recorded, the tools are still invoked, the review stays an
+	// unqualified human review; advisory = information, never enforced;
+	// active = applied only after confirmation.
+	expect(flat).toContain("no decision is recorded");
+	expect(flat).toContain("both tools are still invoked");
+	expect(flat).toContain("unqualified human review");
+	expect(flat).toContain("never enforced");
+	expect(flat).toContain("only after confirmation");
+	// R9: the dedup pass is unconditional prose, present in every mode
+	// including off — over the board, the open cards, and the siblings.
+	expect(flat).toContain("dedup pass is unconditional");
+	expect(flat).toContain("every mode");
+	expect(flat).toContain("including `off`");
+	expect(flat).toContain("board");
+	expect(flat).toContain("open cards");
+	expect(flat).toContain("sibling");
+	// R7: the dedup pass is the producer of the merge-target reference.
+	expect(flat).toContain("mergeTarget");
+});
+
+test("council step 13 carries the pre-write pin: `confirmed at ledger level` only inside a negating sentence; FLLWUP-69 stays Backlog/EPIC-9", () => {
+	const { flat } = step13();
+	const literal = "confirmed at ledger level";
+	expect(flat).toContain(literal);
+	// Every occurrence must sit inside a sentence that negates it.
+	for (const sentence of flat.split(". ")) {
+		if (!sentence.includes(literal)) continue;
+		expect(sentence.includes("never"), `negating sentence required, found: ${sentence}`).toBe(true);
+	}
+	// EV-82 owns the pre-write pin; FLLWUP-69's halves stay its own.
+	const f69 = fs.readFileSync(path.join(PKG_ROOT, "council", "cards", "FLLWUP-69.md"), "utf-8");
+	expect(f69).toMatch(/^state: Backlog$/m);
+	expect(f69).toMatch(/^epic: EPIC-9$/m);
+});
+
+test("council step 13 states the apply clause: the recorded disposition the line names, never the current configuration", () => {
+	const { flat } = step13();
+	expect(flat).toContain("the recorded disposition the line names");
+	expect(flat).toContain("never the current configuration");
+});
+
+test("presented-never-written: no card or board line starts with a rendered `Mode:` disposition; step 13 carries the exact `## Merged from:` template, post-confirmation-only", () => {
+	// Skeptic O1: the scan is ANCHORED to line start (multiline) — the
+	// unanchored reading hits the deliberation records' quoted examples.
+	const pattern = /^Mode: (File|Merge|Drop) \u2014 /m;
+	const cardsDir = path.join(PKG_ROOT, "council", "cards");
+	for (const f of fs.readdirSync(cardsDir)) {
+		if (!f.endsWith(".md")) continue;
+		const text = fs.readFileSync(path.join(cardsDir, f), "utf-8");
+		expect(pattern.test(text), `${f} contains a rendered Mode: line at line start`).toBe(false);
+	}
+	const board = fs.readFileSync(path.join(PKG_ROOT, "council", "board.md"), "utf-8");
+	expect(pattern.test(board), "board.md contains a rendered Mode: line at line start").toBe(false);
+
+	// R7: the exact section template — heading with trailing colon, one blank
+	// line, one bullet per source candidate's title verbatim.
+	const { raw, flat } = step13();
+	expect(raw).toContain("## Merged from:\n\n- <source-title>\n- <source-title>");
+	// Post-confirmation-only: the section is written only after confirmation.
+	expect(flat).toContain("only after confirmation");
+	// The chat line naming the target and the confirmed-Drop cost stand.
+	expect(flat).toContain("Drop");
+});
+
+// EV-82: the grammar-owner scan. gate-ledger.ts is the ONLY module owning a
+// `Mode: `-prefixed format expression (the shipped module-level invariant).
+// The scan is string-literal-scoped (skeptic O3): comments are stripped with
+// a small state machine (string-aware, so URLs in literals survive), then
+// any quote-preceded `Mode: ` occurrence outside gate-ledger.ts fails.
+test("grammar-owner: no Mode:-prefixed format-expression literal outside gate-ledger.ts", () => {
+	const extDir = path.join(PKG_ROOT, "extensions");
+	for (const f of fs.readdirSync(extDir)) {
+		if (!f.endsWith(".ts") || f === "gate-ledger.ts") continue;
+		const source = fs.readFileSync(path.join(extDir, f), "utf-8");
+		expect(stripComments(source), `${f} carries a Mode:-prefixed format literal`).not.toMatch(/[`"']Mode: /);
+	}
+});
+
+/** Comment stripper: line and block comments, string-literal aware so a
+ * slash-slash inside a string or template never opens a comment. */
+function stripComments(source: string): string {
+	let out = "";
+	let i = 0;
+	let mode: "code" | "line" | "block" | "sq" | "dq" | "tpl" = "code";
+	while (i < source.length) {
+		const c = source[i]!;
+		const next = source[i + 1];
+		if (mode === "code") {
+			if (c === "/" && next === "/") {
+				mode = "line";
+				i += 2;
+				continue;
+			}
+			if (c === "/" && next === "*") {
+				mode = "block";
+				i += 2;
+				continue;
+			}
+			if (c === "'") mode = "sq";
+			else if (c === '"') mode = "dq";
+			else if (c === "`") mode = "tpl";
+			out += c;
+			i++;
+			continue;
+		}
+		if (mode === "line") {
+			if (c === "\n") {
+				mode = "code";
+				out += c;
+			}
+			i++;
+			continue;
+		}
+		if (mode === "block") {
+			if (c === "*" && next === "/") {
+				mode = "code";
+				i += 2;
+				continue;
+			}
+			i++;
+			continue;
+		}
+		// inside a string literal
+		if (c === "\\") {
+			out += source.slice(i, i + 2);
+			i += 2;
+			continue;
+		}
+		if ((mode === "sq" && c === "'") || (mode === "dq" && c === '"') || (mode === "tpl" && c === "`")) mode = "code";
+		out += c;
+		i++;
+	}
+	return out;
+}
