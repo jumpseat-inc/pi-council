@@ -386,6 +386,56 @@ existing `FLLWUP-` id and incrementing.
 This includes any `designer` finding the run surfaced but did not fold in,
 and any CDP-smoke prediction it filed that no one ran.
 
+**Record the follow-up decision, then present it.** After drafting, call the
+`council_followup_gate` tool ONCE with every drafted candidate in draft
+order, then call the `council_followup_render` tool with the record result,
+and present each returned line verbatim under its own draft — the lines are
+presented, never written. Which lines appear is the gate's enablement state.
+With the gate `off`: no decision is recorded, both tools are still invoked,
+and the render returns the bare `off` literal — the review stays an
+unqualified human review. With `advisory`: the rendered lines are
+information only, never enforced; the human's own edit/drop/approve decision
+governs. With `active`: the disposition is applied only after confirmation,
+and what is applied is the recorded disposition the line names — never the
+current configuration.
+
+**The dedup pass is unconditional.** In every mode — including `off` — run
+the dedup pass before anything is written: for each candidate, check the
+board, the open cards, and the run's other sibling candidates for an
+existing duplicate or a home. `gate.mode` switches whose decision is
+applied, never whether the reader looks at the board. When the pass
+identifies a merge target for a candidate, supply it to
+`council_followup_render` as that candidate's `mergeTarget` reference — the
+exact board-card id, or the exact sibling candidate's title. A supplied
+reference that matches nothing fails loud; a `Merge` with no target supplied
+falls to the human.
+
+**Confirmation precedes any write.** Nothing is written to `council/cards/`
+before the human confirms at this gate; cards are never confirmed at ledger
+level after the fact — the confirmation precedes any card write, in every
+mode.
+
+**On confirmation, apply each line's disposition.** A confirmed `File` — or
+a `Merge` with no target supplied, which falls to the human — writes the
+approved card as usual. A confirmed `Merge` writes no new card for the
+source candidate: the merged-into card — the board card or sibling candidate
+the line names after the arrow — gains a section, verbatim in shape, written
+only after confirmation by you, the facilitator (there is no card-writing
+tool):
+
+```
+## Merged from:
+
+- <source-title>
+- <source-title>
+```
+
+One markdown bullet per source candidate; each bullet is that source
+candidate's title verbatim — no id, no disposition tag, no rationale — and
+two same-run sources merging into one target means two bullets, in the order
+recorded. A confirmed `Drop` files nothing; the disposition line already
+names the candidate's own title as the cost.
+
 **Draft-then-confirm is a hard gate here.** Draft the follow-up card(s) and
 present them to the human to edit, drop, or approve — write nothing to
 `council/cards/` that the human has not approved. Only after approval, write
