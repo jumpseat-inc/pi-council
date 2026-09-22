@@ -141,6 +141,45 @@ test("parseDecisionsResponse: absent usage/provider/id parse as nulls, never fab
 	expect(p.generationId).toBeNull();
 });
 
+// FLLWUP-104 — the live decisions wire keys a noul answer `noul`, not
+// `probability` (P(true) ≡ P(yes); verified live: trivially-true → 0.99).
+// parseDecisionsResponse is the ONE site that canonicalizes it.
+
+test("parseDecisionsResponse: a noul answer keyed `noul` (the live wire) normalizes to `probability`", () => {
+	const p = parseDecisionsResponse(
+		JSON.stringify({ model: "typesafe/jev-1.13-20260917", answers: { duplicate: { type: "noul", noul: 0.33 } } }),
+	);
+	expect(p.answers.duplicate).toEqual({ type: "noul", probability: 0.33 });
+});
+
+test("parseDecisionsResponse: both noul keys present and agreeing canonicalize to `probability`", () => {
+	const p = parseDecisionsResponse(
+		JSON.stringify({ model: "m", answers: { q: { type: "noul", noul: 0.5, probability: 0.5 } } }),
+	);
+	expect(p.answers.q).toEqual({ type: "noul", probability: 0.5 });
+});
+
+test("parseDecisionsResponse: both noul keys present and disagreeing throw loud rather than preferring one", () => {
+	expect(() =>
+		parseDecisionsResponse(
+			JSON.stringify({ model: "m", answers: { q: { type: "noul", noul: 0.2, probability: 0.8 } } }),
+		),
+	).toThrow(/disagree/);
+});
+
+test("parseDecisionsResponse: a noul answer carrying neither key throws", () => {
+	expect(() => parseDecisionsResponse(JSON.stringify({ model: "m", answers: { q: { type: "noul" } } }))).toThrow(
+		/noul/,
+	);
+});
+
+test("parseDecisionsResponse: choice answers pass through verbatim (no noul normalization)", () => {
+	const p = parseDecisionsResponse(
+		JSON.stringify({ model: "m", answers: { q: { type: "choice", value: "yes", probabilities: { yes: 1, no: 0 } } } }),
+	);
+	expect(p.answers.q).toEqual({ type: "choice", value: "yes", probabilities: { yes: 1, no: 0 } });
+});
+
 test("parseDecisionsResponse: garbage bodies throw (the runGate catch-all turns them into invalid-response)", () => {
 	expect(() => parseDecisionsResponse("not json")).toThrow(/invalid decisions response/);
 	expect(() => parseDecisionsResponse("[1,2]")).toThrow(/root must be a JSON object/);

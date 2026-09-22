@@ -179,6 +179,39 @@ function num(v: unknown): number | null {
 	return typeof v === "number" && Number.isFinite(v) ? v : null;
 }
 
+/** Pure: canonicalize one parsed answer. The live decisions wire keys a noul
+ * answer `{"type":"noul","noul":<p>}` where `<p>` is P(true) ≡ P(yes)
+ * (verified live, FLLWUP-104); the engine and the ledger read `probability`.
+ * This is the ONE site that maps the wire key onto the canonical shape, so
+ * both the card gate and the follow-up arm read the same contract (a fix at
+ * either reader would leave two contracts where one drifted). An answer
+ * carrying both keys with disagreeing values fails loud rather than silently
+ * preferring one; neither key present fails loud too. Non-noul answers pass
+ * through verbatim. */
+function canonicalizeAnswer(id: string, answer: unknown): GateAnswer {
+	if (!answer || typeof answer !== "object" || Array.isArray(answer)) {
+		throw new Error(`gate: invalid decisions response — answer ${id} must be an object`);
+	}
+	const a = answer as Record<string, unknown>;
+	if (a.type !== "noul") return a as GateAnswer;
+	const noul = num(a["noul"]);
+	const probability = num(a["probability"]);
+	if (noul !== null && probability !== null && noul !== probability) {
+		throw new Error(
+			`gate: invalid decisions response — answer ${id} carries noul=${noul} and probability=${probability} which disagree; the wire and canonical keys must agree`,
+		);
+	}
+	const p = probability ?? noul;
+	if (p === null) {
+		throw new Error(
+			`gate: invalid decisions response — answer ${id} of type noul carries no numeric noul or probability`,
+		);
+	}
+	const out: Record<string, unknown> = { ...a, probability: p };
+	delete out["noul"];
+	return out as GateAnswer;
+}
+
 /** Parse a 2xx decisions body. Throws a single-line Error on garbage —
  * runGate's catch-all converts it into the `invalid-response` class and the
  * fail-closed Deliberate path. */
@@ -206,9 +239,13 @@ export function parseDecisionsResponse(body: string): ParsedDecisionsResponse {
 	const usageRaw = (
 		o.usage && typeof o.usage === "object" && !Array.isArray(o.usage) ? o.usage : {}
 	) as Record<string, unknown>;
+	const answers: Record<string, GateAnswer> = {};
+	for (const [id, answer] of Object.entries(o.answers as Record<string, unknown>)) {
+		answers[id] = canonicalizeAnswer(id, answer);
+	}
 	return {
 		model: o.model,
-		answers: o.answers as Record<string, GateAnswer>,
+		answers,
 		usage: {
 			input_tokens: num(usageRaw["input_tokens"]),
 			output_tokens: num(usageRaw["output_tokens"]),
