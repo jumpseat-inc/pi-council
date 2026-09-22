@@ -337,3 +337,64 @@ T-U4 async pattern (`Bun.spawn` + `await proc.exited`) — the existing
 deadlock, not fail (reproduced: `status: null … timed out after 5000ms`);
 (b) run 2's red rests on `cache.hits === 1` alone — keep it as the
 load-bearing run-2 assertion.
+
+### Step 5 — consolidator synthesis (job-1.8)
+
+**Agreed design:** mechanism B — move `ensure_out_dir(out_dir)` above the
+first `save_cache` (before `load_cache`), delete the later call;
+`save_cache` stays a pure primitive; single owner of "out dir set up"; fix
+stays inside `usages.py`; `EMPTY_DIRS` untouched. The Intent sentence is
+scoped to the tested surface (`--cache-file` omitted); the foreign
+`--cache-file` divergence is acknowledged fact, out of scope here.
+
+**Settled (each by an actually-run test):** S1 red-at-base premise
+(`0 pass / 2 fail` at base, `2 pass / 0 fail` on the mechanism-B transplant,
+existing suite 6/6 re-pointed) — closed-green; S2 T-U2 interaction (key
+check precedes out_dir resolution; exit 2 writes nothing; T-U2 green against
+the transplant) — closed-green, concern unfounded; S3 owner's read-only
+smokes (exit 1 PermissionError traceback in all four scenario/variant runs,
+never exit 3; cosmetic stderr letter-difference recorded) — closed-green for
+the operative claim, closed-red on the strict "identical failure surface"
+letter; S4 foreign-`--cache-file` divergence identical under both variants,
+scoped out by R4 — closed-green; S5 stub load-bearing (dead port → cache
+never populates) — closed-green.
+
+**Open judgment:** OJ1 mechanism A-vs-B — the consolidator records that the
+A-vs-B difference is not observable under T-U7/T-U8, all three seats chose
+B, and the principal explicitly withdrew its A-preference for this card
+(scoping it to the follow-up F1 surface), concluding "no seat holds a
+different position" — then routes "confirmation of the B selection" to
+`product-owner`. **Facilitator routing reading (step 6):** a unanimous
+convergence whose only residual is a withdrawn preference is not an
+open-judgment dispute — the step-6 route is for what the deliberation left
+open, and this deliberation left the fix choice closed (S1's runs closed the
+operative question; the principal retracted its scope claim in round 2). The
+genuinely open product question — create foreign cache parents vs reject
+with a usage error — is already routed where it belongs: **F1**, a future
+card chartered for the `--cache-file` parent surface, where the ruling is
+owed. No `product-owner` dispatch and no `Needs Human` state arise from this
+card; nothing blocks handoff.
+
+**Open objections:** OO1 spawnSync trap in `runTool` (T-U7/T-U8 drafted on
+it would deadlock, not fail — reproduced `status: null … timed out`;
+actionable, carried to the owner: author T-U7/T-U8 with the T-U4 async
+`Bun.spawn` + `await proc.exited` pattern); OO2 merged-SHA full-suite run —
+open-untested by construction, deferred to step-9 verification and the
+merged-SHA gate (not a blocker for implementation).
+
+**Follow-up candidates carried to step 13:** F1 foreign-`--cache-file`
+parent surface (principal's discriminator as red-at-base; product ruling
+owed: create vs reject); F2 cache stats in the human-readable summary;
+F3 `runTool` async migration (`spawnSync` → T-U4 async pattern, the
+deadlock trap removed for future test authors); F4 record-only cosmetic
+marker — pre-fix read-only stderr carries an extra cache-warning line the
+fixed variant drops (no action unless scope expands).
+
+### Step 6 — routing outcome (facilitator)
+
+Zero open-judgment disputes require a ruling seat on this card: OJ1's B
+selection is a converged, tested settlement (see the step-5 routing reading);
+F1's create-vs-reject ruling is future-card material and does not gate this
+card. Zero blocking open objections: OO1 is carried to the owner as an
+implementation instruction, OO2 is the deferred merged-SHA gate. The card
+does **not** enter `Needs Human`; steps 7+ proceed.
