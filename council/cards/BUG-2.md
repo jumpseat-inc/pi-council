@@ -571,3 +571,13 @@ candidates with the recorded dispositions.
 - Card set `Done`; board line moved to the Done column. Deterministic merge
   check recorded mode `Deliberate` (run substrate), criteria 1–5 satisfied at
   the pinned head.
+
+### Step 13 — orchestrator retry: still HELD (mechanical gate failure)
+
+The orchestrator invoked `council_followup_gate` once with all four candidates
+in draft order; mode `active`, every candidate `failed` with the engine-derived
+basis `gate call failed: followup: decideFollowup — answer duplicate of type
+noul is missing a usable probability (expected a number in [0, 1])` — the same
+`noul` answer-shape drift as the intake gate (open FLLWUP-104). No disposition
+was recorded, no card was written, no candidate was dropped. All four remain
+**held by draft title** for the run ledger.
