@@ -22,3 +22,10 @@ python3 .pi/skills/usages/scripts/usages.py --range "$ARGUMENTS"
 **Report.** Surface the tool's printed summary verbatim; never re-derive or
 paraphrase dollar figures. Point the user at the JSON and Markdown files the
 tool wrote under `.pi/council/usages/`, and repeat any `!` limitation lines.
+
+If the tool's stderr contains the literal `usages: could not write cache:`,
+surface that line to the user verbatim (no prefix, no rewording); explain the
+fix ships in a newer package version but does not reach the skill already
+copied into this repo, so — after updating the pi-council package — run
+`rm -rf .pi/skills/usages/` and then `/council-init` to recopy the fixed tool;
+the report itself still ships.
