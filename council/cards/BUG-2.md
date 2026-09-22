@@ -278,3 +278,62 @@ surface in this card. Follow-up candidates recorded for step 13: (F1)
 foreign-`--cache-file` parent surface (principal's discriminator as
 red-at-base; product ruling: create vs reject); (F2) cache stats in the
 human summary (`cache: hits=N misses=M`).
+
+### Step 4 — skeptic attack (job-1.7), objections and actual results
+
+All probes run read-only against HEAD `42b59c8` (pre-fix); falsifiers and
+the mechanism-B transplant in `/tmp/sk-bug2/`; main checkout clean before
+and after.
+
+**Red-at-base evidence (seven-field record):** base identity `42b59c8` (base
+role: required); transplant set materialized in /tmp (`tu78.test.ts` strict
+T-U7/T-U8 falsifier + probe harnesses); exact command `cd /tmp/sk-bug2 &&
+timeout 180 bun test tu78.test.ts` (head half `TOOL=/tmp/sk-bug2/fixed/
+usages.py`); raw reds — T-U7 R1 stderr carried the literal
+`usages: could not write cache: [Errno 2] …` and `.cache.json` absent, R2
+`hits: 0`, T-U8 `fresh-out/.cache.json` absent, `0 pass / 2 fail` at base;
+head half `2 pass / 0 fail / 16 expect()`; existing suite re-pointed at the
+transplant `6 pass / 0 fail`. Comparison triple `(42b59c8, {tu78.test.ts +
+probe harnesses}, bun test tu78.test.ts)` identical across halves. Boundary
+nuance: **T-U7 R2's "stderr clean" is green at base** (R1's line-792
+`ensure_out_dir` already created the dir) — the run-2 red rests entirely on
+`hits === 1`, which is the load-bearing assertion.
+
+Objections, each with the test actually run:
+
+1. T-U7/T-U8 fail on the pre-fix tree, on exactly the named assertions —
+   **closed-green** (`0 pass / 2 fail` at base; reds exactly the cache-write
+   warning, R1 cache absence, R2 `hits: 0`, T-U8 cache absence). Stub is
+   load-bearing: with a dead port no rows arrive and the cache never
+   populates.
+2. Mechanism B produces the acceptance state — **closed-green**
+   (transplant: `2 pass / 0 fail`; all 10 T-U7 conditions and both T-U8
+   conditions pass). No in-scope configuration found where B fails.
+3. Insertion point breaks T-U2 (key check vs moved `ensure_out_dir`) —
+   **closed-green**, concern unfounded: the key check (`return 2`) precedes
+   out_dir/cache_file resolution; key-missing probe on the fixed variant
+   exits 2 writing nothing; existing T-U2 passes against the transplant
+   (6/6).
+4. Owner's read-only smoke claims — **closed-green** for the operative
+   claim (exit 1 PermissionError traceback in both scenarios, both variants,
+   never exit 3); **closed-red** on the strict "identical failure surface"
+   letter — pre-fix stderr carries an extra `usages: could not write cache:`
+   line before the traceback, the fixed variant drops it. Cosmetic, outside
+   the acceptance surface; the record's "identical" is corrected to
+   "identical exit code and traceback class."
+5. Foreign-`--cache-file` divergence persists post-fix exactly as scoped by
+   R4 (both variants exit 0, foreign cache never written, warning present) —
+   **closed-green**.
+6. Regression on shipped tests — **closed-green** (6 pass / 0 fail against
+   the transplant).
+7. Merged-SHA head half — **open-untested** by construction (no merge this
+   turn); pending evidence is the transplant pair; the merged-SHA run is
+   the step-9/11 gate.
+
+**Actionable findings carried to the owner:** (a) T-U7/T-U8 must use the
+T-U4 async pattern (`Bun.spawn` + `await proc.exited`) — the existing
+`runTool` helper uses `spawnSync`, which blocks the event loop so
+`Bun.serve` cannot answer python's HTTP calls; the acceptance tests would
+deadlock, not fail (reproduced: `status: null … timed out after 5000ms`);
+(b) run 2's red rests on `cache.hits === 1` alone — keep it as the
+load-bearing run-2 assertion.
