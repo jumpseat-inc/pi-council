@@ -110,3 +110,89 @@ epic's own gate has a bullet an `EMPTY_DIRS`-only patch cannot pass.
   the PR, gets `gates` green on the PR head, and reports `DONE` with the PR
   number and head SHA. R2 — serial build order. R4 — no cache-health report
   row; the decline stands and is not reopened.
+
+### Steps 2–3 — round 1 (independent first pass) and round 2 exchange
+
+**Round 1 — owner (job-1.1), verbatim position (condensed to its claims):**
+
+- Recommends **mechanism B**: move `ensure_out_dir(out_dir)` above the first
+  `save_cache` — call it immediately after `out_dir`/`cache_file` are
+  resolved (~line 719, before `load_cache`), delete the later call (~792).
+  `save_cache` stays a pure write-beside-target primitive; giving it blanket
+  `mkdir(parents=True)` changes its contract for every caller since
+  `--cache-file` may point anywhere.
+- Tradeoffs accepted: `.gitignore` write happens earlier (improves behavior —
+  a mid-network-death run still leaves a gitignored dir). `--cache-file`
+  pointing outside `out_dir` with an absent parent still fails — record as
+  known limitation, hardening it is scope creep (goal names the output
+  directory; R4: write-ordering fix only). Both flags together handled
+  unchanged.
+- Verified: the cache is only non-empty if the stub answers
+  (`usages.py:505–523`), so the T-U4 stub is load-bearing for T-U7;
+  `extensions/scaffold.ts:71` hardcodes only `vault/raw` and
+  `vault/wiki/sources`, so the EMPTY_DIRS prohibition costs nothing.
+- Offline unchanged (save_cache only called under `not args.offline`);
+  cache-write failure stays non-fatal (R4 respected); red-at-base per the
+  seven-field convention via detached worktree transplant at the pre-fix SHA.
+- Two questions: (1) harden foreign `--cache-file` parent or record as
+  limitation? (2) confirm run-2 "stderr clean" tolerates stdout-only report
+  lines — pin the stderr assertion to absence of the cache literal.
+
+**Round 1 — principal (job-1.2), verbatim position (condensed to its claims):**
+
+- The seam is which module owns directory existence for which write target:
+  `save_cache` knows only `path` (its tmp is at `path.with_name(...)`),
+  `ensure_out_dir` is truly about the report write, and `cache_file` is
+  **decoupled** from `out_dir` by `--cache-file`. The two proposed options are
+  equivalent *only where `--cache-file` is omitted* — the card's
+  "observable contract is the same" sentence is false across the flag surface.
+- Recommends **mechanism A**: `save_cache` creates its own parent
+  (`p.parent.mkdir(parents=True, exist_ok=True)` before `tmp.write_text`) —
+  the only option that holds when `--cache-file` names a parent outside
+  `out_dir`; places the invariant at the writer that knows the target;
+  preserves the non-fatal warning semantics.
+- Testable discriminator (falsifies the equivalence sentence): run with
+  `--out-dir <dir>` **and** `--cache-file <repo>/nested/absent/.cache.json`;
+  post-fix (a) exits 0 with the cache file present; post-fix (b) still logs
+  `usages: could not write cache:` and writes no cache file. T-U7/T-U8 pin
+  `--cache-file` omitted so they cannot distinguish (a) from (b).
+- Also flags: no offline-path invariant test; no test distinguishing
+  "report dir exists" from "cache parent exists" (`.gitignore` check pins the
+  report side only).
+- Open questions: (1) create the foreign cache parent, or reject
+  `--cache-file` outside `out_dir` with a usage error — silently creating
+  foreign parents deserves an explicit ruling; (2) cache-write failure stays
+  non-fatal (conservative reading).
+
+**Round 1 — designer (job-1.3), verbatim position (condensed to its claims):**
+
+- After the fix, run 1's stderr and the output directory must agree: no
+  `could not write cache` line, `.cache.json` present; today stdout proves
+  the directory exists milliseconds after stderr said it didn't — a Norman
+  feedback contradiction. `.cache.json` is the signifier for the
+  "reruns are cheap" promise made verbatim by `council/procedures/usages.md`
+  and `vault/wiki/usages-report.md`; the bug breaks that promise on first run.
+- Prefers **mechanism B** (single owner: `ensure_out_dir` already carries
+  "out dir set up"; splitting the invariant across two functions creates two
+  preconditions for no benefit). Predicts `grep -n ensure_out_dir` shows the
+  call above the first `save_cache`; grades mechanism A "fix correct, design
+  smell" if chosen.
+- Residual failure copy stays verbatim (`could not write cache: {e}`) — it
+  fires only for cases its wording already names (permissions, read-only,
+  disk full); a friendlier line would lie about the cause. Softer wording is
+  a separate card.
+- Falsifiable predictions for out-of-band smokes: (1) fresh default dir —
+  clean stderr + `.cache.json` present; (2) rerun `hits₂ == misses₁`; (3)
+  absent `--out-dir` — dir exists with `.cache.json`, both report files,
+  `.gitignore`; (4) read-only parent → exit 3 `could not write report`;
+  read-only existing dir → `could not write cache` with the real OSError,
+  correct and staying; (5) implementer choice — `ensure_out_dir` above the
+  first `save_cache`; (6) T-U4's `--cache-file <root>/cache.json` outside
+  `--out-dir <root>/out` never exercises the bug path — that gap is itself a
+  finding.
+- Out of scope, flagged for follow-up: surface cache stats in the human
+  summary (`cache: hits=N misses=M`) — positive feedback that the cache
+  machinery worked; today only the JSON report carries them.
+
+**Round 2 — the exchange (same three seats, each with the others' round-1
+positions; see the three verbatim round-2 blocks below).**
