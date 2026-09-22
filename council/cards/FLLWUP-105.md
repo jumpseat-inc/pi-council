@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-105
 title: Name the remediation route for a stale copied usages skill
-state: Ready
+state: Deliberating
 owner: null
 epic: EPIC-15
 goal: council/procedures/usages.md instructs the agent that when the tool's stderr contains usages: could not write cache:, it must surface that line verbatim and give the consumer the two refresh commands — delete <repo>/$CONFIG_DIR_NAME/skills/usages/, then re-run /council-init.
