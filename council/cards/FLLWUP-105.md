@@ -270,3 +270,59 @@ settled. Designer/principal settled on first dispatch.
     `.pi/skills/usages/` and re-run `/council-init` to recopy the fixed tool."
   Both carry all four acceptance elements and all three pin literals. The
   round cap (3) is reached; this textual choice goes to the consolidator.
+
+### Step 4 — skeptic attack, all objections settled by run (job-2.12) — NO-BLOCK
+
+Transplant battery in `/tmp/fllwup105` (6 sentence-states × 4 pin variants),
+main tree untouched, scratch cleaned. Results:
+
+- **O-scope — closed-green.** Sentence removed: scoped pin `3 fail` /
+  repo-wide pin `1 pass`; implementation state: scoped `4 pass`. Repo-wide pin
+  is satisfied by `usages.py`, `index.ts`, `scaffold.ts`, dozens of files —
+  scoped pin vindicated.
+- **O-overpin — closed-green.** Claim-preserving reword ("newer package
+  version" → "fixed-in-the-next-release", all four bullet-1 elements kept):
+  4-literal pin `1 fail`, converged 3-literal pin `pass`, op-step pin `pass`.
+  T-overpin confirmed; the converged design's rejection of the 4th literal is
+  empirically right.
+- **O-A/B — closed-green, with measured residuals (carried, not blocking).**
+  Op-step pin (`updating the pi-council package`) reds on variant B (update
+  step dropped), passes variant A; converged pin green on S4/S5 — **variant B
+  and S5 (both commands deleted, trigger+verbatim+version kept) are uncaught
+  by the three-literal pin**, because `skills/usages/` and `/council-init`
+  already live in the file's `**Run.**` section. The two non-trigger pin
+  literals carry zero sensitivity to the sentence. Catching S4/S5 requires a
+  sentence-exclusive literal (`recopy the fixed tool`) — the over-pin class
+  the convergence rejected. The implementation satisfies the acceptance's own
+  enumerated contract; the boundary is a property of that contract. Update-
+  first is load-bearing: this repo's own `.pi/skills/usages/scripts/usages.py`
+  is the pre-BUG-2 tool (diff verified), so a stale-install delete-recopy
+  without the package update loops the bug back.
+- **O-token — closed-green.** `renderProcedure` (extensions/index.ts:149-153)
+  substitutes only `$COUNCIL_PROCEDURES`/`$ARGUMENTS`; no
+  `@CONFIG_DIR@`/`CONFIG_DIR_NAME` rendering; `usages.md` speaks literal
+  `.pi/` in all three path mentions. Dropping negative assertions is sound.
+- **O-v1v2 — closed-green, stated plainly:** both V1 and V2 pass the
+  converged 3-literal pin; mechanical discriminators exist only by
+  wording-coupling (the rejected 4th literal happens to split them because
+  V2's prose line-break splits "newer package\nversion"). **No element-level
+  test separates V1 and V2 — it is a prose choice.**
+- **O-nonfatal — closed-green.** Real-tool run with forced cache-write failure
+  (nonexistent cache dir, api-base 127.0.0.1:9): warning on stderr, full
+  report written, exit 0.
+- **O-boundary — closed-green.** Scan of all 7 `log(` literals in `usages.py`:
+  exactly one contains the trigger; siblings contain none of the three pinned
+  literals; no stderr literal is a substring of any pinned literal.
+- **O-tusk1 — closed-green.** `bun test test/scaffold.test.ts` → 6 pass /
+  0 fail; `git status`/`git diff` empty.
+- **O-ordering — closed-green.** `copyUsagesSkill` skips existing copies;
+  T-USK1 pins second-run `created == []`; re-init alone never updates the
+  tool.
+
+**Gate integrity:** the pin gate demonstrably reds — five separate matrix
+arms observed red (S2: 3 fail; S3/S4/S6: 1 fail each).
+
+**Verdict: NO-BLOCK.** Two measured items carried to the consolidator/judge:
+(1) the acceptance's own three-literal set cannot catch command-drop or
+update-step-drop from the sentence — only wholesale-removal and
+trigger-reword classes; (2) V1-vs-V2 is a pure prose choice.
