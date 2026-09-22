@@ -6,6 +6,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Backlog
 
+- EPIC-15 — Usages tool creates its output directory before writing the cache
+- FLLWUP-105 — Name the remediation route for a stale copied usages skill
+- FLLWUP-106 — The usages procedure forbids inventing framing around the tool's stderr
 - EV-85 — Seat-composition decisions as repo-overridable packaged data
 - EV-86 — Pure seat-composition decision function with a fail-safe Default
 - EV-87 — One-call seat-composition orchestration over the shared Jev transport
@@ -99,6 +102,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 
 ## Ready
+- BUG-2 — Usages tool creates its output directory before writing the cache
 - EV-48 — Packaged seat-tier map with repo-local merge override
 - EV-57 — Resolve the running pi-council identity from the package root
 - EV-58 — Show the pi-council version and hash on the first pi run
