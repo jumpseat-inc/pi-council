@@ -4,9 +4,9 @@ type: entity
 summary: The Council's formal adversary and sole evaluator — assumes every claim is broken until a test demonstrates otherwise, and has standing to block a card.
 aliases: [skeptic seat]
 tags: [pi-council/seat]
-sources: ["[[2026-08-23-pi-council-design-spec]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-24-epic15-run-ledger]]"]
+sources: ["[[2026-08-23-pi-council-design-spec]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-22-epic15-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-24
+updated: 2026-09-22
 ---
 
 > ⚠️ Derived from `council/agents/skeptic.md` (captured 2026-08-23). Verify against the seat file.
@@ -76,7 +76,7 @@ reds on the gutted mutation (worked example kept, rule sentences dropped). The
 [[product-owner]] ruled every untested "predicted better cold-read" refinement
 out and shipped the byte-tested text. The seat's rule generalizes beyond
 objections to **prose and assertions**: a claim a test has run outranks a
-plausible untested improvement. See [[2026-09-24-epic15-run-ledger]].
+plausible untested improvement. See [[2026-09-22-epic15-run-ledger]].
 
 ## Related
 

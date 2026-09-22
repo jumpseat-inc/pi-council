@@ -4,9 +4,9 @@ type: concept
 summary: EPIC-13, shipped at v0.28.0 — a typed System One gate evaluates a packed card state and routes each card to Deliberate, Verify, or Direct; enablement lives in `.council.json`'s reserved top-level `gate` section, and the packaged default resolves `mode: "off"` — which routes every card to the full Deliberate panel.
 aliases: [metered deliberation, deliberation routing, System One gate, Deliberate Verify Direct, gate]
 tags: [pi-council/concept, pi-council/epic13]
-sources: ["[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-21-po-ev73-step6-ruling]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-design-epic11-recut-surface]]", "[[2026-09-24-epic15-run-ledger]]"]
+sources: ["[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-21-po-ev73-step6-ruling]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-design-epic11-recut-surface]]", "[[2026-09-22-epic15-run-ledger]]"]
 created: 2026-09-20
-updated: 2026-09-24
+updated: 2026-09-22
 ---
 
 # Metered Deliberation Routing
@@ -289,7 +289,7 @@ production**, in the repo that runs `active`:
 
 The fail-closed direction held in every case. Witness: [[2026-09-22-epic10-run-ledger]].
 
-## EPIC-15 finding (2026-09-24)
+## EPIC-15 finding (2026-09-22)
 
 The drift is not card-gate-only. In EPIC-15 (`gate.mode: active`) the intake
 card gate failed on every drafted card **and** the follow-up gate failed on
@@ -297,7 +297,7 @@ every candidate with the same `noul` drift — so both domains were inert, and t
 run shipped three cards on the `council_route` fallback (Deliberate). The
 failure is safe because the fallback is the stricter lane, but `active` did not
 mean "the gate is deciding." This is the general pattern
-[[inert-gate-fallback]]. Witness: [[2026-09-24-epic15-run-ledger]].
+[[inert-gate-fallback]]. Witness: [[2026-09-22-epic15-run-ledger]].
 
 ## Related
 

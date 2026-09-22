@@ -4,9 +4,9 @@ type: entity
 summary: The portfolio-authority seat and product-owner's escalation target — rules what the portfolio is for, build order, the order of card retirement, and permanent residuals. Never implements.
 aliases: [steward seat]
 tags: [pi-council/seat]
-sources: ["[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-24-epic15-run-ledger]]"]
+sources: ["[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-24
+updated: 2026-09-22
 ---
 
 > ⚠️ Derived from `council/agents/steward.md` (captured 2026-08-23). Verify against the seat file.
@@ -121,7 +121,7 @@ opposite ruling flagged as the portfolio act ([[confirmation-authority]]).
 [[product-owner]] ratified every follow-up itself. Witness:
 [[2026-09-22-epic10-run-ledger]].
 
-## EPIC-15 (2026-09-24) — escalated, resolved by the human
+## EPIC-15 (2026-09-22) — escalated, resolved by the human
 
 [[product-owner]] escalated one portfolio question — whether `/council-update`
 should own a refresh path for `/council-init`-copied payloads outside

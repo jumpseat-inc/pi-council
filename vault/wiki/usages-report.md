@@ -4,9 +4,9 @@ type: concept
 summary: `/usages <time_range>` — a package-shipped procedure plus a `/council-init`-copied Python tool that reports one repo's per-seat and main-agent token/dollar usage, cross-matched to OpenRouter generation figures, as JSON + Markdown under .pi/council/usages/; since EPIC-15 the tool creates its output directory before the cache write, and a stale copied tool is refreshed by update→delete→re-init.
 aliases: [usages, slash usages, usages report, usages procedure, council usages]
 tags: [pi-council/concept, pi-council/usages]
-sources: ["[[2026-09-21-usages-design]]", "[[2026-09-22-fix-shape-witness-segment-liveness]]", "[[2026-09-24-epic15-run-ledger]]"]
+sources: ["[[2026-09-21-usages-design]]", "[[2026-09-22-fix-shape-witness-segment-liveness]]", "[[2026-09-22-epic15-run-ledger]]"]
 created: 2026-09-21
-updated: 2026-09-24
+updated: 2026-09-22
 ---
 
 # Usages Report
@@ -82,7 +82,7 @@ created moments later. The fix moves `ensure_out_dir(out_dir)` above the first
 `save_cache`; the tool's invariant is that its output directory exists before
 anything is written into it. `T-U7` (default path, second run `cache.hits === 1`)
 and `T-U8` (fresh `--out-dir`) pin it; an `EMPTY_DIRS` scaffold pre-seed must not
-satisfy them ([[2026-09-24-epic15-run-ledger]]).
+satisfy them ([[2026-09-22-epic15-run-ledger]]).
 
 ## The stale-copy remediation route (FLLWUP-105/106)
 
@@ -123,5 +123,5 @@ current day sits in totals but not in `attributedUsd`.
 ## Sources
 
 - [[2026-09-21-usages-design]]
-- [[2026-09-24-epic15-run-ledger]] — the cache-ordering fix and the stale-copy route
+- [[2026-09-22-epic15-run-ledger]] — the cache-ordering fix and the stale-copy route
 - `council/procedures/usages.md`, `council/skills/usages/scripts/usages.py`

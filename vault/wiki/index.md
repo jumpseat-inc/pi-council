@@ -104,7 +104,7 @@ _(none yet)_
 
 ## Sources
 
-- [[2026-09-24-epic15-run-ledger]] — The EPIC-15 run: the usages cache-write ordering bug fixed end to end (3 Deliberate merges, PRs #104–#106), the stale-copy remediation route, and the finding that an enabled-but-failing gate (noul drift in both domains) is inert rather than blocking.
+- [[2026-09-22-epic15-run-ledger]] — The EPIC-15 run: the usages cache-write ordering bug fixed end to end (3 Deliberate merges, PRs #104–#106), the stale-copy remediation route, and the finding that an enabled-but-failing gate (noul drift in both domains) is inert rather than blocking.
 
 - [[2026-09-22-fix-shape-witness-segment-liveness]] — The FLLWUP-59 derived-token witness's first failure on main was a **false positive**: retiring `.agents/skills/**` emitted dir token `skills/`, which prefix-only liveness kept although `skills/` is live as an interior segment under `.pi/skills/**`; the repair makes dir-token liveness segment-aware, and the over-emission class folds into [[retired-path-tokens]].
 - [[2026-09-22-design-epic11-recut-surface]] — Wave-2 designer attack on the Jev-aware EPIC-11 recut: the setup (seat-composition) gate domain's surfaces name no screen/copy/state to the FLLWUP-75 / EV-82 bar; findings A–J plus four observational gaps, led by the first question's Jev-vs-profile provenance mis-attribution.

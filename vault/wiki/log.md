@@ -1,8 +1,8 @@
 # Wiki Log
 
-## [2026-09-24] ingest | EPIC-15 run — usages cache-ordering fix, stale-copy route, and the inert-gate finding
+## [2026-09-22] ingest | EPIC-15 run — usages cache-ordering fix, stale-copy route, and the inert-gate finding
 
-Ingested the EPIC-15 autonomous run (authored `vault/raw/2026-09-24-epic15-run-ledger.md`)
+Ingested the EPIC-15 autonomous run (authored `vault/raw/2026-09-22-epic15-run-ledger.md`)
 together with the two already-filed raw notes (`2026-09-23-po-epic15-decomposition-ruling`,
 `2026-09-24-fllwup-105-stale-usages-skill-recopy`). Three Deliberate merges
 (PRs #104–#106: `59fad63`, `a0b27ca`, `98a62a9`) shipped the `usages.py`
@@ -13,7 +13,7 @@ both the intake card gate and the follow-up gate failed on the `noul` drift
 (FLLWUP-104), and all three cards ran on the `council_route` fallback
 (Deliberate).
 
-- **Created:** sources/2026-09-24-epic15-run-ledger; [[inert-gate-fallback]].
+- **Created:** sources/2026-09-22-epic15-run-ledger; [[inert-gate-fallback]].
 - **Updated:** [[usages-report]] (cache-ordering bug + stale-copy route),
   [[non-clobbering-scaffold]] (refresh-route correction), [[followup-decision-gate]]
   (the in-container tool gap + failure arm), [[council-runner]] (EPIC-15 lessons),

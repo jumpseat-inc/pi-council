@@ -4,9 +4,9 @@ type: concept
 summary: No seat and no runner may run git checkout/switch/reset against the main repository path — branch state changes happen only in a dedicated worktree — enforced at three layers after two incidents corrupted board records.
 aliases: [main repo immutability, branch-state immutability, worktree-only rule, main-repo immutability]
 tags: [pi-council/concept, pi-council/process]
-sources: ["[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-24-epic15-run-ledger]]"]
+sources: ["[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-22-epic15-run-ledger]]"]
 created: 2026-09-06
-updated: 2026-09-24
+updated: 2026-09-22
 ---
 
 # Main-Repo Immutability
@@ -92,6 +92,6 @@ version), never a blanket clean — see [[union-merge-reconcile]].
 ## Sources
 
 - [[2026-09-06-epic6-close-run-ledger]]
-- [[2026-09-24-epic15-run-ledger]] — the leaked-untracked-file hazard
+- [[2026-09-22-epic15-run-ledger]] — the leaked-untracked-file hazard
 - `council/agents/council-runner.md`, `council/agents/owner.md`,
   `council/agents/skeptic.md`, `council/agents/judge.md`

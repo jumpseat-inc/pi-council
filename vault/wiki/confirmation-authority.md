@@ -4,9 +4,9 @@ type: concept
 summary: The EPIC-10 ruling — under `gate.mode: active` a recorded engine-minted disposition is the disposition SOURCE, never the human confirmation; a runner escalates each candidate for ratification by a ruling seat before any card is written, because the autonomous authority map is exhaustive and a model call is not a row in it.
 aliases: [confirmation authority, recorded decision confirmation, ratification, pre-write confirmation]
 tags: [pi-council/concept, pi-council/features-deliver, pi-council/epic10]
-sources: ["[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-design-epic11-recut-surface]]", "[[2026-09-24-epic15-run-ledger]]"]
+sources: ["[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-design-epic11-recut-surface]]", "[[2026-09-22-epic15-run-ledger]]"]
 created: 2026-09-22
-updated: 2026-09-24
+updated: 2026-09-22
 ---
 
 # Confirmation Authority

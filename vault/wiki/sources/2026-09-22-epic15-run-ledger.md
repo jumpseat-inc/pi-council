@@ -1,15 +1,15 @@
 ---
-title: 2026-09-24 EPIC-15 Run Ledger
+title: 2026-09-22 EPIC-15 Run Ledger
 type: source
 summary: The EPIC-15 run — the usages cache-write ordering bug fixed end to end (3 Deliberate merges, PRs #104–#106), the remediation route for already-copied installs, and the finding that an enabled-but-failing gate (noul drift in BOTH domains) is inert rather than blocking.
-aliases: [epic15 run ledger, EPIC-15 ledger, 2026-09-24-epic15-run-ledger]
+aliases: [epic15 run ledger, EPIC-15 ledger, 2026-09-22-epic15-run-ledger]
 tags: [pi-council/source, pi-council/epic15, pi-council/usages]
 sources: []
-created: 2026-09-24
-updated: 2026-09-24
+created: 2026-09-22
+updated: 2026-09-22
 ---
 
-# 2026-09-24 EPIC-15 Run Ledger
+# 2026-09-22 EPIC-15 Run Ledger
 
 The autonomous `/features-deliver EPIC-15` run delivered the epic "Usages tool
 creates its output directory before writing the cache" — 3 Deliberate merges
@@ -110,6 +110,6 @@ condition.
 
 ## Sources
 
-- `vault/raw/2026-09-24-epic15-run-ledger.md`
+- `vault/raw/2026-09-22-epic15-run-ledger.md`
 - `vault/raw/2026-09-23-po-epic15-decomposition-ruling.md`
 - `vault/raw/2026-09-24-fllwup-105-stale-usages-skill-recopy.md`

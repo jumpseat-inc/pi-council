@@ -4,9 +4,9 @@ type: concept
 summary: The /features-new structure (v0.15.0) — a feature is deliberated into an epic + child cards by seats in three bounded waves (principal authors, skeptic+designer attack, product-owner rules), with the facilitator authoring nothing and the human gate untouched.
 aliases: [seated decomposition, features-new decomposition, wave structure, bounded decomposition session]
 tags: [pi-council/concept, pi-council/features-new]
-sources: ["[[2026-09-04-epic3-run-ledger]]", "[[2026-09-24-epic15-run-ledger]]"]
+sources: ["[[2026-09-04-epic3-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]"]
 created: 2026-09-04
-updated: 2026-09-24
+updated: 2026-09-22
 ---
 
 # Three-Wave Decomposition

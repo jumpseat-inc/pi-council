@@ -4,9 +4,9 @@ type: concept
 summary: When a squash-merged PR folds a runner's board commits, a local main carrying later record commits diverges — reconcile by union merge keeping both record sides, then verify (validate.py + a conflict-marker sweep); or avoid it by pushing records as they happen. A `git reset --hard` on local main is a rewind, not this repair — EPIC-13's counterexample discarded a ruling doc.
 aliases: [union merge, diverged main, union-merge reconcile]
 tags: [pi-council/process]
-sources: ["[[2026-09-05-epic6-run-ledger]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-24-epic15-run-ledger]]"]
+sources: ["[[2026-09-05-epic6-run-ledger]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]"]
 created: 2026-09-05
-updated: 2026-09-24
+updated: 2026-09-22
 ---
 
 # Union-Merge Reconcile
@@ -102,7 +102,7 @@ check plus `git rebase --onto origin/main <pre-branch>` to replay only the
 genuinely-unmerged record commits — never a `reset --hard`. Witness:
 [[2026-09-22-epic10-run-ledger]].
 
-## EPIC-15 recurrence (2026-09-24)
+## EPIC-15 recurrence (2026-09-22)
 
 A new trigger with no divergence at all: an **untracked file leaked into the
 main checkout** by the owner's worktree work. `test/usages-procedure.test.ts`
@@ -112,7 +112,7 @@ would be overwritten by merge"*. The repair was not a union merge: compare the
 untracked file byte-for-byte with the merged version (`git show
 origin/main:<path>`), and only when identical remove it, then re-run the ff.
 Recurred on one of three cards (FLLWUP-105); BUG-2 and FLLWUP-106 fast-forwarded
-cleanly. Witness: [[2026-09-24-epic15-run-ledger]].
+cleanly. Witness: [[2026-09-22-epic15-run-ledger]].
 
 ## Related
 
@@ -131,4 +131,4 @@ cleanly. Witness: [[2026-09-24-epic15-run-ledger]].
 - [[2026-09-04-epic4-run-ledger]]
 - [[2026-09-18-epic9-residual-run-2-ledger]] — the concurrent-writer trigger
 - [[2026-09-21-epic13-run-ledger]] — the reset counterexample
-- [[2026-09-24-epic15-run-ledger]] — the untracked-worktree-file ff abort
+- [[2026-09-22-epic15-run-ledger]] — the untracked-worktree-file ff abort

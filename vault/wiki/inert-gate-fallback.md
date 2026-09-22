@@ -4,9 +4,9 @@ type: concept
 summary: An enabled decision gate (`.council.json` `gate.mode: active`) whose live call fails mechanically falls back to a safe default and does not block the run — so "active" can mean the gate is inert, and the run's mode comes from the fallback, not from a decision.
 aliases: [inert gate, gate fallback, active-but-failing gate, gate fail-closed fallback, inert active gate]
 tags: [pi-council/concept, pi-council/gate]
-sources: ["[[2026-09-24-epic15-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]"]
-created: 2026-09-24
-updated: 2026-09-24
+sources: ["[[2026-09-22-epic15-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]"]
+created: 2026-09-22
+updated: 2026-09-22
 ---
 
 # Inert Gate Fallback
@@ -89,6 +89,6 @@ is the live defect that makes both domains inert today.
 
 ## Sources
 
-- [[2026-09-24-epic15-run-ledger]] — both domains inert; three cards shipped on fallback
+- [[2026-09-22-epic15-run-ledger]] — both domains inert; three cards shipped on fallback
 - [[2026-09-22-epic10-run-ledger]] — the card gate's drift first surfaced (FLLWUP-104)
-- `vault/raw/2026-09-24-epic15-run-ledger.md`
+- `vault/raw/2026-09-22-epic15-run-ledger.md`
