@@ -443,3 +443,38 @@ untracked symlinks in the worktree pointing at the main checkout's installs
 signature inconsistency the committed tests resolve.
 
 Card set `In Review` (sole precondition: open PR, observed).
+
+### Step 9 — Skeptic NO-BLOCK at head 8a4b2a9 (verify cycle 1 of ≤3)
+
+Skeptic (job-1.10) verified at the pinned subject — PR #104, head SHA
+`8a4b2a93e1c4bd8b41aad6caf4d9c3872a64d36d`, head worktree
+`.worktrees/bug-2` — with the loop frame stated (step 9 precedes step 10
+judging and step 11's facilitator-executed mechanical merge). Verdict:
+**`NO-BLOCK`**, six objections, all `closed-green`, each with a real run:
+
+1. Red-at-base independently reproduced: detached throwaway worktree at
+   base `114b549` under /tmp, head's test file transplanted, base
+   `usages.py` untouched → `6 pass / 2 fail / 42 expect()`, failing exactly
+   on the cache-write literal at the two named lines; comparison triple
+   equal; reds mechanism-absent (each names
+   `usages: could not write cache: [Errno 2] …` against a mkdtemp out dir,
+   nothing in the copy set).
+2. Head half `8 pass / 0 fail / 51 expect()` at `8a4b2a9` — closed-green.
+3. Gates reproduced at head: usages 8/0/51, scaffold 6/0/65, full suite
+   **1466 pass / 6 skip / 0 fail** (113 files, 112.02s), tsc exit 0,
+   validate.py clean. Preflight PASS on the current tree; the worktree
+   preflight FAIL (`local history does not descend from origin/main`) is
+   the structurally guaranteed FLLWUP-27 artifact — `origin/main` advanced
+   by exactly the two board-doc record commits past branch base — outside
+   the acceptance's gate set, resolving at merge.
+4. Diff scope exact: 3 files +307/−1; `usages.py` is precisely the one-line
+   move; `extensions/scaffold.ts` diff = 0; async pattern confirmed
+   (`spawnSync` only in the legacy offline-test helper); no out-dir
+   pre-creation in the new tests — closed-green.
+5. Foreign-`--cache-file` limitation un-regressed (head probe: exit 0,
+   warning present, no cache written) — closed-green.
+6. PR body names T-U8 as the EMPTY_DIRS-unsatisfiable test and records the
+   limitation; subject SHA equals pinned SHA equals worktree HEAD —
+   closed-green.
+
+Verify cycles used: 1 of ≤3; no fix cycle needed.
