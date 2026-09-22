@@ -698,3 +698,37 @@ clean. New pin: `usages procedure pins stderr discipline: glyph prohibition,
 worked-example literal, and verbatim proximity` (2 pass / 0 fail, 6 expects).
 No version bump. Status `In Review` written from the observed open PR — the
 owner's gate report is not the precondition.
+
+### Step 9 — skeptic verification at branch head (job-7.2, 6.2m, 31 turns) — cycle 1 of ≤3, NO-BLOCK
+
+Step-8→9 re-check (EV-69): no `council_route` tool in this container's
+grant set; re-check basis recorded — recorded ROOT mode `Deliberate` is the
+strongest mode, the ratchet is escalation-only (`effective =
+strongest(recorded, verdict)`, `gate-route.ts`), so no observed-set override
+can re-route; no re-gate owed. Skeptic dispatched at PR #106 head `8cede8b`
+in the same worktree, main path untouched.
+
+Gates re-run in full at head, with failure-injection proof (each watched
+red, then green on restore): `bunx tsc --noEmit` exit 0 (injected TS2322 →
+exit 2); `bun test` 1468 pass / 6 skip / 0 fail, 112.30s; `council/validate.py`
+clean (injected frontmatter fault → FAIL line, exit 1).
+
+Probes, all closed-green: (1) paragraph byte-identity vs the ruling Q2
+blockquote — whitespace-normalized 676/676 chars, ends with the exact ruled
+carve-out sentence; (2) glyphs — both ⚠️ hex `e29aa0efb88f` (U+26A0
+U+FE0F), 0 bare U+26A0; (3) additivity — head[:len(base)] == base exactly,
+the sole change to existing content is the EOF newline (`base + b"\n" ==
+head[:len(base)+1]`), FLLWUP-105 sentence and `OPENROUTER_MANAGEMENT_KEY`
+paragraph byte-identical, EOF-newline judged non-violating (all siblings end
+with `\n`, minimal byte to append); (4) pin — exactly the three Q5
+predicates, 2 pass / 0 fail at head; (5) red-at-base — all three literals 0
+occurrences at `bd77bbb`, harness 1 pass / 1 fail (O1 red) on a base
+transplant; (6) gutted discrimination — rule sentence dropped, prohibition
+and example kept → O1+O2 green, O3 red: pin NOT fully green on gutted, the
+step-4 battery's requirement; (7) diff = exactly two files (usages.md 11+/1−
+— the 1− is the no-EOF-newline marker, same sentence; test file 25+/0−), 0
+package.json changes; (8) predecessor pins — FLLWUP-105 test byte-identical
+and green, `env-split-contract` M1 pole A 1 pass / 0 fail (17 commands).
+
+Verdict: NO-BLOCK, no open objections. Verify-cycle counter: 1 used, 0
+fix-reverify rounds consumed.
