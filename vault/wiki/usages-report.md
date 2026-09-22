@@ -4,9 +4,9 @@ type: concept
 summary: `/usages <time_range>` — a package-shipped procedure plus a `/council-init`-copied Python tool that reports one repo's per-seat and main-agent token/dollar usage, cross-matched to OpenRouter generation figures, as JSON + Markdown under .pi/council/usages/.
 aliases: [usages, slash usages, usages report, usages procedure, council usages]
 tags: [pi-council/concept, pi-council/usages]
-sources: ["[[2026-09-21-usages-design]]"]
+sources: ["[[2026-09-21-usages-design]]", "[[2026-09-22-fix-shape-witness-segment-liveness]]"]
 created: 2026-09-21
-updated: 2026-09-21
+updated: 2026-09-22
 ---
 
 # Usages Report
@@ -87,6 +87,9 @@ current day sits in totals but not in `attributedUsd`.
 - [[usage-accounting]], [[usage-store]], [[cost-provenance]] — the EPIC-7 chain
 - [[run-transcripts]] — the pruned run substrate the durable rows outlive
 - [[procedure-commands]], [[non-clobbering-scaffold]] — registration + copy
+- [[2026-09-22-fix-shape-witness-segment-liveness]] — this procedure's copy
+  destination (`skills/usages/`) drove the shape witness's segment-liveness
+  repair
 
 ## Sources
 

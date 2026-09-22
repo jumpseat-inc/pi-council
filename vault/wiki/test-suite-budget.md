@@ -4,7 +4,7 @@ type: concept
 summary: The default bun test suite's measured wall-clock envelope, the live-arm files that carry it, the ceiling-vs-budget distinction, the CI-timeout backstop, and the rules that keep the numbers honest.
 aliases: [suite budget, test suite cost, drift threshold, CI timeout backstop]
 tags: [pi-council/concept, pi-council/smoke-test]
-sources: ["[[2026-09-19-po-fllwup48-test-suite-budget]]", "[[2026-09-18-po-fllwup56-step13-ruling]]", "[[2026-09-20-po-fllwup58-gates-backstop]]", "[[2026-09-20-po-fllwup58-step13-confirmation]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]"]
+sources: ["[[2026-09-19-po-fllwup48-test-suite-budget]]", "[[2026-09-18-po-fllwup56-step13-ruling]]", "[[2026-09-20-po-fllwup58-gates-backstop]]", "[[2026-09-20-po-fllwup58-step13-confirmation]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-fix-shape-witness-segment-liveness]]"]
 created: 2026-09-17
 updated: 2026-09-22
 ---
@@ -42,6 +42,13 @@ re-measurement ever exceeds the drift threshold below.
   fix is a test-only `beforeEach` reset — a reminder that shared module state
   in the engine is only as isolated as the worker partition. See
   [[2026-09-21-usages-design]].
+- **Grown (shape-witness segment-liveness fix, 2026-09-22):** **1470 tests
+  across 113 files, ≈112s** (1464 pass / 6 skip / 0 fail) — one new pure
+  falsifier (`dir tokens colliding with a live path SEGMENT are suppressed`),
+  and the FLLWUP-59 derived-token test returned to green after the
+  segment-aware repair (same file count; the fix is test-only). Still inside
+  the 180s threshold. See
+  [[2026-09-22-fix-shape-witness-segment-liveness]].
 - **Provenance:**
   - Machine: Linux 6.12.24-Unraid x86_64 (container)
   - Date: 2026-09-20 (re-measured at HEAD)

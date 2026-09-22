@@ -4,7 +4,7 @@ type: concept
 summary: The shape witness's retired-path token list is derived from git HEAD ancestry, not hand-maintained — a retirement enters the set automatically and a stale reference reds with the token and file named.
 aliases: [retired-path tokens, token allowlist, shape witness tokens, derived token set]
 tags: [pi-council/concept, pi-council/smoke-test]
-sources: ["[[2026-09-19-po-fllwup59-step13-ruling]]", "[[2026-09-18-epic9-residual-run-2-ledger]]"]
+sources: ["[[2026-09-19-po-fllwup59-step13-ruling]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-22-fix-shape-witness-segment-liveness]]"]
 created: 2026-09-18
 updated: 2026-09-22
 ---
@@ -161,3 +161,45 @@ fetch depth anywhere in a workflow (which would make the canary CI-load-bearing
 yet unreliable), or any report of a silently-partial derived set — then a
 falsifier card closes the class. See
 [[2026-09-19-po-fllwup59-step13-ruling]].
+
+## The over-emission class (false positives, 2026-09-22)
+
+The risk model above owns *under-emission*: a stale reference the derived set
+never named (green-by-omission) — the reason the set is derived, not
+hand-maintained. The mechanism's first failure on new `main` history exposed
+the mirror risk: **over-emission**, a token that reds a legitimate *live* path.
+
+Retiring `.agents/skills/**` (the skills consolidation, `1b982dd`) emitted the
+segment-aligned suffix dir token `skills/`. Dir-token suppression was
+**prefix-only** (`live.startsWith("skills/")`), so the token survived — but
+`skills/` was live as an **interior segment** under `.pi/skills/**`. Test 6
+then red `test/scaffold.test.ts`'s legitimate reference to the `/usages`
+scaffold destination `skills/usages/SKILL.md`. Prefix-only liveness cannot see
+a directory whose name is live somewhere other than the root.
+
+The repair makes dir-token liveness **segment-aware**
+(`/${live}/`.includes(`/${f}/`)) — the dir analogue of the path-fragment
+substring rule: a dir token is emitted only when *no live tracked path carries
+it as a path component anywhere*. The intended tokens are untouched
+(`test/ev40-harness/`, `ev40-harness/`, `ev43/` appear as no live path's
+segment), so the red-base record above stays valid.
+
+Two corollaries: (a) a mass move that retires a common-basename directory is
+the mechanism's fragility surface — segment-aware liveness narrows it;
+(b) this failure was neither silent nor partial, so the FLLWUP-59 re-card
+trigger (R2: "any report of a silently-partial derived set") does **not**
+fire. See [[2026-09-22-fix-shape-witness-segment-liveness]].
+
+## Related
+
+- [[2026-09-22-fix-shape-witness-segment-liveness]] — the first real
+  false-positive repair (segment-aware dir liveness)
+- [[test-suite-budget]] — the witness's suite-envelope context
+- [[non-clobbering-scaffold]], [[usages-report]] — the live scaffold
+  destination the false positive hit
+- [[smoke-test]] — the sibling test discipline
+
+## Sources
+
+- [[2026-09-19-po-fllwup59-step13-ruling]], [[2026-09-18-epic9-residual-run-2-ledger]]
+- [[2026-09-22-fix-shape-witness-segment-liveness]]

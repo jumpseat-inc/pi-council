@@ -103,6 +103,7 @@ _(none yet)_
 
 ## Sources
 
+- [[2026-09-22-fix-shape-witness-segment-liveness]] — The FLLWUP-59 derived-token witness's first failure on main was a **false positive**: retiring `.agents/skills/**` emitted dir token `skills/`, which prefix-only liveness kept although `skills/` is live as an interior segment under `.pi/skills/**`; the repair makes dir-token liveness segment-aware, and the over-emission class folds into [[retired-path-tokens]].
 - [[2026-09-22-design-epic11-recut-surface]] — Wave-2 designer attack on the Jev-aware EPIC-11 recut: the setup (seat-composition) gate domain's surfaces name no screen/copy/state to the FLLWUP-75 / EV-82 bar; findings A–J plus four observational gaps, led by the first question's Jev-vs-profile provenance mis-attribution.
 - [[2026-09-21-usages-design]] — The `/usages` design + build: a packaged procedure plus a `/council-init`-copied skill/tool reporting repo-scoped per-seat spend cross-matched to OpenRouter; the three-surface probe, the `generation_id` join trap, the `seats[]` durability sibling, and the dogfood learnings (end-day window, cache persistence, test-isolation).
 - [[2026-09-22-epic10-run-ledger]] — The EPIC-10 run: the typed follow-up review (File/Merge/Drop) shipped end to end (7 Deliberate merges, PRs #97–#103, v0.28.0→v0.33.0), the confirmation-authority ruling (a recorded decision is the source, never the human confirmation), and the discovery that the shipped card gate is inert in production (noul wire-shape drift, dead recorded-decision fast path).

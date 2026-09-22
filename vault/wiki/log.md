@@ -1,5 +1,25 @@
 # Wiki Log
 
+## [2026-09-22] ingest | Shape-witness segment-liveness fix — the derived token set's first false positive
+
+Ingested the fix commit `3e34f01` (a code-fix source, no raw file). The
+FLLWUP-59 derived-token witness failed **noisy** on `main` (`0.34.1`): retiring
+`.agents/skills/**` emitted dir token `skills/`, which prefix-only liveness
+kept because no live path *starts with* `skills/` — though `skills/` is live as
+an interior segment under `.pi/skills/**`. Test 6 red the legitimate `/usages`
+scaffold destination `skills/usages/SKILL.md`. The repair makes dir-token
+liveness segment-aware; the over-emission class is folded into
+[[retired-path-tokens]], and the re-card trigger is recorded as not firing.
+
+- **Created:** sources/2026-09-22-fix-shape-witness-segment-liveness.
+- **Updated:** [[retired-path-tokens]] (over-emission class + Related/Sources),
+  [[non-clobbering-scaffold]], [[usages-report]], [[test-suite-budget]]
+  (re-measured at 1470 tests / 113 files, one new pure falsifier), `index.md`.
+- **Contradictions flagged:** none. Process note only — the fix was pushed
+  directly to `main` (protection bypass, "changes must be made through a pull
+  request") with no card filed; recorded on the source page, not folded into
+  [[record-push-discipline]] (outside its autonomous-run scope).
+
 ## [2026-09-22] ingest | EPIC-11 recut — Jev seat-composition gate domain, under designer attack
 
 Ingested the wave-2 designer attack on the Jev-aware EPIC-11 recut (filed
