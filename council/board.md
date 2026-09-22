@@ -99,10 +99,10 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EPIC-12 — pi-council version and git hash on the first pi run
 
 ## Deliberating
+- FLLWUP-106 — The usages procedure forbids inventing framing around the tool's stderr
 
 
 ## Ready
-- FLLWUP-106 — The usages procedure forbids inventing framing around the tool's stderr
 - EV-48 — Packaged seat-tier map with repo-local merge override
 - EV-57 — Resolve the running pi-council identity from the package root
 - EV-58 — Show the pi-council version and hash on the first pi run

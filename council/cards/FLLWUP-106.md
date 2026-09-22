@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-106
 title: The usages procedure forbids inventing framing around the tool's stderr
-state: Ready
+state: Deliberating
 owner: null
 epic: EPIC-15
 goal: council/procedures/usages.md instructs the agent to surface every non-empty stderr line from usages.py verbatim, with no added prefix such as a warning glyph and no invented cause, and to state only what the line itself reports.
