@@ -732,3 +732,59 @@ and green, `env-split-contract` M1 pole A 1 pass / 0 fail (17 commands).
 
 Verdict: NO-BLOCK, no open objections. Verify-cycle counter: 1 used, 0
 fix-reverify rounds consumed.
+
+### Step 10 — judge verdict (job-7.3, 0.3m, 4 turns) — PASS
+
+Input: the card's `goal` verbatim + the step-9 Skeptic evidence, nothing
+else; subject named as PR #106 head `8cede8b` (branch-head worktree, not the
+local `main` checkout); frame stated — judging precedes the mechanical merge,
+which the facilitator executes and no seat performs. Verdict **PASS**: the
+appended paragraph is a direct statement of the goal (verbatim quote in the
+verdict), and the mechanical pin makes silent regression detectable (judge's
+own `bun test` run confirmed 2 pass / 0 fail on the pin).
+
+### Step 11 — result presented; merge is the orchestrator's act (R1)
+
+Presented on this card face and in the runner's DONE report: the spec
+(`docs/superpowers/specs/2026-09-22-FLLWUP-106-design.md`), PR #106 (head
+`8cede8b`), the Skeptic's NO-BLOCK verification (step 9), and the judge's
+PASS (step 10). Per R1 and `<main_repo_immutability>` this container does
+not merge: the orchestrator executes the deterministic merge check
+(features-deliver, mode Deliberate — all five criteria) with the admin
+bypass R1 authorizes, pinned to the exact head SHA criterion 2 was read
+against. Card state remains `In Review` until the merge lands green — `Done`
+is written only from the observed merged artifact (step 12), by the runner
+that observes it.
+
+### Step 13 — follow-up dispositions applied from the ruling; nothing filed
+
+Applying the resumed dispatch's confirming ruling (escalation contract,
+step 1: an answered question is not re-asked; the dispositions below are the
+ruling's own words):
+
+- OBJ-U1 (unwritable-cache stderr path runtime smoke) — **Drop** (source-
+  verified glyph-free; the shipped any-stderr-line rule covers it by
+  construction).
+- OBJ-U2 (designer cold-reads P-R1–P-R4/P10) — **Drop** (not acceptance
+  requirements; the battery measured what matters).
+
+No cards written; nothing held (both dispositions reached); no
+`council_followup_review` re-call — the decisions gate's `noul` drift (open
+FLLWUP-104) makes follow-up gate calls fail mechanically and the run's
+standing fact bars re-running a failed gate call; the ruling above already
+answers, so a gate re-call could only re-decide a decided question.
+Batched release for 105+106 — orchestrator-level residual, not a step-13
+candidate: no card, surfaced in the DONE report.
+
+No other follow-ups surfaced: the run's out-of-scope items (polarity
+inversion = FLLWUP-108, already open) all have existing homes; no new
+candidates were drafted.
+
+### Run summary (resumed container)
+
+Steps 1–6 complete prior to escalation; ruling applied and appended verbatim
+(Q1–Q5 + dispositions); steps 7–13 executed this container: spec `bd77bbb`,
+step-8 record `4bc6d9a`, step-9 record `5371811`. Verify cycles used: 1 of ≤3
+(0 fix-reverify rounds). Round caps: step 3 cap reached pre-escalation (3
+rounds); step 9 cap 1/3. No ruling seat dispatched by this container. PR #106
+open at `8cede8b` awaiting the orchestrator's R1 merge.
