@@ -197,3 +197,76 @@ produce output; the failure mode was facilitator-side and is recorded here.
   rewording; sentence outside `**Report.**` or un-keyed to the stderr literal
   over-fires; omitting update-first ordering leaves the consumer looping on a
   no-op round trip; `$CONFIG_DIR_NAME` literal ships broken.
+
+### Step 3 — rounds 2–3, bounded exchange (jobs 2.7/2.8/2.9/2.10/2.11)
+
+*Dispatch note:* the owner's round-2 dispatch (job-2.6) stalled mid-orientation
+(8+ min with no transcript activity — a genuine provider stall, distinct from
+the round-1 misread); cancelled and re-dispatched once as job-2.9, which
+settled. Designer/principal settled on first dispatch.
+
+**Round 2 — convergence moves:**
+- *Owner (2.9):* holds a 4th pinned literal (`newer package version`) as a
+  separate additive assertion serving bullet 1's binding third element;
+  concedes `rm -rf` spelled out; adopts designer's verbatim framing
+  ("no prefix, no rewording"); concedes the principal's negative assertions
+  but keeps them in the pin file; holds package-update-first and one rationale
+  clause ("but does not reach the skill already copied into this repo") as
+  remediation-necessary, not FLLWUP-106 causal narration; non-fatal close
+  ("the report itself still ships"). Merged draft recorded on the card.
+- *Principal (2.10):* holds against the 4th literal (T-overpin: a
+  claim-preserving rewording "newer package version" → "fixed in the next
+  release" keeps all four bullet-1 elements but trips the additive pin — red
+  coupled to wording, violating bullet 2's stated purpose "a later edit that
+  drops the remediation goes red"); withdraws file-level negative assertions
+  to a renderer-level test (a file `not.toContain` cannot separate a bad
+  literal from a legitimate future renderer refactor); proposes A/B variants
+  to settle the 4th-literal dispute by test; converges on command form
+  "name the path *and* give it runnable".
+- *Designer (2.8):* concedes the three-step sequencing is load-bearing;
+  concedes the "(no prefix, no rewording)" parenthetical is redundant if
+  "verbatim" is paired with the pin's exact-literal check; holds `.pi`
+  literal, literal `rm -rf` in the Run-block voice; new predictions P-new-1..5.
+
+**Round 3 — full structural convergence:**
+- *Owner (2.11) final position:* **pin ships with exactly the three enumerated
+  assertions** in `test/usages-procedure.test.ts` scoped to
+  `path.join(PKG_ROOT, "council", "procedures", "usages.md")` — containment of
+  `usages: could not write cache:`, `skills/usages/`, `/council-init`; no 4th
+  literal, no negative assertions, no section anchor, no ordering assertions.
+  Bullet 1's third element stays binding as a **prose-review** item, not
+  mechanical. Negative assertions dropped from this card entirely (not
+  relocated — a renderer invariant test is engine-adjacent territory this
+  card's acceptance does not authorize): follow-up candidate. Held: `.pi`
+  literal; three-step ordering; FLLWUP-106 boundary; `rm -rf` command form;
+  designer's verbatim framing; non-fatal framing.
+- *Principal (2.10) final position:* holds against the lexical 4th literal but
+  reframes it decidable-by-test — the correct additive assertion, if any, is
+  the **operative step** (`updating the pi-council package`), which passes
+  variant A (claim-preserving reword → green) and reds on variant B
+  (remediation drop → red), unlike `newer package version` (reds on A).
+  **Converges on pin-file negative assertions now + renderer substitution-set
+  test as a follow-up candidate.** Declares the merged sentence **sound — no
+  remaining defect**: element coverage complete, FLLWUP-106 boundary respected
+  (the rationale clause makes the delete step non-skippable; it is not
+  bug-cause narration), non-fatal close correct, absent "re-run" coherent.
+- *Residual textual inconsistency (recorded, for the consolidator):* the
+  owner's round-3 "final sentence" reverted to its round-1 text (prose
+  "delete the stale copied skill", bare "verbatim", no rationale clause, no
+  non-fatal close) while its own held list names the `rm -rf` command form and
+  the designer's verbatim framing as converged, and the principal declared the
+  round-2 merged draft sound. The two candidate ship-texts are:
+  - **V1 (round-2 merged draft, principal-blessed):** "If the tool's stderr
+    contains the literal `usages: could not write cache:`, surface that line
+    to the user verbatim (no prefix, no rewording); explain the fix ships in a
+    newer package version but does not reach the skill already copied into
+    this repo, so — after updating the pi-council package — run
+    `rm -rf .pi/skills/usages/` and then `/council-init` to recopy the fixed
+    tool; the report itself still ships."
+  - **V2 (owner round-3 final):** "If the tool's stderr contains
+    `usages: could not write cache:`, surface that line verbatim to the user
+    and explain that the fix ships in a newer package version — first update
+    the pi-council package, then delete the stale copied skill at
+    `.pi/skills/usages/` and re-run `/council-init` to recopy the fixed tool."
+  Both carry all four acceptance elements and all three pin literals. The
+  round cap (3) is reached; this textual choice goes to the consolidator.
