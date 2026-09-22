@@ -535,3 +535,61 @@ principal/designer pins refuted on the real file — the merged PR must carry
 the owner pin or surface the acceptance deviation; (3) cache-write stderr
 path open-untested at runtime (offline-gated × key-gated), source-verified
 only; (4) U+FE0F byte-identity constraint.
+
+### Step 5 — consolidator synthesis (job-5.11)
+
+**Settled:** placement (end-of-file bold-lead paragraph, inside the
+`**Report.**` stage); scope "any non-empty stderr line"; FLLWUP-105 carve-out
+explicit; worked example names the prefix, likelihood described as a class,
+invented text never reproduced; no agent-authored framing word; U+26A0 U+FE0F
+byte-identity (S6-adjacent, OBJ-8); additivity only (OBJ-5); phantom
+`test/procedures.test.ts` corrected to the two real gates (OBJ-6). Disputes
+settled by measurement: **S1** version bump — no bump this card, batched
+`chore(release)` residual at orchestrator level (OBJ-7); **S2** the owner pin
+is the only acceptance-conformant pin and the only one that catches gutted
+(OBJ-2/OBJ-3); **S3** gap arithmetic corrected to 86 first-true (OBJ-1);
+**S4** all three prose variants pass every pin — the lead/body wording choice
+is taste, not measured difference; **S5** polarity inversion is FLLWUP-108
+territory (accepted boundary); **S6** "limitations" term avoided for stderr.
+
+**Open judgment (consolidator's sorting, routed at step 6):**
+1. Lead text — `**Stderr discipline.**` (owner FINAL) vs `**Stderr relay —
+   evidence, not narration.**` (principal merged lead, designer-recommended).
+2. Body phrasing — owner's round-3 synthesis (T1 wording) vs designer's
+   `repeated, never composed` (verb-level forcing function).
+3. Carve-out phrasing — owner's parenthetical vs "the one named exception".
+4. Likelihood class wording — "invented likelihood" vs "invented likelihood
+   assessment" / "invented probability claim".
+5. Cross-pair consistency — implementation constraint, owner's job: if prose
+   changes, pin 1 (`do not add a ⚠️`) must still match byte-exact.
+6. **Acceptance-deviation confirmation** — OBJ-3's finding that only the
+   owner pin satisfies bullet 3 as written: product-owner should confirm the
+   acceptance bullet means the O-conformant pin, or the shipped pin diverges
+   from the acceptance as written. The one judgment call that could become a
+   blocking open objection if left ambiguous.
+
+**Open objections (none blocking):** OBJ-U1 unwritable-cache stderr path
+open-untested at runtime (offline-gated × key-gated; source-verified
+glyph-free; the any-stderr-line rule covers it regardless); OBJ-U2 designer
+cold-read predictions P-R1–P-R4/P10 never run (optional out-of-band smokes,
+not acceptance requirements — step-13 candidates if unfurled); OBJ-U3 batched
+release for 105+106 is an orchestrator-level residual, explicitly not a
+closure condition for this card (EPIC-14 ruling, wiki `[[steward]]`).
+
+Consolidator: ready to hand off — owner FINAL paragraph + owner pin survive
+every runnable attack; the prose calls and the acceptance confirmation owe
+rulings; owner owns pin↔paragraph alignment whatever prose is chosen.
+
+### Step 6 — routing (facilitator)
+
+The consolidator's open-judgment items 1–4 and 6 go to `product-owner`; item
+5 is owner-implementation latitude within whatever prose is ruled. This
+container never dispatches ruling seats. Phase-1 rulings checked first
+(escalation contract, step 1): R1 (merge authorization) and R2 (build order)
+— neither answers the lead/body/carve-out/likelihood wording choices, and
+neither confirms what acceptance bullet 3's "in a prohibition context" means
+mechanically. No other ruling is recorded on this card face. **Card held at
+`Deliberating` pending the ruling** — steps 7+ do not start. Escalated to the
+orchestrator with facts only; no worktree, branch, PR, or implementation
+exists yet; at the time of escalation local `main` == `origin/main` at
+`64edcd3` (this card's step-5 record commit).
