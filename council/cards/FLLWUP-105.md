@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-105
 title: Name the remediation route for a stale copied usages skill
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-15
 goal: council/procedures/usages.md instructs the agent that when the tool's stderr contains usages: could not write cache:, it must surface that line verbatim and give the consumer the two refresh commands — delete <repo>/$CONFIG_DIR_NAME/skills/usages/, then re-run /council-init.
@@ -424,3 +424,51 @@ authorization belongs to the **orchestrator** (the deterministic merge check,
 `features-deliver.md`); this container opens the PR and reports `DONE` with
 the PR number and head SHA — it does not merge. Card → `In Progress`; steps
 7–8 follow.
+
+*Sequencing note (facilitator):* the `Deliberating` → `In Progress`
+transition landed inside the same pushed commit as the step-6-cont record
+(`4fd8393`) rather than as the distinct step-7 write it should have been, and
+the facilitator misread the resulting state in a later re-check — a
+compressed-sequencing slip, not a lost transition: the destination state was
+exactly what step 7 requires before the owner handoff, the owner was
+dispatched only after it was pushed, and card/board stayed in agreement
+throughout.
+
+### Step 7 — spec written and handed to the owner (facilitator)
+
+The settled design is written to
+`docs/superpowers/specs/2026-09-24-FLLWUP-105-design.md` — self-review passed
+(no placeholders, internally consistent, within the card's goal as amended,
+unambiguous for an owner with no memory of the deliberation: the sentence is
+byte-fixed by the ruling, the pin is byte-scoped to three literals, the note
+targets are named). Committed and pushed to `main` (`6ffbb51`). The owner was
+dispatched against the spec with the main-repo-immutability constraint
+(dedicated worktree, feature branch), TDD discipline for the pin (red on the
+pre-sentence file, green after), and the full local gate list.
+
+### Step 8 — owner delivered PR #105; card `In Review` (facilitator)
+
+*Dispatch note:* owner job-4.1 dispatched once with the step-6-cont handoff,
+settled in 7.7m on its first window — no cancel, no re-dispatch.
+
+Owner report (job-4.1): branch `fllwup-105-usages-remediation-pin` from a
+dedicated worktree `/tmp/fllwup105-wt`, base `6ffbb51`; three commits
+(`04a5c73` plan, `a6eff05` sentence + pin test, `2ebed9a` vault/raw note);
+PR #105 opened; head `2ebed9a3d3a33f655ded41d8de8282af91bf3b46`.
+Owner gates, all green in the worktree, in order: preflight PASS; `bunx tsc
+--noEmit` PASS; `bun test` PASS (1467 pass / 0 fail / 6 skip, 119s);
+`python3 council/validate.py` PASS. Pin sensitivity demonstrated: RED on the
+pre-sentence file (0 pass / 1 fail, first literal missing), GREEN after
+(1 pass / 3 expect calls). T-USK1 unedited (`git diff main --
+test/scaffold.test.ts` empty, 6 pass / 0 fail). Constraint compliance
+claimed and spot-verifiable: no `TOOLING_FILES` widening, no `validate.py`
+pin, exactly three containment literals, `PKG_ROOT` from
+`extensions/seats.ts`, zero `$CONFIG_DIR_NAME`/`@CONFIG_DIR@` tokens in the
+procedure file.
+
+**Status written from the observed artifact, not the seat's report:** `gh pr
+view 105` → state OPEN, headRefOid `2ebed9a3d3a33f655ded41d8de8282af91bf3b46`,
+branch `fllwup-105-usages-remediation-pin` present on origin with the three
+commits above `6ffbb51`. Local `main` in sync with `origin/main`, clean.
+**Card → `In Review`.** CI on the PR head is the facilitator's check at the
+skeptic boundary; the merge itself belongs to the orchestrator under R1.

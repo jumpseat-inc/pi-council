@@ -108,9 +108,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Deliberating
 
 ## In Progress
-- FLLWUP-105 — Name the remediation route for a stale copied usages skill
 
 ## In Review
+- FLLWUP-105 — Name the remediation route for a stale copied usages skill
 
 ## In Review
 
