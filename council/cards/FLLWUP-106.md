@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-106
 title: The usages procedure forbids inventing framing around the tool's stderr
-state: Deliberating
+state: In Progress
 owner: null
 epic: EPIC-15
 goal: council/procedures/usages.md instructs the agent to surface every non-empty stderr line from usages.py verbatim, with no added prefix such as a warning glyph and no invented cause, and to state only what the line itself reports.
@@ -593,3 +593,89 @@ mechanically. No other ruling is recorded on this card face. **Card held at
 orchestrator with facts only; no worktree, branch, PR, or implementation
 exists yet; at the time of escalation local `main` == `origin/main` at
 `64edcd3` (this card's step-5 record commit).
+
+### Product-owner ruling on the step-6 escalation (resumed container, verbatim)
+
+The orchestrator dispatched `product-owner` on the step-6 escalation packet
+and returned the following ruling, appended verbatim and binding:
+
+> ### Q1 — Lead text: (a)
+>
+> Exact lead: `**Stderr discipline.**`
+>
+> ### Q2 — Body phrasing: owner's round-3 synthesis (T1), verbatim
+>
+> Append this paragraph end-of-file, after the FLLWUP-105 remediation
+> paragraph (placement settled at step 3; the FLLWUP-105 sentence and
+> `OPENROUTER_MANAGEMENT_KEY` paragraph untouched, additive only). Copy
+> byte-exact from the card's step-3 owner-FINAL record — the glyph must be
+> the recorded U+26A0 U+FE0F sequence, never retyped to bare U+26A0 (OBJ-8):
+>
+> > **Stderr discipline.** Every non-empty stderr line the tool prints is
+> > quoted verbatim, exactly as printed: no added prefix of any kind — do not
+> > add a ⚠️ or ! to a line that does not itself carry one — and no invented
+> > cause, consequence, or non-fatal-issue count beyond what the line itself
+> > reports. System-status lines are uninterpreted tool output: surface them
+> > as printed, without explanation. Worked example from this procedure's own
+> > intake: a seat wrapped `usages: could not write cache:` in `⚠️ One
+> > non-fatal issue:` and appended an invented likelihood — that framing is
+> > exactly what this rule forbids. (The remediation route for that specific
+> > line, above, is unchanged.)
+>
+> ### Q3 — Carve-out phrasing: owner's parenthetical
+>
+> Exact final sentence: `(The remediation route for that specific line,
+> above, is unchanged.)`
+>
+> ### Q4 — Likelihood class wording: "an invented likelihood"
+>
+> Exact phrase as it appears in the worked-example sentence above.
+>
+> ### Q5 — Bullet 3 confirmed as the O-conformant pin; no acceptance
+> deviation exists
+>
+> The pin ships as a new `test()` in `test/usages-procedure.test.ts` and
+> **must** carry exactly these three predicates (owner-implementation
+> latitude covers the exact test scaffolding, but the three predicates and
+> their byte-exact literals are fixed; paragraph+pin ship as one
+> self-consistent pair):
+>
+> ```ts
+> const procedure = readProcedure("usages.md");
+> // O1 — glyph in a prohibition context (byte-exact; U+26A0 U+FE0F, copied
+> // from the card)
+> expect(procedure).toContain("do not add a ⚠️");
+> // O2 — worked-example literal
+> expect(procedure).toContain("One non-fatal issue");
+> // O3 — proximity anchored on the base-absent token (red at base by
+> // anchor-absence, not gap luck; base occurrences of "non-empty stderr" = 0)
+> expect(procedure.replace(/\s+/g, " ")).toMatch(/non-empty stderr[\s\S]{0,120}verbatim/i);
+> ```
+>
+> Real gates for the acceptance's phantom `test/procedures.test.ts`
+> reference: `test/usages-procedure.test.ts` (content) +
+> `test/env-split-contract.test.ts` M1 pole A (registration, 17 commands) —
+> record this correction (OBJ-6). Also adopt OBJ-1's record correction (gap
+> = 86, `{0,86}` first true, not 92/`{0,91}`).
+
+### Step-13 dispositions (ruled with Q1–Q5, applied at resumed step 13)
+
+- **OBJ-U1** (unwritable-cache stderr path runtime smoke) — **Drop**
+  (source-verified glyph-free; the shipped any-stderr-line rule covers it by
+  construction).
+- **OBJ-U2** (designer cold-reads P-R1–P-R4/P10) — **Drop** (not acceptance
+  requirements; the battery measured what matters).
+- Batched release for 105+106 — orchestrator-level residual, not a step-13
+  candidate; surfaced in the runner's DONE report, no card written.
+
+No escalations remain; nothing reverses R1/R2. Steps 7+ begin on this basis.
+
+### Step 7 — spec written and committed (facilitator, resumed container)
+
+Spec: `docs/superpowers/specs/2026-09-22-FLLWUP-106-design.md` — self-reviewed
+against the settled record (no placeholders; consistent with steps 3–6 and the
+Q1–Q5 ruling; scope confined to the card's `goal`; unambiguous for an owner
+with no deliberation memory: paragraph byte-exact from the ruling, pin
+predicates fixed, placement end-of-file after the FLLWUP-105 remediation
+paragraph, additive only, U+26A0 U+FE0F copied not retyped, no version bump,
+real gates named).

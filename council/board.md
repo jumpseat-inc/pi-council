@@ -99,7 +99,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EPIC-12 — pi-council version and git hash on the first pi run
 
 ## Deliberating
-- FLLWUP-106 — The usages procedure forbids inventing framing around the tool's stderr
 
 
 ## Ready
@@ -110,6 +109,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Deliberating
 
 ## In Progress
+- FLLWUP-106 — The usages procedure forbids inventing framing around the tool's stderr
 
 ## In Review
 
