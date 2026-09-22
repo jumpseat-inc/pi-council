@@ -478,3 +478,18 @@ judging and step 11's facilitator-executed mechanical merge). Verdict:
    closed-green.
 
 Verify cycles used: 1 of ≤3; no fix cycle needed.
+
+### Step 10 — judge PASS (job-1.11)
+
+Judge dispatched with exactly the card's `goal` (verbatim) + the step-9
+Skeptic evidence, subject pinned (PR #104 head `8a4b2a9…`, head worktree
+`.worktrees/bug-2`), loop frame stated (the verdict precedes step 11's
+mechanical merge, which has not happened). Verdict **PASS**: the goal's
+four concrete behaviors (directory created before the cache write;
+`.cache.json` left inside it; no `usages: could not write cache:` line;
+clean exit) are exercised by T-U7 (default path) and T-U8 (absent custom
+`--out-dir`), both green at the pinned head; the judge independently re-ran
+the suite at `8a4b2a9` → `8 pass / 0 fail / 51 expect()`, matching the
+skeptic's claim verbatim; base reds at `114b549` confirm the tests exercise
+the bug; the fix is the clean one-line `ensure_out_dir()` move. No REJECT
+basis; no goal-text ambiguity found.
