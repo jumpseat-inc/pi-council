@@ -513,3 +513,49 @@ after the gate run and before reporting. The merge itself is NOT performed
 by this container — per R1 the orchestrator performs the deterministic
 merge check and merges (admin-bypass, SHA-pinned, watching the first
 autonomous merge).
+
+### Step 13 — follow-up candidates drafted and HELD (no disposition reached in-container)
+
+Four candidates drafted. `council_followup_review` is not dispatchable from
+this container (`Unknown seat`-class failure: the gate tools do not resolve
+here), so no decision was recorded and **no card was written**; per the
+runner's follow-up contract these are **held, not filed**, resumable by the
+next runner against these exact draft titles:
+
+1. **"Foreign `--cache-file` parent surface — absent parent keeps the silent no-cache warning"**
+   — goal: rule and implement the behavior when `--cache-file` names a
+   parent directory that does not exist (create the parent vs reject with a
+   usage error), with the principal's discriminator (`--out-dir <dir>` +
+   `--cache-file <repo>/nested/absent/.cache.json`, non-offline, live
+   analytics stub) as red-at-base. Source: principal round 1–2, verified
+   persisting post-fix by both skeptic passes (step-4 probe and step-9
+   probe).
+2. **"Cache hit/miss counts in the human-readable usages summary"**
+   — goal: surface `cache: hits=N misses=M` in the human summary (today
+   only the JSON report carries cache stats), so the person gets positive
+   feedback the cache machinery worked. Source: designer rounds 1–2.
+3. **"Migrate `runTool` in test/usages.test.ts to the async spawn pattern"**
+   — goal: replace the `spawnSync`-based `runTool` helper with the T-U4
+   async pattern (`Bun.spawn` + `await proc.exited`) so future test authors
+   do not inherit the deadlock trap the step-4 skeptic reproduced
+   (`status: null … timed out` when the stub cannot answer). T-U7/T-U8
+   already use the async pattern; this is the legacy-helper cleanup.
+4. **"Record-only marker: pre-fix read-only stderr letter difference"**
+   — goal: none (record-only). Pre-fix read-only-out-dir failure stderr
+   carries an extra `usages: could not write cache:` line the fixed variant
+   drops; exit codes and traceback class identical. File only if a later
+   card asserts byte-identical failure surfaces; otherwise drop.
+
+R4 (binding): candidate 2 must not be folded into BUG-2's deliverable; it
+is a separate card if ratified.
+
+### Steps 12–14 — NOT executed in this container
+
+Step 12 (post-merge reconcile + `Done`) requires the merge to land; the
+merge is the orchestrator's act under R1. Step 13's dispositions and
+step 14 are likewise post-merge runner work. Resume point for the next
+runner: apply the R1 merge (`gh pr merge 104 --squash --admin
+--match-head-commit 8a4b2a93e1c4bd8b41aad6caf4d9c3872a64d36d`), rebase
+local `main`, run the gates on the merged SHA, set the card `Done`, commit
+and push the reconciliation record, then take up the held step-13
+candidates with the recorded dispositions.
