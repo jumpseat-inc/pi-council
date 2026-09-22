@@ -717,6 +717,7 @@ def main(argv=None):
     repo = os.path.abspath(args.repo)
     out_dir = args.out_dir or os.path.join(repo, args.config_dir, "council", "usages")
     cache_file = args.cache_file or os.path.join(out_dir, ".cache.json")
+    ensure_out_dir(out_dir)
 
     rows = []
     rows += harvest_sessions(args.agent_dir, repo, start, end)
@@ -789,7 +790,6 @@ def main(argv=None):
         "cache": {"file": cache_file, "hits": hits, "misses": misses},
     }
 
-    ensure_out_dir(out_dir)
     stem = f"usages-{start.isoformat()}_{end.isoformat()}"
     try:
         Path(out_dir, stem + ".json").write_text(json.dumps(report, indent=1) + "\n")
