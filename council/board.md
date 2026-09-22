@@ -15,7 +15,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-86 — Pure seat-composition decision function with a fail-safe Default
 - EV-87 — One-call seat-composition orchestration over the shared Jev transport
 - EV-88 — End-to-end falsifier for the Jev seat-composition fail-closed arm
-- FLLWUP-104 — Fix the live noul answer-shape drift — the decisions API returns `{"type":"noul","noul":<p>}`, the engine reads `probability`, in both gate domains
 - FLLWUP-103 — Cover the wrapper's advisory arm in EV-83's own suite and pin the two escalation-basis tokens
 - FLLWUP-102 — Make the http-404 unavailability literal claim only what the transport can establish
 - FLLWUP-101 — Cold-read persona smokes on the step-13 follow-up surface (designer P1/P2/P3/P5/P7/P9)
@@ -117,6 +116,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Needs Human
 
 ## Done
+- FLLWUP-104 — Fix the live noul answer-shape drift — the decisions API returns `{"type":"noul","noul":<p>}`, the engine reads `probability`, in both gate domains
 - EPIC-15 — Usages tool creates its output directory before writing the cache
 - FLLWUP-106 — The usages procedure forbids inventing framing around the tool's stderr
 - FLLWUP-105 — Name the remediation route for a stale copied usages skill

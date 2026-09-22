@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-104
 title: Fix the live noul answer-shape drift — the decisions API returns `{"type":"noul","noul":<p>}`, the engine reads `probability`, in both gate domains
-state: Backlog
+state: Done
 owner: null
 epic: EPIC-13
 goal: A noul answer's probability is read from the key the decisions endpoint actually returns, so live card-gate and follow-up calls stop dying at `decide()`/`decideFollowup()` with `invalid-response` — proven by both gated live arms reaching green (`COUNCIL_INTEGRATION=1 bun test test/gate-run-live.test.ts` 3/3 with the pole-semantics arm asserting on the new key, and `COUNCIL_JEV_LIVE=1 bun test test/ev84-followup-falsifier.test.ts` reaching its recorded dispositions), with the fail-closed posture for genuinely malformed answers unchanged and pinned, an answer carrying both keys with disagreeing values failing loud rather than silently preferring one, and the ledger storing one canonical answer shape that the same reader which produced it can still re-derive.
@@ -60,3 +60,37 @@ evidence. The card records a fresh raw response body captured at implementation 
 - The committed ledger carries one canonical noul answer shape and the mode re-derives from the record alone.
 - A fresh raw response body is recorded on the card; red-at-base evidence follows the seven-field convention with base = the defect-live `main` at `03925df015fb6d9b26931d8558cc11322a0782c2`, role `required`, and the comparison triple recorded — a behavioral red on a gated arm, not a mechanism-absent one, and the record says how the live arm was reached at base (credentials in a detached worktree) or names that it could not be.
 - The owner gates green in full: `bunx tsc --noEmit`, the full `bun test`, `python3 council/validate.py`, and `bash council/preflight.sh`.
+
+## Retirement ruling (recorded human decision, 2026-09-22)
+
+The human retired this card: the defect it names is **resolved**, so the card is
+withdrawn rather than driven through its full acceptance. Recorded here with the
+residuals named, not silently dropped.
+
+**What resolved it.** `e903b673131c14ed86161faf09940cc7fce12a05` —
+`fix(gate): canonicalize the wire noul answer key to probability` — adds
+`canonicalizeAnswer` inside `parseDecisionsResponse` (`extensions/gate-transport.ts`),
+the single parse seam both domains share: `noul` → `probability`, both keys
+disagreeing throws, neither key throws, non-noul answers verbatim. The ledger now
+stores the canonical shape. The pole was proven live before the mapping was
+trusted (trivially-true → `0.99`, trivially-false → `0.01`).
+
+**Evidence at retirement.** Full offline suite **1473 pass / 6 skip / 0 fail**;
+`COUNCIL_INTEGRATION=1 bun test test/gate-run-live.test.ts` → **3/3**, including
+the pole-semantics arm asserting `probability > 0.9` on the new key;
+`bunx tsc --noEmit` and `validate.py` clean. A fresh raw response body is recorded
+in `vault/raw/2026-09-22-gate-noul-fix.md` (`{"type":"noul","noul":0.33}` plus the
+pole probes). Ingest: [[2026-09-22-gate-noul-fix]], [[decisions-wire-canonicalization]].
+
+**Residuals not covered by the retirement (named, not dropped).**
+- `COUNCIL_JEV_LIVE=1 bun test test/ev84-followup-falsifier.test.ts` arm 4 now
+  **reaches** real dispositions (`status: "ok"`, non-null callIds, zero `Drop`)
+  but fails its pinned merge **direction** (model chose B→A, fixture pins A→B on
+  near-identical candidates). That is model-direction ambiguity in the fixture,
+  not the noul drift.
+- The formal seven-field red-at-base record and the full `bash council/preflight.sh`
+  run were not produced, because the fix was made and verified in an interactive
+  session rather than through a `/council` card run.
+
+**Precedent.** FLLWUP-52 was retired the same way (a binding ruling declining the
+card; terminal state `Done`). See [[engineering-board]], [[steward]].
