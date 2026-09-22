@@ -8,6 +8,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 - EPIC-15 — Usages tool creates its output directory before writing the cache
 - FLLWUP-106 — The usages procedure forbids inventing framing around the tool's stderr
+- FLLWUP-107 — Renderer substitution-set pin for procedure copy
+- FLLWUP-108 — Usages remediation pin: catch command-drop and update-step-drop
 - EV-85 — Seat-composition decisions as repo-overridable packaged data
 - EV-86 — Pure seat-composition decision function with a fail-safe Default
 - EV-87 — One-call seat-composition orchestration over the shared Jev transport

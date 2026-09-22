@@ -519,3 +519,55 @@ skip / 0 fail** (119.34s); `python3 council/validate.py` clean.
 **Verdict: NO-BLOCK.** No red anywhere except the injected red arms proving
 the pin can fail (all restored). Verify cycle count: 1 of 3 — no fix cycle
 needed.
+
+### Step 10 — judge verdict (job-4.3) — PASS
+
+Dispatched with exactly the card's `goal` and the step-9 skeptic evidence —
+nothing else (fresh, uncontaminated eyes); the verification subject (PR #105
+head `2ebed9a…`) and loop frame (judging precedes the orchestrator's merge;
+merge not yet performed) pinned in the input. Verdict **PASS** — basis: the
+procedure at the branch head checks the literal `usages: could not write
+cache:`, instructs verbatim surfacing, and gives both refresh commands
+delete `.pi/skills/usages/` then re-run `/council-init`; the pin test passes.
+Judge noted the `$CONFIG_DIR_NAME` shorthand artifact was settled to the
+literal `.pi/` spelling (O-token) — judged against substance, as the input
+framed.
+
+### Steps 11–12 — merge gate and sync (facilitator, deferred to the
+orchestrator)
+
+The merge is **not this container's act**. R1 authorizes the run's
+admin-bypass merge, but the authority map and this card's step-6-cont record
+place the deterministic merge check and the `gh pr merge` with the orchestrator,
+which executes it after this report. Merge criteria as they stand at report
+time, mode Deliberate: (1) owner gates green in full — met; (2) `gates`
+workflow SUCCESS on PR head `2ebed9a3…` — observed (run 35761776967); (3) no
+blocking skeptic objection — met (NO-BLOCK, cycle 1); (4) judge PASS — met;
+(5) no `Needs Human` state or outstanding ruling — met (the 2026-09-24
+ruling answered everything). The card stays **`In Review`** until the merge
+lands with CI green on the merged SHA; `Done` is written only from that
+observed artifact, never before.
+
+### Step 13 — follow-ups: two candidates, both ruled File (seat-ruled
+record)
+
+The follow-up gate is mechanically failing with the FLLWUP-104 `noul`
+answer-shape drift, so per the binding ruling (Q3) the two dispositions are
+**recorded directly from the ruling, not routed through the gate** — no
+`council_followup_review` call, which would double-record. The ruling is the
+confirmation; the dedup pass ran against the board and open cards — no
+duplicate or existing home for either candidate (FLLWUP-106 is the stderr-
+framing card, not these). Both written as `FLLWUP-107` and `FLLWUP-108`:
+
+- **(a) File — "Renderer substitution-set pin for procedure copy"** →
+  `council/cards/FLLWUP-107.md`. Origin: round-2/3 convergence relocated the
+  renderer invariant out of this card's pin (a file-level negative assertion
+  cannot separate a bad literal from a legitimate renderer refactor).
+- **(b) File — "Usages remediation pin: catch command-drop and
+  update-step-drop"** → `council/cards/FLLWUP-108.md`. Origin: the measured
+  S4/S5/O-A/B boundary (skeptic step-4 battery, re-verified this run at
+  O-s45) — the three-literal pin is green on command-drop and
+  update-step-drop; catching that class needs a wording-coupled literal, the
+  over-pin class the convergence rejected for this card.
+
+The four BUG-2 held step-13 candidates remain held — untouched by this card.
