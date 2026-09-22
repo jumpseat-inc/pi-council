@@ -450,3 +450,88 @@ residual (owner+principal agree). Registration pin resolved: phantom
 `test/procedures.test.ts` named in acceptance; real gates are
 `test/usages-procedure.test.ts` (content) + `test/env-split-contract.test.ts`
 M1 pole A (registration, 17 commands).
+
+### Step 4 — skeptic attack, all runnable objections settled (job-5.10) — NO-BLOCK
+
+Transplant battery in `/tmp/fllwup106` (removed after run; main checkout
+untouched, `git status` clean at end). T1 (owner's FINAL paragraph) extracted
+byte-exact from this card; O1 pin literal likewise.
+
+- **OBJ-1 — closed-red (record correction, not deliverable).** The round-3
+  "settled" gap arithmetic is wrong: measured min regex-gap `stderr`→`verbatim`
+  = **86** (both collapsed and raw) on the real base file; `{0,80}`/`{0,81}`
+  red at base (confirmed), **`{0,86}` GREEN at base**, `{0,91}` green. Owner's
+  "92, first-true {0,91}" was start-to-start distance, not what `.{0,N}`
+  constrains; principal's "86" was right. Pin 3's base-redness survives —
+  `non-empty stderr` occurrences at base = 0 (and pre-105 = 0) — redness by
+  anchor-absence, not gap luck.
+- **OBJ-2 — pin discrimination matrix (closed-green conclusions, two
+  closed-red refutations).** Pins: O = owner `[O1 O2 O3]`, P = principal
+  `[P1 P2 P3 P4]`, D = designer `[D1 D2 D3]`; 1 = green.
+
+  | file | O | P | D |
+  |---|---|---|---|
+  | base (pre-edit = strip) | 000 | 0110 | 011 |
+  | pre-105 base | 000 | 0100 | 010 |
+  | head-T1 (`**Stderr discipline.**`) | 111 | 1111 | 111 |
+  | head-T2 (merged lead) | 111 | 1111 | 111 |
+  | head-T3 (+ `repeated, never composed`) | 111 | 1111 | 111 |
+  | gutted (example kept, rule dropped) | 010 | **1111** | **111** |
+  | hostile (endorsement "prefix each stderr line with a ⚠️…") | 111 | 1110 | 111 |
+  | legitReword | 010 | 1111 | 111 |
+
+  Confirmed: no false trips on any converged prose variant; P4 reds on
+  polarity inversion as claimed; O fully red on strip. **Refuted (closed-red):**
+  designer P13 — 3-literal containment is fully green on gutted (base's own
+  `verbatim`×2/`stderr`×1 from the FLLWUP-105 sentence; no edit confined to
+  the new paragraph can red them); principal's whole pin fully green on gutted
+  (P4 passes fortuitously — the pre-existing "does **not** reach" sits 22
+  chars before the example glyph). **Only O catches gutted**, the exact case
+  bullet 3 exists for ("so the rule cannot be dropped silently").
+- **OBJ-3 — closed-green for owner; closed-red for principal/designer as
+  literal readings of the binding acceptance.** Only O1 asserts the glyph
+  within a prohibition phrase (`do not add a ⚠️`, byte-exact from the card)
+  and O3 anchors `verbatim` to a stderr-form token; P asserts three separate
+  containment facts (no relation; P4 accepts "not a problem"; satisfied
+  fortuitously on gutted); D asserts no prohibition context at all (own R2
+  concession). If the merged pin diverges from the owner design, the
+  acceptance deviation is a real open item.
+- **OBJ-4 — closed-green on the documented surface.** Real error-path runs,
+  key vars unset: bad range → exit 1 `usages: cannot parse range 'bogus
+  bogus'`; reversed dates → exit 2 `usages: end date is before start date`;
+  missing key → exit 2, four stderr lines; unwritable report → exit 3
+  `usages: could not write report: [Errno 21] Is a directory`; offline
+  success → exit 0, 6 `!` lines on stdout, 0 bytes stderr. Boundary: `--today
+  garbage` → exit 1 ValueError traceback (not `usages:`-headed) — never
+  passed by the procedure (fixed invocation `--range "$ARGUMENTS"`), so the
+  documented-surface claim holds; the any-stderr-line rule surfaces a
+  traceback verbatim too. **Open-untested:** the unwritable-*cache* path —
+  `save_cache` guarded by `if not args.offline` (:746), no-offline path
+  key-gated; its single emission (:747) source-verified glyph-free.
+- **OBJ-5 — closed-green (additivity).** First 1544 bytes byte-identical on
+  transplant; FLLWUP-105 three literals still true on the appended file;
+  `!`-limitation sentence and `OPENROUTER_MANAGEMENT_KEY` paragraph untouched;
+  T1 carries no `$…/@…` tokens (FLLWUP-107 invariants unaffected).
+- **OBJ-6 — closed-green (registration).** `bun test
+  test/env-split-contract.test.ts -t "M1 pole A"` → 1 pass / 0 fail; a body
+  append cannot move a 17-command count; M1 pole B is the designed red
+  counterpart.
+- **OBJ-7 — closed-green (version-bump basis).** `git show a0b27ca
+  --name-only | grep -c package.json` → 0; both trees `0.34.2` (release
+  `80c02c6` ancestor of `a0b27ca`); bumps are separate `chore(release)`
+  commits; wiki `[[steward]]` records EPIC-14 ruled the bump not a closure
+  condition. No-bump basis factually grounded.
+- **OBJ-8 — closed-green with constraint (byte identity).** All 37 `⚠` sites
+  in the card are U+26A0 U+FE0F; T1 and O1 carry the identical sequence;
+  implementation constraint: paragraph glyph and pin literal glyph must both
+  be copied (with U+FE0F) from the card — a retype to bare U+26A0 silently
+  breaks `toContain`.
+
+**Verdict: NO-BLOCK.** The deliverable (owner's paragraph + owner's pin)
+survives every runnable attack. Standing items, none blocking: (1) the
+round-3 record line "gap=92, {0,91} first true" is corrected to "gap=86,
+{0,86} first true" (principal right, owner's distance measure wrong); (2)
+principal/designer pins refuted on the real file — the merged PR must carry
+the owner pin or surface the acceptance deviation; (3) cache-write stderr
+path open-untested at runtime (offline-gated × key-gated), source-verified
+only; (4) U+FE0F byte-identity constraint.
