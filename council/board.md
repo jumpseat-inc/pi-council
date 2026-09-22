@@ -6,6 +6,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Backlog
 
+- FLLWUP-109 — Foreign --cache-file parent: absent parent is created before the cache write
+- FLLWUP-110 — Cache hit/miss counts in the human-readable usages summary
+- FLLWUP-111 — Migrate runTool in test/usages.test.ts to the async spawn pattern
 - FLLWUP-107 — Renderer substitution-set pin for procedure copy
 - FLLWUP-108 — Usages remediation pin: catch command-drop and update-step-drop
 - EV-85 — Seat-composition decisions as repo-overridable packaged data

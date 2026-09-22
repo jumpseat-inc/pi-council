@@ -581,3 +581,30 @@ noul is missing a usable probability (expected a number in [0, 1])` — the same
 `noul` answer-shape drift as the intake gate (open FLLWUP-104). No disposition
 was recorded, no card was written, no candidate was dropped. All four remain
 **held by draft title** for the run ledger.
+
+### Step 13 — dispositions recorded (gate live after `e903b67`)
+
+The decisions gate is now functional (`parseDecisionsResponse` canonicalizes the
+wire's `noul` key to `probability`). The orchestrator re-ran
+`council_followup_gate` with all four held candidates; every candidate returned
+`status: "ok"` with a recorded decision, rendered verbatim:
+
+```
+Mode: File — duplicate: certainty 0.52 < noul threshold 0.60 — Foreign `--cache-file` parent surface — absent parent keeps the silent no-cache warning (active)
+Mode: File — composite 0.36 < merge threshold 1.00 — Cache hit/miss counts in the human-readable usages summary (active)
+Mode: File — composite 0.25 < merge threshold 1.00 — Migrate `runTool` in test/usages.test.ts to the async spawn pattern (active)
+Mode: File — actionable: confidence 0.16 < choice floor 0.60 — Record-only marker: pre-fix read-only stderr letter difference (active)
+```
+
+`product-owner` confirmed (ratification dispatch, 2026-09-22):
+
+- **Ratified `File`, goal amended** — candidate 1 → `FLLWUP-109`; candidate 2 →
+  `FLLWUP-110` (R4 honored: separate card, not folded into BUG-2); candidate 3 →
+  `FLLWUP-111`. Ruling on candidate 1's either/or draft: the design is **create
+  the parent**, not reject with a usage error.
+- **Amended the recorded `File` to `Drop`** — candidate 4 (record-only). The
+  gate's `File` was a below-floor artifact (`actionable: confidence 0.16 <
+  choice floor 0.60`), not an affirmative actionability judgment; a no-goal card
+  is unvalidatable and the observation is already durably recorded here. Named
+  dissent: product-owner does not ratify the recorded `File` for this candidate.
+- No steward escalation owed (R4 honored, no recorded human decision reversed).
