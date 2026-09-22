@@ -102,12 +102,12 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 
 ## Ready
-- BUG-2 — Usages tool creates its output directory before writing the cache
 - EV-48 — Packaged seat-tier map with repo-local merge override
 - EV-57 — Resolve the running pi-council identity from the package root
 - EV-58 — Show the pi-council version and hash on the first pi run
 
 ## Deliberating
+- BUG-2 — Usages tool creates its output directory before writing the cache
 
 ## In Progress
 

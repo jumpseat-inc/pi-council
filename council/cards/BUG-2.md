@@ -1,7 +1,7 @@
 ---
 id: BUG-2
 title: Usages tool creates its output directory before writing the cache
-state: Ready
+state: Deliberating
 owner: null
 epic: EPIC-15
 goal: A non-offline run of council/skills/usages/scripts/usages.py with --out-dir omitted, or with --out-dir naming a directory that does not exist, creates that directory before writing its cache, so the run leaves .cache.json inside it and emits no usages: could not write cache: line on stderr.
@@ -72,3 +72,41 @@ epic's own gate has a bullet an `EMPTY_DIRS`-only patch cannot pass.
   the write-ordering fix only, and the report-level cache-health signifier is
   out of scope. A post-fix cache-write failure whose parent directory exists is
   the trigger for a new card, not for reopening this one.
+
+## Run record (features-deliver / BUG-2 — EPIC-15)
+
+### Step 1 — gate, mode, surface bit (facilitator)
+
+- **Card state `Ready` at container start** — no promotion owed (R2 build
+  order: BUG-2 is EPIC-15's first card; this container is the only runner in
+  flight, single-writer discipline holds).
+- **Execution mode: `Deliberate`**, recorded on this dispatch's ROOT manifest
+  (EV-68). Full path, steps 2–14. Roster: `owner`, `principal`, `designer`,
+  `skeptic`, `consolidator`, `judge`; ruling seats are never dispatched by
+  this container.
+- **Surface-touching: yes.** The deliverable changes what a person sees and
+  reads on the tool's error state — the `usages: could not write cache:`
+  stderr line disappears and `.cache.json` appears where it did not exist —
+  user-visible behavior of the `/usages` surface. On a full-council card this
+  seats `designer` as a third generator in steps 2–3 (council.md step 1).
+- **Seat resolution (`<seat_resolution_check>`):** `owner`, `principal`,
+  `designer`, `skeptic`, `consolidator`, `judge` all resolve — the nine
+  packaged seat files are present in the installed package clone
+  (`council/agents/`), and no repo-local `.pi/agents/` override directory
+  exists, so nothing shadows them.
+- **Environment:** step-0 preflight skipped per the autonomous-run
+  substitution (Phase 0 cleared it); run for information only → `PASS:
+  preflight clean`, exit 0. `python3 council/validate.py` → `All council
+  artifacts valid`. Local `main` == `origin/main` at `badb093` before this
+  card's first record push.
+- **Gate set for this repo** (authoritative: `.github/workflows/gates.yml`):
+  `bash council/preflight.sh BUG-2`, `bunx tsc --noEmit`, `bun test`,
+  `python3 council/validate.py`; card-specific acceptance adds `bun test
+  test/usages.test.ts`, `bun test test/scaffold.test.ts`, `bunx tsc
+  --noEmit` on the merged SHA. Owner gates met in full regardless of change
+  size.
+- **Rulings applied here (cited, not re-asked):** R1 — merge authorization is
+  run-scoped, but the merge is the orchestrator's act; this container opens
+  the PR, gets `gates` green on the PR head, and reports `DONE` with the PR
+  number and head SHA. R2 — serial build order. R4 — no cache-health report
+  row; the decline stands and is not reopened.
