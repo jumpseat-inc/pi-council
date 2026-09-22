@@ -109,9 +109,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Deliberating
 
 ## In Progress
-- FLLWUP-106 — The usages procedure forbids inventing framing around the tool's stderr
 
 ## In Review
+- FLLWUP-106 — The usages procedure forbids inventing framing around the tool's stderr
 
 ## Needs Human
 

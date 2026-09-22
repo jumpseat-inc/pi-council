@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-106
 title: The usages procedure forbids inventing framing around the tool's stderr
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-15
 goal: council/procedures/usages.md instructs the agent to surface every non-empty stderr line from usages.py verbatim, with no added prefix such as a warning glyph and no invented cause, and to state only what the line itself reports.
@@ -679,3 +679,22 @@ with no deliberation memory: paragraph byte-exact from the ruling, pin
 predicates fixed, placement end-of-file after the FLLWUP-105 remediation
 paragraph, additive only, U+26A0 U+FE0F copied not retyped, no version bump,
 real gates named).
+
+### Step 8 — owner implemented (job-7.1, 8.7m, 28 turns)
+
+Worktree `/home/tista/codes/pi-council-fllwup-106`, branch
+`feat/fllwup-106-stderr-discipline` off `origin/main` @ `bd77bbb` (post-105
+chain preserved); TDD — pin test red at base (O1 first failure), green after
+the paragraph landed. **PR #106 open against `main`, head SHA `8cede8b`**
+(observed via `gh pr view`: state OPEN, headRefOid matches). Byte-identity:
+owner extracted the paragraph programmatically from the spec, hexdump-verified
+both ⚠️ glyphs U+26A0 U+FE0F (2 occurrences, 0 bare U+26A0); re-wrapped at 78
+cols with the two ruled pin literals (`do not add a ⚠️`, `One non-fatal
+issue`) kept contiguous — the spec's blockquote wrapping itself breaks them.
+One deviating byte: EOF newline added to usages.md (all 7 sibling procedures
+end with one; no sentence byte changed). Gates in order: `bunx tsc --noEmit`
+exit 0; `bun test` 1468 pass / 6 skip / 0 fail (113.7s); `council/validate.py`
+clean. New pin: `usages procedure pins stderr discipline: glyph prohibition,
+worked-example literal, and verbatim proximity` (2 pass / 0 fail, 6 expects).
+No version bump. Status `In Review` written from the observed open PR — the
+owner's gate report is not the precondition.
