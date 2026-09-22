@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-105
 title: Name the remediation route for a stale copied usages skill
-state: In Review
+state: Done
 owner: null
 epic: EPIC-15
 goal: council/procedures/usages.md instructs the agent that when the tool's stderr contains usages: could not write cache:, it must surface that line verbatim and give the consumer the two refresh commands — delete <repo>/$CONFIG_DIR_NAME/skills/usages/, then re-run /council-init.
@@ -571,3 +571,16 @@ framing card, not these). Both written as `FLLWUP-107` and `FLLWUP-108`:
   over-pin class the convergence rejected for this card.
 
 The four BUG-2 held step-13 candidates remain held — untouched by this card.
+
+### Step 12 — post-merge reconciliation (orchestrator)
+
+- PR #105 merged to `main` under Phase-1 ruling R1: `gh pr merge 105 --squash
+  --admin --match-head-commit 2ebed9a3d3a33f655ded41d8de8282af91bf3b46`.
+  Merge commit `a0b27ca0ad061ea6a52842ec53babe4ec4dd29e4`.
+- Gates re-run on the merged SHA `a0b27ca`: `bunx tsc --noEmit` exit 0;
+  `python3 council/validate.py` → `All council artifacts valid`;
+  `bun test test/usages-procedure.test.ts test/scaffold.test.ts
+  test/usages.test.ts` → 15 pass / 0 fail.
+- Card set `Done`; board line moved to the Done column. Deterministic merge
+  check recorded mode `Deliberate` (run substrate), criteria 1–5 satisfied at
+  the pinned head.
