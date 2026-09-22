@@ -29,3 +29,13 @@ fix ships in a newer package version but does not reach the skill already
 copied into this repo, so — after updating the pi-council package — run
 `rm -rf .pi/skills/usages/` and then `/council-init` to recopy the fixed tool;
 the report itself still ships.
+
+**Stderr discipline.** Every non-empty stderr line the tool prints is quoted
+verbatim, exactly as printed: no added prefix of any kind — do not add a ⚠️ or
+! to a line that does not itself carry one — and no invented cause,
+consequence, or non-fatal-issue count beyond what the line itself reports.
+System-status lines are uninterpreted tool output: surface them as printed,
+without explanation. Worked example from this procedure's own intake: a seat
+wrapped `usages: could not write cache:` in `⚠️ One non-fatal issue:` and
+appended an invented likelihood — that framing is exactly what this rule
+forbids. (The remediation route for that specific line, above, is unchanged.)
