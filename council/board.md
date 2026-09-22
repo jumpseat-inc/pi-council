@@ -111,13 +111,13 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## In Progress
 
 ## In Review
-- BUG-2 — Usages tool creates its output directory before writing the cache
 
 ## In Review
 
 ## Needs Human
 
 ## Done
+- BUG-2 — Usages tool creates its output directory before writing the cache
 - EV-84 — End-to-end falsifier for the Jev-gated follow-up review
 - EV-83 — Route the follow-up decision through /features-deliver Phase 3 and the council-runner escalation path
 - EV-82 — Record and render the follow-up decision at step 13's pre-write confirm gate

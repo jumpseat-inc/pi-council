@@ -1,7 +1,7 @@
 ---
 id: BUG-2
 title: Usages tool creates its output directory before writing the cache
-state: In Review
+state: Done
 owner: null
 epic: EPIC-15
 goal: A non-offline run of council/skills/usages/scripts/usages.py with --out-dir omitted, or with --out-dir naming a directory that does not exist, creates that directory before writing its cache, so the run leaves .cache.json inside it and emits no usages: could not write cache: line on stderr.
@@ -559,3 +559,15 @@ runner: apply the R1 merge (`gh pr merge 104 --squash --admin
 local `main`, run the gates on the merged SHA, set the card `Done`, commit
 and push the reconciliation record, then take up the held step-13
 candidates with the recorded dispositions.
+
+### Step 12 — post-merge reconciliation (orchestrator)
+
+- PR #104 merged to `main` under Phase-1 ruling R1: `gh pr merge 104 --squash
+  --admin --match-head-commit 8a4b2a93e1c4bd8b41aad6caf4d9c3872a64d36d`.
+  Merge commit `59fad63be0f348f240201bcc598010f376cd0d01`.
+- Gates re-run on the merged SHA `59fad63`: `bunx tsc --noEmit` exit 0;
+  `python3 council/validate.py` → `All council artifacts valid`;
+  `bun test test/usages.test.ts test/scaffold.test.ts` → 14 pass / 0 fail.
+- Card set `Done`; board line moved to the Done column. Deterministic merge
+  check recorded mode `Deliberate` (run substrate), criteria 1–5 satisfied at
+  the pinned head.
