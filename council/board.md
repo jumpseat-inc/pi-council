@@ -109,6 +109,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Deliberating
 
 ## In Progress
+
+## In Review
 - BUG-2 — Usages tool creates its output directory before writing the cache
 
 ## In Review
