@@ -472,3 +472,50 @@ branch `fllwup-105-usages-remediation-pin` present on origin with the three
 commits above `6ffbb51`. Local `main` in sync with `origin/main`, clean.
 **Card → `In Review`.** CI on the PR head is the facilitator's check at the
 skeptic boundary; the merge itself belongs to the orchestrator under R1.
+
+### Step 9 — skeptic verification, cycle 1 of 3 (job-4.2) — NO-BLOCK
+
+Routing re-check before dispatch: the recorded mode is authoritative
+(`Deliberate` on this dispatch's ROOT manifest, EV-68); no re-route fired —
+the observed branch state is exactly the Deliberate deliverable set. Observed
+CI before dispatch: `gates` → pass on head `2ebed9a3…` (run 35761776967,
+2m20s; the `[code]smith` row is a third-party skipping check, not the gates
+workflow).
+
+Subject: PR #105 head `2ebed9a3d3a33f655ded41d8de8282af91bf3b46`, verified in
+the skeptic's own worktree at that SHA (main checkout untouched; worktree
+removed after the battery). Loop frame stated: step 9 precedes step-10
+judging and step-11's orchestrator merge.
+
+**Gates, all PASS at head:** preflight PASS (12 OK + `PASS: preflight
+clean`); `bunx tsc --noEmit` exit 0; `bun test` full suite **1467 pass / 6
+skip / 0 fail** (119.34s); `python3 council/validate.py` clean.
+
+**Objections — every one closed-green, each with its actual run:**
+- **O-sentence** — shipped sentence byte-identical (409 chars, modulo
+  hard-wrap) to the Q1 ruling text extracted from this card.
+- **O-placement** — sentence inside `**Report.**` (L22 heading, sentence
+  L26–31), entire file diff is the appended block, nothing else altered.
+- **O-nonfatal** — conditional on the exact literal, update-step precedes the
+  two commands, closes `the report itself still ships.`
+- **O-pindiscipline** — exactly 3 `toContain` calls, scoped
+  `path.join(PKG_ROOT, ...)` read, zero negative/anchor/ordering assertions.
+- **O-pinsens** — arm (a) sentence removed → RED (0 pass / 1 fail); arm (b)
+  trigger reworded → RED; arm (c) shipped → GREEN (1 pass / 3 expect).
+  Restored and re-confirmed green after every arm.
+- **O-s45** — command-drop and update-step-drop stay GREEN exactly as the
+  amended acceptance documents (the measured S4/S5 boundary, carded as a
+  follow-up, not blocking); trigger literal has no other home in the file.
+- **O-gatewrap** — with the sentence removed the **full suite** exits 1 and
+  names the pin failure; the gate demonstrably fails.
+- **O-diffpurity** — branch diff touches exactly the four expected files;
+  `test/scaffold.test.ts` and `extensions/scaffold.ts` (`TOOLING_FILES`)
+  unchanged — R3 honored, T-USK1 unedited and green (6 pass / 0 fail).
+- **O-tokens** — zero `$CONFIG_DIR_NAME` / `@CONFIG_DIR@` in the procedure
+  file.
+- **O-vaultnote** — raw note carries delete-and-recopy-only, the
+  package-update-first precondition, and the named ingest target.
+
+**Verdict: NO-BLOCK.** No red anywhere except the injected red arms proving
+the pin can fail (all restored). Verify cycle count: 1 of 3 — no fix cycle
+needed.
