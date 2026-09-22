@@ -6,7 +6,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Backlog
 
-- EPIC-15 — Usages tool creates its output directory before writing the cache
 - FLLWUP-107 — Renderer substitution-set pin for procedure copy
 - FLLWUP-108 — Usages remediation pin: catch command-drop and update-step-drop
 - EV-85 — Seat-composition decisions as repo-overridable packaged data
@@ -115,6 +114,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Needs Human
 
 ## Done
+- EPIC-15 — Usages tool creates its output directory before writing the cache
 - FLLWUP-106 — The usages procedure forbids inventing framing around the tool's stderr
 - FLLWUP-105 — Name the remediation route for a stale copied usages skill
 - BUG-2 — Usages tool creates its output directory before writing the cache

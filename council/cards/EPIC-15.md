@@ -1,7 +1,7 @@
 ---
 id: EPIC-15
 title: Usages tool creates its output directory before writing the cache
-state: Backlog
+state: Done
 owner: null
 epic: null
 goal: A non-offline run of council/skills/usages/scripts/usages.py creates its output directory before writing the cache, so a run whose output directory does not yet exist — the default .pi/council/usages/ or a fresh --out-dir — leaves .cache.json in it and emits no usages: could not write cache: line on stderr.
@@ -63,3 +63,27 @@ already-initialized install.
 - **R4 — cache-health report row.** Product-owner's decline stands, with the
   re-card trigger recorded: any post-fix cache-write failure whose parent
   directory exists opens a new card.
+
+## Delivery record (autonomous run — orchestrator)
+
+Closed under `/features-deliver` on the recorded Phase-1 rulings R1–R4.
+
+- **BUG-2** — PR #104, mode `Deliberate`, criteria 1–5 satisfied at pinned head
+  `8a4b2a9`; merged `59fad63`. `bun test` 1466 pass / 0 fail, tsc 0, validate
+  clean on the merged SHA.
+- **FLLWUP-105** — PR #105, mode `Deliberate`, criteria 1–5 satisfied at pinned
+  head `2ebed9a`; merged `a0b27ca`. One `ESCALATION` ruled by `product-owner`
+  (V1 sentence, pin-boundary residual routed to a follow-up, two File
+  dispositions). 15 pass / 0 fail on the merged SHA.
+- **FLLWUP-106** — PR #106, mode `Deliberate`, criteria 1–5 satisfied at pinned
+  head `8cede8b`; merged `98a62a9`. One `ESCALATION` ruled by `product-owner`
+  (prose + the O-conformant pin confirmed). 6 pass / 0 fail on the merged SHA.
+- **Steward escalation outcome (R3):** the copied-skill refresh route stays
+  manual (delete-and-recopy); `/council-update` is not widened. Recorded.
+- **Filed follow-ups (out of the R2-scheduled scope, Backlog):** FLLWUP-107
+  (renderer substitution-set pin), FLLWUP-108 (remediation pin drop-class).
+  BUG-2's four step-13 candidates remain held (follow-up gate `noul` drift,
+  open FLLWUP-104).
+- **Orchestrator-level residual, no card:** a batched `chore(release)` bump
+  covering the BUG-2 + FLLWUP-105 + FLLWUP-106 payload is owed; per the
+  `product-owner` ruling it is not a per-card closure condition.
