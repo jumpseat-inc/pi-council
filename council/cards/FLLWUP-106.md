@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-106
 title: The usages procedure forbids inventing framing around the tool's stderr
-state: In Review
+state: Done
 owner: null
 epic: EPIC-15
 goal: council/procedures/usages.md instructs the agent to surface every non-empty stderr line from usages.py verbatim, with no added prefix such as a warning glyph and no invented cause, and to state only what the line itself reports.
@@ -788,3 +788,16 @@ step-8 record `4bc6d9a`, step-9 record `5371811`. Verify cycles used: 1 of ≤3
 (0 fix-reverify rounds). Round caps: step 3 cap reached pre-escalation (3
 rounds); step 9 cap 1/3. No ruling seat dispatched by this container. PR #106
 open at `8cede8b` awaiting the orchestrator's R1 merge.
+
+### Step 12 — post-merge reconciliation (orchestrator)
+
+- PR #106 merged to `main` under Phase-1 ruling R1: `gh pr merge 106 --squash
+  --admin --match-head-commit 8cede8b58276cc4feadced3771559e6308fec120`.
+  Merge commit `98a62a95e9f9ef0f1842ca568b59fcdd3049aff8`.
+- Gates re-run on the merged SHA `98a62a9`: `bunx tsc --noEmit` exit 0;
+  `python3 council/validate.py` → `All council artifacts valid`;
+  `bun test test/usages-procedure.test.ts test/env-split-contract.test.ts`
+  → 6 pass / 0 fail.
+- Card set `Done`; board line moved to the Done column. Deterministic merge
+  check recorded mode `Deliberate` (run substrate), criteria 1–5 satisfied at
+  the pinned head.

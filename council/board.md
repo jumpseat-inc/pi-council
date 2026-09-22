@@ -111,11 +111,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## In Progress
 
 ## In Review
-- FLLWUP-106 — The usages procedure forbids inventing framing around the tool's stderr
 
 ## Needs Human
 
 ## Done
+- FLLWUP-106 — The usages procedure forbids inventing framing around the tool's stderr
 - FLLWUP-105 — Name the remediation route for a stale copied usages skill
 - BUG-2 — Usages tool creates its output directory before writing the cache
 - EV-84 — End-to-end falsifier for the Jev-gated follow-up review
