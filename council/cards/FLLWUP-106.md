@@ -348,3 +348,105 @@ designer's `**Stderr is evidence, not narration.**` paragraph; principal's
 owner-verbatim adoption with merged lead. All carry: any-stderr-line rule,
 glyph prohibition, class-described likelihood, no-composition principle,
 FLLWUP-105 carve-out, worked example.
+
+### Step 3 (cont.) — round 3, final positions (jobs 5.7 owner, 5.8 principal, 5.9 designer). Cap reached.
+
+**Owner (5.7) — measured, FINAL:**
+- Mutation arithmetic settled: collapsed gap `stderr`→`verbatim` = **92**
+  (not 86, not 81): `{0,80}` and `{0,81}` both red at base, `{0,91}` first
+  true bound. Principal's mechanism (proximity pins FLLWUP-105's sentence;
+  later reword flips green at base) confirmed; exact number refuted. Fix: move
+  the anchor into the new paragraph — `non-empty stderr` is base-absent
+  (measured: base has exactly one `stderr`, zero `non-empty stderr`).
+- **FINAL pin** (new `test()` in `test/usages-procedure.test.ts`):
+  1. `toContain("do not add a ⚠️")` — prohibition context as literal
+     prohibition (stronger than bare glyph, which stays green on gutted and
+     hostile variants);
+  2. `toContain("One non-fatal issue")` — worked-example literal;
+  3. `procedure.replace(/\s+/g, " ")` matched against
+     `/non-empty stderr[\s\S]{0,120}verbatim/i` — base-red by anchor absence,
+     not gap luck.
+  Measured mutation matrix: strip → all 3 red; gutted (example kept, rule
+  dropped) → 2 green only; hostile ("prefix each stderr line with ⚠️…") →
+  3 green only; legitReword → 1 green only. No false trips. Bare-`verbatim`
+  and bare-`⚠️` pins dropped (green everywhere / subsumed).
+- **FINAL paragraph:** `**Stderr discipline.** Every non-empty stderr line the
+  tool prints is quoted verbatim, exactly as printed: no added prefix of any
+  kind — do not add a ⚠️ or ! to a line that does not itself carry one — and
+  no invented cause, consequence, or non-fatal-issue count beyond what the
+  line itself reports. System-status lines are uninterpreted tool output:
+  surface them as printed, without explanation. Worked example from this
+  procedure's own intake: a seat wrapped `usages: could not write cache:` in
+  `⚠️ One non-fatal issue:` and appended an invented likelihood — that framing
+  is exactly what this rule forbids. (The remediation route for that specific
+  line, above, is unchanged.)` — glyphs unbackticked so pin 1 matches
+  verbatim.
+- **Version bump: NO** — a0b27ca shipped the identical payload class with no
+  package.json change; releases are batched `chore(release)` commits
+  (ef8bc9a pattern); recommends one batched release covering 105+106.
+- Accepted tradeoffs: hostile-contradiction (pin-green text violating its own
+  prohibition) not catchable by any containment/proximity pin — FLLWUP-108
+  territory; `{0,120}` arbitrary-but-harmless (redness at base comes from
+  anchor absence).
+
+**Principal (5.8) — FINAL:**
+- Corrected own round-2 arithmetic (86 on normalized text; any bounded
+  `stderr→verbatim` ≤86 green at base; raw-text redness is the wrap
+  coincidence — the FLLWUP-105 skeptic's "V2 line-break splits
+  `newer package\nversion`" class). Named own blind spot: quoted `{0,80}/{0,81}`
+  against the owner's round-1 regex.
+- **FINAL pin** (endorsing owner's acceptance reading, repairing its unit):
+  `toContain("⚠️")` (rule-drop falsifier, base-red, byte-identical
+  U+26A0 U+FE0F) + `toContain("verbatim")` + `toContain("stderr")`
+  (acceptance literals; green-at-base is fine — the acceptance says
+  "contains", base-redness carried by the glyph) + glyph-neighborhood negation
+  check on whitespace-normalized text (every `⚠️` occurrence must have
+  `/\b(?:no|not|never|without|do not|don't|forbid)\b/i` within ±160 chars) —
+  wrap-robust, reds on polarity inversion.
+- **Drops own worked-example literal** (`One non-fatal issue`): a 4th lexical
+  literal is the exact class the FLLWUP-105 ruling fenced (its 4-literal pin
+  failed variant A); Acceptance bullet 2 is judge-verified semantics, not
+  bullet 3's mechanical pin. Endorses owner's declared-gap position.
+- **Version bump: claim WITHDRAWN** — staged-epic-bump is the operative
+  convention for this chain (EV-38 "the owner reads the bump as landing at
+  epic close, not per card"; EV-36/EPIC-9 package.json stays 0.18.0 at
+  closure; FLLWUP-95 the release is a Backlog card, steward-ruled not a
+  closure condition). Residual note for the orchestrator, not this card.
+- Testable claims: (1) the ≤86 green-at-base bound; (2) re-wrap flips
+  raw-text redness green with no new rule; (3) polarity-inversion mutation
+  separates containment-only from neighborhood-check; (4) variant-A stability.
+
+**Designer (5.9) — FINAL:**
+- Lead: recommends the principal's merged `**Stderr relay — evidence, not
+  narration.**` (category anchor + operational dichotomy; owner's bare
+  `Stderr relay.` loses the claim, own bare dichotomy loses the anchor).
+- Body: holds `repeated, never composed` over `relay authorized, narration
+  not` — verb-level forcing function (names the verb the person substitutes:
+  summarize, explain, frame).
+- Worked example: tighten `invented likelihood` to `invented likelihood
+  assessment` / `invented probability claim` so the class is pattern-matchable
+  without reproducing the invented text.
+- **Pin: holds three-literal containment** (round-3 framing: `⚠️` in
+  prohibition context, `verbatim`, worked-example anchor) against both
+  proximity designs — "three-literal containment cannot be passed by any
+  mutation that drops a literal, by construction". NOTE for the skeptic: this
+  claim is about *drop* mutations; the hostile/polarity-inversion mutation
+  keeps all literals and should pass containment — designer's own round-2
+  OQ conceded containment can't certify prohibition. Predictions P-R1..P-R4
+  are cold-read smokes (P-R4's deletion-class matrix is testable).
+- Carve-out: no new objection; keep additive.
+
+**State at cap:** paragraph text near-converged — remaining prose choices are
+lead (`Stderr discipline.` vs `Stderr relay — evidence, not narration.`), body
+phrase (`repeated, never composed` vs `relay authorized, narration not` vs
+owner's round-3 synthesis), likelihood class wording, carve-out phrasing.
+Pin: **three final designs**, discriminated by named mutations (strip / gutted
+/ hostile-polarity / legitReword / gap-coincidence). Cross-candidate
+incompatibility to test: owner's pin 1 literal `do not add a ⚠️` is absent
+from the principal's adopted owner-round-2 text ("no added `⚠️` or `!`
+prefix"); each seat's pin+paragraph pair is self-consistent but cross-pairing
+is unsettled. Version bump resolved: no bump this card, batched-release
+residual (owner+principal agree). Registration pin resolved: phantom
+`test/procedures.test.ts` named in acceptance; real gates are
+`test/usages-procedure.test.ts` (content) + `test/env-split-contract.test.ts`
+M1 pole A (registration, 17 commands).
