@@ -326,3 +326,52 @@ arms observed red (S2: 3 fail; S3/S4/S6: 1 fail each).
 (1) the acceptance's own three-literal set cannot catch command-drop or
 update-step-drop from the sentence — only wholesale-removal and
 trigger-reword classes; (2) V1-vs-V2 is a pure prose choice.
+
+### Step 5 — consolidator synthesis (job-2.13)
+
+**Settled** (each with its closing evidence): scoped three-literal pin, no 4th
+literal, no negative assertions (O-overpin: 4-literal pin reds on
+claim-preserving reword while 3-literal pin passes; O-scope: sentence-removal
+arm reds scoped pin, repo-wide pin stays green); `.pi` literal
+(O-token: `renderProcedure` substitutes only `$COUNCIL_PROCEDURES`/
+`$ARGUMENTS`; file speaks `.pi/` throughout); three-step ordering (O-ordering:
+`copyUsagesSkill` skips existing copies, T-USK1 pins the no-op); `rm -rf`
+command form (round-3 convergence); verbatim framing (O-boundary: exactly one
+`log(` literal contains the trigger); non-fatal framing (O-nonfatal: real-tool
+run, exit 0, report written); FLLWUP-106 boundary (same O-boundary evidence);
+pin file placement + PKG_ROOT scoping (O-scope); T-USK1 unedited + no
+`TOOLING_FILES` widening (R3 + O-tusk1: 6 pass/0 fail, tree clean);
+`vault/raw/` note shape (acceptance-enumerated).
+
+**Open judgment (consolidator's sorting, routed at step 6):**
+1. **V1 vs V2 ship-text** — pure prose choice (O-v1v2: no element-level test
+   separates them); the owner's round-3 final listed V2 while its own held
+   list converged on V1's elements. Owed: `product-owner`.
+2. **Pin-boundary residual** — the three-literal pin cannot catch
+   command-drop or update-step-drop from the sentence (S4/S5 measured green);
+   only wholesale-removal and trigger-reword red. Catching the gap needs a
+   sentence-exclusive literal — the over-pin class the convergence rejected.
+   Owed: `product-owner` (accept as documented limitation, or a follow-up
+   adds the operative-step literal).
+3. **Renderer substitution-set follow-up** — relocated out of this card by
+   convergence; step-13 candidate. Owed: disposition at step 13.
+
+**Open objections: none.** Skeptic battery: NO-BLOCK, all closed-green.
+
+Consolidator: ready to hand off — the three open-judgment items owe rulings;
+the mechanical implementation is fully converged and unblocked.
+
+### Step 6 — routing (facilitator)
+
+The consolidator's three open-judgment items go to `product-owner`. This
+container never dispatches ruling seats. Phase-1 rulings checked first
+(escalation contract, step 1): R1 (merge authorization), R2 (build order),
+R3 (manual refresh route) — none answers the V1/V2 wording choice, the
+pin-boundary acceptability, or the follow-up disposition; the PO
+decomposition ruling (O3) fixed the deliverable *shape* (one sentence in the
+packaged procedure + the exact commands), not the exact text between the two
+candidates, and not the pin's sensitivity boundary. A design dispute (what a
+person reads) is open-judgment by construction; no settling test ran and none
+can. **Card held at `Deliberating` pending the ruling** — steps 7+ do not
+start. Escalated to the orchestrator with facts only; no worktree, branch,
+PR, or implementation exists yet.
