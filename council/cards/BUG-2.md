@@ -196,3 +196,85 @@ epic's own gate has a bullet an `EMPTY_DIRS`-only patch cannot pass.
 
 **Round 2 — the exchange (same three seats, each with the others' round-1
 positions; see the three verbatim round-2 blocks below).**
+
+**Round 2 — owner (job-1.4), condensed:** Holds **mechanism B**, votes
+against reopening. (1) A-vs-B is not observable on the acceptance surface:
+T-U7/T-U8 leave `--cache-file` omitted, so `cache_file` always resolves
+inside `out_dir`; identical final state under either mechanism; the only
+intra-run difference (`.cache.json` before `.gitignore` under A) is asserted
+by no acceptance line — the oracle cannot distinguish the mechanisms, so the
+mechanism choice cannot be a gate question. (2) R4 already routes the
+foreign-parent case out (trigger for a new card). (3) Mechanism A ships an
+unruled behavior change — silently creating arbitrary foreign parent
+directories — which the principal's own open question concedes deserves an
+explicit product ruling; B's foreign-parent behavior is exactly today's
+non-fatal-warning behavior, changed by nothing. Accepts the factual reading
+of the flag-surface divergence but scopes the Intent sentence to the tested
+surface; the divergence case is follow-up material (principal's
+discriminator = that card's red-at-base), never added to this card's
+acceptance (it would silently change the oracle). Corrected two of the
+designer's smoke predictions with a real run: read-only parent with
+`--out-dir` absent → **exit 1 PermissionError traceback** (not exit 3
+`could not write report`); read-only existing dir without `.gitignore` →
+**exit 1 traceback** from the `.gitignore` write — `ensure_out_dir` sits
+outside the report-write try (`usages.py:792` before the `try:` at 793),
+before the fix, after it, and identically under A. Settled its own two
+questions: no hardening on this card (follow-up card's first line must be
+the product ruling); T-U7's stderr assertion stays pinned to the literal.
+
+**Round 2 — principal (job-1.5), condensed:** Recommends **mechanism B for
+this card**. Grounded facts: `save_cache` has exactly one caller (`main`);
+`ensure_out_dir` is not a pure mkdir (`.gitignore` write) and is called
+outside the report-write try; the only binding coupling is
+`cache_file = out_dir/.cache.json` when `--cache-file` is omitted — exactly
+the card's tested surface, where the two mechanisms are *genuinely
+equivalent*. Retracts the scope claim: "I was wrong to let it choose the fix
+for this card." Named blind spots: the owner's "every caller" concern is
+theoretical; the designer's prediction (4) conflated mkdir-failure with
+report-write-failure; own vantage gap — R4's wording ("parent directory
+exists") does not literally name the absent-foreign-parent case, so the
+follow-up card should be chartered explicitly for the `--cache-file` parent
+surface. Answers: (1) discriminator out of scope (goal + R4 + oracle);
+(2) the create-vs-reject ruling is new-card material; forced to A or B with
+the acceptance as sole oracle — no ground to force A, accepts B; (3) yes,
+both pass T-U7/T-U8 identically; round-1 material becomes follow-up card
+material. Testable claims: A/B indistinguishability by construction; the
+discriminator as the follow-up's red; B's failure-surface shift (moved call
+is unguarded — raise occurs before the cache warning); the record must scope
+the equivalence sentence to `--cache-file` omitted.
+
+**Round 2 — designer (job-1.6), condensed:** Holds **mechanism B**,
+acknowledging the principal's flag-surface reading is correct and important
+but scoped out by R4; the single-owner/conceptual-model axis is the
+discriminand on the acceptance surface, and B wins it. Verified
+`save_cache` has exactly one call site (line 744). Refined predictions: (1)
+grep discriminator — under B the call sits ~line 720 (before `load_cache`),
+the ~789 call deleted; under A, `save_cache` gains a parent mkdir at ~463.
+(2) Split round-1 (4) into two cases: read-only **parent of** `out_dir`
+under B fires at `ensure_out_dir` before any network call (single traceback,
+no analytics requests, no cache literal) — B strictly better; read-only
+`out_dir` itself unchanged between A and B. (3) Adopted the principal's
+foreign-`--cache-file` discriminator as a non-gating smoke. Follow-up flag
+unchanged (cache stats in `human_summary`); not reopening R4 from this
+seat; if A were ever chosen, the create-vs-reject product ruling is owed
+separately.
+
+**Step 3 outcome — converged, 2 of ≤3 rounds used.** All three generators
+hold **mechanism B** (move `ensure_out_dir(out_dir)` above the first
+`save_cache`; `save_cache` stays a pure primitive). Disagreements dissolved:
+the principal withdrew its A-preference for this card (acceptance cannot
+distinguish A from B; R4 routes the foreign-`--cache-file` absent-parent
+case to a new card, chartered explicitly, carrying the principal's
+discriminator as its red-at-base, with the create-vs-reject ruling owed
+there). Recorded scoping: the card's "the observable contract is the same"
+sentence is true **for its oracle** (`--cache-file` omitted) and is to be
+implemented and read as so scoped. Known accepted limitation under B: a
+`--cache-file` naming an absent parent outside `out_dir` keeps today's
+non-fatal warning and writes no cache. Notes carried to the owner: the moved
+`ensure_out_dir` is unguarded and side-effecting (`.gitignore` write), sits
+outside the report-write try, and pre-existing failure there is an exit-1
+traceback both before and after the move — do not change that failure
+surface in this card. Follow-up candidates recorded for step 13: (F1)
+foreign-`--cache-file` parent surface (principal's discriminator as
+red-at-base; product ruling: create vs reject); (F2) cache stats in the
+human summary (`cache: hits=N misses=M`).
