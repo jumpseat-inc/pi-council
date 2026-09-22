@@ -390,6 +390,16 @@ deadlock trap removed for future test authors); F4 record-only cosmetic
 marker — pre-fix read-only stderr carries an extra cache-warning line the
 fixed variant drops (no action unless scope expands).
 
+### Step 7 — spec committed (facilitator)
+
+`docs/superpowers/specs/2026-09-22-BUG-2-design.md` written and committed
+(`114b549`). Self-reviewed: no placeholders or unresolved TODOs; consistent
+with the deliberation's settled design (mechanism B, R4 scoping, the
+spawnSync-trap instruction, the run-2 `hits === 1` nuance); scope confined
+to the card's goal; an owner reading only this file cannot reach two
+different designs. Card set `In Progress` on card face and board;
+`validate.py` clean.
+
 ### Step 6 — routing outcome (facilitator)
 
 Zero open-judgment disputes require a ruling seat on this card: OJ1's B
@@ -398,3 +408,38 @@ F1's create-vs-reject ruling is future-card material and does not gate this
 card. Zero blocking open objections: OO1 is carried to the owner as an
 implementation instruction, OO2 is the deferred merged-SHA gate. The card
 does **not** enter `Needs Human`; steps 7+ proceed.
+
+### Step 8 — owner delivered (job-1.9), PR #104 open
+
+Owner implemented in worktree `.worktrees/bug-2` (branch
+`feat/bug-2-usages-out-dir`, created with `git worktree add … origin/main`;
+main checkout untouched — no checkout/switch/reset against it), pushed, PR
+#104 open, head SHA `8a4b2a93e1c4bd8b41aad6caf4d9c3872a64d36d`. Observed
+directly by the facilitator (not from the seat's report): `gh pr view 104`
+→ state OPEN, base `main`, headRefOid `8a4b2a9…`, `mergeable: MERGEABLE`
+(mergeStateStatus `BLOCKED` — the ruleset's approving-review / PR-only
+requirement, the condition R1's sanctioned bypass exists for). Diff: 3
+files, +307/−1 — `usages.py` +1/−1 (the settled mechanism B, exactly the
+spec's insertion point), `test/usages.test.ts` +94 (T-U7, T-U8, async
+`serveStub`/`runAsync` helpers), plan doc +212. Single commit
+`fix(usages): create the output directory before the first cache write`.
+
+Owner gates green at head, real results: preflight `PASS: preflight clean`;
+`bun test test/usages.test.ts` 8 pass / 0 fail; `bun test
+test/scaffold.test.ts` 6 pass / 0 fail; full `bun test` **1466 pass / 6
+skip / 0 fail** (1472 tests / 113 files, 113.13s); `bunx tsc --noEmit`
+clean; `validate.py` → `All council artifacts valid`. Red-at-base recorded
+with the seven-field record: base `114b549` (origin/main pre-fix), tests
+written first on the mandatory async pattern, raw reds
+`6 pass / 2 fail / 42 expect()` — T-U7 and T-U8 each red on
+`Expected to not contain: "usages: could not write cache:"` with the real
+`Errno 2` temp-file paths named; head half `8 pass / 0 fail / 51 expect()`.
+Bun stops a test at its first failed expect, so the remaining base-reds
+(`.cache.json` absence, run-2 `hits === 1`, `fresh-out/.cache.json`
+absence) surface only post-fix — each was verified directly at base by the
+skeptic's independent probes (step 4). Disclosed deviations: gitignored
+untracked symlinks in the worktree pointing at the main checkout's installs
+(identical across red/green halves, never committed); a plan-doc code-sketch
+signature inconsistency the committed tests resolve.
+
+Card set `In Review` (sole precondition: open PR, observed).
