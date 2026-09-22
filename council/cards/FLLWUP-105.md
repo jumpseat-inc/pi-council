@@ -107,3 +107,93 @@ copied-payload refresh, and is escalated to the human instead. Re-running
   `noul` answer-shape drift (FLLWUP-104) making gate calls fail mechanically.
   Expected; a failed gate call is not re-run, and step-13 candidates are held
   by draft title.
+
+### Step 2 — round 1, independent first pass (jobs 2.2 principal, 2.3 designer, 2.5 owner)
+
+*Dispatch note:* the owner's first two dispatch attempts (job-2.1, job-2.4) were
+cancelled by this facilitator on a misread stall signal — usage counters freeze
+during long tool reads, and the run substrate later showed job-2.4 was
+mid-orientation with a tool result landing seconds before the cancel, not
+stalled. No seat output was lost (neither attempt had produced a position); the
+settled owner position is job-2.5, dispatched with neutral orientation facts
+only. The three-dispatch ceiling was not tripped by a seat that failed to
+produce output; the failure mode was facilitator-side and is recorded here.
+
+**Principal (job-2.2), claims:**
+- `renderProcedure` (extensions/index.ts:148-153) substitutes only
+  `$COUNCIL_PROCEDURES` and `$ARGUMENTS` — **no `@CONFIG_DIR@` render for
+  procedures**; the file already speaks literal `.pi/` in both places it names
+  the copy. A `$CONFIG_DIR_NAME` token would reach consumers as dead prose.
+- The remediation is a **three-step** operation, not two: update the package →
+  delete the copy → re-run `/council-init`. Delete-then-reinit re-copies from
+  the *installed* package; if it predates BUG-2 the loop copies the same buggy
+  tool back. The sentence must connect the update to the commands explicitly.
+- The falsifier is real **only if scoped**: a "repo contains" pin is satisfied
+  by `usages.py` (contains the stderr literal) and `scaffold.ts`/`index.ts`
+  (contain `skills/usages/`); the pin must read
+  `path.join(PKG_ROOT, "council", "procedures", "usages.md")`. Run the removal
+  arm (delete the sentence → red) to prove it.
+- Over-pin guard: assert only the three literals, not full wording, section
+  anchor, or command byte-strings.
+- Suggests also asserting `usages.md` does **not** contain `$CONFIG_DIR_NAME`
+  or `@CONFIG_DIR@`.
+- The warning is **non-fatal** (report still ships) — must not read as a second
+  STOP next to the preflight hard gate.
+- FLLWUP-106 boundary: the sentence authorizes surfacing *one exact literal*
+  verbatim; not "any other stderr", no causal narration.
+- Wiki: `vault/wiki/non-clobbering-scaffold.md:72-76` already says
+  "refreshing means delete-and-re-run-`/council-init`" — directionally correct;
+  the ingest correction is a sharpening (re-run alone is a no-op per T-USK1;
+  the re-copied tool comes from the installed package so it must be updated
+  first). `vault/wiki/usages-report.md` needs no correction.
+
+**Designer (job-2.3), claims + draft sentence:**
+> "If the tool's stderr contains the literal `usages: could not write cache:`,
+> surface that line to the user verbatim (no prefix, no rewording), tell them
+> the fix ships in a newer package version but does not reach this repo's
+> already-copied skill, and have them run `rm -rf .pi/skills/usages/` then
+> `/council-init`."
+
+- Trigger must be the exact literal, not a category ("cache errors") — the tool
+  emits sibling stderr lines (`end date is before start date` :706,
+  `OPENROUTER_MANAGEMENT_KEY is not set.` :711, fatal `could not write report:`
+  :798) that must not trigger remediation copy.
+- Verbatim relay framing ("no prefix, no rewording") closes the FLLWUP-106-
+  adjacent confabulation gap in the wording itself.
+- Commands copy-pasteable, in execution order (`rm -rf` then `/council-init`).
+- Predictions P1–P6: loosened trigger over-fires; dropped verbatim framing gets
+  paraphrased; prose commands get mis-copied; missing package-version framing
+  reads as "my repo is broken" (bug filed); non-conditional placement pollutes
+  successful runs; unordered commands get run in the wrong order.
+- Prefers `.pi/skills/usages/` over `$CONFIG_DIR_NAME` (procedure file's
+  existing voice; label as taste, swap is one word).
+
+**Owner (job-2.5), claims + draft sentence:**
+> "If the tool's stderr contains `usages: could not write cache:`, surface that
+> line verbatim to the user and explain that the fix ships in a newer package
+> version — first update the pi-council package, then delete the stale copied
+> skill at `.pi/skills/usages/` and re-run `/council-init` to recopy the fixed
+> tool."
+
+- `.pi` literal, not `$CONFIG_DIR_NAME`: (a) no substitution for procedures —
+  the token would ship unfilled; (b) the file's existing convention; (c) the
+  pin asserts the loose fragment `skills/usages/` so either spelling passes.
+  Reads `$CONFIG_DIR_NAME` in the goal as card-internal shorthand; flags for
+  the judge that if bullet 1 is read as mandating the literal token, escalate
+  rather than ship a broken placeholder.
+- Pin: new file `test/usages-procedure.test.ts` (not an edit to
+  `test/scaffold.test.ts`; not `council/validate.py`), reading
+  `path.join(PKG_ROOT, "council", "procedures", "usages.md")` (`PKG_ROOT` from
+  `extensions/seats.ts`, exported — hard convention 4), asserting containment
+  of the three literals **plus a recommended 4th, `newer package version`**
+  (bullet 1's third element is binding; red-on-rewording is the pin's job for
+  a binding element). Containment only; no full-sentence match, no ordering
+  assertions, no `.pi` prefix in asserted fragments.
+- Pin doesn't verify section placement — prose-review item, not mechanical.
+- `vault/raw/2026-09-24-fllwup-105-stale-usages-skill-recopy.md` naming the
+  package-update-first precondition and the ingest correction target.
+- Failure predictions: unscoped pin false-greens; `.pi`-prefixed pin
+  false-fails a future substitution refactor; full-sentence pin false-fails
+  rewording; sentence outside `**Report.**` or un-keyed to the stderr literal
+  over-fires; omitting update-first ordering leaves the consumer looping on a
+  no-op round trip; `$CONFIG_DIR_NAME` literal ships broken.
