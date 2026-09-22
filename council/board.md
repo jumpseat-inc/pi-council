@@ -98,7 +98,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EPIC-12 — pi-council version and git hash on the first pi run
 
 ## Deliberating
-- FLLWUP-105 — Name the remediation route for a stale copied usages skill
 
 
 ## Ready
@@ -109,6 +108,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Deliberating
 
 ## In Progress
+- FLLWUP-105 — Name the remediation route for a stale copied usages skill
 
 ## In Review
 

@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-105
 title: Name the remediation route for a stale copied usages skill
-state: Deliberating
+state: In Progress
 owner: null
 epic: EPIC-15
 goal: council/procedures/usages.md instructs the agent that when the tool's stderr contains usages: could not write cache:, it must surface that line verbatim and give the consumer the two refresh commands — delete <repo>/$CONFIG_DIR_NAME/skills/usages/, then re-run /council-init.
@@ -24,15 +24,18 @@ copied-payload refresh, and is escalated to the human instead. Re-running
 
 ## Acceptance
 
-- A conditional sentence added to `council/procedures/usages.md`'s `**Report.**`
-  section carries all four elements: the literal `usages: could not write
-  cache:`, an instruction to surface it verbatim, the statement that the fix
-  ships in a newer package version, and the two commands (delete
-  `<repo>/$CONFIG_DIR_NAME/skills/usages/`; re-run `/council-init`).
-- A mechanical pin in `test/` — never in `council/validate.py`, per the
-  docs-card rule — asserts the procedure text contains the literal
-  `usages: could not write cache:`, the path fragment `skills/usages/`, and the
-  literal `/council-init`, so a later edit that drops the remediation goes red.
+- The remediation sentence added to `council/procedures/usages.md`'s
+  `**Report.**` section ships exactly as the product-owner ruled (Q1 of the
+  2026-09-24 ruling below, verbatim): "If the tool's stderr contains the
+  literal `usages: could not write cache:`, surface that line to the user
+  verbatim (no prefix, no rewording); explain the fix ships in a newer package
+  version but does not reach the skill already copied into this repo, so —
+  after updating the pi-council package — run `rm -rf .pi/skills/usages/` and
+  then `/council-init` to recopy the fixed tool; the report itself still
+  ships." It carries all four elements: the literal `usages: could not write
+  cache:`, the instruction to surface it verbatim, the newer-package-version
+  statement, and the two commands in execution order after the update step.
+- A mechanical pin in `test/` — never in `council/validate.py`, per the docs-card rule — asserts the procedure text contains the literal `usages: could not write cache:`, the path fragment `skills/usages/`, and the literal `/council-init`, so a later edit that removes the remediation sentence wholesale, or rewords its trigger, goes red. Measured boundary (skeptic arms S4/S5, O-A/B): both command literals already live in the file's `**Run.**` section, so the pin does not catch drop of one command or of the package-update step from the sentence; catching that class requires a wording-coupled literal and is carded as a follow-up.
 - `test/scaffold.test.ts`'s T-USK1 stays green and unedited: re-running
   `/council-init` alone remains a no-op, and this card does NOT add the copied
   skill to `/council-update`'s `TOOLING_FILES` or weaken non-clobbering — that
@@ -54,6 +57,27 @@ copied-payload refresh, and is escalated to the human instead. Re-running
   `/council-init`-copied payloads outside `council/scaffold/`. This card ships
   the named delete-and-recopy remediation only; widening the refresh path is a
   separate scope change, not this card's.
+
+## Product-Owner Ruling (2026-09-24, resumed run) — binding, appended verbatim
+
+### Q1 — Ship V1, verbatim
+
+The sentence in `council/procedures/usages.md`'s `**Report.**` section ships exactly as:
+
+> If the tool's stderr contains the literal `usages: could not write cache:`, surface that line to the user verbatim (no prefix, no rewording); explain the fix ships in a newer package version but does not reach the skill already copied into this repo, so — after updating the pi-council package — run `rm -rf .pi/skills/usages/` and then `/council-init` to recopy the fixed tool; the report itself still ships.
+
+### Q2 — Route the residual to a follow-up card; amend Acceptance bullet 2
+
+The residual is not accepted as final on this card and the operative-step pin is not added here; it routes to follow-up candidate (b) (File). Acceptance bullet 2 ships amended to:
+
+> - A mechanical pin in `test/` — never in `council/validate.py`, per the docs-card rule — asserts the procedure text contains the literal `usages: could not write cache:`, the path fragment `skills/usages/`, and the literal `/council-init`, so a later edit that removes the remediation sentence wholesale, or rewords its trigger, goes red. Measured boundary (skeptic arms S4/S5, O-A/B): both command literals already live in the file's `**Run.**` section, so the pin does not catch drop of one command or of the package-update step from the sentence; catching that class requires a wording-coupled literal and is carded as a follow-up.
+
+### Q3 — step-13 dispositions (seat-ruled; the follow-up gate is mechanically failing with the FLLWUP-104 `noul` drift, so record these rulings directly and do not route them through the gate)
+
+- **(a) File.** Draft title: **"Renderer substitution-set pin for procedure copy."** Goal: *"A test asserts `renderProcedure` substitutes exactly `$COUNCIL_PROCEDURES` and `$ARGUMENTS`, and no packaged procedure ships containing an unrendered `$CONFIG_DIR_NAME` or `@CONFIG_DIR@` token."*
+- **(b) File.** Draft title: **"Usages remediation pin: catch command-drop and update-step-drop."** Goal: *"The usages-procedure pin goes red when a later edit drops either refresh command or the package-update step from the remediation sentence, without going red on a claim-preserving rewording of the sentence."*
+
+No escalation was required; nothing reverses R1–R3.
 
 ## Run record (features-deliver / FLLWUP-105 — EPIC-15)
 
@@ -375,3 +399,28 @@ person reads) is open-judgment by construction; no settling test ran and none
 can. **Card held at `Deliberating` pending the ruling** — steps 7+ do not
 start. Escalated to the orchestrator with facts only; no worktree, branch,
 PR, or implementation exists yet.
+
+### Step 6 (resumed) — ruling received and applied (facilitator)
+
+`product-owner` ruled on all three open-judgment items; the ruling is
+appended to this card **verbatim** in the section above and treated as
+binding, per the escalation contract. Applied:
+
+- **Q1 — V1 ships.** The round-2 merged draft (principal-blessed) is the
+  ship-text; the owner's V2 round-3 revert is superseded. Written into
+  `council/procedures/usages.md`'s `**Report.**` section at step 8.
+- **Q2 — residual routed, bullet 2 amended.** The pin-boundary residual is
+  **not accepted as final** on this card; the operative-step pin is **not
+  added** here. Acceptance bullet 2 now carries the amended text verbatim
+  (above), including the measured S4/S5 boundary and its follow-up routing.
+- **Q3 — both follow-up candidates File, seat-ruled.** The follow-up gate is
+  mechanically failing (the FLLWUP-104 `noul` answer-shape drift makes every
+  gate call fail), so the two dispositions are **recorded directly from the
+  ruling, not routed through the gate** — exactly what the ruling orders. The
+  two cards are written at step 13 under the ruling's confirmation.
+
+Phase-1 rulings re-checked: R1–R3 stand; nothing reverses them. R1's merge
+authorization belongs to the **orchestrator** (the deterministic merge check,
+`features-deliver.md`); this container opens the PR and reports `DONE` with
+the PR number and head SHA — it does not merge. Card → `In Progress`; steps
+7–8 follow.
