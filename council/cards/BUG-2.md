@@ -493,3 +493,23 @@ the suite at `8a4b2a9` → `8 pass / 0 fail / 51 expect()`, matching the
 skeptic's claim verbatim; base reds at `114b549` confirm the tests exercise
 the bug; the fix is the clean one-line `ensure_out_dir()` move. No REJECT
 basis; no goal-text ambiguity found.
+
+### Step 11 — merge-gate observable half (facilitator; merge is the orchestrator's act under R1)
+
+`gh pr checks 104 --json name,state,workflow` →
+`[{"name":"gates","state":"SUCCESS","workflow":"gates"},{"name":"[code]smith","state":"SKIPPED","workflow":""}]`
+— keyed on the `workflow` field; the `gates` workflow is present with
+`state: SUCCESS` on the PR head (merge-check criterion 2 satisfied).
+Corroborated at the run level: `gh run list --branch
+feat/bug-2-usages-out-dir` → run 35729154478, name `gates`,
+`workflowName: gates`, status `completed`, conclusion `success`,
+`headSha: 8a4b2a93e1c4bd8b41aad6caf4d9c3872a64d36d` (== the PR headRefOid,
+re-read in the same breath), event `pull_request`, run_attempt 1, started
+12:45:49Z completed 12:48:05Z — so the observed SUCCESS is the run this
+PR's own event triggered at the pinned SHA, not a stale or foreign run.
+The other listed check (`[code]smith`, workflow field empty) is not the
+`gates` workflow and is not asserted on. PR head SHA verified unchanged
+after the gate run and before reporting. The merge itself is NOT performed
+by this container — per R1 the orchestrator performs the deterministic
+merge check and merges (admin-bypass, SHA-pinned, watching the first
+autonomous merge).
