@@ -175,6 +175,100 @@ test("T-U6: non-OpenRouter response ids are not counted as cross-match misses", 
 	expect(report.limitations.some((l: string) => l.includes("unresolved by analytics"))).toBe(false);
 });
 
+const U = "2026-09-18";
+
+function serveStub() {
+	return Bun.serve({
+		port: 0,
+		async fetch(req) {
+			const url = new URL(req.url);
+			if (url.pathname.endsWith("/analytics/query")) {
+				const body = (await req.json()) as { filters?: { value?: unknown }[] };
+				const raw = body.filters?.[0]?.value;
+				const ids = Array.isArray(raw) ? (raw as string[]) : [];
+				return Response.json({
+					data: {
+						data: ids.map((id) => ({
+							generation_id: id, total_usage: 0.004, tokens_prompt: 100, tokens_completion: 10,
+							cached_tokens: 0, cache_hit_rate: 0,
+						})),
+					},
+				});
+			}
+			if (url.pathname.endsWith("/activity")) {
+				return Response.json({ data: [{ date: "2026-09-18 00:00:00", model: "deepseek/deepseek-v4.1-flash", usage: 0.05 }] });
+			}
+			return new Response("nope", { status: 404 });
+		},
+	});
+}
+
+async function runAsync(root: string, agent: string, args: string[]) {
+	const proc = Bun.spawn(
+		["python3", TOOL, "--repo", root, "--agent-dir", agent, "--config-dir", ".pi", ...args],
+		{ env: { ...process.env, OPENROUTER_MANAGEMENT_KEY: "mgmt-test" }, stdout: "pipe", stderr: "pipe" },
+	);
+	const [stdout, stderr, status] = await Promise.all([
+		new Response(proc.stdout).text(),
+		new Response(proc.stderr).text(),
+		proc.exited,
+	]);
+	return { stdout, stderr, status };
+}
+
+test("T-U7: first non-offline run creates the default out dir before writing the cache", async () => {
+	const { root, agent } = mkRepo();
+	sessionFile(agent, root, "2026-09-18T10:00:00.000Z", [
+		assistant("2026-09-18T10:00:05.000Z", "gen-dir-1", {
+			input: 100, output: 10, cacheRead: 0, cacheWrite: 0, reasoning: 0, totalTokens: 110,
+			cost: { total: 0.001 },
+		}),
+	]);
+	const server = serveStub();
+	const outDir = path.join(root, ".pi", "council", "usages");
+	const args = ["--start", U, "--end", U, "--today", "2026-09-21", "--json",
+		"--api-base", `http://127.0.0.1:${server.port}/api/v1`];
+	try {
+		const r1 = await runAsync(root, agent, args);
+		expect(r1.status, r1.stderr).toBe(0);
+		expect(r1.stderr).not.toContain("usages: could not write cache:");
+		expect(fs.existsSync(path.join(outDir, ".cache.json"))).toBe(true);
+		expect(fs.existsSync(path.join(outDir, "usages-2026-09-18_2026-09-18.json"))).toBe(true);
+		expect(fs.existsSync(path.join(outDir, "usages-2026-09-18_2026-09-18.md"))).toBe(true);
+		expect(fs.readFileSync(path.join(outDir, ".gitignore"), "utf-8")).toBe("*\n");
+		const cache = JSON.parse(fs.readFileSync(path.join(outDir, ".cache.json"), "utf-8"));
+		expect(cache.generations["gen-dir-1"]).toBeDefined();
+		const r2 = await runAsync(root, agent, args);
+		expect(r2.status, r2.stderr).toBe(0);
+		expect(r2.stderr).not.toContain("usages: could not write cache:");
+		const report2 = JSON.parse(r2.stdout);
+		expect(report2.cache.hits).toBe(1);
+	} finally {
+		server.stop(true);
+	}
+});
+
+test("T-U8: absent custom --out-dir is created before the cache write", async () => {
+	const { root, agent } = mkRepo();
+	sessionFile(agent, root, "2026-09-18T10:00:00.000Z", [
+		assistant("2026-09-18T10:00:05.000Z", "gen-dir-2", {
+			input: 100, output: 10, cacheRead: 0, cacheWrite: 0, reasoning: 0, totalTokens: 110,
+			cost: { total: 0.001 },
+		}),
+	]);
+	const server = serveStub();
+	const outDir = path.join(root, "fresh-out");
+	try {
+		const r = await runAsync(root, agent, ["--out-dir", outDir, "--start", U, "--end", U, "--today", "2026-09-21", "--json",
+			"--api-base", `http://127.0.0.1:${server.port}/api/v1`]);
+		expect(r.status, r.stderr).toBe(0);
+		expect(r.stderr).not.toContain("usages: could not write cache:");
+		expect(fs.existsSync(path.join(outDir, ".cache.json"))).toBe(true);
+	} finally {
+		server.stop(true);
+	}
+});
+
 test("T-U5: council seat rows are attributed from run manifests and transcripts", () => {
 	const { root, agent } = mkRepo();
 	const run = path.join(root, ".pi", "council", "runs", "run-1");
