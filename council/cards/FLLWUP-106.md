@@ -267,3 +267,84 @@ reference and what the actual registration pin is; (e) source-label latitude
 (designer OQ2). Per <convergence_is_not_evidence>, the three-way agreement on
 the carve-out is a hypothesis, not a settled fact — the skeptic tests it at
 step 4.
+
+### Step 3 — round 2, bounded exchange (jobs 5.4 owner, 5.5 principal, 5.6 designer)
+
+**Converged this round (still hypotheses until the skeptic runs them):**
+- Placement: end-of-file bold-lead paragraph after the FLLWUP-105 remediation
+  paragraph (designer conceded its in-Report reading was a misread — the
+  FLLWUP-105 remediation is an unbolded paragraph after the `**Report.**`
+  block; designer's cited line number 17 is off, actual ~26 — noted for the
+  skeptic). Principal adopted owner's text "verbatim, I would change nothing
+  substantive" but prefers a merged lead `**Stderr relay — evidence, not
+  narration.**`.
+- Worked example: name the prefix `⚠️ One non-fatal issue:` (card-quoted),
+  describe the appended likelihood only as a class ("a likelihood the tool
+  never stated"), never reproduce invented text (owner measured
+  `One non-fatal issue` absent from the file and all tool output paths;
+  designer conceded its round-1 parenthetical placeholder was itself the
+  failure mode the card targets).
+- Source label: NO agent-authored framing word — designer conceded OQ2 to the
+  strict reading; owner forbids; principal's own revised draft text carries no
+  label even while its interpretation note says a non-evaluative label would be
+  authorized. Ship-text converges on no-label.
+- "Any non-empty stderr line", not "non-`!` stderr line" (owner verified the
+  principal's category claim: all stderr emissions glyph-free, `!` lines
+  stdout/markdown only).
+- FLLWUP-105 carve-out must be explicit in the paragraph (all three; owner
+  measured the conflict live).
+- Card-text corrections: `test/procedures.test.ts` does not exist (both
+  seats initially wrong in opposite directions — principal conceded owner's
+  C1: the real registration pin is `test/env-split-contract.test.ts:126-133`
+  M1 pole A, `expect(out.commands).toBe(17)`).
+- C5 (no remediation instruction in this card — procedures are packaged-only,
+  resolve from `PKG_ROOT`): principal verified `council/scaffold/` contains no
+  procedures files; conceded.
+
+**Still disputed — pin shape (three competing designs, all with testable
+claims):**
+- **Owner (5.4):** `toContain("⚠️")` + proximity `/stderr[^\n]*verbatim/si` +
+  no worked-example literal (P2 gap declared, not hidden). Claimed measured:
+  both predicates red at base, green only via the new paragraph.
+- **Principal (5.5):** whitespace-normalized proximity (prose.test.ts idiom
+  `text.replace(/\\s+/g, " ")`) anchored on the head-only token `non-empty
+  stderr` — `/non-empty stderr[\\s\\S]{0,120}verbatim/i` — + `⚠️` + per-line
+  prohibition check (minimal negation set) + `toContain("One non-fatal
+  issue")` worked-example literal. **New falsifiable claim:** the owner's
+  `{0,80}` bound is a coincidence — on collapsed base text the `stderr`→
+  `verbatim` gap is ~81 chars (through the FLLWUP-105 sentence), so
+  `/stderr[\\s\\S]{0,81}verbatim/` would be green at base and the pin would
+  pin the FLLWUP-105 sentence, not the new rule; mutation test demanded. Also
+  claims positive-context mutation ("prefix each stderr line with `⚠️`")
+  passes containment+proximity but fails the per-line check.
+- **Designer (5.6):** back to three-literal containment (`⚠️`, `verbatim`,
+  `stderr`), no proximity, no per-line check — proximity/negation is
+  FLLWUP-108's wording-coupling territory, re-introducing the class the
+  FLLWUP-105 ruling fenced out. P11: stripping the paragraph reds `⚠️`
+  (FLLWUP-105 has no glyph) so the pin catches rule-drop; P12: stable across
+  claim-preserving rewording; P13: reds on rule-gutting rewording that drops
+  `verbatim`.
+- The card's own pin clause — "the literal `⚠️` in a prohibition context and
+  the phrase `verbatim` for stderr" — is read three ways: containment-only
+  can't express prohibition (principal R1); per-line negation check is the
+  minimal faithful reading (owner R1, principal R2 concedes); proximity
+  expresses "verbatim for stderr" but is wording-coupling (designer R2).
+
+**Also disputed:**
+- **Version bump** — principal claims AGENTS.md makes a `package.json` bump
+  required in this PR ("payload or engine behavior changes"; "in the same PR
+  as the behavior change"). Owner round-1 open question: EPIC-13/14 staged-
+  bump convention vs in-PR bump; FLLWUP-105 (same surface, same payload class,
+  merged `a0b27ca`) shipped **without** a bump. Unresolved — flagged for
+  consolidation.
+- Minor wording: carve-out phrasing ("the one named exception" vs "the only
+  cause this procedure authorizes" — designer prefers the former, taste);
+  whether "repeated, never composed" stays in the body (designer holds);
+  lead text (`**Stderr is evidence, not narration.**` vs merged variant).
+
+**Ship-text candidates at end of round 2:** owner's revised `**Stderr
+relay.**` paragraph (designer-structured, principal-scoped, no-label);
+designer's `**Stderr is evidence, not narration.**` paragraph; principal's
+owner-verbatim adoption with merged lead. All carry: any-stderr-line rule,
+glyph prohibition, class-described likelihood, no-composition principle,
+FLLWUP-105 carve-out, worked example.
