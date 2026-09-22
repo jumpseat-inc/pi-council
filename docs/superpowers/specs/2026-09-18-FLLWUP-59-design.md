@@ -218,3 +218,22 @@ strings; no new env flags; no product-visible copy; no `council/` engine
 changes beyond zero. The `git replace`/grafted/archive-export blind spot is a
 **named limitation** (canary guards it loudly; live reproduction deferred —
 recorded as such in the wiki page).
+
+## Addendum (2026-09-22) — dir-token liveness is segment-aware
+
+§2's dir-token emission rule originally read "emitted iff no live tracked path
+has the dir as a **prefix**." Prefix-only liveness proved too weak on the
+skills-consolidation commit (`1b982dd`): retiring `.agents/skills/**` emits the
+segment-aligned suffix dir token `skills/`, which no live path has as a prefix,
+yet `skills/` is live as a *segment* under `.pi/skills/**`. The token then red
+`test/scaffold.test.ts`'s legitimate live reference to the `/usages` scaffold
+destination `skills/usages/SKILL.md` — a false positive, not a stale path.
+
+The refinement: a dir token is emitted iff **no live tracked path carries it as
+a path segment** — prefix or any interior segment (`/${path}/`.includes(`/${f}/`)).
+This is the dir-token analogue of the path-fragment rule's substring-liveness
+and preserves every intended token (`test/ev40-harness/`, `ev40-harness/`,
+`ev43/`, …), whose dirs appear in no live path. The `vault/wiki/retired-path-tokens.md`
+emission section carries the current rule; this addendum records why it changed.
+A pure falsifier (`dir tokens colliding with a live path SEGMENT are suppressed`)
+locks the refined rule in `test/faux-provider-shape.test.ts`.

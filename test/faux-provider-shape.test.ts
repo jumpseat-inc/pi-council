@@ -129,10 +129,13 @@ function deriveRetiredPaths(historyPaths: string[], currentPaths: string[]): str
  * suffix fragments of retired paths, each emitted iff no live tracked path
  * contains it as a substring. Dir tokens = RETIRED ancestor directories (no
  * live tracked path has them as a prefix) plus their segment-aligned suffix
- * dir fragments, each emitted iff no live tracked path has it as a prefix —
- * fragments of live ancestor dirs (`council/cards` → `cards/`) are never
- * emitted, or legitimate `council/cards/` prose reds. The collision universe
- * is live tracked PATHS (git ls-tree), never file contents.
+ * dir fragments, each emitted iff no live tracked path carries it as a path
+ * SEGMENT — fragments of live ancestor dirs (`council/cards` → `cards/`) are
+ * never emitted, or legitimate `council/cards/` prose reds, and a suffix that
+ * merely collides with a live segment (`skills/` from retired
+ * `.agents/skills/**` vs live `.pi/skills/**`) is suppressed too, or
+ * legitimate live-path prose reds. The collision universe is live tracked
+ * PATHS (git ls-tree), never file contents.
  */
 function deriveRetiredTokens(historyPaths: string[], currentPaths: string[]): { fragments: string[]; dirs: string[] } {
 	const live = currentPaths;
@@ -158,7 +161,7 @@ function deriveRetiredTokens(historyPaths: string[], currentPaths: string[]): { 
 	const seenDir = new Set<string>();
 	for (const d of retiredDirs) {
 		for (const f of segmentSuffixes(d)) {
-			if (seenDir.has(f) || live.some((l) => l.startsWith(f + "/"))) continue;
+			if (seenDir.has(f) || live.some((l) => `/${l}/`.includes(`/${f}/`))) continue;
 			seenDir.add(f);
 			dirs.push(f + "/"); // trailing slash marks the dir token
 		}
@@ -348,6 +351,17 @@ describe("faux-provider shape (the goal's committed witness)", () => {
 			// fragments are emitted (no live path collides) — but no dir token:
 			expect(tokens.fragments).toContain("council/cards/EV-9.md");
 			expect(tokens.dirs).toEqual([]);
+		});
+
+		test("dir tokens colliding with a live path SEGMENT are suppressed (pure)", () => {
+			// A retired ancestor dir emits segment-aligned suffix fragments
+			// (`.agents/skills/` → `skills/`), but a suffix is only retired when
+			// NO live path carries it as a segment. The skills consolidation
+			// retired `.agents/skills/**` while `.pi/skills/**` stays live, so
+			// emitting `skills/` would red legitimate live-path prose (e.g. the
+			// `skills/usages/SKILL.md` scaffold destination).
+			const tokens = deriveRetiredTokens([".agents/skills/x.md"], [".pi/skills/y.md"]);
+			expect(tokens.dirs).not.toContain("skills/");
 		});
 
 		test("matching: dir token needs a continuation char; path fragment is a plain substring (pure)", () => {

@@ -6,7 +6,7 @@ aliases: [retired-path tokens, token allowlist, shape witness tokens, derived to
 tags: [pi-council/concept, pi-council/smoke-test]
 sources: ["[[2026-09-19-po-fllwup59-step13-ruling]]", "[[2026-09-18-epic9-residual-run-2-ledger]]"]
 created: 2026-09-18
-updated: 2026-09-19
+updated: 2026-09-22
 ---
 
 # Retired-Path Tokens
@@ -54,10 +54,17 @@ Two pure functions plus a thin impure wrapper, inside the witness file:
     paths that no live tracked path has as a prefix) plus their
     segment-aligned suffix dir fragments, with trailing slash
     (`test/ev40-harness/`, `ev40-harness/`, `ev43/`, `smoke/artifacts/`,
-    `artifacts/`), emitted iff no live tracked path has the dir as a prefix.
-    Dir tokens never derive from *live* ancestor dirs (`council/cards/`,
-    `vault/wiki/`): emitting `cards/`/`wiki/` reds legitimate
-    `council/cards/…` prose — measured, not taste.
+    `artifacts/`), emitted iff no live tracked path carries the dir as a
+    **path segment** (a prefix *or* any interior segment — `/…/skills/…/`
+    counts). Dir tokens never derive from *live* ancestor dirs
+    (`council/cards/`, `vault/wiki/`): emitting `cards/`/`wiki/` reds
+    legitimate `council/cards/…` prose — measured, not taste.
+    Segment-liveness also suppresses a suffix that merely collides with a live
+    segment: retiring `.agents/skills/**` emits the suffix `skills/`, but live
+    `.pi/skills/**` fires the segment rule and suppresses it, so the
+    legitimate live path `skills/usages/SKILL.md` (the `/usages` scaffold
+    destination) does not red. Prefix-only liveness missed this — measured on
+    the skills consolidation commit, not taste.
   - The collision universe is live tracked **paths** (`ls-tree`), never file
     **contents** — a content-aware universe re-creates the hand-maintained
     exclusion list this card exists to kill.
