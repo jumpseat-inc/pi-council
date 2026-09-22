@@ -7,7 +7,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Backlog
 
 - EPIC-15 — Usages tool creates its output directory before writing the cache
-- FLLWUP-106 — The usages procedure forbids inventing framing around the tool's stderr
 - FLLWUP-107 — Renderer substitution-set pin for procedure copy
 - FLLWUP-108 — Usages remediation pin: catch command-drop and update-step-drop
 - EV-85 — Seat-composition decisions as repo-overridable packaged data
@@ -103,6 +102,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 
 ## Ready
+- FLLWUP-106 — The usages procedure forbids inventing framing around the tool's stderr
 - EV-48 — Packaged seat-tier map with repo-local merge override
 - EV-57 — Resolve the running pi-council identity from the package root
 - EV-58 — Show the pi-council version and hash on the first pi run
@@ -110,8 +110,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Deliberating
 
 ## In Progress
-
-## In Review
 
 ## In Review
 
