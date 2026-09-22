@@ -1,7 +1,7 @@
 ---
 id: BUG-2
 title: Usages tool creates its output directory before writing the cache
-state: Deliberating
+state: In Progress
 owner: null
 epic: EPIC-15
 goal: A non-offline run of council/skills/usages/scripts/usages.py with --out-dir omitted, or with --out-dir naming a directory that does not exist, creates that directory before writing its cache, so the run leaves .cache.json inside it and emits no usages: could not write cache: line on stderr.

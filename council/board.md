@@ -107,9 +107,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-58 — Show the pi-council version and hash on the first pi run
 
 ## Deliberating
-- BUG-2 — Usages tool creates its output directory before writing the cache
 
 ## In Progress
+- BUG-2 — Usages tool creates its output directory before writing the cache
 
 ## In Review
 
