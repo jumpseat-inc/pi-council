@@ -4,7 +4,7 @@ type: concept
 summary: EPIC-10 (shipped v0.33.0) — the follow-up review's typed Jev decision in its own File/Merge/Drop domain, a sibling of the card gate sharing one `.council.json` `gate.mode`; a failed or unresolved decision falls back to the human pre-write confirm and may never Drop or auto-Merge.
 aliases: [follow-up decision, followup gate, File Merge Drop, dispose followup, follow-up review]
 tags: [pi-council/concept, pi-council/epic10]
-sources: ["[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-design-epic11-recut-surface]]", "[[2026-09-22-epic15-run-ledger]]"]
+sources: ["[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-design-epic11-recut-surface]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-22-gate-noul-fix]]"]
 created: 2026-09-22
 updated: 2026-09-22
 ---
@@ -91,6 +91,13 @@ gate-recorded). The held-not-filed discipline held: no card written, no
 candidate silently dropped. A resolved decision would still have been
 **ratified**, never applied as the human confirmation
 ([[confirmation-authority]]). See [[inert-gate-fallback]].
+
+**Resolved 2026-09-22** (`e903b67`): the `noul` wire-shape drift was fixed at
+the shared parse seam ([[decisions-wire-canonicalization]]). The gate now
+records real dispositions — the four held BUG-2 candidates returned `status:
+"ok"` and were ratified by [[product-owner]] (three `File` →
+`FLLWUP-109/110/111`, one amended to `Drop` with dissent). The failure arm
+above remains the documented fallback. See [[2026-09-22-gate-noul-fix]].
 
 ## Witness
 

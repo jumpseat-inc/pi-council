@@ -4,7 +4,7 @@ type: concept
 summary: EPIC-13, shipped at v0.28.0 — a typed System One gate evaluates a packed card state and routes each card to Deliberate, Verify, or Direct; enablement lives in `.council.json`'s reserved top-level `gate` section, and the packaged default resolves `mode: "off"` — which routes every card to the full Deliberate panel.
 aliases: [metered deliberation, deliberation routing, System One gate, Deliberate Verify Direct, gate]
 tags: [pi-council/concept, pi-council/epic13]
-sources: ["[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-21-po-ev73-step6-ruling]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-design-epic11-recut-surface]]", "[[2026-09-22-epic15-run-ledger]]"]
+sources: ["[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-21-po-ev73-step6-ruling]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-design-epic11-recut-surface]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-22-gate-noul-fix]]"]
 created: 2026-09-20
 updated: 2026-09-22
 ---
@@ -299,8 +299,20 @@ failure is safe because the fallback is the stricter lane, but `active` did not
 mean "the gate is deciding." This is the general pattern
 [[inert-gate-fallback]]. Witness: [[2026-09-22-epic15-run-ledger]].
 
+## Noul drift fixed (2026-09-22)
+
+`e903b67` canonicalizes the wire's `noul` key to `probability` at the shared
+parse seam ([[decisions-wire-canonicalization]]), so the card gate and the
+follow-up gate now record real decisions. The pole was proven live before the
+mapping was trusted (trivially-true → 0.99). **Residual:** the follow-up live
+falsifier (`COUNCIL_JEV_LIVE=1 test/ev84-followup-falsifier.test.ts`) now reaches
+dispositions but fails its pinned merge *direction* on near-identical
+candidates — so `FLLWUP-104` is not formally closed by its own acceptance. See
+[[2026-09-22-gate-noul-fix]].
+
 ## Related
 
+- [[decisions-wire-canonicalization]] — the parse-seam fix
 - [[inert-gate-fallback]] — the general pattern this gate instantiates
 
 - [[council-loop]] — the Deliberate lane

@@ -91,7 +91,9 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[version-on-first-run]] — EPIC-12 (Backlog): show the pi-council version + latest git hash on the first pi run.
 - [[metered-deliberation-routing]] — EPIC-13 (shipped v0.28.0): a typed System One gate routes each card to Deliberate/Verify/Direct; **`off` routes every card to the full Deliberate panel** (maximum scrutiny); enablement lives in `.council.json`'s top-level `gate` section — packaged default `mode: "off"`. EPIC-10 (2026-09-22) found the shipped gate inert in production (noul wire-shape drift, dead recorded-decision fast path; FLLWUP-99/100/104); EPIC-15 confirmed both gate domains inert and the run on the Deliberate fallback.
 - [[followup-decision-gate]] — EPIC-10 (shipped v0.33.0): the follow-up review's typed File/Merge/Drop decision, a sibling of the card gate sharing one `gate.mode`; a failed decision falls back to the human and may never Drop or auto-Merge. EPIC-15: the review tool is absent in-container, so candidates are held and seat-ruled.
-- [[inert-gate-fallback]] — An enabled decision gate whose live call fails is inert, not blocking: the fallback is the safe lane (Deliberate / human review) and the run's mode comes from the run substrate. EPIC-15 evidence.
+- [[inert-gate-fallback]] — An enabled decision gate whose live call fails is inert, not blocking: the fallback is the safe lane (Deliberate / human review) and the run's mode comes from the run substrate. EPIC-15 evidence; the FLLWUP-104 noul trigger was fixed 2026-09-22.
+- [[decisions-wire-canonicalization]] — Normalize a provider's wire answer shape to the engine's canonical shape at the ONE parse seam both gate domains share (`noul`→`probability`), failing loud on disagreeing/missing keys; pole proven live.
+- [[extension-load-scope]] — pi resolves a package project-first then global; when pi-council is pinned only globally, the running engine is the global clone, so a working-tree `extensions/` change is not live until pushed, the install updated, and pi reloaded.
 - [[confirmation-authority]] — Under `active`, a recorded decision is the disposition SOURCE, never the human confirmation; a runner escalates each candidate for ratification by a ruling seat before any write.
 - [[step-13-followup-surface]] — EV-82's step-13 surface: the one-line disposition render, four unavailable-state literals, the unconditional dedup pass, and the hard pre-write pin.
 - [[followup-merge-and-auto-ingest]] — SUPERSEDED (2026-09-22): the pre-cut EPIC-10 plan (merge-before-draft + autonomous ingest); replaced by [[followup-decision-gate]].
@@ -104,6 +106,7 @@ _(none yet)_
 
 ## Sources
 
+- [[2026-09-22-gate-noul-fix]] — The FLLWUP-104 fix (`e903b67`): the live decisions wire keys a noul answer `noul` while the engine read `probability`, so both gate domains were inert; canonicalization at the shared parse seam restored them, and the episode exposed the global-clone load scope.
 - [[2026-09-22-epic15-run-ledger]] — The EPIC-15 run: the usages cache-write ordering bug fixed end to end (3 Deliberate merges, PRs #104–#106), the stale-copy remediation route, and the finding that an enabled-but-failing gate (noul drift in both domains) is inert rather than blocking.
 
 - [[2026-09-22-fix-shape-witness-segment-liveness]] — The FLLWUP-59 derived-token witness's first failure on main was a **false positive**: retiring `.agents/skills/**` emitted dir token `skills/`, which prefix-only liveness kept although `skills/` is live as an interior segment under `.pi/skills/**`; the repair makes dir-token liveness segment-aware, and the over-emission class folds into [[retired-path-tokens]].

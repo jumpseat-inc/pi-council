@@ -4,7 +4,7 @@ type: concept
 summary: An enabled decision gate (`.council.json` `gate.mode: active`) whose live call fails mechanically falls back to a safe default and does not block the run — so "active" can mean the gate is inert, and the run's mode comes from the fallback, not from a decision.
 aliases: [inert gate, gate fallback, active-but-failing gate, gate fail-closed fallback, inert active gate]
 tags: [pi-council/concept, pi-council/gate]
-sources: ["[[2026-09-22-epic15-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]"]
+sources: ["[[2026-09-22-epic15-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-gate-noul-fix]]"]
 created: 2026-09-22
 updated: 2026-09-22
 ---
@@ -59,6 +59,12 @@ fallback, each merged under the five criteria. The run's mode was never in
 question because the merge check reads the substrate, and the substrate recorded
 the fallback mode.
 
+**Resolved 2026-09-22** (`e903b67`): the `noul` wire-shape drift was fixed by
+canonicalizing the answer key at the shared parse seam
+([[decisions-wire-canonicalization]]). Both domains now record real decisions;
+the inert-fallback *property* remains by design, but this specific trigger is
+gone. See [[2026-09-22-gate-noul-fix]].
+
 ## Relationship to gate-parity
 
 [[gate-parity]] is about *strictness alignment between a write layer and the
@@ -74,8 +80,10 @@ permissive one.
 inert, that belief is false: the gate is recording failures, and the run is
 running on the fallback. The safe direction bounds the blast radius, but it does
 not make the gate a gate. The practical tell is the failure basis in the
-recorded line (`gate call failed: …`) versus a real decision — and FLLWUP-104
-is the live defect that makes both domains inert today.
+recorded line (`gate call failed: …`) versus a real decision. The FLLWUP-104
+`noul` drift that made both domains inert through EPIC-15 was fixed 2026-09-22
+([[2026-09-22-gate-noul-fix]]); any future mechanical failure re-exercises this
+property, so the tell stays worth checking.
 
 ## Related
 
@@ -85,10 +93,12 @@ is the live defect that makes both domains inert today.
 - [[gate-parity]] — the orthogonal strictness-alignment rule
 - [[confirmation-authority]] — what a *recorded* decision may apply
 - [[presented-never-written]] — the rendered verdict is information, never a write
+- [[decisions-wire-canonicalization]] — the fix that ended the EPIC-15 inertness
 - [[three-wave-decomposition]] — the intake gate whose verdict is recorded, never acted on
 
 ## Sources
 
 - [[2026-09-22-epic15-run-ledger]] — both domains inert; three cards shipped on fallback
 - [[2026-09-22-epic10-run-ledger]] — the card gate's drift first surfaced (FLLWUP-104)
+- [[2026-09-22-gate-noul-fix]] — the parse-site fix that restored both domains
 - `vault/raw/2026-09-22-epic15-run-ledger.md`

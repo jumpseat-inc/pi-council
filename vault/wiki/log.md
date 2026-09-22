@@ -1,5 +1,25 @@
 # Wiki Log
 
+## [2026-09-22] ingest | Gate noul fix — the parse-seam canonicalization and the global-clone load scope
+
+Ingested the FLLWUP-104 fix (`e903b67`; authored `vault/raw/2026-09-22-gate-noul-fix.md`).
+The live decisions wire keys a noul answer `noul` while the engine read
+`probability`, so both gate domains were inert; the fix canonicalizes the answer
+at the one parse seam both share, with the pole proven live (trivially-true →
+0.99). The episode also exposed [[extension-load-scope]]: pi loads the
+globally-installed clone, not the working tree, so the fix was not live until
+pushed, the install updated, and pi reloaded.
+
+- **Created:** sources/2026-09-22-gate-noul-fix; [[decisions-wire-canonicalization]];
+  [[extension-load-scope]].
+- **Updated:** [[inert-gate-fallback]] (noul trigger resolved), [[metered-deliberation-routing]]
+  (drift fixed + live-arm direction residual), [[followup-decision-gate]] (gate functional;
+  FLLWUP-109/110/111 filed), [[council-dependencies]] (the self-load scope),
+  [[pi-council-overview]], `index.md`.
+- **Contradictions flagged:** none. The fix **resolves** the open FLLWUP-104 residual recorded
+  in [[metered-deliberation-routing]] / [[followup-decision-gate]] rather than contradicting it;
+  the remaining live-arm *direction* failure is a new residual, recorded, not a contradiction.
+
 ## [2026-09-22] ingest | EPIC-15 run — usages cache-ordering fix, stale-copy route, and the inert-gate finding
 
 Ingested the EPIC-15 autonomous run (authored `vault/raw/2026-09-22-epic15-run-ledger.md`)

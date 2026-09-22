@@ -4,9 +4,9 @@ type: concept
 summary: The packages /council-init pins project-locally and preflight enforces — the superpowers skills package and the ask-user-question extension — resolved as a COUNCIL_DEPENDENCIES list with project-entry-wins semantics.
 aliases: [superpowers-dependency, superpowers, dependencies, council dependencies]
 tags: [pi-council/concept]
-sources: ["[[2026-08-24-ask-user-question]]"]
+sources: ["[[2026-08-24-ask-user-question]]", "[[2026-09-22-gate-noul-fix]]"]
 created: 2026-08-23
-updated: 2026-08-24
+updated: 2026-09-22
 ---
 
 # Council Dependencies
@@ -51,10 +51,20 @@ dependency is a list entry plus a preflight gate, not a new code path.
 Made mandatory in v0.6.0 (superpowers, a `feat!`); ask-user-question landed
 later as a second entry in the same list.
 
+## The package's own load scope
+
+The same project-entry-wins resolution governs **pi-council itself**: when the
+project `.pi/settings.json` does not pin pi-council, the running engine is the
+**globally-installed clone** (`~/.pi/agent/git/...`), not the working tree — so
+editing `extensions/` changes nothing until the change is pushed and the install
+updated, then `/reload`. Repo-local `council/` payload is read from the working
+tree regardless. This is [[extension-load-scope]].
+
 ## Related
 
 - [[ask-user-question]], [[seats]], [[preflight]], [[non-clobbering-scaffold]],
   [[headless-pi]]
+- [[extension-load-scope]] — the same resolution applied to pi-council itself
 - [[2026-08-25-council-init-approve]] — the v0.11.3 --approve fix
 
 ## Sources
