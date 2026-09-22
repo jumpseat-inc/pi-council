@@ -22,7 +22,7 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[consolidator]] — Synthesis voice; names disagreement, never resolves it.
 - [[product-owner]] — Card-level product judgment; escalates to steward.
 - [[steward]] — Portfolio-level authority; the product-owner's escalation target (EPIC-14 closure ruled the version bump not a closure condition).
-- [[council-runner]] — Autonomous per-card execution container for features-deliver; carries main-repo immutability + pinned verification subjects (v0.18.0).
+- [[council-runner]] — Autonomous per-card execution container for features-deliver; carries main-repo immutability + pinned verification subjects (v0.18.0). EPIC-15 restored orchestrator-executed merges and found the follow-up review tool absent in-container.
 - [[council models picker]] — /council-models surface: command, resolver, token-only modal, the `/`-triggered model-name search input (two-bit focus machine, ruled search copy), complete as of v0.18.0 (backspace, pre-press hint, exit hint, frame fit, kitty smoke).
 - [[council config writer]] — the .council.json write path (EV-24): byte-region splice, field-level merge, atomic, gate-parity validation; FLLWUP-10 fixed the `:suffix` seam, FLLWUP-9 added `clearSeatOverride`.
 
@@ -35,7 +35,7 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[procedure-commands]] — The scanned, override-aware slash-command set + the 8 procedures (incl. `/usages`).
 - [[repository-grounding]] — The engine-appended prompt block that grounds seats in the wiki/code.
 - [[override-resolution]] — Repo-local resources shadow packaged ones by filename.
-- [[non-clobbering-scaffold]] — /council-init; creates files without ever overwriting.
+- [[non-clobbering-scaffold]] — /council-init; creates files without ever overwriting. The usages skill is copied outside the scaffold tree; a stale copy is refreshed only by package-update → delete → re-init (EPIC-15).
 - [[model-output-floors]] — Data-driven min-token floors for models with wrong catalogue ceilings.
 - [[council-dependencies]] — The packages /council-init pins project-locally and preflight enforces (superpowers + ask-user-question).
 - [[ask-user-question]] — The rpiv-ask-user-question extension: a human-in-the-loop question tool for the parent session.
@@ -58,14 +58,14 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[eval-store-contract]] — ResultRecord/VerdictRecord keyed on full tuples (cellId, repeat, scoredUnder/gradedBy, versions), append-only, scoredUnder "self" sentinel, cellScope telemetry stamped at settle.
 - [[cell-aggregation]] — The shared pure aggregate: mean/Bessel σ, E1 CI-on-difference triage, E2 length-never-zero, E3 histogram; same-function-both-sides byte-identity; the CONFIRM-2 version-blindness lesson.
 - [[grader-topology]] — Grader as harness-dispatched sibling linked by cellId; cell-invariance by topology, three cost columns, no exclusion rule.
-- [[deterministic-merge-check]] — The features-deliver merge gate: five mechanical criteria observed directly, keyed since EPIC-13 by the card's recorded execution mode (Direct = 1/2/5; no recorded mode = HALT), merged --match-head-commit, Done only after gates green on the merged SHA.
+- [[deterministic-merge-check]] — The features-deliver merge gate: five mechanical criteria observed directly, keyed since EPIC-13 by the card's recorded execution mode (Direct = 1/2/5; no recorded mode = HALT), merged --match-head-commit, Done only after gates green on the merged SHA. EPIC-15 restored orchestrator-executed merges.
 - [[record-push-discipline]] — The step-12 direct-to-main record push is a privileged write the authority map does not re-home; **closed by FLLWUP-60** (`aa1923fe`, 2026-09-18) — the procedure names a run-scoped authorization and fences an unauthorized push as a HALT.
 - [[run-config-stability]] — A mid-run `.council.json` seat-model change silently alters which models later dispatches use; scope-pure commits + a Phase-0 stability check.
 - [[two-bit-focus-machine]] — The modal key-handling pattern from EV-27: searchActive × inputFocused, Esc routed on inputFocused, Down as the focus-out edge; ▌ signifier + capture-by-construction trigger; backspace-as-delete added by BUG-1.
 - [[env-split contract]] — The parent/child mode split is keyed on COUNCIL_SEAT and version-independent; two-pole verified; the "0.85.0 regression" was probe contamination; the fallthrough-to-model-dispatch hazard documented.
 - [[main-repo immutability]] — No checkout/switch/reset against the main repo path, worktree-only, enforced on runner + working seats + dispatch inputs after two record-corruption incidents.
 - [[verification-subject pinning]] — Judge/skeptic dispatch inputs name the PR head SHA + head worktree path and the loop frame; wrong-tree verdicts eliminated.
-- [[union-merge-reconcile]] — The diverged-main repair after squash merges fold a runner's board commits: union-keep both record sides, validate.py as the net, sweep for conflict markers; push records as you go to avoid it.
+- [[union-merge-reconcile]] — The diverged-main repair after squash merges fold a runner's board commits: union-keep both record sides, validate.py as the net, sweep for conflict markers; push records as you go to avoid it. EPIC-15 added the untracked-worktree-file ff abort (compare-then-remove).
 - [[gate-parity]] — A write/validation layer may be stricter than the runtime only where an existing gate is also that strict; capability lives at selection, not persistence.
 - [[echo-then-run]] — The house confirm pattern: quote the exact resolved selection via the same function the write uses; echo == write by construction; never assert state the screen cannot compute.
 - [[chain-promotion]] — Dependent child chains promote Backlog→Ready automatically as each predecessor's merge lands; ruled once, executed without re-asking.
@@ -89,12 +89,13 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[council-update]] — FLLWUP-50's consent-gated refresh path for packaged council tooling (`/council-update`, the `scaffold.json` provenance record, the session-start drift notice).
 - [[council-setup]] — EPIC-11 (Backlog, unbuilt): grounded, interview-driven `/council-setup`; the 2026-09-22 Jev recut adds a third gate domain (seat composition, `Default` fail-safe) and a `<seat_emphasis>` persona note, still under wave-2 designer attack.
 - [[version-on-first-run]] — EPIC-12 (Backlog): show the pi-council version + latest git hash on the first pi run.
-- [[metered-deliberation-routing]] — EPIC-13 (shipped v0.28.0): a typed System One gate routes each card to Deliberate/Verify/Direct; **`off` routes every card to the full Deliberate panel** (maximum scrutiny); enablement lives in `.council.json`'s top-level `gate` section — packaged default `mode: "off"`. EPIC-10 (2026-09-22) found the shipped gate inert in production (noul wire-shape drift, dead recorded-decision fast path; FLLWUP-99/100/104).
-- [[followup-decision-gate]] — EPIC-10 (shipped v0.33.0): the follow-up review's typed File/Merge/Drop decision, a sibling of the card gate sharing one `gate.mode`; a failed decision falls back to the human and may never Drop or auto-Merge.
+- [[metered-deliberation-routing]] — EPIC-13 (shipped v0.28.0): a typed System One gate routes each card to Deliberate/Verify/Direct; **`off` routes every card to the full Deliberate panel** (maximum scrutiny); enablement lives in `.council.json`'s top-level `gate` section — packaged default `mode: "off"`. EPIC-10 (2026-09-22) found the shipped gate inert in production (noul wire-shape drift, dead recorded-decision fast path; FLLWUP-99/100/104); EPIC-15 confirmed both gate domains inert and the run on the Deliberate fallback.
+- [[followup-decision-gate]] — EPIC-10 (shipped v0.33.0): the follow-up review's typed File/Merge/Drop decision, a sibling of the card gate sharing one `gate.mode`; a failed decision falls back to the human and may never Drop or auto-Merge. EPIC-15: the review tool is absent in-container, so candidates are held and seat-ruled.
+- [[inert-gate-fallback]] — An enabled decision gate whose live call fails is inert, not blocking: the fallback is the safe lane (Deliberate / human review) and the run's mode comes from the run substrate. EPIC-15 evidence.
 - [[confirmation-authority]] — Under `active`, a recorded decision is the disposition SOURCE, never the human confirmation; a runner escalates each candidate for ratification by a ruling seat before any write.
 - [[step-13-followup-surface]] — EV-82's step-13 surface: the one-line disposition render, four unavailable-state literals, the unconditional dedup pass, and the hard pre-write pin.
 - [[followup-merge-and-auto-ingest]] — SUPERSEDED (2026-09-22): the pre-cut EPIC-10 plan (merge-before-draft + autonomous ingest); replaced by [[followup-decision-gate]].
-- [[usages-report]] — `/usages <time_range>`: a packaged procedure + `/council-init`-copied tool reporting one repo's per-seat / main-agent token+dollar usage, cross-matched to OpenRouter as JSON + Markdown under `.pi/council/usages/`.
+- [[usages-report]] — `/usages <time_range>`: a packaged procedure + `/council-init`-copied tool reporting one repo's per-seat / main-agent token+dollar usage, cross-matched to OpenRouter as JSON + Markdown under `.pi/council/usages/`. EPIC-15 fixed the cache-before-mkdir ordering and added the stale-copy remediation route.
 - [[openrouter-analytics-surface]] — OpenRouter's three cost surfaces (account-wide daily `/activity`, per-generation `/generation`, batch `/analytics/query`), their caps, and why `generation_id` is the only reliable join key.
 
 ## Comparisons
@@ -102,6 +103,8 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 _(none yet)_
 
 ## Sources
+
+- [[2026-09-24-epic15-run-ledger]] — The EPIC-15 run: the usages cache-write ordering bug fixed end to end (3 Deliberate merges, PRs #104–#106), the stale-copy remediation route, and the finding that an enabled-but-failing gate (noul drift in both domains) is inert rather than blocking.
 
 - [[2026-09-22-fix-shape-witness-segment-liveness]] — The FLLWUP-59 derived-token witness's first failure on main was a **false positive**: retiring `.agents/skills/**` emitted dir token `skills/`, which prefix-only liveness kept although `skills/` is live as an interior segment under `.pi/skills/**`; the repair makes dir-token liveness segment-aware, and the over-emission class folds into [[retired-path-tokens]].
 - [[2026-09-22-design-epic11-recut-surface]] — Wave-2 designer attack on the Jev-aware EPIC-11 recut: the setup (seat-composition) gate domain's surfaces name no screen/copy/state to the FLLWUP-75 / EV-82 bar; findings A–J plus four observational gaps, led by the first question's Jev-vs-profile provenance mis-attribution.

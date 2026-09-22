@@ -1,12 +1,12 @@
 ---
 title: Usages Report
 type: concept
-summary: `/usages <time_range>` — a package-shipped procedure plus a `/council-init`-copied Python tool that reports one repo's per-seat and main-agent token/dollar usage, cross-matched to OpenRouter generation figures, as JSON + Markdown under .pi/council/usages/.
+summary: `/usages <time_range>` — a package-shipped procedure plus a `/council-init`-copied Python tool that reports one repo's per-seat and main-agent token/dollar usage, cross-matched to OpenRouter generation figures, as JSON + Markdown under .pi/council/usages/; since EPIC-15 the tool creates its output directory before the cache write, and a stale copied tool is refreshed by update→delete→re-init.
 aliases: [usages, slash usages, usages report, usages procedure, council usages]
 tags: [pi-council/concept, pi-council/usages]
-sources: ["[[2026-09-21-usages-design]]", "[[2026-09-22-fix-shape-witness-segment-liveness]]"]
+sources: ["[[2026-09-21-usages-design]]", "[[2026-09-22-fix-shape-witness-segment-liveness]]", "[[2026-09-24-epic15-run-ledger]]"]
 created: 2026-09-21
-updated: 2026-09-22
+updated: 2026-09-24
 ---
 
 # Usages Report
@@ -68,6 +68,35 @@ activity reconciliation, and say so.
 6. **Write** `usages-<start>_<end>.{json,md}` into a self-gitignored
    `.pi/council/usages/`; the cache lives beside them.
 
+## The cache write and its output directory (EPIC-15)
+
+The tool writes an immutable per-generation cache beside its reports at
+`.pi/council/usages/.cache.json` so reruns are cheap. Until **BUG-2** (EPIC-15,
+PR #104, `59fad63`) the order was wrong: `main` called `save_cache()` **before**
+`ensure_out_dir()`, and `save_cache` writes a `.tmp-<pid>` file beside its target
+with no parent mkdir. On a fresh repo the temp write raised `FileNotFoundError`,
+was caught, and logged `usages: could not write cache: …` to **stderr only** —
+never into `report["limitations"]` — so the failure was invisible in both the
+JSON and Markdown artifacts, while the report still wrote once the directory was
+created moments later. The fix moves `ensure_out_dir(out_dir)` above the first
+`save_cache`; the tool's invariant is that its output directory exists before
+anything is written into it. `T-U7` (default path, second run `cache.hits === 1`)
+and `T-U8` (fresh `--out-dir`) pin it; an `EMPTY_DIRS` scaffold pre-seed must not
+satisfy them ([[2026-09-24-epic15-run-ledger]]).
+
+## The stale-copy remediation route (FLLWUP-105/106)
+
+A consumer that ran `/council-init` before BUG-2 still has the buggy **copied**
+tool at `<repo>/.pi/skills/usages/scripts/usages.py`, and the fix reaches only
+future copies ([[non-clobbering-scaffold]]). The route, shipped in the
+procedure's `**Report.**` section, is **update the pi-council package first →
+delete `<repo>/$CONFIG_DIR_NAME/skills/usages/` → re-run `/council-init`**; the
+package-update-first order is load-bearing, because a recopy from a stale
+installed package loops the old tool back. A second paragraph forbids inventing
+framing around non-`!` stderr: every non-empty stderr line is quoted verbatim,
+no added `⚠️`/`!` prefix, no invented cause or "non-fatal issue" count
+(FLLWUP-106). Both are pinned in `test/usages-procedure.test.ts`.
+
 ## Basis labels
 
 Every dollar figure is labelled: **`exact`** (provider-reported charge for the
@@ -94,4 +123,5 @@ current day sits in totals but not in `attributedUsd`.
 ## Sources
 
 - [[2026-09-21-usages-design]]
+- [[2026-09-24-epic15-run-ledger]] — the cache-ordering fix and the stale-copy route
 - `council/procedures/usages.md`, `council/skills/usages/scripts/usages.py`

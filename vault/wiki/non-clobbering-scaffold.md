@@ -4,9 +4,9 @@ type: concept
 summary: `/council-init` copies the council/ and vault/ data trees and default mcp.json into a consumer repo, never overwriting — re-runs are no-ops and user edits always win.
 aliases: [scaffold, council-init]
 tags: [pi-council/concept]
-sources: ["[[2026-08-23-council-json-override]]", "[[2026-08-24-ask-user-question]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-21-usages-design]]", "[[2026-09-22-fix-shape-witness-segment-liveness]]"]
+sources: ["[[2026-08-23-council-json-override]]", "[[2026-08-24-ask-user-question]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-21-usages-design]]", "[[2026-09-22-fix-shape-witness-segment-liveness]]", "[[2026-09-24-epic15-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-22
+updated: 2026-09-24
 ---
 
 > ⚠️ Derived from `extensions/index.ts` (`council-init`), `extensions/scaffold.ts`, and the scaffold assets (captured 2026-08-23). Verify against `scaffold.ts`.
@@ -73,7 +73,10 @@ Properties that make this the right shape:
   so `TOOLING_FILES`/`DATA_FILES`, the T4 set-equality guard, and the
   `scaffold.json` provenance record are untouched. Like `mcp.json`, it carries
   no provenance and no [[council-update]] refresh path; refreshing means
-  delete-and-re-run-`/council-init`.
+  **update the pi-council package first, then delete
+  `<repo>/$CONFIG_DIR_NAME/skills/usages/`, then re-run `/council-init`** —
+  re-running alone is a no-op (T-USK1), and a recopy from a stale installed
+  package loops the old tool back ([[usages-report]], EPIC-15).
 - **A live-path segment the shape witness must not red** — this destination is
   why [[retired-path-tokens|the shape witness's]] dir-token liveness became
   segment-aware: retiring `.agents/skills/**` emitted the suffix token

@@ -1,5 +1,36 @@
 # Wiki Log
 
+## [2026-09-24] ingest | EPIC-15 run — usages cache-ordering fix, stale-copy route, and the inert-gate finding
+
+Ingested the EPIC-15 autonomous run (authored `vault/raw/2026-09-24-epic15-run-ledger.md`)
+together with the two already-filed raw notes (`2026-09-23-po-epic15-decomposition-ruling`,
+`2026-09-24-fllwup-105-stale-usages-skill-recopy`). Three Deliberate merges
+(PRs #104–#106: `59fad63`, `a0b27ca`, `98a62a9`) shipped the `usages.py`
+cache-before-mkdir fix, the package-update→delete→re-init remediation route,
+and the stderr-discipline paragraph. The run's central finding is
+[[inert-gate-fallback]]: `gate.mode: active` did not mean the gate decided —
+both the intake card gate and the follow-up gate failed on the `noul` drift
+(FLLWUP-104), and all three cards ran on the `council_route` fallback
+(Deliberate).
+
+- **Created:** sources/2026-09-24-epic15-run-ledger; [[inert-gate-fallback]].
+- **Updated:** [[usages-report]] (cache-ordering bug + stale-copy route),
+  [[non-clobbering-scaffold]] (refresh-route correction), [[followup-decision-gate]]
+  (the in-container tool gap + failure arm), [[council-runner]] (EPIC-15 lessons),
+  [[deterministic-merge-check]] (orchestrator-merges restored), [[union-merge-reconcile]]
+  (untracked-worktree-file ff abort), [[main-repo immutability]] (leaked-file hazard),
+  [[metered-deliberation-routing]] (both domains inert), [[gate-parity]],
+  [[confirmation-authority]], [[presented-never-written]], [[three-wave-decomposition]],
+  [[skeptic]] (tested fact over predicted gain), [[engineering-board]] (epic closure with
+  Backlog children), [[steward]] (escalation resolved by the human), [[pi-council-overview]]
+  (seventh epic closure), `index.md`.
+- **Contradictions flagged:** [[non-clobbering-scaffold]]'s "refreshing means
+  delete-and-re-run-`/council-init`" was **incomplete** — re-run alone is a no-op
+  (T-USK1) and the recopy comes from the installed package, so the package must be
+  updated first; corrected in place with the update→delete→re-init order. No other
+  claim was superseded; the `noul` drift extends, rather than contradicts, EPIC-10's
+  "gate inert in production" finding.
+
 ## [2026-09-22] ingest | Shape-witness segment-liveness fix — the derived token set's first false positive
 
 Ingested the fix commit `3e34f01` (a code-fix source, no raw file). The

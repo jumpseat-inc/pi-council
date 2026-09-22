@@ -4,9 +4,9 @@ type: entity
 summary: The portfolio-authority seat and product-owner's escalation target — rules what the portfolio is for, build order, the order of card retirement, and permanent residuals. Never implements.
 aliases: [steward seat]
 tags: [pi-council/seat]
-sources: ["[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]"]
+sources: ["[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-24-epic15-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-22
+updated: 2026-09-24
 ---
 
 > ⚠️ Derived from `council/agents/steward.md` (captured 2026-08-23). Verify against the seat file.
@@ -120,6 +120,18 @@ confirmation-authority question was deliberately ruled card-level, with the
 opposite ruling flagged as the portfolio act ([[confirmation-authority]]).
 [[product-owner]] ratified every follow-up itself. Witness:
 [[2026-09-22-epic10-run-ledger]].
+
+## EPIC-15 (2026-09-24) — escalated, resolved by the human
+
+[[product-owner]] escalated one portfolio question — whether `/council-update`
+should own a refresh path for `/council-init`-copied payloads outside
+`council/scaffold/` (the usages skill). It would widen the single sanctioned
+non-clobbering exception and press on a binding human decision plus the
+FLLWUP-50 R6 fence, so it was **not** ruled by this seat during the run; the
+human ruled it in Phase 1 as **R3 — keep the manual route** (update the package
+→ delete the copied skill → re-run `/council-init`). Steward was never
+dispatched; the escalation's existence is the point — a portfolio question
+reached the human, not a card.
 
 ## Related
 

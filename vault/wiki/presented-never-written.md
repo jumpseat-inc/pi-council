@@ -4,9 +4,9 @@ type: concept
 summary: The /features-new gate presentation is two-part — Part 1 card drafts exactly as they would be written and strictly attribution-free, Part 2 a ledger of contributors, disagreements, and unresolved calls that is presented to the human but never persisted to any card file.
 aliases: [ledger surface, two-part gate presentation, disagreement ledger, attribution-free]
 tags: [pi-council/concept, pi-council/features-new]
-sources: ["[[2026-09-04-epic3-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]"]
+sources: ["[[2026-09-04-epic3-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-24-epic15-run-ledger]]"]
 created: 2026-09-04
-updated: 2026-09-22
+updated: 2026-09-24
 ---
 
 # Presented Never Written
@@ -66,6 +66,7 @@ waits on the human / ratifying-seat confirmation
 - [[three-wave-decomposition]] — the waves whose output this presents
 - [[engineering-board]] — the on-disk format Part 1 must match exactly
 - [[facilitator]] — aggregates verbatim; authors nothing
+- [[inert-gate-fallback]] — the intake gate's failed verdict is presented as information, never acted on
 - [[2026-09-04-epic3-run-ledger]] — origin, including the caught blur
 
 ## Sources

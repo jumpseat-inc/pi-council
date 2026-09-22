@@ -4,9 +4,9 @@ type: concept
 summary: A persistence/validation layer may be stricter than the runtime only where an existing downstream gate is also that strict — writer = loader's field-level inverse + dispatch's one failure predicate; capability enforcement lives at selection time, not write time.
 aliases: [gate parity, writer gate parity, gate placement, capability gate placement]
 tags: [pi-council/concept, pi-council/epic5]
-sources: ["[[2026-09-04-epic5-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-design-epic11-recut-surface]]"]
+sources: ["[[2026-09-04-epic5-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-design-epic11-recut-surface]]", "[[2026-09-24-epic15-run-ledger]]"]
 created: 2026-09-04
-updated: 2026-09-22
+updated: 2026-09-24
 ---
 
 # Gate Parity
@@ -74,6 +74,8 @@ Witness: [[2026-09-22-epic10-run-ledger]].
 - [[council models picker]] — where capability enforcement lives instead
 - [[red-base evidence]] — the R1 application: derivation at the skeptic's
   reproduction surface, not a writer-side field
+- [[inert-gate-fallback]] — the orthogonal runtime-failure rule (an absent
+  answer never becomes a permissive one)
 - [[2026-09-17-po-fllwup47-step6-ruling]] — R1's citation of this page
 
 ## Sources

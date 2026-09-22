@@ -4,9 +4,9 @@ type: concept
 summary: EPIC-10 (shipped v0.33.0) — the follow-up review's typed Jev decision in its own File/Merge/Drop domain, a sibling of the card gate sharing one `.council.json` `gate.mode`; a failed or unresolved decision falls back to the human pre-write confirm and may never Drop or auto-Merge.
 aliases: [follow-up decision, followup gate, File Merge Drop, dispose followup, follow-up review]
 tags: [pi-council/concept, pi-council/epic10]
-sources: ["[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-design-epic11-recut-surface]]"]
+sources: ["[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-design-epic11-recut-surface]]", "[[2026-09-24-epic15-run-ledger]]"]
 created: 2026-09-22
-updated: 2026-09-22
+updated: 2026-09-24
 ---
 
 # Follow-Up Decision Gate
@@ -77,6 +77,20 @@ disposition — but only after confirmation ([[confirmation-authority]]).
   each surfaced candidate through the decision; a failed/unresolved call returns
   the candidate as `ESCALATION` before any write. The outcome rides `DONE` and
   `ESCALATION` only; `RETIRED` keeps its card-withdrawal meaning verbatim.
+
+## The failure arm in practice (EPIC-15)
+
+The fail-safe is not theoretical. In the EPIC-15 run `gate.mode` was `active`
+but **every** follow-up call failed with the `noul` answer-shape drift (the same
+open `FLLWUP-104` that breaks the card gate), and the runner container is not
+granted the review tool at all — so step 13 could not record a disposition
+in-container. Candidates were **held by draft title** across the runner's `DONE`;
+the orchestrator's own `council_followup_gate` then failed with the drift, and
+[[product-owner]] ruled the dispositions directly (seat-ruled, not
+gate-recorded). The held-not-filed discipline held: no card written, no
+candidate silently dropped. A resolved decision would still have been
+**ratified**, never applied as the human confirmation
+([[confirmation-authority]]). See [[inert-gate-fallback]].
 
 ## Witness
 

@@ -4,9 +4,9 @@ type: concept
 summary: No seat and no runner may run git checkout/switch/reset against the main repository path — branch state changes happen only in a dedicated worktree — enforced at three layers after two incidents corrupted board records.
 aliases: [main repo immutability, branch-state immutability, worktree-only rule, main-repo immutability]
 tags: [pi-council/concept, pi-council/process]
-sources: ["[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]"]
+sources: ["[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-24-epic15-run-ledger]]"]
 created: 2026-09-06
-updated: 2026-09-20
+updated: 2026-09-24
 ---
 
 # Main-Repo Immutability
@@ -66,9 +66,19 @@ removed after the run. A red-at-base record without that provenance is an
 incomplete gate result for the [[owner]] and a defective verification for
 the [[skeptic]].
 
+## The adjacent hazard: leaked untracked files (EPIC-15)
+
+The rule protects branch *state*; a worktree dispatch can still contaminate the
+main checkout's *working tree* without moving HEAD. In EPIC-15 the owner left
+`test/usages-procedure.test.ts` untracked at the repo root, and the orchestrator's
+post-merge `git merge --ff-only origin/main` aborted because the merge would
+overwrite it. The repair is compare-then-remove (byte-identical to the merged
+version), never a blanket clean — see [[union-merge-reconcile]].
+
 ## Related
 
 - [[engineering board]] — the state being protected
+- [[union-merge-reconcile]] — the reconcile hazard a leaked untracked file creates
 - [[verification-subject pinning]] — the dispatch-input re-statement pattern
 - [[council-runner]] — the facilitator container the blocks live in
 - [[seats]] — the working seats carrying the block
@@ -82,5 +92,6 @@ the [[skeptic]].
 ## Sources
 
 - [[2026-09-06-epic6-close-run-ledger]]
+- [[2026-09-24-epic15-run-ledger]] — the leaked-untracked-file hazard
 - `council/agents/council-runner.md`, `council/agents/owner.md`,
   `council/agents/skeptic.md`, `council/agents/judge.md`
