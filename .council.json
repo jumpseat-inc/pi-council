@@ -25,7 +25,7 @@
       "thinking": "high"
     },
     "product-owner": {
-      "model": "openrouter/qwen/qwen3.8-flash",
+      "model": "openrouter/z-ai/glm-5.3-flashx",
       "thinking": "high"
     },
     "skeptic": {
