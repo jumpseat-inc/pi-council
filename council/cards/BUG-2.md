@@ -59,3 +59,16 @@ epic's own gate has a bullet an `EMPTY_DIRS`-only patch cannot pass.
   and no test is added that pre-creates the output directory.
 - `bun test test/usages.test.ts`, `bun test test/scaffold.test.ts` and
   `bunx tsc --noEmit` pass on the merged SHA.
+## Phase 1 Rulings (recorded before dispatch — binding for this run)
+
+- **R1 — merge authorization, this card.** The human authorized, for this run
+  only, the admin-bypass merge `gh pr merge <PR> --squash --admin
+  --match-head-commit <X>`, where `<X>` is the exact head SHA merge-check
+  criterion 2 (`gates` workflow `SUCCESS`) was read against. Not extended to any
+  later run; a SHA mismatch is a HALT, not a retry.
+- **R2 — build order.** EPIC-15 runs serially: BUG-2, then FLLWUP-105, then
+  FLLWUP-106. One runner at a time; never two against the board.
+- **R4 — cache-health report row.** Product-owner's decline stands: this card is
+  the write-ordering fix only, and the report-level cache-health signifier is
+  out of scope. A post-fix cache-write failure whose parent directory exists is
+  the trigger for a new card, not for reopening this one.

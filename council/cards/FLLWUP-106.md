@@ -37,3 +37,12 @@ narration.
   `OPENROUTER_MANAGEMENT_KEY` hard-gate paragraph are unchanged; the edit is
   additive, and `bun test test/procedures.test.ts` (or the procedure-count pin
   covering registration) stays green.
+## Phase 1 Rulings (recorded before dispatch — binding for this run)
+
+- **R1 — merge authorization, this card.** The human authorized, for this run
+  only, the admin-bypass merge `gh pr merge <PR> --squash --admin
+  --match-head-commit <X>`, where `<X>` is the exact head SHA merge-check
+  criterion 2 (`gates` workflow `SUCCESS`) was read against. Not extended to any
+  later run; a SHA mismatch is a HALT, not a retry.
+- **R2 — build order.** EPIC-15 runs serially: BUG-2, then FLLWUP-105, then
+  FLLWUP-106. One runner at a time; never two against the board.

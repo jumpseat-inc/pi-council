@@ -49,3 +49,17 @@ already-initialized install.
   and no test asserts that the output dir exists before the tool is run.
 - The epic card records the steward escalation (whether `/council-update` should
   own copied-skill refresh) and its outcome.
+## Phase 1 Rulings (recorded before dispatch — binding for this run)
+
+- **R1 — merge authorization.** The human authorized, for this run only, the
+  admin-bypass merge (`gh pr merge <PR> --squash --admin --match-head-commit
+  <X>`) for every card in EPIC-15; the authorization is not extended to any
+  later run. The first autonomous merge pauses so the human can watch it.
+- **R2 — build order (steward's row, front-loaded).** Serial:
+  BUG-2 → FLLWUP-105 → FLLWUP-106.
+- **R3 — copied-skill refresh escalation, outcome.** Resolved: keep the manual
+  delete-and-recopy remediation; `/council-update` does not own refresh of
+  copied payloads outside `council/scaffold/`.
+- **R4 — cache-health report row.** Product-owner's decline stands, with the
+  re-card trigger recorded: any post-fix cache-write failure whose parent
+  directory exists opens a new card.
