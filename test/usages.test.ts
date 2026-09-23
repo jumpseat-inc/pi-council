@@ -319,6 +319,69 @@ test("T-U5: council seat rows are attributed from run manifests and transcripts"
 	expect(principal.basis).toBe("exact");
 });
 
+test("T-U11: human summary prints the cache line matching the run's JSON report", async () => {
+	const { root, agent } = mkRepo();
+	sessionFile(agent, root, "2026-09-18T10:00:00.000Z", [
+		assistant("2026-09-18T10:00:05.000Z", "gen-summary-1", {
+			input: 100, output: 10, cacheRead: 0, cacheWrite: 0, reasoning: 0, totalTokens: 110,
+			cost: { total: 0.001 },
+		}),
+		// never resolved by the stub — stays an analytics miss on every run
+		assistant("2026-09-18T10:00:06.000Z", "gen-summary-miss", {
+			input: 100, output: 10, cacheRead: 0, cacheWrite: 0, reasoning: 0, totalTokens: 110,
+			cost: { total: 0.001 },
+		}),
+	]);
+	const server = Bun.serve({
+		port: 0,
+		async fetch(req) {
+			const url = new URL(req.url);
+			if (url.pathname.endsWith("/analytics/query")) {
+				const body = (await req.json()) as { filters?: { value?: unknown }[] };
+				const raw = body.filters?.[0]?.value;
+				const ids = Array.isArray(raw) ? (raw as string[]) : [];
+				return Response.json({
+					data: {
+						data: ids.filter((id) => !id.includes("miss")).map((id) => ({
+							generation_id: id, total_usage: 0.004, tokens_prompt: 100, tokens_completion: 10,
+							cached_tokens: 0, cache_hit_rate: 0,
+						})),
+					},
+				});
+			}
+			if (url.pathname.endsWith("/activity")) {
+				return Response.json({ data: [{ date: "2026-09-18 00:00:00", model: "deepseek/deepseek-v4.1-flash", usage: 0.05 }] });
+			}
+			return new Response("nope", { status: 404 });
+		},
+	});
+	const reportPath = path.join(root, "out", "usages-2026-09-18_2026-09-18.json");
+	const args = ["--start", U, "--end", U, "--today", "2026-09-21",
+		"--api-base", `http://127.0.0.1:${server.port}/api/v1`];
+	const cacheLine = (stdout: string) =>
+		stdout.split("\n").find((l) => /^cache: hits=\d+ misses=\d+$/.test(l));
+	try {
+		// Run 1 — one generation resolved by analytics, one left unresolved: 0 hits, 1 miss.
+		const r1 = await runTool(root, agent, args, { OPENROUTER_MANAGEMENT_KEY: "mgmt-test" });
+		expect(r1.status, r1.stderr).toBe(0);
+		const report1 = JSON.parse(fs.readFileSync(reportPath, "utf-8"));
+		expect(report1.cache.hits).toBe(0);
+		expect(report1.cache.misses).toBe(1);
+		expect(cacheLine(r1.stdout), r1.stdout).toBeDefined();
+		expect(cacheLine(r1.stdout)).toBe(`cache: hits=${report1.cache.hits} misses=${report1.cache.misses}`);
+		// Run 2 — the resolved generation now comes from the cache: 1 hit, 1 miss.
+		const r2 = await runTool(root, agent, args, { OPENROUTER_MANAGEMENT_KEY: "mgmt-test" });
+		expect(r2.status, r2.stderr).toBe(0);
+		const report2 = JSON.parse(fs.readFileSync(reportPath, "utf-8"));
+		expect(report2.cache.hits).toBe(1);
+		expect(report2.cache.misses).toBe(1);
+		expect(cacheLine(r2.stdout), r2.stdout).toBeDefined();
+		expect(cacheLine(r2.stdout)).toBe(`cache: hits=${report2.cache.hits} misses=${report2.cache.misses}`);
+	} finally {
+		server.stop(true);
+	}
+});
+
 test("T-U9: runTool uses Bun.spawn with await proc.exited — no blocking spawn remains", () => {
 	// needle is assembled so this pin's own source never contains the literal
 	const needle = "spawn" + "Sync";

@@ -665,6 +665,8 @@ def human_summary(report):
     out = [f"usages {report['range']['start']}..{report['range']['end']} — turns={t['turns']} exact=${t['exactCostUsd']:.4f} catalogue=${t['catalogueCostUsd']:.4f}"]
     for row in [report["main"], *report["seats"]]:
         out.append(f"  {row['seat']:<16} turns={row['turns']:<4} in={row['tokens']['input']:<9} out={row['tokens']['output']:<8} exact=${row['exactCostUsd']:.4f} ({row['basis']})")
+    c = report["cache"]
+    out.append(f"cache: hits={c['hits']} misses={c['misses']}")
     a = report["account"]
     if a["activity"]["available"]:
         out.append(f"  account activity ${a['activity']['totalUsd']:.4f}; attributed in window ${a['attributedUsd']:.4f}")
