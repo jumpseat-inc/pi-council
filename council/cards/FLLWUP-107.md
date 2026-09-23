@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-107
 title: Renderer substitution-set pin for procedure copy
-state: Ready
+state: In Progress
 owner: null
 epic: EPIC-15
 goal: A test asserts renderProcedure substitutes exactly $COUNCIL_PROCEDURES and $ARGUMENTS, and no packaged procedure ships containing an unrendered $CONFIG_DIR_NAME or @CONFIG_DIR@ token.
@@ -34,6 +34,13 @@ why FLLWUP-105's shipped sentence speaks a literal `.pi/` path.
   FLLWUP-105's `test/usages-procedure.test.ts` pin, which stays exactly
   three-literal per its amended acceptance.
 - `bunx tsc --noEmit`, `bun test`, and `python3 council/validate.py` pass.
+
+## Step 7 — handoff (mechanical, mode Direct)
+
+Recorded mode `Direct` (this dispatch's ROOT manifest): mechanical, test-only,
+unambiguous pin — owner-only path, no deliberation, no skeptic, no judge.
+Handoff is the card itself (no spec file). Main repo branch state untouched;
+the owner works in a dedicated worktree.
 
 ## Phase 1 Rulings (this run — features-deliver, EPIC-15 residuals)
 
