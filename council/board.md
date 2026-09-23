@@ -107,7 +107,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Deliberating
 
 ## In Progress
-- FLLWUP-110 — Cache hit/miss counts in the human-readable usages summary
 
 ## In Review
 
@@ -119,6 +118,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EPIC-15 — Usages tool creates its output directory before writing the cache
 - FLLWUP-111 — Migrate runTool in test/usages.test.ts to the async spawn pattern
 - FLLWUP-109 — Foreign --cache-file parent: absent parent is created before the cache write
+- FLLWUP-110 — Cache hit/miss counts in the human-readable usages summary
 - FLLWUP-106 — The usages procedure forbids inventing framing around the tool's stderr
 - FLLWUP-105 — Name the remediation route for a stale copied usages skill
 - BUG-2 — Usages tool creates its output directory before writing the cache
