@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-109
 title: Foreign --cache-file parent: absent parent is created before the cache write
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-15
 goal: A non-offline run of council/skills/usages/scripts/usages.py with --out-dir <dir> and --cache-file <repo>/nested/absent/.cache.json (parent directory absent, live analytics stub) exits 0, creates <repo>/nested/absent/, leaves the parsed .cache.json at the --cache-file path holding the stubbed generation_id, and emits no usages: could not write cache: line on stderr.

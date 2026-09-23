@@ -108,9 +108,10 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Deliberating
 
 ## In Progress
-- FLLWUP-109 — Foreign --cache-file parent: absent parent is created before the cache write
 
 ## In Review
+- FLLWUP-109 — Foreign --cache-file parent: absent parent is created before the cache write
+
 
 ## Needs Human
 
