@@ -59,6 +59,26 @@ head SHA; card not `Needs Human`, no outstanding ruling (design rulings were
 consumed pre-run per Phase 1). Merge is the orchestrator's act (R-B pinned to
 this SHA).
 
+## Step 13 — follow-up drafts (recorded dispositions — held, not filed)
+
+Gate mode `active`; `council_followup_review` called once with both drafts in
+draft order; both `status: ok`. Per the run's Phase-1 "Follow-ups" ruling the
+draft-then-confirm gate is re-homed to `product-owner`; in-container these ride
+the runner's report for ratification — no card written, resumable by draft
+title. Dedup pass ran unconditional; no `mergeTargets` supplied.
+
+1. Draft: "Render $CONFIG_DIR_NAME / @CONFIG_DIR@ in procedure copy so packaged
+   procedures need not ship literal .pi/ paths" — recorded line verbatim:
+   `Mode: Merge — duplicate? yes (same work as an open card) — Render
+   $CONFIG_DIR_NAME / @CONFIG_DIR@ in procedure copy so packaged procedures
+   need not ship literal .pi/ paths (active)`. No merge target named in the
+   rendered line — falls to the confirming seat.
+2. Draft: "Generalize the FLLWUP-107 procedure-pack scan from the two pinned
+   tokens to an unresolved-token allowlist" — recorded line verbatim:
+   `Mode: File — duplicate: certainty 0.59 < noul threshold 0.60 — Generalize
+   the FLLWUP-107 procedure-pack scan from the two pinned tokens to an
+   unresolved-token allowlist (active)`.
+
 ## Step 7 — handoff (mechanical, mode Direct)
 
 Recorded mode `Direct` (this dispatch's ROOT manifest): mechanical, test-only,
