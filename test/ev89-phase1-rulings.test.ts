@@ -68,12 +68,12 @@ function rulingsTree(recordText: string | null): string {
 	return root;
 }
 
-function entry(e: Record<string, unknown>): Record<string, unknown> {
+function entry(e: unknown): unknown {
 	return e;
 }
 
 /** A well-formed five-class record fragment, with per-class overrides. */
-function classes(...entries: Array<Record<string, unknown>>): string {
+function classes(...entries: unknown[]): string {
 	return JSON.stringify({ classes: entries });
 }
 
