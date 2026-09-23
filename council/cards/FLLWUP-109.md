@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-109
 title: Foreign --cache-file parent: absent parent is created before the cache write
-state: In Review
+state: Done
 owner: null
 epic: EPIC-15
 goal: A non-offline run of council/skills/usages/scripts/usages.py with --out-dir <dir> and --cache-file <repo>/nested/absent/.cache.json (parent directory absent, live analytics stub) exits 0, creates <repo>/nested/absent/, leaves the parsed .cache.json at the --cache-file path holding the stubbed generation_id, and emits no usages: could not write cache: line on stderr.
@@ -135,3 +135,14 @@ Owner gates green at head, real results:
    (FLLWUP-109)`), same command verbatim (`bun test test/usages.test.ts`) →
    **10 pass / 0 fail** / 59 expect(). Pair closed: red at base, 0 fail at
    head; no red test landed.
+
+## Step 11–12 — merge and Done (orchestrator)
+
+Mode `Direct` (substrate `job-6`, no generator seats), criteria 1, 2, 5
+satisfied: owner gates green in full; `gates` workflow `SUCCESS` on PR head
+`b1c930b` and on merged SHA `3d62b3a`; card not `Needs Human`, no outstanding
+ruling. Merged pinned under R-B: `gh pr merge 108 --squash --admin
+--match-head-commit b1c930bd1e39a88b0fa3a4d91f0eae5ebec0f8eb` → `3d62b3a`.
+Card set `Done` on card and board; `python3 council/validate.py` clean.
+
+**Merge basis: FLLWUP-109 — mode Direct, criteria 1, 2, 5 satisfied.**

@@ -110,7 +110,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## In Progress
 
 ## In Review
-- FLLWUP-109 — Foreign --cache-file parent: absent parent is created before the cache write
 
 
 ## Needs Human
@@ -119,6 +118,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-104 — Fix the live noul answer-shape drift — the decisions API returns `{"type":"noul","noul":<p>}`, the engine reads `probability`, in both gate domains
 - EPIC-15 — Usages tool creates its output directory before writing the cache
 - FLLWUP-111 — Migrate runTool in test/usages.test.ts to the async spawn pattern
+- FLLWUP-109 — Foreign --cache-file parent: absent parent is created before the cache write
 - FLLWUP-106 — The usages procedure forbids inventing framing around the tool's stderr
 - FLLWUP-105 — Name the remediation route for a stale copied usages skill
 - BUG-2 — Usages tool creates its output directory before writing the cache
