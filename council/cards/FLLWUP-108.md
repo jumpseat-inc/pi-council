@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-108
 title: Usages remediation pin: catch command-drop and update-step-drop
-state: In Review
+state: Done
 owner: null
 epic: EPIC-15
 goal: The usages-procedure pin goes red when a later edit drops either refresh command or the package-update step from the remediation sentence, without going red on a claim-preserving rewording of the sentence.
@@ -52,3 +52,16 @@ Recorded before any `council-runner` was dispatched. Binding on every seat,
   FLLWUP-107 → FLLWUP-108`, one runner at a time.
 - **R-A (record push) and R-B (merge):** run-scoped authorizations recorded on
   `council/cards/EPIC-15.md`'s residual-run Phase-1 section.
+
+## Step 11–12 — merge and Done (orchestrator)
+
+Mode `Direct` (substrate `job-9`, no generator seats), criteria 1, 2, 5
+satisfied: owner gates green in full (`preflight.sh` PASS, tsc clean, full
+`bun test` 1485 pass / 0 fail, `test/usages-procedure.test.ts` 9 pass,
+`validate.py` clean); `gates` workflow `SUCCESS` on PR head `f2b2edd` and
+merged SHA `077ebc1`; card not `Needs Human`, no outstanding ruling. Merged
+pinned under R-B: `gh pr merge 111 --squash --admin --match-head-commit
+f2b2edd4f9bb39ad5424aa6af2dc7930f65a974a` → `077ebc1`. Card set `Done` on card
+and board; `python3 council/validate.py` clean.
+
+**Merge basis: FLLWUP-108 — mode Direct, criteria 1, 2, 5 satisfied.**
