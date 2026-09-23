@@ -1,5 +1,25 @@
 # Wiki Log
 
+## [2026-09-23] ingest | FLLWUP backlog cleanup — merge/retire discipline, the no-Retired-state constraint, and the silent-staleness hazard
+
+Ingested the follow-up backlog curation (authored
+`vault/raw/2026-09-23-fllwup-backlog-cleanup.md`). An attended maintenance pass
+consolidated 65 open Backlog `FLLWUP` cards to 42 — 17 content-preserving merges
+(absorbed Intent/Acceptance kept verbatim, lower id survives) and 2 retirements.
+It named the standing hazard that follow-up cards go **stale silently** (FLLWUP-63
+and FLLWUP-69 were already satisfied in the tree) and the structural fact that
+`validate.py` has **no `Retired` state**, so a retirement is a delete plus an
+out-of-band raw map.
+
+- **Created:** sources/2026-09-23-fllwup-backlog-cleanup; [[follow-up-backlog-curation]].
+- **Updated:** [[engineering-board]], [[pi-council-overview]],
+  [[followup-decision-gate]], [[chain-promotion]], [[card-id-allocation]],
+  [[index]].
+- **Contradictions flagged:** none. The cleanup ratifies the existing board
+  rules rather than superseding them; the one boundary is that a merge of
+  `In Progress`/`Done` cards would need explicit authority (every merge was
+  `Backlog`).
+
 ## [2026-09-23] ingest | EPIC-15 residual run — recorded mode ≠ executed mode, and the residual-scope delivery model
 
 Ingested the EPIC-15 residual run (authored

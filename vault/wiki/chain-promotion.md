@@ -4,7 +4,7 @@ type: concept
 summary: Backlog→Ready promotion for a dependent card chain is bound once as an automated cadence — the orchestrator promotes each card the moment its predecessor's merge SHA is on local main and validate.py is clean, without re-asking.
 aliases: [chain promotion, promotion cadence, automated promotion, P1-P5]
 tags: [pi-council/features-deliver, pi-council/process]
-sources: ["[[2026-09-03-po-epic4-promotion-cadence]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-20-po-epic13-promotion-ruling]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]"]
+sources: ["[[2026-09-03-po-epic4-promotion-cadence]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-20-po-epic13-promotion-ruling]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-23-fllwup-backlog-cleanup]]"]
 created: 2026-09-04
 updated: 2026-09-22
 ---
@@ -64,6 +64,14 @@ orchestrator promoted each card to `Ready` the moment its predecessor's merge
 landed — no re-asking (`vault/raw/2026-09-21-po-epic10-recut-ruling.md`, R3).
 Witness: [[2026-09-22-epic10-run-ledger]].
 
+## Backlog curation and `epic: null` (2026-09-23)
+
+The cadence and the residual-scope model locate follow-up cards by their `epic:`
+tag. The 2026-09-23 curation passed cross-epic merges (e.g. EPIC-13 + EPIC-14)
+and set those survivors' `epic: null`, so they can no longer be reached by an
+epic-scoped promotion or residual run. A cross-epic merge trades attribution for
+consolidation ([[follow-up-backlog-curation]]).
+
 ## Related
 
 - [[deterministic merge check]] — the other automation that makes
@@ -79,3 +87,5 @@ Witness: [[2026-09-22-epic10-run-ledger]].
 - [[2026-09-03-po-epic4-promotion-cadence]]
 - [[2026-09-20-po-epic13-promotion-ruling]] — chain-not-bulk, ruled once
 - [[2026-09-21-epic14-run-ledger]]
+- [[follow-up-backlog-curation]] — cross-epic merges nullify the `epic:` tag this
+cadence reads

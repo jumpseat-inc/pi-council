@@ -4,7 +4,7 @@ type: concept
 summary: EPIC-10 (shipped v0.33.0) — the follow-up review's typed Jev decision in its own File/Merge/Drop domain, a sibling of the card gate sharing one `.council.json` `gate.mode`; a failed or unresolved decision falls back to the human pre-write confirm and may never Drop or auto-Merge.
 aliases: [follow-up decision, followup gate, File Merge Drop, dispose followup, follow-up review]
 tags: [pi-council/concept, pi-council/epic10]
-sources: ["[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-design-epic11-recut-surface]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-22-gate-noul-fix]]", "[[2026-09-23-epic15-residual-run-ledger]]"]
+sources: ["[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-design-epic11-recut-surface]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-22-gate-noul-fix]]", "[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-23-fllwup-backlog-cleanup]]"]
 created: 2026-09-22
 updated: 2026-09-23
 ---
@@ -117,8 +117,18 @@ end-to-end falsifier (EV-84) that exercised the active/off/unreachable arms.
 Its live arm also surfaced the shipped card gate's noul wire-shape drift
 ([[metered-deliberation-routing]] Residuals, FLLWUP-104).
 
+## Not the same as board curation
+
+This gate decides **one candidate's** disposition at step 13, per run. The
+periodic consolidation of the accumulated `FLLWUP` backlog — merging
+near-duplicates and retiring dead cards across many runs — is a separate,
+human-directed operation ([[follow-up-backlog-curation]]), never driven by Jev
+and never re-opening the runs that filed the cards.
+
 ## Related
 
+- [[follow-up-backlog-curation]] — board-level merge/retire maintenance of the
+accumulated follow-up backlog
 - [[metered-deliberation-routing]] — the twin decision domain and its shared switch
 - [[confirmation-authority]] — whether a recorded decision may be applied autonomously
 - [[step-13-followup-surface]] — the rendered line + unavailable states
@@ -129,6 +139,7 @@ Its live arm also surfaced the shipped card gate's noul wire-shape drift
 
 ## Sources
 
+- [[2026-09-23-fllwup-backlog-cleanup]] — board curation is distinct from this gate
 - [[2026-09-22-epic10-run-ledger]]
 - `council/cards/EV-78.md`…`EV-84.md`
 - `vault/raw/2026-09-21-po-epic10-recut-ruling.md`, `vault/raw/2026-09-2*-po-ev8*.md`

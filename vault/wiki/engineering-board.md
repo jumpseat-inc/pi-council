@@ -4,7 +4,7 @@ type: concept
 summary: The durable, locally-stored kanban state — council/board.md plus one card file per id, validated by validate.py, and the discipline that everything the Council does starts and records there.
 aliases: [engineering board, board, card, kanban]
 tags: [pi-council/concept]
-sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-po-ev73-step6-ruling]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]"]
+sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-po-ev73-step6-ruling]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-23-fllwup-backlog-cleanup]]"]
 created: 2026-08-23
 updated: 2026-09-23
 ---
@@ -147,6 +147,17 @@ epic can be `Done` while a bounded residual scope remains to be run as its own
 full run. The heading-uniqueness gap recurred. Witness:
 [[2026-09-23-epic15-residual-run-ledger]].
 
+## Backlog curation (2026-09-23)
+
+Follow-up cards accumulate across runs and need periodic **curation** — merging
+near-duplicates and retiring dead ones ([[follow-up-backlog-curation]]). The
+first pass consolidated 65 open `FLLWUP` cards to 42. Two board-schema facts it
+nailed down: there is **no `Retired` state** (a retirement is a delete plus an
+out-of-band raw map), and a merge of `Backlog` cards may **rewrite the survivor's
+`goal`** — legal because the card is not `In Progress`, but it changes the text
+the judge reads. Cross-epic merges set `epic: null`. Witness:
+[[2026-09-23-fllwup-backlog-cleanup]].
+
 ## Related
 
 - [[council-loop]], [[seats]]
@@ -199,6 +210,8 @@ full run. The heading-uniqueness gap recurred. Witness:
   cards. A `Ready` sibling (EV-42) was **re-scoped in place** by [[steward]]
   mid-run — premise replaced, same id and slot — the first post-promotion
   card-wording change executed by the orchestrator between cards.
+- [[follow-up-backlog-curation]] — the merge/retire maintenance discipline for
+the accumulated follow-up backlog
 
 ## Sources
 

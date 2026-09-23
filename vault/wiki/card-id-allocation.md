@@ -4,7 +4,7 @@ type: concept
 summary: Board ids (EV-/FLLWUP-/BUG-/EPIC-) are allocated at fetched HEAD, never from a stale clone's memory — the EPIC-3/EPIC-4 collision lesson, with union-merge reconciliation and validate.py as the net.
 aliases: [card id allocation, id allocation, id collision, numbering discipline]
 tags: [pi-council/concept, pi-council/board]
-sources: ["[[2026-09-04-epic3-run-ledger]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]"]
+sources: ["[[2026-09-04-epic3-run-ledger]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-23-fllwup-backlog-cleanup]]"]
 created: 2026-09-04
 updated: 2026-09-22
 ---
@@ -61,6 +61,14 @@ consistent.
 time; no collision. Nine [[product-owner]] confirmation rulings wrote nine cards
 across the epic. Witness: [[2026-09-22-epic10-run-ledger]].
 
+## Merges keep the lower id (2026-09-23)
+
+When the follow-up curation merges two cards, the **survivor keeps the lower
+id** and the absorbed file is deleted; ids are never renumbered and gaps stay
+harmless ([[follow-up-backlog-curation]]). A merge therefore does not touch id
+allocation at all — the same globally-unique-filename invariant holds, just with
+one fewer file.
+
 ## Related
 
 - [[engineering-board]] — the id schema and board discipline
@@ -72,5 +80,6 @@ across the epic. Witness: [[2026-09-22-epic10-run-ledger]].
 
 ## Sources
 
+- [[2026-09-23-fllwup-backlog-cleanup]] — merges keep the lower id; ids never renumber
 - [[2026-09-04-epic3-run-ledger]]
 - `council/procedures/board-create-card.md` step 2 (the id-assignment rule this page hardens)
