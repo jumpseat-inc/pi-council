@@ -1,11 +1,12 @@
 ---
 id: FLLWUP-7
-title: eval-results retention policy
+title: Retention policies for the append-only stores: eval-results cohorts and the durable usage store
 state: Backlog
 owner: null
-epic: EPIC-4
-goal: council/eval-results stops growing without bound under a retention rule that never prunes the newest version cohort of any cell
+epic: null
+goal: council/eval-results stops growing without bound under a retention rule that never prunes the newest version cohort of any cell (whole superseded cohorts or named cells only, never individual repeats), and the durable usage store applies a bounded retention policy that keeps recent records while preserving the provenance pointers of survivors, each proven by a test with byte-identical recompute/read-back for survivors.
 ---
+
 
 ## Intent
 
@@ -23,6 +24,17 @@ superseded version cohorts (or whole cells the caller names), never
 individual repeats of the newest cohort, or the leaderboard's means and σ
 become unreproducible.
 
+---
+
+### Absorbed: FLLWUP-32 — Usage-store retention and compaction policy
+
+EV-31 ships a durable store at `getAgentDir()/council/usage/` that is, by
+design, never pruned — durability is the point. But an unbounded store is its
+own long-term liability, and EV-31's spec §5 lists retention as a forward
+decision. The policy must not defeat the traceability the store exists for:
+pruning a record's file while leaving a pointer, or vice versa, breaks
+read-back.
+
 ## Acceptance
 
 - A retention rule (keep-latest-N version cohorts per `cellId`, or an
@@ -33,3 +45,12 @@ become unreproducible.
 - After retention, `summarizeStore` and the leaderboard recompute
   byte-identically from the retained set; tests pin both the pruning rule
   and the recompute guarantee.
+
+---
+
+### From FLLWUP-32 — Usage-store retention and compaction policy
+
+- A store grown past the configured bound drops oldest-first and keeps the
+  newest records.
+- Read-back for every retained record still resolves its provenance pointer.
+- `bun test`, `bunx tsc --noEmit`, `python3 council/validate.py` stay green.

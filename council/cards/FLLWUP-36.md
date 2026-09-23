@@ -1,11 +1,12 @@
 ---
 id: FLLWUP-36
-title: Remove the unreachable pre-EV-34 transcript renderer left in TranscriptView
+title: Deferred no-behavior-change cleanups: drop the dead TranscriptView renderer and the FLLWUP-50 refresh cosmetics
 state: Backlog
 owner: null
-epic: EPIC-8
-goal: `extensions/navigator.ts` holds exactly one `TranscriptView` head/body renderer — the EV-34 `unitLines`/`bodyLines` path — with the unreferenced private `blockLines` method deleted, and `bash council/preflight.sh`, `bun test`, `bunx tsc --noEmit`, and `python3 council/validate.py` stay green.
+epic: null
+goal: extensions/navigator.ts holds exactly one TranscriptView head/body renderer (the EV-34 unitLines/bodyLines path, dead blockLines deleted), and the three FLLWUP-50 skeptic cosmetics are cleaned (the void recordDirty dead variable, the scaffoldPackageVersion duplication, and the no-op creationPass filter), with no rendered line changing and the full gate set green.
 ---
+
 
 ## Intent
 
@@ -16,6 +17,26 @@ the transcript head shapes in one class. The step-9 Skeptic ran the grep
 evidence and closed the observation `closed-green` (dead code, no behavior
 change, "a possible cleanup, not a block").
 
+---
+
+### Absorbed: FLLWUP-64 — Cosmetic cleanup of the FLLWUP-50 refresh surface (dead variable, duplicated helper, creationPass filter)
+
+Filed by the FLLWUP-50 step-13 record (EPIC-9 residuals run 2). The
+skeptic's step-9 verification at PR #72 head `d3de248` reported "no
+blocks" with three explicitly non-blocking cosmetic notes (quoted from its
+report):
+
+1. "`void recordDirty` dead variable in `applyRefresh`";
+2. "`scaffoldPackageVersion` duplicated across scaffold.ts/council-update.ts";
+3. "the creationPass filter (`includes("/")` or `.json`) is effectively a
+   no-op and may report `mcp.json` under `+ created` if it was missing —
+   copy looseness, no write-rule impact."
+
+None affects the write rules, the record semantics, or the consent
+boundary — all of which are pinned by test/council-update.test.ts and must
+stay green through this cleanup. Pure refactor card; no deliverable
+change.
+
 ## Acceptance
 
 - grep finds no unreferenced head renderer in `TranscriptView`.
@@ -24,17 +45,8 @@ change, "a possible cleanup, not a block").
   `test/theme-compliance.test.ts` stay green).
 - The three gates stay green.
 
-## Phase 1 ruling (features-deliver, EPIC-8)
+---
 
-This card is a **confirmed new follow-up, not a fold-in**: EV-34's goal is
-fully met by `unitLines`, so removing `blockLines` is not a code change
-needed to honestly meet any card's goal. Confirmed by `steward` under
-**R-FOLLOWUP** at step 13 of the EV-34 run against merged SHA
-`72351780e2f9974926404d26f9679b385d2f1e5f` (PR #48).
+### From FLLWUP-64 — Cosmetic cleanup of the FLLWUP-50 refresh surface (dead variable, duplicated helper, creationPass filter)
 
-The card stays `Backlog` as drafted. `R-ORDER` (pinned EV-33 → EV-34 →
-EV-35 → EV-36) is a recorded human decision and is not touched; EV-35 and
-EV-36 are `Ready` and are the run's next work, and adding a third concurrent
-writer to `TranscriptView` — the file both of them edit — would interleave
-with the pinned sequence for no gain. Promotion is a later, human-reachable
-call.
+(No separate Acceptance clause — see its Intent above.)

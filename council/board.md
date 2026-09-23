@@ -6,79 +6,56 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Backlog
 
-- FLLWUP-112 — Render $CONFIG_DIR_NAME / @CONFIG_DIR@ in procedure copy
-- FLLWUP-113 — Generalize the FLLWUP-107 procedure-pack scan to an unresolved-token allowlist
+- FLLWUP-112 — Render a config-home token in procedure copy and derive the packaged-procedure scan's allowlist from renderProcedure's substitution set
 
 - EV-85 — Seat-composition decisions as repo-overridable packaged data
 - EV-86 — Pure seat-composition decision function with a fail-safe Default
 - EV-87 — One-call seat-composition orchestration over the shared Jev transport
 - EV-88 — End-to-end falsifier for the Jev seat-composition fail-closed arm
-- FLLWUP-103 — Cover the wrapper's advisory arm in EV-83's own suite and pin the two escalation-basis tokens
-- FLLWUP-102 — Make the http-404 unavailability literal claim only what the transport can establish
-- FLLWUP-101 — Cold-read persona smokes on the step-13 follow-up surface (designer P1/P2/P3/P5/P7/P9)
-- FLLWUP-100 — Card-gate calls always route full Deliberate — every live ledger line died at decide() on a missing answer probability
-- FLLWUP-99 — Fix the shipped runGate policyVersion writer — lines carry the gate policy's version; the router reads the decision policy's
-- FLLWUP-98 — Pin the follow-up headroom probe's tripwire on `truncated === false`
-- FLLWUP-97 — Recency window for the follow-up board section when the cap binds
-- FLLWUP-96 — Fail-loud questions↔weights equality at the gate's and the follow-up's composition sites
+- FLLWUP-102 — Follow-up surface amendments: stop asserting `model-card coming-soon` on http-404 and cover the wrapper's advisory arm
+- FLLWUP-99 — Make the card gate actually meter: write the decision policy's version and diagnose the missing answer probabilities
+- FLLWUP-97 — Follow-up board cap: pin the headroom probe's no-trim tripwire and add the recency window when the cap binds
 - FLLWUP-95 — Cut the EPIC-14 release — bump `package.json` past 0.28.0, tag, and move `latest`
 - FLLWUP-93 — Consumer-repo-safe protection for wiki-cited code paths (the T1-class check beyond this repo)
-- FLLWUP-94 — Consider naming the config home in the /council-gate status read literal
-- FLLWUP-89 — Give /features-new a run-start preflight step — its seat dispatches share the gate-credential hole
-- FLLWUP-90 — End-to-end falsifier — an already-initialized consumer with a stale council/preflight.sh reaches the run-start gate-credential FAIL
-- FLLWUP-91 — Wrapped-tool council_preflight — own the preflight spawn on pass to make run-start single-FAIL mechanical
-- FLLWUP-92 — Align runStartGatePreflight's injected apiKey semantics with the resolver's empty-means-absent rule
-- FLLWUP-85 — Seed `gate: {"mode": "off"}` in the scaffold `.council.json` and pin a canonical top-level key order
-- FLLWUP-86 — Run-config-stability Phase-0 assertion: gate.mode is a second mid-run-flippable config input
-- FLLWUP-87 — Concurrent-session write discipline for `.council.json`
-- FLLWUP-88 — Theme-watcher: skip the theme reload when a `.council.json` write touched no theme bytes
+- FLLWUP-89 — Run-start credential preflight: cover /features-new, prove the stale-scaffold reach end to end, and normalize the injected-apiKey seam
+- FLLWUP-85 — `.council.json` write-path hardening: seed the gate section with a canonical key order and add a concurrency discipline
+- FLLWUP-86 — `.council.json` mid-run write side-effects: assert gate.mode stability and skip theme reloads on non-theme writes
 - FLLWUP-72 — Make step 11 execute the merge-check table, not a prose mirror of it
 - FLLWUP-73 — Refresh the deterministic-merge-check wiki page for the mode-aware ruleset
 - FLLWUP-71 — Add the user-visibility question to the gate question set — let a recorded Verify re-route on a surface-touching card
 - FLLWUP-75 — Signify a slow advisory gate call without implying deliberation or failure
-- FLLWUP-77 — Name the excluded gate-call count in the usage legend
-- FLLWUP-78 — Make the gate legend key self-describing (deliberation, not gate)
-- FLLWUP-79 — Signpost the gate ledger from the usage block's exclusion surface
-- FLLWUP-80 — Bound the EV-68 textTree byte-equality flake window
-- FLLWUP-81 — Eliminate gate-state.ts's duplicated lenient policy read — resolve the budget through the validated loader or pin the load-order invariant
-- FLLWUP-82 — Every gate question id is single-line and cross-referenced across questions.json and decision.json
-- FLLWUP-83 — Own-key membership for loadGateDecision's mechanical-record check — close the pre-existing prototype-chain `in` leak
-- FLLWUP-84 — Own-key membership for loadGatePolicy's unknown-key check — same prototype-chain `in` class as FLLWUP-83, one loader over
+- FLLWUP-77 — Usage block gate legend: name the excluded call count, use the self-describing `deliberation` key, and signpost the gate ledger
+- FLLWUP-82 — Gate questions↔weights equality: harden the loaders and fail loud at the composition site
+- FLLWUP-83 — Close the prototype-chain `in` class across the gate loaders and pin or remove gate-state's duplicated policy read
 - EPIC-1 — omp-themed council theme for pi, configurable from the scaffold .council.json
 - EPIC-2 — Inline council job tree beneath the input bar
 - EPIC-3 — Council-decomposed features-new with a bounded session
 - EPIC-4 — Model eval harness for council commands and seats
-- FLLWUP-1 — Fix HTML export under an active in-memory council theme
-- FLLWUP-2 — Make the .council.json theme export section editable
-- FLLWUP-3 — Revisit empty dark and light variant shells for consumer discoverability
+- FLLWUP-1 — Council theme export: no-crash under an in-memory theme, editable export overrides, and variant discoverability
 - FLLWUP-4 — Repair /council-tree RPC silent-no-op in navigator.ts:57
 - FLLWUP-5 — Criterion-type-aware judge projection in projectVerdictRecord
 - FLLWUP-6 — Judge-bearing fixture smoke (Phase 5)
-- FLLWUP-7 — eval-results retention policy
+- FLLWUP-7 — Retention policies for the append-only stores: eval-results cohorts and the durable usage store
 - FLLWUP-8 — council-leaderboard task drill-down filter
 - EPIC-5 — /council-models provider and model picker for per-seat .council.json overrides
 - FLLWUP-26 — Per-run cumulative token ceiling guard in /council
 - FLLWUP-27 — Preflight branch-freshness clause vs mid-card record pushes
 - FLLWUP-28 — Widen cellScope.usage to the full tuple and amend the eval-store contract
 - FLLWUP-29 — Persist Anthropic cacheWrite1h write-premium tokens
-- FLLWUP-30 — Live end-to-end falsifier for the invocation boundary under pre-prompt compaction
+- FLLWUP-30 — Opt-in live falsifiers for the usage path: the compaction boundary and the EV-31 gated write seam
 - FLLWUP-31 — Per-node subtree reconciliation against seat session files
-- FLLWUP-32 — Usage-store retention and compaction policy
-- FLLWUP-33 — Live end-to-end falsifier for the EV-31 gated write path
 - FLLWUP-34 — Bounded retry policy for a failed usage-store write
 - FLLWUP-35 — Usage/accounting wiki page for the EPIC-7 lineage
-- FLLWUP-36 — Remove the unreachable pre-EV-34 transcript renderer left in TranscriptView
-- FLLWUP-37 — Keep the progress keymap header visible when follow-mode content overflows the viewport
-- FLLWUP-38 — Clamp the inline progress transcript header to the granted render width
+- FLLWUP-36 — Deferred no-behavior-change cleanups: drop the dead TranscriptView renderer and the FLLWUP-50 refresh cosmetics
+- FLLWUP-37 — Inline progress transcript header: pin it under viewport overflow and clamp every returned line to the granted width
 - FLLWUP-39 — Dispose the replaced transcript view when the inline progress surface switches sessions
 - FLLWUP-61 — Worktree-seat cwd discipline for edit/write tools
 - FLLWUP-62 — Gate the mid-block colon-bearing frontmatter continuation residual
-- FLLWUP-63 — Fix the EV-40 backoff jitter test's unsatisfiable top edge (merged-SHA CI flake)
-- FLLWUP-64 — Cosmetic cleanup of the FLLWUP-50 refresh surface (dead variable, duplicated helper, creationPass filter)
+- FLLWUP-63 — Test-determinism sweep: close the backoff-jitter top edge and the EV-68 textTree minute-boundary flake
 - FLLWUP-65 — Reclassify council/cards/_template.md as a package-resolved resource
 - FLLWUP-66 — Per-file refresh (--refresh-file <path>) for data-class scaffold files, preflight.sh first
 - FLLWUP-67 — Wiki pages for the refresh path — hop chain, scaffold-copied resources in override-resolution, non-clobbering companion
-- FLLWUP-68 — Cold-read persona smoke on /council-update's output surface (designer P1/P6/P9)
+- FLLWUP-68 — Reusable cold-read persona harness over council output surfaces
 - FLLWUP-69 — Pin the step-13 follow-up confirmation gate as pre-write and mark ledger-level confirmation unsanctioned
 - FLLWUP-70 — Close the gates CI-timeout residuals — a per-step bound on every non-test step, and a ceiling census that covers every writing form
 - EPIC-10 — Follow-up review decided by the typed TypeSafe Jev gate

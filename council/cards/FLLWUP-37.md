@@ -1,11 +1,12 @@
 ---
 id: FLLWUP-37
-title: Keep the progress keymap header visible when follow-mode content overflows the viewport
+title: Inline progress transcript header: pin it under viewport overflow and clamp every returned line to the granted width
 state: Backlog
 owner: null
 epic: EPIC-8
-goal: With follow mode on and composed output exceeding the granted viewport, the inline progress transcript returns the header line (the ruled keymap and the follow indicator) within the granted viewport and does not slice the focused unit's marked head out of the body window, except at the one-row floor where the single line identifies the active block, proven by handleInput-driven render assertions over a fixture that overflows the granted viewport.
+goal: With follow mode on and composed output exceeding the granted viewport, the inline progress transcript returns the header line (keymap + follow indicator) within the granted viewport without slicing the focused unit's marked head, except at the one-row floor; and with a long title every line render(width) returns, header included, fits within that width with the keys that change a rendered line truncated last — both proven by render assertions, with EV-36's one-row Acceptance reconciled.
 ---
+
 
 ## Intent
 
@@ -32,6 +33,30 @@ The allocation mechanism — how much body window the pin costs, how follow
 reconciles with a focused head above the tail — is this card's own run's
 design call.
 
+---
+
+### Absorbed: FLLWUP-38 — Clamp the inline progress transcript header to the granted render width
+
+The header built in `TranscriptView.render` (`extensions/navigator.ts:803`)
+concatenates `<title>` with the ruled keymap copy and is returned unclamped;
+the tree rows and the progress separator are width-clamped by the caller
+(`:429-430`) while the transcript's lines are not, so a title carrying a job
+id, a seat, and `(orphaned)` plus R-KEYMAP's added ` · g/G jump` can exceed
+the granted render width, where the terminal wraps or clips the line,
+consuming rows the epic's viewport budget assumes are not consumed and
+hiding the keymap tail on narrow terminals.
+
+This is a defect of the epic's own granted-viewport contract, not a
+preference. The truncation order (the designer's round-1 preference is the
+title first, then `g/g`/`esc` copy, never the keys that change a rendered
+line) is this card's own run's call.
+
+Ruled against folding into `FLLWUP-37`: distinct defect, distinct falsifier
+(a long title clips even on a non-overflowing transcript), and a fold would
+let the width defect evaporate if EV-36 consumes the vertical case and
+`FLLWUP-37` retires. If both are later promoted, they touch one header
+expression and should land under one writer.
+
 ## Acceptance
 
 - Over a fixture whose composed output exceeds the granted viewport with
@@ -46,15 +71,15 @@ design call.
 - EV-7/EV-8/EV-9/EV-35 suites stay green; render output adds no literal
   color; the header pin does not break T11 inline-vs-standalone parity.
 
-## Phase 1 ruling (features-deliver, EPIC-8)
+---
 
-Confirmed by `steward` under **R-FOLLOWUP** at step 13 of the EV-35 run
-against merged SHA `85db7a689c8ab7df1fb87f3843d5465fd3d7d8e8` (PR #49) as a
-**new follow-up, not a fold-in**, citing the EV-35 Q2 ruling. Acceptance
-bullet 1 carries the same one-row carve-out as the goal so bullets 1 and 3
-cannot contradict each other.
+### From FLLWUP-38 — Clamp the inline progress transcript header to the granted render width
 
-The card stays `Backlog` as confirmed. `R-ORDER` (EV-33 → EV-34 → EV-35 →
-EV-36) is a recorded human decision and is untouched; promotion is a later,
-human-reachable call. A `Backlog` card retires for free if EV-36 consumes
-the case.
+- With a long title and the ruled keymap copy, every line `render(width)`
+  returns at that width fits within that width, the header line included,
+  proven by width-aware render assertions over a long-title fixture.
+- The keys that change a rendered line (`↑↓ move`, `e expand`,
+  `t thinking`, `f follow`) are truncated last — never before the title or
+  the `g/G`/`esc` copy.
+- EV-7/EV-8/EV-9/EV-35 suites stay green; render output adds no literal
+  color; T11 inline-vs-standalone parity holds.

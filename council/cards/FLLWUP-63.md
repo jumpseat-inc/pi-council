@@ -1,11 +1,12 @@
 ---
 id: FLLWUP-63
-title: Fix the EV-40 backoff jitter test's unsatisfiable top edge (merged-SHA CI flake)
+title: Test-determinism sweep: close the backoff-jitter top edge and the EV-68 textTree minute-boundary flake
 state: Backlog
 owner: null
-epic: EPIC-9
-goal: The EV-40 `computeBackoffDelay` jitter test is corrected to assert an envelope matching the shipped `Math.round`-over-`[0.5, 1.5) × cap` formula (closed at the top edge) rather than a strict half-open `toBeLessThan(7500)`, with the flake class pinned by a seeded adversarial case at `rand ≥ 0.9999`.
+epic: null
+goal: The EV-40 computeBackoffDelay jitter test asserts an envelope matching the shipped Math.round formula (closed at the top edge) with a seeded adversarial case at rand ≥ 0.9999, and the EV-68 test-4 textTree byte-equality assertion no longer depends on two calls sharing a minute boundary — the fixture injects or freezes the clock, and a repeated-run harness produces zero flakes.
 ---
+
 
 ## Intent
 
@@ -38,10 +39,26 @@ cap-binds-before-jitter property the test exists to pin. No behavior
 change to `computeBackoffDelay` is implied unless the spec-side reading
 wins — in which case the change is the rounding policy, not the cap.
 
-## Origin
+---
 
-- FLLWUP-50 step 12 (facilitator): merged-SHA CI failure analysis,
-  run 35350665364 fail → rerun success, local reproduction absent (6/6
-  green), arithmetic proof above.
-- Judge/skeptic unaffected: PR-head CI (criterion 2) was green; the flake
-  is post-merge, unrelated to the FLLWUP-50 diff.
+### Absorbed: FLLWUP-80 — Bound the EV-68 textTree byte-equality flake window
+
+Filed from EV-68's step-13 follow-up candidate. The test asserts byte-equality of
+two `textTree` renders produced by two calls about a millisecond apart; when the
+two calls straddle a `toFixed` minute boundary the byte comparison can differ,
+giving a roughly 1-in-6000 flake window with no observed failure yet. This is the
+same class as FLLWUP-63 (an unsatisfiable/flaky test edge) and should be closed
+before it flakes CI on an unrelated PR.
+
+## Acceptance
+
+---
+
+### From FLLWUP-80 — Bound the EV-68 textTree byte-equality flake window
+
+- The assertion is deterministic across a forced minute rollover.
+- The clock is injected or frozen by the fixture, not slept around.
+- A harness runs the assertion at least 1000 times across the rollover with zero
+  flakes.
+- The EV-68 mechanism (optional `mode` on the root manifest, backward-compatible
+  read/sum) is unchanged.
