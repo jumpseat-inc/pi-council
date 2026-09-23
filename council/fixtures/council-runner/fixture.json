@@ -11,7 +11,7 @@
 	"inputFile": "input.md",
 	"seed": {
 		"dir": "seed",
-		"treeDigest": "sha256:34b2f9a48cbe2009155f3a56265d2c51022d961ec6172467f1f357f7fc730dfc"
+		"treeDigest": "sha256:63bec718f4d4a6a0e7ac12c012414bb6b2aa0269eb45bab2b9a5fbbddc6874b1"
 	},
 	"env": {
 		"TZ": "UTC"
