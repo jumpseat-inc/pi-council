@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-109
 title: Foreign --cache-file parent: absent parent is created before the cache write
-state: Backlog
+state: Ready
 owner: null
 epic: EPIC-15
 goal: A non-offline run of council/skills/usages/scripts/usages.py with --out-dir <dir> and --cache-file <repo>/nested/absent/.cache.json (parent directory absent, live analytics stub) exits 0, creates <repo>/nested/absent/, leaves the parsed .cache.json at the --cache-file path holding the stubbed generation_id, and emits no usages: could not write cache: line on stderr.
@@ -36,3 +36,18 @@ the non-fatal warning, per EPIC-15 R4.
   red-base record.
 - `bun test test/usages.test.ts`, `bunx tsc --noEmit`, and
   `python3 council/validate.py` pass.
+
+## Phase 1 Rulings (this run — features-deliver, EPIC-15 residuals)
+
+Recorded before any `council-runner` was dispatched. Binding on every seat,
+`steward` included; cited, never re-asked.
+
+- **Scope/promotion:** this card is promoted `Backlog` → `Ready` as part of the
+  run's five-card residual scope (`FLLWUP-107`–`FLLWUP-111`); `EPIC-15` stays
+  `Done`.
+- **Sequencing (steward, job-1):** `FLLWUP-111 → FLLWUP-109 → FLLWUP-110 →
+  FLLWUP-107 → FLLWUP-108`, one runner at a time.
+- **R-A (record push) and R-B (merge):** run-scoped authorizations recorded on
+  `council/cards/EPIC-15.md`'s residual-run Phase-1 section.
+- **Design already ratified (consumed, not re-asked):** create the absent
+  `--cache-file` parent; do not reject it with a usage error.

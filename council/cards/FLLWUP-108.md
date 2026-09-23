@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-108
 title: Usages remediation pin: catch command-drop and update-step-drop
-state: Backlog
+state: Ready
 owner: null
 epic: EPIC-15
 goal: The usages-procedure pin goes red when a later edit drops either refresh command or the package-update step from the remediation sentence, without going red on a claim-preserving rewording of the sentence.
@@ -39,3 +39,16 @@ must go red).
 - `council/validate.py` gains nothing — the pin stays in `test/`, per the
   docs-card rule.
 - `bunx tsc --noEmit`, `bun test`, and `python3 council/validate.py` pass.
+
+## Phase 1 Rulings (this run — features-deliver, EPIC-15 residuals)
+
+Recorded before any `council-runner` was dispatched. Binding on every seat,
+`steward` included; cited, never re-asked.
+
+- **Scope/promotion:** this card is promoted `Backlog` → `Ready` as part of the
+  run's five-card residual scope (`FLLWUP-107`–`FLLWUP-111`); `EPIC-15` stays
+  `Done`.
+- **Sequencing (steward, job-1):** `FLLWUP-111 → FLLWUP-109 → FLLWUP-110 →
+  FLLWUP-107 → FLLWUP-108`, one runner at a time.
+- **R-A (record push) and R-B (merge):** run-scoped authorizations recorded on
+  `council/cards/EPIC-15.md`'s residual-run Phase-1 section.

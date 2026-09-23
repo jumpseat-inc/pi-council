@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-107
 title: Renderer substitution-set pin for procedure copy
-state: Backlog
+state: Ready
 owner: null
 epic: EPIC-15
 goal: A test asserts renderProcedure substitutes exactly $COUNCIL_PROCEDURES and $ARGUMENTS, and no packaged procedure ships containing an unrendered $CONFIG_DIR_NAME or @CONFIG_DIR@ token.
@@ -34,3 +34,16 @@ why FLLWUP-105's shipped sentence speaks a literal `.pi/` path.
   FLLWUP-105's `test/usages-procedure.test.ts` pin, which stays exactly
   three-literal per its amended acceptance.
 - `bunx tsc --noEmit`, `bun test`, and `python3 council/validate.py` pass.
+
+## Phase 1 Rulings (this run — features-deliver, EPIC-15 residuals)
+
+Recorded before any `council-runner` was dispatched. Binding on every seat,
+`steward` included; cited, never re-asked.
+
+- **Scope/promotion:** this card is promoted `Backlog` → `Ready` as part of the
+  run's five-card residual scope (`FLLWUP-107`–`FLLWUP-111`); `EPIC-15` stays
+  `Done`.
+- **Sequencing (steward, job-1):** `FLLWUP-111 → FLLWUP-109 → FLLWUP-110 →
+  FLLWUP-107 → FLLWUP-108`, one runner at a time.
+- **R-A (record push) and R-B (merge):** run-scoped authorizations recorded on
+  `council/cards/EPIC-15.md`'s residual-run Phase-1 section.

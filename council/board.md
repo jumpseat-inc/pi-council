@@ -6,11 +6,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Backlog
 
-- FLLWUP-109 — Foreign --cache-file parent: absent parent is created before the cache write
-- FLLWUP-110 — Cache hit/miss counts in the human-readable usages summary
-- FLLWUP-111 — Migrate runTool in test/usages.test.ts to the async spawn pattern
-- FLLWUP-107 — Renderer substitution-set pin for procedure copy
-- FLLWUP-108 — Usages remediation pin: catch command-drop and update-step-drop
 - EV-85 — Seat-composition decisions as repo-overridable packaged data
 - EV-86 — Pure seat-composition decision function with a fail-safe Default
 - EV-87 — One-call seat-composition orchestration over the shared Jev transport
@@ -106,6 +101,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-48 — Packaged seat-tier map with repo-local merge override
 - EV-57 — Resolve the running pi-council identity from the package root
 - EV-58 — Show the pi-council version and hash on the first pi run
+- FLLWUP-111 — Migrate runTool in test/usages.test.ts to the async spawn pattern
+- FLLWUP-109 — Foreign --cache-file parent: absent parent is created before the cache write
+- FLLWUP-110 — Cache hit/miss counts in the human-readable usages summary
+- FLLWUP-107 — Renderer substitution-set pin for procedure copy
+- FLLWUP-108 — Usages remediation pin: catch command-drop and update-step-drop
 
 ## Deliberating
 

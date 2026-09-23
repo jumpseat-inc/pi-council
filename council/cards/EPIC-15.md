@@ -87,3 +87,42 @@ Closed under `/features-deliver` on the recorded Phase-1 rulings R1–R4.
 - **Orchestrator-level residual, no card:** a batched `chore(release)` bump
   covering the BUG-2 + FLLWUP-105 + FLLWUP-106 payload is owed; per the
   `product-owner` ruling it is not a per-card closure condition.
+
+## Residual run — Phase 1 rulings (features-deliver, FLLWUP-107–111 run)
+
+Human decisions recorded before the first `council-runner` was dispatched and
+before this run's first record push. Immutable for this run and binding on
+every seat, `steward` included; a runner that hits one applies it and cites the
+ruling rather than re-asking.
+
+- **Scope/promotion.** `FLLWUP-107`–`FLLWUP-111` (five `Backlog` residuals under
+  this `Done` epic) are promoted to `Ready` and are this run's delivery scope.
+  `EPIC-15` itself stays `Done`; these are residual cards, not an epic re-open.
+- **Sequencing (strategy row).** Build order is re-homed to `steward`; the
+  orchestrator dispatches one `council-runner` per card in `steward`'s ruled
+  order, never two at once. Steward (job-1) ruled
+  `FLLWUP-111 → FLLWUP-109 → FLLWUP-110 → FLLWUP-107 → FLLWUP-108` with no
+  retirements.
+- **R-A — record push (merge row, adjacent).** The human authorized, for this
+  run only, the step-12 record commit to be pushed directly to `main` with the
+  pusher's admin identity, satisfying `council.md` step 12's precondition that
+  an explicit, run-scoped, human-recorded authorization exists on the run's
+  Phase-1 record before the run's first record push. Disclosed in the run
+  ledger (Phase 3). Not extended to any later run.
+- **R-B — merge (merge row).** The human authorized, for this run only,
+  `gh pr merge <PR> --squash --admin --match-head-commit <X>`, `<X>` the exact
+  head SHA merge-check criterion 2 (`gates` workflow `SUCCESS`) was read
+  against; a SHA mismatch is a HALT, not a retry. All five deterministic
+  criteria still hold; `--admin` only clears the ruleset's approving-review
+  requirement. Not extended to any later run.
+- **First-merge watching.** The human declared the run unattended, waiving the
+  "first autonomous merge should be watched" expectation; R-B stands as the
+  recorded authorization for every merge in this scope.
+- **Design ratifications (already recorded — consumed, not re-asked).**
+  FLLWUP-109's "create the parent" design and rejection of a usage error;
+  FLLWUP-110 and FLLWUP-111 as separate cards, not folded into BUG-2; FLLWUP-107
+  (Q3a, File) and FLLWUP-108 (Q2/Q3b) routed to their own cards by the
+  2026-09-24 product-owner rulings.
+- **Follow-ups (judgment row).** `council.md` step 13's draft-then-confirm gate
+  is re-homed to `product-owner`, which confirms, edits, or drops each follow-up
+  draft before the card is written.
