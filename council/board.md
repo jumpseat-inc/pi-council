@@ -92,9 +92,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- EV-89 — Systematize Phase 1 open-judgment rulings into a durable class-enumerated record
-
 ## In Review
+
+- EV-89 — Systematize Phase 1 open-judgment rulings into a durable class-enumerated record
 
 ## Needs Human
 
