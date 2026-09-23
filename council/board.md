@@ -84,8 +84,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-- EV-89 — Systematize Phase 1 open-judgment rulings into a durable class-enumerated record
-
 ## Ready
 - EV-48 — Packaged seat-tier map with repo-local merge override
 - EV-57 — Resolve the running pi-council identity from the package root
@@ -93,6 +91,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-90 — Pass renderProcedure-substituted council.md and features-deliver.md into the council-runner dispatch
 
 ## In Progress
+
+- EV-89 — Systematize Phase 1 open-judgment rulings into a durable class-enumerated record
 
 ## In Review
 
