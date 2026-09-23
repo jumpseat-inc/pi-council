@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-108
 title: Usages remediation pin: catch command-drop and update-step-drop
-state: In Progress
+state: In Review
 owner: null
 epic: EPIC-15
 goal: The usages-procedure pin goes red when a later edit drops either refresh command or the package-update step from the remediation sentence, without going red on a claim-preserving rewording of the sentence.

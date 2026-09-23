@@ -103,9 +103,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-58 — Show the pi-council version and hash on the first pi run
 
 ## In Progress
-- FLLWUP-108 — Usages remediation pin: catch command-drop and update-step-drop
 
 ## In Review
+- FLLWUP-108 — Usages remediation pin: catch command-drop and update-step-drop
 
 ## Needs Human
 
