@@ -94,11 +94,10 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- EV-89 — Systematize Phase 1 open-judgment rulings into a durable class-enumerated record
-
 ## Needs Human
 
 ## Done
+- EV-89 — Systematize Phase 1 open-judgment rulings into a durable class-enumerated record
 - FLLWUP-104 — Fix the live noul answer-shape drift — the decisions API returns `{"type":"noul","noul":<p>}`, the engine reads `probability`, in both gate domains
 - EPIC-15 — Usages tool creates its output directory before writing the cache
 - FLLWUP-111 — Migrate runTool in test/usages.test.ts to the async spawn pattern
