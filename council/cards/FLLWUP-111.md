@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-111
 title: Migrate runTool in test/usages.test.ts to the async spawn pattern
-state: Ready
+state: In Progress
 owner: null
 epic: EPIC-15
 goal: test/usages.test.ts contains no spawnSync call — every usages-tool invocation goes through a helper using Bun.spawn with await proc.exited — and bun test test/usages.test.ts passes.
