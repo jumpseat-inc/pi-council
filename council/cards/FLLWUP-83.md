@@ -3,7 +3,7 @@ id: FLLWUP-83
 title: Close the prototype-chain `in` class across the gate loaders and pin or remove gate-state's duplicated policy read
 state: Backlog
 owner: null
-epic: null
+epic: EPIC-16
 goal: loadGateDecision's mechanical-record check, loadGatePolicy's unknown-key check (and loadGateQuestions if it shares the class), and gate-state's duplicated lenient policy read are all reconciled — prototype-named keys (toString, constructor, valueOf) are refused with a single-line FAIL: naming the file and key, and the duplicated read is either resolved through the validated loader or its load-order invariant is pinned by test — with the packaged policy.json/questions.json/decision.json validating clean.
 ---
 

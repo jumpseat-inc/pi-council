@@ -3,7 +3,7 @@ id: FLLWUP-61
 title: Worktree-seat cwd discipline for edit/write tools
 state: Backlog
 owner: null
-epic: EPIC-9
+epic: EPIC-22
 goal: When `owner` or `skeptic` dispatch inside a worktree, edit/write tools resolve against the worktree (not the session cwd) by seat-prompt discipline — absolute worktree paths or a session-level `cd` into the worktree before any edit/write — and a red-first test pins that discipline in the FLLWUP-42 prose-pin idiom.
 ---
 

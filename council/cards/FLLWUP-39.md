@@ -3,7 +3,7 @@ id: FLLWUP-39
 title: Dispose the replaced transcript view when the inline progress surface switches sessions
 state: Backlog
 owner: null
-epic: EPIC-8
+epic: EPIC-19
 goal: Switching the inline progress surface to another seat's session disposes the replaced `TranscriptView`, so its one-second interval is cleared and its `onChange` can no longer fire, proven by a session-switch assertion that the replaced view is disposed and only one view remains live.
 ---
 

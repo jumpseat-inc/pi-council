@@ -3,7 +3,7 @@ id: FLLWUP-71
 title: Add the user-visibility question to the gate question set — let a recorded Verify re-route on a surface-touching card
 state: Backlog
 owner: null
-epic: EPIC-13
+epic: EPIC-16
 goal: council/gate/questions.json carries a user-visibility question — userVisibility, a noul asking whether the change alters what a person sees, reads, or does (any visible surface, user-visible copy including strings and error text, an empty state, or an error state) — with the set's version bumped to gate-questions-2, a pre-registration record under EV-72's discipline naming the evidence that motivated the question (EV-69's Item B residual: no gate override covered surface-touching, so a recorded Verify on a surface-touching card lost the designer review), the matching override rule in council/gate/decision.json that hard-routes to Deliberate when userVisibility answers yes, and a falsifier proving a card whose observed touched-file set makes the rebuilt state answer userVisibility yes re-routes a recorded Verify to the full path with exactly one new v2 call line.
 ---
 

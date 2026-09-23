@@ -3,7 +3,7 @@ id: FLLWUP-102
 title: Follow-up surface amendments: stop asserting `model-card coming-soon` on http-404 and cover the wrapper's advisory arm
 state: Backlog
 owner: null
-epic: EPIC-10
+epic: EPIC-16
 goal: The step-13 unavailable-state render no longer asserts `model-card coming-soon` on an http-404 (the recorded HTTP reason is not discarded), and test/ev83-runner-followup.test.ts drives composeFollowupReview under advisory and asserts the `(advisory)` qualifier versus `(active)` with the basis tokens `confirmation-pending`/`advisory-only` pinned verbatim — each new assertion recorded non-vacuous, existing byte baselines re-expressed, no shipped behavior or prose changed.
 ---
 

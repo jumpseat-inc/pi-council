@@ -3,7 +3,7 @@ id: FLLWUP-65
 title: Reclassify council/cards/_template.md as a package-resolved resource
 state: Backlog
 owner: null
-epic: EPIC-9
+epic: EPIC-20
 goal: council/cards/_template.md is resolved from the installed package at point of use (the procedures model), shadowed by an intentional consumer override if one exists, and drops out of the FLLWUP-50 refresh path's writable tooling set entirely (tooling class shrinks to exactly council/validate.py, the set-equality guard and the scaffold.json record follow, and the packaged-byte-parity pin for _template.md moves to the resolution mechanism) — eliminating one file from the refresh path's bootstrap ask and one whole skew class.
 ---
 

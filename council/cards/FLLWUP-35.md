@@ -3,7 +3,7 @@ id: FLLWUP-35
 title: Usage/accounting wiki page for the EPIC-7 lineage
 state: Backlog
 owner: null
-epic: EPIC-7
+epic: EPIC-17
 goal: `vault/wiki/usage-accounting.md` documents the EV-28 through EV-32 usage chain — the token and cost tuple with provenance, the invocation-scoped two-half SpendRecord, the durable store at `getAgentDir()/council/usage/`, and the five-exit usage block — and `vault/wiki/index.md` links it.
 ---
 

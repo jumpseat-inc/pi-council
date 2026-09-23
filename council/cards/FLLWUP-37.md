@@ -3,7 +3,7 @@ id: FLLWUP-37
 title: Inline progress transcript header: pin it under viewport overflow and clamp every returned line to the granted width
 state: Backlog
 owner: null
-epic: EPIC-8
+epic: EPIC-19
 goal: With follow mode on and composed output exceeding the granted viewport, the inline progress transcript returns the header line (keymap + follow indicator) within the granted viewport without slicing the focused unit's marked head, except at the one-row floor; and with a long title every line render(width) returns, header included, fits within that width with the keys that change a rendered line truncated last — both proven by render assertions, with EV-36's one-row Acceptance reconciled.
 ---
 

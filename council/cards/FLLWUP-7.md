@@ -3,7 +3,7 @@ id: FLLWUP-7
 title: Retention policies for the append-only stores: eval-results cohorts and the durable usage store
 state: Backlog
 owner: null
-epic: null
+epic: EPIC-17
 goal: council/eval-results stops growing without bound under a retention rule that never prunes the newest version cohort of any cell (whole superseded cohorts or named cells only, never individual repeats), and the durable usage store applies a bounded retention policy that keeps recent records while preserving the provenance pointers of survivors, each proven by a test with byte-identical recompute/read-back for survivors.
 ---
 

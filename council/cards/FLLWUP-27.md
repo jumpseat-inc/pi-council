@@ -3,7 +3,7 @@ id: FLLWUP-27
 title: Preflight branch-freshness clause vs mid-card record pushes
 state: Backlog
 owner: null
-epic: EPIC-7
+epic: EPIC-21
 goal: `council/preflight.sh` accepts an autonomous runner's card branch as fresh when the branch merge-base is an ancestor of `origin/main` even though `origin/main` has advanced with record commits, and an automated test over a fixture repository asserts the check passes in that state and still fails for a genuinely stale branch.
 ---
 

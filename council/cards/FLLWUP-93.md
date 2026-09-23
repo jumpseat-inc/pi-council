@@ -3,7 +3,7 @@ id: FLLWUP-93
 title: Consumer-repo-safe protection for wiki-cited code paths (the T1-class check beyond this repo)
 state: Backlog
 owner: null
-epic: EPIC-14
+epic: EPIC-20
 goal: Decide as tooling design — not as a docs fold-in — whether and how the T1-class protection EV-77 shipped in test/ev77-gate-docs.test.ts (every backticked code path cited in vault/wiki/*.md exists; every page is reached from the wiki index) can protect initialized consumer repos, where a legitimate wiki citation of package internals resolves under the install clone rather than the consumer root; the design must not hardcode this package's layout into council/validate.py (packaged tooling, TOOLING_FILES, consent-gated /council-update refresh), and if packaged tooling changes, the card carries the /council-update surface and semver implications.
 ---
 

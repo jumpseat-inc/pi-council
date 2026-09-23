@@ -3,7 +3,7 @@ id: FLLWUP-112
 title: Render a config-home token in procedure copy and derive the packaged-procedure scan's allowlist from renderProcedure's substitution set
 state: Backlog
 owner: null
-epic: EPIC-15
+epic: EPIC-20
 goal: renderProcedure substitutes a config-home token ($CONFIG_DIR_NAME, and/or @CONFIG_DIR@) in a procedure body to the consuming repo's resolved config-dir name, and the packaged-procedure scan derives its allowed-token set from renderProcedure's substitution set and fails loud on any other unrendered `$…`/`@…` token, so no packaged procedure ships a literal `.pi/` path and the scan cannot go stale silently.
 ---
 

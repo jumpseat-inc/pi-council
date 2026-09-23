@@ -3,7 +3,7 @@ id: FLLWUP-26
 title: Per-run cumulative token ceiling guard in /council
 state: Backlog
 owner: null
-epic: EPIC-7
+epic: EPIC-17
 goal: While a /council run is in progress, the facilitator tracks cumulative input, output and cost across all dispatched seats and stops the run to surface the situation to the human before a configurable cumulative dollar ceiling is exceeded.
 ---
 

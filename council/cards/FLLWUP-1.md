@@ -3,7 +3,7 @@ id: FLLWUP-1
 title: Council theme export: no-crash under an in-memory theme, editable export overrides, and variant discoverability
 state: Backlog
 owner: null
-epic: null
+epic: EPIC-19
 goal: /export produces correct HTML output (no crash, palette matching the configured .council.json theme) under an in-memory council theme; the .council.json theme export section (pageBg/cardBg/infoBg) is overridable per-variant; and first-time consumers discover/use the dark/light variant split (a recorded finding with evidence, changing only docs/seed if action is warranted).
 ---
 

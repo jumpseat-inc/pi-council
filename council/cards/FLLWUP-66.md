@@ -3,7 +3,7 @@ id: FLLWUP-66
 title: Per-file refresh (--refresh-file <path>) for data-class scaffold files, preflight.sh first
 state: Backlog
 owner: null
-epic: EPIC-9
+epic: EPIC-20
 goal: A consumer with an adapted council/preflight.sh (data-class: reported-only today) has a documented, consent-gated command path to pull a single named scaffold file from the installed package — `--refresh-file <path>` on /council-update or equivalent — with the same backup + diff-shown + per-file accept consent posture FLLWUP-50 shipped for the tooling class, the data-class write prohibition lifted only for the explicitly named file, and the set-equality classification guard extended (or documented) so the named-file exception cannot widen implicitly.
 ---
 

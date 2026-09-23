@@ -3,7 +3,7 @@ id: FLLWUP-67
 title: Wiki pages for the refresh path — hop chain, scaffold-copied resources in override-resolution, non-clobbering companion
 state: Backlog
 owner: null
-epic: EPIC-9
+epic: EPIC-20
 goal: The wiki documents the FLLWUP-50 refresh surface's grounding: a hop-chain page stating which bytes a consumer executes vs which the installed package supplies at runtime (procedures from PK_ROOT unless overridden; validate.py, _template.md, preflight.sh from the consumer copy frozen at init — with validate.py's ROOT-from-__file__ coupling named as the reason it is not overrideable); [[override-resolution]]'s table gains the scaffold-copied resources (validate.py, _template.md, preflight.sh — and the scaffold.json record type) with their override tiers; [[non-clobbering-scaffold]] gains the companion "what to do when non-clobbering is the wrong path" section naming /council-update, the tooling/data classification, and the consent posture; [[preflight]]'s overstatement (derivation claim and the absent check-pi-drift.sh reference) is corrected — authored via /wiki-ingest, never hand-edited under vault/.
 ---
 

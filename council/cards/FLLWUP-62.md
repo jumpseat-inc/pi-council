@@ -3,7 +3,7 @@ id: FLLWUP-62
 title: Gate the mid-block colon-bearing frontmatter continuation residual
 state: Backlog
 owner: null
-epic: EPIC-9
+epic: EPIC-22
 goal: A mid-block colon-bearing continuation of a non-goal key (e.g. `owner:` wrapped as ` queue: …` before `goal`) is refused by `parse_frontmatter` with a FAIL naming the wrap instead of parsing the continuation as a spurious key and validating green, where the FLLWUP-51 residual pin (test R10) flips in the same change and whitespace-leading keys the loader currently accepts silently still parse clean.
 ---
 

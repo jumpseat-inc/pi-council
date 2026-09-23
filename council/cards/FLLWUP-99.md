@@ -3,7 +3,7 @@ id: FLLWUP-99
 title: Make the card gate actually meter: write the decision policy's version and diagnose the missing answer probabilities
 state: Backlog
 owner: null
-epic: EPIC-13
+epic: EPIC-16
 goal: runGate writes the decision policy's version (not the gate tuning policy's policyVersion) on both ledger arms so a real runGate-produced line re-derives through resolveRoute to source: "recorded", and the decisions transport's answers reaching decide() without usable probabilities are diagnosed — proven by a gated live arm producing a line resolveRoute reads back as a reduced mode, with the fail-closed posture byte-identical.
 ---
 

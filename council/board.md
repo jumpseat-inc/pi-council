@@ -15,7 +15,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-102 — Follow-up surface amendments: stop asserting `model-card coming-soon` on http-404 and cover the wrapper's advisory arm
 - FLLWUP-99 — Make the card gate actually meter: write the decision policy's version and diagnose the missing answer probabilities
 - FLLWUP-97 — Follow-up board cap: pin the headroom probe's no-trim tripwire and add the recency window when the cap binds
-- FLLWUP-95 — Cut the EPIC-14 release — bump `package.json` past 0.28.0, tag, and move `latest`
 - FLLWUP-93 — Consumer-repo-safe protection for wiki-cited code paths (the T1-class check beyond this repo)
 - FLLWUP-89 — Run-start credential preflight: cover /features-new, prove the stale-scaffold reach end to end, and normalize the injected-apiKey seam
 - FLLWUP-85 — `.council.json` write-path hardening: seed the gate section with a canonical key order and add a concurrency discipline
@@ -73,6 +72,14 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-56 — End-to-end falsifier for headless /council-init non-clobber
 - EV-59 — End-to-end falsifier for the first-run identity line
 - EPIC-12 — pi-council version and git hash on the first pi run
+
+- EPIC-16 — Close the decisions-gate residuals — question data, loader invariants, routing execution, gate surfaces, and the follow-up sibling
+- EPIC-17 — Close the usage-accounting residuals and add retention for the append-only stores
+- EPIC-18 — Close the model-eval-harness residuals — judge projection, judge-bearing smoke, and leaderboard drill-down
+- EPIC-19 — Close the council output-surface residuals — transcript header/lifecycle, the RPC tree path, and theme export
+- EPIC-20 — Close the packaged-resource residuals — `_template.md` reclassification, per-file refresh, refresh-path wiki, consumer-repo path protection, and the config-home procedure token
+- EPIC-21 — Close the config-runtime and run-start preflight residuals
+- EPIC-22 — Close the process and test-discipline residuals
 
 ## Deliberating
 

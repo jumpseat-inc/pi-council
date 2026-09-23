@@ -3,7 +3,7 @@ id: FLLWUP-97
 title: Follow-up board cap: pin the headroom probe's no-trim tripwire and add the recency window when the cap binds
 state: Backlog
 owner: null
-epic: EPIC-10
+epic: EPIC-16
 goal: The EV-80 real-board headroom probe asserts per-section `truncated === false` over the shipped board in addition to the cap arms, and when the follow-up board section's measured tokens exceed its cap the packer keeps a recency window of whole Done entries — dropping whole stale entries, never titles or any open entry — with the cut declared in the drop record, proven by a tamper test and a fattened-board test.
 ---
 

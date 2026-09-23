@@ -3,7 +3,7 @@ id: FLLWUP-63
 title: Test-determinism sweep: close the backoff-jitter top edge and the EV-68 textTree minute-boundary flake
 state: Backlog
 owner: null
-epic: null
+epic: EPIC-22
 goal: The EV-40 computeBackoffDelay jitter test asserts an envelope matching the shipped Math.round formula (closed at the top edge) with a seeded adversarial case at rand ≥ 0.9999, and the EV-68 test-4 textTree byte-equality assertion no longer depends on two calls sharing a minute boundary — the fixture injects or freezes the clock, and a repeated-run harness produces zero flakes.
 ---
 

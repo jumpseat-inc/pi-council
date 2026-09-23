@@ -3,7 +3,7 @@ id: FLLWUP-82
 title: Gate questions↔weights equality: harden the loaders and fail loud at the composition site
 state: Backlog
 owner: null
-epic: null
+epic: EPIC-16
 goal: Every gate question id is single-line and cross-referenced — loadGateQuestions refuses a newline-bearing id, loadGateDecision refuses an overrides[].question/weights/mechanical id absent from questions.json and a noul override naming no criterion key, a rule that can never fire is refused, and composing a question set with its decision policy fails loud naming both files and offending ids in each direction for both the follow-up pair and the card-gate pair.
 ---
 

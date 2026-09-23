@@ -3,7 +3,7 @@ id: FLLWUP-89
 title: Run-start credential preflight: cover /features-new, prove the stale-scaffold reach end to end, and normalize the injected-apiKey seam
 state: Backlog
 owner: null
-epic: EPIC-14
+epic: EPIC-21
 goal: /features-new gains a run-start preflight invocation (or a recorded product-owner ruling that it deliberately has none); an end-to-end test drives a stale-scaffold consumer repo through a gate-on-no-credential run start to the EV-76 single-line FAIL; and runStartGatePreflight's injected-apiKey seam treats the empty string as absent like the runtime resolver, each pinned by test.
 ---
 

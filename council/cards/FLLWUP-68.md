@@ -3,7 +3,7 @@ id: FLLWUP-68
 title: Reusable cold-read persona harness over council output surfaces
 state: Backlog
 owner: null
-epic: null
+epic: EPIC-22
 goal: A cold-read persona falsifier — fixture/repo + captured verbatim output + downstream persona read, thresholds fixed before the read, answers recorded verbatim — settles the un-run person-comprehension predictions on the FLLWUP-50 refresh surface (P1 amended/P6/P9) and the step-13 follow-up surface (P1/P2/P3/P5/P7/P9), with any failed prediction grounding a copy fix whose byte tests are re-expressed rather than deleted.
 ---
 

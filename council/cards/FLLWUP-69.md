@@ -3,7 +3,7 @@ id: FLLWUP-69
 title: Pin the step-13 follow-up confirmation gate as pre-write and mark ledger-level confirmation unsanctioned
 state: Backlog
 owner: null
-epic: EPIC-9
+epic: EPIC-22
 goal: `council/procedures/council.md` step 13 and `council/procedures/features-deliver.md` Phase 1's re-homed follow-up judgment row each state that a follow-up draft is confirmed, edited, or dropped by the ruling seat before any card is written, and that writing cards first and confirming them at ledger level afterward is not a sanctioned posture, proven by a test pinning the pre-write clause in both files and asserting the literal `confirmed at ledger level` appears only inside a sentence that negates it.
 ---
 

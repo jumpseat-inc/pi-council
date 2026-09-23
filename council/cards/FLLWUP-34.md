@@ -3,7 +3,7 @@ id: FLLWUP-34
 title: Bounded retry policy for a failed usage-store write
 state: Backlog
 owner: null
-epic: EPIC-7
+epic: EPIC-17
 goal: A failed usage-store write with a retryable error such as EACCES is retried according to a documented bounded policy before the pending entry is dropped, and an automated test asserts the retry count and the final notify on exhaustion for a fixture failure.
 ---
 

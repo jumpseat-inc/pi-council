@@ -3,7 +3,7 @@ id: FLLWUP-6
 title: Judge-bearing fixture smoke (Phase 5)
 state: Backlog
 owner: null
-epic: EPIC-4
+epic: EPIC-18
 goal: The smoke drives a judge-bearing fixture end to end so grader rows, verdict records, and TRIAGE rendering have a container-level falsifier
 ---
 

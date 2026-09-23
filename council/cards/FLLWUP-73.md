@@ -3,7 +3,7 @@ id: FLLWUP-73
 title: Refresh the deterministic-merge-check wiki page for the mode-aware ruleset
 state: Backlog
 owner: null
-epic: EPIC-13
+epic: EPIC-16
 goal: `vault/wiki/deterministic-merge-check.md` describes the five merge criteria as one unconditional ruleset; after EV-70 it must describe the mode→criteria table (Deliberate verbatim five; Verify all five with mode-scoped criterion 3; Direct criteria 1, 2, 5), the two verbatim HALT lines, the run-substrate mode read, and the unchanged criterion-2 `workflow`-field reading with `--match-head-commit` pinning.
 ---
 

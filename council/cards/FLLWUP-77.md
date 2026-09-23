@@ -3,7 +3,7 @@ id: FLLWUP-77
 title: Usage block gate legend: name the excluded call count, use the self-describing `deliberation` key, and signpost the gate ledger
 state: Backlog
 owner: null
-epic: EPIC-13
+epic: EPIC-16
 goal: The usage block's gate legend names how many gate calls it excludes (`usage  deliberation = <N> call(s) excluded from this total`), uses the self-describing key `deliberation`, and carries a signpost to the gate ledger resolved through CONFIG_DIR_NAME (never a hardcoded .pi), with golden tests over the one-call/multi-call/zero-call cases, the whole-block-state grammar scoping extended to permit the count-bearing legend, and the row's prefix, label column, and reported → partial → n/a → deliberation stack slot unchanged.
 ---
 

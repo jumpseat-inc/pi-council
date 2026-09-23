@@ -3,7 +3,7 @@ id: FLLWUP-28
 title: Widen cellScope.usage to the full tuple and amend the eval-store contract
 state: Backlog
 owner: null
-epic: EPIC-7
+epic: EPIC-17
 goal: The persisted `StoredResultRecord.cellScope.usage` carries the full usage tuple (input, output, cacheRead, cacheWrite, reasoning, totalTokens, the four cost components and costBasis) and `vault/wiki/eval-store-contract.md` records the amended shape, with an automated test asserting a written record round-trips the full tuple.
 ---
 

@@ -3,7 +3,7 @@ id: FLLWUP-31
 title: Per-node subtree reconciliation against seat session files
 state: Backlog
 owner: null
-epic: EPIC-7
+epic: EPIC-17
 goal: The invocation-scoped spend record's subtree half reconciles each job's usage from that job's seat session file rather than the stream projection, and an automated test asserts the record's subtree total matches the hand sum over the seat session JSONLs for a fixture run.
 ---
 

@@ -3,7 +3,7 @@ id: FLLWUP-85
 title: `.council.json` write-path hardening: seed the gate section with a canonical key order and add a concurrency discipline
 state: Backlog
 owner: null
-epic: EPIC-14
+epic: EPIC-21
 goal: council/scaffold/.council.json seeds a top-level gate section {"mode":"off"} and pins a canonical top-level key order the writeGateMode insert path honors, and the shared writer gains a named concurrency discipline (lock/lease or versioned write-and-verify) so two concurrent sessions no longer silently lose an update — each proven by test with byte-preservation guarantees unchanged.
 ---
 

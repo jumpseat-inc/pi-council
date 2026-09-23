@@ -3,7 +3,7 @@ id: FLLWUP-4
 title: Repair /council-tree RPC silent-no-op in navigator.ts:57
 state: Backlog
 owner: null
-epic: null
+epic: EPIC-19
 goal: /council-tree in RPC mode either produces useful output or fails loudly; it never silently no-ops
 ---
 

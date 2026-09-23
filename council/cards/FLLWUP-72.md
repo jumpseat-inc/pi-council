@@ -3,7 +3,7 @@ id: FLLWUP-72
 title: Make step 11 execute the merge-check table, not a prose mirror of it
 state: Backlog
 owner: null
-epic: EPIC-13
+epic: EPIC-16
 goal: The orchestrator's step-11 merge check is executed by invoking the pure mode→criteria table (`evaluateMergeCheck` over `readCardMode`) rather than by hand-following the procedure prose, so the mode-keyed ruleset the fixture proves and the ruleset the orchestrator executes cannot drift.
 ---
 

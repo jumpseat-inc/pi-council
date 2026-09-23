@@ -3,7 +3,7 @@ id: FLLWUP-8
 title: council-leaderboard task drill-down filter
 state: Backlog
 owner: null
-epic: EPIC-4
+epic: EPIC-18
 goal: council-leaderboard accepts an optional task filter that renders only the named task's rows while the no-arg render stays byte-identical to v1
 ---
 

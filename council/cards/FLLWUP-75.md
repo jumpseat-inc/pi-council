@@ -3,7 +3,7 @@ id: FLLWUP-75
 title: Signify a slow advisory gate call without implying deliberation or failure
 state: Backlog
 owner: null
-epic: EPIC-13
+epic: EPIC-16
 goal: A /features-new advisory gate call that outlives a short pending threshold renders exactly one additional transient editor-region signifier naming the call as still in progress and its elapsed state, using no word implying thought or deliberation and no word implying failure, replaced rather than appended and returning zero lines when the call settles for every post-settle state; and a test proves the slow-call render differs from the initial pending render and that both return zero lines after settle.
 ---
 

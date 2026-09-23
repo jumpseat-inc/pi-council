@@ -3,7 +3,7 @@ id: FLLWUP-30
 title: Opt-in live falsifiers for the usage path: the compaction boundary and the EV-31 gated write seam
 state: Backlog
 owner: null
-epic: EPIC-7
+epic: EPIC-17
 goal: With an explicit opt-in environment variable, a live end-to-end test drives a real council invocation whose session compacts before the injected user message and asserts the spend record's own-session half matches the hand sum at/after the append-order boundary, and a second live test drives a real dispatch through the EV-31 gated write path and asserts exactly one store record after settle; without the env var both skip and the default suite stays offline.
 ---
 

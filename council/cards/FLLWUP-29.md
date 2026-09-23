@@ -3,7 +3,7 @@ id: FLLWUP-29
 title: Persist Anthropic cacheWrite1h write-premium tokens
 state: Backlog
 owner: null
-epic: EPIC-7
+epic: EPIC-17
 goal: A hub-dispatched seat whose assistant message reports cacheWrite1h persists that token count on the usage record while the council_wait head line stays within the 160-column budget, and an automated test asserts the persisted value and the rendered line length.
 ---
 

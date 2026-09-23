@@ -3,7 +3,7 @@ id: FLLWUP-36
 title: Deferred no-behavior-change cleanups: drop the dead TranscriptView renderer and the FLLWUP-50 refresh cosmetics
 state: Backlog
 owner: null
-epic: null
+epic: EPIC-19
 goal: extensions/navigator.ts holds exactly one TranscriptView head/body renderer (the EV-34 unitLines/bodyLines path, dead blockLines deleted), and the three FLLWUP-50 skeptic cosmetics are cleaned (the void recordDirty dead variable, the scaffoldPackageVersion duplication, and the no-op creationPass filter), with no rendered line changing and the full gate set green.
 ---
 
