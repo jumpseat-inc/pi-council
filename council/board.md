@@ -107,10 +107,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Progress
 
-- FLLWUP-107 — Renderer substitution-set pin for procedure copy
-
 ## In Review
 
+- FLLWUP-107 — Renderer substitution-set pin for procedure copy
 
 ## Needs Human
 
