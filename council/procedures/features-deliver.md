@@ -74,17 +74,82 @@ front-loading, not a guess-everything exercise — catch what's foreseeable
 now, not every possible dispute a deliberation might raise later.
 
 Surface-touching cards raise the most predictable class of open-judgment
-call — user-visible copy, what a state is named, how much uncertainty to
-show a person about data that has no realtime availability and no prices.
-Front-load these specifically: a copy ruling recorded in Phase 1 saves an
-`ESCALATION` round-trip per card.
+call. Phase 1 reads exactly this closed, ordered enumeration of **five**
+named open-judgment classes — this list is the single source the run reads,
+and every class below is front-loaded specifically: a ruling recorded in
+Phase 1 saves an `ESCALATION` round-trip per card.
 
-Record each ruling on the card face it applies to. **These are recorded
-human decisions: immutable for the run and binding on every seat, `steward`
-included.** A `council-runner` that hits a dispute already covered by a
+**Per-card reversible**
+
+- `surface copy` — What exact words does a person see on a visible surface?
+- `state and field naming` — What is this state, field, or status called,
+  here and everywhere it renders?
+
+**Run-committing**
+
+- `uncertainty display` — How much uncertainty does the run show a person
+  about data with no realtime availability and no prices?
+- `error and empty-state text` — What does a person read when the run has
+  nothing to show or something failed?
+
+**Portfolio-level**
+
+- `gate user-visibility` — Is the routing gate's verdict shown to the
+  human, or kept as information only?
+
+The class list above is the single source the run reads. A ruling recorded
+on a card face it applies to remains the home of card-specific judgments.
+**These are recorded human decisions: immutable for the run and binding on
+every seat, `steward` included.** A Phase 1 recorded ruling binds every
+seat for the named classes only — it does not remove `designer` from
+deliberation and does not narrow any other design dispute's routing under
+council.md step 6. A `council-runner` that hits a dispute already covered by a
 Phase 1 ruling applies it and cites which ruling it applied, per its own
 `<escalation_contract>` step 1 — it does not re-ask, and it does not treat
 the ruling as a suggestion it could reweigh.
+
+### The class-enumeration record
+
+The class-level rulings live in `council/phase1-rulings.json`, alongside
+`council/board.md` — a durable record that survives a runner restart and is
+distinct from any card face, because Phase 1 rulings are run-level and
+class-level: settled runner jobs cannot be re-entered, fresh runners
+rewrite card faces on resume, and some classes have no single owning card.
+It is an ordered array of entries, each carrying a `class` (named exactly
+as the enumeration above names it), a `stakes` tier (`card`,
+`run-committing`, or `portfolio`, in that order), and **exactly one** of:
+
+- `ruling` — a non-empty string: the recorded human ruling, applied
+  verbatim by every seat; or
+- `reason` — a non-empty string beginning with the structured prefix
+  `n/a: `, consistent with the project's structured unavailable-state
+  grammars; a not-applicable reason names the absent figure, not a
+  placeholder. A placeholder reason (`n/a: not relevant to this epic`,
+  `n/a: TBD`) passes a prefix check while saying nothing; that
+  sophisticated-shrug residual is accepted here and is judged at Phase 1
+  time, not fenced — `council/validate.py` checks the record's structure
+  and grammar only, never completeness or content.
+
+An entry carrying neither a `ruling` nor an `n/a: ` reason is simply
+**unresolved**. Before dispatching any `council-runner`, for each named
+class the record carries neither a ruling nor a not-applicable reason for,
+the orchestrator issues one line per unresolved class — all of them, not
+first-only — with the class interpolated verbatim into the fixed stem:
+
+> `Phase 1 unresolved: <class>`
+
+This refusal is a distinct, named literal — explicitly not the run's
+generic `HALT:` environment-failure line — so an operator can locate the
+unresolved class from the refusal text alone. Phase 1 does not dispatch any
+`council-runner` while a named class carries neither a recorded ruling nor
+a not-applicable reason.
+
+Any run that commits the class-enumeration record
+(`council/phase1-rulings.json`) to `main` does so **only under a recorded,
+run-scoped, human-granted Phase-1 authorization recorded before the run's
+first record push**; without it, the run refuses the push and halts — the
+push is never silently executed. The procedure names this requirement; it
+never self-authorizes the write.
 
 ## Phase 2 — execution
 
