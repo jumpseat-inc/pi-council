@@ -48,6 +48,17 @@ procedure file → scan pin red. `test/usages-procedure.test.ts` diff-empty vs
 base. Files: `test/render.test.ts` (+40), plan
 `docs/superpowers/plans/2026-09-23-fllwup-107-render-pin.md`.
 
+## Step 9–10 — verification subject pinned (mode Direct)
+
+Direct mode: no skeptic or judge dispatch — the test suite is that mode's only
+gate. CI backstop observed directly (not from a seat report): `gates` workflow
+`SUCCESS` on PR #110 head `9409e5907e7dcc2ded95a63f102210e8b5858f53`
+(run 35841474574, conclusion `success`, event `pull_request`). Merge criteria
+for Direct are 1, 2, 5: owner gates green in full; `gates` SUCCESS on the PR
+head SHA; card not `Needs Human`, no outstanding ruling (design rulings were
+consumed pre-run per Phase 1). Merge is the orchestrator's act (R-B pinned to
+this SHA).
+
 ## Step 7 — handoff (mechanical, mode Direct)
 
 Recorded mode `Direct` (this dispatch's ROOT manifest): mechanical, test-only,
