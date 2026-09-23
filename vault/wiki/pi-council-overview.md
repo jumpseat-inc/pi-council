@@ -4,7 +4,7 @@ type: overview
 summary: pi-council is an installable pi package pairing a multi-agent Council deliberation/implementation loop with an LLM-maintained wiki — the workflow's opinions are the product.
 aliases: [pi-council, council, the Council, pi-council overview]
 tags: [pi-council/overview]
-sources: ["[[2026-08-23-readme]]", "[[2026-08-23-pi-council-design-spec]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]", "[[2026-09-03-v0.14.0-domain-neutral-stack-agnostic]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-22-gate-noul-fix]]", "[[2026-09-21-usages-design]]", "[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-23-fllwup-backlog-cleanup]]"]
+sources: ["[[2026-08-23-readme]]", "[[2026-08-23-pi-council-design-spec]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]", "[[2026-09-03-v0.14.0-domain-neutral-stack-agnostic]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-22-gate-noul-fix]]", "[[2026-09-21-usages-design]]", "[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-23-fllwup-backlog-cleanup]]", "[[2026-09-23-fllwup-epic-grouping]]"]
 created: 2026-08-23
 updated: 2026-09-23
 ---
@@ -134,7 +134,10 @@ An attended maintenance pass consolidated the open follow-up backlog from 65 to
 ([[follow-up-backlog-curation]]). It recorded that follow-up cards go **stale
 silently** (two cards were already satisfied in the tree) and that there is no
 `Retired` state, so retirements need an out-of-band map. Witness:
-[[2026-09-23-fllwup-backlog-cleanup]].
+[[2026-09-23-fllwup-backlog-cleanup]]. A second pass **grouped** the 41 survivors
+into 7 thematic **close-out epics** (EPIC-16…22) by subsystem, re-homing the
+cross-epic `epic: null` orphans so each epic is a runnable `/features-deliver`
+scope. Witness: [[2026-09-23-fllwup-epic-grouping]].
 
 ## Related
 
@@ -153,6 +156,7 @@ silently** (two cards were already satisfied in the tree) and that there is no
 - [[2026-09-22-epic15-run-ledger]] — the usages-tooling epic (seventh closure) + [[inert-gate-fallback]]
 - [[2026-09-23-epic15-residual-run-ledger]] — the EPIC-15 residual run (FLLWUP-107–111) + [[execution-mode-recording]]
 - [[follow-up-backlog-curation]] — the periodic merge/retire maintenance of the accumulated follow-up backlog (2026-09-23: 65 → 42)
+- [[2026-09-23-fllwup-epic-grouping]] — the 7 thematic close-out epics (EPIC-16…22) grouping those follow-ups
 - [[2026-09-04-epic4-run-ledger]] — the EPIC-4 run record
 - [[smoke-test]] — the unattended end-to-end test (the v0.12.0 run was a clean green)
 - [[2026-08-26-smoke-v0.12.0]] — the v0.12.0 smoke-test record

@@ -1,5 +1,22 @@
 # Wiki Log
 
+## [2026-09-23] ingest | FLLWUP epic grouping — the curate → group pipeline and the close-out epic
+
+Ingested the follow-up epic grouping (authored
+`vault/raw/2026-09-23-fllwup-epic-grouping.md`). The 41 open follow-ups were
+grouped into 7 thematic **close-out epics** (EPIC-16…22, commit `8c7913c`) and
+re-homed via `epic:`, completing the backlog-management pipeline begun by the
+curation pass.
+
+- **Created:** sources/2026-09-23-fllwup-epic-grouping.
+- **Updated:** [[follow-up-backlog-curation]] (added the Phase 2 grouping
+  section), [[engineering-board]], [[chain-promotion]], [[card-id-allocation]],
+  [[pi-council-overview]], [[index]].
+- **Contradictions flagged:** none. Grouping **complements** curation — it
+  re-homes the `epic: null` orphans curation created. Boundary recorded: a
+  close-out epic's `goal` is an aggregate rollup, not a single falsifiable
+  sentence.
+
 ## [2026-09-23] ingest | FLLWUP backlog cleanup — merge/retire discipline, the no-Retired-state constraint, and the silent-staleness hazard
 
 Ingested the follow-up backlog curation (authored

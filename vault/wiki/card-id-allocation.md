@@ -4,7 +4,7 @@ type: concept
 summary: Board ids (EV-/FLLWUP-/BUG-/EPIC-) are allocated at fetched HEAD, never from a stale clone's memory — the EPIC-3/EPIC-4 collision lesson, with union-merge reconciliation and validate.py as the net.
 aliases: [card id allocation, id allocation, id collision, numbering discipline]
 tags: [pi-council/concept, pi-council/board]
-sources: ["[[2026-09-04-epic3-run-ledger]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-23-fllwup-backlog-cleanup]]"]
+sources: ["[[2026-09-04-epic3-run-ledger]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-23-fllwup-backlog-cleanup]]", "[[2026-09-23-fllwup-epic-grouping]]"]
 created: 2026-09-04
 updated: 2026-09-22
 ---
@@ -69,8 +69,16 @@ harmless ([[follow-up-backlog-curation]]). A merge therefore does not touch id
 allocation at all — the same globally-unique-filename invariant holds, just with
 one fewer file.
 
+## Close-out epic ids (2026-09-23)
+
+The follow-up grouping allocated `EPIC-16`…`EPIC-22` at **fetched HEAD** per the
+rule above, immediately after the highest existing epic (`EPIC-15`)
+([[2026-09-23-fllwup-epic-grouping]]). No collision; the 41 children then carried
+their new `epic:` values.
+
 ## Related
 
+- [[2026-09-23-fllwup-epic-grouping]] — the EPIC-16…22 allocation
 - [[engineering-board]] — the id schema and board discipline
 - [[three-wave-decomposition]] — the run that collided
 - [[2026-09-04-epic3-run-ledger]] — the full incident record
@@ -81,5 +89,6 @@ one fewer file.
 ## Sources
 
 - [[2026-09-23-fllwup-backlog-cleanup]] — merges keep the lower id; ids never renumber
+- [[2026-09-23-fllwup-epic-grouping]] — EPIC-16…22 allocated at fetched HEAD
 - [[2026-09-04-epic3-run-ledger]]
 - `council/procedures/board-create-card.md` step 2 (the id-assignment rule this page hardens)

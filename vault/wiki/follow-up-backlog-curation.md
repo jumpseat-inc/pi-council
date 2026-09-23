@@ -1,10 +1,10 @@
 ---
 title: Follow-Up Backlog Curation
 type: concept
-summary: The periodic, human-directed maintenance of the accumulated FLLWUP backlog — merging near-duplicate follow-ups (content-preserving, keep the lower id) and retiring dead ones (needs a named reason, since no `Retired` state exists) — plus the standing hazard that follow-up cards go stale silently.
-aliases: [follow-up curation, backlog curation, follow-up cleanup, followup backlog, merge or retire]
+summary: The periodic, human-directed maintenance of the accumulated FLLWUP backlog — curation (merge near-duplicates content-preservingly, keep the lower id; retire dead cards, which need a named reason since no `Retired` state exists) followed by grouping the survivors into thematic close-out epics — plus the standing hazard that follow-up cards go stale silently.
+aliases: [follow-up curation, backlog curation, follow-up cleanup, followup backlog, merge or retire, follow-up grouping, close-out epic]
 tags: [pi-council/concept, pi-council/board, pi-council/followups]
-sources: ["[[2026-09-23-fllwup-backlog-cleanup]]"]
+sources: ["[[2026-09-23-fllwup-backlog-cleanup]]", "[[2026-09-23-fllwup-epic-grouping]]"]
 created: 2026-09-23
 updated: 2026-09-23
 ---
@@ -52,6 +52,22 @@ clause of the card has a home; if one does not, keep the card (or narrow it). In
 the 2026-09-23 pass FLLWUP-69 was deliberately *kept*, not retired, because its
 remaining prose pin had no other home.
 
+## Phase 2 — grouping into delivery epics
+
+Curation reduces the count; **grouping** gives the residue delivery homes. The
+41 survivors of the 2026-09-23 pass were grouped by **subsystem** into 7 thematic
+**close-out epics** (EPIC-16…22, [[2026-09-23-fllwup-epic-grouping]]) and re-homed
+via their `epic:` field, so each epic is a coherent `/features-deliver` scope. New
+ids are allocated at fetched HEAD ([[card-id-allocation]]).
+
+Grouping is the complement of curation's `epic: null` side-effect: curation nulls
+`epic:` on cross-epic merges, and grouping re-homes those orphans. It restores a
+*home*, never the *origin* — a child's `epic:` points at its new thematic epic,
+and the "filed by EPIC-N" lineage survives only in the new epic's `Intent`. A
+**close-out epic** is a distinct flavor: its `goal` is an aggregate rollup of the
+children's outcomes rather than a single feature's falsifiable sentence — a
+boundary with [[engineering-board]]'s one-sentence goal rule.
+
 ## No `Retired` state exists
 
 `council/validate.py` accepts exactly seven states (`Backlog`, `Ready`,
@@ -90,7 +106,9 @@ Follow-ups are scoped to an epic via the `epic:` field, which
 [[chain-promotion]] and the residual-scope model read. A merge that spans two
 epics (e.g. EPIC-13 + EPIC-14) can no longer be attributed to one, so its
 `epic:` becomes `null` and the card is located by content rather than parent.
-Cross-epic merges thus trade attribution for consolidation.
+Cross-epic merges thus trade attribution for consolidation. Phase 2 grouping
+re-homes those `epic: null` orphans into new thematic epics, so a card regains a
+*home* — only its *origin* stays prose-only.
 
 ## Related
 
@@ -98,9 +116,12 @@ Cross-epic merges thus trade attribution for consolidation.
 - [[followup-decision-gate]] — the per-run gate, distinct from board curation
 - [[card-id-allocation]] — merges keep the lower id; ids are never renumbered
 - [[chain-promotion]] — reads `epic:` tags that cross-epic merges nullify
+- [[2026-09-23-fllwup-epic-grouping]] — the Phase 2 grouping pass (EPIC-16…22)
 - [[council-update]] — why adding a `Retired` state is packaged-tooling work
 
 ## Sources
 
 - [[2026-09-23-fllwup-backlog-cleanup]] — the first curation pass (65 → 42)
+- [[2026-09-23-fllwup-epic-grouping]] — the Phase 2 grouping pass (EPIC-16…22)
 - `vault/raw/2026-09-23-fllwup-backlog-cleanup.md` — the merge/retire map
+- `vault/raw/2026-09-23-fllwup-epic-grouping.md` — the epic structure + learnings

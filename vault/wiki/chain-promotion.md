@@ -4,7 +4,7 @@ type: concept
 summary: Backlog→Ready promotion for a dependent card chain is bound once as an automated cadence — the orchestrator promotes each card the moment its predecessor's merge SHA is on local main and validate.py is clean, without re-asking.
 aliases: [chain promotion, promotion cadence, automated promotion, P1-P5]
 tags: [pi-council/features-deliver, pi-council/process]
-sources: ["[[2026-09-03-po-epic4-promotion-cadence]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-20-po-epic13-promotion-ruling]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-23-fllwup-backlog-cleanup]]"]
+sources: ["[[2026-09-03-po-epic4-promotion-cadence]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-20-po-epic13-promotion-ruling]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-23-fllwup-backlog-cleanup]]", "[[2026-09-23-fllwup-epic-grouping]]"]
 created: 2026-09-04
 updated: 2026-09-22
 ---
@@ -70,7 +70,10 @@ The cadence and the residual-scope model locate follow-up cards by their `epic:`
 tag. The 2026-09-23 curation passed cross-epic merges (e.g. EPIC-13 + EPIC-14)
 and set those survivors' `epic: null`, so they can no longer be reached by an
 epic-scoped promotion or residual run. A cross-epic merge trades attribution for
-consolidation ([[follow-up-backlog-curation]]).
+consolidation ([[follow-up-backlog-curation]]). The same day's **grouping** pass
+re-homed every survivor — including the `epic: null` orphans — into 7 new
+thematic epics (EPIC-16…22), so they are reachable by an epic-scoped run again
+([[2026-09-23-fllwup-epic-grouping]]).
 
 ## Related
 
@@ -89,3 +92,5 @@ consolidation ([[follow-up-backlog-curation]]).
 - [[2026-09-21-epic14-run-ledger]]
 - [[follow-up-backlog-curation]] — cross-epic merges nullify the `epic:` tag this
 cadence reads
+- [[2026-09-23-fllwup-epic-grouping]] — the pass that re-homed those orphans into
+new thematic epics the cadence can scope
