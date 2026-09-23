@@ -4,9 +4,9 @@ type: entity
 summary: The per-card autonomous execution container — dispatched by /features-deliver to run the full /council loop for one card in an isolated context; routes, counts, and writes the board but never decides.
 aliases: [council runner, council-runner, runner]
 tags: [pi-council/seat]
-sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]"]
+sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-22
+updated: 2026-09-23
 ---
 
 > ⚠️ Derived from `council/agents/council-runner.md` (captured 2026-08-23). Verify against the seat file.
@@ -84,10 +84,13 @@ reserved powers are re-homed per the authority map in `features-deliver.md`.
   ([[confirmation-authority]]). This drove eight [[product-owner]] round-trips
   across seven cards; no [[steward]] escalation.
 - **Tool surface, not capability.** The runner container is not granted
-  `council_route` nor the parent `followup` tools, so it applies the mode passed in
-  its dispatch input and holds step-13 candidates for the orchestrator
-  ([[followup-decision-gate]]); a sub-seat dispatch of `council-runner` was refused
-  by the harness.
+  `council_route` nor the parent `followup` tools, so it holds step-13 candidates
+  for the orchestrator ([[followup-decision-gate]]); a sub-seat dispatch of
+  `council-runner` was refused by the harness. ⚠️ **Corrected (EPIC-15 residual
+  run, 2026-09-23):** the runner does **not** apply the `mode` passed in its
+  dispatch input — that value is ROOT-manifest metadata. It re-derives its path
+  via `council_route op:"route"`, and on the fallback its own step-1 judgment
+  governs ([[execution-mode-recording]]).
 - **Merge execution moved into the container** — see [[deterministic-merge-check]].
 - Provider-error retries recovered on EV-78/83/84 (upstream idle timeouts) and a
   stalled principal on EV-82; [[union-merge reconcile]] recurred on 3 of 7 cards.
@@ -113,6 +116,28 @@ reserved powers are re-homed per the authority map in `features-deliver.md`.
 - **The mechanical path still applies** — all three cards ran full Deliberate
   (gate fallback), each with one verify cycle; FLLWUP-105/106 each needed one
   [[product-owner]] ruling (job-3, job-6).
+
+## Lessons from the EPIC-15 residual run (2026-09-23)
+
+- **The recorded mode does not control execution.** The runner re-derives its
+  path via `council_route op:"route"`; on the fallback its own step-1 judgment
+  governs, so a ROOT `mode` stricter than what it executes produces the merge
+  check's missing-goal-evaluation HALT. Recording `Direct` is the robust default
+  (`readCardMode` upgrades to `Deliberate` on any generator seat). See
+  [[execution-mode-recording]].
+- **The dispatch stall window must exceed the longest seat bound the runner
+  waits on.** `stall_minutes: 6` anti-stall-killed a runner at ~8 min while it
+  blocked on a 45-min owner dispatch (its private record commit had already
+  landed); `75` survived the rest of the run. This is the orchestrator's number
+  on every runner dispatch ([[hub-job-supervision]]).
+- **The orchestrator merges, again.** All five runners returned `DONE` with a PR
+  + head SHA; the orchestrator ran the mode-keyed check and merged under the
+  run-scoped R-B authorization ([[deterministic-merge-check]]).
+- **A held follow-up candidate routes through the confirming seat.** One runner
+  returned `DONE`-with-held rather than `ESCALATION`; the orchestrator routed the
+  drafts to [[product-owner]], which overturned an unsupported `Merge` (no target)
+  to `File` ([[confirmation-authority]], [[followup-decision-gate]]).
+- Witness: [[2026-09-23-epic15-residual-run-ledger]].
 
 ## Lessons from the EPIC-5 run
 

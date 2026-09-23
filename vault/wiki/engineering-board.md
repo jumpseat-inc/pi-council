@@ -4,9 +4,9 @@ type: concept
 summary: The durable, locally-stored kanban state — council/board.md plus one card file per id, validated by validate.py, and the discipline that everything the Council does starts and records there.
 aliases: [engineering board, board, card, kanban]
 tags: [pi-council/concept]
-sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-po-ev73-step6-ruling]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]"]
+sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-po-ev73-step6-ruling]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-22
+updated: 2026-09-23
 ---
 
 > ⚠️ Derived from `council/procedures/board-create-card.md`, `features-new.md` and `council/scaffold/council/board.md` @ `8913c6b`/`8f1882b` (captured 2026-08-23). Verify against the procedure files.
@@ -78,7 +78,9 @@ set of markdown files under `council/`:
   Review` headings three times with `validate.py` green; the orchestrator
   repaired each and added an explicit guard to the remaining dispatch inputs.
   A heading-uniqueness check is the obvious hardening. See
-  [[2026-09-21-epic13-run-ledger]].
+  [[2026-09-21-epic13-run-ledger]]. ⚠️ **Recurred in the EPIC-15 residual run
+  (2026-09-23)** — a stray second `## In Review` heading again validated green;
+  the orchestrator repaired the board by hand. Still no card.
 - Board and cards must **never land as separate commits** (a board that disagrees
   with its cards is the inconsistency `validate.py` exists to catch).
 - Card **goal text is immutable** once a card is `In Progress` — any work needing
@@ -137,6 +139,13 @@ cards under the same `epic:` and left `Backlog` — they were not in the run's
 Phase-1 scheduled scope, so the epic's own acceptance, not "all children Done,"
 governed closure. The [[steward]]'s "ending the run" row is what bounds this.
 Witness: [[2026-09-22-epic15-run-ledger]].
+
+A later **residual run** (`/features-deliver EPIC-15`, 2026-09-23) promoted the
+five `Backlog` residuals (`FLLWUP-107`–`111`) and delivered them serially under
+run-scoped R-A (record push) and R-B (`--admin` merge) authorizations — an
+epic can be `Done` while a bounded residual scope remains to be run as its own
+full run. The heading-uniqueness gap recurred. Witness:
+[[2026-09-23-epic15-residual-run-ledger]].
 
 ## Related
 

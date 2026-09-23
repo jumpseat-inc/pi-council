@@ -4,9 +4,9 @@ type: concept
 summary: The EPIC-10 ruling — under `gate.mode: active` a recorded engine-minted disposition is the disposition SOURCE, never the human confirmation; a runner escalates each candidate for ratification by a ruling seat before any card is written, because the autonomous authority map is exhaustive and a model call is not a row in it.
 aliases: [confirmation authority, recorded decision confirmation, ratification, pre-write confirmation]
 tags: [pi-council/concept, pi-council/features-deliver, pi-council/epic10]
-sources: ["[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-design-epic11-recut-surface]]", "[[2026-09-22-epic15-run-ledger]]"]
+sources: ["[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-design-epic11-recut-surface]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]"]
 created: 2026-09-22
-updated: 2026-09-22
+updated: 2026-09-23
 ---
 
 # Confirmation Authority
@@ -72,7 +72,11 @@ route to cheaper — not mintable by a seat.
 ## Witness
 
 [[2026-09-22-epic10-run-ledger]] — the ruling (`vault/raw/2026-09-22-po-ev83-confirmation-authority-ruling.md`)
-governed every step-13 write of the run.
+governed every step-13 write of the run. The EPIC-15 residual run exercised the
+held-then-ratified path again: a runner returned `DONE`-with-held, the
+orchestrator routed the drafts to [[product-owner]], which overturned an
+unsupported `Merge` to `File` — no card written before the confirming ruling
+([[2026-09-23-epic15-residual-run-ledger]]).
 
 ## Related
 

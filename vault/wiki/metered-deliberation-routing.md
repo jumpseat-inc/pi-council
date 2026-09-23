@@ -4,7 +4,7 @@ type: concept
 summary: EPIC-13, shipped at v0.28.0 — a typed System One gate evaluates a packed card state and routes each card to Deliberate, Verify, or Direct; enablement lives in `.council.json`'s reserved top-level `gate` section, and the packaged default resolves `mode: "off"` — which routes every card to the full Deliberate panel.
 aliases: [metered deliberation, deliberation routing, System One gate, Deliberate Verify Direct, gate]
 tags: [pi-council/concept, pi-council/epic13]
-sources: ["[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-21-po-ev73-step6-ruling]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-design-epic11-recut-surface]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-22-gate-noul-fix]]"]
+sources: ["[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-21-po-ev73-step6-ruling]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-design-epic11-recut-surface]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-22-gate-noul-fix]]", "[[2026-09-23-epic15-residual-run-ledger]]"]
 created: 2026-09-20
 updated: 2026-09-22
 ---
@@ -257,7 +257,9 @@ remove). A card whose recorded mode is a reduced mode (Verify **or** Direct) is
 **re-checked at dispatch** against the observed touched-file set (the full
 condition and the ratchet: the intake/dispatch split above). A hard override
 that fires re-routes to the full path with a ledger line. `EV-69` amended
-`council.md` step 1 so a recorded mode is authoritative.
+`council.md` step 1 so a **ledger-recorded decision** is authoritative. ⚠️ The
+distinct ROOT-manifest `mode` parameter is *not* a control on execution — see
+[[execution-mode-recording]].
 
 ## Residuals
 
@@ -299,6 +301,20 @@ failure is safe because the fallback is the stricter lane, but `active` did not
 mean "the gate is deciding." This is the general pattern
 [[inert-gate-fallback]]. Witness: [[2026-09-22-epic15-run-ledger]].
 
+## EPIC-15 residual finding (2026-09-23)
+
+The recorded mode is written to the ROOT manifest, but it does **not** control
+what the [[council-runner]] executes: the runner re-derives its path from
+`council_route op:"route"`, and on the fallback its own step-1 judgment governs.
+In the EPIC-15 residual run FLLWUP-111 recorded `Verify` while the runner ran
+`Direct`, so the [[deterministic-merge-check]] saw `Verify` with no goal
+evaluation and HALTed. Recording `Direct` is the robust default — `readCardMode`
+upgrades to `Deliberate` on any generator seat — and a recorded mode *stricter*
+than the runner executes is the failure shape. The repair path (the orchestrator
+dispatching the missing mode's seats) is undescribed by the procedure — an open
+gap with a card owed. See [[execution-mode-recording]]. Witness:
+[[2026-09-23-epic15-residual-run-ledger]].
+
 ## Noul drift fixed (2026-09-22)
 
 `e903b67` canonicalizes the wire's `noul` key to `probability` at the shared
@@ -319,6 +335,7 @@ candidates — so `FLLWUP-104` is not formally closed by its own acceptance. See
 - [[council-config]] — the `gate` sibling this page's enablement lives in (EPIC-14)
 - [[preflight]] — the run-start credential check (EV-76)
 - [[deterministic-merge-check]] — its mode-aware consumer
+- [[execution-mode-recording]] — where the mode comes from and how it can disagree with execution
 - [[engineering-board]] — the cards the gate routes
 - [[usage-block]] — the gate-spend exclusion legend
 - [[chain-promotion]] — the adjacent autonomous cadence

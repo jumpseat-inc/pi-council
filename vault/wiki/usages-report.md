@@ -4,9 +4,9 @@ type: concept
 summary: `/usages <time_range>` — a package-shipped procedure plus a `/council-init`-copied Python tool that reports one repo's per-seat and main-agent token/dollar usage, cross-matched to OpenRouter generation figures, as JSON + Markdown under .pi/council/usages/; since EPIC-15 the tool creates its output directory before the cache write, and a stale copied tool is refreshed by update→delete→re-init.
 aliases: [usages, slash usages, usages report, usages procedure, council usages]
 tags: [pi-council/concept, pi-council/usages]
-sources: ["[[2026-09-21-usages-design]]", "[[2026-09-22-fix-shape-witness-segment-liveness]]", "[[2026-09-22-epic15-run-ledger]]"]
+sources: ["[[2026-09-21-usages-design]]", "[[2026-09-22-fix-shape-witness-segment-liveness]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]"]
 created: 2026-09-21
-updated: 2026-09-22
+updated: 2026-09-23
 ---
 
 # Usages Report
@@ -83,6 +83,21 @@ created moments later. The fix moves `ensure_out_dir(out_dir)` above the first
 anything is written into it. `T-U7` (default path, second run `cache.hits === 1`)
 and `T-U8` (fresh `--out-dir`) pin it; an `EMPTY_DIRS` scaffold pre-seed must not
 satisfy them ([[2026-09-22-epic15-run-ledger]]).
+
+## Foreign `--cache-file` parent and the summary line (FLLWUP-109/110)
+
+Two EPIC-15 residual cards completed the cache surface. **FLLWUP-109** (PR #108,
+`3d62b3a`): `--cache-file` is decoupled from `--out-dir`, and `save_cache` still
+wrote its `.tmp-<pid>` beside a target with no parent mkdir, so a custom
+`--cache-file` naming an absent parent raised and logged the same stderr warning.
+The fix creates the parent (`p.parent.mkdir(parents=True, exist_ok=True)`); the
+ratified design was *create*, never reject a foreign parent — consistent with the
+tool's create-on-demand behavior, and rejecting would break the rerun-cheap
+promise. **FLLWUP-110** (PR #109, `9da7ff1`): `human_summary()` now prints
+`cache: hits=<N> misses=<M>` equal to the JSON report's `cache.hits`/`cache.misses`,
+so the "reruns are cheap" promise is visible on the surface the person reads (a
+separate card from BUG-2 per the run's R4; the declined `.md` cache-health row is
+still declined). Witness: [[2026-09-23-epic15-residual-run-ledger]].
 
 ## The stale-copy remediation route (FLLWUP-105/106)
 

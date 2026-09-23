@@ -4,9 +4,9 @@ type: concept
 summary: EPIC-10 (shipped v0.33.0) — the follow-up review's typed Jev decision in its own File/Merge/Drop domain, a sibling of the card gate sharing one `.council.json` `gate.mode`; a failed or unresolved decision falls back to the human pre-write confirm and may never Drop or auto-Merge.
 aliases: [follow-up decision, followup gate, File Merge Drop, dispose followup, follow-up review]
 tags: [pi-council/concept, pi-council/epic10]
-sources: ["[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-design-epic11-recut-surface]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-22-gate-noul-fix]]"]
+sources: ["[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-design-epic11-recut-surface]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-22-gate-noul-fix]]", "[[2026-09-23-epic15-residual-run-ledger]]"]
 created: 2026-09-22
-updated: 2026-09-22
+updated: 2026-09-23
 ---
 
 # Follow-Up Decision Gate
@@ -98,6 +98,17 @@ records real dispositions — the four held BUG-2 candidates returned `status:
 "ok"` and were ratified by [[product-owner]] (three `File` →
 `FLLWUP-109/110/111`, one amended to `Drop` with dissent). The failure arm
 above remains the documented fallback. See [[2026-09-22-gate-noul-fix]].
+
+## Held candidates routed by the orchestrator (EPIC-15 residual run, 2026-09-23)
+
+With the gate fixed, the EPIC-15 residual run's FLLWUP-107 surfaced two step-13
+candidates, but the runner returned `DONE`-with-held rather than the contract's
+`ESCALATION`. The orchestrator routed the drafts by title to [[product-owner]]
+(job-10) under the run's re-homed confirm gate: candidate 1's recorded `Merge`
+had **no target** and was overturned to **`File`** (→ `FLLWUP-112`); candidate
+2's `File` was confirmed (→ `FLLWUP-113`). The held-not-filed discipline held —
+no card written before the confirming ruling. Witness:
+[[2026-09-23-epic15-residual-run-ledger]].
 
 ## Witness
 

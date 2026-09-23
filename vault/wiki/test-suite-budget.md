@@ -4,9 +4,9 @@ type: concept
 summary: The default bun test suite's measured wall-clock envelope, the live-arm files that carry it, the ceiling-vs-budget distinction, the CI-timeout backstop, and the rules that keep the numbers honest.
 aliases: [suite budget, test suite cost, drift threshold, CI timeout backstop]
 tags: [pi-council/concept, pi-council/smoke-test]
-sources: ["[[2026-09-19-po-fllwup48-test-suite-budget]]", "[[2026-09-18-po-fllwup56-step13-ruling]]", "[[2026-09-20-po-fllwup58-gates-backstop]]", "[[2026-09-20-po-fllwup58-step13-confirmation]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-fix-shape-witness-segment-liveness]]"]
+sources: ["[[2026-09-19-po-fllwup48-test-suite-budget]]", "[[2026-09-18-po-fllwup56-step13-ruling]]", "[[2026-09-20-po-fllwup58-gates-backstop]]", "[[2026-09-20-po-fllwup58-step13-confirmation]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-fix-shape-witness-segment-liveness]]", "[[2026-09-23-epic15-residual-run-ledger]]"]
 created: 2026-09-17
-updated: 2026-09-22
+updated: 2026-09-23
 ---
 
 # Test Suite Budget
@@ -49,6 +49,12 @@ re-measurement ever exceeds the drift threshold below.
   segment-aware repair (same file count; the fix is test-only). Still inside
   the 180s threshold. See
   [[2026-09-22-fix-shape-witness-segment-liveness]].
+- ⚠️ **Grown again (EPIC-15 residual run, 2026-09-23):** **1485 tests** — the
+  five residual cards added the async `runTool` migration (FLLWUP-111), the
+  foreign `--cache-file` parent test (FLLWUP-109), the `cache: hits=<N>
+  misses=<M>` summary test (FLLWUP-110), and the procedure-copy pins
+  (FLLWUP-107/108). Still inside the 180s drift threshold. See
+  [[2026-09-23-epic15-residual-run-ledger]].
 - **Provenance:**
   - Machine: Linux 6.12.24-Unraid x86_64 (container)
   - Date: 2026-09-20 (re-measured at HEAD)

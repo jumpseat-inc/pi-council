@@ -1,5 +1,30 @@
 # Wiki Log
 
+## [2026-09-23] ingest | EPIC-15 residual run — recorded mode ≠ executed mode, and the residual-scope delivery model
+
+Ingested the EPIC-15 residual run (authored
+`vault/raw/2026-09-23-epic15-residual-run-ledger.md`). Five `Backlog` residuals
+under a `Done` epic (`FLLWUP-111/109/110/107/108`) shipped serially (PRs
+#107–#111) under run-scoped **R-A** (record push) and **R-B** (`--admin` merge)
+authorizations. `FLLWUP-111` exposed that the ROOT-manifest `mode` does not
+control what the [[council-runner]] executes — recorded `Verify`, ran `Direct` —
+so the [[deterministic-merge-check]] HALTed for a missing goal evaluation; the
+repair was to produce the missing `Verify` evidence. Held follow-ups were routed
+to [[product-owner]] (one unsupported `Merge` overturned to `File`) →
+`FLLWUP-112`/`113`.
+
+- **Created:** sources/2026-09-23-epic15-residual-run-ledger;
+  [[execution-mode-recording]].
+- **Updated:** [[council-runner]], [[deterministic-merge-check]],
+  [[metered-deliberation-routing]], [[record-push-discipline]],
+  [[followup-decision-gate]], [[confirmation-authority]], [[usages-report]],
+  [[test-suite-budget]], [[engineering-board]], [[pi-council-overview]],
+  [[index]].
+- **Open gap:** the command has no sanctioned repair for the
+  missing-goal-evaluation HALT (a card is owed), and the recorded `mode` not
+  controlling execution is unresolved; the `validate.py` heading-uniqueness gap
+  recurred.
+
 ## [2026-09-22] ingest | Gate noul fix — the parse-seam canonicalization and the global-clone load scope
 
 Ingested the FLLWUP-104 fix (`e903b67`; authored `vault/raw/2026-09-22-gate-noul-fix.md`).

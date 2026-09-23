@@ -4,9 +4,9 @@ type: overview
 summary: pi-council is an installable pi package pairing a multi-agent Council deliberation/implementation loop with an LLM-maintained wiki — the workflow's opinions are the product.
 aliases: [pi-council, council, the Council, pi-council overview]
 tags: [pi-council/overview]
-sources: ["[[2026-08-23-readme]]", "[[2026-08-23-pi-council-design-spec]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]", "[[2026-09-03-v0.14.0-domain-neutral-stack-agnostic]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-22-gate-noul-fix]]", "[[2026-09-21-usages-design]]"]
+sources: ["[[2026-08-23-readme]]", "[[2026-08-23-pi-council-design-spec]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]", "[[2026-09-03-v0.14.0-domain-neutral-stack-agnostic]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-22-gate-noul-fix]]", "[[2026-09-21-usages-design]]", "[[2026-09-23-epic15-residual-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-22
+updated: 2026-09-23
 ---
 
 `pi-council` (v0.33.0; latest tag `v0.19.0`, several epics behind `main`) is an installable [pi](https://pi.dev) package, distributed
@@ -111,8 +111,12 @@ cache-write ordering fix (BUG-2), the stale-copy remediation route
 (FLLWUP-105), and the stderr-discipline paragraph (FLLWUP-106). It added
 [[inert-gate-fallback]] — the finding that an enabled-but-failing gate is inert,
 not blocking — and sharpened [[usages-report]] and [[non-clobbering-scaffold]].
-Two follow-ups it filed (`FLLWUP-107`/`108`) stay `Backlog`; a batched release
-bump is owed. Witness: [[2026-09-22-epic15-run-ledger]].
+Two follow-ups it filed (`FLLWUP-107`/`108`) stayed `Backlog`; a later **residual
+run** (`/features-deliver EPIC-15`, 2026-09-23) delivered them plus
+`FLLWUP-109/110/111` — 5 merges (PRs #107–#111) under run-scoped R-A/R-B
+authorizations — and surfaced [[execution-mode-recording]] (a recorded mode
+stricter than the runner executed HALTs the merge check). Witnesses:
+[[2026-09-22-epic15-run-ledger]], [[2026-09-23-epic15-residual-run-ledger]].
 
 ## Gate noul fix (2026-09-22)
 
@@ -138,6 +142,7 @@ Rides the next release (v0.35.x). See [[2026-09-22-gate-noul-fix]].
 - [[2026-09-21-epic13-run-ledger]] — the routing-gate epic (fifth closure)
 - [[2026-09-21-epic14-run-ledger]] — the gate-enablement epic (sixth closure)
 - [[2026-09-22-epic15-run-ledger]] — the usages-tooling epic (seventh closure) + [[inert-gate-fallback]]
+- [[2026-09-23-epic15-residual-run-ledger]] — the EPIC-15 residual run (FLLWUP-107–111) + [[execution-mode-recording]]
 - [[2026-09-04-epic4-run-ledger]] — the EPIC-4 run record
 - [[smoke-test]] — the unattended end-to-end test (the v0.12.0 run was a clean green)
 - [[2026-08-26-smoke-v0.12.0]] — the v0.12.0 smoke-test record

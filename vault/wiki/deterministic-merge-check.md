@@ -4,9 +4,9 @@ type: concept
 summary: Under /features-deliver the human merge gate is replaced by five mechanical criteria — owner gates, gates-SUCCESS on the PR head SHA, no blocking skeptic objection, judge PASS, no open ruling — keyed since EPIC-13 by the card's recorded execution mode, merged with --match-head-commit.
 aliases: [deterministic merge check, merge gate, deterministic merge, five criteria merge]
 tags: [pi-council/features-deliver, pi-council/process]
-sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]"]
+sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]"]
 created: 2026-09-04
-updated: 2026-09-22
+updated: 2026-09-23
 ---
 
 # Deterministic Merge Check
@@ -82,6 +82,25 @@ table instead of a prose mirror.
   remaining merges ran unattended at the human's explicit direction.
 - No `HALT`, no `Needs Human`; `Done` written only after `gates` green on the
   merged SHA.
+
+## Observed practice (EPIC-15 residual run, 2026-09-23)
+
+- Five merges (PRs #107–#111: FLLWUP-111 `927fdaa`, FLLWUP-109 `3d62b3a`,
+  FLLWUP-110 `9da7ff1`, FLLWUP-107 `41e9676`, FLLWUP-108 `077ebc1`), squash
+  method, every `--match-head-commit` pin held under the run-scoped R-B
+  authorization; every head-SHA `gates` check `SUCCESS` keyed on the `workflow`
+  field, re-verified on every merged SHA. The run's first merge was unwatched at
+  the human's explicit "unattended" direction (R-B stood as the authorization).
+- ⚠️ **The recorded mode can disagree with the executed mode.** FLLWUP-111's
+  ROOT manifest recorded `Verify` while the runner judged and executed `Direct`
+  (owner-only — no judge), and the check — correctly keyed to the *run
+  substrate*, not the runner's report — issued
+  `HALT: FLLWUP-111 — mode Verify requires a goal evaluation and none is
+  recorded`. The repair was to produce the missing `Verify` evidence at the
+  recorded mode (dispatch the `skeptic` and `judge`), not to merge on the
+  `Direct` report. See [[execution-mode-recording]].
+- Criterion 5 did not pace this run: no `Needs Human`, no outstanding ruling
+  after the gate fix; the only HALT was the mode mismatch above.
 
 ## The SHA pinning discipline
 
@@ -277,6 +296,8 @@ attestation about the merge window. One enforcement, not two.
 - [[union-merge reconcile]] — what squash merges do to local main.
 - [[red-base evidence]] — the head-half field and why the merge gate, not the
   record, carries "no red test lands".
+- [[execution-mode-recording]] — how the mode this check reads is recorded, and
+  its mismatch failure shape.
 - [[2026-09-04-epic4-run-ledger]] — eight merges executed under this gate.
 - [[2026-09-04-epic5-run-ledger]] — four more, squash-method, conditional
   green-light.
