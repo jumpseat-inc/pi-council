@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-109
 title: Foreign --cache-file parent: absent parent is created before the cache write
-state: Ready
+state: In Progress
 owner: null
 epic: EPIC-15
 goal: A non-offline run of council/skills/usages/scripts/usages.py with --out-dir <dir> and --cache-file <repo>/nested/absent/.cache.json (parent directory absent, live analytics stub) exits 0, creates <repo>/nested/absent/, leaves the parsed .cache.json at the --cache-file path holding the stubbed generation_id, and emits no usages: could not write cache: line on stderr.
@@ -51,3 +51,9 @@ Recorded before any `council-runner` was dispatched. Binding on every seat,
   `council/cards/EPIC-15.md`'s residual-run Phase-1 section.
 - **Design already ratified (consumed, not re-asked):** create the absent
   `--cache-file` parent; do not reject it with a usage error.
+
+## Run record (features-deliver / FLLWUP-109 — EPIC-15 residual run)
+
+Mechanical path per recorded execution mode `Direct` (EV-70: owner-only, no
+deliberation, no skeptic, no judge — the test suite is that mode's only gate).
+Record commit pushed under R-A at owner handoff (step 7→8).
