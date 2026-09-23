@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-110
 title: Cache hit/miss counts in the human-readable usages summary
-state: Ready
+state: In Progress
 owner: null
 epic: EPIC-15
 goal: A non-offline run of council/skills/usages/scripts/usages.py prints, in its human-readable summary, a line matching cache: hits=<N> misses=<M> whose N and M equal the parsed JSON report's cache.hits and cache.misses for the same run.
