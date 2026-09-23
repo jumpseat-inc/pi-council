@@ -590,10 +590,10 @@ wire's `noul` key to `probability`). The orchestrator re-ran
 `status: "ok"` with a recorded decision, rendered verbatim:
 
 ```
-Mode: File — duplicate: certainty 0.52 < noul threshold 0.60 — Foreign `--cache-file` parent surface — absent parent keeps the silent no-cache warning (active)
-Mode: File — composite 0.36 < merge threshold 1.00 — Cache hit/miss counts in the human-readable usages summary (active)
-Mode: File — composite 0.25 < merge threshold 1.00 — Migrate `runTool` in test/usages.test.ts to the async spawn pattern (active)
-Mode: File — actionable: confidence 0.16 < choice floor 0.60 — Record-only marker: pre-fix read-only stderr letter difference (active)
+  Mode: File — duplicate: certainty 0.52 < noul threshold 0.60 — Foreign `--cache-file` parent surface — absent parent keeps the silent no-cache warning (active)
+  Mode: File — composite 0.36 < merge threshold 1.00 — Cache hit/miss counts in the human-readable usages summary (active)
+  Mode: File — composite 0.25 < merge threshold 1.00 — Migrate `runTool` in test/usages.test.ts to the async spawn pattern (active)
+  Mode: File — actionable: confidence 0.16 < choice floor 0.60 — Record-only marker: pre-fix read-only stderr letter difference (active)
 ```
 
 `product-owner` confirmed (ratification dispatch, 2026-09-22):
