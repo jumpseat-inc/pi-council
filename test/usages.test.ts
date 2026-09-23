@@ -1,5 +1,4 @@
 import { test, expect } from "bun:test";
-import { spawnSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
@@ -39,16 +38,21 @@ function assistant(ts: string, responseId: string | null, usage: object): object
 	};
 }
 
-function runTool(root: string, agent: string, args: string[], env: Record<string, string | undefined> = {}) {
-	return spawnSync(
-		"python3",
-		[TOOL, "--repo", root, "--agent-dir", agent, "--config-dir", ".pi", "--out-dir", path.join(root, "out"),
+async function runTool(root: string, agent: string, args: string[], env: Record<string, string | undefined> = {}) {
+	const proc = Bun.spawn(
+		["python3", TOOL, "--repo", root, "--agent-dir", agent, "--config-dir", ".pi", "--out-dir", path.join(root, "out"),
 			"--cache-file", path.join(root, "cache.json"), ...args],
-		{ encoding: "utf-8", env: { ...process.env, ...env } },
+		{ env: { ...process.env, ...env }, stdout: "pipe", stderr: "pipe" },
 	);
+	const [stdout, stderr, status] = await Promise.all([
+		new Response(proc.stdout).text(),
+		new Response(proc.stderr).text(),
+		proc.exited,
+	]);
+	return { stdout, stderr, status };
 }
 
-test("T-U1: offline harvest + aggregation writes paired JSON/MD with a main row", () => {
+test("T-U1: offline harvest + aggregation writes paired JSON/MD with a main row", async () => {
 	const { root, agent } = mkRepo();
 	sessionFile(agent, root, "2026-09-18T10:00:00.000Z", [
 		assistant("2026-09-18T10:00:05.000Z", "gen-main-1", {
@@ -63,7 +67,7 @@ test("T-U1: offline harvest + aggregation writes paired JSON/MD with a main row"
 		},
 	};
 	fs.writeFileSync(path.join(root, "cache.json"), JSON.stringify(cache));
-	const res = runTool(root, agent, ["--offline", "--start", "2026-09-18", "--end", "2026-09-18", "--json"]);
+	const res = await runTool(root, agent, ["--offline", "--start", "2026-09-18", "--end", "2026-09-18", "--json"]);
 	expect(res.status, res.stderr).toBe(0);
 	const report = JSON.parse(res.stdout);
 	expect(report.main.tokens.input).toBe(1000);
@@ -77,19 +81,19 @@ test("T-U1: offline harvest + aggregation writes paired JSON/MD with a main row"
 	expect(report.cache.hits).toBe(1);
 });
 
-test("T-U2: missing OPENROUTER_MANAGEMENT_KEY exits 2, writes nothing, prints remediation", () => {
+test("T-U2: missing OPENROUTER_MANAGEMENT_KEY exits 2, writes nothing, prints remediation", async () => {
 	const { root, agent } = mkRepo();
-	const res = runTool(root, agent, ["--start", "2026-09-18", "--end", "2026-09-18"], { OPENROUTER_MANAGEMENT_KEY: "" });
+	const res = await runTool(root, agent, ["--start", "2026-09-18", "--end", "2026-09-18"], { OPENROUTER_MANAGEMENT_KEY: "" });
 	expect(res.status).toBe(2);
 	expect(res.stderr).toContain("OPENROUTER_MANAGEMENT_KEY");
 	expect(res.stderr).toContain("Provisioning key");
 	expect(fs.existsSync(path.join(root, "out"))).toBe(false);
 });
 
-test("T-U3: range grammar parses and yields an ordered window", () => {
+test("T-U3: range grammar parses and yields an ordered window", async () => {
 	const { root, agent } = mkRepo();
 	for (const r of ["last 30 days", "yesterday", "2026-09-01 to 2026-09-15", "this month"]) {
-		const res = runTool(root, agent, ["--offline", "--range", r, "--today", "2026-09-21", "--json"]);
+		const res = await runTool(root, agent, ["--offline", "--range", r, "--today", "2026-09-21", "--json"]);
 		expect(res.status, `${r}: ${res.stderr}`).toBe(0);
 		const report = JSON.parse(res.stdout);
 		expect(report.range.start <= report.range.end).toBe(true);
@@ -159,7 +163,7 @@ test("T-U4: analytics/activity are queried and reconciled against a local stub",
 	}
 });
 
-test("T-U6: non-OpenRouter response ids are not counted as cross-match misses", () => {
+test("T-U6: non-OpenRouter response ids are not counted as cross-match misses", async () => {
 	const { root, agent } = mkRepo();
 	sessionFile(agent, root, "2026-09-18T10:00:00.000Z", [
 		assistant("2026-09-18T10:00:05.000Z", "chatcmpl-local-1", {
@@ -167,7 +171,7 @@ test("T-U6: non-OpenRouter response ids are not counted as cross-match misses", 
 			cost: { total: 0.0 },
 		}),
 	]);
-	const res = runTool(root, agent, ["--offline", "--start", "2026-09-18", "--end", "2026-09-18", "--json"]);
+	const res = await runTool(root, agent, ["--offline", "--start", "2026-09-18", "--end", "2026-09-18", "--json"]);
 	expect(res.status, res.stderr).toBe(0);
 	const report = JSON.parse(res.stdout);
 	expect(report.main.requests).toBe(0);
@@ -269,7 +273,7 @@ test("T-U8: absent custom --out-dir is created before the cache write", async ()
 	}
 });
 
-test("T-U5: council seat rows are attributed from run manifests and transcripts", () => {
+test("T-U5: council seat rows are attributed from run manifests and transcripts", async () => {
 	const { root, agent } = mkRepo();
 	const run = path.join(root, ".pi", "council", "runs", "run-1");
 	fs.mkdirSync(run, { recursive: true });
@@ -281,7 +285,7 @@ test("T-U5: council seat rows are attributed from run manifests and transcripts"
 	];
 	fs.writeFileSync(path.join(run, "2026-09-18T00-00-00-000Z_job-1.jsonl"), entries.map((e) => JSON.stringify(e)).join("\n") + "\n");
 	fs.writeFileSync(path.join(root, "cache.json"), JSON.stringify({ schemaVersion: 1, generations: { "gen-seat-1": { total_usage: 0.025, tokens_prompt: 500, tokens_completion: 50, cached_tokens: 0, cache_hit_rate: 0 } } }));
-	const res = runTool(root, agent, ["--offline", "--start", "2026-09-18", "--end", "2026-09-18", "--json"]);
+	const res = await runTool(root, agent, ["--offline", "--start", "2026-09-18", "--end", "2026-09-18", "--json"]);
 	expect(res.status, res.stderr).toBe(0);
 	const report = JSON.parse(res.stdout);
 	const principal = report.seats.find((s: { seat: string }) => s.seat === "principal");
@@ -289,4 +293,16 @@ test("T-U5: council seat rows are attributed from run manifests and transcripts"
 	expect(principal.exactCostUsd).toBeCloseTo(0.025, 6);
 	expect(principal.tokens.input).toBe(500);
 	expect(principal.basis).toBe("exact");
+});
+
+test("T-U9: runTool uses Bun.spawn with await proc.exited — no blocking spawn remains", () => {
+	// needle is assembled so this pin's own source never contains the literal
+	const needle = "spawn" + "Sync";
+	const src = fs.readFileSync(path.join(import.meta.dir, "usages.test.ts"), "utf-8");
+	expect(src).not.toContain(needle);
+	const helperStart = src.indexOf("function runTool");
+	expect(helperStart).toBeGreaterThanOrEqual(0);
+	const helper = src.slice(helperStart, helperStart + 1200);
+	expect(helper).toContain("Bun.spawn");
+	expect(helper).toContain("proc.exited");
 });
