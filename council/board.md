@@ -109,8 +109,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- FLLWUP-107 — Renderer substitution-set pin for procedure copy
-
 ## Needs Human
 
 ## Done
@@ -119,6 +117,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-111 — Migrate runTool in test/usages.test.ts to the async spawn pattern
 - FLLWUP-109 — Foreign --cache-file parent: absent parent is created before the cache write
 - FLLWUP-110 — Cache hit/miss counts in the human-readable usages summary
+- FLLWUP-107 — Renderer substitution-set pin for procedure copy
 - FLLWUP-106 — The usages procedure forbids inventing framing around the tool's stderr
 - FLLWUP-105 — Name the remediation route for a stale copied usages skill
 - BUG-2 — Usages tool creates its output directory before writing the cache

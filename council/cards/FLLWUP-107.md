@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-107
 title: Renderer substitution-set pin for procedure copy
-state: In Review
+state: Done
 owner: null
 epic: EPIC-15
 goal: A test asserts renderProcedure substitutes exactly $COUNCIL_PROCEDURES and $ARGUMENTS, and no packaged procedure ships containing an unrendered $CONFIG_DIR_NAME or @CONFIG_DIR@ token.
@@ -98,3 +98,22 @@ Recorded before any `council-runner` was dispatched. Binding on every seat,
   FLLWUP-107 → FLLWUP-108`, one runner at a time.
 - **R-A (record push) and R-B (merge):** run-scoped authorizations recorded on
   `council/cards/EPIC-15.md`'s residual-run Phase-1 section.
+
+## Step 11–12 — merge and Done (orchestrator)
+
+Mode `Direct` (substrate `job-8`, no generator seats), criteria 1, 2, 5
+satisfied: owner gates green in full (`preflight.sh` PASS, tsc clean, full
+`bun test` 1478 pass / 0 fail, `test/render.test.ts` 4 pass, `validate.py`
+clean); `gates` workflow `SUCCESS` on PR head `9409e59` and merged SHA
+`41e9676`; card not `Needs Human`, no outstanding ruling. Merged pinned under
+R-B: `gh pr merge 110 --squash --admin --match-head-commit
+9409e5907e7dcc2ded95a63f102210e8b5858f53` → `41e9676`. Card set `Done` on
+card and board; `python3 council/validate.py` clean.
+
+**Merge basis: FLLWUP-107 — mode Direct, criteria 1, 2, 5 satisfied.**
+
+Step-13 follow-up drafts remain **held** on this card (not filed): (1) render
+`$CONFIG_DIR_NAME`/`@CONFIG_DIR@` in procedure copy (`Merge`, no target named
+→ falls to the confirming seat); (2) generalize the pack scan to an
+unresolved-token allowlist (`File`, certainty 0.59 < noul threshold). Carried
+to the Phase 3 ledger; confirmation re-homed to `product-owner`.
