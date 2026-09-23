@@ -6,6 +6,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Backlog
 
+- FLLWUP-112 — Render $CONFIG_DIR_NAME / @CONFIG_DIR@ in procedure copy
+- FLLWUP-113 — Generalize the FLLWUP-107 procedure-pack scan to an unresolved-token allowlist
+
 - EV-85 — Seat-composition decisions as repo-overridable packaged data
 - EV-86 — Pure seat-composition decision function with a fail-safe Default
 - EV-87 — One-call seat-composition orchestration over the shared Jev transport

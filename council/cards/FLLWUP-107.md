@@ -117,3 +117,7 @@ Step-13 follow-up drafts remain **held** on this card (not filed): (1) render
 → falls to the confirming seat); (2) generalize the pack scan to an
 unresolved-token allowlist (`File`, certainty 0.59 < noul threshold). Carried
 to the Phase 3 ledger; confirmation re-homed to `product-owner`.
+
+**Confirmed 2026-09-23 (product-owner, job-10):** both filed — candidate 1 →
+`FLLWUP-112` (recorded `Merge` overturned: no open-card target existed; ruled
+`File`), candidate 2 → `FLLWUP-113` (`File`, recorded disposition confirmed).
