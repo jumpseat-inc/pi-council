@@ -462,6 +462,7 @@ def load_cache(path):
 
 def save_cache(path, cache):
     p = Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
     tmp = p.with_name(p.name + f".tmp-{os.getpid()}")
     tmp.write_text(json.dumps(cache, indent=1) + "\n")
     os.replace(tmp, p)

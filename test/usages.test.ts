@@ -273,6 +273,30 @@ test("T-U8: absent custom --out-dir is created before the cache write", async ()
 	}
 });
 
+test("T-U10: absent custom --cache-file parent is created before the cache write", async () => {
+	const { root, agent } = mkRepo();
+	sessionFile(agent, root, "2026-09-18T10:00:00.000Z", [
+		assistant("2026-09-18T10:00:05.000Z", "gen-cache-parent-1", {
+			input: 100, output: 10, cacheRead: 0, cacheWrite: 0, reasoning: 0, totalTokens: 110,
+			cost: { total: 0.001 },
+		}),
+	]);
+	const server = serveStub();
+	const cacheFile = path.join(root, "nested", "absent", ".cache.json");
+	try {
+		const r = await runAsync(root, agent, ["--out-dir", path.join(root, "out"), "--cache-file", cacheFile,
+			"--start", U, "--end", U, "--today", "2026-09-21", "--json",
+			"--api-base", `http://127.0.0.1:${server.port}/api/v1`]);
+		expect(r.status, r.stderr).toBe(0);
+		expect(r.stderr).not.toContain("usages: could not write cache:");
+		expect(fs.existsSync(path.join(root, "nested", "absent"))).toBe(true);
+		const cache = JSON.parse(fs.readFileSync(cacheFile, "utf-8"));
+		expect(cache.generations["gen-cache-parent-1"]).toBeDefined();
+	} finally {
+		server.stop(true);
+	}
+});
+
 test("T-U5: council seat rows are attributed from run manifests and transcripts", async () => {
 	const { root, agent } = mkRepo();
 	const run = path.join(root, ".pi", "council", "runs", "run-1");
