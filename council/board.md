@@ -12,8 +12,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-86 — Pure seat-composition decision function with a fail-safe Default
 - EV-87 — One-call seat-composition orchestration over the shared Jev transport
 - EV-88 — End-to-end falsifier for the Jev seat-composition fail-closed arm
-- EV-89 — Systematize Phase 1 open-judgment rulings into a durable class-enumerated record
-- EV-90 — Pass renderProcedure-substituted council.md and features-deliver.md into the council-runner dispatch
 - FLLWUP-102 — Follow-up surface amendments: stop asserting `model-card coming-soon` on http-404 and cover the wrapper's advisory arm
 - FLLWUP-99 — Make the card gate actually meter: write the decision policy's version and diagnose the missing answer probabilities
 - FLLWUP-97 — Follow-up board cap: pin the headroom probe's no-trim tripwire and add the recency window when the cap binds
@@ -91,6 +89,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-48 — Packaged seat-tier map with repo-local merge override
 - EV-57 — Resolve the running pi-council identity from the package root
 - EV-58 — Show the pi-council version and hash on the first pi run
+- EV-89 — Systematize Phase 1 open-judgment rulings into a durable class-enumerated record
+- EV-90 — Pass renderProcedure-substituted council.md and features-deliver.md into the council-runner dispatch
 
 ## In Progress
 
