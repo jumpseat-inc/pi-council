@@ -523,7 +523,7 @@ test("council step 13 names the followup tool pair, the three enablement states,
 	expect(flat).toContain("mergeTarget");
 });
 
-test("council step 13 carries the pre-write pin: `confirmed at ledger level` only inside a negating sentence; FLLWUP-69 stays Backlog/EPIC-9", () => {
+test("council step 13 carries the pre-write pin: `confirmed at ledger level` only inside a negating sentence; FLLWUP-69 stays Backlog under its recorded thematic epic", () => {
 	const { flat } = step13();
 	const literal = "confirmed at ledger level";
 	expect(flat).toContain(literal);
@@ -532,10 +532,14 @@ test("council step 13 carries the pre-write pin: `confirmed at ledger level` onl
 		if (!sentence.includes(literal)) continue;
 		expect(sentence.includes("never"), `negating sentence required, found: ${sentence}`).toBe(true);
 	}
-	// EV-82 owns the pre-write pin; FLLWUP-69's halves stay its own.
+	// EV-82 owns the pre-write pin; FLLWUP-69's halves stay its own. The
+	// card's epic field is the board's recorded state — FLLWUP-69 was regrouped
+	// under EPIC-22 (the process/test-discipline residual epic) by the
+	// recorded follow-up backlog curation `8c7913c`, so the pin follows the
+	// board rather than the historical EPIC-9 grouping.
 	const f69 = fs.readFileSync(path.join(PKG_ROOT, "council", "cards", "FLLWUP-69.md"), "utf-8");
 	expect(f69).toMatch(/^state: Backlog$/m);
-	expect(f69).toMatch(/^epic: EPIC-9$/m);
+	expect(f69).toMatch(/^epic: EPIC-22$/m);
 });
 
 test("council step 13 states the apply clause: the recorded disposition the line names, never the current configuration", () => {
@@ -637,3 +641,123 @@ function stripComments(source: string): string {
 	}
 	return out;
 }
+
+// ---------------------------------------------------------------------------
+// EV-89 — the Phase 1 class-enumeration record mechanism.
+//
+// Spec §6 pins 1–7 (docs/superpowers/specs/2026-09-23-EV-89-design.md).
+// Every ordered pin carries a presence guard (indexOf >= 0) BEFORE asserting
+// order — skeptic O1's remedy: a monotonicity-only pin passes green on a
+// file containing none of the strings. Canonical class strings are the
+// prose strings pinned verbatim in spec §2; the stakes tiers are ordered
+// card → run-committing → portfolio (acceptance bullet 8).
+// ---------------------------------------------------------------------------
+
+const EV89_DELIVER = path.join(PKG_ROOT, "council", "procedures", "features-deliver.md");
+const EV89_RUNNER = path.join(PKG_ROOT, "council", "agents", "council-runner.md");
+
+/** The five canonical classes in stakes order: [tier, class]. */
+const EV89_CLASSES: Array<[string, string]> = [
+	["card", "surface copy"],
+	["card", "state and field naming"],
+	["run-committing", "uncertainty display"],
+	["run-committing", "error and empty-state text"],
+	["portfolio", "gate user-visibility"],
+];
+
+function ev89Deliver(): { raw: string; flat: string } {
+	const raw = fs.readFileSync(EV89_DELIVER, "utf-8");
+	return { raw, flat: raw.replace(/\s+/g, " ") };
+}
+
+test("EV-89: features-deliver Phase 1 enumerates the five canonical classes under the three stakes headers, in stakes order", () => {
+	const { raw, flat } = ev89Deliver();
+	// the three stakes-tier headers render the list as tiers, not a flat
+	// checklist (bullet 8)
+	expect(flat).toContain("Per-card reversible");
+	expect(flat).toContain("Run-committing");
+	expect(flat).toContain("Portfolio-level");
+	// presence guards BEFORE order (O1 remedy): each canonical string must
+	// actually appear, then the order is asserted on the raw indices
+	const indices: number[] = [];
+	for (const [, cls] of EV89_CLASSES) {
+		const at = raw.indexOf(cls);
+		expect(at, `canonical class '${cls}' must appear in features-deliver.md`).toBeGreaterThan(-1);
+		indices.push(at);
+	}
+	for (let i = 1; i < indices.length; i++) {
+		expect(indices[i]!, `class '${EV89_CLASSES[i]![1]}' must follow '${EV89_CLASSES[i - 1]![1]}'`).toBeGreaterThan(
+			indices[i - 1]!,
+		);
+	}
+	// the class entries carry their question-shaped elaborations, not bare nouns
+	expect(flat).toContain("What exact words does a person see on a visible surface?");
+	expect(flat).toContain("How much uncertainty does the run show a person about data with no realtime availability and no prices?");
+	expect(flat).toContain("Is the routing gate's verdict shown to the human, or kept as information only?");
+});
+
+test("EV-89: features-deliver Phase 1 carries the refusal literal, the no-dispatch sentence, one-line-per-class, and HALT disjointness", () => {
+	const { flat } = ev89Deliver();
+	// the refusal stem (P1-5)
+	expect(flat).toContain("Phase 1 unresolved:");
+	// the no-dispatch sentence (bullet 3's second pin): deleting or
+	// materially weakening either reds
+	expect(flat).toContain("Phase 1 does not dispatch any `council-runner`");
+	expect(flat).toContain("neither a recorded ruling nor a not-applicable reason");
+	// all unresolved classes, not first-only
+	expect(flat).toContain("one line per unresolved class");
+	// a distinct named literal, locatable from the text alone — never the
+	// generic `HALT:` environment-failure convention (bullet 5)
+	expect(flat).toContain("not the run's generic `HALT:`");
+});
+
+test("EV-89: the record path is discoverable — named in features-deliver.md AND in council-runner.md's escalation step 1 as one of two files read", () => {
+	// bullet 6 / synthesis 13: the runner reads two files at
+	// <escalation_contract> step 1 — procedure = class list, record = rulings
+	const deliver = fs.readFileSync(EV89_DELIVER, "utf-8");
+	expect(deliver).toContain("council/phase1-rulings.json");
+	const runner = fs.readFileSync(EV89_RUNNER, "utf-8");
+	expect(runner).toContain("council/phase1-rulings.json");
+	const escStart = runner.indexOf("<escalation_contract>");
+	const escEnd = runner.indexOf("</escalation_contract>");
+	expect(escStart).toBeGreaterThan(-1);
+	expect(escEnd).toBeGreaterThan(escStart);
+	const step1 = runner.slice(escStart, escEnd).replace(/\s+/g, " ");
+	expect(step1).toContain("the procedure, for the class list");
+	expect(step1).toContain("the class-enumeration record, for the rulings");
+	expect(step1).toContain("card faces remain the home of card-specific rulings");
+});
+
+test("EV-89: the `n/a: ` structured prefix is named in the procedure", () => {
+	// bullet 7 / P1-6: the not-applicable grammar
+	const { flat } = ev89Deliver();
+	expect(flat).toContain("the structured prefix `n/a: `");
+});
+
+test("EV-89: the anti-shrug sentence is present — the residual is named, judged at Phase 1 time, never fenced", () => {
+	// bullet 4's grammar + designer's conceded home: prose + pin, never
+	// validate.py
+	const { flat } = ev89Deliver();
+	expect(flat).toContain("a not-applicable reason names the absent figure, not a placeholder");
+	expect(flat).toContain("not relevant to this epic");
+	expect(flat).toContain("judged at Phase 1 time");
+});
+
+test("EV-89: the ruling-scoping sentence — class-only binding, designer stays, step-6 routing untouched", () => {
+	// bullet 9: a Phase 1 recorded ruling binds every seat for the named
+	// classes only
+	const { flat } = ev89Deliver();
+	expect(flat).toContain("binds every seat for the named classes only");
+	expect(flat).toContain("does not remove `designer` from deliberation");
+	expect(flat).toContain("does not narrow any other design dispute's routing");
+});
+
+test("EV-89: the commit-authorization clause appears in Phase 1, verbatim in shape", () => {
+	// spec §5: unconditional about the authorization requirement, silent on
+	// when population happens (FLLWUP-60 posture; product-owner ruling)
+	const { flat } = ev89Deliver();
+	expect(flat).toContain("only under a recorded, run-scoped, human-granted Phase-1 authorization");
+	expect(flat).toContain("the run's first record push");
+	expect(flat).toContain("the run refuses the push and halts");
+	expect(flat).toContain("the push is never silently executed");
+});

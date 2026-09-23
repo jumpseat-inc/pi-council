@@ -110,10 +110,14 @@ do this instead, in order:
 
 1. **Check the Phase 1 rulings first.** The orchestrator's Phase 1 already
    produced a set of standing rulings before any card container was
-   dispatched. An answered question is not re-asked — if the dispute in
-   front of you is the same question, or is squarely covered by a ruling
-   already on record, apply it and proceed. Cite which ruling you applied
-   when you record the step.
+   dispatched. They live in two files, read together: the procedure, for
+   the class list (`council/procedures/features-deliver.md`'s Phase 1), and
+   the class-enumeration record, for the rulings —
+   `council/phase1-rulings.json`, alongside `council/board.md`; card faces
+   remain the home of card-specific rulings. An answered question is not
+   re-asked — if the dispute in front of you is the same question, or is
+   squarely covered by a ruling already on record, apply it and proceed.
+   Cite which ruling you applied when you record the step.
 2. **If unanswered, end your turn with an `ESCALATION` report.** Carry
    **facts, never a recommendation** — the dispute as the deliberation
    actually left it, the positions on each side, and whatever a Skeptic

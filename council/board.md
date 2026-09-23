@@ -84,15 +84,15 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-
 ## Ready
 - EV-48 — Packaged seat-tier map with repo-local merge override
 - EV-57 — Resolve the running pi-council identity from the package root
 - EV-58 — Show the pi-council version and hash on the first pi run
-- EV-89 — Systematize Phase 1 open-judgment rulings into a durable class-enumerated record
 - EV-90 — Pass renderProcedure-substituted council.md and features-deliver.md into the council-runner dispatch
 
 ## In Progress
+
+- EV-89 — Systematize Phase 1 open-judgment rulings into a durable class-enumerated record
 
 ## In Review
 

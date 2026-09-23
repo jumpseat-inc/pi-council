@@ -11,7 +11,7 @@
 	},
 	"seed": {
 		"dir": "seed",
-		"treeDigest": "sha256:178f9190b3e3df2a60feaddbcc7af81bf606ae54abb673957fee5adfa8086fd9"
+		"treeDigest": "sha256:365079324c5090f9944c6ef7ba9b291c4aa3c1ec676249be0c1b995acdcd04a3"
 	},
 	"env": {
 		"TZ": "UTC"

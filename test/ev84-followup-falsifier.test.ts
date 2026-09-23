@@ -186,6 +186,31 @@ function writeBoard(repo: string, withCardFile: boolean): void {
 				"",
 			].join("\n"),
 		);
+		// EV-89 repair (FLLWUP-59 rewording escape valve): this falsifier's
+		// temp-fixture card ids previously began at FLLWUP-1, and the backlog
+		// consolidation (c562249) retired that FLLWUP-2 card path from the
+		// live tree — making the literal a retired-path-token violation.
+		// Seed a probe card at an id never used in repo history so
+		// step-13's highest-id-plus-one increment lands at 901/902. The
+		// behavior under test is unchanged.
+		fs.writeFileSync(
+			path.join(repo, "council", "cards", "FLLWUP-900.md"),
+			[
+				"---",
+				"id: FLLWUP-900",
+				"title: Probe seed card",
+				"state: Backlog",
+				"owner: null",
+				"epic: null",
+				"goal: a probe card seeding the highest existing FLLWUP- id",
+				"---",
+				"",
+				"## Intent",
+				"",
+				"Probe seed.",
+				"",
+			].join("\n"),
+		);
 	}
 }
 
@@ -421,20 +446,26 @@ test("arm 1 — offline pinned-answers decision leg: exact-two-card write set, m
 
 	// The write leg: the helper applies step 13 to the rendered bytes.
 	const cardsDir = path.join(repo, "council", "cards");
-	expect(fs.readdirSync(cardsDir)).toEqual(["EV-950.md"]);
+	expect(fs.readdirSync(cardsDir).sort()).toEqual(["EV-950.md", "FLLWUP-900.md"]);
 	const { written, sectionByTarget } = transcribeStep13(lines, CANDIDATES, repo, MERGE_TARGETS);
 
 	// T4 — the expectations derive from the pinned table: exactly two
 	// net-new FLLWUP- cards (B and C; A writes nothing), B's card carries the
 	// `## Merged from:` section naming both sources in recorded order, C's is
-	// plain, and board card X is untouched.
+	// plain, and board card X is untouched. Ids increment from the seeded
+	// probe card (see writeBoard's EV-89 repair note).
 	expect(written).toHaveLength(2);
-	expect(fs.readdirSync(cardsDir).sort()).toEqual(["EV-950.md", "FLLWUP-1.md", "FLLWUP-2.md"]);
+	expect(fs.readdirSync(cardsDir).sort()).toEqual([
+		"EV-950.md",
+		"FLLWUP-900.md",
+		"FLLWUP-901.md",
+		"FLLWUP-902.md",
+	]);
 	const expectedSection = mergedFromSection([CANDIDATE_A.title, CANDIDATE_B.title]);
 	expect(sectionByTarget.get(CANDIDATE_B.title)).toBe(expectedSection);
-	const bCard = fs.readFileSync(path.join(cardsDir, "FLLWUP-1.md"), "utf-8");
+	const bCard = fs.readFileSync(path.join(cardsDir, "FLLWUP-901.md"), "utf-8");
 	expect(bCard).toContain(expectedSection);
-	const cCard = fs.readFileSync(path.join(cardsDir, "FLLWUP-2.md"), "utf-8");
+	const cCard = fs.readFileSync(path.join(cardsDir, "FLLWUP-902.md"), "utf-8");
 	expect(cCard).not.toContain("## Merged from:");
 	expect(fs.readFileSync(path.join(repo, "council", "board.md"), "utf-8")).toContain("- EV-950 — X board probe card");
 });
@@ -524,8 +555,12 @@ test("arm 3 — unreachable endpoint: recorded failures (one ledger line per can
 	expect(lines).toEqual(CANDIDATES.map(() => `gate call failed: ${ECONNREFUSED}`));
 	expect(lines.some((l) => l.startsWith("Mode:"))).toBe(false);
 
-	// The human pre-write confirm is what remains — zero cards written.
-	expect(fs.readdirSync(path.join(repo, "council", "cards"))).toEqual(["EV-950.md"]);
+	// The human pre-write confirm is what remains — zero cards written
+	// beyond the seeded probe card (see writeBoard's EV-89 repair note).
+	expect(fs.readdirSync(path.join(repo, "council", "cards")).sort()).toEqual([
+		"EV-950.md",
+		"FLLWUP-900.md",
+	]);
 });
 
 // ---------------------------------------------------------------------------
@@ -584,7 +619,7 @@ test.skipIf(!LIVE_ENABLED)(
 		expect(written).toHaveLength(2);
 		const expectedSection = mergedFromSection([CANDIDATE_A.title, CANDIDATE_B.title]);
 		expect(sectionByTarget.get(CANDIDATE_B.title)).toBe(expectedSection);
-		expect(fs.readFileSync(path.join(repo, "council", "cards", "FLLWUP-1.md"), "utf-8")).toContain(expectedSection);
+		expect(fs.readFileSync(path.join(repo, "council", "cards", "FLLWUP-901.md"), "utf-8")).toContain(expectedSection);
 	},
 	5 * 60_000,
 );
@@ -650,7 +685,7 @@ test("T2 — forcing fires (restated): flipping A's override Merge→Drop change
 	expect(written).toHaveLength(2);
 	expect(sectionByTarget.size).toBe(0);
 	const cardsDir = path.join(repo, "council", "cards");
-	const bCard = fs.readFileSync(path.join(cardsDir, "FLLWUP-1.md"), "utf-8");
+	const bCard = fs.readFileSync(path.join(cardsDir, "FLLWUP-901.md"), "utf-8");
 	expect(bCard).not.toContain("## Merged from:");
 });
 
