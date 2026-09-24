@@ -66,6 +66,17 @@ substitutions; council.md remains the procedure, features-deliver.md is what
 changes about running it without someone attending in real time. Execute
 the in-input text.
 
+**Never read the procedure files from disk.** The bodies were injected into
+your dispatch input precisely so your startup performs no `read` of
+`council.md` or `features-deliver.md` under any `council/procedures/`
+directory — packaged or override. The in-input text is the only
+authoritative copy; a disk read is redundant latency at best and, at worst,
+a different (stale or half-overridden) text than the run was scoped to.
+This is a startup-falsifier invariant (FLLWUP-114): your transcript's first
+toolCalls must contain no such read, and your first visible action must not
+be under `council/procedures/` at all. Reading other repo files (cards,
+board, source, your own seat file) is unaffected.
+
 **Skip step 0 (preflight).** The run's Phase 0 already cleared the
 environment for the whole epic before any card container was dispatched.
 If you encounter a missing prerequisite anyway — a tool not on PATH, an

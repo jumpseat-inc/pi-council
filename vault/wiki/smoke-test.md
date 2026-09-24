@@ -78,6 +78,40 @@ check, replacing a human manually installing and driving a council run. It is
    constants — the self-referential `USAGE_LINE` test gap closed.
    ⚠️ Supersedes the "planned fix" wording this page carried since
    EPIC-5.
+7. **Phase 7** (FLLWUP-114, 2026-09-24) — the runner startup surface in
+   isolation (`SMOKE_PHASE=7`; the third supported isolated phase — the
+   selector hard-fails anything but 5, 6, and 7). A real parent `pi -p`
+   turn dispatches a real `council-runner` against a **dispatchable**
+   fixture card — EV-2 (`epic: EPIC-1`, both liveness markers;
+   skeptic-verified). NEVER EPIC-1: its face carries `epic: null` and
+   `cardEpicKey` fail-loud refuses it at dispatch time (the EV-90 D1
+   ruling) — a phase dispatching it measures nothing. Scoped to the
+   runner's STARTUP transcript: the waiter (`smoke/phase7-dispatch.ts`)
+   ends the window at the runner's first `council_dispatch` toolCall
+   block (or settle/ceiling), never full card delivery — that is Phase
+   2's existing job. The pure reader (`smoke/read-runner-startup.ts`,
+   `readRunnerStartup`) then asserts, in pi's lowercase tool vocabulary:
+   liveness anchors first (≥1 toolCall, ≥1 `council_dispatch`, exactly
+   one non-empty `<council-procedure>` user block also carrying
+   `<features-deliver-overlay>`) — a transcript missing any anchor reds
+   rather than passing vacuously — then AC2 (before the first dispatch,
+   no `read`-labeled toolCall's first argument ends in
+   `council/procedures/council.md` or `features-deliver.md`;
+   case-insensitive) and AC3 (the first toolCall's first argument is not
+   under `council/procedures/`). The same reader is wired into the
+   full-path Phase 2 after the runner-evidence probe at zero added model
+   time. Selection is `readManifests` → `findSessionFile` ONLY — never
+   the `RUNNER_SESSIONS` grep, which matches `.json` manifests, not
+   sessions. Cleanup is mandatory on every exit path: the parent kill +
+   a `COUNCIL_RUN_ID`-keyed sweep (`smoke/phase7-sweep.sh`) because the
+   runner's sub-dispatches are detached into new process groups.
+   Companion (same card): the deterministic two-attempt retry replay
+   lives in the offline faux-provider harness (the EV-56 treatment arm,
+   `test/ev41-seat-child-live.test.ts`) — a green run never retries
+   (`classifyRetry` needs `stopReason:"error"` with the with-colon
+   literal), so the cross-attempt byte-equality assertion
+   (`{kind, text}` projection; raw `at` asserted to differ) rides the
+   real tool seam there, not in this phase.
 
 ## The philosophy: never trust a claim, re-run reality
 
