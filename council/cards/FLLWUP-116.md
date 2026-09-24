@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-116
 title: Quote-agnostic file-content import pins across the suite
-state: Deliberating
+state: In Progress
 owner: null
 epic: EPIC-24
 goal: The suite's file-content import pins (tests that read packaged .md/.ts sources and assert on their contents) match the pinned sentence regardless of whether it is wrapped in double quotes or single quotes, or one pin arm documents the double-quote convention as the contract — whichever arm the implementation takes, a convention-conforming requote of pinned source lines cannot red a pin.

@@ -86,9 +86,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EPIC-22 — Close the process and test-discipline residuals
 
 ## Deliberating
-- FLLWUP-116 — Quote-agnostic file-content import pins across the suite
 
 ## In Progress
+- FLLWUP-116 — Quote-agnostic file-content import pins across the suite
 
 ## Ready
 - FLLWUP-117 — Close the cardEpicKey throw-site JSDoc drift
