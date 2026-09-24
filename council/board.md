@@ -8,9 +8,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 - EPIC-24 — Close the EPIC-23 autonomous-delivery residuals — runner transcript live-smoke, frontmatter-scoped epic parse, and quote-agnostic import pins
 
-- FLLWUP-114 — Live-smoke verification of the pre-injected runner transcript surface
-- FLLWUP-115 — Frontmatter-scoped epic parse in cardEpicKey with a corpus-divergence pin
-- FLLWUP-116 — Quote-agnostic file-content import pins across the suite
 - FLLWUP-112 — Render a config-home token in procedure copy and derive the packaged-procedure scan's allowlist from renderProcedure's substitution set
 
 - EV-85 — Seat-composition decisions as repo-overridable packaged data
@@ -89,6 +86,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Deliberating
 
 ## Ready
+- FLLWUP-114 — Live-smoke verification of the pre-injected runner transcript surface
+- FLLWUP-115 — Frontmatter-scoped epic parse in cardEpicKey with a corpus-divergence pin
+- FLLWUP-116 — Quote-agnostic file-content import pins across the suite
 - EV-48 — Packaged seat-tier map with repo-local merge override
 - EV-57 — Resolve the running pi-council identity from the package root
 - EV-58 — Show the pi-council version and hash on the first pi run

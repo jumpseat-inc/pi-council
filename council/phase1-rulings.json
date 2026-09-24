@@ -1,0 +1,29 @@
+{
+	"classes": [
+		{
+			"class": "surface copy",
+			"stakes": "card",
+			"reason": "n/a: no user-facing surface copy is introduced or changed by EPIC-24's cards — FLLWUP-114 adds an opt-in smoke test, FLLWUP-115 hardens the internal cardEpicKey parse, and FLLWUP-116 is suite test-pin hygiene"
+		},
+		{
+			"class": "state and field naming",
+			"stakes": "card",
+			"reason": "n/a: no user-visible state, field, or status name is introduced or rendered by EPIC-24's cards — cardEpicKey is an internal derivation and no new persisted or displayed field is added"
+		},
+		{
+			"class": "uncertainty display",
+			"stakes": "run-committing",
+			"reason": "n/a: no fetched-data or realtime-availability surface is displayed by EPIC-24's cards, so there is no uncertainty figure to show"
+		},
+		{
+			"class": "error and empty-state text",
+			"stakes": "run-committing",
+			"reason": "n/a: no user-facing error or empty-state surface is changed by EPIC-24's cards — FLLWUP-115's fail-loud refusals are internal throws whose messages acceptance criterion 2 pins unchanged"
+		},
+		{
+			"class": "gate user-visibility",
+			"stakes": "portfolio",
+			"reason": "n/a: the decisions gate is off and no EPIC-24 card alters whether a routing-gate verdict is shown to a person"
+		}
+	]
+}

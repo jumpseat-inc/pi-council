@@ -1,10 +1,10 @@
 ---
 id: FLLWUP-115
 title: Frontmatter-scoped epic parse in cardEpicKey with a corpus-divergence pin
-state: Backlog
+state: Ready
 owner: null
 epic: EPIC-24
-goal: cardEpicKey in extensions/seats.ts derives the epic key from the card face's frontmatter epic: field only — not from a whole-file regex that could match an epic: line in a card's body — and a corpus-wide pin asserts no current card body carries such a line, so hardening the seam cannot silently change any existing derivation.
+goal: cardEpicKey in extensions/seats.ts derives the epic key from the card face's frontmatter epic: field only — not from a whole-file regex that could match an epic: line in a card's body — and a corpus-wide pin asserts, per card, that the whole-file derivation and the frontmatter-scoped derivation produce the identical result (same key or same throw), so hardening the seam cannot silently change any existing derivation.
 ---
 
 ## Intent
@@ -36,10 +36,27 @@ gate basis: composite 0.35 < merge threshold 1.00).
 2. The fail-loud refusals EV-90's D1 ruling requires are preserved byte-for-byte
    in behavior: nonexistent face, null epic, and absent epic each throw
    naming the card, with unchanged messages (or a test pins the new shape).
-3. A corpus-wide test iterates every `council/cards/*.md` and asserts no card
-   body (frontmatter stripped) contains a line matching `^epic:` — pinning
-   that the hardening changes no existing derivation; the test reds before
-   the scoping change if any card body would previously have been misparsed.
+3. A corpus-wide test iterates every `council/cards/*.md` and asserts, per
+   card, that the current whole-file derivation (`raw.match(/^epic:\s*(.*)$/m)`)
+   and the frontmatter-scoped derivation (criterion 1's mechanism) produce the
+   identical result — same key, or same throw. It is green on the current
+   corpus and reds exactly when the scoping change would alter any existing
+   derivation. The card's record additionally dispositions the known body
+   occurrences of a line beginning `epic:` (a pin asserts the property, not
+   corpus hygiene).
 4. The existing `test/ev90-runner-input.test.ts` epic-derivation claims
    (missing face → throw; `epic: null` → throw; `epic: EPIC-9` → `EPIC-9`)
    stay green untouched.
+
+## Phase 1 ruling (product-owner, job-2)
+
+Acceptance criterion 3's literal text ("no card body contains a line matching
+`^epic:`") is empirically false on the packaged corpus: five card files carry
+nine body lines beginning with that label (EPIC-8 prose; fenced example
+blocks in EV-35, FLLWUP-47, FLLWUP-49, FLLWUP-56). `cardEpicKey`'s whole-file
+`match` returns the first occurrence, and every card face carries its
+frontmatter key line ahead of the body, so no body occurrence ever won a
+derivation. The product-owner amended the goal's pin clause and criterion 3
+to the behavioral-equivalence pin above — green on the current corpus, red
+exactly when the scoping change alters an existing derivation — and ratified
+this card `Backlog → Ready` for the run.
