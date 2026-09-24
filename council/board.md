@@ -7,11 +7,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Backlog
 
 - EPIC-25 — Close the EPIC-24 autonomous-delivery residuals — runner never-read rule, dispatchable smoke-fixture faces, stale-ctx crash, and two test-pin residuals
-- FLLWUP-119 — Repair the EPIC-* smoke-fixture card faces so real model-driven flows can dispatch them
 
 - FLLWUP-112 — Render a config-home token in procedure copy and derive the packaged-procedure scan's allowlist from renderProcedure's substitution set
-- FLLWUP-120 — Cover the print-mode stale-ctx parent crash when a dispatched job outlives its turn
-- FLLWUP-121 — Pin test/stub-child.test.ts's child-scheduling race — the transient solo-run flake the FLLWUP-116 judge observed
 
 - EV-85 — Seat-composition decisions as repo-overridable packaged data
 - EV-86 — Pure seat-composition decision function with a fail-safe Default
@@ -89,12 +86,15 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Deliberating
 
 ## In Progress
+- FLLWUP-117 — Close the cardEpicKey throw-site JSDoc drift
+- FLLWUP-118 — Pin the shared FRONTMATTER_RE anchor shape at the byte-0 boundary
+- FLLWUP-119 — Repair the EPIC-* smoke-fixture card faces so real model-driven flows can dispatch them
+- FLLWUP-120 — Cover the print-mode stale-ctx parent crash when a dispatched job outlives its turn
+- FLLWUP-121 — Pin test/stub-child.test.ts's child-scheduling race — the transient solo-run flake the FLLWUP-116 judge observed
 
 ## In Review
 
 ## Ready
-- FLLWUP-117 — Close the cardEpicKey throw-site JSDoc drift
-- FLLWUP-118 — Pin the shared FRONTMATTER_RE anchor shape at the byte-0 boundary
 - EV-48 — Packaged seat-tier map with repo-local merge override
 - EV-57 — Resolve the running pi-council identity from the package root
 - EV-58 — Show the pi-council version and hash on the first pi run

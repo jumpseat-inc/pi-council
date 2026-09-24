@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-117
 title: Close the cardEpicKey throw-site JSDoc drift
-state: Ready
+state: In Progress
 owner: null
 epic: EPIC-25
 goal: The three documents that still name `cardEpicKey` as the throw site for the epic-field D1 refusal — the design spec `docs/superpowers/specs/2026-09-24-fllwup-115-design.md`, the implementation plan `docs/superpowers/plans/2026-09-24-fllwup-115-plan.md`, and `epicKeyFromFace`'s JSDoc in `extensions/seats.ts` — state the throw-site truthfully: the epic-field refusal (`epic: null` or absent) throws, as delivered, inside the extracted pure core `epicKeyFromFace` (the nonexistent-face read refusal alone remains in `cardEpicKey`), with message bytes and observable behavior unchanged.
