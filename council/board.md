@@ -83,6 +83,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EPIC-23 — Autonomous-delivery cold-start efficiency: gate-routing disposition, Phase 1 class enumeration, and runner procedure pre-injection
 
 ## Deliberating
+
+## In Progress
 - EV-90 — Pass renderProcedure-substituted council.md and features-deliver.md into the council-runner dispatch
 
 ## Ready
