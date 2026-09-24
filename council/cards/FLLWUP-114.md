@@ -3,7 +3,7 @@ id: FLLWUP-114
 title: Live-smoke verification of the pre-injected runner transcript surface
 state: Backlog
 owner: null
-epic: EPIC-23
+epic: EPIC-24
 goal: A live-smoke phase for the /features-deliver epic asserts, from a real runner session transcript, that a fresh council-runner's startup toolCalls contain no Read against council/procedures/council.md or council/procedures/features-deliver.md, that the first visible toolCall is not under council/procedures/, and that retried attempts carry byte-equal first user-message blocks — the transcript-level predictions EV-90's step-9 record classified as live-smoke-only verification material.
 ---
 

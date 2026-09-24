@@ -6,6 +6,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Backlog
 
+- EPIC-24 — Close the EPIC-23 autonomous-delivery residuals — runner transcript live-smoke, frontmatter-scoped epic parse, and quote-agnostic import pins
+
 - FLLWUP-114 — Live-smoke verification of the pre-injected runner transcript surface
 - FLLWUP-115 — Frontmatter-scoped epic parse in cardEpicKey with a corpus-divergence pin
 - FLLWUP-116 — Quote-agnostic file-content import pins across the suite

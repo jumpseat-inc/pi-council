@@ -3,7 +3,7 @@ id: FLLWUP-115
 title: Frontmatter-scoped epic parse in cardEpicKey with a corpus-divergence pin
 state: Backlog
 owner: null
-epic: EPIC-23
+epic: EPIC-24
 goal: cardEpicKey in extensions/seats.ts derives the epic key from the card face's frontmatter epic: field only — not from a whole-file regex that could match an epic: line in a card's body — and a corpus-wide pin asserts no current card body carries such a line, so hardening the seam cannot silently change any existing derivation.
 ---
 
