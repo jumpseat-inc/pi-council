@@ -95,11 +95,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## In Progress
 
 ## In Review
-- FLLWUP-115 — Frontmatter-scoped epic parse in cardEpicKey with a corpus-divergence pin
 
 ## Needs Human
 
 ## Done
+- FLLWUP-115 — Frontmatter-scoped epic parse in cardEpicKey with a corpus-divergence pin
 - EPIC-23 — Autonomous-delivery cold-start efficiency: gate-routing disposition, Phase 1 class enumeration, and runner procedure pre-injection
 - EV-90 — Pass renderProcedure-substituted council.md and features-deliver.md into the council-runner dispatch
 - EV-89 — Systematize Phase 1 open-judgment rulings into a durable class-enumerated record
