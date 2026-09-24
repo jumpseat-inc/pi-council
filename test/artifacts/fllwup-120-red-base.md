@@ -86,8 +86,12 @@ the head half, so both halves share one dependency set.
 
 ## 7. Head half
 
-- **Head sha:** `4448ae5d3612b73d7bcd3931c9911938baf8d1d2` (the FLLWUP-120
-  mechanism commit on `feat/epic25-residuals`).
+- **Head sha:** `718c45029310dbf812b4f8ae9a5e3cffb946df82`, the FLLWUP-120
+  mechanism commit on `feat/epic25-residuals`. An intermediate commit
+  `4448ae5d3612b73d7bcd3931c9911938baf8d1d2` carried the identical code tree
+  and was amended only to correct this record; the diff between the two is
+  artifact-file-only, and the green below was re-observed fresh at the final
+  tree (`e3c5a07a0f35d7dea28ef6d663cecf963be368ca`).
 - Same exact command: `bun test test/fllwup120-stale-ctx.test.ts`
 - Result: **1 pass / 0 fail** (fresh run at the committed head; the test file
   as committed imports the engine-owned `STALE_CTX_PREFIX` constant).
