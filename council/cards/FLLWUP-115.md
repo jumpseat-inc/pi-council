@@ -164,3 +164,15 @@ Subject: PR #114 head SHA `b12149e0ac8e990d737366b3f30d77dc199169f6` in worktree
 ### Step 10 — judge verdict (job-4.5)
 
 Fresh-context judge, input = card goal + skeptic step-9 evidence only. **Verdict: PASS.** Basis: (1) at `extensions/seats.ts:605-621`, `epicKeyFromFace` extracts the frontmatter block via `FRONTMATTER_RE` and matches `epic:` only within that block — a body line cannot win; (2) T4 iterates every card in `council/cards/` comparing old whole-file vs new scoped derivation with zero divergences, and the injection test proved it reds (173 divergences) on a bypass rather than passing silently. The JSDoc-drift observation judged cosmetic — no acceptance criterion affected.
+
+### Step 11 — deterministic merge check (mode Deliberate, all five criteria) and merge
+
+Checked 2026-09-24 against PR #114 head `b12149e0ac8e990d737366b3f30d77dc199169f6` (re-read `headRefOid` immediately before the merge — unchanged from the SHA every gate was read against):
+
+1. Owner gates green in full — skeptic re-ran at head: preflight PASS, `bunx tsc --noEmit` clean, full `bun test` 1518 pass / 6 skip / 0 fail. ✓
+2. GitHub Actions green on the PR head SHA — `gh pr checks 114 --json name,state,workflow` keyed on `workflow`: `gates` → `state: SUCCESS`. ✓
+3. No blocking Skeptic objection — step-9 verdict VERIFIED. ✓
+4. Judge verdict PASS (step 10). ✓
+5. No `Needs Human` state or outstanding ruling on the card. ✓
+
+Authorization: P1-1 (run-scoped admin bypass, recorded on council/cards/EPIC-24.md under `## Phase 1 rulings`) + P1-7 (fully unattended selected by the human; no merge pause). Executed: `gh pr merge 114 --squash --admin --match-head-commit b12149e0ac8e990d737366b3f30d77dc199169f6`.
