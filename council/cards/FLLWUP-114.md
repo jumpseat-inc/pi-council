@@ -1,8 +1,8 @@
 ---
 id: FLLWUP-114
 title: Live-smoke verification of the pre-injected runner transcript surface
-state: In Review
-owner: null
+state: Done
+owner: owner
 epic: EPIC-24
 goal: A live-smoke phase for the /features-deliver epic asserts, from a real runner session transcript, that a fresh council-runner's startup toolCalls contain no Read against council/procedures/council.md or council/procedures/features-deliver.md, that the first visible toolCall is not under council/procedures/, and that retried attempts carry byte-equal first user-message blocks — the transcript-level predictions EV-90's step-9 record classified as live-smoke-only verification material.
 ---
@@ -267,6 +267,25 @@ No open judgment to route (consolidator: none). No blocking open objection witho
 
 `docs/superpowers/specs/2026-09-24-FLLWUP-114-design.md` committed at `e6a901f` (main). Card set `In Progress` (board validated clean), owner dispatched at step 8.
 
+
+## Implementation record (owner, autonomous EPIC-24 run, 2026-09-24)
+
+Branch `feat/fllwup-114-live-startup-reader` (worktree `.worktrees/fllwup-114`, base `e6a901f` = the spec commit).
+Spec: `docs/superpowers/specs/2026-09-24-FLLWUP-114-design.md`; plan: `docs/superpowers/plans/2026-09-24-FLLWUP-114-live-startup-reader.md`.
+
+**Delivered (all five acceptances):**
+
+- **Part A** — `smoke/read-runner-startup.ts` (pure `readRunnerStartup(repoRoot, cardId?)`, throws `fllwup114-reader: …` on every failure) + the `SMOKE_PHASE=7` isolated phase in `smoke/driver.sh` (`phase7_run`): a real parent `pi -p` turn (fixture flash model) dispatches a real `council-runner` against **EV-2** (skeptic O1's closed-red fix — never EPIC-1, whose `epic: null` face `cardEpicKey` refuses); the waiter (`smoke/phase7-wait.sh` → `smoke/phase7-dispatch.ts`) closes the startup window at the runner's first `council_dispatch` toolCall (or settle/ceiling 840s inside a 900s `timeout` envelope); cleanup kills the parent + sweeps every process carrying the phase's `COUNCIL_RUN_ID` (`smoke/phase7-sweep.sh`) — nothing survives the phase. The same reader is wired into full-path Phase 2 after the runner-evidence probe at zero added model time.
+- **Reader selection** is `runsDir` → `listRunIds` (latest-first) → `readManifests` (seat = council-runner) → `findSessionFile` — the spec's named path, never the `RUNNER_SESSIONS` grep. Anchors asserted BEFORE AC2/AC3 (≥1 toolCall; ≥1 `council_dispatch`; first user block non-empty carrying both markers; exactly one `<council-procedure>` block; marker-consistency with the card id). AC2 matches the label case-insensitively (a literal `Read` match would pass vacuously); AC3 is label-agnostic on the first toolCall's `firstArgOf`.
+- **Part B** — the `card_id` gap closed knob-gated (`EV40_CARD_ID` → `ArmOptions.cardId`; `dispatchStepToolCallArgs` is the pure test seam; without the env the serialized args carry no `card_id` key — every existing arm byte-identical, `test/faux-provider-shape.test.ts` pins both knob states), and the EV-56 treatment arm (`test/ev41-seat-child-live.test.ts`) re-targeted to a `council-runner` dispatch (only a runner dispatch composes the bodies — `hub-tools.ts` composes solely for that seat) with a scratch EV-2 face: `attemptEntries(manifest)` = `job-1`/`job-1-attempt2`; each transcript's FIRST user block located by the `<council-procedure>` marker (exactly one, non-empty, overlay present, carries `EV-2`); `{kind, text}` projections byte-equal across the real Hub retry seam; raw `at` asserted to DIFFER (the exclusion is load-bearing).
+- **AC5** — no new file under `test/` (reader tests ride the existing `test/ev90-runner-input.test.ts`; replay assertions ride the existing live arm); `bun test smoke` discovers only the 4 pre-existing fixture tests (unchanged); phase 7 runs only under `SMOKE_PHASE=7`; artifacts under the dot-dir `smoke/.artifacts/`.
+
+**Part B verification (both directions, recorded):** green at head `9c15fc9` — the treatment test passes through the real tool seam (dispatch → real Hub → real `createRetrySupervisor` → real child JSONLs), file wall 7.0s. Negative control: a detached scratch worktree at that head with `attemptSpec` mutated to append a per-attempt sentinel to `dispatchInput` reds the treatment test at exactly the byte-equality assertion (attempt 2's block carries ` [per-attempt 2]`, attempt 1's does not). One discarded red: the first control run transplanted only the test file (knob edits untransplanted), the arm silently fell back to the skeptic seat, and the red was **copy-set-dependent** — evidence discarded, experiment redone with the full transplant.
+
+**Gates (final tree `b24ef50`, all four, in order):** `bunx tsc --noEmit` clean; full `bun test` **1530 pass / 6 skip / 0 fail, 113.22s** (baseline 113.22s — AC5 wall-clock unchanged; 180s drift threshold untouched); `bash council/preflight.sh FLLWUP-114` PASS; **live `SMOKE_PHASE=7 bash smoke/run.sh` → SMOKE PASS** (the deliverable; see below).
+
+**The live phase red before it went green — and the red was the card's own mechanism working (evidence preserved: artifacts `smoke/.artifacts/20260924-115236`, run dir `2026-09-24T11-52-47-218Z-115-ybg9fc`, red tree `41c692d`):** the first live run's flash-model runner performed a startup `read` of `/pkg/council/procedures/features-deliver.md` at 11:53:16 (11:52:55 session start) before any dispatch — designer prediction 1 was **false on real behavior**: EV-90 pre-injects the bodies but nothing forbade the reads. Root cause found in the artifacts (never guessed): 66 toolCalls, zero dispatch; a 32-toolCall exploration window; manifest `cancelled` at the reader's verdict. Fix (minimal, in the seat body EV-90 owns): an explicit **never-read-the-procedure-files** rule in `council/agents/council-runner.md`'s `<procedure>` block. Second finding from the same run: the parent `pi -p` turn settled ~5s after dispatching (its toolResult returns immediately), print-mode teardown disposed the ctx, and the runner's later settle crashed the parent on the stale-ctx widget render (`Hub.onChange → renderWidget → assertActive` — the exact print-mode window FLLWUP-56 documented); fix: the phase's scripted `council_wait` now covers the runner's whole lifetime (in-turn rule). Re-run: **SMOKE PASS** — real transcript: one 40,665-char composed first user block (both markers), 34 real toolCalls, first `council_dispatch` at call index 32, zero procedure-path reads in the 32-call startup window, first visible action a `bash`; sweep killed the 1 remaining runner process (no orphan).
+
 ### Step 8 — owner implementation (job-7.7)
 
 **Branch:** `feat/fllwup-114-live-startup-reader` (worktree `.worktrees/fllwup-114`, base `e6a901f`). **PR #115** opened, head SHA `384983e448b03cc034b81699f6a9a0e93d63ede9`. Owner-reported gates on the final tree: `bunx tsc --noEmit` clean; `bun test` 1530 pass / 6 skip / 0 fail, 113.22s (180s drift envelope untouched); `bash council/preflight.sh FLLWUP-114` PASS; live deliverable `SMOKE_PHASE=7 bash smoke/run.sh` → SMOKE PASS (real model, in-container).
@@ -296,3 +315,24 @@ Facilitator merge-hygiene note (from skeptic O-note): the main checkout held an 
 ### Step 10 — judge verdict (job-7.9)
 
 **PASS.** Basis: AC1 confirmed (real `pi` parent → `council_dispatch` seat council-runner card EV-2; reader parses via `parseTranscript`; 19 reader tests pass; CLI fails loudly on missing session — not a vacuous pass). AC2 confirmed with a faithful deviation: lowercase `read` label (pi's actual transcript vocabulary), case-insensitive match tested so a `READ` label never passes vacuously. AC3 confirmed (unit test covers a non-procedure first call passing). AC4 confirmed as a faithful deviation: deterministic two-attempt replay through the real Hub retry supervisor — a green run never retries, so a live-retry assertion would be vacuous; §6.8 retry byte-identity plus the ev41 Part B treatment arm green. AC5 confirmed (selector accepts only 5/6/7; no new smoke test files — `bun test smoke/` discovers exactly the 4 pre-existing fixture tests; ms-scale unit tests; full suite green). Judge's own fresh runs: `bun test test/ev90-runner-input.test.ts` 9 pass; `test/ev41-seat-child-live.test.ts` 2 pass; `test/faux-provider-shape.test.ts` 20 pass; full `bun test` 1530 pass / 0 fail / 6 skip; `bunx tsc --noEmit` clean; reader CLI loud-fails on an empty runs dir.
+### Step 11 — human merge gate (deterministic merge check, EPIC-24 overlay)
+
+Recorded execution mode: **Deliberate** (ROOT dispatch record). All five criteria checked mechanically at the pinned head SHA `384983e448b03cc034b81699f6a9a0e93d63ede9`:
+
+1. Every owner gate green, in full — typecheck clean, `bun test` 1530 pass / 6 skip / 0 fail, preflight PASS, live SMOKE PASS (owner-reported, re-run fresh at the branch head by the skeptic in step 9).
+2. **GitHub Actions green on the PR head SHA** — `gh pr checks 115 --json name,state,workflow` → `{"name":"gates","state":"SUCCESS","workflow":"gates"}` (keyed on workflow, not name; a `SKIPPED` `"[code]smith"` row with empty workflow is not the gates check).
+3. No blocking Skeptic objection — step 9 verdict VERIFIED, no blocking objection.
+4. Judge verdict PASS (step 10).
+5. No `Needs Human` state or outstanding ruling on the card.
+
+Merge executed with the SHA pinned exactly as criterion 2 read it: `gh pr merge 115 --squash --admin --match-head-commit 384983e448b03cc034b81699f6a9a0e93d63ede9` (head SHA re-read immediately before the merge and asserted equal). Under the EPIC-24 run-scoped authorization **P1-1** (recorded on council/cards/EPIC-24.md under `## Phase 1 rulings`, this run only). Merged: **be7d6671ebd3c4a0768edfbc69044125c6b95050** at 2026-09-24T13:02:18Z, PR #115 state MERGED.
+
+### Step 12 — sync and reconcile
+
+CI green on the merged SHA confirmed directly (check-runs API, commit `be7d667`: `gates` → `completed success`) before any Done write. `git fetch` + `git merge origin/main` diverged (local record commits vs the squash merge) — the sanctioned union-merge reconcile applied:
+
+- `council/cards/FLLWUP-114.md`: two conflict hunks. Hunk 1 (scalar `owner:` field): kept the origin side (`owner: owner`) — a single-valued field with a factual origin answer, both sides record-compatible. Hunk 2 (record blocks): **union-kept both sides** — the owner's own `## Implementation record` (arrives from the merged branch) placed immediately before the facilitator's `### Step 8` record; neither side discarded, nothing rewritten.
+- `council/board.md`: auto-merge duplicated the FLLWUP-114 line (both sides moved it); deduplicated to the single `Done` line.
+- Reconcile verified: `council/validate.py` clean; conflict-marker sweep across council/ docs/ vault/ found zero markers.
+
+Card set `Done` on card and board from the observed artifacts (merged at be7d667, gates green on the merged SHA). Reconcile commit follows; step-12 record push to main under run-scoped authorization P1-2.

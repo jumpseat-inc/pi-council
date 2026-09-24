@@ -38,7 +38,8 @@ import * as os from "node:os";
 import * as path from "node:path";
 import { CONFIG_DIR_NAME } from "@earendil-works/pi-coding-agent";
 import { buildChildArgv, loadSeat } from "../extensions/seats.ts";
-import { findSessionFile } from "../extensions/runs.ts";
+import { attemptEntries, findSessionFile } from "../extensions/runs.ts";
+import { parseTranscript } from "../extensions/transcript.ts";
 import {
 	CLI_PATH,
 	HARNESS_EXTENSION,
@@ -56,6 +57,13 @@ const ATTEMPT2_SESSION_ID = "job-1-attempt2";
 const SEAT = "skeptic";
 const SEAT_MODEL = "ev40/ev40-model";
 const MARKER = "EV40-SECOND-RESPONSE";
+// FLLWUP-114 — the Part B replay dispatches the RUNNER seat: only a
+// council-runner dispatch composes the procedure bodies into the child's
+// first user message (hub-tools.ts composeRunnerInput), which is the surface
+// the cross-attempt byte-equality asserts. The control arm stays skeptic
+// (byte-untouched). The scratch card face carries epic: EPIC-1 (the
+// skeptic-verified dispatchable shape — EPIC-1's own face is epic: null and
+// cardEpicKey fail-loud refuses it).
 
 /** The scratch `pi` launcher: the hub's hardcoded `command: "pi"`
  * (hub-tools.ts) PATH-resolves to this executable, which stamps the witness
@@ -109,12 +117,19 @@ function extensionShimBody(): string {
 // in this repo: the seat child AND the print-mode parent (discovery is not
 // -a gated; the scratch HOME pre-grants project trust). Only the child
 // carries --session-id (buildChildArgv), so that is the child discriminator.
+// FLLWUP-114: the runner child additionally needs the faux provider itself —
+// registered UNCONDITIONALLY here (the runner-child provider call must
+// resolve ev40/ev40-model), with the FAILING call still gated on the
+// --session-id discriminator (the guard is load-bearing: without it the
+// parent's own provider calls would fail and no retry would arm).
 const sidIdx = process.argv.indexOf("--session-id");
 if (sidIdx < 0) {
 	// Parent (no --session-id): pure no-op. The -e-loaded harness extension
-	// already scripted the dispatch/wait turn, and the loader's jiti has
-	// moduleCache disabled — a second import here would re-evaluate the shared
-	// module and double-register its provider/handlers in the parent.
+	// already scripted the dispatch/wait turn and registers the provider in
+	// the parent (extension.ts calls pi.registerProvider at load), and the
+	// loader's jiti has moduleCache disabled — a second import here would
+	// re-evaluate the shared module and double-register its provider/handlers
+	// in the parent.
 	module.exports.default = () => {};
 } else {
 	// Child: (a) strip every EV40_* knob the parent's env leaked through
@@ -143,6 +158,32 @@ if (sidIdx < 0) {
 	module.exports.default = shared.default;
 }
 `;
+}
+
+/** FLLWUP-114 — the scratch card face the runner dispatch composes from.
+ * Byte-0-anchored frontmatter block with a trailing newline (FLLWUP-115's
+ * caveat), epic: EPIC-1 so cardEpicKey resolves and the features-deliver
+ * overlay binds. */
+function runnerCardFace(): EngineRepoOptions["extraRepoFiles"] {
+	return [
+		{
+			path: "council/cards/EV-2.md",
+			body: "---\nid: EV-2\ntitle: FLLWUP-114 replay fixture\nstate: Ready\nepic: EPIC-1\n---\n\nBody.\n",
+		},
+	];
+}
+
+/** FLLWUP-114 — the runner-seat override: frontmatter model deliberately NOT
+ * the override's model (the .council.json override must win), hub + spawns
+ * grants present so the runner can dispatch children. The engine composes
+ * the procedure bodies into this seat's dispatch input. */
+function runnerSeatFile(): EngineRepoOptions["extraRepoFiles"] {
+	return [
+		{
+			path: path.join(CONFIG_DIR_NAME, "agents", "council-runner.md"),
+			body: '---\nname: council-runner\ndescription: FLLWUP-114 replay runner\nmodel: frontmatter/placeholder-model\ntools: Read, task, hub\nspawns: [skeptic]\n---\nunit-test body',
+		},
+	];
 }
 
 interface ToolResultRecord {
@@ -211,7 +252,7 @@ function assertStaticPreconditions(opts: ArmOptions, repo: EngineRepoOptions): v
 }
 
 test(
-	"FLLWUP-56 treatment: the harness parent turn reaches a real seat child — provider error on attempt 1, hub retry respawns, attempt 2 succeeds",
+	"FLLWUP-56/FLLWUP-114 treatment: the harness parent turn reaches a real seat child — provider error on attempt 1, hub retry respawns, attempt 2 succeeds",
 	() => {
 		const scratchRoot = mkdtempSync(path.join(os.tmpdir(), "ev56-treatment-"));
 		const witnessPath = path.join(scratchRoot, "ev56-launcher.witness");
@@ -222,12 +263,17 @@ test(
 			councilExtension: true,
 			toolcallDispatch: true,
 			toolcallWait: true,
+			// FLLWUP-114: dispatch the RUNNER against a card — the composed
+			// procedure bodies are the surface the replay asserts.
+			toolcallSeat: "council-runner",
+			cardId: "EV-2",
 			pathPrepend: [writePiLauncherShim(scratchRoot, witnessPath)],
 			extraEnv: { PI_OFFLINE: "1" }, // the child has no --offline argv
 			timeoutMs: 120_000,
 		};
 		const repo = engineRepo(true, [
-			...(seatFile() ?? []),
+			...(runnerSeatFile() ?? []),
+			...(runnerCardFace() ?? []),
 			{
 				path: path.join(CONFIG_DIR_NAME, "extensions", "ev56-shim.ts"),
 				body: extensionShimBody(),
@@ -279,6 +325,43 @@ test(
 			expect(attempt2.some((e) => e.role === "assistant" && e.text.includes(MARKER))).toBe(true);
 			expect(attempt2.some((e) => e.stopReason === "error")).toBe(false);
 			expect(manifest.state).toBe("done");
+
+			// =================================================================
+			// FLLWUP-114 Part B — cross-attempt transcript byte-equality.
+			// Spec: docs/superpowers/specs/2026-09-24-FLLWUP-114-design.md §Part B.
+			// attemptSpec (hub-tools.ts:305–318) closes over the single computed
+			// dispatchInput and varies only sessionId, so both attempts' first
+			// user block — the composed runner input — is byte-identical at the
+			// {kind, text} projection; the derived `at` is the sole volatile and
+			// MUST differ (the exclusion is load-bearing, not vacuous).
+			// =================================================================
+			const attemptEntriesList = attemptEntries(manifest);
+			expect(attemptEntriesList).toEqual([
+				{ attempt: 1, sessionId: JOB_ID },
+				{ attempt: 2, sessionId: ATTEMPT2_SESSION_ID },
+			]);
+			const locatedBlocks = attemptEntriesList.map((entry) => {
+				const p = findSessionFile(arm.workDir, path.basename(runDir), entry.sessionId);
+				expect(p).toBeDefined();
+				const blocks = parseTranscript(readFileSync(p!, "utf-8"));
+				const procedureBlocks = blocks.filter(
+					(b) => b.kind === "user" && b.text.includes("<council-procedure>"),
+				);
+				// Exactly one located block per attempt — never blocks[0] (two
+				// empty/absent first blocks would be byte-equal unfalsifiably).
+				expect(procedureBlocks).toHaveLength(1);
+				const located = procedureBlocks[0]!;
+				expect(located.text.trim().length).toBeGreaterThan(0);
+				expect(located.text).toContain("<features-deliver-overlay>");
+				expect(located.text).toContain("EV-2"); // the council.md rendering binds the card id
+				return located;
+			});
+			const [b1, b2] = locatedBlocks;
+			// {kind, text} byte-equal across the real retry seam; raw `at` differs.
+			expect(JSON.stringify({ kind: b1!.kind, text: b1!.text })).toBe(
+				JSON.stringify({ kind: b2!.kind, text: b2!.text }),
+			);
+			expect(b1!.at).not.toBe(b2!.at);
 		} finally {
 			rmSync(scratchRoot, { recursive: true, force: true });
 		}

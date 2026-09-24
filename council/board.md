@@ -99,11 +99,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## In Review
 
-- FLLWUP-114 — Live-smoke verification of the pre-injected runner transcript surface
 
 ## Needs Human
 
 ## Done
+- FLLWUP-114 — Live-smoke verification of the pre-injected runner transcript surface
 - FLLWUP-115 — Frontmatter-scoped epic parse in cardEpicKey with a corpus-divergence pin
 - EPIC-23 — Autonomous-delivery cold-start efficiency: gate-routing disposition, Phase 1 class enumeration, and runner procedure pre-injection
 - EV-90 — Pass renderProcedure-substituted council.md and features-deliver.md into the council-runner dispatch

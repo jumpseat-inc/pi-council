@@ -29,6 +29,8 @@ const TEST_DIR = join(REPO_ROOT, "test");
 const FAUX = join(TEST_DIR, "faux-provider");
 const WITNESS = "test/faux-provider-shape.test.ts";
 
+import { dispatchStepToolCallArgs } from "./faux-provider/extension.ts";
+
 /** Files whose own text necessarily carries the retired tokens as DATA — the
  * witness's own expected-value strings are the original case. test/
 ev77-gate-docs.test.ts (EV-77) is the second: its wiki-citation exemption keys
@@ -435,5 +437,24 @@ describe("faux-provider shape (the goal's committed witness)", () => {
 			const res = spawnSync("python3", ["-m", "py_compile", join(FAUX, f)], { encoding: "utf-8" });
 			expect(res.status).toBe(0);
 		}
+	});
+
+	// =====================================================================
+	// FLLWUP-114 Part B prep — the card_id knob on the faux dispatch step.
+	// test/faux-provider/extension.ts:135–147's dispatch step omits card_id
+	// (skeptic-verified), making every council-runner dispatch arm impossible:
+	// the tool refuses without it. The knob is env-keyed (EV40_CARD_ID) and
+	// knob-gated — absent env ⇒ the serialized args carry NO card_id key at
+	// all, so every existing arm's env and argv stay byte-identical.
+	// =====================================================================
+	test("FLLWUP-114: the dispatch step carries card_id under EV40_CARD_ID", () => {
+		const args = dispatchStepToolCallArgs({ EV40_CARD_ID: "EV-2" });
+		expect(args.card_id).toBe("EV-2");
+	});
+
+	test("FLLWUP-114: without EV40_CARD_ID the dispatch step carries NO card_id key (byte-identity guard)", () => {
+		const args = dispatchStepToolCallArgs({});
+		expect("card_id" in args).toBe(false);
+		expect(args.seat).toBe("skeptic"); // the module-default seat
 	});
 });
