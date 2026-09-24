@@ -11,6 +11,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 - FLLWUP-112 — Render a config-home token in procedure copy and derive the packaged-procedure scan's allowlist from renderProcedure's substitution set
 - FLLWUP-120 — Cover the print-mode stale-ctx parent crash when a dispatched job outlives its turn
+- FLLWUP-121 — Pin test/stub-child.test.ts's child-scheduling race — the transient solo-run flake the FLLWUP-116 judge observed
 
 - EV-85 — Seat-composition decisions as repo-overridable packaged data
 - EV-86 — Pure seat-composition decision function with a fail-safe Default
