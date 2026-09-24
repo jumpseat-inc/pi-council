@@ -160,3 +160,7 @@ Subject: PR #114 head SHA `b12149e0ac8e990d737366b3f30d77dc199169f6` in worktree
 - **Non-blocking observation:** the throw lives inside `epicKeyFromFace` rather than `cardEpicKey` as the spec's prose said — message bytes and observable behavior identical (spec and plan JSDoc now drift). Internal doc drift only; no AC affected.
 
 **Skeptic verdict: VERIFIED — no blocking objection.** Verify-cycle counter: 1 of 3 (initial verification; zero fix cycles needed).
+
+### Step 10 — judge verdict (job-4.5)
+
+Fresh-context judge, input = card goal + skeptic step-9 evidence only. **Verdict: PASS.** Basis: (1) at `extensions/seats.ts:605-621`, `epicKeyFromFace` extracts the frontmatter block via `FRONTMATTER_RE` and matches `epic:` only within that block — a body line cannot win; (2) T4 iterates every card in `council/cards/` comparing old whole-file vs new scoped derivation with zero divergences, and the injection test proved it reds (173 divergences) on a bypass rather than passing silently. The JSDoc-drift observation judged cosmetic — no acceptance criterion affected.
