@@ -6,11 +6,12 @@
 # whose manifest names the runner seat) and echoes it for the sweep.
 set -u
 
-WORK="${1:?usage: phase7-wait.sh <workDir> <flash>}"
-FLASH="${2:?usage: phase7-wait.sh <workDir> <flash>}"
+WORK="${1:?usage: phase7-wait.sh <workDir> <flash> <parentPid>}"
+FLASH="${2:?usage: phase7-wait.sh <workDir> <flash> <parentPid>}"
+PARENT_PID="${3:?usage: phase7-wait.sh <workDir> <flash> <parentPid>}"
 PKG="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-FIRST="$(bun "$PKG/phase7-dispatch.ts" "$WORK" "EV-2" "$PPID" 840 2>&1)"
+FIRST="$(bun "$PKG/phase7-dispatch.ts" "$WORK" "EV-2" "$PARENT_PID" 840 2>&1)"
 STATUS=$?
 if [ "$STATUS" -ne 0 ]; then
 	echo "$FIRST" >&2

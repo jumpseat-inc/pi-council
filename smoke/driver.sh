@@ -138,13 +138,17 @@ bash "$PKG/smoke/search-smoke/run.sh" \
 phase7_run() {
 phase "7 runner startup surface (FLLWUP-114)"
 cd "$WORK" || fatal "no worktree"
-RUN_ID_PHASE7=""
 RUNNER_PID=""
-DONE_PARTITION=""
+# Run dirs that existed BEFORE the phase (e.g. phase 0's init) are never
+# swept — only dirs created during the window are.
+PRE_PHASE_RUNS="|"
+for d in "$WORK"/.pi/council/runs/2*; do
+	[ -d "$d" ] || continue
+	PRE_PHASE_RUNS="$PRE_PHASE_RUNS$(basename "$d")|"
+done
 # Cleanup on EVERY exit path: kill the parent, sweep the run substrate's
 # process tree (runner sub-dispatches are detached into new groups), never
-# leave a process behind. The runner's Hub partition is derived from the
-# run dirs that appeared during the window.
+# leave a process behind. Idempotent — kill/sweep of dead pids is a no-op.
 cleanup7() {
 	if [ -n "$RUNNER_PID" ]; then
 		kill "$RUNNER_PID" 2>/dev/null || true
@@ -152,9 +156,10 @@ cleanup7() {
 	fi
 	for d in "$WORK"/.pi/council/runs/2*; do
 		[ -d "$d" ] || continue
-		if [ -z "$DONE_PARTITION" ] || ! [ "$DONE_PARTITION" = "1" ]; then
-			bash "$PKG/smoke/phase7-sweep.sh" "$(basename "$d")" || true
-		fi
+		case "$PRE_PHASE_RUNS" in
+			*"|$(basename "$d")|"*) ;; # pre-existing — never ours to sweep
+			*) bash "$PKG/smoke/phase7-sweep.sh" "$(basename "$d")" || true ;;
+		esac
 	done
 }
 trap cleanup7 EXIT
@@ -165,31 +170,29 @@ SMOKE_WORK="$WORK" SMOKE_FLASH="$FLASH" bash "$PKG/smoke/phase7-runner-spawn.sh"
 RUNNER_PID=$!
 
 # Wait for the runner's first council_dispatch (startup window complete) or
-# the settle/ceiling bound — never full card delivery.
+# the settle/ceiling bound — never full card delivery. The waiter watches the
+# PARENT pi (RUNNER_PID), not its own caller.
 set +e
-FIRST="$(timeout "$PHASE7_STARTUP_CEILING" bash "$PKG/smoke/phase7-wait.sh" "$WORK" "$FLASH" 2>&1)"
+FIRST="$(timeout "$PHASE7_STARTUP_CEILING" bash "$PKG/smoke/phase7-wait.sh" "$WORK" "$FLASH" "$RUNNER_PID" 2>&1)"
 WAIT_STATUS=$?
 set -e
-
-if [ "$WAIT_STATUS" -eq 0 ] && [ -n "$FIRST" ]; then
-	RUN_ID_PHASE7="$FIRST"
+if [ "$WAIT_STATUS" -ne 0 ]; then
+	fatal "phase 7: the startup window never opened within ${PHASE7_STARTUP_CEILING}s — waiter output: $FIRST (parent log: $PI7_OUT)"
 fi
-DONE_PARTITION=1
 
-# Give the runner's startup turn a bounded settle grace, then tear the tree down.
-if [ -n "$RUN_ID_PHASE7" ]; then
-	sleep 5
-fi
+# Bounded settle grace so the first dispatch's toolResult lands, then tear
+# the whole tree down.
+sleep 5
 cleanup7
 trap - EXIT
-rm -f "$PI7_OUT"
 
 # The verdict: the pure reader (anchors + AC2/AC3). A missing/broken startup
-# reds HERE with its reason — never vacuously.
+# reds HERE with its reason — never vacuously. The parent log survives a red
+# for triage and is removed only on green.
 if (cd "$PKG" && bun smoke/read-runner-startup.ts "$WORK" "EV-2"); then
-	:
+	rm -f "$PI7_OUT"
 else
-	fatal "phase 7: readRunnerStartup red — see the reason above"
+	fatal "phase 7: readRunnerStartup red — see the reason above (parent log: $PI7_OUT)"
 fi
 
 echo
