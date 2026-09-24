@@ -129,12 +129,13 @@ bash "$PKG/smoke/search-smoke/run.sh" \
 }
 
 # Phase 7 — runner startup surface (FLLWUP-114). A real parent `pi -p` turn
-# dispatches a real council-runner against the DISPATCHABLE fixture card EV-2
-# (never EPIC-1 — its face is epic:null and cardEpicKey fail-loud refuses it,
-# skeptic O1). Scoped to the runner's STARTUP transcript: the phase waits for
-# the runner's first council_dispatch toolCall block (or a settle/ceiling),
-# then the pure reader asserts the liveness anchors + AC2/AC3 on the parsed
-# transcript. Full delivery is phase 2's existing job.
+# dispatches a real council-runner against the epic fixture card EPIC-1
+# (FLLWUP-119: the face was repaired to `epic: EPIC-1`, matching its EV-1/
+# EV-2/EV-3 siblings — the FLLWUP-114 EV-2 workaround is removed). Scoped to
+# the runner's STARTUP transcript: the phase waits for the runner's first
+# council_dispatch toolCall block (or a settle/ceiling), then the pure reader
+# asserts the liveness anchors + AC2/AC3 on the parsed transcript. Full
+# delivery is phase 2's existing job.
 phase7_run() {
 phase "7 runner startup surface (FLLWUP-114)"
 cd "$WORK" || fatal "no worktree"
@@ -188,8 +189,9 @@ trap - EXIT
 
 # The verdict: the pure reader (anchors + AC2/AC3). A missing/broken startup
 # reds HERE with its reason — never vacuously. The parent log survives a red
-# for triage and is removed only on green.
-if (cd "$PKG" && bun smoke/read-runner-startup.ts "$WORK" "EV-2"); then
+# for triage and is removed only on green. FLLWUP-119: the asserted card is
+# EPIC-1 — the repaired epic fixture face itself (no EV-2 workaround).
+if (cd "$PKG" && bun smoke/read-runner-startup.ts "$WORK" "EPIC-1"); then
 	rm -f "$PI7_OUT"
 else
 	fatal "phase 7: readRunnerStartup red — see the reason above (parent log: $PI7_OUT)"
