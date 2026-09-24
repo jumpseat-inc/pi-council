@@ -98,10 +98,47 @@ const TOOLCALL_WAIT = process.env.EV40_TOOLCALL_WAIT === "1";
 /** Designer P6: dispatch the REAL /council-tree command at session_start so the
  * inline tree widget (navigator.ts COUNCIL_TREE_WIDGET_KEY) is active. */
 const OPEN_TREE = process.env.EV40_OPEN_TREE === "1";
+/** FLLWUP-114 (opt-in): the dispatched council-runner's card id — the tool
+ * refuses a runner dispatch without card_id, so a runner-dispatch arm cannot
+ * exist without this. Knob-gated: absent env ⇒ the scripted dispatch step's
+ * args carry no card_id key at all (byte-identical to today for every
+ * existing arm). */
+const CARD_ID = process.env.EV40_CARD_ID;
 /** EV-66 (opt-in): script a real council_gate parent step after the
  * dispatch/wait steps — the advisory gate's tool call through the parent
  * engine, exactly as the /features-new facilitator invokes it. */
 const TOOLCALL_GATE = process.env.EV40_TOOLCALL_GATE === "1";
+
+/** FLLWUP-114 test seam: the dispatch step's council_dispatch tool-call
+ * arguments as the provider serializes them — the pure witness the knob's
+ * unit assertions read (no spawn, no session). Pure function of the env so
+ * the test can pin both knob states; the module-level dispatchStep is the
+ * live shape.
+ *
+ * **Load-time env note (FLLWUP-49 module cache rule):** this module reads
+ * EV40_* at module top level, and pi's loader disables module caching —
+ * a test-process import reads the test process's ambient env. dispatchStepArgs
+ * therefore re-keys CARD_ID from the caller-supplied env override instead of
+ * re-reading process.env, and the TOOLCALL knobs default to the same literals
+ * the module defaults use ("skeptic" / "ev40/ev40-model"), so a test-process
+ * import without overrides yields the exact module-level dispatch step.
+ *
+ * Exported from THIS module (not harness.ts) because the dispatch step is
+ * built here; harness.ts re-exports it for the same one-import-path rule
+ * the identity constants follow (FLLWUP-49).
+ */
+export function dispatchStepToolCallArgs(env: Record<string, string | undefined> = process.env): Record<string, unknown> {
+	const cardId = env.EV40_CARD_ID;
+	const wait = env.EV40_TOOLCALL_WAIT === "1";
+	return {
+		seat: env.EV40_TOOLCALL_SEAT ?? "skeptic",
+		input: "EV40-P6 live active job (no-op; the PATH pi stub hangs)",
+		model: env.EV40_TOOLCALL_MODEL ?? "ev40/ev40-model",
+		timeout_minutes: wait ? 0.5 : 30,
+		...(wait ? { stall_minutes: 0.5 } : {}),
+		...(cardId ? { card_id: cardId } : {}),
+	};
+}
 
 function log(file: string | undefined, line: string): void {
 	if (!file) return;
@@ -142,6 +179,9 @@ const dispatchStep = fauxAssistantMessage(
 		// (0.5 min = 30 s each) instead of the P6 widget-arm's 30-min ceiling.
 		timeout_minutes: TOOLCALL_WAIT ? 0.5 : 30,
 		...(TOOLCALL_WAIT ? { stall_minutes: 0.5 } : {}),
+		// FLLWUP-114: the runner dispatch's card id (knob-gated — absent env
+		// keeps the key out of the serialized args entirely).
+		...(CARD_ID ? { card_id: CARD_ID } : {}),
 	}),
 	{ stopReason: "toolUse" },
 );

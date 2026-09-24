@@ -92,6 +92,11 @@ export interface ArmOptions {
 	/** "1" ⇒ a council_gate tool-call step (GATE_CARDS) follows the
 	 * dispatch/wait steps. */
 	toolcallGate?: boolean;
+	// FLLWUP-114 (opt-in, knob-gated): the dispatched council-runner's card id.
+	/** The card id the scripted council_dispatch step carries (env EV40_CARD_ID).
+	 * Required for council-runner dispatches (the tool refuses without it);
+	 * absent ⇒ no card_id key in the args, byte-identical to today. */
+	cardId?: string;
 	/** Extra env entries appended to the arm's env (spread LAST — e.g.
 	 * `{ PI_OFFLINE: "1" }` for arms whose children have no --offline argv). */
 	extraEnv?: Record<string, string>;
@@ -182,6 +187,9 @@ const harnessEnv = (
 	// EV-66 (opt-in): the scripted council_gate step. Knob-gated: with the
 	// flag unset the key is absent and the env is byte-identical to today.
 	...(opts.toolcallGate ? { EV40_TOOLCALL_GATE: "1" } : {}),
+	// FLLWUP-114 (opt-in): the runner dispatch's card_id. Knob-gated the same
+	// way — absent ⇒ key absent, byte-identical to today.
+	...(opts.cardId ? { EV40_CARD_ID: opts.cardId } : {}),
 	// Spread LAST so an arm can override any base entry (e.g. PI_OFFLINE=1 for
 	// arms whose child has no --offline argv — pi's own documented var).
 	...(opts.extraEnv ?? {}),
