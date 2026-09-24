@@ -397,7 +397,9 @@ test("T9: gate-route.ts imports the mode vocabulary and contains no quoted mode 
 	// quote-agnostic pin (FLLWUP-116) — see test/src-pin.ts
 	expect(srcPin(src).includes(srcPin('from "./runs.ts"'))).toBe(true);
 	expect(src.includes("DispatchMode")).toBe(true);
-	const quoted = src.match(/"(Deliberate|Verify|Direct)"/g) ?? [];
+	// widened to ["'] (FLLWUP-116): the pin asserts the mode-literal set, not
+	// the quote style — see test/src-pin.ts
+	const quoted = src.match(/["'](Deliberate|Verify|Direct)["']/g) ?? [];
 	expect(quoted, `gate-route.ts must not carry its own mode literals, found ${JSON.stringify(quoted)}`).toEqual([]);
 });
 

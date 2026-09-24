@@ -162,7 +162,10 @@ test("the module imports its manifest accessors from the run-substrate module an
 test("the module is pure — its only import is the run-substrate module", () => {
 	const moduleUrl = fileURLToPath(import.meta.resolve("../extensions/cost-baseline.ts"));
 	const source = readFileSync(moduleUrl, "utf-8");
-	const imports = [...source.matchAll(/(?:^|\n)import\s[^;]*from\s*"([^"]+)";/g)].map((m) => m[1]);
+	// widened to ["'] (FLLWUP-116): the pin asserts the import set, not the
+	// quote style; normalization is forbidden here (whitespace collapse
+	// destroys the (?:^|\n) anchor) — see test/src-pin.ts
+	const imports = [...source.matchAll(/(?:^|\n)import\s[^;]*from\s*["']([^"']+)["'];/g)].map((m) => m[1]);
 	expect(imports).toEqual(["./runs.ts"]);
 	expect(source).not.toContain("fetch(");
 	expect(source).not.toContain("chat/completions");
