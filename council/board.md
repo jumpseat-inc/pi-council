@@ -83,7 +83,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EPIC-20 — Close the packaged-resource residuals — `_template.md` reclassification, per-file refresh, refresh-path wiki, consumer-repo path protection, and the config-home procedure token
 - EPIC-21 — Close the config-runtime and run-start preflight residuals
 - EPIC-22 — Close the process and test-discipline residuals
-- EPIC-23 — Autonomous-delivery cold-start efficiency: gate-routing disposition, Phase 1 class enumeration, and runner procedure pre-injection
 
 ## Deliberating
 
@@ -99,6 +98,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Needs Human
 
 ## Done
+- EPIC-23 — Autonomous-delivery cold-start efficiency: gate-routing disposition, Phase 1 class enumeration, and runner procedure pre-injection
 - EV-90 — Pass renderProcedure-substituted council.md and features-deliver.md into the council-runner dispatch
 - EV-89 — Systematize Phase 1 open-judgment rulings into a durable class-enumerated record
 - FLLWUP-104 — Fix the live noul answer-shape drift — the decisions API returns `{"type":"noul","noul":<p>}`, the engine reads `probability`, in both gate domains

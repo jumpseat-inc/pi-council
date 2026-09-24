@@ -1,7 +1,7 @@
 ---
 id: EPIC-23
 title: Autonomous-delivery cold-start efficiency: gate-routing disposition, Phase 1 class enumeration, and runner procedure pre-injection
-state: Backlog
+state: Done
 owner: null
 epic: null
 goal: Act on the three suggestions for autonomous delivery: fix gate routing, systematize Phase 1 front-loading, and cache/pass procedure context.
