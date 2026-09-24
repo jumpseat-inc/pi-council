@@ -84,9 +84,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-## In Progress
-- EV-90 — Pass renderProcedure-substituted council.md and features-deliver.md into the council-runner dispatch
-
 ## Ready
 - EV-48 — Packaged seat-tier map with repo-local merge override
 - EV-57 — Resolve the running pi-council identity from the package root
@@ -95,6 +92,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## In Progress
 
 ## In Review
+- EV-90 — Pass renderProcedure-substituted council.md and features-deliver.md into the council-runner dispatch
 
 ## Needs Human
 
