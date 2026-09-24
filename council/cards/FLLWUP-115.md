@@ -104,3 +104,23 @@ No reframe of the card's goal or the D1 posture; they stand.
 ### Round 2
 
 Not run — positions stabilised after round 1: both generators independently propose the same mechanism (scope the match to the frontmatter block, preserve the D1 throws, export the seam so the pin exercises live code), both independently flag criterion 1's strip-first phrasing as an inversion trap, both demand the same discriminating red-at-base falsifier through `composeRunnerInput`, and neither contradicts the other on any point. No dispute exists for an exchange round to settle.
+
+### Step 4 — skeptic attack (job-4.1)
+
+The Skeptic ran its own probes against the real corpus and real code (all read-only; branch state untouched). Results, per objection:
+
+- **O1 — closed-red on the principal's corpus enumeration.** FLLWUP-47.md:2027/2035 are mid-line `epic:` prose, not `^epic:` lines; the true body-occurrence count is **9 lines in 5 files** (EPIC-8×1, EV-35×1, FLLWUP-47×3, FLLWUP-49×2, FLLWUP-56×2) — matching the Phase-1 ruling's and the owner's count. The dispute is settled by the test: the principal's "verified" enumeration was wrong; the design is unaffected (those two lines never match `^epic:\s*`).
+- **O2 — closed-green:** 203 card files (incl. `_template.md`); 9 body lines in 5 files; no face lacks a frontmatter `epic:` line; whole-file vs frontmatter-scoped divergence on the corpus: zero. `_template.md` is `epic: null` → both sides throw, as the owner claimed.
+- **O3 — closed-green:** every card face carries its `epic:` line at line 6 (212 total `^epic:` matches = 203 frontmatter + 9 body).
+- **O4 — closed-green (polarity trap proven):** synthetic face A (`epic: EPIC-A` frontmatter + body `epic: EPIC-B`): whole-file → `EPIC-A`; strip-then-match → `EPIC-B`. The AC1 literal "strip before matching" phrasing is the inversion trap both seats flagged.
+- **O5 — closed-green (delta-class holds, byte-0 edge documented):** face B (`epic:`-less frontmatter + body `epic: EPIC-C`): whole-file → `EPIC-C`; frontmatter-scoped → THROW. Byte-0 anomalies (leading blank line; closing `---` at EOF without `\n`) also diverge old=KEY/scoped=THROW — 0 such faces in the corpus, and any future one reds T4 immediately, which is the goal's contract.
+- **O6 — closed-green (red-at-base falsifier is real):** probe against the real exported `composeRunnerInput` on the falsifier face → no throw; composed dispatch contains "delivering `EPIC-9`". The head half expects the D1 throw naming the card; the throw site already names `${cardId}`.
+- **O7 — closed-green (byte-identical refusals):** all three messages captured through real code and matched byte-for-byte against `seats.ts:605` and `:610-611`: nonexistent face → `council-runner dispatch for card "NOFACE" refused: its card face council/cards/NOFACE.md does not exist`; `epic: null` and absent epic (identical) → `…refused: the card face's epic: field is null or absent (EV-90 D1 ruling — a runner dispatched without its features-deliver scope is a degraded dispatch, not a fallback)`.
+- **O8 — closed-green (blast radius):** `cardEpicKey` at `seats.ts:598` (def) + `:631` (the one call, in `composeRunnerInput`); production consumer only `hub-tools.ts:197`. No second epic derivation exists in production (`gate-route.ts:60` `parseCardFile` and `followup-state.ts:210` never read `epic:`).
+- **O9 — closed-green (pin is discriminating, not vacuous):** strip-first-literal implementation vs old derivation diverges on **172** corpus files (incl. EPIC-8), so T4 doubles as the tripwire for AC1's trap phrasing. Scoped-vs-old divergence: 0.
+- **O10 — closed-green (AC4 floor):** `bun test test/ev90-runner-input.test.ts` → 9 pass, 0 fail.
+- **O11 — sufficiency:** mechanism + T1–T4 close all four ACs; no falsifiable gap remains. The shared `FRONTMATTER_RE` byte-0-anchor edge (O5) is the only documented caveat and sits inside the pin's throw-same contract.
+
+What ran: corpus sweep (`/tmp/corpus-check.ts`, 203 files), `grep -n '^epic:'` across `council/cards/*.md` (212 matches), targeted `sed` probes on FLLWUP-47, call-site greps, synthetic polarity/edge/compose probes through the real `composeRunnerInput`, pin-discrimination probe, and `bun test test/ev90-runner-input.test.ts` (9 pass). Full command list and outputs in the skeptic transcript (job-4.1).
+
+**Skeptic verdict: no open objections.** One recorded position corrected (principal's enumeration — see O1); every design claim closed-green on real runs. The mechanism + T1–T4 set is sufficient to close the card's goal.
