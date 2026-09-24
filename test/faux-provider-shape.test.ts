@@ -30,6 +30,7 @@ const FAUX = join(TEST_DIR, "faux-provider");
 const WITNESS = "test/faux-provider-shape.test.ts";
 
 import { dispatchStepToolCallArgs } from "./faux-provider/extension.ts";
+import { srcPin } from "./src-pin.ts";
 
 /** Files whose own text necessarily carries the retired tokens as DATA — the
  * witness's own expected-value strings are the original case. test/
@@ -278,7 +279,8 @@ describe("faux-provider shape (the goal's committed witness)", () => {
 			"ev41-retry-e2e.test.ts",
 			"ev43-reachability.test.ts",
 		]) {
-			expect(readFileSync(join(TEST_DIR, f), "utf-8")).toContain('from "./faux-provider/harness.ts"');
+			// quote-agnostic pin (FLLWUP-116) — see test/src-pin.ts
+			expect(srcPin(readFileSync(join(TEST_DIR, f), "utf-8"))).toContain(srcPin('from "./faux-provider/harness.ts"'));
 		}
 	});
 

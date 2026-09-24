@@ -37,6 +37,7 @@ import type { GateTransport } from "../extensions/gate-transport.ts";
 import { runGate } from "../extensions/gate-run.ts";
 import { registerGateTool } from "../extensions/gate-tool.ts";
 import { parseCardFile, resolveRoute } from "../extensions/gate-route.ts";
+import { srcPin } from "./src-pin.ts";
 import { registerRouteTool } from "../extensions/gate-route-tool.ts";
 
 // ---------------------------------------------------------------------------
@@ -393,7 +394,8 @@ test("T9: gate-route.ts imports the mode vocabulary and contains no quoted mode 
 	const src = srcOf("gate-route.ts");
 	expect(src.includes("GATE_DECISION_MODES")).toBe(true);
 	expect(src.includes("MODE_PANELS")).toBe(true);
-	expect(src.includes('from "./runs.ts"')).toBe(true);
+	// quote-agnostic pin (FLLWUP-116) — see test/src-pin.ts
+	expect(srcPin(src).includes(srcPin('from "./runs.ts"'))).toBe(true);
 	expect(src.includes("DispatchMode")).toBe(true);
 	const quoted = src.match(/"(Deliberate|Verify|Direct)"/g) ?? [];
 	expect(quoted, `gate-route.ts must not carry its own mode literals, found ${JSON.stringify(quoted)}`).toEqual([]);

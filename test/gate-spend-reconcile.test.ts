@@ -66,6 +66,7 @@ import {
 	type GateLedgerCallLine,
 } from "../extensions/provider-cost.ts";
 import type { GenerationResponse } from "../extensions/provider-cost.ts";
+import { srcPin } from "./src-pin.ts";
 
 function tmpDir(prefix: string): string {
 	return fs.mkdtempSync(path.join(os.tmpdir(), prefix));
@@ -147,9 +148,10 @@ test("T-D (J1): no catalogue-cost path reachable from the gate path (source cana
 		"../extensions/provider-cost.ts",
 		"../extensions/usage-store.ts",
 	]) {
-		const text = src(f);
+		const text = srcPin(src(f));
 		expect(text.includes("calculateCost")).toBe(false);
-		expect(text.includes('from "./catalogue')).toBe(false);
+		// quote-agnostic canary (FLLWUP-116): reds on BOTH quote styles — see test/src-pin.ts
+		expect(text.includes(srcPin('from "./catalogue'))).toBe(false);
 	}
 });
 

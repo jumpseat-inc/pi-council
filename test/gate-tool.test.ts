@@ -21,6 +21,7 @@ import * as http from "node:http";
 import * as os from "node:os";
 import * as path from "node:path";
 import { CONFIG_DIR_NAME } from "@earendil-works/pi-coding-agent";
+import { srcPin } from "./src-pin.ts";
 import { GATE_PINNED_MODEL } from "../extensions/gate.ts";
 import { GATE_WIDGET_KEY, registerGateTool } from "../extensions/gate-tool.ts";
 import { readGateLedger } from "../extensions/gate-ledger.ts";
@@ -416,10 +417,13 @@ test("registration is parent-mode-only: own module, never hub-tools, never child
 	expect(child.includes("council_gate")).toBe(false);
 	expect(child.includes("gate-tool")).toBe(false);
 	// the parent wiring: imported and called on the parent path, AFTER the
-	// COUNCIL_SEAT early return (seats structurally cannot call it)
-	expect(index.includes('from "./gate-tool.ts"')).toBe(true);
-	const earlyReturn = index.indexOf("runChildMode(pi, repoRoot, seatName)");
-	const gateCall = index.indexOf("registerGateTool(pi, repoRoot)");
+	// COUNCIL_SEAT early return (seats structurally cannot call it).
+	// Quote-agnostic pin (FLLWUP-116): normalize once, derive every assertion
+	// in this block (needle + indexOf anchors) from the normalized local.
+	const pinned = srcPin(index);
+	expect(pinned.includes(srcPin('from "./gate-tool.ts"'))).toBe(true);
+	const earlyReturn = pinned.indexOf("runChildMode(pi, repoRoot, seatName)");
+	const gateCall = pinned.indexOf("registerGateTool(pi, repoRoot)");
 	expect(earlyReturn).toBeGreaterThan(-1);
 	expect(gateCall).toBeGreaterThan(earlyReturn);
 });

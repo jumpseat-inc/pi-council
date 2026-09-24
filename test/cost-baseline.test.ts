@@ -2,6 +2,7 @@ import { test, expect } from "bun:test";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { sumSubtree, type RunManifest, type Usage } from "../extensions/runs.ts";
+import { srcPin } from "./src-pin.ts";
 import {
 	buildCostBaseline,
 	costByCard,
@@ -148,7 +149,8 @@ test("formatCostBaseline pins the exact bytes over the fixture forest", () => {
 test("the module imports its manifest accessors from the run-substrate module and never touches the run directory", () => {
 	const moduleUrl = fileURLToPath(import.meta.resolve("../extensions/cost-baseline.ts"));
 	const source = readFileSync(moduleUrl, "utf-8");
-	expect(source).toContain(`from "./runs.ts"`);
+	// quote-agnostic pin (FLLWUP-116) — see test/src-pin.ts
+	expect(srcPin(source)).toContain(srcPin(`from "./runs.ts"`));
 	// No direct run-directory access: no fs/path plumbing, no runsDir seam.
 	expect(source).not.toContain("node:fs");
 	expect(source).not.toContain("node:path");
