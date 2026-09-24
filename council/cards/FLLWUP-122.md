@@ -3,7 +3,7 @@ id: FLLWUP-122
 title: Build the FLLWUP-120 stale-ctx pin on the real pi runner harness
 state: Backlog
 owner: null
-epic: EPIC-25
+epic: EPIC-26
 goal: The stale-ctx coverage is extended to drive the real pi extension runner (ev40-live-gates-style harness) so the `renderWidget` guard is pinned against pi's actual ctx lifecycle, not only the modeled ctx that FLLWUP-120's test uses, and `bun test` stays green on the merged tree.
 ---
 

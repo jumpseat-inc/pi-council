@@ -3,7 +3,7 @@ id: FLLWUP-123
 title: Re-run the SMOKE_PHASE=7 live falsifier on the merged main tree
 state: Backlog
 owner: null
-epic: EPIC-25
+epic: EPIC-26
 goal: One SMOKE_PHASE=7 run on `main` at `02d73f2` confirms the repaired fixture face dispatches to its first seat dispatch on the merged tree, and the resulting artifact is recorded — the prior live evidence was produced pre-merge in the worktree and audited as an artifact, not re-run post-merge.
 ---
 

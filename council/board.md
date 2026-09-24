@@ -6,7 +6,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Backlog
 
-- EPIC-25 — Close the EPIC-24 autonomous-delivery residuals — runner never-read rule, dispatchable smoke-fixture faces, stale-ctx crash, and two test-pin residuals
+- EPIC-26 — Close the EPIC-25 live-verification residuals — real-harness stale-ctx pin and post-merge SMOKE_PHASE=7 re-run
 
 - FLLWUP-122 — Build the FLLWUP-120 stale-ctx pin on the real pi runner harness
 - FLLWUP-123 — Re-run the SMOKE_PHASE=7 live falsifier on the merged main tree
@@ -103,6 +103,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Needs Human
 
 ## Done
+- EPIC-25 — Close the EPIC-24 autonomous-delivery residuals — runner never-read rule, dispatchable smoke-fixture faces, stale-ctx crash, and two test-pin residuals
 - FLLWUP-117 — Close the cardEpicKey throw-site JSDoc drift
 - FLLWUP-118 — Pin the shared FRONTMATTER_RE anchor shape at the byte-0 boundary
 - FLLWUP-119 — Repair the EPIC-* smoke-fixture card faces so real model-driven flows can dispatch them

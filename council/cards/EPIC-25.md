@@ -1,7 +1,7 @@
 ---
 id: EPIC-25
 title: Close the EPIC-24 autonomous-delivery residuals — runner never-read rule, dispatchable smoke-fixture faces, stale-ctx crash, and two test-pin residuals
-state: Backlog
+state: Done
 owner: null
 epic: null
 goal: The five residuals re-homed from EPIC-24 are closed — FLLWUP-117's cardEpicKey throw-site documentation is reconciled, FLLWUP-118 pins the shared FRONTMATTER_RE byte-0 anchor, FLLWUP-119's EPIC-* smoke-fixture card faces are dispatchable by real model-driven flows, FLLWUP-120 covers the print-mode stale-ctx parent crash, and FLLWUP-121 reproduces or pins test/stub-child.test.ts's child-scheduling flake — with `bun test`, `bunx tsc --noEmit`, and `python3 council/validate.py` green on the merged tree.
