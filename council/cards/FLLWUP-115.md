@@ -146,3 +146,17 @@ Spec: `docs/superpowers/specs/2026-09-24-FLLWUP-115-design.md` (committed 55c8f�
 ### Step 9 — routing re-check (EV-69)
 
 `resolveRoute`'s recorded path requires a **matched ledger record**; this card's routing resolved **fallback** ("no recorded decision for the current packed state" — gate `active`, inert at read-back), so there is no matched state hash and `recheckOwed` cannot fire — no re-gate, no re-route. The ROOT mode **Deliberate** stands (and the escalation-only ratchet could never reduce it). Proceeding to the step-9 skeptic dispatch at the branch head.
+
+### Step 9 — verification by acting (skeptic job-4.4, at branch head b12149e0)
+
+Subject: PR #114 head SHA `b12149e0ac8e990d737366b3f30d77dc199169f6` in worktree `/tmp/fllwup-115` (verified equal to the PR's `headRefOid`); frame: verification precedes judging and the facilitator-executed merge. The skeptic re-ran everything itself:
+
+- **Gates at the pinned head (real runs):** `council/preflight.sh FLLWUP-115` → PASS; `bunx tsc --noEmit` → clean; full `bun test` → **1518 pass / 6 skip / 0 fail** (skips = opt-in integration probes), 125.7s. Matches the owner's numbers exactly.
+- **O1 polarity — closed-green:** live `epicKeyFromFace` probes — frontmatter `EPIC-A` + body `EPIC-B` → `EPIC-A`; body-only epic → D1 refusal; T2 verified through `composeRunnerInput`.
+- **O2 refusal bytes — closed-green:** base-vs-head message sets equal (python extraction); all test pins byte-identical to head code.
+- **O3 red-base record — closed-green:** independently reproduced at base `03717b04` in a detached worktree — `0 pass / 1 fail`, `Received: "undefined"` (compose silently succeeded with the body key; mechanism absent at base → refusal cannot fire). Class: **mechanism-absent red**; head half `4 pass / 0 fail`. Fidelity note: record's "lines 1–49" imprecise (helpers at 50–67); named elements reproduce exactly.
+- **O4 gates can fail — closed-green:** injected the strip-first inversion into the live module → T1/T2/T4 red (T4: **173 divergences**); restored byte-exact, green again. The pin is a real tripwire, not a tautology.
+- **O5 hygiene/scope — closed-green:** merge-base diff touches only seats.ts (+30/−11, pure regex-extraction refactor in `readProcedureBody`), package.json (0.36.1→0.36.2), new test + plan doc; council/ changes on the branch are only board.md + this card's deliberation records (no corpus laundering); T4 sweeps all 203 faces incl. `_template.md`; `test/ev90-runner-input.test.ts` untouched and green; exports present.
+- **Non-blocking observation:** the throw lives inside `epicKeyFromFace` rather than `cardEpicKey` as the spec's prose said — message bytes and observable behavior identical (spec and plan JSDoc now drift). Internal doc drift only; no AC affected.
+
+**Skeptic verdict: VERIFIED — no blocking objection.** Verify-cycle counter: 1 of 3 (initial verification; zero fix cycles needed).
