@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-116
 title: Quote-agnostic file-content import pins across the suite
-state: In Review
+state: Done
 owner: null
 epic: EPIC-24
 goal: The suite's file-content import pins (tests that read packaged .md/.ts sources and assert on their contents) match the pinned sentence regardless of whether it is wrapped in double quotes or single quotes, or one pin arm documents the double-quote convention as the contract — whichever arm the implementation takes, a convention-conforming requote of pinned source lines cannot red a pin.
@@ -326,3 +326,11 @@ Verdict **VERIFIED** at head `4515efe9ba220b445a23923f353739797be7c51f` (worktre
 ### Step 10 — judge verdict (job-12.3)
 
 Verdict **PASS**. Basis: the goal's scoped requirement is met by three coordinated mechanisms the judge verified firsthand — `srcPin` symmetric normalize-both-sides (single-quoted needles pass, whitespace variance normalizes away, `.pi` canary still guards), load-bearing `"["']` regex widening (old narrow regexes extract zero matches on requoted sources, widened extract the full set), and the intact Class-2 exclusion (ev77 byte-verbatim pins still red on content change). No packaged source edited (all 15 files under `test/`). The judge's own suite run showed one fail in `test/stub-child.test.ts` (untouched by the branch); the facilitator settled the discrepancy by observation at the head SHA — 5× isolated runs of `test/stub-child.test.ts` all `6 pass / 0 fail`, and one full-suite run `1530 pass / 6 skip / 0 fail` — confirming a transient flake in an untouched test, not a deliverable defect. The branch's own gate record (skeptic, twice) remains the gate evidence.
+
+### Step 11 — deterministic merge check (Deliberate: criteria 1–5, all hold at the pinned head)
+
+Criterion 1: owner gates green in full (skeptic re-run at head: tsc 0, 1530/6/0 ×2, preflight PASS). Criterion 2: `gh pr checks 116 --json name,state,workflow` → `{"name":"gates","state":"SUCCESS","workflow":"gates"}` at head `4515efe9ba220b445a23923f353739797be7c51f` (keyed on `workflow`, present-and-SUCCESS asserted). Criterion 3: no blocking Skeptic objection (step 9 VERIFIED, zero open). Criterion 4: judge PASS (job-12.3). Criterion 5: no `Needs Human` state, no outstanding ruling (O7 closed by the implementation record carrying the verbatim sentence). Merge: `gh pr merge 116 --squash --admin --match-head-commit 4515efe9ba220b445a23923f353739797be7c51f` (run-scoped P1-1 authorization on EPIC-24's Phase 1 record; branch-state main ruleset bypass) → squash commit **`fee63349a99d20bf7cb9dbeb78cce22b82b7afff`**, PR state MERGED. **CI green on the merged SHA**: `gates` workflow `conclusion: success` at `fee6334` (observed via `gh run list --branch main`).
+
+### Step 12 — sync and reconcile
+
+Local `main` (6 local record commits) vs `origin/main` (squash `fee6334` carrying the branch ancestry — both sides contain identical record content via different commit SHAs). Union-merge reconcile applied: `git merge origin/main`; two content conflicts (board In Review/In Progress line placement; card state field; card record-block duplication), all same-shape — the local record narrative is the superset of the origin squash snapshot, so both sides kept (the record blocks once) and the state field took the final observed value. Swept for stray conflict markers: none. `council/validate.py` clean. Reconciled and pushed to `main` as the step-12 record commit under the run-scoped P1-1/P1-2 authorizations.

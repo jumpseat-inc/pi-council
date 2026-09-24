@@ -5,6 +5,7 @@ import * as path from "node:path";
 import type { CellScope, StoredResultRecord } from "../extensions/eval-rubric.ts";
 import { ensureEvalDir, writeResultRecord, SCORED_UNDER_SELF, summarizeStore } from "../extensions/eval-runner.ts";
 import { buildLeaderboard, renderLeaderboard, rankAxis, EMPTY_STATE_A, EMPTY_STATE_B, EMPTY_STATE_C, EMPTY_STATE_D } from "../extensions/eval-leaderboard.ts";
+import { srcPin } from "./src-pin.ts";
 
 // EV-21 — the leaderboard is a pure read over the eval-results store. These
 // tests pin the spec's testable claims 1-9. Fixture kind resolves against the
@@ -222,11 +223,14 @@ test("claim 8b: indeterminate row in a mixed cohort renders its triage and never
 // ---- claim 9: surface gate — command registration + purity + theme compliance ----
 
 test("claim 9: index.ts registers /council-leaderboard wired to the pure module, never runMatrix", () => {
-	const src = fs.readFileSync(path.join(import.meta.dir, "..", "extensions", "index.ts"), "utf-8");
-	expect(src).toContain('pi.registerCommand("council-leaderboard"');
+	const raw = fs.readFileSync(path.join(import.meta.dir, "..", "extensions", "index.ts"), "utf-8");
+	// quote-agnostic block pin (FLLWUP-116): normalize once, derive the needle,
+	// indexOf anchors, and the slice from one local — see test/src-pin.ts
+	const src = srcPin(raw);
+	expect(src).toContain(srcPin('pi.registerCommand("council-leaderboard"'));
 	expect(src).toMatch(/renderLeaderboard\(/);
 	// the leaderboard handler block (up to the next registration) is a pure read
-	const lbIdx = src.indexOf('pi.registerCommand("council-leaderboard"');
+	const lbIdx = src.indexOf(srcPin('pi.registerCommand("council-leaderboard"'));
 	const next = src.indexOf("pi.registerCommand", lbIdx + 10);
 	const block = src.slice(lbIdx, next === -1 ? src.length : next);
 	expect(block).toMatch(/renderLeaderboard\(/);

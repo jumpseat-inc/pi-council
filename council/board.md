@@ -90,7 +90,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## In Progress
 
 ## In Review
-- FLLWUP-116 — Quote-agnostic file-content import pins across the suite
 
 ## Ready
 - FLLWUP-117 — Close the cardEpicKey throw-site JSDoc drift
@@ -107,6 +106,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Needs Human
 
 ## Done
+- FLLWUP-116 — Quote-agnostic file-content import pins across the suite
 - FLLWUP-114 — Live-smoke verification of the pre-injected runner transcript surface
 - FLLWUP-115 — Frontmatter-scoped epic parse in cardEpicKey with a corpus-divergence pin
 - EPIC-23 — Autonomous-delivery cold-start efficiency: gate-routing disposition, Phase 1 class enumeration, and runner procedure pre-injection

@@ -4,6 +4,7 @@ import * as os from "node:os";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import { CONFIG_DIR_NAME } from "@earendil-works/pi-coding-agent";
+import { srcPin } from "./src-pin.ts";
 import {
 	GATE_LEDGER_SCHEMA_VERSION,
 	appendGateCall,
@@ -220,14 +221,19 @@ test("the reader never reads the pruned run directory and performs no network ca
 	// No network anywhere in the module.
 	expect(source).not.toContain("fetch(");
 	expect(source).not.toContain("openrouter");
-	// No hardcoded .pi — the config dir comes from the package.
-	expect(source).not.toContain('".pi"');
+	// No hardcoded .pi — the config dir comes from the package. Quote-agnostic
+	// canary (FLLWUP-116): reds on BOTH quote styles (and accepted near-miss
+	// bytes like x".pi'y) — see test/src-pin.ts
+	expect(srcPin(source)).not.toContain(srcPin('".pi"'));
 });
 
 test("the module's imports are exactly the stdlib plus the pi-coding-agent package", () => {
 	const moduleUrl = fileURLToPath(import.meta.resolve("../extensions/gate-ledger.ts"));
 	const source = fs.readFileSync(moduleUrl, "utf-8");
-	const imports = [...source.matchAll(/(?:^|\n)import\s[^;]*from\s*"([^"]+)";/g)].map((m) => m[1]);
+	// widened to ["'] (FLLWUP-116): the pin asserts the import set, not the
+	// quote style; normalization is forbidden here (whitespace collapse
+	// destroys the (?:^|\n) anchor) — see test/src-pin.ts
+	const imports = [...source.matchAll(/(?:^|\n)import\s[^;]*from\s*["']([^"']+)["'];/g)].map((m) => m[1]);
 	expect(imports.sort()).toEqual([
 		"@earendil-works/pi-coding-agent",
 		"node:crypto",

@@ -29,6 +29,7 @@ import {
 } from "../extensions/scaffold.ts";
 import { CONFIG_DIR_NAME } from "@earendil-works/pi-coding-agent";
 import { PKG_ROOT } from "../extensions/seats.ts";
+import { srcPin } from "./src-pin.ts";
 
 const SCAFFOLD = path.join(PKG_ROOT, "council", "scaffold");
 
@@ -496,8 +497,10 @@ test("T10 README: /council-update has a command-table row with refresh semantics
 });
 
 test("T10b command description teaches the protected class and never claims to update preflight.sh", () => {
-	const indexSrc = fs.readFileSync(path.join(PKG_ROOT, "extensions", "index.ts"), "utf-8");
-	const descStart = indexSrc.indexOf('pi.registerCommand("council-update"');
+	// quote-agnostic block pin (FLLWUP-116): normalize once, derive the
+	// anchor and the description slice from one local — see test/src-pin.ts
+	const indexSrc = srcPin(fs.readFileSync(path.join(PKG_ROOT, "extensions", "index.ts"), "utf-8"));
+	const descStart = indexSrc.indexOf(srcPin('pi.registerCommand("council-update"'));
 	expect(descStart).toBeGreaterThan(0);
 	const desc = indexSrc.slice(descStart, descStart + 800);
 	expect(desc).toContain("council/validate.py");
