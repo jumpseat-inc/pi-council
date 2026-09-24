@@ -11,7 +11,9 @@ FLASH="${2:?usage: phase7-wait.sh <workDir> <flash> <parentPid>}"
 PARENT_PID="${3:?usage: phase7-wait.sh <workDir> <flash> <parentPid>}"
 PKG="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-FIRST="$(bun "$PKG/phase7-dispatch.ts" "$WORK" "EV-2" "$PARENT_PID" 840 2>&1)"
+# FLLWUP-119: the watched card is EPIC-1 — the repaired epic fixture face
+# itself (the EV-2 workaround is removed).
+FIRST="$(bun "$PKG/phase7-dispatch.ts" "$WORK" "EPIC-1" "$PARENT_PID" 840 2>&1)"
 STATUS=$?
 if [ "$STATUS" -ne 0 ]; then
 	echo "$FIRST" >&2

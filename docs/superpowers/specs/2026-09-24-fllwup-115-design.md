@@ -4,7 +4,7 @@ Card: `council/cards/FLLWUP-115.md` · Epic: EPIC-24 · Mode: Deliberate · 2026
 
 ## Problem
 
-`cardEpicKey` (`extensions/seats.ts:598`) derives the epic key by matching
+`cardEpicKey` (`extensions/seats.ts:631`) derives the epic key by matching
 `/^epic:\s*(.*)$/m` against the **whole card-face file**. A card whose body
 contains a line starting `epic:` (a quoted example, a record of a failed
 derivation, a code block) is theoretically misparseable: a body occurrence
@@ -15,10 +15,10 @@ runner's operative context.
 
 ## Mechanism (AC1) — scope the match to the frontmatter block
 
-Extract the packaged-procedure frontmatter regex
-(`/^---\n[\s\S]*?\n---\n/`, currently inline at `readProcedureBody`,
-`extensions/seats.ts:584`) into a shared module constant (e.g.
-`FRONTMATTER_RE`). Split `cardEpicKey` into a pure core
+The packaged-procedure frontmatter regex (`/^---\n[\s\S]*?\n---\n/`) is
+delivered as the shared module constant `FRONTMATTER_RE`
+(`extensions/seats.ts:603`), and `readProcedureBody` strips with it
+(`extensions/seats.ts:589`). Split `cardEpicKey` into a pure core
 `epicKeyFromFace(raw, cardId)` that matches `^epic:\s*(.*)$` **against the
 frontmatter block only**; the file-read/not-found refusal stays in
 `cardEpicKey`. Absent frontmatter block ⇒ absent epic ⇒ the D1 throw.
@@ -35,7 +35,7 @@ implementation diverges from the old derivation on 172 corpus files, so T4
 reds on it).
 
 Blast radius (skeptic O8): `cardEpicKey` has exactly one call site —
-`composeRunnerInput` (`seats.ts:631`), consumed in production only at
+`composeRunnerInput` (`seats.ts:651`), consumed in production only at
 `hub-tools.ts:197`. No second epic derivation exists in production
 (`gate-route.ts:60` `parseCardFile` and `followup-state.ts:210` never read
 `epic:`).
@@ -43,8 +43,10 @@ Blast radius (skeptic O8): `cardEpicKey` has exactly one call site —
 ## Refusals (AC2) — byte-for-byte unchanged
 
 The three D1 refusals keep their exact messages (skeptic O7 captured all
-three through the real code and matched them byte-for-byte against
-`seats.ts:605` and `:610-611`):
+three through the real code and matched them byte-for-byte; at the
+delivered tree, the epic-field refusal's throw lives at
+`extensions/seats.ts:617-619` and the nonexistent-face read refusal's at
+`extensions/seats.ts:637-639`):
 
 1. Nonexistent face →
    `` council-runner dispatch for card "<id>" refused: its card face council/cards/<id>.md does not exist ``
@@ -52,10 +54,16 @@ three through the real code and matched them byte-for-byte against
    `` council-runner dispatch for card "<id>" refused: the card face's epic: field is null or absent (EV-90 D1 ruling — a runner dispatched without its features-deliver scope is a degraded dispatch, not a fallback) ``
 3. Absent epic (identical message to #2).
 
-The refactor moves only the match — not the throw sites; `cardId` remains in
-scope at both. The throw sites stay in `cardEpicKey`; `epicKeyFromFace`
-either returns a key or returns absent/null (which `cardEpicKey` turns into
-the throw).
+The refactor moves only the match scope — not the message bytes; `cardId`
+remains in scope at both throw sites. As delivered (FLLWUP-117's
+reconciliation — this section's original prose said the opposite), the
+**epic-field refusal (`epic: null` or absent) throws inside
+`epicKeyFromFace` itself** (`extensions/seats.ts:617-619`): the pure core
+throws the named-card D1 refusal byte-for-byte. `cardEpicKey` retains only
+the nonexistent-face read refusal (`extensions/seats.ts:637-639`) and
+delegates the derivation (`extensions/seats.ts:641`). Observable behavior —
+the three messages, byte-for-byte — is unchanged from the pre-refactor shape
+(skeptic O2 verified base-vs-head).
 
 ## Corpus pin (AC3) — behavioral equivalence, not hygiene
 
