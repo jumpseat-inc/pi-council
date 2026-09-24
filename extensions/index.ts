@@ -10,7 +10,13 @@ import { registerFollowupGateTool } from "./followup-tool.ts";
 import { registerFollowupRenderTool } from "./followup-render.ts";
 import { registerRouteTool } from "./gate-route-tool.ts";
 import { registerPreflightTool } from "./preflight.ts";
-import { PKG_ROOT, listSeatNames, loadSeat, loadCouncilConfig, loadThemeConfig, loadRetryConfig, proceduresDir, parseQualifiedModel, DEFAULT_RETRY_POLICY, type RetryPolicy } from "./seats.ts";
+import { PKG_ROOT, listSeatNames, loadSeat, loadCouncilConfig, loadThemeConfig, loadRetryConfig, proceduresDir, parseQualifiedModel, DEFAULT_RETRY_POLICY, renderProcedure, type RetryPolicy } from "./seats.ts";
+
+// EV-90 — renderProcedure moved into seats.ts (the composer's home; seats →
+// index would cycle). Re-exported so the parent scan path and every existing
+// importer — including test/render.test.ts's FLLWUP-107 pins — stay green.
+// Substitution set and behavior are byte-identical; only the module home moved.
+export { renderProcedure };
 import { activateTheme } from "./theme-activation.ts";
 import { watchCouncilConfig, type CouncilConfigWatcher } from "./theme-watcher.ts";
 import { mintRunId, pruneRuns } from "./runs.ts";
@@ -143,13 +149,6 @@ export function jobLines(
 		const recent = j.events.slice(-3).join("  ");
 		return `${j.id}  ${j.seat.padEnd(14)} ${j.state.padEnd(9)} ${mins}m  pid=${j.pid}  ${recent}`;
 	});
-}
-
-/** Substitute runtime placeholders into a stripped procedure body. */
-export function renderProcedure(strippedBody: string, procDir: string, args?: string): string {
-	return strippedBody
-		.replace(/\$COUNCIL_PROCEDURES/g, procDir)
-		.replace(/\$ARGUMENTS/g, (args ?? "").trim());
 }
 
 /** EV-32 (spec §2.5 item 6 / PO effect 6): stamp the invocation boundary for a
