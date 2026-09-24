@@ -3,27 +3,27 @@
 		{
 			"class": "surface copy",
 			"stakes": "card",
-			"reason": "n/a: no user-facing surface copy is introduced or changed by EPIC-24's cards — FLLWUP-114 adds an opt-in smoke test, FLLWUP-115 hardens the internal cardEpicKey parse, and FLLWUP-116 is suite test-pin hygiene"
+			"reason": "n/a: no user-facing surface copy is introduced or changed by EPIC-25's cards — FLLWUP-117 reconciles spec/plan/JSDoc prose, FLLWUP-118 pins a regex anchor, FLLWUP-119 repairs smoke-fixture card faces, FLLWUP-120 pins an engine crash path, and FLLWUP-121 pins a test flake"
 		},
 		{
 			"class": "state and field naming",
 			"stakes": "card",
-			"reason": "n/a: no user-visible state, field, or status name is introduced or rendered by EPIC-24's cards — cardEpicKey is an internal derivation and no new persisted or displayed field is added"
+			"reason": "n/a: no user-visible state, field, or status name is introduced or rendered by EPIC-25's cards"
 		},
 		{
 			"class": "uncertainty display",
 			"stakes": "run-committing",
-			"reason": "n/a: no fetched-data or realtime-availability surface is displayed by EPIC-24's cards, so there is no uncertainty figure to show"
+			"reason": "n/a: no fetched-data or realtime-availability surface is displayed by EPIC-25's cards, so there is no uncertainty figure to show"
 		},
 		{
 			"class": "error and empty-state text",
 			"stakes": "run-committing",
-			"reason": "n/a: no user-facing error or empty-state surface is changed by EPIC-24's cards — FLLWUP-115's fail-loud refusals are internal throws whose messages acceptance criterion 2 pins unchanged"
+			"reason": "n/a: no user-facing error or empty-state surface is changed — FLLWUP-120 pins an engine crash path (a stale-ctx parent crash), not user-facing copy, and FLLWUP-117 reconciles internal documentation"
 		},
 		{
 			"class": "gate user-visibility",
 			"stakes": "portfolio",
-			"reason": "n/a: the decisions gate is off and no EPIC-24 card alters whether a routing-gate verdict is shown to a person"
+			"reason": "n/a: the decisions gate is inert at read-back and no EPIC-25 card alters whether a routing-gate verdict is shown to a person"
 		}
 	]
 }
