@@ -138,3 +138,11 @@ What ran: corpus sweep (`/tmp/corpus-check.ts`, 203 files), `grep -n '^epic:'` a
 ### Step 6 — routing
 
 The consolidator sorted zero items into open judgment and zero into open objections; nothing routes to a ruling seat and the card does not reach `Needs Human`. The deliberation is fully closed. (Facilitator note: the consolidator's closing line names "product-owner for implementation" — under council.md step 7 the implementer is the single `owner` seat; product-owner is a ruling seat and takes no part in implementation. Recorded here so the spec handoff follows the procedure, not the consolidator's phrasing.)
+
+### Steps 7–8 — spec, owner implementation, PR
+
+Spec: `docs/superpowers/specs/2026-09-24-FLLWUP-115-design.md` (committed 55c8f… lineage; self-reviewed for placeholders, consistency, scope, ambiguity). Owner dispatched (job-4.3) with the spec; worked in worktree `/tmp/fllwup-115` on branch `fllwup-115-frontmatter-epic-parse`; **PR #114 open** (observed via `gh pr view`: state OPEN, head `b12149e0ac8e990d737366b3f30d77dc199169f6`) → `In Review` written from the observed artifact. Owner-reported local gates: preflight PASS, `bunx tsc --noEmit` clean, full `bun test` 1518 pass / 6 skip / 0 fail; red-base record (seven fields) for T1 at base `03717b04`, head green. These are the owner's claims — step 9 verifies them independently.
+
+### Step 9 — routing re-check (EV-69)
+
+`resolveRoute`'s recorded path requires a **matched ledger record**; this card's routing resolved **fallback** ("no recorded decision for the current packed state" — gate `active`, inert at read-back), so there is no matched state hash and `recheckOwed` cannot fire — no re-gate, no re-route. The ROOT mode **Deliberate** stands (and the escalation-only ratchet could never reduce it). Proceeding to the step-9 skeptic dispatch at the branch head.
