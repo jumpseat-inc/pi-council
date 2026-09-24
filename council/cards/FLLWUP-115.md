@@ -124,3 +124,17 @@ The Skeptic ran its own probes against the real corpus and real code (all read-o
 What ran: corpus sweep (`/tmp/corpus-check.ts`, 203 files), `grep -n '^epic:'` across `council/cards/*.md` (212 matches), targeted `sed` probes on FLLWUP-47, call-site greps, synthetic polarity/edge/compose probes through the real `composeRunnerInput`, pin-discrimination probe, and `bun test test/ev90-runner-input.test.ts` (9 pass). Full command list and outputs in the skeptic transcript (job-4.1).
 
 **Skeptic verdict: no open objections.** One recorded position corrected (principal's enumeration — see O1); every design claim closed-green on real runs. The mechanism + T1–T4 set is sufficient to close the card's goal.
+
+### Step 5 — synthesis (job-4.2)
+
+**Agreed design** (both seats converged, no dispute): (1) scope the `^epic:\s*(.*)$` match to the frontmatter block only — not strip-then-match, which inverts the parse — sharing a `FRONTMATTER_RE` constant with `readProcedureBody`; keep the three D1 throw sites byte-for-byte unchanged; export `cardEpicKey`/`epicKeyFromFace` so the pin exercises live code. (2) The discriminating falsifier: a synthetic face with no frontmatter `epic:` line but a body `epic: EPIC-B` — red at base, green after (throws naming the card), driven through `composeRunnerInput` on a temp repo. (3) Test set T1–T4 in a new `test/card-epic-key.test.ts` (compose-path red-at-base falsifier; frontmatter-vs-conflicting-body precedence pin; byte-exact refusal pins for the three refusals; the 203-card equivalence sweep, same key or same throw per card); `test/ev90-runner-input.test.ts` stays untouched. (4) Version bump in `package.json` in the same PR. (5) Gates: `bunx tsc --noEmit`, then `bun test`.
+
+**Settled:** corpus enumeration (O1 — principal's enumeration corrected; 9 lines in 5 files stands, matching the Phase-1 ruling and the owner), polarity trap (O4), delta-class existence (O5), red-at-base falsifier reality (O6), byte-identical refusals (O7), one-call-site blast radius (O8), pin discrimination (O9 — strip-first-literal diverges on 172 files, so T4 doubles as the trap's tripwire), AC4 floor (O10), sufficiency (O11). All settled by skeptic tests that ran against the real corpus and real code.
+
+**Open judgment — for `product-owner`, escalating to `steward`:** none.
+
+**Open objections:** none.
+
+### Step 6 — routing
+
+The consolidator sorted zero items into open judgment and zero into open objections; nothing routes to a ruling seat and the card does not reach `Needs Human`. The deliberation is fully closed. (Facilitator note: the consolidator's closing line names "product-owner for implementation" — under council.md step 7 the implementer is the single `owner` seat; product-owner is a ruling seat and takes no part in implementation. Recorded here so the spec handoff follows the procedure, not the consolidator's phrasing.)
