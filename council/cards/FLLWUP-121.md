@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-121
 title: Pin test/stub-child.test.ts's child-scheduling race — the transient solo-run flake the FLLWUP-116 judge observed
-state: In Progress
+state: Done
 owner: null
 epic: EPIC-25
 goal: The transient solo-run flake in `test/stub-child.test.ts`'s child-scheduling race is reproduced or root-caused and then pinned or demonstrated non-flake — the card's first job is to reproduce/root-cause the one observed failure, and the card closes only with the flake pinned (deterministic test) or with a demonstrated non-flake result, following FLLWUP-63's house bar for test-determinism work.

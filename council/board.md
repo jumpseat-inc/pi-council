@@ -86,12 +86,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Deliberating
 
 ## In Progress
-- FLLWUP-117 — Close the cardEpicKey throw-site JSDoc drift
-- FLLWUP-118 — Pin the shared FRONTMATTER_RE anchor shape at the byte-0 boundary
-- FLLWUP-119 — Repair the EPIC-* smoke-fixture card faces so real model-driven flows can dispatch them
-- FLLWUP-120 — Cover the print-mode stale-ctx parent crash when a dispatched job outlives its turn
-- FLLWUP-121 — Pin test/stub-child.test.ts's child-scheduling race — the transient solo-run flake the FLLWUP-116 judge observed
-
 ## In Review
 
 ## Ready
@@ -107,6 +101,11 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Needs Human
 
 ## Done
+- FLLWUP-117 — Close the cardEpicKey throw-site JSDoc drift
+- FLLWUP-118 — Pin the shared FRONTMATTER_RE anchor shape at the byte-0 boundary
+- FLLWUP-119 — Repair the EPIC-* smoke-fixture card faces so real model-driven flows can dispatch them
+- FLLWUP-120 — Cover the print-mode stale-ctx parent crash when a dispatched job outlives its turn
+- FLLWUP-121 — Pin test/stub-child.test.ts's child-scheduling race — the transient solo-run flake the FLLWUP-116 judge observed
 - EPIC-24 — Close the EPIC-23 autonomous-delivery residuals — runner transcript live-smoke, frontmatter-scoped epic parse, and quote-agnostic import pins
 - FLLWUP-116 — Quote-agnostic file-content import pins across the suite
 - FLLWUP-114 — Live-smoke verification of the pre-injected runner transcript surface

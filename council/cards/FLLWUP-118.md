@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-118
 title: Pin the shared FRONTMATTER_RE anchor shape at the byte-0 boundary
-state: In Progress
+state: Done
 owner: null
 epic: EPIC-25
 goal: The shared `FRONTMATTER_RE` constant (`extensions/seats.ts:598`, shared by `readProcedureBody`'s strip and `epicKeyFromFace`'s match scope) is byte-0-anchored by design, and that shape is documented as a deliberate, tested choice — a synthetic-face test in `test/card-epic-key.test.ts` pins the byte-0-anchored behavior with the caveat's disposition stated in the test header, plus a JSDoc note on the constant itself — so a future regex tweak cannot silently change which faces parse.

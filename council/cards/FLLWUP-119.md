@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-119
 title: Repair the EPIC-* smoke-fixture card faces so real model-driven flows can dispatch them
-state: In Progress
+state: Done
 owner: null
 epic: EPIC-25
 goal: The EPIC-* smoke-fixture card faces (`council/fixtures/features-deliver/EPIC-*`) resolve and dispatch cleanly under a real model-driven `/features-deliver` flow — `cardEpicKey(EPIC-1)` returns the epic key without throwing, the runner flow reaches its first seat dispatch on fixture cards, and `bun test` stays green on the merged tree.
