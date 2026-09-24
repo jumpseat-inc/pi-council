@@ -4,7 +4,7 @@ Card: `council/cards/FLLWUP-115.md` · Epic: EPIC-24 · Mode: Deliberate · 2026
 
 ## Problem
 
-`cardEpicKey` (`extensions/seats.ts:598`) derives the epic key by matching
+`cardEpicKey` (`extensions/seats.ts:631`) derives the epic key by matching
 `/^epic:\s*(.*)$/m` against the **whole card-face file**. A card whose body
 contains a line starting `epic:` (a quoted example, a record of a failed
 derivation, a code block) is theoretically misparseable: a body occurrence
@@ -15,10 +15,10 @@ runner's operative context.
 
 ## Mechanism (AC1) — scope the match to the frontmatter block
 
-Extract the packaged-procedure frontmatter regex
-(`/^---\n[\s\S]*?\n---\n/`, currently inline at `readProcedureBody`,
-`extensions/seats.ts:584`) into a shared module constant (e.g.
-`FRONTMATTER_RE`). Split `cardEpicKey` into a pure core
+The packaged-procedure frontmatter regex (`/^---\n[\s\S]*?\n---\n/`) is
+delivered as the shared module constant `FRONTMATTER_RE`
+(`extensions/seats.ts:603`), and `readProcedureBody` strips with it
+(`extensions/seats.ts:589`). Split `cardEpicKey` into a pure core
 `epicKeyFromFace(raw, cardId)` that matches `^epic:\s*(.*)$` **against the
 frontmatter block only**; the file-read/not-found refusal stays in
 `cardEpicKey`. Absent frontmatter block ⇒ absent epic ⇒ the D1 throw.
@@ -35,7 +35,7 @@ implementation diverges from the old derivation on 172 corpus files, so T4
 reds on it).
 
 Blast radius (skeptic O8): `cardEpicKey` has exactly one call site —
-`composeRunnerInput` (`seats.ts:631`), consumed in production only at
+`composeRunnerInput` (`seats.ts:651`), consumed in production only at
 `hub-tools.ts:197`. No second epic derivation exists in production
 (`gate-route.ts:60` `parseCardFile` and `followup-state.ts:210` never read
 `epic:`).
