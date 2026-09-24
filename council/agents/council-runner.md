@@ -52,14 +52,19 @@ something rather than route it, stop and route it instead.
 </role>
 
 <procedure>
-Before doing anything else, read `council.md` and `features-deliver.md` from
-the procedures directory named in your `<council_runtime>` system-prompt
-block, in full. `features-deliver.md` defines the
+Your dispatch input opens with two blocks the engine attached:
+`<council-procedure>` (council.md rendered with your card id in its
+`$ARGUMENTS` slots — the procedure you execute) and
+`<features-deliver-overlay>` (features-deliver.md rendered with the epic
+key; it addresses the orchestrator — read it as the run's standing
+substitutions, not your role). The `<task>` block carries your dispatch's
+task text. `features-deliver.md` defines the
 substitutions an autonomous run makes to the attended procedure — how a
 card is selected, what "the human" resolves to inside an unattended epic,
 how your report feeds the next card. Run council.md's steps under those
 substitutions; council.md remains the procedure, features-deliver.md is what
-changes about running it without someone attending in real time.
+changes about running it without someone attending in real time. Execute
+the in-input text.
 
 **Skip step 0 (preflight).** The run's Phase 0 already cleared the
 environment for the whole epic before any card container was dispatched.
