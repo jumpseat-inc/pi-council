@@ -594,7 +594,12 @@ function readProcedureBody(repoRoot: string, name: string): string {
  * epicKeyFromFace's match scope (card path: the frontmatter is the payload).
  * Byte-0-anchored by design (documented caveat: a leading blank line or a
  * closing `---` at EOF without a trailing newline makes the block unmatchable;
- * no corpus face has either — any future one reds T4's equivalence sweep). */
+ * no corpus face has either — any future one reds T4's equivalence sweep).
+ * FLLWUP-118: the anchor's shape is a deliberate, tested contract —
+ * test/card-epic-key.test.ts T5 pins exactly those two synthetic shapes
+ * (old whole-file derivation = KEY / this scoped derivation = THROW). A
+ * regex tweak that changes which faces parse must update that pin
+ * deliberately. */
 const FRONTMATTER_RE = /^---\n[\s\S]*?\n---\n/;
 
 /** FLLWUP-115: the epic key derived from one card face's frontmatter block
