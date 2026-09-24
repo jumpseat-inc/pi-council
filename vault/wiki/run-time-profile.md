@@ -4,7 +4,7 @@ type: concept
 summary: The measured time profile of council/features-deliver runs — ~52% model latency / ~44% tool, ~80% of tool time in serial single-child council_wait, ~1.4-1.7x session parallelism, and a median ~260 s runner cold start — the audit that motivated EPIC-23.
 aliases: [run time profile, time audit, latency profile, council run cost]
 tags: [pi-council/concept, pi-council/hub]
-sources: ["[[2026-09-24-epic23-run-ledger]]"]
+sources: ["[[2026-09-24-epic23-run-ledger]]", "[[2026-09-24-epic24-run-ledger]]"]
 created: 2026-09-24
 updated: 2026-09-24
 ---
@@ -60,6 +60,17 @@ runners at once). The highest-leverage changes are routing discrimination
 (enable the fast paths), procedure pre-injection, and — architecturally —
 partitioning the board so independent cards can overlap.
 
+## EPIC-24 witness (2026-09-24)
+
+Another fully serial `features-deliver` run — three cards, one runner at a time,
+zero cross-card concurrency ([[engineering-board]]'s single-writer rule), the same
+profile this page measured. The stand-out cost is the live falsifier: FLLWUP-114's
+card ran ≈215 minutes wall with an ≈$1.72 catalogue subtree, and its owner
+implementation alone held a 45-minute dispatch that outlived the card's
+`timeout_minutes`. Keeping a long runner alive is still the
+[[hub-job-supervision]] window invariant. Witness:
+[[2026-09-24-epic24-run-ledger]].
+
 ## Related
 
 - [[council-runner]] — the container whose cold start and fan-out this measures
@@ -67,6 +78,7 @@ partitioning the board so independent cards can overlap.
 - [[metered-deliberation-routing]] — the fast paths that would cut the latency
 - [[inert-gate-fallback]] — why they are dark
 - [[procedure-context-injection]] — the fix for the ~260 s cold start
+- [[live-mechanism-verification]] — the live falsifier whose cost this profile carries
 - [[phase1-rulings-record]] — the fix for escalating open judgment
 - [[engineering-board]] — the single-writer rule that serializes cards
 

@@ -4,7 +4,7 @@ type: concept
 summary: The EPIC-10 ruling — under `gate.mode: active` a recorded engine-minted disposition is the disposition SOURCE, never the human confirmation; a runner escalates each candidate for ratification by a ruling seat before any card is written, because the autonomous authority map is exhaustive and a model call is not a row in it.
 aliases: [confirmation authority, recorded decision confirmation, ratification, pre-write confirmation]
 tags: [pi-council/concept, pi-council/features-deliver, pi-council/epic10]
-sources: ["[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-design-epic11-recut-surface]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-24-epic23-run-ledger]]"]
+sources: ["[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-design-epic11-recut-surface]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-24-epic23-run-ledger]]", "[[2026-09-24-epic24-run-ledger]]"]
 created: 2026-09-22
 updated: 2026-09-24
 ---
@@ -87,12 +87,22 @@ in EPIC-15), so no confirming dispatch ever carried them; nothing was written,
 but the contract's escalation obligation was not honored
 ([[step-13-followup-surface]]). Witness: [[2026-09-24-epic23-run-ledger]].
 
+## EPIC-24 witness (2026-09-24)
+
+Five candidates across the three cards, all rendered by the `active` step-13 gate
+and all ratified `File` by [[product-owner]] (jobs 5/8/13, plus the in-run
+FLLWUP-116 scope ruling job-11); each was applied on a confirming runner
+dispatch and written as its own card (FLLWUP-117–121). Unlike EPIC-23, **no
+runner returned `DONE`-with-held** — every candidate reached a ruling seat and the
+return-drift did not recur this run. Witness: [[2026-09-24-epic24-run-ledger]].
+
 ## Related
 
 - [[followup-decision-gate]] — the decision whose application this governs
 - [[step-13-followup-surface]] — the recorded line and the pre-write pin
 - [[council-runner]] — the container that must escalate rather than apply
 - [[product-owner]] — the ratifying seat; [[steward]] — not reached
+- [[2026-09-24-epic24-run-ledger]] — five `File` ratifications, no return drift
 - [[deterministic-merge-check]] — the sibling "mechanical replaces the human" gate
 - [[inert-gate-fallback]] — what happens when no recorded decision exists at all
 - [[record-push-discipline]] — the other run-scoped human authorization

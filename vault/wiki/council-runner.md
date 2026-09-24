@@ -4,7 +4,7 @@ type: entity
 summary: The per-card autonomous execution container — dispatched by /features-deliver to run the full /council loop for one card in an isolated context; routes, counts, and writes the board but never decides.
 aliases: [council runner, council-runner, runner]
 tags: [pi-council/seat]
-sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-24-epic23-run-ledger]]"]
+sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-24-epic23-run-ledger]]", "[[2026-09-24-epic24-run-ledger]]"]
 created: 2026-08-23
 updated: 2026-09-24
 ---
@@ -359,6 +359,29 @@ in EPIC-15), while EV-90's escalated correctly — the contract's "every surface
 candidate ends step 13 as an `ESCALATION`" is still not universally honored
 ([[confirmation-authority]]). Witness: [[2026-09-24-epic23-run-ledger]].
 
+## EPIC-24 witness (2026-09-24)
+
+Three more runner-dispatched cards (FLLWUP-115/114/116) completed on the full
+Deliberate path and merged with the five criteria satisfied. Four updates:
+
+- **The never-read rule (the live smoke's finding).** [[procedure-context-injection]]
+  carried the procedure bodies but did not stop the model from re-reading
+  `features-deliver.md`; FLLWUP-114's live transcript caught it, and the fix is an
+  explicit never-read rule in this seat body. See [[live-mechanism-verification]].
+- **The stall-window invariant recurred.** The first FLLWUP-115 container was
+  anti-stall-killed at 18.4m because the dispatcher's window sat under the runner's
+  internal child wait; the resume used `stall_minutes: 55`. The runner is still the
+  layer that must poll-slice, and the dispatcher must still set the outer window
+  above the longest child ([[hub-job-supervision]]).
+- **A timed-out runner keeps running.** The FLLWUP-114 container outlived its
+  `timeout_minutes` and kept working; because `council_wait` treats `timeout` as
+  settled, it had to be polled until the process exited.
+- **Record integrity is not self-fenced.** A step-13 application runner duplicated
+  EPIC-24's title suffix onto FLLWUP-119's board line; the orchestrator's
+  board-title audit caught it ([[engineering-board]]).
+
+Witness: [[2026-09-24-epic24-run-ledger]].
+
 ## Related
 
 - [[seats]], [[council-loop]]
@@ -369,11 +392,15 @@ candidate ends step 13 as an `ESCALATION`" is still not universally honored
 - [[council models picker]] — the EPIC-5 epic this seat delivered
 - [[union-merge reconcile]] — the diverged-main repair pattern this seat hit twice in EPIC-6
 - [[main-repo immutability]], [[verification-subject pinning]] — the hardening chain this seat now carries
+- [[live-mechanism-verification]] — transcript-level proof owed to a shipped mechanism
 - [[env-split contract]] — why dispatch inputs must control the seat environment
 - [[2026-09-06-epic6-close-run-ledger]] — the close run's lessons
 - [[2026-09-11-epic7-run-ledger]] — the EPIC-7 usage-accounting run's lessons
 - [[2026-09-21-epic13-run-ledger]] — the EPIC-13 routing run's lessons
 - [[2026-09-21-epic14-run-ledger]] — the EPIC-14 gate-enablement run's lessons
+- [[2026-09-23-epic15-residual-run-ledger]] — the recorded-mode mismatch run
+- [[2026-09-24-epic23-run-ledger]] — the cold-start/procedure-injection run
+- [[2026-09-24-epic24-run-ledger]] — the live-smoke + never-read-rule run
 
 ## Sources
 

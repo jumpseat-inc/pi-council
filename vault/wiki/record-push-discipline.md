@@ -4,7 +4,7 @@ type: concept
 summary: The step-12 direct-to-main record push is a privileged write the features-deliver authority map does not re-home; FLLWUP-60 closed the gap by naming a run-scoped authorization in the procedure and fencing an unauthorized push as a HALT — EPIC-13 then showed the ordering (`before` the first push) is the load-bearing word.
 aliases: [record push, step-12 push, admin bypass, record-push authorization]
 tags: [pi-council/concept, pi-council/features-deliver]
-sources: ["[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-24-epic23-run-ledger]]"]
+sources: ["[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-24-epic23-run-ledger]]", "[[2026-09-24-epic24-run-ledger]]"]
 created: 2026-09-17
 updated: 2026-09-24
 ---
@@ -114,6 +114,18 @@ authorization exists" to "the write is *within* the recorded authorization's
 enumerated set." The run's own record pushes and both merges all fell within
 P1-1. Witness: [[2026-09-24-epic23-run-ledger]].
 
+## EPIC-24 (2026-09-24) — enumerate the record push up front
+
+EPIC-24 showed the corrective to the EPIC-23 gap: its **P1-1** explicitly
+enumerated the `council/phase1-rulings.json` push as one of the authorized write
+classes alongside the merges and the step-12 record push, and the push went
+through cleanly with no `HALT`. The lesson is not that the enumeration is
+unnecessary — it is that a run which will write a Phase-1 record must
+**enumerate that write in Phase 1**, before the first push. EPIC-23's gap was an
+under-specified authorization, not a missing one. The `--admin` bypass and the
+direct record push both worked under the explicit enumeration. Witness:
+[[2026-09-24-epic24-run-ledger]].
+
 ## Why it matters
 
 A protection the human put in place should yield only to a recorded, run-scoped
@@ -127,6 +139,7 @@ unreliable and is invisible in the very board it is writing.
 - [[union-merge reconcile]] — the recipe whose pushes this governs
 - [[card-id-allocation]] — related diverged-main discipline
 - [[2026-09-17-epic9-residual-run-ledger]]
+- [[2026-09-24-epic24-run-ledger]] — the enumeration made complete up front
 
 ## Sources
 

@@ -1,10 +1,10 @@
 ---
 title: Procedure Context Injection
 type: concept
-summary: EV-90 (EPIC-23) — the council-runner dispatch input is composed from the renderProcedure-substituted bodies of council.md and features-deliver.md, removing the per-cold-start re-read; $ARGUMENTS is not one value across the two bodies (card id in council.md, epic key in features-deliver.md), so the composer binds two args.
+summary: EV-90 (EPIC-23) — the council-runner dispatch input is composed from the renderProcedure-substituted bodies of council.md and features-deliver.md, removing the per-cold-start re-read; $ARGUMENTS is not one value across the two bodies (card id in council.md, epic key in features-deliver.md), so the composer binds two args. EPIC-24's live smoke found the runner still read features-deliver.md at startup until a seat-level never-read rule — the composer proof did not imply the transcript behavior.
 aliases: [procedure injection, dispatch pre-injection, composeRunnerInput, pre-injected procedure]
 tags: [pi-council/concept, pi-council/features-deliver, pi-council/epic23]
-sources: ["[[2026-09-24-epic23-run-ledger]]"]
+sources: ["[[2026-09-24-epic23-run-ledger]]", "[[2026-09-24-epic24-run-ledger]]"]
 created: 2026-09-24
 updated: 2026-09-24
 ---
@@ -45,8 +45,21 @@ rather than instructing a read. Constraints the deliberation settled:
 
 This is a **transcript-surface** change, not a copy change: `/council-tree`
 previously opened a runner with `Read council.md` / `Read features-deliver.md`,
-and after EV-90 those reads are gone — the first visible actions are deliberation
-dispatches ([[council-job-tree-inline]]).
+and after EV-90 those reads are meant to be gone — the first visible actions are
+deliberation dispatches ([[council-job-tree-inline]]). ⚠️ **EPIC-24 found the
+read persisted** until a seat-level never-read rule; see the amendment below.
+
+## ⚠️ EPIC-24 amendment (2026-09-24) — pre-injection alone did not stop the read
+
+The claim that the dispatch input removes the per-cold-start re-read held for the
+**composer** but not yet for the **runner's behavior**. FLLWUP-114's live smoke
+parsed a real runner transcript and found the flash runner still read
+`/pkg/council/procedures/features-deliver.md` at startup (designer prediction 1
+false on real behavior). The read disappeared only after a hard **never-read rule
+in `council/agents/council-runner.md`**, merged with that card. This corrects
+rather than contradicts the mechanism: the bodies are still pre-injected; the
+seat must also be told not to re-read them. The episode is the worked example of
+[[live-mechanism-verification]]. Witness: [[2026-09-24-epic24-run-ledger]].
 
 ## Derived-key posture (D1)
 
@@ -63,9 +76,11 @@ the run's authority map.
 - [[override-resolution]] — per-file override-first resolution
 - [[run-time-profile]] — the ~260 s cold start measured
 - [[derived-key-refusal-posture]] — the D1 null-epic ruling
+- [[live-mechanism-verification]] — the live smoke that amended this mechanism
 - [[execution-mode-recording]] — the other ROOT-dispatch/wiring surface
 
 ## Sources
 
 - [[2026-09-24-epic23-run-ledger]]
+- [[2026-09-24-epic24-run-ledger]] — the live smoke that found the residual read
 - `council/cards/EV-90.md`, `extensions/hub-tools.ts`, `extensions/seats.ts`

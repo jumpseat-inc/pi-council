@@ -4,7 +4,7 @@ type: concept
 summary: An enabled decision gate (`.council.json` `gate.mode: active`) can be inert two ways — its live call fails, OR a recorded decision is dropped at read-back by schema/version drift — and both fall back to the safe default (full Deliberate) without blocking the run, so "active" can mean the gate is not deciding.
 aliases: [inert gate, gate fallback, active-but-failing gate, gate fail-closed fallback, inert active gate]
 tags: [pi-council/concept, pi-council/gate]
-sources: ["[[2026-09-22-epic15-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-gate-noul-fix]]", "[[2026-09-24-epic23-run-ledger]]"]
+sources: ["[[2026-09-22-epic15-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-gate-noul-fix]]", "[[2026-09-24-epic23-run-ledger]]", "[[2026-09-24-epic24-run-ledger]]"]
 created: 2026-09-22
 updated: 2026-09-24
 ---
@@ -83,6 +83,14 @@ Deliberate and neither routes the card, so the operator tell here is not
 `gate call failed: …` but the `policyVersion`/packed-state basis — the same
 active-but-not-deciding property, a different signature. FLLWUP-99 owns the fix.
 
+## EPIC-24 witness (2026-09-24)
+
+A third run, same read-back arm. `.council.json` carried `gate.mode: active`, yet
+`council_route op:route` returned `source: "fallback"` for all three EPIC-24
+cards (no recorded decision for the current packed state), so all three ran the
+full Deliberate roster and the `Direct`/`Verify` lanes stayed dark. FLLWUP-99
+still owns the read-back fix. Witness: [[2026-09-24-epic24-run-ledger]].
+
 ## Relationship to gate-parity
 
 [[gate-parity]] is about *strictness alignment between a write layer and the
@@ -110,6 +118,7 @@ property, so the tell stays worth checking.
 - [[deterministic-merge-check]] — reads mode from the substrate, never a report
 - [[gate-parity]] — the orthogonal strictness-alignment rule
 - [[confirmation-authority]] — what a *recorded* decision may apply
+- [[2026-09-24-epic24-run-ledger]] — the third read-back witness
 - [[presented-never-written]] — the rendered verdict is information, never a write
 - [[decisions-wire-canonicalization]] — the fix that ended the EPIC-15 inertness
 - [[three-wave-decomposition]] — the intake gate whose verdict is recorded, never acted on

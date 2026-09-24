@@ -4,7 +4,7 @@ type: concept
 summary: The durable, locally-stored kanban state — council/board.md plus one card file per id, validated by validate.py, and the discipline that everything the Council does starts and records there.
 aliases: [engineering board, board, card, kanban]
 tags: [pi-council/concept]
-sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-po-ev73-step6-ruling]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-23-fllwup-backlog-cleanup]]", "[[2026-09-23-fllwup-epic-grouping]]", "[[2026-09-24-epic23-run-ledger]]"]
+sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-po-ev73-step6-ruling]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-23-fllwup-backlog-cleanup]]", "[[2026-09-23-fllwup-epic-grouping]]", "[[2026-09-24-epic23-run-ledger]]", "[[2026-09-24-epic24-run-ledger]]"]
 created: 2026-08-23
 updated: 2026-09-24
 ---
@@ -171,6 +171,29 @@ filed; those were re-homed into a new EPIC-24 rather than left under a closed ep
 card, board, and `validate.py` agreed at every commit. Witness:
 [[2026-09-24-epic23-run-ledger]].
 
+## EPIC-24 (2026-09-24) — a criterion that asserted a falsehood, and board-title parity
+
+Two lessons, one operational and one a gap.
+
+**A criterion can assert an empirical falsehood, and the judge reads the goal.**
+FLLWUP-115's Acceptance criterion 3 demanded a corpus test asserting no card body
+line matches the epic key label — false on the corpus (5 files / 9 body lines),
+while the real divergence was unobservable (`cardEpicKey` returns the first
+match, always the frontmatter line). [[product-owner]] amended the criterion
+pre-promotion to a **behavioral-equivalence pin** (whole-file derivation ==
+frontmatter-scoped derivation, same key or same throw, per card). The general
+rule: an acceptance criterion or goal must be a **true, testable property**; pin
+the property, not corpus hygiene — a false criterion forces either a red gate or
+a dishonest pin. This is the goal-that-lies hazard applied to acceptance.
+
+**Board-title parity is not fenced (a gap).** A step-13 application runner
+duplicated EPIC-24's title suffix onto FLLWUP-119's board line. `validate.py`
+enforces the board's structure (one line per card per matching column) but not
+that the board line's title equals the card's frontmatter `title`; the
+orchestrator caught it with an ad-hoc audit. A board-title ↔ card-title equality
+check is the mechanical fix; no card was filed this run. Witness:
+[[2026-09-24-epic24-run-ledger]].
+
 ## Related
 
 - [[council-loop]], [[seats]]
@@ -224,6 +247,7 @@ card, board, and `validate.py` agreed at every commit. Witness:
   mid-run — premise replaced, same id and slot — the first post-promotion
   card-wording change executed by the orchestrator between cards.
 - [[follow-up-backlog-curation]] — the merge/retire maintenance discipline
+- [[live-mechanism-verification]] — the unit-proof-vs-transcript gap the same run exposed
 - [[2026-09-23-fllwup-epic-grouping]] — the follow-up close-out epics (EPIC-16…22) for
 the accumulated follow-up backlog
 

@@ -4,9 +4,9 @@ type: concept
 summary: The definitive, unattended end-to-end test — Phases 0–5 drive a real /council loop, a /features-deliver epic, the /council-eval matrix, /council-leaderboard, and /council-models in an isolated container, re-running gates itself; the search-smoke driver now shares the test suite's stdlib-only pty kit; standing discipline: the first Council command without an end-to-end falsifier is a defect.
 aliases: [smoke, unattended smoke test, smoke test]
 tags: [pi-council/smoke-test]
-sources: ["[[2026-08-24-unattended-smoke-test-design]]", "[[2026-08-24-unattended-smoke-test-plan]]", "[[2026-08-25-smoke-test-bugfixes]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-04-epic5-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]"]
+sources: ["[[2026-08-24-unattended-smoke-test-design]]", "[[2026-08-24-unattended-smoke-test-plan]]", "[[2026-08-25-smoke-test-bugfixes]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-04-epic5-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-24-epic24-run-ledger]]"]
 created: 2026-08-25
-updated: 2026-09-20
+updated: 2026-09-24
 ---
 
 # Smoke Test
@@ -184,6 +184,20 @@ amended to match (greppable: `grep -nE '^(import|from)'` on both files).
 open by that guard, not a pi coupling. See
 [[2026-09-18-epic9-residual-run-2-ledger]].
 
+## The per-mechanism live falsifier (EPIC-24, 2026-09-24)
+
+The command-level smoke has a per-mechanism sibling. FLLWUP-114's phase-7 live
+falsifier dispatches a real `council-runner`, parses its session JSONL
+(`extensions/transcript.ts`), and asserts the operator-observable transcript
+property: no procedure-file `Read` at startup, the first visible toolCall not
+under `council/procedures/`, and byte-equal first user-message blocks across
+retried attempts. On its **first run** it caught a defect the unit suite
+structurally could not — the pre-injected [[procedure-context-injection]] still
+read `features-deliver.md` at startup. The standing discipline ("the first
+Council command without an end-to-end falsifier is a defect") therefore applies
+one level down, to a shipped mechanism. See [[live-mechanism-verification]].
+Witness: [[2026-09-24-epic24-run-ledger]].
+
 ## Related
 
 - [[headless-pi]] — the operating-mode rules the driver depends on
@@ -193,6 +207,7 @@ open by that guard, not a pi coupling. See
 - [[2026-09-05-epic6-run-ledger]] — the SMOKE_PHASE selector
 - [[2026-09-06-epic6-close-run-ledger]] — the kitty search-smoke sibling
 - [[2026-09-18-epic9-residual-run-2-ledger]] — the shared pty kit (FLLWUP-55)
+- [[live-mechanism-verification]] — the per-mechanism transcript falsifier (EPIC-24)
 - [[2026-08-24-unattended-smoke-test-design]], [[2026-08-24-unattended-smoke-test-plan]]
 
 ## Sources

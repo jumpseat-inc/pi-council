@@ -4,7 +4,7 @@ type: concept
 summary: The periodic, human-directed maintenance of the accumulated FLLWUP backlog — curation (merge near-duplicates content-preservingly, keep the lower id; retire dead cards, which need a named reason since no `Retired` state exists) followed by grouping the survivors into thematic close-out epics — plus the standing hazard that follow-up cards go stale silently.
 aliases: [follow-up curation, backlog curation, follow-up cleanup, followup backlog, merge or retire, follow-up grouping, close-out epic]
 tags: [pi-council/concept, pi-council/board, pi-council/followups]
-sources: ["[[2026-09-23-fllwup-backlog-cleanup]]", "[[2026-09-23-fllwup-epic-grouping]]", "[[2026-09-24-epic23-run-ledger]]"]
+sources: ["[[2026-09-23-fllwup-backlog-cleanup]]", "[[2026-09-23-fllwup-epic-grouping]]", "[[2026-09-24-epic23-run-ledger]]", "[[2026-09-24-epic24-run-ledger]]"]
 created: 2026-09-23
 updated: 2026-09-24
 ---
@@ -121,6 +121,18 @@ carries the lineage). The general consequence: a `Done` epic is not required to
 have zero open children, and closing an epic is a place to check for residuals to
 re-home. Witness: [[2026-09-24-epic23-run-ledger]].
 
+## EPIC-24 → EPIC-25 (2026-09-24) — re-homing at closure
+
+EPIC-24 applied the previous section's lesson proactively. When its three named
+children merged, the run's [[steward]] (job-15) ruled the epic closed on its
+**named** acceptance and its five open follow-ups (FLLWUP-117/118/119/120/121,
+all ratified `File` at the step-13 gate, [[confirmation-authority]]) re-homed into
+a new **EPIC-25** in the same run. The new part is timing: the close-out check and
+the grouping happened **at closure**, not in a later curation pass — the steward's
+strategy row ("ending the run") now carries it. Only the `epic:` field moved on
+the five cards; the board line for EPIC-24 moved to `Done` and EPIC-25 took its
+`Backlog` slot. Witness: [[2026-09-24-epic24-run-ledger]].
+
 ## Related
 
 - [[engineering-board]] — the board/card schema and lifecycle discipline
@@ -129,6 +141,7 @@ re-home. Witness: [[2026-09-24-epic23-run-ledger]].
 - [[chain-promotion]] — reads `epic:` tags that cross-epic merges nullify
 - [[2026-09-23-fllwup-epic-grouping]] — the Phase 2 grouping pass (EPIC-16…22)
 - [[council-update]] — why adding a `Retired` state is packaged-tooling work
+- [[confirmation-authority]] — the step-13 gate whose `File` dispositions feed this re-homing
 
 ## Sources
 

@@ -4,7 +4,7 @@ type: concept
 summary: The /council step-13 pre-write confirm-gate surface shipped by EV-82 — one rendered disposition line carrying candidate, disposition, target-or-cost, live mode and basis; four unavailable-state literals in the FLLWUP-75 shape; an unconditional dedup pass; and a hard pre-write confirmation pin.
 aliases: [step 13 surface, followup render, disposition line, unavailable state literals]
 tags: [pi-council/concept, pi-council/procedures, pi-council/epic10]
-sources: ["[[2026-09-22-epic10-run-ledger]]", "[[2026-09-24-epic23-run-ledger]]"]
+sources: ["[[2026-09-22-epic10-run-ledger]]", "[[2026-09-24-epic23-run-ledger]]", "[[2026-09-24-epic24-run-ledger]]"]
 created: 2026-09-22
 updated: 2026-09-24
 ---
@@ -74,11 +74,21 @@ two candidates, so they were never ratified and nothing was written — the
 recurring [[confirmation-authority]] return drift. Witness:
 [[2026-09-24-epic23-run-ledger]].
 
+## EPIC-24 witness (2026-09-24)
+
+Five `active` candidates across three cards rendered as
+`Mode: File — composite <n> < merge threshold 1.00 — <title> (active)`, all
+ratified `File` and applied as five board lines keyed by draft title
+(FLLWUP-117–121 → [[follow-up-backlog-curation]]). The review tool was present
+in-container and all five reached a ruling seat — the EPIC-23 `DONE`-with-held
+drift did not recur. Witness: [[2026-09-24-epic24-run-ledger]].
+
 ## Related
 
 - [[followup-decision-gate]] — the decision this renders
 - [[confirmation-authority]] — why the line is ratified, not auto-applied
 - [[presented-never-written]] — the presented/written boundary
+- [[2026-09-24-epic24-run-ledger]] — five `active` renderings, all applied
 - [[designer]] — settled the byte order
 - [[engineering-board]] — the cards a `Merge`/`Drop` affects
 

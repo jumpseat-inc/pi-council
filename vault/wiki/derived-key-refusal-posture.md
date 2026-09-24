@@ -4,7 +4,7 @@ type: concept
 summary: The D1 ruling from EPIC-23 — when a derived key (e.g. an epic read from a card face's `epic:` field) is null or missing, the dispatch fails loud (throws, naming the actor) rather than proceeding un-substituted; and "byte-identical" in an acceptance criterion governs the enumerated fields, not the dispatch's occurrence.
 aliases: [derived key posture, fail-loud derived key, null epic posture, D1 ruling]
 tags: [pi-council/concept, pi-council/process]
-sources: ["[[2026-09-24-epic23-run-ledger]]"]
+sources: ["[[2026-09-24-epic23-run-ledger]]", "[[2026-09-24-epic24-run-ledger]]"]
 created: 2026-09-24
 updated: 2026-09-24
 ---
@@ -51,12 +51,26 @@ operator reports immediately; a wrong no-throw is a silently degraded run — th
 expensive direction to discover. Cheapest-to-reverse: flipping to no-throw is one
 branch plus one test delta.
 
+## EPIC-24 witness (2026-09-24)
+
+FLLWUP-115 hardened the derivation this posture governs: `cardEpicKey` now
+scopes the epic match to the **frontmatter** block (the same strip the packaged
+procedure scan uses), and the three D1 refusals keep byte-for-byte behavior. The
+corpus pin was amended from the false "no card body contains the key label"
+claim to a **behavioral-equivalence** pin (whole-file derivation ==
+frontmatter-scoped derivation, same key or same throw, per card), green on the
+current corpus and red exactly when the scoping changes a derivation
+([[engineering-board]]). Two residuals were filed from the live run: FLLWUP-117
+(the throw-site JSDoc drift) and FLLWUP-118 (the shared `FRONTMATTER_RE` byte-0
+anchor). Witness: [[2026-09-24-epic24-run-ledger]].
+
 ## Related
 
 - [[procedure-context-injection]] — the composer that raised the question
 - [[council-runner]] — the dispatch whose input the key feeds
 - [[facilitator]] — the house hard-error convention
 - [[deterministic-merge-check]] — another mechanical fail-loud posture
+- [[2026-09-24-epic24-run-ledger]] — the hardening + behavioral-equivalence pin
 
 ## Sources
 

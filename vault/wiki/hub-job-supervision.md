@@ -4,9 +4,9 @@ type: concept
 summary: The battle-tested engine that spawns, monitors, stalls, times out, and sweeps seat subprocesses — the hub table, pid file, anti-stall kill, and the dispatch/wait/cancel tools.
 aliases: [hub job supervision, hub, job table, council_dispatch]
 tags: [pi-council/concept]
-sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]"]
+sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-24-epic24-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-21
+updated: 2026-09-24
 ---
 
 # Hub Job Supervision
@@ -159,6 +159,28 @@ skeptic verification, whichever the runner is currently blocked on. Later
 dispatches in the run used 40–45-minute windows and survived; the killed parent's
 in-flight child was orphaned and re-run by a fresh runner from committed board
 state. See [[2026-09-21-epic13-run-ledger]].
+
+## EPIC-24 recurrence #5 — and the timeout is not a stop (2026-09-24)
+
+The invariant recurred a fifth time: the first FLLWUP-115 container was
+dispatched with an 8-minute stall window and anti-stall-killed at 18.4m while
+blocked on its own child dispatch ([[council-runner]]); the resume used
+`stall_minutes: 55` and completed. The procedure-level fix from EPIC-6 did not
+prevent it — the orchestrator still has to set the outer window above the
+runner's longest child wait, and no tool-level default enforces it.
+
+Two sharper consequences landed this run:
+
+- **`timeout` is informational and does not stop the job.** The FLLWUP-114
+  container passed its `timeout_minutes` and kept working (the hub never kills on
+  timeout); it had to be left running.
+- **`council_wait` treats `timeout` as settled** (`isSettledForWait` returns true),
+  so once a runner is marked `timeout` the wait tool returns immediately instead
+  of blocking. A timed-out-but-alive runner must be polled by manifest/pid until
+  its process exits, then read once it settles to `done`/`failed`. Waiting on the
+  tool would silently spin.
+
+Witness: [[2026-09-24-epic24-run-ledger]].
 
 ## Related
 

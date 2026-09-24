@@ -1,5 +1,30 @@
 # Wiki Log
 
+## [2026-09-24] ingest | EPIC-24 autonomous run — pre-injection still read, and re-homing at closure
+
+Ingested the EPIC-24 `/features-deliver` run (authored
+`vault/raw/2026-09-24-epic24-run-ledger.md`). Three cards merged
+(FLLWUP-115/114/116, PRs #114–#116) on the full Deliberate path — the gate stayed
+inert at read-back. Five follow-ups were ratified `File` at the step-13 gate and
+re-homed into a new EPIC-25 when EPIC-24 closed `Done` on its named acceptance.
+The central finding: EV-90's pre-injected procedure did **not** stop the flash
+runner reading `features-deliver.md` at startup — FLLWUP-114's live smoke caught
+it, and a seat-level never-read rule fixed it; the unit proof was not the
+transcript proof. Also: a false acceptance criterion amended to a
+behavioral-equivalence pin, the stall-window invariant recurring (plus
+`timeout`-is-settled/poll), the record-push enumeration completed up front, and a
+board-title parity gap.
+
+- **Created:** sources/2026-09-24-epic24-run-ledger, [[live-mechanism-verification]]
+- **Updated:** [[procedure-context-injection]], [[council-runner]], [[smoke-test]],
+  [[run-time-profile]], [[hub-job-supervision]], [[follow-up-backlog-curation]],
+  [[engineering-board]], [[deterministic-merge-check]], [[inert-gate-fallback]],
+  [[record-push-discipline]], [[confirmation-authority]], [[step-13-followup-surface]],
+  [[derived-key-refusal-posture]], index.
+- **Contradiction flagged:** [[procedure-context-injection]]'s claim that the
+  procedure-file reads are gone was true of the composer, not of the runner's
+  transcript; amended inline rather than overwritten.
+
 ## [2026-09-24] ingest | EPIC-23 autonomous run — the gate inert at read-back
 
 Ingested the EPIC-23 `/features-deliver` run (authored

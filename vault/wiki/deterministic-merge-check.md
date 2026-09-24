@@ -4,7 +4,7 @@ type: concept
 summary: Under /features-deliver the human merge gate is replaced by five mechanical criteria — owner gates, gates-SUCCESS on the PR head SHA, no blocking skeptic objection, judge PASS, no open ruling — keyed since EPIC-13 by the card's recorded execution mode, merged with --match-head-commit.
 aliases: [deterministic merge check, merge gate, deterministic merge, five criteria merge]
 tags: [pi-council/features-deliver, pi-council/process]
-sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-24-epic23-run-ledger]]"]
+sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-24-epic23-run-ledger]]", "[[2026-09-24-epic24-run-ledger]]"]
 created: 2026-09-04
 updated: 2026-09-24
 ---
@@ -297,6 +297,19 @@ route* returned `fallback` for both (read-back drift,
 `Deliberate`, so the no-recorded-mode `HALT` did not apply
 ([[execution-mode-recording]]). Witness: [[2026-09-24-epic23-run-ledger]].
 
+## EPIC-24 witness (2026-09-24)
+
+Three more merges under the five **Deliberate** criteria — FLLWUP-115 (#114,
+`7173477`), FLLWUP-114 (#115, `be7d667`), FLLWUP-116 (#116, `fee6334`) — each
+`--admin --match-head-commit <X>` pinned to the checked head, `gates` `SUCCESS`
+keyed on `workflow` and re-read on the merged SHA. The run again showed the mode
+split: all three *ledger routes* returned `fallback` (the gate inert at
+read-back, [[inert-gate-fallback]]) while the *ROOT manifests* recorded
+`Deliberate`, so no no-recorded-mode `HALT` applied
+([[execution-mode-recording]]). One runner stalled mid-card and was resumed;
+that does not change the recorded mode (the merge check reads the union of the
+card's ROOTs). Witness: [[2026-09-24-epic24-run-ledger]].
+
 ## Related
 
 - [[council loop]] — steps 9–12 this check overlays.
@@ -309,6 +322,7 @@ route* returned `fallback` for both (read-back drift,
   record, carries "no red test lands".
 - [[execution-mode-recording]] — how the mode this check reads is recorded, and
   its mismatch failure shape.
+- [[2026-09-24-epic24-run-ledger]] — three more Deliberate merges (PRs #114–#116)
 - [[2026-09-04-epic4-run-ledger]] — eight merges executed under this gate.
 - [[2026-09-04-epic5-run-ledger]] — four more, squash-method, conditional
   green-light.
