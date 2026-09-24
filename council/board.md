@@ -84,7 +84,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EPIC-22 — Close the process and test-discipline residuals
 
 ## Deliberating
-- FLLWUP-115 — Frontmatter-scoped epic parse in cardEpicKey with a corpus-divergence pin
 
 ## Ready
 - FLLWUP-114 — Live-smoke verification of the pre-injected runner transcript surface
@@ -94,6 +93,7 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - EV-58 — Show the pi-council version and hash on the first pi run
 
 ## In Progress
+- FLLWUP-115 — Frontmatter-scoped epic parse in cardEpicKey with a corpus-divergence pin
 
 ## In Review
 
