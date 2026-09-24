@@ -5,7 +5,7 @@ import { CONFIG_DIR_NAME, type ExtensionAPI } from "@earendil-works/pi-coding-ag
 import { Type } from "typebox";
 import { Hub, type JobReport, type JobState } from "./hub.ts";
 import { type DispatchMode, type RunManifest, readManifests } from "./runs.ts";
-import { buildChildArgv, buildSystemPrompt, DEFAULT_RETRY_POLICY, loadSeat, proceduresDir, resolveEffectiveModel } from "./seats.ts";
+import { buildChildArgv, buildSystemPrompt, composeRunnerInput, DEFAULT_RETRY_POLICY, loadSeat, proceduresDir, resolveEffectiveModel } from "./seats.ts";
 import type { RetryPolicy } from "./seats.ts";
 import { childEnv, ensureRunDir, mintRunId } from "./runs.ts";
 import { getMcp } from "./mcp-load.ts";
@@ -151,6 +151,7 @@ export function registerHubTools(pi: ExtensionAPI, repoRoot: string, opts: HubTo
 				Type.Literal("Verify"),
 				Type.Literal("Direct"),
 			], { description: "EV-68 — card execution mode, decided from the ledger; recorded on this dispatch's ROOT manifest. Omit for ordinary sub-dispatches — mode is never inherited." })),
+			card_id: Type.Optional(Type.String({ description: "The card id (e.g. EV-90) this dispatch executes. Required for council-runner dispatches: the runner's input is composed from council.md rendered with this id and features-deliver.md rendered with the epic derived from the card face. Omit for every other seat." })),
 		}),
 		async execute(_id, params, _signal, _onUpdate, ctx) {
 			if (opts.allowedSeats && !opts.allowedSeats.includes(params.seat)) {
@@ -170,6 +171,37 @@ export function registerHubTools(pi: ExtensionAPI, repoRoot: string, opts: HubTo
 				seat = loadSeat(repoRoot, params.seat);
 			} catch (e) {
 				return { content: [{ type: "text", text: String(e) }], details: {}, isError: true };
+			}
+			// EV-90 — runner dispatches carry the rendered procedure bodies. The
+			// card_id refusal and the composer's epic-null refusal both fire
+			// before any child spawns; every other seat's input is untouched
+			// (AC5 governs the enumerated fields). The composed string is
+			// computed ONCE here and reused at both buildChildArgv sites below
+			// (initial spawn + retry attemptSpec), so every attempt carries
+			// byte-identical input.
+			let dispatchInput = params.input;
+			if (seat.name === "council-runner") {
+				if (params.card_id === undefined) {
+					return {
+						content: [
+							{
+								type: "text",
+								text: `Refused: a council-runner dispatch requires the card_id parameter — the card this runner executes (council.md renders with it, and the card face's epic: field scopes features-deliver.md). No card was named.`,
+							},
+						],
+						details: {},
+						isError: true,
+					};
+				}
+				try {
+					dispatchInput = composeRunnerInput(repoRoot, params.card_id, params.input);
+				} catch (e) {
+					return {
+						content: [{ type: "text", text: `Refused: ${e instanceof Error ? e.message : String(e)}` }],
+						details: {},
+						isError: true,
+					};
+				}
 			}
 			// EV-17 per-run model override: per-dispatch model/thinking param >
 			// COUNCIL_EVAL_MODEL env > .council.json > frontmatter. Resolved AFTER
@@ -251,7 +283,7 @@ export function registerHubTools(pi: ExtensionAPI, repoRoot: string, opts: HubTo
 				seat: seat.name,
 				model: seat.model,
 				command: "pi",
-				args: buildChildArgv(seat, params.input, promptFile, mcpToolNames, { sessionDir: dir, sessionId: jobId }),
+				args: buildChildArgv(seat, dispatchInput, promptFile, mcpToolNames, { sessionDir: dir, sessionId: jobId }),
 				cwd: repoRoot,
 				env: childEnv(spawnEnv, runId, jobId),
 				timeoutMs,
@@ -275,7 +307,7 @@ export function registerHubTools(pi: ExtensionAPI, repoRoot: string, opts: HubTo
 					attemptSpec: (n) => {
 						const sessionId = `${jobId}-attempt${n}`;
 						return {
-							args: buildChildArgv(seat, params.input, promptFile, mcpToolNames, { sessionDir: dir, sessionId }),
+							args: buildChildArgv(seat, dispatchInput, promptFile, mcpToolNames, { sessionDir: dir, sessionId }),
 							env: childEnv(spawnEnv, runId, jobId),
 							cwd: repoRoot,
 							sessionId,

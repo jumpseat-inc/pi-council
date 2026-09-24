@@ -559,6 +559,84 @@ export function proceduresDir(repoRoot: string): string {
 	return fs.existsSync(override) ? override : path.join(PKG_ROOT, "council", "procedures");
 }
 
+/** Substitute runtime placeholders into a stripped procedure body. EV-90:
+ * relocated here from index.ts (the import graph is binding — the composer
+ * below lives in this module, and seats → index would cycle; index.ts
+ * re-exports this so the parent scan path and every existing importer stay
+ * green). Substitution set and behavior are byte-identical to the original
+ * (AC4): exactly $COUNCIL_PROCEDURES and $ARGUMENTS, nothing else (FLLWUP-107
+ * pin in test/render.test.ts imports through the re-export). */
+export function renderProcedure(strippedBody: string, procDir: string, args?: string): string {
+	return strippedBody
+		.replace(/\$COUNCIL_PROCEDURES/g, procDir)
+		.replace(/\$ARGUMENTS/g, (args ?? "").trim());
+}
+
+/** EV-90: read one procedure body per-file, override-first — walk
+ * [repoOverride, packaged] by filename (the same walk as the parent command
+ * scan in index.ts), taking the first file that exists, never mixing halves,
+ * then apply the scan's frontmatter strip. Never
+ * path.join(proceduresDir(repoRoot), name): proceduresDir is directory-level
+ * first-hit and a join reads the wrong (unstripped, ENOENT) files in any
+ * partial-override repo. */
+function readProcedureBody(repoRoot: string, name: string): string {
+	const override = path.join(repoRoot, CONFIG_DIR_NAME, "council", "procedures", name);
+	const packaged = path.join(PKG_ROOT, "council", "procedures", name);
+	const file = fs.existsSync(override) ? override : packaged;
+	if (!fs.existsSync(file)) {
+		throw new Error(`composeRunnerInput: procedure "${name}" not found at ${override} or ${packaged}`);
+	}
+	return fs.readFileSync(file, "utf-8").replace(/^---\n[\s\S]*?\n---\n/, "");
+}
+
+/** EV-90: the epic key the features-deliver.md rendering binds — derived from
+ * the card face's `epic:` field so a mismatched (card, epic) pair is
+ * impossible by construction. D1 ruling (EV-90, 2026-09-24): a null or absent
+ * epic is a fail-loud refusal naming the card — never an un-substituted or
+ * omitted overlay (a runner without its features-deliver scope is a degraded
+ * dispatch, not a fallback). */
+function cardEpicKey(repoRoot: string, cardId: string): string {
+	const face = path.join(repoRoot, "council", "cards", `${cardId}.md`);
+	let raw: string;
+	try {
+		raw = fs.readFileSync(face, "utf-8");
+	} catch {
+		throw new Error(
+			`council-runner dispatch for card "${cardId}" refused: its card face council/cards/${cardId}.md does not exist`,
+		);
+	}
+	const m = raw.match(/^epic:\s*(.*)$/m);
+	const epic = m?.[1]?.trim();
+	if (!epic || epic === "null") {
+		throw new Error(
+			`council-runner dispatch for card "${cardId}" refused: the card face's epic: field is null or absent (EV-90 D1 ruling — a runner dispatched without its features-deliver scope is a degraded dispatch, not a fallback)`,
+		);
+	}
+	return epic;
+}
+
+/** EV-90 — compose the council-runner dispatch input: council.md rendered with
+ * the card id, then features-deliver.md rendered with the epic key derived
+ * from the card face (top-down reading order = working order; the overlay
+ * addresses the orchestrator — the seat block tells the runner how to read
+ * it), then the parent's task text appended verbatim as the `<task>` tail.
+ * The tail is concatenated, never passed through .replace — its $&/$n
+ * replacement metacharacters would corrupt arbitrary task text. */
+export function composeRunnerInput(repoRoot: string, cardId: string, taskInput: string): string {
+	const procDir = proceduresDir(repoRoot);
+	const councilBody = renderProcedure(readProcedureBody(repoRoot, "council.md"), procDir, cardId);
+	const featuresBody = renderProcedure(
+		readProcedureBody(repoRoot, "features-deliver.md"),
+		procDir,
+		cardEpicKey(repoRoot, cardId),
+	);
+	return [
+		`<council-procedure>\n${councilBody}\n</council-procedure>`,
+		`<features-deliver-overlay>\n${featuresBody}\n</features-deliver-overlay>`,
+		`<task>\n${taskInput}\n</task>`,
+	].join("\n\n");
+}
+
 /** omp tool names → pi built-in tool ids, in stable order. */
 const BUILTIN_MAP: Array<[string, string[]]> = [
 	["Read", ["read"]],
