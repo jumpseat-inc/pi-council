@@ -87,13 +87,13 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Ready
 - FLLWUP-114 — Live-smoke verification of the pre-injected runner transcript surface
-- FLLWUP-115 — Frontmatter-scoped epic parse in cardEpicKey with a corpus-divergence pin
 - FLLWUP-116 — Quote-agnostic file-content import pins across the suite
 - EV-48 — Packaged seat-tier map with repo-local merge override
 - EV-57 — Resolve the running pi-council identity from the package root
 - EV-58 — Show the pi-council version and hash on the first pi run
 
 ## In Progress
+- FLLWUP-115 — Frontmatter-scoped epic parse in cardEpicKey with a corpus-divergence pin
 
 ## In Review
 

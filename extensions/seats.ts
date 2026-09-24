@@ -586,7 +586,32 @@ function readProcedureBody(repoRoot: string, name: string): string {
 	if (!fs.existsSync(file)) {
 		throw new Error(`composeRunnerInput: procedure "${name}" not found at ${override} or ${packaged}`);
 	}
-	return fs.readFileSync(file, "utf-8").replace(/^---\n[\s\S]*?\n---\n/, "");
+	return fs.readFileSync(file, "utf-8").replace(FRONTMATTER_RE, "");
+}
+
+/** FLLWUP-115: the packaged-procedure frontmatter block — shared by
+ * readProcedureBody's strip (procedure path: the body is the payload) and
+ * epicKeyFromFace's match scope (card path: the frontmatter is the payload).
+ * Byte-0-anchored by design (documented caveat: a leading blank line or a
+ * closing `---` at EOF without a trailing newline makes the block unmatchable;
+ * no corpus face has either — any future one reds T4's equivalence sweep). */
+const FRONTMATTER_RE = /^---\n[\s\S]*?\n---\n/;
+
+/** FLLWUP-115: the epic key derived from one card face's frontmatter block
+ * only — a body line beginning `epic:` can never win the derivation (the
+ * whole-file match it replaces could). Pure: raw face text in, key out.
+ * Absent frontmatter block ⇒ absent epic; null/absent ⇒ the caller turns
+ * the named-card D1 refusal (kept in cardEpicKey, byte-for-byte). */
+export function epicKeyFromFace(raw: string, cardId: string): string {
+	const block = raw.match(FRONTMATTER_RE)?.[0] ?? "";
+	const m = block.match(/^epic:\s*(.*)$/m);
+	const epic = m?.[1]?.trim();
+	if (!epic || epic === "null") {
+		throw new Error(
+			`council-runner dispatch for card "${cardId}" refused: the card face's epic: field is null or absent (EV-90 D1 ruling — a runner dispatched without its features-deliver scope is a degraded dispatch, not a fallback)`,
+		);
+	}
+	return epic;
 }
 
 /** EV-90: the epic key the features-deliver.md rendering binds — derived from
@@ -594,8 +619,9 @@ function readProcedureBody(repoRoot: string, name: string): string {
  * impossible by construction. D1 ruling (EV-90, 2026-09-24): a null or absent
  * epic is a fail-loud refusal naming the card — never an un-substituted or
  * omitted overlay (a runner without its features-deliver scope is a degraded
- * dispatch, not a fallback). */
-function cardEpicKey(repoRoot: string, cardId: string): string {
+ * dispatch, not a fallback). FLLWUP-115: the match is scoped to the
+ * frontmatter block (epicKeyFromFace) — body occurrences cannot win. */
+export function cardEpicKey(repoRoot: string, cardId: string): string {
 	const face = path.join(repoRoot, "council", "cards", `${cardId}.md`);
 	let raw: string;
 	try {
@@ -605,14 +631,7 @@ function cardEpicKey(repoRoot: string, cardId: string): string {
 			`council-runner dispatch for card "${cardId}" refused: its card face council/cards/${cardId}.md does not exist`,
 		);
 	}
-	const m = raw.match(/^epic:\s*(.*)$/m);
-	const epic = m?.[1]?.trim();
-	if (!epic || epic === "null") {
-		throw new Error(
-			`council-runner dispatch for card "${cardId}" refused: the card face's epic: field is null or absent (EV-90 D1 ruling — a runner dispatched without its features-deliver scope is a degraded dispatch, not a fallback)`,
-		);
-	}
-	return epic;
+	return epicKeyFromFace(raw, cardId);
 }
 
 /** EV-90 — compose the council-runner dispatch input: council.md rendered with
