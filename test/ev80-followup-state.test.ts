@@ -13,6 +13,7 @@ import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
 import { CONFIG_DIR_NAME } from "@earendil-works/pi-coding-agent";
+import { srcPin } from "./src-pin.ts";
 import {
 	FOLLOWUP_SECTION_CAPS,
 	FOLLOWUP_SECTIONS,
@@ -260,10 +261,12 @@ describe("hash sensitivity (R0 headline over the discriminating relocated pair)"
 // ---------------------------------------------------------------------------
 
 test("accessor canary: no forbidden accessor strings in module source; run-store sentinel never in stateBytes", () => {
-	const src = fs.readFileSync(path.join(PKG_ROOT, "extensions", "followup-state.ts"), "utf8");
+	const src = srcPin(fs.readFileSync(path.join(PKG_ROOT, "extensions", "followup-state.ts"), "utf8"));
 	expect(src).not.toContain("runs/");
 	expect(src).not.toContain("fetch(");
-	expect(src).not.toContain('".pi"');
+	// quote-agnostic canary (FLLWUP-116): normalization makes this red on BOTH
+	// quote styles of .pi (and accepted near-miss bytes like x".pi'y) — see test/src-pin.ts
+	expect(src).not.toContain(srcPin('".pi"'));
 
 	const root = tmpRepo();
 	// A sentinel under the run-store directory must never enter the state bytes.

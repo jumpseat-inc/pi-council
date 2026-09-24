@@ -4,6 +4,7 @@ import * as os from "node:os";
 import * as path from "node:path";
 import { CONFIG_DIR_NAME } from "@earendil-works/pi-coding-agent";
 import type { CellScope, StoredResultRecord } from "../extensions/eval-rubric.ts";
+import { srcPin } from "./src-pin.ts";
 import { aggregateCell, compareCellTriage } from "../extensions/eval-stats.ts";
 
 // ---- helpers ----
@@ -556,8 +557,9 @@ import { summarizeStore, resolveDriver, fixtureTaskDir } from "../extensions/eva
 import { PKG_ROOT } from "../extensions/seats.ts";
 
 test("GATE: index.ts registers /council-eval wired to parseEvalArgs + runMatrix + summaryLines (EV-20 §1)", () => {
-	const src = fs.readFileSync(path.join(import.meta.dir, "..", "extensions", "index.ts"), "utf-8");
-	expect(src).toContain('pi.registerCommand("council-eval"');
+	// quote-agnostic pin (FLLWUP-116) — see test/src-pin.ts
+	const src = srcPin(fs.readFileSync(path.join(import.meta.dir, "..", "extensions", "index.ts"), "utf-8"));
+	expect(src).toContain(srcPin('pi.registerCommand("council-eval"'));
 	expect(src).toMatch(/listFixtureTasks\(repoRoot\)/); // no-arg list form
 	expect(src).toMatch(/parseEvalArgs\(/);
 	expect(src).toMatch(/ctx\.modelRegistry\.getAvailable\(\)/); // catalogue pre-validation

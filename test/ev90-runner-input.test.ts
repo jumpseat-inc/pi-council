@@ -24,6 +24,7 @@ import {
 	renderProcedure,
 } from "../extensions/seats.ts";
 import { getHub, initHubIdentity, registerHubTools, shutdownHub } from "../extensions/hub-tools.ts";
+import { srcPin } from "./src-pin.ts";
 
 const STUB = path.join(import.meta.dir, "stub-child.ts");
 
@@ -141,8 +142,9 @@ test("EV-90 §6.5: renderProcedure defined once in seats.ts, re-exported from in
 	expect(seatsSrc).toContain("export function renderProcedure");
 	expect(indexSrc).not.toContain("export function renderProcedure");
 	expect(indexSrc).toMatch(/export\s*\{\s*renderProcedure\s*\}/);
-	expect(seatsSrc.includes('from "./index.ts"')).toBe(false);
-	expect(hubToolsSrc.includes('from "./index.ts"')).toBe(false);
+	// quote-agnostic canaries (FLLWUP-116): reds on BOTH quote styles — see test/src-pin.ts
+	expect(srcPin(seatsSrc).includes(srcPin('from "./index.ts"'))).toBe(false);
+	expect(srcPin(hubToolsSrc).includes(srcPin('from "./index.ts"'))).toBe(false);
 });
 
 // ================= §6.6 — AC3 prose pins (EV-89 precedent) =================

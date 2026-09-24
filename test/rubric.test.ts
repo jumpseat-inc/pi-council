@@ -9,6 +9,7 @@ import {
 	type VerdictRecord,
 } from "../extensions/eval-rubric.ts";
 import { validateRubric, type Rubric } from "../extensions/eval-fixtures.ts";
+import { srcPin } from "./src-pin.ts";
 
 // ---- recording fake GradeIO (pure-mirror of fs/child_process) ----
 
@@ -315,9 +316,9 @@ test("totality: every accepted check is graded; the sole GradeIO-independent thr
 test("purity: eval-rubric.ts touches no node:fs / child_process; identical input twice -> identical output", async () => {
 	const src = await Bun.file(new URL("../extensions/eval-rubric.ts", import.meta.url).pathname).text();
 	// never *imports* or *requires* fs / child_process (the doc comment may mention them; code must not)
-	expect(src).not.toContain('from "node:');
-	expect(src).not.toContain('from \'node:');
-	expect(src).not.toContain('require("node:');
+	// quote-agnostic canaries (FLLWUP-116): reds on BOTH quote styles — see test/src-pin.ts
+	expect(srcPin(src)).not.toContain(srcPin('from "node:'));
+	expect(srcPin(src)).not.toContain("require(\"node:");
 	expect(src).not.toContain("crypto");
 
 	const mk = () => {
@@ -335,7 +336,8 @@ test("purity: eval-rubric.ts touches no node:fs / child_process; identical input
 
 test("C3: the scorer imports validateRubric from eval-fixtures and re-defines no rubric validator", async () => {
 	const src = await Bun.file(new URL("../extensions/eval-rubric.ts", import.meta.url).pathname).text();
-	expect(src).toContain('from "./eval-fixtures.ts"');
+	// quote-agnostic pin (FLLWUP-116) — see test/src-pin.ts
+	expect(srcPin(src)).toContain(srcPin('from "./eval-fixtures.ts"'));
 	// no second validator: no local function that re-derives rubric schema validation
 	expect(src.match(/function\s+validateRubric/g)).toBeNull();
 });

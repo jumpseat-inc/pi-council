@@ -88,9 +88,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Deliberating
 
 ## In Progress
+- FLLWUP-116 — Quote-agnostic file-content import pins across the suite
 
 ## Ready
-- FLLWUP-116 — Quote-agnostic file-content import pins across the suite
 - FLLWUP-117 — Close the cardEpicKey throw-site JSDoc drift
 - FLLWUP-118 — Pin the shared FRONTMATTER_RE anchor shape at the byte-0 boundary
 - EV-48 — Packaged seat-tier map with repo-local merge override

@@ -4,6 +4,7 @@ import * as os from "node:os";
 import * as path from "node:path";
 import { CONFIG_DIR_NAME } from "@earendil-works/pi-coding-agent";
 import { resolveCatalogue, type CatalogueModel } from "../extensions/catalogue.ts";
+import { srcPin } from "./src-pin.ts";
 import { COUNCIL_CONFIG_FILE, loadCouncilConfig, loadSeat, listSeatNames } from "../extensions/seats.ts";
 import {
 	USAGE_LINE,
@@ -236,14 +237,17 @@ test("W4: null selection → no write, no notify, no error", () => {
 // ---- registration / source assertions (acceptance 3) ----
 
 test("registration: index.ts registers /council-models wired to the pure module (house pattern)", () => {
-	const src = fs.readFileSync(path.join(import.meta.dir, "..", "extensions", "index.ts"), "utf-8");
-	expect(src).toContain('pi.registerCommand("council-models"');
+	const raw = fs.readFileSync(path.join(import.meta.dir, "..", "extensions", "index.ts"), "utf-8");
+	// quote-agnostic block pin (FLLWUP-116): normalize once, derive the needle,
+	// indexOf anchors, and the slice from one local — see test/src-pin.ts
+	const src = srcPin(raw);
+	expect(src).toContain(srcPin('pi.registerCommand("council-models"'));
 	expect(src).toMatch(/modelRegistry\.getAvailable\(\)/); // single snapshot in the handler
 	expect(src).toMatch(/ctx\.modelRegistry\.refresh\(\)/);
 	expect(src).toMatch(/openModelPicker\(/);
 	expect(src).toMatch(/runHeadless\(/);
 	expect(src).toMatch(/applySeatSelection\(/);
-	const idx = src.indexOf('pi.registerCommand("council-models"');
+	const idx = src.indexOf(srcPin('pi.registerCommand("council-models"'));
 	const next = src.indexOf("pi.registerCommand", idx + 10);
 	const block = src.slice(idx, next === -1 ? src.length : next);
 	expect(block).toMatch(/getAvailable\(\)/); // the snapshot sits in the handler's own block
