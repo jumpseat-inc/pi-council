@@ -6,6 +6,9 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Backlog
 
+- FLLWUP-114 — Live-smoke verification of the pre-injected runner transcript surface
+- FLLWUP-115 — Frontmatter-scoped epic parse in cardEpicKey with a corpus-divergence pin
+- FLLWUP-116 — Quote-agnostic file-content import pins across the suite
 - FLLWUP-112 — Render a config-home token in procedure copy and derive the packaged-procedure scan's allowlist from renderProcedure's substitution set
 
 - EV-85 — Seat-composition decisions as repo-overridable packaged data
