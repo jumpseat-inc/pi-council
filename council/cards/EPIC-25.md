@@ -30,6 +30,18 @@ The five children:
 - FLLWUP-121 — Pin test/stub-child.test.ts's child-scheduling race (from
   FLLWUP-116).
 
+## Phase 1 rulings
+
+Recorded human decisions for the EPIC-25 run. Immutable for the run and binding on every seat, `steward` included.
+
+- **P1-1 (human topology override).** The `/features-deliver` one-runner-per-card mandate is overridden for this run: a **single `council-runner`** handles all five EPIC-25 cards (FLLWUP-117, FLLWUP-118, FLLWUP-119, FLLWUP-120, FLLWUP-121). The `owner` works on all five first; the `skeptic` and `judge` are not dispatched until all five owner implementations are committed to the branch.
+- **P1-2 (branch/PR/merge topology).** The five cards ride **one branch, one PR, and one squash merge**. Each card's merge basis keys to the same PR head SHA; criterion 3 (no blocking skeptic objection) and criterion 4 (judge PASS) are the single skeptic and judge covering all five card goals.
+- **P1-3 (class rulings).** The five Phase-1 open-judgment classes are all recorded not-applicable for this internal docs/test-pin/engine-test epic in `council/phase1-rulings.json`.
+- **P1-4 (run-scoped admin + record-push authorization).** For this run only — not extended to any later run — the `main` ruleset's required approving review is satisfied by the sanctioned admin bypass: the single batch merge uses `gh pr merge <PR> --squash --admin --match-head-commit <X>` pinned to the exact SHA the merge check was read against; the step-12 direct record push to `main` for the five cards' board/card transitions; and the push of the Phase 1 record (`council/phase1-rulings.json`). Without this record the bypass must not be used.
+- **P1-5 (scope and promotion).** All five cards are in scope regardless of their current `Ready`/`Backlog` state; the single runner moves each through the board (`In Progress` as owner work starts, `Done` on the merged SHA). No card is retired.
+- **P1-6 (first merge).** The human selected fully unattended; P1-4 stands as the merge authorization and no merge pauses for a human.
+- **P1-7 (run ending).** After the batch merge lands and all five cards are `Done`, the run ends; `steward` rules EPIC-25's closure.
+
 ## Acceptance
 
 - All five children are merged with the `gates` workflow green on each merged
