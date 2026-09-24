@@ -176,3 +176,14 @@ Checked 2026-09-24 against PR #114 head `b12149e0ac8e990d737366b3f30d77dc199169f
 5. No `Needs Human` state or outstanding ruling on the card. ✓
 
 Authorization: P1-1 (run-scoped admin bypass, recorded on council/cards/EPIC-24.md under `## Phase 1 rulings`) + P1-7 (fully unattended selected by the human; no merge pause). Executed: `gh pr merge 114 --squash --admin --match-head-commit b12149e0ac8e990d737366b3f30d77dc199169f6`.
+
+### Steps 12–13 — reconcile, Done, follow-ups
+
+Step 12: diverged `main` reconciled by the sanctioned union-merge (origin's squash `7173477` + ten local record commits; the plan doc both sides carried was byte-identical; the card conflict resolved union-keep — the local side was a strict superset of origin's `03717b0`-era copy; board deduped to the single `In Review` line; conflict-marker sweep clean; `validate.py` clean; record push f80820a under P1-2). CI on the merged SHA `7173477`: `gates` → `completed / success` (observed via the checks API). Card + board set **Done** from that observed artifact; Done-commit pushed (d6902b5).
+
+Step 13 — two follow-up candidates drafted; dedup pass clean (board, open cards, and sibling candidates scanned: no duplicate, no open home — both trace only to Done cards FLLWUP-115 and EV-90; next id FLLWUP-117). Follow-up gate resolved `active`/`ok` for both; recorded dispositions, verbatim:
+
+> Mode: File — composite 0.43 < merge threshold 1.00 — Close the cardEpicKey throw-site JSDoc drift (active)
+> Mode: File — composite 0.44 < merge threshold 1.00 — Pin the shared FRONTMATTER_RE anchor shape at the byte-0 boundary (active)
+
+Both are **held, not filed**: the recorded disposition is confirmation-pending, the confirming ruling had not reached this container, and per the in-container step-13 contract no follow-up card was written and no board transition was made for either candidate. The candidates are recorded by their draft titles (exactly as quoted above) and are resumable by the next runner against those titles once the confirming ruling arrives.
