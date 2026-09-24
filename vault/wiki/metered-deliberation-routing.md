@@ -4,9 +4,9 @@ type: concept
 summary: EPIC-13, shipped at v0.28.0 — a typed System One gate evaluates a packed card state and routes each card to Deliberate, Verify, or Direct; enablement lives in `.council.json`'s reserved top-level `gate` section, and the packaged default resolves `mode: "off"` — which routes every card to the full Deliberate panel.
 aliases: [metered deliberation, deliberation routing, System One gate, Deliberate Verify Direct, gate]
 tags: [pi-council/concept, pi-council/epic13]
-sources: ["[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-21-po-ev73-step6-ruling]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-design-epic11-recut-surface]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-22-gate-noul-fix]]", "[[2026-09-23-epic15-residual-run-ledger]]"]
+sources: ["[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-21-po-ev73-step6-ruling]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-design-epic11-recut-surface]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-22-gate-noul-fix]]", "[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-24-epic23-run-ledger]]"]
 created: 2026-09-20
-updated: 2026-09-22
+updated: 2026-09-24
 ---
 
 # Metered Deliberation Routing
@@ -325,6 +325,17 @@ falsifier (`COUNCIL_JEV_LIVE=1 test/ev84-followup-falsifier.test.ts`) now reache
 dispositions but fails its pinned merge *direction* on near-identical
 candidates — so `FLLWUP-104` is not formally closed by its own acceptance. See
 [[2026-09-22-gate-noul-fix]].
+
+## EPIC-23 — the lanes never fire (2026-09-24)
+
+An autonomous `/features-deliver` run on EPIC-23 routed **both** cards
+`source: "fallback"` → full Deliberate, because `resolveRoute` drops every
+recorded decision at read-back (the `policyVersion` writer/reader drift, FLLWUP-99
+— [[inert-gate-fallback]]). Across the corpus the recorded modes read `Deliberate`
+131 / `Direct` 10 / `Verify` 1. The subsystem is enabled but **dark**: the
+`Direct`/`Verify` lanes exist and are effectively never selected, so every card
+pays the full-roster latency ([[run-time-profile]]). Witness:
+[[2026-09-24-epic23-run-ledger]].
 
 ## Related
 

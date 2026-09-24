@@ -4,9 +4,9 @@ type: concept
 summary: The EPIC-10 ruling — under `gate.mode: active` a recorded engine-minted disposition is the disposition SOURCE, never the human confirmation; a runner escalates each candidate for ratification by a ruling seat before any card is written, because the autonomous authority map is exhaustive and a model call is not a row in it.
 aliases: [confirmation authority, recorded decision confirmation, ratification, pre-write confirmation]
 tags: [pi-council/concept, pi-council/features-deliver, pi-council/epic10]
-sources: ["[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-design-epic11-recut-surface]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]"]
+sources: ["[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-design-epic11-recut-surface]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-24-epic23-run-ledger]]"]
 created: 2026-09-22
-updated: 2026-09-23
+updated: 2026-09-24
 ---
 
 # Confirmation Authority
@@ -77,6 +77,15 @@ held-then-ratified path again: a runner returned `DONE`-with-held, the
 orchestrator routed the drafts to [[product-owner]], which overturned an
 unsupported `Merge` to `File` — no card written before the confirming ruling
 ([[2026-09-23-epic15-residual-run-ledger]]).
+
+## EPIC-23 witness (2026-09-24)
+
+Both arms again in one run. EV-90's step-13 candidates correctly reached a ruling
+seat by `ESCALATION` and were ratified `File` (three cards filed). EV-89's runner
+instead returned `DONE`-with-held for its two candidates (like FLLWUP-107's runner
+in EPIC-15), so no confirming dispatch ever carried them; nothing was written,
+but the contract's escalation obligation was not honored
+([[step-13-followup-surface]]). Witness: [[2026-09-24-epic23-run-ledger]].
 
 ## Related
 

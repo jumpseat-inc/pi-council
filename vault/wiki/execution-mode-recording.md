@@ -4,9 +4,9 @@ type: concept
 summary: The card's execution mode is recorded on the ROOT dispatch manifest by the orchestrator, but the runner re-derives its path from the ledger fallback — so a recorded mode stricter than the runner executes produces the merge check's missing-goal-evaluation HALT; `readCardMode` upgrades to Deliberate on any generator seat, making a recorded `Direct` the robust default.
 aliases: [execution mode, mode recording, ROOT mode, readCardMode, mode authority]
 tags: [pi-council/concept, pi-council/features-deliver, pi-council/epic13]
-sources: ["[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]"]
+sources: ["[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-24-epic23-run-ledger]]"]
 created: 2026-09-23
-updated: 2026-09-23
+updated: 2026-09-24
 ---
 
 # Execution Mode Recording
@@ -85,6 +85,16 @@ outside any runner. That worked, but it is not in the procedure, and the
 either the orchestrator should record the mode the runner will judge, the runner
 should honor the ROOT mode, or the mode should be re-recordable after step 1.
 A card is owed.
+
+## EPIC-23 witness (2026-09-24)
+
+The ledger route returned `fallback` for both cards (read-back drift,
+[[inert-gate-fallback]]), so the runner's own step-1 judgment governed and it ran
+the full roster; the orchestrator had recorded `Deliberate` on each ROOT manifest,
+so `readCardMode` resolved `Deliberate` and the merge check demanded — and got —
+the judge `PASS` ([[deterministic-merge-check]]). A route `fallback` therefore does
+**not** mean "no recorded mode": the ROOT manifest is the recorded mode the check
+reads. Witness: [[2026-09-24-epic23-run-ledger]].
 
 ## Related
 

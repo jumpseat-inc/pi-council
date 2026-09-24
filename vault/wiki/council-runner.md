@@ -4,9 +4,9 @@ type: entity
 summary: The per-card autonomous execution container — dispatched by /features-deliver to run the full /council loop for one card in an isolated context; routes, counts, and writes the board but never decides.
 aliases: [council runner, council-runner, runner]
 tags: [pi-council/seat]
-sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]"]
+sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-24-epic23-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-23
+updated: 2026-09-24
 ---
 
 > ⚠️ Derived from `council/agents/council-runner.md` (captured 2026-08-23). Verify against the seat file.
@@ -344,6 +344,20 @@ reserved powers are re-homed per the authority map in `features-deliver.md`.
   documentation, so it edited `vault/wiki/` directly, while `council.md` step 14
   says the facilitator must never hand-edit `vault/`. The exception is real but
   unlegislated — see [[llm-wiki]].
+
+## EPIC-23 witness (2026-09-24)
+
+Two updates this run touched the runner. **Cold start:** the per-card orientation
+re-read of `council.md` + `features-deliver.md` (median ~260 s,
+[[run-time-profile]]) is removed by [[procedure-context-injection]] (EV-90) — the
+dispatch input now carries the rendered bodies. **Phase 1:** at
+`<escalation_contract>` step 1 the runner reads the durable class record alongside
+the procedure's class list (two files: class list, rulings) —
+[[phase1-rulings-record]] (EV-89). **Return drift, recurring:** EV-89's runner
+returned `DONE`-with-held instead of `ESCALATION` at step 13 (as FLLWUP-107's did
+in EPIC-15), while EV-90's escalated correctly — the contract's "every surfaced
+candidate ends step 13 as an `ESCALATION`" is still not universally honored
+([[confirmation-authority]]). Witness: [[2026-09-24-epic23-run-ledger]].
 
 ## Related
 

@@ -4,9 +4,9 @@ type: concept
 summary: The step-12 direct-to-main record push is a privileged write the features-deliver authority map does not re-home; FLLWUP-60 closed the gap by naming a run-scoped authorization in the procedure and fencing an unauthorized push as a HALT — EPIC-13 then showed the ordering (`before` the first push) is the load-bearing word.
 aliases: [record push, step-12 push, admin bypass, record-push authorization]
 tags: [pi-council/concept, pi-council/features-deliver]
-sources: ["[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]"]
+sources: ["[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-24-epic23-run-ledger]]"]
 created: 2026-09-17
-updated: 2026-09-23
+updated: 2026-09-24
 ---
 
 # Record-Push Discipline
@@ -99,6 +99,20 @@ then exercised both — the clean-sequence posture EPIC-10 established. A run wi
 these residuals needs its own Phase-1 authorizations even when the parent epic is
 `Done`; "deliver the residuals" is not the authorization. Witness:
 [[2026-09-23-epic15-residual-run-ledger]].
+
+## EPIC-23 (2026-09-24) — the authorization is a closed enumeration
+
+EPIC-23 recorded **P1-1** on its Phase-1 record: run-scoped admin authorization
+enumerated to exactly three write classes — `--admin --match-head-commit` merges,
+the step-12 direct record push, and the intake commit. When a runner reached a
+point where it would need a **fourth** privileged write (committing the
+`council/phase1-rulings.json` class-enumeration record,
+[[phase1-rulings-record]]), the correct move was a `HALT`, not a push: a recorded
+human decision's closed enumeration is extended by a **new Phase-1 ruling**,
+never by seat interpretation. This sharpens FLLWUP-60's clause from "a recorded
+authorization exists" to "the write is *within* the recorded authorization's
+enumerated set." The run's own record pushes and both merges all fell within
+P1-1. Witness: [[2026-09-24-epic23-run-ledger]].
 
 ## Why it matters
 

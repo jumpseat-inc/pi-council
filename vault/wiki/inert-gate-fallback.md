@@ -1,12 +1,12 @@
 ---
 title: Inert Gate Fallback
 type: concept
-summary: An enabled decision gate (`.council.json` `gate.mode: active`) whose live call fails mechanically falls back to a safe default and does not block the run — so "active" can mean the gate is inert, and the run's mode comes from the fallback, not from a decision.
+summary: An enabled decision gate (`.council.json` `gate.mode: active`) can be inert two ways — its live call fails, OR a recorded decision is dropped at read-back by schema/version drift — and both fall back to the safe default (full Deliberate) without blocking the run, so "active" can mean the gate is not deciding.
 aliases: [inert gate, gate fallback, active-but-failing gate, gate fail-closed fallback, inert active gate]
 tags: [pi-council/concept, pi-council/gate]
-sources: ["[[2026-09-22-epic15-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-gate-noul-fix]]"]
+sources: ["[[2026-09-22-epic15-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-gate-noul-fix]]", "[[2026-09-24-epic23-run-ledger]]"]
 created: 2026-09-22
-updated: 2026-09-22
+updated: 2026-09-24
 ---
 
 # Inert Gate Fallback
@@ -64,6 +64,24 @@ canonicalizing the answer key at the shared parse seam
 ([[decisions-wire-canonicalization]]). Both domains now record real decisions;
 the inert-fallback *property* remains by design, but this specific trigger is
 gone. See [[2026-09-22-gate-noul-fix]].
+
+## EPIC-23 — the second inert arm: read-back drift (2026-09-24)
+
+The `noul` fix restored the live call, but EPIC-23 showed the gate can still be
+inert with a **healthy** call. `council_route op:"route"` returned
+`source: "fallback"` for both cards, EV-89 with the explicit basis:
+
+> recorded decision for this state uses policyVersion "gate-policy-1", current
+> decision policy is "gate-decision-1" — routes full
+
+The writer stamps `policy.policyVersion` (`gate-policy-1`); the reader compares
+against `council/gate/decision.json`'s `version` (`gate-decision-1`). Two
+namespaces, structurally never equal, so `resolveRoute` **drops every recorded
+decision at read-back**. This is a distinct arm from the live-call failure above:
+the decision *was* recorded; the reader rejected it. Both arms fall toward
+Deliberate and neither routes the card, so the operator tell here is not
+`gate call failed: …` but the `policyVersion`/packed-state basis — the same
+active-but-not-deciding property, a different signature. FLLWUP-99 owns the fix.
 
 ## Relationship to gate-parity
 

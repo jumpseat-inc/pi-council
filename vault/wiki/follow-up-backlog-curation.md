@@ -4,9 +4,9 @@ type: concept
 summary: The periodic, human-directed maintenance of the accumulated FLLWUP backlog — curation (merge near-duplicates content-preservingly, keep the lower id; retire dead cards, which need a named reason since no `Retired` state exists) followed by grouping the survivors into thematic close-out epics — plus the standing hazard that follow-up cards go stale silently.
 aliases: [follow-up curation, backlog curation, follow-up cleanup, followup backlog, merge or retire, follow-up grouping, close-out epic]
 tags: [pi-council/concept, pi-council/board, pi-council/followups]
-sources: ["[[2026-09-23-fllwup-backlog-cleanup]]", "[[2026-09-23-fllwup-epic-grouping]]"]
+sources: ["[[2026-09-23-fllwup-backlog-cleanup]]", "[[2026-09-23-fllwup-epic-grouping]]", "[[2026-09-24-epic23-run-ledger]]"]
 created: 2026-09-23
-updated: 2026-09-23
+updated: 2026-09-24
 ---
 
 # Follow-Up Backlog Curation
@@ -109,6 +109,17 @@ epics (e.g. EPIC-13 + EPIC-14) can no longer be attributed to one, so its
 Cross-epic merges thus trade attribution for consolidation. Phase 2 grouping
 re-homes those `epic: null` orphans into new thematic epics, so a card regains a
 *home* — only its *origin* stays prose-only.
+
+## EPIC-23 → EPIC-24 (2026-09-24) — a close-out epic leaks residuals
+
+EPIC-23 closed `Done` while carrying three open `FLLWUP` children (114/115/116),
+so the residuals were grouped into a new **EPIC-24** and re-pointed via their
+`epic:` field — the curate-then-group lesson one level up: here the *source* of the
+orphans was an **epic close-out**, not curation's cross-epic merge nulling. The
+grouping restored a home (EPIC-24) without restoring origin (EPIC-23's `Intent`
+carries the lineage). The general consequence: a `Done` epic is not required to
+have zero open children, and closing an epic is a place to check for residuals to
+re-home. Witness: [[2026-09-24-epic23-run-ledger]].
 
 ## Related
 

@@ -1,5 +1,34 @@
 # Wiki Log
 
+## [2026-09-24] ingest | EPIC-23 autonomous run — the gate inert at read-back
+
+Ingested the EPIC-23 `/features-deliver` run (authored
+`vault/raw/2026-09-24-epic23-run-ledger.md`). EV-89 (Phase 1 class-enumerated
+rulings record) and EV-90 (pre-injected procedure context) shipped (PRs
+#112/#113, merged `593f6ed`/`14f244f`) and EPIC-23 closed `Done`. The central
+finding: the decision gate was inert **at read-back**, not at the live call —
+`resolveRoute` drops every recorded decision because the writer stamps
+`policy.policyVersion` (`gate-policy-1`) and the reader compares
+`decision.json`'s `version` (`gate-decision-1`), so both cards fell back to a full
+Deliberate roster and the `Direct`/`Verify` fast paths never fired (FLLWUP-99).
+Also: an undefined HALT repair (owner window overrun), the recurring
+DONE-with-held step-13 drift, the D1 derived-key ruling, the closed-enumeration
+admin authorization, and the run-time audit that motivated the epic.
+
+- **Created:** sources/2026-09-24-epic23-run-ledger; [[run-time-profile]],
+  [[phase1-rulings-record]], [[procedure-context-injection]], [[halt-repair-gap]],
+  [[derived-key-refusal-posture]].
+- **Updated:** [[inert-gate-fallback]] (added the read-back arm),
+  [[metered-deliberation-routing]], [[record-push-discipline]],
+  [[deterministic-merge-check]], [[execution-mode-recording]], [[council-runner]],
+  [[procedure-commands]], [[confirmation-authority]], [[step-13-followup-surface]],
+  [[follow-up-backlog-curation]], [[engineering-board]], [[index]].
+- **Contradictions flagged:** [[inert-gate-fallback]] — not contradicted, but its
+  stated cause was incomplete: it named only the live-call-failure arm; EPIC-23
+  adds an independent read-back (`policyVersion`) arm, now recorded in the page.
+  No other contradiction; the run **confirms** [[deterministic-merge-check]],
+  [[record-push-discipline]], and [[confirmation-authority]].
+
 ## [2026-09-23] ingest | FLLWUP epic grouping — the curate → group pipeline and the close-out epic
 
 Ingested the follow-up epic grouping (authored

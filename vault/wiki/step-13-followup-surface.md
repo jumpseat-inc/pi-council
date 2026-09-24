@@ -4,9 +4,9 @@ type: concept
 summary: The /council step-13 pre-write confirm-gate surface shipped by EV-82 — one rendered disposition line carrying candidate, disposition, target-or-cost, live mode and basis; four unavailable-state literals in the FLLWUP-75 shape; an unconditional dedup pass; and a hard pre-write confirmation pin.
 aliases: [step 13 surface, followup render, disposition line, unavailable state literals]
 tags: [pi-council/concept, pi-council/procedures, pi-council/epic10]
-sources: ["[[2026-09-22-epic10-run-ledger]]"]
+sources: ["[[2026-09-22-epic10-run-ledger]]", "[[2026-09-24-epic23-run-ledger]]"]
 created: 2026-09-22
-updated: 2026-09-22
+updated: 2026-09-24
 ---
 
 # Step-13 Follow-Up Surface
@@ -63,6 +63,16 @@ transport cannot establish from a bare `http-404` and is being corrected.
 [[2026-09-22-epic10-run-ledger]]; EV-82 (`277036b`, PR #101). The
 comprehension follow-ups are FLLWUP-101 (cold-read persona smokes) and
 FLLWUP-102 (the 404 literal).
+
+## EPIC-23 witness (2026-09-24)
+
+Three `active` candidates rendered as `Mode: File — … (<active>)`, were ratified
+`File` by [[product-owner]], and were applied on the confirming dispatch as three
+board lines keyed by draft title (FLLWUP-114/115/116 →
+[[follow-up-backlog-curation]]). A second runner returned `DONE`-with-held for its
+two candidates, so they were never ratified and nothing was written — the
+recurring [[confirmation-authority]] return drift. Witness:
+[[2026-09-24-epic23-run-ledger]].
 
 ## Related
 

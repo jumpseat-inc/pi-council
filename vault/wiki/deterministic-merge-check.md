@@ -4,9 +4,9 @@ type: concept
 summary: Under /features-deliver the human merge gate is replaced by five mechanical criteria — owner gates, gates-SUCCESS on the PR head SHA, no blocking skeptic objection, judge PASS, no open ruling — keyed since EPIC-13 by the card's recorded execution mode, merged with --match-head-commit.
 aliases: [deterministic merge check, merge gate, deterministic merge, five criteria merge]
 tags: [pi-council/features-deliver, pi-council/process]
-sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]"]
+sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-24-epic23-run-ledger]]"]
 created: 2026-09-04
-updated: 2026-09-23
+updated: 2026-09-24
 ---
 
 # Deterministic Merge Check
@@ -285,6 +285,17 @@ half ([[red-base evidence]], field 7). FLLWUP-47's step-6 ruling (R2) put the
 landing statement from the convention's record — the record carries the
 observable head half (head sha + same command verbatim + `0 fail`), not an
 attestation about the merge window. One enforcement, not two.
+
+## EPIC-23 witness (2026-09-24)
+
+Both cards (EV-89 `593f6ed`, EV-90 `14f244f`) merged under the five **Deliberate**
+criteria — owner gates green, `gates` workflow `SUCCESS` keyed on `workflow`,
+no blocking skeptic objection, judge `PASS`, no open ruling — each `--admin`
+pinned with `--match-head-commit <X>`. Note the two mode sources: the *ledger
+route* returned `fallback` for both (read-back drift,
+[[inert-gate-fallback]]) while the *ROOT dispatch manifest* recorded
+`Deliberate`, so the no-recorded-mode `HALT` did not apply
+([[execution-mode-recording]]). Witness: [[2026-09-24-epic23-run-ledger]].
 
 ## Related
 

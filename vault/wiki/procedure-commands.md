@@ -4,9 +4,9 @@ type: concept
 summary: The scanned, override-aware slash-command set — eight packaged procedures plus engine commands; EPIC-4 added the first non-procedure product commands (/council-eval, /council-leaderboard), and 2026-09-21 added /usages (a packaged procedure whose logic lives in a copied skill).
 aliases: [procedure commands, procedures, slash commands, commands]
 tags: [pi-council/concept]
-sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-21-usages-design]]"]
+sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-21-usages-design]]", "[[2026-09-24-epic23-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-21
+updated: 2026-09-24
 ---
 
 # Procedure Commands
@@ -67,6 +67,16 @@ turn runs, so the handler fires it, polls `ctx.isIdle()`, then awaits
 procedures dir, so a seat prompt (like council-runner's) can read procedure
 files relative to it. The `renderProcedure` substitution is the same mechanism
 as `$ARGUMENTS`.
+
+## EV-90 — renderProcedure consumed at dispatch composition (2026-09-24)
+
+EV-90 (EPIC-23) reuses the same `renderProcedure` substitution the slash-command
+path uses, but routes its output into the `council-runner` dispatch **input**
+rather than registering a command — composition at the guarded `hub-tools.ts`
+`council_dispatch` call site only, substitution set unchanged. The wrinkle it
+exposed: `$ARGUMENTS` is **not one value** across procedures — it is the card id in
+`council.md` and the epic key in `features-deliver.md`
+([[procedure-context-injection]]). Witness: [[2026-09-24-epic23-run-ledger]].
 
 ## Related
 
