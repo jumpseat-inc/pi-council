@@ -11,6 +11,7 @@ import {
 import { GATE_MODES, loadGateConfig } from "../extensions/gate.ts";
 import { runGateCommand } from "../extensions/council-gate-cmd.ts";
 import { COUNCIL_CONFIG_FILE } from "../extensions/seats.ts";
+import { srcPin } from "./src-pin.ts";
 
 /** sha256 hex digest — the byte-identity probe for preserved regions. */
 function sha256(s: string): string {
@@ -382,9 +383,12 @@ describe("module hygiene (item 17)", () => {
 
 describe("registration (item 18)", () => {
 	test("index.ts registers /council-gate wired to the pure module (house pattern)", () => {
-		const src = fs.readFileSync(path.join(import.meta.dir, "..", "extensions", "index.ts"), "utf-8");
-		expect(src).toContain('pi.registerCommand("council-gate"');
-		const idx = src.indexOf('pi.registerCommand("council-gate"');
+		const raw = fs.readFileSync(path.join(import.meta.dir, "..", "extensions", "index.ts"), "utf-8");
+		// quote-agnostic block pin (FLLWUP-116): normalize once, derive the
+		// needle, indexOf anchors, and the slice from one local — see test/src-pin.ts
+		const src = srcPin(raw);
+		expect(src).toContain(srcPin('pi.registerCommand("council-gate"'));
+		const idx = src.indexOf(srcPin('pi.registerCommand("council-gate"'));
 		const next = src.indexOf("pi.registerCommand", idx + 10);
 		const block = src.slice(idx, next === -1 ? src.length : next);
 		expect(block).toMatch(/runGateCommand\(/); // wired to the pure module
