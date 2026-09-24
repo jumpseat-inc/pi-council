@@ -351,3 +351,238 @@ test("EV-90 §6.8: retry attempt carries byte-identical composed input", async (
 	expect(sid(respawns[0]!.args)).toBe(`${id}-attempt2`);
 	expect(sid(spawns[0]!.args)).toBe(id);
 }, 15_000);
+
+// =====================================================================
+// FLLWUP-114 Part A — readRunnerStartup, the pure runner-startup reader.
+// Spec: docs/superpowers/specs/2026-09-24-FLLWUP-114-design.md §Part A.
+// The reader lives under smoke/ (bun test discovers nothing there); its
+// unit tests ride this existing default-suite file (AC5: no new file under
+// test/). Fixtures are synthetic runs substrates in fresh mkdtemp dirs —
+// never the real repo (testing conventions). All reader failures THROW:
+// the smoke driver's verdict is the CLI exit code, so a silent pass is the
+// one failure shape the card must never admit (skeptic O5 vacuity).
+// =====================================================================
+import { readRunnerStartup } from "../smoke/read-runner-startup.ts";
+
+function tmpRunsRepo(): string {
+	return fs.mkdtempSync(path.join(os.tmpdir(), "fllwup114-reader-"));
+}
+
+function writeRunnerFace(root: string, cardId: string, epic: string | null): void {
+	fs.mkdirSync(path.join(root, "council", "cards"), { recursive: true });
+	fs.writeFileSync(
+		path.join(root, "council", "cards", `${cardId}.md`),
+		`---\nid: ${cardId}\ntitle: reader fixture\nstate: Ready\nepic: ${epic}\n---\n\nBody.\n`,
+	);
+}
+
+interface FixtureCall {
+	name: string;
+	args: Record<string, unknown>;
+}
+
+/** Session JSONL lines: header (findSessionFile resolves the header `id`),
+ * one user entry per given text (the first is the transcript's first user
+ * block), then one assistant entry per scripted toolCall. ISO timestamps
+ * increase so parse order is unambiguous. */
+function sessionLines(sessionId: string, userTexts: string | string[], calls: FixtureCall[]): string {
+	const texts = Array.isArray(userTexts) ? userTexts : [userTexts];
+	const lines = [
+		`{"type":"session","version":3,"id":"${sessionId}","timestamp":"2026-09-24T00:00:00.000Z","cwd":"/x"}`,
+	];
+	texts.forEach((userText, u) => {
+		lines.push(
+			`{"type":"message","id":"u${u + 1}","parentId":null,"timestamp":"2026-09-24T00:00:0${u + 1}.000Z","message":{"role":"user","content":[{"type":"text","text":${JSON.stringify(userText)}}]}}`,
+		);
+	});
+	calls.forEach((c, i) => {
+		lines.push(
+			`{"type":"message","id":"${i + 2}","parentId":"1","timestamp":"2026-09-24T00:00:1${i + 2}.000Z","message":{"role":"assistant","content":[{"type":"toolCall","id":"c${i + 1}","name":${JSON.stringify(c.name)},"arguments":${JSON.stringify(c.args)}}]}}`,
+		);
+	});
+	return lines.join("\n") + "\n";
+}
+
+let fixtureRunStart = 1_700_000_000_000;
+
+function writeManifestFile(
+	root: string,
+	runId: string,
+	id: string,
+	seat: string,
+	sessionId: string,
+): void {
+	const dir = path.join(root, CONFIG_DIR_NAME, "council", "runs", runId);
+	fs.mkdirSync(dir, { recursive: true });
+	fixtureRunStart += 1;
+	fs.writeFileSync(
+		path.join(dir, "run.json"),
+		JSON.stringify({ runId, startedAt: fixtureRunStart, repoRoot: root, hostPid: process.pid }, null, "\t"),
+	);
+	fs.writeFileSync(
+		path.join(dir, `${id}.json`),
+		JSON.stringify(
+			{ id, seat, model: "openrouter/test/model", parentJobId: null, pid: null, sessionId, state: "running", startedAt: Date.now(), settledAt: null, exitCode: null },
+			null,
+			"\t",
+		),
+	);
+}
+
+function writeSession(root: string, runId: string, sessionId: string, body: string): void {
+	const dir = path.join(root, CONFIG_DIR_NAME, "council", "runs", runId);
+	fs.mkdirSync(dir, { recursive: true });
+	fs.writeFileSync(path.join(dir, `${sessionId}.jsonl`), body);
+}
+
+/** The happy runner session: composed EV-2 input, one card read (NOT under
+ * council/procedures/), then the runner's own first council_dispatch. */
+function happyCalls(root: string): FixtureCall[] {
+	return [
+		{ name: "read", args: { path: "council/cards/EV-2.md" } },
+		{ name: "council_dispatch", args: { seat: "owner", input: "deliberate" } },
+	];
+}
+
+function seedHappyRunner(root: string, runId = "run-a", sessionId = "job-1"): void {
+	writeRunnerFace(root, "EV-2", "EPIC-1");
+	const userText = composeRunnerInput(root, "EV-2", "runner task");
+	writeManifestFile(root, runId, "job-1", "council-runner", sessionId);
+	writeSession(root, runId, sessionId, sessionLines(sessionId, userText, happyCalls(root)));
+}
+
+test("FLLWUP-114: happy runner transcript resolves, returns the located session file, no throw", () => {
+	const root = tmpRunsRepo();
+	seedHappyRunner(root);
+	const found = readRunnerStartup(root, "EV-2");
+	expect(found.runId).toBe("run-a");
+	expect(found.sessionId).toBe("job-1");
+	expect(fs.existsSync(found.file)).toBe(true);
+});
+
+test("FLLWUP-114 anchor: a transcript with zero toolCalls reds before any AC check", () => {
+	const root = tmpRunsRepo();
+	writeRunnerFace(root, "EV-2", "EPIC-1");
+	const userText = composeRunnerInput(root, "EV-2", "runner task");
+	writeManifestFile(root, "run-a", "job-1", "council-runner", "job-1");
+	writeSession(root, "run-a", "job-1", sessionLines("job-1", userText, []));
+	expect(() => readRunnerStartup(root, "EV-2")).toThrow(/toolCall/);
+});
+
+test("FLLWUP-114 anchor: no council_dispatch-labeled toolCall reds", () => {
+	const root = tmpRunsRepo();
+	writeRunnerFace(root, "EV-2", "EPIC-1");
+	const userText = composeRunnerInput(root, "EV-2", "runner task");
+	writeManifestFile(root, "run-a", "job-1", "council-runner", "job-1");
+	writeSession(root, "run-a", "job-1", sessionLines("job-1", userText, [{ name: "read", args: { path: "council/cards/EV-2.md" } }]));
+	expect(() => readRunnerStartup(root, "EV-2")).toThrow(/council_dispatch/);
+});
+
+test("FLLWUP-114 anchor: first user block must be non-empty and carry both markers; exactly one procedure-marker block", () => {
+	const root = tmpRunsRepo();
+	writeRunnerFace(root, "EV-2", "EPIC-1");
+	const composed = composeRunnerInput(root, "EV-2", "runner task");
+	const calls = happyCalls(root);
+	const stripped = composed.replace("<council-procedure>", "");
+	const overlayless = composed.replace("<features-deliver-overlay>", "");
+	const empty = "";
+	const variants: Array<[string, string[]]> = [
+		["no-procedure-marker", [stripped]],
+		["no-overlay-marker", [overlayless]],
+		["empty-first-user-block", [empty]],
+		// a SECOND user message carrying a procedure block — two marker blocks
+		["two-procedure-marker-blocks", [composed, composed]],
+	];
+	for (const [name, userText] of variants) {
+		const r = tmpRunsRepo();
+		writeManifestFile(r, "run-a", "job-1", "council-runner", "job-1");
+		writeSession(r, "run-a", "job-1", sessionLines("job-1", userText, calls));
+		expect(() => readRunnerStartup(r, "EV-2")).toThrow(/fllwup114-reader/);
+		expect(name).toBeTruthy();
+	}
+});
+
+test("FLLWUP-114 AC2: a startup read of council/procedures/council.md before the first dispatch reds", () => {
+	const root = tmpRunsRepo();
+	writeRunnerFace(root, "EV-2", "EPIC-1");
+	const userText = composeRunnerInput(root, "EV-2", "runner task");
+	const calls: FixtureCall[] = [
+		{ name: "read", args: { path: "council/procedures/council.md" } },
+		...happyCalls(root),
+	];
+	writeManifestFile(root, "run-a", "job-1", "council-runner", "job-1");
+	writeSession(root, "run-a", "job-1", sessionLines("job-1", userText, calls));
+	expect(() => readRunnerStartup(root, "EV-2")).toThrow(/council\/procedures\/council\.md/);
+});
+
+test("FLLWUP-114 AC2: label match is case-insensitive — a READ label never passes vacuously", () => {
+	const root = tmpRunsRepo();
+	writeRunnerFace(root, "EV-2", "EPIC-1");
+	const userText = composeRunnerInput(root, "EV-2", "runner task");
+	const calls: FixtureCall[] = [
+		{ name: "READ", args: { path: "council/procedures/features-deliver.md" } },
+		...happyCalls(root),
+	];
+	writeManifestFile(root, "run-a", "job-1", "council-runner", "job-1");
+	writeSession(root, "run-a", "job-1", sessionLines("job-1", userText, calls));
+	expect(() => readRunnerStartup(root, "EV-2")).toThrow(/council\/procedures\/features-deliver\.md/);
+});
+
+test("FLLWUP-114 AC3: the first toolCall must not be under council/procedures/; a non-procedure first call passes", () => {
+	const root = tmpRunsRepo();
+	writeRunnerFace(root, "EV-2", "EPIC-1");
+	const userText = composeRunnerInput(root, "EV-2", "runner task");
+	// AC3 is label-agnostic: the first VISIBLE action (any toolCall) targeting
+	// the procedures dir reds — a bash cat, not a read, so AC2 stays silent.
+	const redCalls: FixtureCall[] = [
+		{ name: "bash", args: { command: "cat council/procedures/council.md" } },
+		{ name: "council_dispatch", args: { seat: "owner", input: "deliberate" } },
+	];
+	writeManifestFile(root, "run-a", "job-1", "council-runner", "job-1");
+	writeSession(root, "run-a", "job-1", sessionLines("job-1", userText, redCalls));
+	expect(() => readRunnerStartup(root, "EV-2")).toThrow(/first toolCall/);
+
+	// the happy fixture's first call is a card read — not under council/procedures/
+	const greenRoot = tmpRunsRepo();
+	seedHappyRunner(greenRoot);
+	expect(() => readRunnerStartup(greenRoot, "EV-2")).not.toThrow();
+});
+
+test("FLLWUP-114 selection: non-runner manifests and descendant seats are ignored; the latest run wins", () => {
+	const root = tmpRunsRepo();
+	writeRunnerFace(root, "EV-2", "EPIC-1");
+	const userText = composeRunnerInput(root, "EV-2", "runner task");
+	// an older run whose runner session would fail every anchor (seeded first
+	// so the monotonic fixture clock makes run-a the LATEST run)
+	writeManifestFile(root, "run-older", "job-9", "council-runner", "job-9");
+	writeSession(root, "run-older", "job-9", sessionLines("job-9", "", []));
+	// distractor: an owner-seat manifest + session in the same run
+	writeManifestFile(root, "run-a", "job-2", "owner", "job-2");
+	writeSession(root, "run-a", "job-2", sessionLines("job-2", "owner turns", [{ name: "bash", args: { command: "ls" } }]));
+	// the runner manifest + session in the same run
+	writeManifestFile(root, "run-a", "job-1", "council-runner", "job-1");
+	writeSession(root, "run-a", "job-1", sessionLines("job-1", userText, happyCalls(root)));
+	const found = readRunnerStartup(root, "EV-2");
+	expect(found.runId).toBe("run-a");
+	expect(found.sessionId).toBe("job-1");
+});
+
+test("FLLWUP-114 AC2 window: a procedure read AFTER the first council_dispatch does not red", () => {
+	const root = tmpRunsRepo();
+	writeRunnerFace(root, "EV-2", "EPIC-1");
+	const userText = composeRunnerInput(root, "EV-2", "runner task");
+	const calls: FixtureCall[] = [
+		{ name: "council_dispatch", args: { seat: "owner", input: "deliberate" } },
+		{ name: "read", args: { path: "council/procedures/council.md" } },
+	];
+	writeManifestFile(root, "run-a", "job-1", "council-runner", "job-1");
+	writeSession(root, "run-a", "job-1", sessionLines("job-1", userText, calls));
+	expect(() => readRunnerStartup(root, "EV-2")).not.toThrow();
+});
+
+test("FLLWUP-114 selection: no runner manifest anywhere → loud throw, never a silent pass", () => {
+	const root = tmpRunsRepo();
+	writeManifestFile(root, "run-a", "job-2", "owner", "job-2");
+	writeSession(root, "run-a", "job-2", sessionLines("job-2", "owner turns", [{ name: "bash", args: { command: "ls" } }]));
+	expect(() => readRunnerStartup(root)).toThrow(/council-runner/);
+});
