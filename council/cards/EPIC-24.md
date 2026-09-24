@@ -1,7 +1,7 @@
 ---
 id: EPIC-24
 title: Close the EPIC-23 autonomous-delivery residuals — runner transcript live-smoke, frontmatter-scoped epic parse, and quote-agnostic import pins
-state: Backlog
+state: Done
 owner: null
 epic: null
 goal: The EPIC-23 autonomous-delivery residuals are closed — FLLWUP-114's live-smoke phase asserts a real council-runner session transcript's startup toolCalls contain no Read against council/procedures/council.md or council/procedures/features-deliver.md, FLLWUP-115's cardEpicKey derives the epic key from the card face's frontmatter `epic:` field alone with a corpus-divergence pin, and FLLWUP-116's file-content import pins are quote-agnostic or pin the double-quote convention as the contract — with `bun test`, `bunx tsc --noEmit`, and `python3 council/validate.py` green on the merged tree.
