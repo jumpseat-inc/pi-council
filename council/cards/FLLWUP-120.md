@@ -1,7 +1,7 @@
 ---
 id: FLLWUP-120
 title: Cover the print-mode stale-ctx parent crash when a dispatched job outlives its turn
-state: Done
+state: Backlog
 owner: null
 epic: EPIC-25
 goal: The print-mode stale-context parent crash is covered by a test that reproduces the crash class and pins the engine's behavior — when a dispatched job outlives its parent `pi -p` turn and settles afterward, the parent's `Hub.onChange → renderWidget → assertActive` path does not produce an unhandled stale-ctx crash, and `bun test` stays green on the merged tree.

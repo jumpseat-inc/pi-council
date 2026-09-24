@@ -10,6 +10,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 - FLLWUP-119 — Repair the EPIC-* smoke-fixture card faces so real model-driven flows can dispatch them
 
 - FLLWUP-112 — Render a config-home token in procedure copy and derive the packaged-procedure scan's allowlist from renderProcedure's substitution set
+- FLLWUP-120 — Cover the print-mode stale-ctx parent crash when a dispatched job outlives its turn
+- FLLWUP-121 — Pin test/stub-child.test.ts's child-scheduling race — the transient solo-run flake the FLLWUP-116 judge observed
 
 - EV-85 — Seat-composition decisions as repo-overridable packaged data
 - EV-86 — Pure seat-composition decision function with a fail-safe Default
@@ -105,8 +107,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 ## Needs Human
 
 ## Done
-- FLLWUP-120 — Cover the print-mode stale-ctx parent crash when a dispatched job outlives its turn
-- FLLWUP-121 — Pin test/stub-child.test.ts's child-scheduling race — the transient solo-run flake the FLLWUP-116 judge observed
 - EPIC-24 — Close the EPIC-23 autonomous-delivery residuals — runner transcript live-smoke, frontmatter-scoped epic parse, and quote-agnostic import pins
 - FLLWUP-116 — Quote-agnostic file-content import pins across the suite
 - FLLWUP-114 — Live-smoke verification of the pre-injected runner transcript surface
