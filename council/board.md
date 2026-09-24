@@ -8,6 +8,8 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 - EPIC-25 — Close the EPIC-24 autonomous-delivery residuals — runner never-read rule, dispatchable smoke-fixture faces, stale-ctx crash, and two test-pin residuals
 
+- FLLWUP-122 — Build the FLLWUP-120 stale-ctx pin on the real pi runner harness
+- FLLWUP-123 — Re-run the SMOKE_PHASE=7 live falsifier on the merged main tree
 - FLLWUP-112 — Render a config-home token in procedure copy and derive the packaged-procedure scan's allowlist from renderProcedure's substitution set
 
 - EV-85 — Seat-composition decisions as repo-overridable packaged data
