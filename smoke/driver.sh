@@ -10,6 +10,9 @@ WORK=/work
 FLASH="openrouter/deepseek/deepseek-v4-flash-0731"
 PHASE1_TIMEOUT=$((30 * 60))
 PHASE2_TIMEOUT=$((90 * 60))
+# FLLWUP-114 — phase 7 (runner startup surface): the waiter's hard ceiling
+# on the startup window (the first council_dispatch block), not the delivery.
+PHASE7_STARTUP_CEILING=$((15 * 60))
 
 phase() { echo; echo "=== $* ==="; }
 fatal() { echo "SMOKE FAIL: $*" >&2; exit 1; }
@@ -125,12 +128,84 @@ bash "$PKG/smoke/search-smoke/run.sh" \
 	|| fatal "phase 6: search-smoke run.sh failed"
 }
 
+# Phase 7 — runner startup surface (FLLWUP-114). A real parent `pi -p` turn
+# dispatches a real council-runner against the DISPATCHABLE fixture card EV-2
+# (never EPIC-1 — its face is epic:null and cardEpicKey fail-loud refuses it,
+# skeptic O1). Scoped to the runner's STARTUP transcript: the phase waits for
+# the runner's first council_dispatch toolCall block (or a settle/ceiling),
+# then the pure reader asserts the liveness anchors + AC2/AC3 on the parsed
+# transcript. Full delivery is phase 2's existing job.
+phase7_run() {
+phase "7 runner startup surface (FLLWUP-114)"
+cd "$WORK" || fatal "no worktree"
+RUN_ID_PHASE7=""
+RUNNER_PID=""
+DONE_PARTITION=""
+# Cleanup on EVERY exit path: kill the parent, sweep the run substrate's
+# process tree (runner sub-dispatches are detached into new groups), never
+# leave a process behind. The runner's Hub partition is derived from the
+# run dirs that appeared during the window.
+cleanup7() {
+	if [ -n "$RUNNER_PID" ]; then
+		kill "$RUNNER_PID" 2>/dev/null || true
+		wait "$RUNNER_PID" 2>/dev/null || true
+	fi
+	for d in "$WORK"/.pi/council/runs/2*; do
+		[ -d "$d" ] || continue
+		if [ -z "$DONE_PARTITION" ] || ! [ "$DONE_PARTITION" = "1" ]; then
+			bash "$PKG/smoke/phase7-sweep.sh" "$(basename "$d")" || true
+		fi
+	done
+}
+trap cleanup7 EXIT
+
+mkdir -p "$PKG/smoke/.artifacts"
+PI7_OUT="$PKG/smoke/.artifacts/phase7-parent-$$.log"
+SMOKE_WORK="$WORK" SMOKE_FLASH="$FLASH" bash "$PKG/smoke/phase7-runner-spawn.sh" >"$PI7_OUT" 2>&1 &
+RUNNER_PID=$!
+
+# Wait for the runner's first council_dispatch (startup window complete) or
+# the settle/ceiling bound — never full card delivery.
+set +e
+FIRST="$(timeout "$PHASE7_STARTUP_CEILING" bash "$PKG/smoke/phase7-wait.sh" "$WORK" "$FLASH" 2>&1)"
+WAIT_STATUS=$?
+set -e
+
+if [ "$WAIT_STATUS" -eq 0 ] && [ -n "$FIRST" ]; then
+	RUN_ID_PHASE7="$FIRST"
+fi
+DONE_PARTITION=1
+
+# Give the runner's startup turn a bounded settle grace, then tear the tree down.
+if [ -n "$RUN_ID_PHASE7" ]; then
+	sleep 5
+fi
+cleanup7
+trap - EXIT
+rm -f "$PI7_OUT"
+
+# The verdict: the pure reader (anchors + AC2/AC3). A missing/broken startup
+# reds HERE with its reason — never vacuously.
+if (cd "$PKG" && bun smoke/read-runner-startup.ts "$WORK" "EV-2"); then
+	:
+else
+	fatal "phase 7: readRunnerStartup red — see the reason above"
+fi
+
+echo
+}
+
+# FLLWUP-114 — the startup-window waiter wrapper: kills the waiter at the
+# ceiling, derives the runner's Hub run id for the sweep, echoes it.
+# (Inline helper kept next to phase7_run; see phase7-wait.sh for the poller.)
+
 # FLLWUP-11 isolation path: SMOKE_PHASE set → phase-0 prep (no verdict) plus
 # ONLY the named phase's real work; one PASS/FAIL report at the end. Values
-# other than 5 (or 6, FLLWUP-14) are a hard fail — nothing partial executes.
+# other than 5, 6 (FLLWUP-14), or 7 (FLLWUP-114) are a hard fail — nothing
+# partial executes.
 if [ -n "$SMOKE_PHASE" ]; then
-	if [ "$SMOKE_PHASE" != "5" ] && [ "$SMOKE_PHASE" != "6" ]; then
-		fatal "unsupported SMOKE_PHASE='$SMOKE_PHASE' (only 5 and 6 are supported)"
+	if [ "$SMOKE_PHASE" != "5" ] && [ "$SMOKE_PHASE" != "6" ] && [ "$SMOKE_PHASE" != "7" ]; then
+		fatal "unsupported SMOKE_PHASE='$SMOKE_PHASE' (only 5, 6, and 7 are supported)"
 	fi
 	phase "FLLWUP-11 isolated run — SMOKE_PHASE=$SMOKE_PHASE (phases 1-4 real-model work skipped)"
 	phase0_prepare 0
@@ -138,10 +213,14 @@ if [ -n "$SMOKE_PHASE" ]; then
 		phase5_run
 		echo
 		echo "SMOKE PASS — phase 5 (council-models) verified in isolation (SMOKE_PHASE=$SMOKE_PHASE)"
-	else
+	elif [ "$SMOKE_PHASE" = "6" ]; then
 		phase6_run
 		echo
 		echo "SMOKE PASS — phase 6 (kitty search-smoke) verified in isolation (SMOKE_PHASE=$SMOKE_PHASE)"
+	else
+		phase7_run
+		echo
+		echo "SMOKE PASS — phase 7 (runner startup surface) verified in isolation (SMOKE_PHASE=$SMOKE_PHASE)"
 	fi
 	exit 0
 fi
@@ -261,6 +340,15 @@ RUN_DIR="$WORK/.pi/council/runs"
 RUNNER_SESSIONS="$(grep -rl '"seat":"council-runner"\|"seat": "council-runner"' "$RUN_DIR" 2>/dev/null | wc -l | tr -d ' ')"
 if [ "$RUNNER_SESSIONS" -lt 1 ]; then
 	fatal "phase 2: no council-runner session found under $RUN_DIR"
+fi
+
+# FLLWUP-114 — zero-cost reuse: the same pure reader also asserts the runner
+# startup surface (anchors + AC2/AC3) on phase 2's real runner transcript.
+# No added model time — the transcript already exists.
+if (cd "$PKG" && bun smoke/read-runner-startup.ts "$WORK"); then
+	:
+else
+	fatal "phase 2: readRunnerStartup red — see the reason above"
 fi
 
 echo
