@@ -43,8 +43,10 @@ Blast radius (skeptic O8): `cardEpicKey` has exactly one call site —
 ## Refusals (AC2) — byte-for-byte unchanged
 
 The three D1 refusals keep their exact messages (skeptic O7 captured all
-three through the real code and matched them byte-for-byte against
-`seats.ts:605` and `:610-611`):
+three through the real code and matched them byte-for-byte; at the
+delivered tree, the epic-field refusal's throw lives at
+`extensions/seats.ts:609-613` and the nonexistent-face read refusal's at
+`extensions/seats.ts:627-632`):
 
 1. Nonexistent face →
    `` council-runner dispatch for card "<id>" refused: its card face council/cards/<id>.md does not exist ``
@@ -52,10 +54,16 @@ three through the real code and matched them byte-for-byte against
    `` council-runner dispatch for card "<id>" refused: the card face's epic: field is null or absent (EV-90 D1 ruling — a runner dispatched without its features-deliver scope is a degraded dispatch, not a fallback) ``
 3. Absent epic (identical message to #2).
 
-The refactor moves only the match — not the throw sites; `cardId` remains in
-scope at both. The throw sites stay in `cardEpicKey`; `epicKeyFromFace`
-either returns a key or returns absent/null (which `cardEpicKey` turns into
-the throw).
+The refactor moves only the match scope — not the message bytes; `cardId`
+remains in scope at both throw sites. As delivered (FLLWUP-117's
+reconciliation — this section's original prose said the opposite), the
+**epic-field refusal (`epic: null` or absent) throws inside
+`epicKeyFromFace` itself** (`extensions/seats.ts:609-613`): the pure core
+throws the named-card D1 refusal byte-for-byte. `cardEpicKey` retains only
+the nonexistent-face read refusal (`extensions/seats.ts:627-632`) and
+delegates the derivation (`extensions/seats.ts:634`). Observable behavior —
+the three messages, byte-for-byte — is unchanged from the pre-refactor shape
+(skeptic O2 verified base-vs-head).
 
 ## Corpus pin (AC3) — behavioral equivalence, not hygiene
 

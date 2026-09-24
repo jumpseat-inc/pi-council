@@ -600,8 +600,10 @@ const FRONTMATTER_RE = /^---\n[\s\S]*?\n---\n/;
 /** FLLWUP-115: the epic key derived from one card face's frontmatter block
  * only — a body line beginning `epic:` can never win the derivation (the
  * whole-file match it replaces could). Pure: raw face text in, key out.
- * Absent frontmatter block ⇒ absent epic; null/absent ⇒ the caller turns
- * the named-card D1 refusal (kept in cardEpicKey, byte-for-byte). */
+ * Absent frontmatter block ⇒ absent epic. FLLWUP-117 (the delivered
+ * throw-site truth): a null/absent epic throws HERE, inside this function —
+ * the named-card epic-field D1 refusal, byte-for-byte. cardEpicKey retains
+ * only the nonexistent-face read refusal and delegates the derivation. */
 export function epicKeyFromFace(raw: string, cardId: string): string {
 	const block = raw.match(FRONTMATTER_RE)?.[0] ?? "";
 	const m = block.match(/^epic:\s*(.*)$/m);
