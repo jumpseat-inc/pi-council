@@ -194,3 +194,71 @@ test("FLLWUP-115 T4: whole-file and frontmatter-scoped derivations agree on ever
 	}
 	expect(divergences).toEqual([]);
 });
+
+// ================= T5 — the byte-0 anchor pin (FLLWUP-118) =================
+
+/**
+ * FLLWUP-118 — the FRONTMATTER_RE byte-0 anchor, pinned as a deliberate
+ * contract (skeptic O5, FLLWUP-115's documented caveat).
+ *
+ * Disposition of the caveat, verbatim: FRONTMATTER_RE
+ * (`/^---\n[\s\S]*?\n---\n/`, extensions/seats.ts:598) is byte-0-anchored
+ * and requires a closing `---` followed by a newline, so exactly two
+ * synthetic face shapes diverge — old whole-file derivation = KEY,
+ * frontmatter-scoped derivation = THROW:
+ *
+ *   (a) a leading blank line before the opening `---` (the regex cannot
+ *       match — its first byte must be `-`); and
+ *   (b) a closing `---` at EOF without a trailing newline (the regex needs
+ *       the newline after the closing dashes).
+ *
+ * Corpus disposition: ZERO faces in council/cards/ carry either shape, so
+ * nothing on the corpus exercises this boundary — which is why T4 (the
+ * equivalence sweep over every card in council/cards/) reds immediately on
+ * any future face that does: the sweep is the tripwire, T5 pins the
+ * boundary's behavior itself so a future regex tweak (loosening the anchor,
+ * changing the closing-dash handling) cannot silently change which faces
+ * parse. A regex tweak changing which faces parse must update this pin
+ * deliberately.
+ *
+ * Driven through the real exported epicKeyFromFace — no reimplementation of
+ * the derivation on either side of the assertion pair.
+ *
+ * Red-base disposition (red-base-evidence, seven fields): T5 is a PIN of
+ * already-delivered behavior, not a new mechanism — its red/green pair was
+ * observed by mutation (loosen the anchor → T5 reds 4 pass / 1 fail naming
+ * the T5 toThrow; restore the anchor byte-identical → 5 pass / 0 fail),
+ * which is the mechanism-absent red for this card: the hazard named in the
+ * header is exactly "a regex tweak changes which faces parse". No base-sha
+ * record is owed — there is no pre-mechanism base to transplant against
+ * (the mechanism IS the delivered code being pinned; T4's sweep stays the
+ * corpus tripwire).
+ */
+test("FLLWUP-118 T5: the byte-0 anchor — scoped derivation THROWS where the old whole-file derivation returned a key", () => {
+	// (a) leading blank line before the opening ---
+	const leading = "\n---\nid: L\nepic: EPIC-A\nstate: In Progress\n---\nbody";
+	// The old whole-file derivation (the oracle, inline forever as in T4):
+	// /^epic:\s*(.*)$/m is multiline, not byte-0-anchored — it still finds the
+	// frontmatter epic line and returns the key.
+	expect(leading.match(/^epic:\s*(.*)$/m)?.[1]?.trim()).toBe("EPIC-A");
+	// The scoped derivation (the mechanism, live production code) throws the
+	// named-card D1 refusal: the block is unmatchable ⇒ absent epic.
+	expect(() => epicKeyFromFace(leading, "EPIC-115-LEAD")).toThrow(
+		/refused: the card face's epic: field is null or absent/,
+	);
+
+	// (b) closing --- at EOF without a trailing newline
+	const noTrailing = "---\nid: E\nepic: EPIC-B\nstate: In Progress\n---";
+	// Old derivation: still a key.
+	expect(noTrailing.match(/^epic:\s*(.*)$/m)?.[1]?.trim()).toBe("EPIC-B");
+	// Scoped derivation: throws the same D1 refusal.
+	expect(() => epicKeyFromFace(noTrailing, "EPIC-115-EOF")).toThrow(
+		/refused: the card face's epic: field is null or absent/,
+	);
+
+	// The boundary is the anchor, not the epic field: the SAME faces with the
+	// blank line removed / the newline restored derive normally. (Proves the
+	// pin is on FRONTMATTER_RE's shape, not on null/absent epics.)
+	expect(epicKeyFromFace(leading.replace(/^\n/, ""), "EPIC-115-LEAD")).toBe("EPIC-A");
+	expect(epicKeyFromFace(`${noTrailing}\n`, "EPIC-115-EOF")).toBe("EPIC-B");
+});

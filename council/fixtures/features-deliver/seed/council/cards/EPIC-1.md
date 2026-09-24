@@ -3,7 +3,7 @@ id: EPIC-1
 title: Links CLI output modes
 state: Backlog
 owner: null
-epic: null
+epic: EPIC-1
 goal: The links CLI gains three output improvements delivered as one epic.
 ---
 

@@ -3,7 +3,7 @@ id: EPIC-1
 title: Links CLI output formats
 state: Ready
 owner: null
-epic: null
+epic: EPIC-1
 goal: The links CLI supports machine-readable and image-focused output so documents can be inspected without reading the default line output.
 ---
 

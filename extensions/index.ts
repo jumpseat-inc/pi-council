@@ -82,6 +82,16 @@ import {
  * The patch re-inflates max_tokens on the outgoing payload after pi's clamp,
  * in the parent and every seat child.
  */
+
+/** FLLWUP-120: the prefix of pi's stale-extension-ctx error (dist/core/
+ * extensions/runner.js `assertActive`, fed from dist/core/agent-session.js
+ * `dispose()`'s invalidate message). The renderWidget seam swallows exactly
+ * this error class — the same class the getUi() seam already swallows — so a
+ * dispatched job settling after its parent print-mode turn tore down cannot
+ * escape as an unhandled stale-ctx crash. Exported so tests pin the contract
+ * against the engine-owned constant rather than a duplicated literal. */
+export const STALE_CTX_PREFIX = "This extension ctx is stale after session replacement or reload";
+
 export function loadModelFloors(repoRoot: string): Record<string, number> {
 	const load = (file: string): Record<string, number> => {
 		try {
@@ -719,15 +729,28 @@ export default async function (pi: ExtensionAPI) {
 	};
 
 	const renderWidget = () => {
-		if (!uiCtx?.hasUI) return;
-		const active = getHub(repoRoot)
-			.list()
-			.filter((j) => j.exitCode === null);
-		if (active.length === 0) {
-			uiCtx.ui.setWidget("council", []);
-			return;
+		// FLLWUP-120: the hub's onChange/timer/turn_end fan-out can fire AFTER
+		// the parent's print-mode teardown — pi's dispose() emits
+		// session_shutdown (which SIGKILLs running jobs via shutdownHub) BEFORE
+		// session.dispose() invalidates the captured session_start ctx, so the
+		// killed children's close→settle→onChange events land against a stale
+		// ctx whose every getter throws. Swallow exactly pi's stale-ctx class
+		// here — the same class the getUi() seam already swallows (spec §2.5);
+		// every other error still propagates.
+		try {
+			if (!uiCtx?.hasUI) return;
+			const active = getHub(repoRoot)
+				.list()
+				.filter((j) => j.exitCode === null);
+			if (active.length === 0) {
+				uiCtx.ui.setWidget("council", []);
+				return;
+			}
+			uiCtx.ui.setWidget("council", widgetLines(active));
+		} catch (error) {
+			if (error instanceof Error && error.message.startsWith(STALE_CTX_PREFIX)) return;
+			throw error;
 		}
-		uiCtx.ui.setWidget("council", widgetLines(active));
 	};
 
 	pi.on("session_start", async (_event, ctx) => {
