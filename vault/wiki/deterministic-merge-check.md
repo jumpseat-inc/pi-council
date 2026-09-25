@@ -75,9 +75,10 @@ table instead of a prose mirror.
   returned the fallback; see [[inert-gate-fallback]]) — all five criteria each,
   `--squash --admin --match-head-commit` pinned, `gates` `SUCCESS` on every head
   and re-verified on every merged SHA.
-- **The orchestrator-merges reading was restored** (reversing the EPIC-10
+- **The orchestrator-merges reading was used** (reversing the EPIC-10
   variance): every runner returned `DONE` with a PR + head SHA and did not
-  merge; the orchestrator executed the check and the merge.
+  merge; the orchestrator executed the check and the merge. ⚠️ **This reading did
+  not persist** — see `Who executes the merge` below.
 - The first autonomous merge paused for the human (the R1 option chosen); the
   remaining merges ran unattended at the human's explicit direction.
 - No `HALT`, no `Needs Human`; `Done` written only after `gates` green on the
@@ -319,6 +320,20 @@ judge covering all five goals ([[batch-runner-topology]]). Mode read from the
 substrate (`job-16`) is **Verify**; `gates` `SUCCESS` keyed on `workflow` on
 head and merged SHA. This is the first run to key the criteria to a multi-card
 batch rather than a one-card PR. Witness: [[2026-09-25-epic25-run-ledger]].
+
+## Who executes the merge (ruled 2026-09-25)
+
+The EPIC-15 run used the **orchestrator-merges** reading (runners returned
+`DONE` with a PR + head SHA; the orchestrator executed the check and the merge).
+Later runs did not hold it: EPIC-23, EPIC-24, and EPIC-25 **runners executed
+`gh pr merge --squash --admin --match-head-commit` themselves** and set the card
+`Done` from the observed merged SHA, with the orchestrator independently
+re-verifying the merged SHA afterward. Ruled (a) on 2026-09-25: the **current
+practice is runner-executes, orchestrator-verifies**; the EPIC-15
+orchestrator-merges reading is recorded as a **historical variance**, not the
+canonical shape. The criteria themselves are unchanged — what moves is which
+actor holds the merge call, and the run's report must still name the merged SHA
+and the check's basis.
 
 ## Related
 

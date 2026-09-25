@@ -98,11 +98,12 @@ reserved powers are re-homed per the authority map in `features-deliver.md`.
 
 ## Lessons from the EPIC-15 run
 
-- **Orchestrator-merges restored.** All three runners returned `DONE` with a PR
-  + head SHA and did **not** merge; the orchestrator ran the five-criteria check
-  and merged `--squash --admin --match-head-commit`. This reverses the EPIC-10
-  "runner merged itself" variance back to the historical reading
-  ([[deterministic-merge-check]]).
+- **Orchestrator-merges (that run's reading).** All three runners returned `DONE`
+  with a PR + head SHA and did **not** merge; the orchestrator ran the
+  five-criteria check and merged `--squash --admin --match-head-commit`. ⚠️ This
+  reading did **not** persist: EPIC-23/24/25 runners merged themselves and the
+  orchestrator re-verified the merged SHA — see [[deterministic-merge-check]]
+  `Who executes the merge`.
 - **The follow-up tool is absent in-container.** `council_followup_review` does
   not resolve inside the runner, so step-13 candidates are held by draft title
   across `DONE` ([[followup-decision-gate]]); with the orchestrator's gate also

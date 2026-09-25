@@ -6,7 +6,7 @@ aliases: [gate noul fix, noul wire-shape fix, FLLWUP-104 fix, 2026-09-22-gate-no
 tags: [pi-council/source, pi-council/gate]
 sources: []
 created: 2026-09-22
-updated: 2026-09-22
+updated: 2026-09-25
 ---
 
 # 2026-09-22 Gate Noul Fix
@@ -63,7 +63,7 @@ With the gate live, the four held BUG-2 follow-ups were recorded and ruled:
 - [[extension-load-scope]] — why the fix wasn't live until pushed
 - [[inert-gate-fallback]] — the property the drift exercised
 - [[metered-deliberation-routing]], [[followup-decision-gate]] — the two domains
-- [[2026-09-22-po-ev84-step13-noul-shape-ruling]] — the ruling that scoped the fix
+- `vault/raw/2026-09-22-po-ev84-step13-noul-shape-ruling.md` — the ruling that scoped the fix (raw only; no wiki source summary)
 
 ## Sources
 

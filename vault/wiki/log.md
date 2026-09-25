@@ -1,19 +1,29 @@
 # Wiki Log
 
-## [2026-09-25] lint | cross-link repair — orphans cleared, one broken link fixed
+## [2026-09-25] lint | cross-link repair + stale-claim sweep
 
-Mechanical pass over `vault/wiki/`. Fixed: (1) a wrong-prefix wikilink in this
-log (`[[sources/2026-08-24-bugfix-seat-prose]]` →
-`[[2026-08-24-bugfix-seat-prose]]`); (2) three orphan source pages
-(`2026-09-20-po-ev66-step6-ruling`, `2026-09-20-po-ev67-step6-ruling`,
-`2026-09-21-po-ev71-step6-ruling`) had no inbound non-index links, so backlinks
-were added from the concept/entity pages that cite their rulings
-([[metered-deliberation-routing]], [[union-merge-reconcile]], [[usage-block]],
-[[usage-store]], [[product-owner]], [[engineering-board]]). Orphans now: none.
-Still open, flagged as judgment calls (not changed): the stale version arc in
-[[pi-council-overview]]/[[steward]], the merge-execution contradiction
-(orchestrator vs runner), stale [[test-suite-budget]] figures, and the missing
-source page for `2026-09-22-po-ev84-step13-noul-shape-ruling`.
+Full `vault/wiki/` pass. **Mechanical fixes:** (1) a wrong-prefix wikilink in
+this log (a `sources/`-prefixed link corrected to the bare note name); (2) three
+orphan source pages (`2026-09-20-po-ev66-step6-ruling`,
+`2026-09-20-po-ev67-step6-ruling`, `2026-09-21-po-ev71-step6-ruling`) had no
+inbound non-index links — backlinks added from the concept/entity pages that
+cite their rulings ([[metered-deliberation-routing]],
+[[union-merge-reconcile]], [[usage-block]], [[usage-store]], [[product-owner]],
+[[engineering-board]]). Orphans now: none.
+
+**Substantive fixes (human-ruled):** P1 stale version arc corrected in
+[[pi-council-overview]], [[steward]], and the index (now v0.37.0, `latest` =
+v0.37.0); P2 (a) the merge-execution reading pinned in
+[[deterministic-merge-check]] `Who executes the merge` — runner-executes,
+orchestrator-verifies since EPIC-23, EPIC-15's orchestrator-merges recorded as
+historical variance (also [[council-runner]], index); P3 [[test-suite-budget]]
+gained the 2026-09-25 measurement (1532 pass / 6 skip / 118 files, ≈114s);
+P4 the dangling `po-ev84-step13-noul-shape-ruling` wikilink removed from
+[[decisions-wire-canonicalization]] and the gate-noul-fix source page, replaced
+with a raw-path down-reference; P5 the "review tool absent in-container" claim
+scoped to EPIC-15 and noted present since EPIC-23
+([[followup-decision-gate]], index). Remaining: none (the `natural title`
+bracket in an older entry is a literal example, not a link).
 
 ## [2026-09-25] ingest | EPIC-25 batch-override run — one runner, five cards, one SHA
 

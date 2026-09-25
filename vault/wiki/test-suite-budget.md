@@ -6,7 +6,7 @@ aliases: [suite budget, test suite cost, drift threshold, CI timeout backstop]
 tags: [pi-council/concept, pi-council/smoke-test]
 sources: ["[[2026-09-19-po-fllwup48-test-suite-budget]]", "[[2026-09-18-po-fllwup56-step13-ruling]]", "[[2026-09-20-po-fllwup58-gates-backstop]]", "[[2026-09-20-po-fllwup58-step13-confirmation]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-fix-shape-witness-segment-liveness]]", "[[2026-09-23-epic15-residual-run-ledger]]"]
 created: 2026-09-17
-updated: 2026-09-23
+updated: 2026-09-25
 ---
 
 # Test Suite Budget
@@ -55,6 +55,12 @@ re-measurement ever exceeds the drift threshold below.
   misses=<M>` summary test (FLLWUP-110), and the procedure-copy pins
   (FLLWUP-107/108). Still inside the 180s drift threshold. See
   [[2026-09-23-epic15-residual-run-ledger]].
+- ⚠️ **Grown again (EPIC-23→EPIC-25, 2026-09-24/25):** **1532 pass / 6 skip /
+  0 fail across 118 files, ≈114s** — the EPIC-24/25 cards added the
+  frontmatter-scoped `cardEpicKey` + corpus pin, the FLLWUP-114 live smoke, the
+  quote-agnostic import pins, the stale-ctx guard, and the five batch residuals.
+  Still inside the 180s drift threshold. See [[2026-09-24-epic23-run-ledger]],
+  [[2026-09-24-epic24-run-ledger]], [[2026-09-25-epic25-run-ledger]].
 - **Provenance:**
   - Machine: Linux 6.12.24-Unraid x86_64 (container)
   - Date: 2026-09-20 (re-measured at HEAD)

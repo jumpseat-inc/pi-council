@@ -6,10 +6,10 @@ aliases: [pi-council, council, the Council, pi-council overview]
 tags: [pi-council/overview]
 sources: ["[[2026-08-23-readme]]", "[[2026-08-23-pi-council-design-spec]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]", "[[2026-09-03-v0.14.0-domain-neutral-stack-agnostic]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-22-gate-noul-fix]]", "[[2026-09-21-usages-design]]", "[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-23-fllwup-backlog-cleanup]]", "[[2026-09-23-fllwup-epic-grouping]]"]
 created: 2026-08-23
-updated: 2026-09-23
+updated: 2026-09-25
 ---
 
-`pi-council` (v0.33.0; latest tag `v0.19.0`, several epics behind `main`) is an installable [pi](https://pi.dev) package, distributed
+`pi-council` (v0.37.0; latest tag `v0.37.0`) is an installable [pi](https://pi.dev) package, distributed
 as `pi install git:github.com/jumpseat-inc/pi-council`. Installing it once and
 running `/council-init` gives **any** repository the same opinionated workflow:
 a facilitator-driven Council of specialized seats that deliberates, implements,
@@ -95,6 +95,15 @@ behavior change:
 The wiki scaffold shipped in the same commit as the council scaffold — the
 wiki is not an add-on. The full arc and commit-message discipline live in the
 git log; this table is a secondary summary that can drift.
+
+**Release arc since v0.28.0 (through v0.37.0, released 2026-09-25).** The table
+above is detailed only through v0.28.0; releases continued past it:
+`v0.29.0`, `v0.33.0`/`v0.33.1` (the EPIC-10 follow-up review), `v0.34.0`–`v0.34.2`,
+`v0.35.0`–`v0.35.1`, `v0.36.1`, and `v0.37.0` (2026-09-25, the release carrying
+the EPIC-23/24/25 work). The moving `latest` tag now points at `v0.37.0`. See
+the `chore(release):` entries in the git log and the per-epic run ledgers
+([[2026-09-24-epic23-run-ledger]], [[2026-09-24-epic24-run-ledger]],
+[[2026-09-25-epic25-run-ledger]]).
 
 ## EPIC-10 (2026-09-22)
 

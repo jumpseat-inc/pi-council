@@ -4,9 +4,9 @@ type: concept
 summary: Normalize a provider's wire answer shape to the engine's canonical shape at the ONE parse seam both gate domains share — never at each reader — mapping `noul`→`probability`, failing loud on disagreeing or missing keys, so one contract serves the card gate and the follow-up gate.
 aliases: [wire canonicalization, answer-shape canonicalization, noul key, parse-site normalization, decisions answer shape]
 tags: [pi-council/concept, pi-council/gate]
-sources: ["[[2026-09-22-gate-noul-fix]]", "[[2026-09-22-po-ev84-step13-noul-shape-ruling]]"]
+sources: ["[[2026-09-22-gate-noul-fix]]"]
 created: 2026-09-22
-updated: 2026-09-22
+updated: 2026-09-25
 ---
 
 # Decisions Wire Canonicalization

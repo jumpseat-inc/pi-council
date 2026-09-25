@@ -6,7 +6,7 @@ aliases: [follow-up decision, followup gate, File Merge Drop, dispose followup, 
 tags: [pi-council/concept, pi-council/epic10]
 sources: ["[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-design-epic11-recut-surface]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-22-gate-noul-fix]]", "[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-23-fllwup-backlog-cleanup]]"]
 created: 2026-09-22
-updated: 2026-09-23
+updated: 2026-09-25
 ---
 
 # Follow-Up Decision Gate
@@ -85,6 +85,8 @@ but **every** follow-up call failed with the `noul` answer-shape drift (the same
 open `FLLWUP-104` that breaks the card gate), and the runner container is not
 granted the review tool at all — so step 13 could not record a disposition
 in-container. Candidates were **held by draft title** across the runner's `DONE`;
+⚠️ EPIC-15-scoped: the `followup` grant is present in-container since EPIC-23
+([[confirmation-authority]], [[council-runner]]).
 the orchestrator's own `council_followup_gate` then failed with the drift, and
 [[product-owner]] ruled the dispositions directly (seat-ruled, not
 gate-recorded). The held-not-filed discipline held: no card written, no
