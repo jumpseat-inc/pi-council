@@ -6,7 +6,7 @@ aliases: [metered deliberation, deliberation routing, System One gate, Deliberat
 tags: [pi-council/concept, pi-council/epic13]
 sources: ["[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-21-po-ev73-step6-ruling]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-design-epic11-recut-surface]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-22-gate-noul-fix]]", "[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-24-epic23-run-ledger]]"]
 created: 2026-09-20
-updated: 2026-09-24
+updated: 2026-09-25
 ---
 
 # Metered Deliberation Routing
@@ -355,5 +355,7 @@ pays the full-roster latency ([[run-time-profile]]). Witness:
 
 ## Sources
 
+- [[2026-09-20-po-ev66-step6-ruling]] — the failure-invisibility ruling
+- [[2026-09-21-po-ev71-step6-ruling]] — the costBasis / grammar-scoping ruling
 - [[2026-09-21-epic13-run-ledger]]
 - `council/cards/EPIC-13.md`, `council/gate/*.json`, `extensions/gate*.ts`

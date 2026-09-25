@@ -6,7 +6,7 @@ aliases: [usage store, durable usage store, StoredUsageRecord, resolveProvenance
 tags: [pi-council/concept, pi-council/epic7]
 sources: ["[[2026-09-11-epic7-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-21-usages-design]]"]
 created: 2026-09-11
-updated: 2026-09-21
+updated: 2026-09-25
 ---
 
 # Usage Store
@@ -111,5 +111,6 @@ are preserved verbatim.
 
 ## Sources
 
+- [[2026-09-21-po-ev71-step6-ruling]] — the gate-spend `seats[]`/costBasis sibling
 - [[2026-09-11-epic7-run-ledger]]
 - `extensions/usage-store.ts`

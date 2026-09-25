@@ -6,7 +6,7 @@ aliases: [union merge, diverged main, union-merge reconcile]
 tags: [pi-council/process]
 sources: ["[[2026-09-05-epic6-run-ledger]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]"]
 created: 2026-09-05
-updated: 2026-09-22
+updated: 2026-09-25
 ---
 
 # Union-Merge Reconcile
@@ -127,6 +127,7 @@ cleanly. Witness: [[2026-09-22-epic15-run-ledger]].
 
 ## Sources
 
+- [[2026-09-20-po-ev66-step6-ruling]] — the ruling doc the EV-66 recovery preserved
 - [[2026-09-05-epic6-run-ledger]]
 - [[2026-09-04-epic4-run-ledger]]
 - [[2026-09-18-epic9-residual-run-2-ledger]] — the concurrent-writer trigger

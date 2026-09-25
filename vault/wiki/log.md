@@ -1,5 +1,20 @@
 # Wiki Log
 
+## [2026-09-25] lint | cross-link repair — orphans cleared, one broken link fixed
+
+Mechanical pass over `vault/wiki/`. Fixed: (1) a wrong-prefix wikilink in this
+log (`[[sources/2026-08-24-bugfix-seat-prose]]` →
+`[[2026-08-24-bugfix-seat-prose]]`); (2) three orphan source pages
+(`2026-09-20-po-ev66-step6-ruling`, `2026-09-20-po-ev67-step6-ruling`,
+`2026-09-21-po-ev71-step6-ruling`) had no inbound non-index links, so backlinks
+were added from the concept/entity pages that cite their rulings
+([[metered-deliberation-routing]], [[union-merge-reconcile]], [[usage-block]],
+[[usage-store]], [[product-owner]], [[engineering-board]]). Orphans now: none.
+Still open, flagged as judgment calls (not changed): the stale version arc in
+[[pi-council-overview]]/[[steward]], the merge-execution contradiction
+(orchestrator vs runner), stale [[test-suite-budget]] figures, and the missing
+source page for `2026-09-22-po-ev84-step13-noul-shape-ruling`.
+
 ## [2026-09-25] ingest | EPIC-25 batch-override run — one runner, five cards, one SHA
 
 Ingested the EPIC-25 `/features-deliver` run (authored
@@ -424,7 +439,7 @@ compact-form ceilings make the true default floor **52**, not 43, so the shipped
 on an untouched file), [[union-merge-reconcile]] (concurrent board writers are a
 second divergence trigger), [[smoke-test]] (the driver now shares the pty kit),
 [[retired-path-tokens]] (missing frontmatter added; ⚠️ caveat (a) corrected —
-the driver exists with pre-kit content), [[sources/2026-08-24-bugfix-seat-prose]]
+the driver exists with pre-kit content), [[2026-08-24-bugfix-seat-prose]]
 (⚠️ the GATE-EVIDENCE guard was widened to all seats+procedures by FLLWUP-53),
 [[index]].
 

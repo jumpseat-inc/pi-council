@@ -264,6 +264,8 @@ the accumulated follow-up backlog
 
 ## Sources
 
+- [[2026-09-20-po-ev67-step6-ruling]] — the approval-gate locator + fallback-cell bytes
+- [[2026-09-21-po-ev71-step6-ruling]] — the fold-in / no-new-field precedent
 - `council/procedures/board-create-card.md`, `council/procedures/features-new.md`
 - `council/scaffold/council/board.md`, `council/scaffold/council/cards/_template.md`
 - [[2026-09-06-epic6-close-run-ledger]]

@@ -6,7 +6,7 @@ aliases: [usage block, usage line, no usage recorded, accounting boundary unreso
 tags: [pi-council/concept, pi-council/epic7]
 sources: ["[[2026-09-11-epic7-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]"]
 created: 2026-09-11
-updated: 2026-09-21
+updated: 2026-09-25
 ---
 
 # Usage Block
@@ -95,6 +95,7 @@ extension, not a relaxation of the zero-both invariant.
 
 ## Sources
 
+- [[2026-09-21-po-ev71-step6-ruling]] — the gate-exclusion legend ruling
 - [[2026-09-11-epic7-run-ledger]]
 - [[2026-09-21-epic13-run-ledger]] — the gate-exclusion legend and its grammar scoping
 - `extensions/usage-block.ts`, `extensions/usage-format.ts`

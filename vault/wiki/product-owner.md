@@ -6,7 +6,7 @@ aliases: [product-owner seat]
 tags: [pi-council/seat]
 sources: ["[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-21-po-ev73-step6-ruling]]", "[[2026-09-21-po-ev77-j1-j2-ruling]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-22
+updated: 2026-09-25
 ---
 
 > ⚠️ Derived from `council/agents/product-owner.md` (captured 2026-08-23). Verify against the seat file.
@@ -154,6 +154,9 @@ one of its own prior rulings' referents (`FLLWUP-96`'s blocker). Witness:
 
 ## Sources
 
+- [[2026-09-20-po-ev66-step6-ruling]] — the failure-invisibility ruling (EPIC-13)
+- [[2026-09-20-po-ev67-step6-ruling]] — the approval-gate locator ruling (EPIC-13)
+- [[2026-09-21-po-ev71-step6-ruling]] — the costBasis / fold-in ruling (EPIC-13)
 - `council/agents/product-owner.md`
 - [[2026-08-23-pi-council-design-spec]]
 - [[2026-09-04-epic3-run-ledger]] — the wave-3 ruling-only precedent + three rulings
