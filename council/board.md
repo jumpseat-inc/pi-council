@@ -87,9 +87,6 @@ matching its frontmatter `state`, as `- <ID> — <Title>` with an em dash
 
 ## Deliberating
 
-## In Progress
-## In Review
-
 ## Ready
 - EV-48 — Packaged seat-tier map with repo-local merge override
 - EV-57 — Resolve the running pi-council identity from the package root
