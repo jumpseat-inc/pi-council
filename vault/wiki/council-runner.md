@@ -4,9 +4,9 @@ type: entity
 summary: The per-card autonomous execution container — dispatched by /features-deliver to run the full /council loop for one card in an isolated context; routes, counts, and writes the board but never decides.
 aliases: [council runner, council-runner, runner]
 tags: [pi-council/seat]
-sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-24-epic23-run-ledger]]", "[[2026-09-24-epic24-run-ledger]]"]
+sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-24-epic23-run-ledger]]", "[[2026-09-24-epic24-run-ledger]]", "[[2026-09-25-epic25-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-24
+updated: 2026-09-25
 ---
 
 > ⚠️ Derived from `council/agents/council-runner.md` (captured 2026-08-23). Verify against the seat file.
@@ -381,6 +381,24 @@ Deliberate path and merged with the five criteria satisfied. Four updates:
   board-title audit caught it ([[engineering-board]]).
 
 Witness: [[2026-09-24-epic24-run-ledger]].
+
+## EPIC-25 witness (2026-09-25) — the batch override
+
+A single container handled all five EPIC-25 cards under a human Phase-1
+topology override ([[batch-runner-topology]]): owner-first, then one skeptic and
+one judge, one branch/PR/merge. Observations:
+
+- **No deliberation roster** — the run is a batch Verify lane; the recorded ROOT
+  mode is Verify.
+- **Owner phase unsteady** — four owner dispatches (one stalled, two cancelled
+  at ceiling, one completed) across ~4h wall for five cards
+  ([[hub-job-supervision]]).
+- **Single-writer violation** — the owner violated the branch single-writer
+  discipline; the facilitator reverted it ([[main-repo-immutability]]).
+- **Five card faces + five board lines** written by one container, which is
+  where the [[engineering-board]] heading-uniqueness gap surfaced again.
+
+Witness: [[2026-09-25-epic25-run-ledger]].
 
 ## Related
 

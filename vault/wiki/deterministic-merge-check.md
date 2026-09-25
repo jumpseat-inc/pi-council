@@ -4,9 +4,9 @@ type: concept
 summary: Under /features-deliver the human merge gate is replaced by five mechanical criteria — owner gates, gates-SUCCESS on the PR head SHA, no blocking skeptic objection, judge PASS, no open ruling — keyed since EPIC-13 by the card's recorded execution mode, merged with --match-head-commit.
 aliases: [deterministic merge check, merge gate, deterministic merge, five criteria merge]
 tags: [pi-council/features-deliver, pi-council/process]
-sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-24-epic23-run-ledger]]", "[[2026-09-24-epic24-run-ledger]]"]
+sources: ["[[2026-09-04-epic4-run-ledger]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-24-epic23-run-ledger]]", "[[2026-09-24-epic24-run-ledger]]", "[[2026-09-25-epic25-run-ledger]]"]
 created: 2026-09-04
-updated: 2026-09-24
+updated: 2026-09-25
 ---
 
 # Deterministic Merge Check
@@ -309,6 +309,16 @@ read-back, [[inert-gate-fallback]]) while the *ROOT manifests* recorded
 ([[execution-mode-recording]]). One runner stalled mid-card and was resumed;
 that does not change the recorded mode (the merge check reads the union of the
 card's ROOTs). Witness: [[2026-09-24-epic24-run-ledger]].
+
+## EPIC-25 witness (2026-09-25) — one SHA, five Verify cards
+
+The batch override merged five cards in one PR (#117): every card's basis keys
+to the same head `cf7abd8a` and merged `02d73f2`, and criteria 3 (no blocking
+skeptic objection) and 4 (judge PASS) are the **single** Verify skeptic and
+judge covering all five goals ([[batch-runner-topology]]). Mode read from the
+substrate (`job-16`) is **Verify**; `gates` `SUCCESS` keyed on `workflow` on
+head and merged SHA. This is the first run to key the criteria to a multi-card
+batch rather than a one-card PR. Witness: [[2026-09-25-epic25-run-ledger]].
 
 ## Related
 

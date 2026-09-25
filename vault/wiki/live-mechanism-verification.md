@@ -4,9 +4,9 @@ type: concept
 summary: A shipped mechanism's unit proof is not proof of its operator-observable behavior — a live transcript falsifier is owed to the mechanism, and when run it can catch a defect the unit suite structurally cannot (EPIC-24's pre-injected procedure still read a procedure file at runner startup until a seat-level never-read rule).
 aliases: [live smoke, operator-observable verification, transcript-surface verification, unit-proof gap, live falsifier]
 tags: [pi-council/concept, pi-council/features-deliver, pi-council/smoke]
-sources: ["[[2026-09-24-epic24-run-ledger]]"]
+sources: ["[[2026-09-24-epic24-run-ledger]]", "[[2026-09-25-epic25-run-ledger]]"]
 created: 2026-09-24
-updated: 2026-09-24
+updated: 2026-09-25
 ---
 
 # Live Mechanism Verification
@@ -64,6 +64,17 @@ scratch procedure, and the kitty live-path search-smoke. Live mechanism
 verification is the same principle applied to a **shipped mechanism's transcript
 claim**: dispatch the real flow, parse the real transcript, assert the
 operator-observable property. The EPIC-24 run is its first worked example.
+
+## The EPIC-25 witness — the fix and its post-merge re-run
+
+[[batch-runner-topology]]'s run paid two live-mechanism debts: FLLWUP-119
+repaired the `EPIC-*` fixture faces so the SMOKE_PHASE=7 live falsifier could
+dispatch a real runner without the EV-2 workaround, and FLLWUP-123 (filed) will
+re-run that falsifier on the **merged** tree at `02d73f2` — because the EPIC-25
+evidence was produced pre-merge in the worktree, and after a squash merge the
+shipped tree is not guaranteed byte-identical to the audited head. That is the
+same principle one level down: the proof must be against the tree operators run.
+Witness: [[2026-09-25-epic25-run-ledger]].
 
 ## Related
 

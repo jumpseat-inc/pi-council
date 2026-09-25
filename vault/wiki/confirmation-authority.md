@@ -4,9 +4,9 @@ type: concept
 summary: The EPIC-10 ruling — under `gate.mode: active` a recorded engine-minted disposition is the disposition SOURCE, never the human confirmation; a runner escalates each candidate for ratification by a ruling seat before any card is written, because the autonomous authority map is exhaustive and a model call is not a row in it.
 aliases: [confirmation authority, recorded decision confirmation, ratification, pre-write confirmation]
 tags: [pi-council/concept, pi-council/features-deliver, pi-council/epic10]
-sources: ["[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-design-epic11-recut-surface]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-24-epic23-run-ledger]]", "[[2026-09-24-epic24-run-ledger]]"]
+sources: ["[[2026-09-22-epic10-run-ledger]]", "[[2026-09-22-design-epic11-recut-surface]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-24-epic23-run-ledger]]", "[[2026-09-24-epic24-run-ledger]]", "[[2026-09-25-epic25-run-ledger]]"]
 created: 2026-09-22
-updated: 2026-09-24
+updated: 2026-09-25
 ---
 
 # Confirmation Authority
@@ -95,6 +95,15 @@ FLLWUP-116 scope ruling job-11); each was applied on a confirming runner
 dispatch and written as its own card (FLLWUP-117–121). Unlike EPIC-23, **no
 runner returned `DONE`-with-held** — every candidate reached a ruling seat and the
 return-drift did not recur this run. Witness: [[2026-09-24-epic24-run-ledger]].
+
+## EPIC-25 witness (2026-09-25)
+
+Three candidates from the batch container's step-13 gate: two ratified `File`
+(FLLWUP-122, 123) and one **dropped** — the watch-only "watch stub-child for
+recurrence" placeholder, which [[product-owner]] ruled a stale-prone candidate
+whose trigger is externally observable and would be better filed fresh, with
+evidence, on recurrence. No `DONE`-with-held drift; every candidate reached a
+ruling seat. Witness: [[2026-09-25-epic25-run-ledger]].
 
 ## Related
 

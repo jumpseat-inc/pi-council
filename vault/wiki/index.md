@@ -22,7 +22,7 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[consolidator]] — Synthesis voice; names disagreement, never resolves it.
 - [[product-owner]] — Card-level product judgment; escalates to steward.
 - [[steward]] — Portfolio-level authority; the product-owner's escalation target (EPIC-14 closure ruled the version bump not a closure condition).
-- [[council-runner]] — Autonomous per-card execution container for features-deliver; carries main-repo immutability + pinned verification subjects (v0.18.0). EPIC-15 restored orchestrator-executed merges and found the follow-up review tool absent in-container; the EPIC-15 residual run found the recorded mode does not control execution ([[execution-mode-recording]]) and that the dispatch stall window must exceed the longest seat bound it waits on. EPIC-24's live smoke added the never-read rule and re-confirmed the stall-window invariant.
+- [[council-runner]] — Autonomous per-card execution container for features-deliver; carries main-repo immutability + pinned verification subjects (v0.18.0). EPIC-15 restored orchestrator-executed merges and found the follow-up review tool absent in-container; the EPIC-15 residual run found the recorded mode does not control execution ([[execution-mode-recording]]) and that the dispatch stall window must exceed the longest seat bound it waits on. EPIC-24's live smoke added the never-read rule and re-confirmed the stall-window invariant; EPIC-25 introduced the batch topology ([[batch-runner-topology]]).
 - [[council models picker]] — /council-models surface: command, resolver, token-only modal, the `/`-triggered model-name search input (two-bit focus machine, ruled search copy), complete as of v0.18.0 (backspace, pre-press hint, exit hint, frame fit, kitty smoke).
 - [[council config writer]] — the .council.json write path (EV-24): byte-region splice, field-level merge, atomic, gate-parity validation; FLLWUP-10 fixed the `:suffix` seam, FLLWUP-9 added `clearSeatOverride`.
 
@@ -31,7 +31,7 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[seats]] — The seat abstraction; frontmatter schema, tool-grants, child sandboxing.
 - [[facilitator]] — The routing-and-bookkeeping role that runs the loop and decides nothing.
 - [[council-loop]] — The facilitator-run deliberation → implement → verify → judge loop.
-- [[engineering-board]] — The card board + cards under council/; validate.py discipline, and the fold-in test (a work item belongs to a live card iff needed to meet its goal as written).
+- [[engineering-board]] — The card board + cards under council/; validate.py discipline, and the fold-in test (a work item belongs to a live card iff needed to meet its goal as written). EPIC-25 (via [[batch-runner-topology]]) saw the heading-uniqueness gap recur a third time, still unhardened.
 - [[procedure-commands]] — The scanned, override-aware slash-command set + the 8 procedures (incl. `/usages`).
 - [[repository-grounding]] — The engine-appended prompt block that grounds seats in the wiki/code.
 - [[override-resolution]] — Repo-local resources shadow packaged ones by filename.
@@ -49,6 +49,7 @@ relevant pages. Each entry: link + one-line summary (+ optional metadata).
 - [[council-theme]] — EPIC-1's omp-palette theme subsystem: pinned dark/light pair, `.council.json` recolor surface, four-state activation, token-only drawing + live repaint (v0.12.1: module located via `getPackageDir()`, not a bare-specifier).
 - [[smoke-test]] — The definitive unattended end-to-end test: Phases 0–5 (council loop, epic, /council-eval matrix, /council-leaderboard, /council-models) in an isolated container, with a SMOKE_PHASE selector (FLLWUP-11) and the kitty search-smoke pty harness (FLLWUP-14) as siblings; standing discipline — the first Council command without an end-to-end falsifier is a defect. EPIC-24 added the per-mechanism transcript falsifier ([[live-mechanism-verification]]).
 - [[live-mechanism-verification]] — A shipped mechanism's unit proof is not proof of its operator-observable behavior; EPIC-24's live smoke caught the pre-injected procedure still reading `features-deliver.md` at startup until a seat-level never-read rule.
+- [[batch-runner-topology]] — The EPIC-25 human override of /features-deliver's one-runner-per-card mandate: one council-runner for N cards, owner implements all N before any skeptic/judge, one branch/PR/squash-merge on the recorded Verify lane.
 - [[headless-pi]] — pi's non-interactive modes (-p/json/rpc): no trust prompt, single-shot teardown, stale ctx, the waitForIdle pattern for command turns (but not event contexts), and print mode's stdout takeover + post-settle exit code.
 - [[run-transcripts]] — the on-disk run substrate: per-job manifests + session JSONL under .pi/council/runs/, the job forest, and the /council-tree surface (inline as of EPIC-2) reading it.
 - [[council-job-tree-inline]] — EPIC-2's inline below-editor job tree (EV-7 last activity, EV-8 editor-driven focus, EV-9 inline progress); supersedes the /council-tree modal.
@@ -114,6 +115,7 @@ _(none yet)_
 
 ## Sources
 
+- [[2026-09-25-epic25-run-ledger]] — The EPIC-25 autonomous `/features-deliver` run under a human topology override: one council-runner for all five cards, owner-first, one branch/PR/squash-merge (PR #117, mode Verify), two follow-ups re-homed to EPIC-26, and the third recurrence of the board heading-uniqueness gap.
 - [[2026-09-24-epic24-run-ledger]] — The EPIC-24 autonomous `/features-deliver` run: three cards merged (FLLWUP-115/114/116, PRs #114–#116) on the full Deliberate path, five follow-ups ratified `File` and re-homed into a new EPIC-25 at closure, and the finding that EV-90's pre-injected procedure still read `features-deliver.md` at startup until a seat-level never-read rule ([[live-mechanism-verification]]).
 - [[2026-09-24-epic23-run-ledger]] — The EPIC-23 autonomous `/features-deliver` run: EV-89 + EV-90 shipped (PRs #112/#113) on the full Deliberate path because the decision gate was inert at READ-BACK (`policyVersion` writer/reader drift, FLLWUP-99); an undefined HALT repair (owner window overrun); the recurring DONE-with-held step-13 drift; the D1 derived-key ruling; and the run-time audit that motivated the epic.
 - [[2026-09-22-gate-noul-fix]] — The FLLWUP-104 fix (`e903b67`): the live decisions wire keys a noul answer `noul` while the engine read `probability`, so both gate domains were inert; canonicalization at the shared parse seam restored them, and the episode exposed the global-clone load scope.

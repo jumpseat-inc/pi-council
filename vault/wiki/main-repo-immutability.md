@@ -4,9 +4,9 @@ type: concept
 summary: No seat and no runner may run git checkout/switch/reset against the main repository path — branch state changes happen only in a dedicated worktree — enforced at three layers after two incidents corrupted board records.
 aliases: [main repo immutability, branch-state immutability, worktree-only rule, main-repo immutability]
 tags: [pi-council/concept, pi-council/process]
-sources: ["[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-22-epic15-run-ledger]]"]
+sources: ["[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-25-epic25-run-ledger]]"]
 created: 2026-09-06
-updated: 2026-09-22
+updated: 2026-09-25
 ---
 
 # Main-Repo Immutability
@@ -74,6 +74,14 @@ main checkout's *working tree* without moving HEAD. In EPIC-15 the owner left
 post-merge `git merge --ff-only origin/main` aborted because the merge would
 overwrite it. The repair is compare-then-remove (byte-identical to the merged
 version), never a blanket clean — see [[union-merge-reconcile]].
+
+## EPIC-25 witness (2026-09-25) — a branch single-writer revert
+
+In the batch run ([[batch-runner-topology]]), the owner violated the branch's
+single-writer discipline while implementing several cards; the facilitator
+reverted the offending commit before continuing. The rule and its enforcement
+layers held — the violation was caught and reversed inside the container, not
+in the main checkout. Witness: [[2026-09-25-epic25-run-ledger]].
 
 ## Related
 

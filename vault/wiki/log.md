@@ -1,5 +1,29 @@
 # Wiki Log
 
+## [2026-09-25] ingest | EPIC-25 batch-override run — one runner, five cards, one SHA
+
+Ingested the EPIC-25 `/features-deliver` run (authored
+`vault/raw/2026-09-25-epic25-run-ledger.md`), the first batch-topology run: a
+single `council-runner` handled all five cards, owner-first, one branch/PR/merge
+(PR #117, head `cf7abd8`, merged `02d73f2`, mode Verify). Two follow-ups
+(FLLWUP-122/123) filed and re-homed to a new EPIC-26; one watch-only candidate
+dropped. Key findings: a new [[batch-runner-topology]] concept; one PR ⇒ one SHA
+for N cards in [[deterministic-merge-check]]; the board heading-uniqueness gap's
+**third** documented recurrence ([[engineering-board]]); the owner phase as the
+long pole ([[hub-job-supervision]]); and a branch single-writer violation
+reverted ([[main-repo-immutability]]).
+
+- **Created:** sources/2026-09-25-epic25-run-ledger, [[batch-runner-topology]]
+- **Updated:** [[council-runner]], [[deterministic-merge-check]],
+  [[execution-mode-recording]], [[engineering-board]], [[hub-job-supervision]],
+  [[main-repo-immutability]], [[follow-up-backlog-curation]],
+  [[confirmation-authority]], [[step-13-followup-surface]],
+  [[derived-key-refusal-posture]], [[live-mechanism-verification]],
+  [[run-time-profile]], [[inert-gate-fallback]], [[record-push-discipline]], index.
+- **Contradiction flagged:** [[engineering-board]]'s heading-uniqueness hardening
+  ("still no card") is not repaired — EPIC-25 is the third documented recurrence,
+  so its status is open-and-recurring.
+
 ## [2026-09-24] ingest | EPIC-24 autonomous run — pre-injection still read, and re-homing at closure
 
 Ingested the EPIC-24 `/features-deliver` run (authored

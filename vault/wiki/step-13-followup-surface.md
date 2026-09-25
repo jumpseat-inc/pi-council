@@ -4,9 +4,9 @@ type: concept
 summary: The /council step-13 pre-write confirm-gate surface shipped by EV-82 — one rendered disposition line carrying candidate, disposition, target-or-cost, live mode and basis; four unavailable-state literals in the FLLWUP-75 shape; an unconditional dedup pass; and a hard pre-write confirmation pin.
 aliases: [step 13 surface, followup render, disposition line, unavailable state literals]
 tags: [pi-council/concept, pi-council/procedures, pi-council/epic10]
-sources: ["[[2026-09-22-epic10-run-ledger]]", "[[2026-09-24-epic23-run-ledger]]", "[[2026-09-24-epic24-run-ledger]]"]
+sources: ["[[2026-09-22-epic10-run-ledger]]", "[[2026-09-24-epic23-run-ledger]]", "[[2026-09-24-epic24-run-ledger]]", "[[2026-09-25-epic25-run-ledger]]"]
 created: 2026-09-22
-updated: 2026-09-24
+updated: 2026-09-25
 ---
 
 # Step-13 Follow-Up Surface
@@ -82,6 +82,17 @@ ratified `File` and applied as five board lines keyed by draft title
 (FLLWUP-117–121 → [[follow-up-backlog-curation]]). The review tool was present
 in-container and all five reached a ruling seat — the EPIC-23 `DONE`-with-held
 drift did not recur. Witness: [[2026-09-24-epic24-run-ledger]].
+
+## EPIC-25 witness (2026-09-25)
+
+Three `active` candidates rendered in the batch container; all three carried a
+recorded `File` line (the third a fail-safe `File` from a `duplicate` basis:
+`Mode: File — duplicate: certainty 0.58 < noul threshold 0.60 — Watch
+stub-child.test.ts for recurrence…`). The ruling seat ratified two
+(FLLWUP-122/123) and **dropped** the third. This is the surface's first worked
+`Drop`: no card written, the recorded `File` overridden by the ratifying seat,
+and recurrence re-files fresh with evidence. Witness:
+[[2026-09-25-epic25-run-ledger]].
 
 ## Related
 

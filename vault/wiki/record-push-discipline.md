@@ -4,9 +4,9 @@ type: concept
 summary: The step-12 direct-to-main record push is a privileged write the features-deliver authority map does not re-home; FLLWUP-60 closed the gap by naming a run-scoped authorization in the procedure and fencing an unauthorized push as a HALT — EPIC-13 then showed the ordering (`before` the first push) is the load-bearing word.
 aliases: [record push, step-12 push, admin bypass, record-push authorization]
 tags: [pi-council/concept, pi-council/features-deliver]
-sources: ["[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-24-epic23-run-ledger]]", "[[2026-09-24-epic24-run-ledger]]"]
+sources: ["[[2026-09-17-epic9-residual-run-ledger]]", "[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-23-epic15-residual-run-ledger]]", "[[2026-09-24-epic23-run-ledger]]", "[[2026-09-24-epic24-run-ledger]]", "[[2026-09-25-epic25-run-ledger]]"]
 created: 2026-09-17
-updated: 2026-09-24
+updated: 2026-09-25
 ---
 
 # Record-Push Discipline
@@ -125,6 +125,15 @@ unnecessary — it is that a run which will write a Phase-1 record must
 under-specified authorization, not a missing one. The `--admin` bypass and the
 direct record push both worked under the explicit enumeration. Witness:
 [[2026-09-24-epic24-run-ledger]].
+
+## EPIC-25 (2026-09-25) — batch closure under the same enumeration
+
+P1-4 enumerated the single batch merge, the step-12 record push for all five
+cards' transitions, and the phase1 record push; all succeeded (the admin bypass
+on the protected ref). The run then closed EPIC-25 and re-homed two new
+follow-ups to EPIC-26 — each a board/card state write inside the enumerated
+class, performed in one commit per the steward's ruling. Witness:
+[[2026-09-25-epic25-run-ledger]].
 
 ## Why it matters
 

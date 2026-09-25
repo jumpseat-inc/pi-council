@@ -4,9 +4,9 @@ type: concept
 summary: The battle-tested engine that spawns, monitors, stalls, times out, and sweeps seat subprocesses — the hub table, pid file, anti-stall kill, and the dispatch/wait/cancel tools.
 aliases: [hub job supervision, hub, job table, council_dispatch]
 tags: [pi-council/concept]
-sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-24-epic24-run-ledger]]"]
+sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-05-epic6-run-ledger]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-16-epic9-run-ledger]]", "[[2026-09-21-epic13-run-ledger]]", "[[2026-09-24-epic24-run-ledger]]", "[[2026-09-25-epic25-run-ledger]]"]
 created: 2026-08-23
-updated: 2026-09-24
+updated: 2026-09-25
 ---
 
 # Hub Job Supervision
@@ -181,6 +181,15 @@ Two sharper consequences landed this run:
   tool would silently spin.
 
 Witness: [[2026-09-24-epic24-run-ledger]].
+
+## EPIC-25 recurrence #6 — the batch owner phase (2026-09-25)
+
+The batch-override run ([[batch-runner-topology]]) made the owner phase the long
+pole: four owner dispatches for five cards — `job-16.1` stalled, `job-16.2` and
+`job-16.3` cancelled at their ceilings, `job-16.4` completed — with ~4h wall for
+the batch. The window/ceiling discipline held (no card lost; each resume
+recovered from committed state), but a batch concentrates many long owner turns
+in one container. Witness: [[2026-09-25-epic25-run-ledger]].
 
 ## Related
 

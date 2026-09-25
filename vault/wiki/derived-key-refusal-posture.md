@@ -4,9 +4,9 @@ type: concept
 summary: The D1 ruling from EPIC-23 — when a derived key (e.g. an epic read from a card face's `epic:` field) is null or missing, the dispatch fails loud (throws, naming the actor) rather than proceeding un-substituted; and "byte-identical" in an acceptance criterion governs the enumerated fields, not the dispatch's occurrence.
 aliases: [derived key posture, fail-loud derived key, null epic posture, D1 ruling]
 tags: [pi-council/concept, pi-council/process]
-sources: ["[[2026-09-24-epic23-run-ledger]]", "[[2026-09-24-epic24-run-ledger]]"]
+sources: ["[[2026-09-24-epic23-run-ledger]]", "[[2026-09-24-epic24-run-ledger]]", "[[2026-09-25-epic25-run-ledger]]"]
 created: 2026-09-24
-updated: 2026-09-24
+updated: 2026-09-25
 ---
 
 # Derived-Key Refusal Posture
@@ -63,6 +63,16 @@ current corpus and red exactly when the scoping changes a derivation
 ([[engineering-board]]). Two residuals were filed from the live run: FLLWUP-117
 (the throw-site JSDoc drift) and FLLWUP-118 (the shared `FRONTMATTER_RE` byte-0
 anchor). Witness: [[2026-09-24-epic24-run-ledger]].
+
+## EPIC-25 witness (2026-09-25) — the fixture faces repaired
+
+FLLWUP-119 repaired the `EPIC-*` smoke-fixture card faces so `cardEpicKey` no
+longer throws on them: their frontmatter resolves a key, and the SMOKE_PHASE=7
+live falsifier reached its first seat dispatch without the EV-2 workaround. This
+closes the FLLWUP-114 `closed-red` probe (`cardEpicKey(EPIC-1)` threw) that the
+D1 fail-loud posture had made visible. Two residuals remain (FLLWUP-122
+real-harness stale-ctx pin, FLLWUP-123 post-merge live re-run), now under
+EPIC-26. Witness: [[2026-09-25-epic25-run-ledger]].
 
 ## Related
 

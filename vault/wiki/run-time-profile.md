@@ -4,9 +4,9 @@ type: concept
 summary: The measured time profile of council/features-deliver runs — ~52% model latency / ~44% tool, ~80% of tool time in serial single-child council_wait, ~1.4-1.7x session parallelism, and a median ~260 s runner cold start — the audit that motivated EPIC-23.
 aliases: [run time profile, time audit, latency profile, council run cost]
 tags: [pi-council/concept, pi-council/hub]
-sources: ["[[2026-09-24-epic23-run-ledger]]", "[[2026-09-24-epic24-run-ledger]]"]
+sources: ["[[2026-09-24-epic23-run-ledger]]", "[[2026-09-24-epic24-run-ledger]]", "[[2026-09-25-epic25-run-ledger]]"]
 created: 2026-09-24
-updated: 2026-09-24
+updated: 2026-09-25
 ---
 
 # Run-Time Profile
@@ -70,6 +70,15 @@ implementation alone held a 45-minute dispatch that outlived the card's
 `timeout_minutes`. Keeping a long runner alive is still the
 [[hub-job-supervision]] window invariant. Witness:
 [[2026-09-24-epic24-run-ledger]].
+
+## EPIC-25 witness (2026-09-25) — the batch shape
+
+The batch override ([[batch-runner-topology]]) ran five cards through one
+container: ~4h wall and ≈$1.9 catalogue subtree, dominated by the owner phase
+(four owner dispatches; the largest alone ≈$0.60). It is the serial model at the
+card-batch grain — one runner, one PR/CI run, no cross-card concurrency — with
+the per-card verification cost collapsed into one skeptic + one judge. Witness:
+[[2026-09-25-epic25-run-ledger]].
 
 ## Related
 

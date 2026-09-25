@@ -4,9 +4,9 @@ type: concept
 summary: The periodic, human-directed maintenance of the accumulated FLLWUP backlog — curation (merge near-duplicates content-preservingly, keep the lower id; retire dead cards, which need a named reason since no `Retired` state exists) followed by grouping the survivors into thematic close-out epics — plus the standing hazard that follow-up cards go stale silently.
 aliases: [follow-up curation, backlog curation, follow-up cleanup, followup backlog, merge or retire, follow-up grouping, close-out epic]
 tags: [pi-council/concept, pi-council/board, pi-council/followups]
-sources: ["[[2026-09-23-fllwup-backlog-cleanup]]", "[[2026-09-23-fllwup-epic-grouping]]", "[[2026-09-24-epic23-run-ledger]]", "[[2026-09-24-epic24-run-ledger]]"]
+sources: ["[[2026-09-23-fllwup-backlog-cleanup]]", "[[2026-09-23-fllwup-epic-grouping]]", "[[2026-09-24-epic23-run-ledger]]", "[[2026-09-24-epic24-run-ledger]]", "[[2026-09-25-epic25-run-ledger]]"]
 created: 2026-09-23
-updated: 2026-09-24
+updated: 2026-09-25
 ---
 
 # Follow-Up Backlog Curation
@@ -132,6 +132,16 @@ the grouping happened **at closure**, not in a later curation pass — the stewa
 strategy row ("ending the run") now carries it. Only the `epic:` field moved on
 the five cards; the board line for EPIC-24 moved to `Done` and EPIC-25 took its
 `Backlog` slot. Witness: [[2026-09-24-epic24-run-ledger]].
+
+## EPIC-25 → EPIC-26 (2026-09-25) — the re-home is now routine
+
+The batch run closed EPIC-25 `Done` on its named acceptance and created
+**EPIC-26** for the two open residuals (FLLWUP-122, FLLWUP-123), re-pointing
+their `epic:` field in the same record push. This is the third consecutive
+close-out re-home (EPIC-23→24, EPIC-24→25, EPIC-25→26): creating a fresh home
+for the residual batch rather than leaving children under a `Done` epic is now
+the standing closure step, not an exception. The dropped watch-only third
+candidate left FLLWUP-124 unallocated. Witness: [[2026-09-25-epic25-run-ledger]].
 
 ## Related
 
