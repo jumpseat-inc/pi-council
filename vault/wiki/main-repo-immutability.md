@@ -4,9 +4,9 @@ type: concept
 summary: No seat and no runner may run git checkout/switch/reset against the main repository path — branch state changes happen only in a dedicated worktree — enforced at three layers after two incidents corrupted board records.
 aliases: [main repo immutability, branch-state immutability, worktree-only rule, main-repo immutability]
 tags: [pi-council/concept, pi-council/process]
-sources: ["[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-25-epic25-run-ledger]]"]
+sources: ["[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-25-epic25-run-ledger]]", "[[2026-09-28-council-worktree-discipline]]"]
 created: 2026-09-06
-updated: 2026-09-25
+updated: 2026-09-28
 ---
 
 # Main-Repo Immutability
@@ -14,8 +14,11 @@ updated: 2026-09-25
 The rule that protects the [[engineering board]]'s durable state from the
 agents that work on the repo: **`git checkout`, `git switch`, and
 `git reset` are forbidden against the main repository path**; any branch
-state change happens in a dedicated worktree (under the repo's
-`.worktrees/`), and a violation is a `HALT`, not a warning.
+state change happens in a dedicated worktree, and a violation is a `HALT`,
+not a warning. Since 2026-09-28 that worktree is created and removed through
+`council/scripts/worktree.sh` under the canonical root `.pi/council/worktrees/`
+([[council-worktree-discipline]]) — **not** the older `.worktrees/` default
+this page previously named (superseded, flagged below).
 
 ## The incidents that made it a rule
 
@@ -56,6 +59,19 @@ record commits are intact objects — restore main from the reflog, verify
 documents the drill; it was executed twice this run and both times lost
 nothing but time.
 
+## The canonical worktree root (2026-09-28)
+
+The rule says *a* worktree, never *where*. The worktree-discipline run closed
+that gap: the sanctioned location is `.pi/council/worktrees/<slug>/`, created
+and removed only through `council/scripts/worktree.sh`, with a per-card reap
+plus a session-start sweep and a `worktree.sh check` residual gate. See
+[[council-worktree-discipline]].
+
+> ⚠️ **Contradiction flagged, not overwritten.** This page formerly said the
+dedicated worktree lived "under the repo's `.worktrees/`". That claim is
+**superseded** by the canonical root — the sentence above was corrected and
+the old location is now only the superpowers skill's unowned default.
+
 ## Beyond the main checkout: the red-at-base worktree (FLLWUP-47)
 
 The red-base evidence convention ([[red-base evidence]], field 5) extends
@@ -85,6 +101,8 @@ in the main checkout. Witness: [[2026-09-25-epic25-run-ledger]].
 
 ## Related
 
+- [[council-worktree-discipline]] — the canonical root + script this rule now
+  relies on
 - [[engineering board]] — the state being protected
 - [[union-merge-reconcile]] — the reconcile hazard a leaked untracked file creates
 - [[verification-subject pinning]] — the dispatch-input re-statement pattern
@@ -100,6 +118,7 @@ in the main checkout. Witness: [[2026-09-25-epic25-run-ledger]].
 ## Sources
 
 - [[2026-09-06-epic6-close-run-ledger]]
+- [[2026-09-28-council-worktree-discipline]] — the canonical root + lifecycle
 - [[2026-09-22-epic15-run-ledger]] — the leaked-untracked-file hazard
 - `council/agents/council-runner.md`, `council/agents/owner.md`,
   `council/agents/skeptic.md`, `council/agents/judge.md`

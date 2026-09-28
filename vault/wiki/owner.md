@@ -4,9 +4,9 @@ type: entity
 summary: The Council's engineering voice and the single implementing seat — turns agreed specs into plans, implements in a worktree, clears all four gates to a PR.
 aliases: [owner seat]
 tags: [pi-council/seat]
-sources: ["[[2026-08-23-pi-council-design-spec]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]"]
+sources: ["[[2026-08-23-pi-council-design-spec]]", "[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-28-council-worktree-discipline]]"]
 created: 2026-08-23
-updated: 2026-09-20
+updated: 2026-09-28
 ---
 
 > ⚠️ Derived from `council/agents/owner.md` @ `df3...` (captured 2026-08-23). Verify against the seat file.
@@ -61,6 +61,8 @@ classification: that bit is the skeptic's derivation ([[skeptic]]).
 - [[skeptic]] — the adversary who attacks the owner's branch
 - [[council-config]] — default model/thinking override
 - [[main-repo immutability]] — the worktree-only rule the seat body carries
+- [[council-worktree-discipline]] — the canonical root + `worktree.sh` the shared
+  `<main_repo_immutability>` block now names (and the base-red removal command)
 - [[red-base evidence]] — the seven-field record the seat body's shared block
   obligates the owner to write
 - [[2026-09-17-po-fllwup47-step6-ruling]] — the ruling that settled the

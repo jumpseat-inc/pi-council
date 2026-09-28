@@ -4,9 +4,9 @@ type: concept
 summary: The on-disk substrate that makes every council run navigable — per-job manifests and seat session JSONL under .pi/council/runs/, a job forest built from manifests, and the /council-tree + ctrl+shift+t live surface that reads it (inline below-editor as of EPIC-2).
 aliases: [run transcripts, runs, run manifests, transcript viewer, session jsonl]
 tags: [pi-council/concept]
-sources: ["[[2026-08-25-smoke-test-bugfixes]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-21-usages-design]]"]
+sources: ["[[2026-08-25-smoke-test-bugfixes]]", "[[2026-08-26-po-ev8-ruling]]", "[[2026-08-26-po-ev9-tiny-regime-floor]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-15-epic8-run-ledger]]", "[[2026-09-21-usages-design]]", "[[2026-09-28-council-worktree-discipline]]"]
 created: 2026-08-25
-updated: 2026-09-21
+updated: 2026-09-28
 ---
 
 # Run Transcripts
@@ -31,7 +31,8 @@ of every seat at any nesting depth, live or after the fact.
   session id.
 - **Self-ignoring** — `runs/` carries its own `.gitignore` (`*`), so transcripts
   are never committed (see [[smoke-test]] — the harness reads them as dispatch
-  evidence).
+  evidence). Since 2026-09-28 the sibling `.pi/council/worktrees/` root uses the
+  same self-ignoring pattern ([[council-worktree-discipline]]).
 - **Retention** — `pruneRuns` keeps the last **15** runs, dropping dead-PID ones
   at parent `session_start`. Ephemeral telemetry, not durable state. **The
   durable [[usage-store]] is the deliberate exception** — its records live at
@@ -112,6 +113,8 @@ activated palette and **repaints live on mid-session theme change** via
 
 ## Related
 
+- [[council-worktree-discipline]] — the sibling self-ignoring substrate (`.pi/council/worktrees/`)
+- [[main-repo immutability]] — why seats need isolated worktrees at all
 - [[hub-job-supervision]], [[seats]], [[smoke-test]]
 - [[council-job-tree-inline]] — the EPIC-2 inline below-editor surface (EV-7/8/9) that reads this substrate; supersedes the v0.11.4 modal presentation
 - [[transcript-unit-rendering]] — the EPIC-8 composed tool-call unit rendered over these blocks
@@ -130,3 +133,4 @@ activated palette and **repaints live on mid-session theme change** via
 - `docs/superpowers/plans/2026-08-24-council-transcript-navigator.md`
 - [[2026-08-25-council-tree-modal]]
 - [[2026-08-26-po-ev8-ruling]], [[2026-08-26-po-ev9-tiny-regime-floor]]
+- [[2026-09-28-council-worktree-discipline]] — the sibling substrate

@@ -1,5 +1,21 @@
 # Wiki Log
 
+## [2026-09-28] ingest | council worktree discipline — one root, one script
+
+Ingested the `/goal` run that made council worktrees single-rooted and
+script-driven (commit `934fb78`, spec
+`docs/superpowers/specs/2026-09-28-council-worktrees-design.md`). Created
+[[council-worktree-discipline]] (concept) and
+[[2026-09-28-council-worktree-discipline]] (source). Updated
+[[main-repo immutability]] (**contradiction flagged**: its `.worktrees/` root is
+superseded by `.pi/council/worktrees/` + `worktree.sh`), [[non-clobbering-scaffold]]
+(any-`.sh` render predicate, third tooling file), [[council-update]],
+[[run-transcripts]] (sibling self-ignoring substrate), [[verification-subject pinning]],
+[[red-base evidence]] (field 5), and the [[owner]] / [[judge]] / [[skeptic]] /
+[[council-runner]] / [[council-loop]] pages. Key takeaway: the council had no
+worktree lifecycle at all — three stray locations and ~40 residents — and the fix
+is one script plus a per-card reap and session-start sweep.
+
 ## [2026-09-25] lint | cross-link repair + stale-claim sweep
 
 Full `vault/wiki/` pass. **Mechanical fixes:** (1) a wrong-prefix wikilink in

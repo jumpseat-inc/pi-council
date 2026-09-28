@@ -4,9 +4,9 @@ type: entity
 summary: The fresh-context stop-condition evaluator — returns PASS/REJECT against a card's stated goal, deliberately sharing no context with the seats that produced the work.
 aliases: [judge seat]
 tags: [pi-council/seat]
-sources: ["[[2026-09-06-epic6-close-run-ledger]]"]
+sources: ["[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-28-council-worktree-discipline]]"]
 created: 2026-08-23
-updated: 2026-09-06
+updated: 2026-09-28
 ---
 
 > ⚠️ Derived from `council/agents/judge.md` (captured 2026-08-23). Verify against the seat file.
@@ -60,6 +60,7 @@ has not recurred since the pinning landed.
 - [[owner]] — the implementer it evaluates
 - [[council-config]] — default model/thinking override
 - [[verification-subject pinning]] — the dispatch-input contract naming what it verifies
+- [[council-worktree-discipline]] — the canonical root + `worktree.sh` behind the pinned head worktree
 - [[2026-09-04-epic3-run-ledger]] — the confabulated-REJECT re-dispatch precedent
 - [[2026-09-06-epic6-close-run-ledger]] — the subject pinning + immutability block
 

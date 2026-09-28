@@ -4,9 +4,9 @@ type: concept
 summary: The facilitator-run deliberation → implement → verify → judge loop over a board card, bounded by round caps, token ceilings, gate discipline, and a human merge gate.
 aliases: [council loop, council run, deliberation loop]
 tags: [pi-council/concept]
-sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-04-epic5-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]"]
+sources: ["[[2026-08-24-bugfix-seat-prose]]", "[[2026-09-04-epic4-run-ledger]]", "[[2026-09-04-epic5-run-ledger]]", "[[2026-09-11-epic7-run-ledger]]", "[[2026-09-28-council-worktree-discipline]]"]
 created: 2026-08-23
-updated: 2026-09-20
+updated: 2026-09-28
 ---
 
 > ⚠️ Derived from `council/procedures/council.md` + `council-runner.md` (captured 2026-08-23). Verify against the procedure files.
@@ -124,6 +124,7 @@ repo-specific gate file (see [[2026-08-24-bugfix-seat-prose]]).
 
 - [[engineering-board]], [[seats]], [[preflight]], [[council-dependencies]]
 - [[facilitator]] — the routing role this procedure instantiates
+- [[council-worktree-discipline]] — not a step, but a pinned invariant: step 12 reaps the card's worktree
 - [[2026-08-23-pi-council-design-spec]]
 
 ## Sources

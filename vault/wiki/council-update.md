@@ -4,9 +4,9 @@ type: concept
 summary: /council-update — the FLLWUP-50 consent-gated refresh path for packaged council tooling in an initialized consumer repo, backed by the scaffold.json provenance record and a once-per-drift session-start notice.
 aliases: [council update, package refresh, tooling refresh, scaffold provenance, scaffold.json, /council-update]
 tags: [pi-council/concept]
-sources: ["[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-19-po-fllwup50-step6-ruling]]"]
+sources: ["[[2026-09-18-epic9-residual-run-2-ledger]]", "[[2026-09-19-po-fllwup50-step6-ruling]]", "[[2026-09-28-council-worktree-discipline]]"]
 created: 2026-09-20
-updated: 2026-09-20
+updated: 2026-09-28
 ---
 
 FLLWUP-50 gave an initialized consumer repo a **supported refresh path** for the
@@ -39,15 +39,19 @@ ask-once bootstrap.
 - `--accept <path>` accepts `~ diverged` files, one at a time.
 - A timestamped backup precedes every write.
 
-Only **tooling-class** files are ever written: `council/validate.py` and
-`council/cards/_template.md`. Data-class scaffold files — the board, cards other
+Only **tooling-class** files are ever written: `council/validate.py`,
+`council/cards/_template.md`, and (since 2026-09-28)
+`council/scripts/worktree.sh`. Data-class scaffold files — the board, cards other
 than `_template.md`, `vault/**`, `.council.json`, `preflight.sh`, `mcp.json` —
 are never written. This is AGENTS.md convention #6's single sanctioned
-non-clobbering exception (see [[2026-08-23-agents]]).
+non-clobbering exception (see [[2026-08-23-agents]]). The tooling class is a
+shipped constant in `TOOLING_FILES`; the T4 set-equality guard reds when a new
+scaffold file is not deliberately classified ([[2026-09-28-council-worktree-discipline]]).
 
 ## Related
 
 - [[non-clobbering-scaffold]] — the invariant this is the consented exception to
+- [[council-worktree-discipline]] — the third tooling file (`scripts/worktree.sh`)
 - [[engineering-board]] — `validate.py` and `_template.md` are the tooling class
 - [[2026-09-18-epic9-residual-run-2-ledger]] — the run that shipped FLLWUP-50
 - [[2026-09-19-po-fllwup50-step6-ruling]] — the ruling that settled the mechanism

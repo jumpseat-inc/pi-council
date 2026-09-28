@@ -4,9 +4,9 @@ type: concept
 summary: The convention fixing what a falsifier's red-at-base evidence record must contain (seven fields) and how records are compared across cards (the comparison triple gates count comparison; the mechanism-absent boundary is skeptic-derived, never owner-written).
 aliases: ["red-at-base evidence", "red-base convention", "red-base evidence"]
 tags: [pi-council/concept, pi-council/process, pi-council/epic9]
-sources: ["[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-22-epic10-run-ledger]]"]
+sources: ["[[2026-09-17-po-fllwup47-step6-ruling]]", "[[2026-09-22-epic10-run-ledger]]", "[[2026-09-28-council-worktree-discipline]]"]
 created: 2026-09-18
-updated: 2026-09-22
+updated: 2026-09-28
 ---
 
 # Red-Base Evidence
@@ -42,9 +42,12 @@ not normative).
    error / skip) and every per-failure line, never paraphrased. Counts alone
    are not checkable; the per-failure lines are what a reader derives the
    mechanism-absent boundary from.
-5. **Worktree provenance** — a detached checkout at the base sha in a separate
-   worktree; the main checkout is never touched ([[main-repo immutability]]);
-   the worktree is removed after the run.
+5. **Worktree provenance** — a detached checkout at the base sha, created
+   with `council/scripts/worktree.sh create <slug> --detach --base <sha>`; the
+   main checkout is never touched ([[main-repo immutability]]); the worktree is
+   removed after the run with `council/scripts/worktree.sh remove <slug>
+   --force` (the transplant makes it dirty by construction) — the canonical
+   root + script are [[council-worktree-discipline]].
 6. **Copy set** — everything placed in the base worktree beyond the transplant
    itself, or the affirmative statement "bare copy". When two records' copy
    sets differ, their numbers were never the same experiment.
@@ -136,6 +139,7 @@ a detached worktree) or name that it could not be. Witness:
 - [[gate-parity]] — why the boundary is enforced at reproduction, not
   persistence
 - [[main-repo immutability]] — field 5's worktree-only requirement
+- [[council-worktree-discipline]] — the canonical root + `worktree.sh` that field 5 now names
 - [[product-owner]] — the step-6 ruling that settled the open-judgment items
 - [[llm-wiki]] — this page is grounding prose; the normative surface is the
   seat bodies

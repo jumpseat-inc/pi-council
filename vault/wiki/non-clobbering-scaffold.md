@@ -4,9 +4,9 @@ type: concept
 summary: `/council-init` copies the council/ and vault/ data trees and default mcp.json into a consumer repo, never overwriting — re-runs are no-ops and user edits always win.
 aliases: [scaffold, council-init]
 tags: [pi-council/concept]
-sources: ["[[2026-08-23-council-json-override]]", "[[2026-08-24-ask-user-question]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-21-usages-design]]", "[[2026-09-22-fix-shape-witness-segment-liveness]]", "[[2026-09-22-epic15-run-ledger]]"]
+sources: ["[[2026-08-23-council-json-override]]", "[[2026-08-24-ask-user-question]]", "[[2026-09-21-epic14-run-ledger]]", "[[2026-09-21-usages-design]]", "[[2026-09-22-fix-shape-witness-segment-liveness]]", "[[2026-09-22-epic15-run-ledger]]", "[[2026-09-28-council-worktree-discipline]]"]
 created: 2026-08-23
-updated: 2026-09-22
+updated: 2026-09-28
 ---
 
 > ⚠️ Derived from `extensions/index.ts` (`council-init`), `extensions/scaffold.ts`, and the scaffold assets (captured 2026-08-23). Verify against `scaffold.ts`.
@@ -28,8 +28,11 @@ Copies `<package>/council/scaffold/…` → `<repo>/`, recursing directories and
 copying files **only when the destination does not exist**. Existing files are
 reported in `skipped` and left byte-for-byte untouched.
 
-- **`preflight.sh`** is special-cased: its `@CONFIG_DIR@` placeholders are
-  rendered in at copy time.
+- **Shell scripts** are rendered: any file whose name ends `.sh` (today
+  `preflight.sh` and `council/scripts/worktree.sh`) has its `@CONFIG_DIR@`
+  placeholders substituted at copy time. `isRenderedScaffoldFile` is the one
+  predicate `scaffoldInto` and [[council-update|`packagedBytes`]] must share, or
+  refresh digests diverge.
 - **`.council.json`** — seeded at the repo root with every seat's default
   model + thinking (split out of frontmatter), so a fresh repo gets a
   discoverable tuning file (see [[council-config]]). Also non-clobbering.
@@ -50,7 +53,8 @@ consumers and silently misses every existing one. The rule this produced (EV-76,
 belongs on a packaged, override-resolved path** — a packaged procedure or tool
 (for the run-start gate-credential check, the `council_preflight` tool invoked by
 `council/procedures/council.md` step 0 and `features-deliver.md` Phase 0), not in
-a scaffold-copied script. Tooling-class files (`validate.py`, `cards/_template.md`)
+a scaffold-copied script. Tooling-class files (`validate.py`,
+`cards/_template.md`, and since 2026-09-28 `scripts/worktree.sh`)
 are the consent-gated exception, refreshed only by [[council-update]].
 
 ## Engine-synthesized copies: the usages skill (2026-09-21)
@@ -93,6 +97,7 @@ procedure); a consumer-editable *copy* is for logic the consumer may own, and
 - [[council-dependencies]], [[engineering-board]], [[pi-council-overview]]
 - [[council-config]] — the scaffolded .council.json (v0.7.0)
 - [[council-update]] — the consent-gated refresh path for tooling-class files
+- [[council-worktree-discipline]] — the `.sh` render predicate widened for `worktree.sh`
 - [[preflight]] — the scaffold-vs-packaged reach distinction (EPIC-14)
 - [[2026-08-23-council-json-override]], [[2026-08-23-pi-council-design-spec]] (council-init section)
 
@@ -100,3 +105,4 @@ procedure); a consumer-editable *copy* is for logic the consumer may own, and
 
 - `extensions/scaffold.ts`, `extensions/index.ts`
 - `council/scaffold/**`
+- [[2026-09-28-council-worktree-discipline]] — the `.sh` render predicate + third tooling file

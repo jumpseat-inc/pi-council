@@ -4,9 +4,9 @@ type: concept
 summary: Judge and skeptic dispatch inputs must name the exact verification subject (PR head SHA + head worktree path) and the loop frame (judging/verification precede the mechanical merge the facilitator executes) — an empty or vague subject produces verdicts about the wrong tree.
 aliases: [verification-subject pinning, verification subject pinning, subject pinning, judge dispatch subject, skeptic dispatch subject, verification subject]
 tags: [pi-council/concept, pi-council/process]
-sources: ["[[2026-09-06-epic6-close-run-ledger]]"]
+sources: ["[[2026-09-06-epic6-close-run-ledger]]", "[[2026-09-28-council-worktree-discipline]]"]
 created: 2026-09-06
-updated: 2026-09-20
+updated: 2026-09-28
 ---
 
 # Verification-Subject Pinning
@@ -24,6 +24,12 @@ skeptic dispatch input names
 Without the frame, a judge reads a goal verb like "receive" as requiring
 the merge and rejects a healthy PR for not being merged yet. Without the
 subject, it verifies whichever tree its cwd happens to contain.
+
+Since 2026-09-28 the head worktree path is **deterministic**: the worktree is
+created through `council/scripts/worktree.sh` under the canonical
+`.pi/council/worktrees/` root ([[council-worktree-discipline]]), so the pinned
+artifact is a stable, script-derived path rather than whichever ad-hoc
+`.worktrees/<slug>` or `/tmp` location a seat happened to pick.
 
 ## The incident class
 
@@ -66,6 +72,7 @@ corrected facts.
 ## Related
 
 - [[main-repo immutability]] — the sibling dispatch-input constraint
+- [[council-worktree-discipline]] — the canonical root behind the pinned worktree path
 - [[judge]] — the seat being pinned
 - [[skeptic]] — the other seat being pinned
 - [[council-runner]] — the composer of the dispatch inputs
