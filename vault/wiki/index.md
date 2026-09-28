@@ -151,7 +151,7 @@ _(none yet)_
 - [[2026-09-20-po-fllwup58-step13-confirmation]] — The census re-derivation: 19 compact-form sites, true floor 52, ~1-minute headroom, merged into card FLLWUP-70.
 - [[2026-09-17-po-fllwup47-step6-ruling]] — The FLLWUP-47 product-owner ruling that settled the red-base evidence convention (R1–R6) and carried the true EV-41 causal story; the source of [[red-base evidence]].
 - [[2026-08-23-readme]] — README: makes the author's "prompted instead of prompting" project.
-- [[2026-08-23-agents]] — AGENTS.md: the 13 hard conventions + repo operating rules.
+- [[2026-08-23-agents]] — AGENTS.md: the 14 hard conventions + repo operating rules.
 - [[2026-08-23-pi-council-design-spec]] — Design of the pi-council package.
 - [[2026-08-23-mcp-support-design-spec]] — Design of the MCP subsystem (v0.2.0).
 - [[2026-08-23-pi-council-implementation-plan]] — V0.1.0 build-out runbook.

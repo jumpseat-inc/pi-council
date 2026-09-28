@@ -17,6 +17,7 @@ import * as path from "node:path";
 import { execFile } from "node:child_process";
 import { CONFIG_DIR_NAME } from "@earendil-works/pi-coding-agent";
 import { writeAtomic, sumSubtree, readManifests, type RunManifest, type Usage } from "./runs.ts";
+import { evalScratchDir } from "./worktrees.ts";
 import { loadFixture, sha256Tree, type LoadedFixture, type Rubric } from "./eval-fixtures.ts";
 import {
 	gradeCell,
@@ -418,7 +419,7 @@ export interface RunCellAndGradeOpts {
  * dispatch (scoredUnder/graderModel invariant).
  */
 export async function runCellAndGrade(o: RunCellAndGradeOpts): Promise<void> {
-	const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "council-eval-"));
+	const scratch = evalScratchDir(o.repoRoot, o.cellId, o.repeat);
 	fs.cpSync(o.seedDir, scratch, { recursive: true });
 	try {
 		// spawn the cell driver with cwd=scratch (the dispatch primitive; the

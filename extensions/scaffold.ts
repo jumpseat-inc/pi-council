@@ -14,7 +14,8 @@ export interface ScaffoldResult {
  *
  * `tooling` files are the refresh-writable class: executed-by-path packaged
  * tooling with no sanctioned consumer-edit story (today exactly
- * `council/validate.py` + `council/cards/_template.md`). Everything else in
+ * `council/validate.py` + `council/cards/_template.md` +
+ * `council/scripts/worktree.sh`). Everything else in
  * the scaffold tree is `data` — report-only, never written by the refresh
  * path (board, cards, vault/**, .council.json, and preflight.sh, whose own
  * "adapt to your project" header is the design evidence).
@@ -23,7 +24,11 @@ export interface ScaffoldResult {
  * `tooling ∪ data == the walked scaffold file set`, so a newly-shipped
  * scaffold file reds the suite until it is classified (default: data).
  */
-export const TOOLING_FILES: readonly string[] = ["council/cards/_template.md", "council/validate.py"];
+export const TOOLING_FILES: readonly string[] = [
+	"council/cards/_template.md",
+	"council/validate.py",
+	"council/scripts/worktree.sh",
+];
 export const DATA_FILES: readonly string[] = [
 	".council.json",
 	"council/board.md",
@@ -86,6 +91,15 @@ export function renderScaffoldText(content: string): string {
 	return content.replace(/\@CONFIG_DIR@/g, RENDER["@CONFIG_DIR@"] ?? "");
 }
 
+/** Scaffold files whose text carries `@CONFIG_DIR@` and must be rendered at
+ * copy time. Any shell script may need the resolved config dir (today
+ * `preflight.sh` and `council/scripts/worktree.sh`). `scaffoldInto` and
+ * `council-update`'s `packagedBytes` MUST agree on this predicate or the
+ * refresh digests diverge. */
+export function isRenderedScaffoldFile(name: string): boolean {
+	return name.endsWith(".sh");
+}
+
 /** Version stamped into the provenance record; best-effort ("unknown" when
  * scaffoldRoot does not sit inside a package — e.g. ad-hoc test trees). */
 function scaffoldPackageVersion(scaffoldRoot: string): string {
@@ -138,7 +152,7 @@ export function scaffoldInto(repoRoot: string, scaffoldRoot: string, options: Sc
 					fs.mkdirSync(path.dirname(dst), { recursive: true });
 					const srcPath = path.join(src, entry.name);
 					let bytes: Buffer;
-					if (entry.name === "preflight.sh") {
+					if (isRenderedScaffoldFile(entry.name)) {
 						bytes = Buffer.from(renderScaffoldText(fs.readFileSync(srcPath, "utf-8")), "utf-8");
 						fs.writeFileSync(dst, bytes);
 					} else {

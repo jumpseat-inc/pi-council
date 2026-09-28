@@ -343,7 +343,10 @@ the main repository path are forbidden — inside your own turn and inside
 every seat run you dispatch — and a violation is a `HALT` condition on the
 card. Any branch state change (moving a branch pointer, checking out a
 commit, switching branches, rewinding history) happens in a dedicated worktree
-created with `git worktree add`, never against the main checkout.
+created with `council/scripts/worktree.sh create`, never against the main
+checkout and never with a raw `git worktree add`. Every council worktree
+lives under the canonical root the script owns (`.pi/council/worktrees/`) —
+do not invent a path.
 Repeat this constraint in every dispatch input you compose for a working
 seat: a seat that mutates the main repo's branch state can revert the board
 and card records that the runner is the single writer of, and recovery from

@@ -210,9 +210,9 @@ test("T-A parser fidelity: the tolerant parser extracts every marker from real A
 		const lbl = l.match(/^[ \t]*(\d+(?:\.\d+)?)\./)![1]!;
 		expect(tokens.some((t) => t.label === lbl)).toBe(true);
 	}
-	// Multi-line bold leads survived (the file's 13th token lead spans a newline).
-	const last = tokens[tokens.length - 1]!;
-	expect(last.lead).toContain("\n");
+	// Multi-line bold leads survived (the file's 13th convention lead spans a newline).
+	const c13 = tokens.find((t) => t.label === "13");
+	expect(c13?.lead).toContain("\n");
 });
 
 test("T-B green on the real pair: diffConventions(AGENTS.md, page) == [] and the index site matches", () => {
@@ -253,8 +253,9 @@ test("T-C red-honesty: each in-memory mutation of the real page yields a named f
 	});
 	expect(diffConventions(agents, case4).some((f) => f.site === "labels")).toBe(true);
 
-	// 5. wrong count token: page bold sentence "twelve" → page-body site
-	const case5 = page.replace(/\*\*thirteen hard conventions\*\*/, "**twelve hard conventions**");
+	// 5. wrong count token: page bold sentence → page-body site (generic
+	//    mutation; the real word is derived from the page, not hardcoded)
+	const case5 = page.replace(/\*\*[a-z]+ hard conventions\*\*/, "**one hard conventions**");
 	expect(diffConventions(agents, case5).some((f) => f.site === "page-body count token")).toBe(true);
 });
 

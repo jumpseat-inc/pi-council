@@ -20,6 +20,7 @@ export { renderProcedure };
 import { activateTheme } from "./theme-activation.ts";
 import { watchCouncilConfig, type CouncilConfigWatcher } from "./theme-watcher.ts";
 import { mintRunId, pruneRuns } from "./runs.ts";
+import { sweepCouncilWorktrees } from "./worktrees.ts";
 import { recordInvocationBoundary } from "./spend.ts";
 import { formatUsageBlock } from "./usage-block.ts";
 import {
@@ -791,6 +792,19 @@ export default async function (pi: ExtensionAPI) {
 	}
 	initHubIdentity(mintRunId());
 		pruneRuns(repoRoot);
+		// Canonical worktree root: sweep leftovers a crashed or interrupted run
+		// leaked. Non-force — a dirty/unpushed leftover is reported for the human,
+		// never deleted. Absent script (older consumer) is a no-op.
+		try {
+			const sweep = sweepCouncilWorktrees(repoRoot);
+			if (sweep.ran && sweep.status !== 0) {
+				const message = `council: leftover worktrees need attention (dirty/unpushed) — ${sweep.output}`;
+				if (ctx.hasUI) ctx.ui.notify(message, "warning");
+				else console.log(message);
+			}
+		} catch {
+			// never blocks a session
+		}
 		// Composed hub onChange: widget refresh + the EV-31 gated usage write
 		// (forest-settle trigger). The gate decides, not the event — a mid-turn
 		// onChange with an unsettled forest is a no-op.
@@ -1042,7 +1056,7 @@ export default async function (pi: ExtensionAPI) {
 
 	pi.registerCommand("council-update", {
 		description:
-			"Update packaged council tooling (council/validate.py, council/cards/_template.md) to the installed version — never touches your board, cards, or wiki; data files (incl. council/preflight.sh) are reported, never written; dry-run by default (--apply writes 'behind' files; hand-edited files need per-file --accept)",
+			"Update packaged council tooling (council/validate.py, council/cards/_template.md, council/scripts/worktree.sh) to the installed version — never touches your board, cards, or wiki; data files (incl. council/preflight.sh) are reported, never written; dry-run by default (--apply writes 'behind' files; hand-edited files need per-file --accept)",
 		handler: async (args, ctx) => {
 			const emit = (line: string) => {
 				if (ctx.hasUI) ctx.ui.notify(line, "info");
@@ -1083,7 +1097,7 @@ export default async function (pi: ExtensionAPI) {
 				for (const row of plan.rows) lines.push(`  ${REFRESH_GLYPHS[row.state]} ${row.rel} — ${refreshRowNote(row)}`);
 				lines.push("");
 				// P9: the output alone answers "what is this command allowed to touch?"
-				lines.push("Allowed to write: council/validate.py, council/cards/_template.md (the tooling class) — only with your consent.");
+				lines.push("Allowed to write: council/validate.py, council/cards/_template.md, council/scripts/worktree.sh (the tooling class) — only with your consent.");
 				lines.push(
 					"Never written: your board, cards, vault/ wiki, .council.json, mcp.json. council/preflight.sh: check for drift — adapted copies are reported, never written.",
 				);

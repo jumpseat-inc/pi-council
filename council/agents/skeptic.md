@@ -113,9 +113,11 @@ checking comparability is a defective verification.
    error / skip) and every per-failure line, never paraphrased. Counts
    alone are not checkable; the per-failure lines are what a reader
    derives the mechanism-absent boundary from.
-5. **Worktree provenance** — a detached checkout at the base sha in a
-   separate worktree; the main checkout is never touched; the worktree is
-   removed after the run.
+5. **Worktree provenance** — a detached checkout at the base sha created
+   with `council/scripts/worktree.sh create <slug> --detach --base <sha>`; the
+   main checkout is never touched; the worktree is removed after the run with
+   `council/scripts/worktree.sh remove <slug> --force` (the transplant makes it
+   dirty by construction).
 6. **Copy set** — everything placed in the base worktree beyond the
    transplant itself, or the affirmative statement "bare copy". When two
    records' copy sets differ, their numbers were never the same
@@ -192,7 +194,10 @@ The main repository path's branch state is immutable to you. `git checkout`,
 — inside your own turn — and a violation is a `HALT` condition on the card.
 Any branch state change (moving a branch pointer, checking out a commit,
 switching branches, rewinding history) happens in a dedicated worktree
-created with `git worktree add`, never against the main checkout. A seat
+created with `council/scripts/worktree.sh create`, never against the main
+checkout and never with a raw `git worktree add`. Every council worktree
+lives under the canonical root the script owns (`.pi/council/worktrees/`) —
+do not invent a path. A seat
 that mutates the main repo's branch state can revert the board and card
 records that the runner is the single writer of, and recovery from that
 failure class is a reflog drill, not a normal step.

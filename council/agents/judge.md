@@ -63,7 +63,10 @@ The main repository path's branch state is immutable to you. `git checkout`,
 — inside your own turn — and a violation is a `HALT` condition on the card.
 Any branch state change (moving a branch pointer, checking out a commit,
 switching branches, rewinding history) happens in a dedicated worktree
-created with `git worktree add`, never against the main checkout. A seat
+created with `council/scripts/worktree.sh create`, never against the main
+checkout and never with a raw `git worktree add`. Every council worktree
+lives under the canonical root the script owns (`.pi/council/worktrees/`) —
+do not invent a path. A seat
 that mutates the main repo's branch state can revert the board and card
 records that the runner is the single writer of, and recovery from that
 failure class is a reflog drill, not a normal step.

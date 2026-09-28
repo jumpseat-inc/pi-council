@@ -87,7 +87,8 @@ docs/superpowers/    design spec + implementation plan (read before big changes)
    data (a consumer's board and wiki must survive reinstalls). The one
    sanctioned non-clobbering exception is `/council-update`'s consent-gated
    refresh write path (FLLWUP-50): it writes only tooling-class files
-   (`council/validate.py`, `council/cards/_template.md`), only after an
+   (`council/validate.py`, `council/cards/_template.md`,
+   `council/scripts/worktree.sh`), only after an
    explicit consent act (`--apply` for `↑ behind` files; per-file `--accept`
    for `~ diverged` ones), with a timestamped backup first. Data-class
    scaffold files — board, cards other than `_template.md`, `vault/**`,
@@ -136,6 +137,15 @@ docs/superpowers/    design spec + implementation plan (read before big changes)
 13. **Local gate evidence is trusted only after `council/preflight.sh`
     passes on the current tree** — prefer rerunning preflight over trusting
     local-gate evidence to skip it.
+14. **Council worktrees are single-rooted and script-driven.** Every
+    worktree is created and removed through `council/scripts/worktree.sh`
+    under the canonical root `<repo>/$CONFIG_DIR_NAME/council/worktrees/`
+    (self-ignoring, like `runs/`). Raw `git worktree add` is banned in the
+    council prompt; the script refuses uncommitted/unpushed removal without
+    `--force`; leftovers are swept at parent `session_start` and named by
+    `worktree.sh check`. The script is a scaffolded tooling-class file, so
+    `TOOLING_FILES` classifies it. Spec:
+    `docs/superpowers/specs/2026-09-28-council-worktrees-design.md`.
 
 ## Commits
 

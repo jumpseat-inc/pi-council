@@ -59,6 +59,25 @@ settled dispatch, not a failed one — cancel the lingering job, verify
 the artifacts yourself, and move on; the re-dispatch rule is for seats
 that produced no output, not for seats that outlived their usefulness.
 
+## Worktree discipline
+
+Every worktree this run creates goes through
+`bash council/scripts/worktree.sh` — never a raw `git worktree add`. The
+script owns the canonical root (`.pi/council/worktrees/<slug>`), computes it
+from the repo, and is the only sanctioned create/remove path:
+
+- `create <slug> [--branch <name>] [--base <ref>] [--detach]` — idempotent;
+  prints the worktree path.
+- `remove <slug> [--force]` — refuses uncommitted or unpushed work unless
+  `--force`; the branch is never deleted.
+- `check` — fails on any resident council worktree; `sweep` removes leftovers.
+
+A worktree created for a card is removed once the card reaches a terminal
+outcome (step 12). Throwaway detached base-red worktrees are removed with
+`--force` in the seat turn that made them. A parent session start sweeps any
+leftover. Never relocate a worktree outside this root, and never leave one
+behind.
+
 ## 0. Preflight
 
 First invoke the `council_preflight` tool on the repo root. It checks the
@@ -374,6 +393,14 @@ before the run's first record push. The authorization is run-scoped and is
 not extended to any later run. Without such a recorded authorization, the
 direct record push must not happen; executing it anyway is a **HALT
 surfaced to the human** — not a bypass, and never silently executed.
+
+**Reap the card's worktree.** Once the card is `Done` and the record commit
+is pushed, the worktree is no longer needed: remove it with
+`bash council/scripts/worktree.sh remove $ARGUMENTS`. The branch survives —
+the merged PR is the artifact. If the run is abandoned before `Done`, remove
+whatever worktree it created the same way; a crash that skips this is caught
+by the next session-start sweep, and `bash council/scripts/worktree.sh check`
+names any residue.
 
 ## 13. Card the follow-ups
 

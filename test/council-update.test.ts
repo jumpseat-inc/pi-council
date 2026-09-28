@@ -122,13 +122,17 @@ test("T4: TOOLING_FILES ∪ DATA_FILES == the walked scaffold file set, disjoint
 	const classified = [...TOOLING_FILES, ...DATA_FILES].sort();
 	expect(classified).toEqual(walked);
 	expect(new Set([...TOOLING_FILES, ...DATA_FILES]).size).toBe(classified.length);
-	expect([...TOOLING_FILES].sort()).toEqual(["council/cards/_template.md", "council/validate.py"]);
+	expect([...TOOLING_FILES].sort()).toEqual([
+		"council/cards/_template.md",
+		"council/scripts/worktree.sh",
+		"council/validate.py",
+	]);
 	expect(DATA_FILES).toContain("council/preflight.sh"); // data-class by design
 	expect(DATA_FILES).toContain("council/board.md"); // protected class is real
 });
 
-test("T4b: no engine-side reclassification — tooling class is a shipped constant of exactly two files", () => {
-	expect(TOOLING_FILES.length).toBe(2);
+test("T4b: no engine-side reclassification — tooling class is a shipped constant of exactly three files", () => {
+	expect(TOOLING_FILES.length).toBe(3);
 });
 
 test("T8a: parity-pin awareness — 10 validate.py copies ship today and 16 fixture seeds carry treeDigest", () => {
@@ -232,10 +236,18 @@ function recordFor(root: string, rel: string): { sha256: string; packageVersion:
 test("T1 bootstrap: no record → diverged plan; consented accept refreshes tooling, touches nothing else, records new digests", () => {
 	const { root, originals } = seedConsumerNoRecord();
 
-	// dry-run: plan reports both tooling files diverged (bootstrap carve), writes nothing
+	// dry-run: plan reports both PRE-EXISTING tooling files diverged (bootstrap carve),
+	// writes nothing. Newly-shipped scaffold files are created by the creation pass
+	// and report unchanged (the worktree.sh case).
 	const plan = planRefresh(root, SCAFFOLD);
 	const toolingRows = plan.rows.filter((r) => r.tooling);
-	expect(toolingRows.map((r) => r.state).sort()).toEqual(["diverged", "diverged"]);
+	expect(
+		toolingRows
+			.filter((r) => r.state !== "unchanged")
+			.map((r) => r.state)
+			.sort(),
+	).toEqual(["diverged", "diverged"]);
+	expect(plan.rows.find((r) => r.rel === "council/scripts/worktree.sh")?.state).toBe("unchanged");
 	for (const rel of TOOLING) {
 		expect(fs.readFileSync(consumerPath(root, rel), "utf-8")).not.toBe(packagedBytes(rel).toString());
 	}

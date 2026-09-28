@@ -1,7 +1,7 @@
 /**
  * FLLWUP-50 — the /council-update engine: a supported, consent-gated refresh
  * path for the packaged council tooling class (council/validate.py +
- * council/cards/_template.md) in an initialized consumer repo.
+ * council/cards/_template.md + council/scripts/worktree.sh) in an initialized consumer repo.
  *
  * Spec: docs/superpowers/specs/2026-09-19-FLLWUP-50-design.md (R1–R6,
  * steward Q2 + lifecycle policy). The invariants that shape this file:
@@ -29,6 +29,7 @@ import { spawnSync } from "node:child_process";
 import { CONFIG_DIR_NAME } from "@earendil-works/pi-coding-agent";
 import { PKG_ROOT } from "./seats.ts";
 import {
+	isRenderedScaffoldFile,
 	readScaffoldRecord,
 	renderScaffoldText,
 	scaffoldInto,
@@ -62,7 +63,7 @@ export interface RefreshPlan {
 /** Packaged bytes for a scaffold rel, exactly as scaffoldInto would write them. */
 export function packagedBytes(scaffoldRoot: string, rel: string): Buffer {
 	const raw = fs.readFileSync(path.join(scaffoldRoot, ...rel.split("/")), "utf-8");
-	return Buffer.from(path.basename(rel) === "preflight.sh" ? renderScaffoldText(raw) : raw, "utf-8");
+	return Buffer.from(isRenderedScaffoldFile(path.basename(rel)) ? renderScaffoldText(raw) : raw, "utf-8");
 }
 
 function walkScaffoldFiles(scaffoldRoot: string): string[] {

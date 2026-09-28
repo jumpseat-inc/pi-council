@@ -32,6 +32,17 @@ A local board is with you with a backlog where you can dump ideas through epics 
 
 A council consisting of different functions and a diverse LLM model selection to keep the deliberation diverse. Arguments are cheap, the council proves their arguments with tests and codes.
 
+### Worktrees
+
+Every council worktree is created and removed through
+`bash council/scripts/worktree.sh` under one canonical root,
+`.pi/council/worktrees/` (self-ignoring). The script is the only supported
+create/remove path — `create <slug>`, `remove <slug> [--force]`, `list`,
+`check`, `sweep` — and refuses to remove a worktree with uncommitted or
+unpushed work unless `--force` is passed. A card's worktree is removed once
+the card is merged; a parent session start sweeps any leftovers a crashed
+run leaked, and `worktree.sh check` names any residue.
+
 ## Installing
 
 Install it once and any repository gets the full workflow:
@@ -195,7 +206,7 @@ plain text (they carry no color to go stale).
 | Command                            | What it does                                                              |
 | ---------------------------------- | ------------------------------------------------------------------------- |
 | `/council-init`                    | Scaffold the council/ + vault/ trees (never overwrites); installs superpowers + ask-user-question project-locally |
-| `/council-update`                  | Update packaged council tooling (`validate.py`, `_template.md`) to the installed version — never touches your board, cards, or wiki; dry-run by default |
+| `/council-update`                  | Update packaged council tooling (`validate.py`, `_template.md`, `scripts/worktree.sh`) to the installed version — never touches your board, cards, or wiki; dry-run by default |
 | `/council [card-id]`               | Run the full deliberation → owner → verify → judge loop on a card         |
 | `/board-create-card <desc>`        | Draft a new board card, confirm with you, file it                         |
 | `/features-new <feature>`          | The feature is deliberated by product-owner, designer, principal, and skeptic in a bounded three-wave session; nothing reaches the board until you approve the draft set |
@@ -274,6 +285,7 @@ manages are throwaway:
 | `.pi/git/`                      | pi's clone of this package — the extension itself, with its own `node_modules` | **ignore** |
 | `.pi/npm/`                      | pi's project-local npm installs (the ask-user-question extension)              | **ignore** |
 | `.pi/council/.pids.json`        | transient hub runtime state                                                    | **ignore** |
+| `.pi/council/worktrees/`        | council git worktrees + eval scratch (self-ignored; removed at run end)        | **ignore** |
 
 Ignore exactly the harness and transient state:
 
